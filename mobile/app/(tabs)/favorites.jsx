@@ -1,5 +1,5 @@
 import { View, Text, Alert, ScrollView, TouchableOpacity, FlatList } from "react-native";
-import { useClerk, useUser } from "@clerk/clerk-expo";
+import { useAuth } from "../../context/AuthContext";
 import { useEffect, useState } from "react";
 import { API_URL } from "../../constants/api";
 import { favoritesStyles } from "../../assets/styles/favorites.styles";
@@ -10,8 +10,7 @@ import NoFavoritesFound from "../../components/NoFavoritesFound";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
 const FavoritesScreen = () => {
-  const { signOut } = useClerk();
-  const { user } = useUser();
+  const { signOut, user } = useAuth();
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 

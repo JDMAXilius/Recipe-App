@@ -1,7 +1,7 @@
 import { View, Text, Alert, ScrollView, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/clerk-expo";
+import { useAuth } from "../../context/AuthContext";
 import { API_URL } from "../../constants/api";
 import { MealAPI } from "../../services/mealAPI";
 import LoadingSpinner from "../../components/LoadingSpinner";
@@ -23,7 +23,7 @@ const RecipeDetailScreen = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const { user } = useUser();
+  const { user } = useAuth();
   const userId = user?.id;
 
   useEffect(() => {

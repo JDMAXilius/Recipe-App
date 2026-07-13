@@ -1,7 +1,8 @@
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { ENV } from "./env.js";
 import * as schema from "../db/schema.js";
 
-const sql = neon(ENV.DATABASE_URL);
+// prepare: false is required for Supabase's transaction-mode pooler
+const sql = postgres(ENV.DATABASE_URL, { prepare: false });
 export const db = drizzle(sql, { schema });
