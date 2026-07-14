@@ -23,8 +23,11 @@ A small **river otter chef**. Warm, capable, quietly delighted by food. The stor
 | Alt hero (approved alternate) | Candidate C | `92cf0f1c-0bf3-41d8-99c1-9cb0bbe9f5b8` | [PNG](https://d8j0ntlcm91z4.cloudfront.net/user_3F2pTx5PGN5wbaAnefPnE17SwfD/hf_20260714_144111_92cf0f1c-0bf3-41d8-99c1-9cb0bbe9f5b8.png) |
 | **Turnaround** (front/side/back) | Take 1 | `470c6b41-ee55-4ca8-8bec-6e7a30ded144` | [PNG](https://d8j0ntlcm91z4.cloudfront.net/user_3F2pTx5PGN5wbaAnefPnE17SwfD/hf_20260714_145709_470c6b41-ee55-4ca8-8bec-6e7a30ded144.png) |
 | **Expression sheet** (6 states) | Take 1 | `90bb70d5-2c01-4d16-9cd9-c22cb0ac4c0a` | [PNG](https://d8j0ntlcm91z4.cloudfront.net/user_3F2pTx5PGN5wbaAnefPnE17SwfD/hf_20260714_145735_90bb70d5-2c01-4d16-9cd9-c22cb0ac4c0a.png) |
+| **Scene set** (cooking/floating/loading/empty) | — | `6346faf3-77f9-4712-88e4-cc9c500ec828` | [PNG](https://d8j0ntlcm91z4.cloudfront.net/user_3F2pTx5PGN5wbaAnefPnE17SwfD/hf_20260714_154458_6346faf3-77f9-4712-88e4-cc9c500ec828.png) |
+| **App icon** (option A) | — | `02953cca-9aa5-43c6-84fa-6e8bbd42694f` | [PNG](https://d8j0ntlcm91z4.cloudfront.net/user_3F2pTx5PGN5wbaAnefPnE17SwfD/hf_20260714_154502_02953cca-9aa5-43c6-84fa-6e8bbd42694f.png) |
+| **App icon** (option B) | — | `249941cb-6f21-4f95-98f5-2f3f7382be3a` | [PNG](https://d8j0ntlcm91z4.cloudfront.net/user_3F2pTx5PGN5wbaAnefPnE17SwfD/hf_20260714_154502_249941cb-6f21-4f95-98f5-2f3f7382be3a.png) |
 
-> ⚠️ These are CDN URLs from the generation service — **download and commit the PNGs into `mobile/assets/mascot/`** before relying on them long-term (CDN links can expire). Asset filenames: `otto-hero.png`, `otto-turnaround.png`, `otto-expressions.png`.
+> ⚠️ These are CDN URLs from the generation service. The session egress policy blocks that CDN, so binaries are **not yet committed** — download locally and place in `mobile/assets/mascot/` (filenames + instructions in that folder's `README.md`). Do this before relying on them long-term (CDN links can expire).
 
 ## 3. Visual definition
 
@@ -110,7 +113,8 @@ studio's logo or named style.
 
 ### 7.2 Remaining asset backlog
 
-- [ ] Scene set: cooking at a pot · floating on back holding a dish · napping on a ladle · staring at empty bowl
-- [ ] Flat/simplified derivative for small UI (tab icon, favicon, app icon)
-- [ ] App icon lockup (face crop on terracotta or cream field)
-- [ ] Niche recolors (Phase 2)
+- [x] Scene set: cooking · floating on back with dish · napping with ladle (loading) · empty bowl (empty) — `6346faf3…`
+- [x] App icon lockup (face bust on terracotta field) — options A `02953cca…` / B `249941cb…` (pick one)
+- [ ] Slice expression sheet + scene set into individual transparent PNGs for in-app use
+- [ ] Flat/simplified vector derivative for very small UI (tab icon at 24px)
+- [ ] Niche recolors (Phase 2): Lean/Keto/Bulk apron + prop swaps

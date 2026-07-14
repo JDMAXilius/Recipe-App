@@ -1,101 +1,78 @@
-const coffeeTheme = {
-  primary: "#8B593E",
-  background: "#FFF8F3",
-  text: "#4A3428",
-  border: "#E5D3B7",
-  white: "#FFFFFF",
-  textLight: "#9A8478",
-  card: "#FFFFFF",
-  shadow: "#000000",
-};
+// Design system — "Otto" (see docs/DESIGN_SYSTEM.md)
+// Tokens derived from the otter-chef mascot's palette: terracotta apron (accent),
+// chestnut fur (secondary), cream belly/world (surfaces), warm ink.
+//
+// Each theme exposes BOTH the legacy keys the existing screens already use
+// (primary, background, text, textLight, border, white, card, shadow, gray)
+// AND the richer design-system keys (accent, accentSoft, secondary, gold,
+// bg, surface, surfaceWarm, ink, inkSoft). New components should prefer the
+// design-system keys via useTheme(); legacy keys keep the current screens working.
 
-const forestTheme = {
-  primary: "#2E7D32",
-  background: "#E8F5E9",
-  text: "#1B5E20",
-  border: "#C8E6C9",
-  white: "#FFFFFF",
-  textLight: "#66BB6A",
-  card: "#FFFFFF",
-  shadow: "#000000",
-};
-
-const purpleTheme = {
-  primary: "#6A1B9A",
-  background: "#F3E5F5",
-  text: "#4A148C",
-  border: "#D1C4E9",
-  white: "#FFFFFF",
-  textLight: "#BA68C8",
-  card: "#FFFFFF",
-  shadow: "#000000",
-};
-
-const oceanTheme = {
-  primary: "#0277BD",
-  background: "#E1F5FE",
-  text: "#01579B",
-  border: "#B3E5FC",
-  white: "#FFFFFF",
-  textLight: "#4FC3F7",
-  card: "#FFFFFF",
-  shadow: "#000000",
-};
-
-const sunsetTheme = {
-  primary: "#FF7E67",
-  background: "#FFF3F0",
-  text: "#2C1810",
-  border: "#FFD5CC",
-  white: "#FFFFFF",
-  textLight: "#FFA494",
-  card: "#FFFFFF",
-  shadow: "#000000",
-};
-
-const mintTheme = {
-  primary: "#00B5B5",
-  background: "#E8F6F6",
-  text: "#006666",
-  border: "#B2E8E8",
-  white: "#FFFFFF",
-  textLight: "#66D9D9",
-  card: "#FFFFFF",
-  shadow: "#000000",
-};
-
-const midnightTheme = {
-  primary: "#2C3E50",
-  background: "#F4F6F7",
-  text: "#1A2530",
-  border: "#D5D8DC",
-  white: "#FFFFFF",
-  textLight: "#7F8C8D",
-  card: "#FFFFFF",
-  shadow: "#000000",
-};
-
-const roseGoldTheme = {
-  primary: "#E0BFB8",
-  background: "#FDF6F5",
-  text: "#4A3B38",
-  border: "#F2D9D5",
-  white: "#FFFFFF",
-  textLight: "#C9A9A6",
-  card: "#FFFFFF",
-  shadow: "#000000",
-};
+// Build a full token set (light + dark) from a niche accent.
+// Neutrals stay warm and shared across niches — only the accent changes.
+const makeTheme = ({ accent, accentSoft, accentDark, accentSoftDark }) => ({
+  light: {
+    // brand
+    primary: accent,
+    accent,
+    accentSoft,
+    secondary: "#8A5A3B", // chestnut fur
+    gold: "#E8B04B", // golden light — ratings, streaks, celebrations
+    // surfaces
+    background: "#FAF4EA",
+    bg: "#FAF4EA",
+    card: "#FFFFFF",
+    surface: "#FFFFFF",
+    surfaceWarm: "#F3E9DA", // cream belly — grouped rows, wells
+    white: "#FFFFFF",
+    // ink
+    text: "#2A211B",
+    ink: "#2A211B",
+    textLight: "#6E6055",
+    inkSoft: "#6E6055",
+    // lines & misc
+    border: "#E8DECF",
+    gray: "#B9A895", // disabled / muted warm grey
+    shadow: "#2A211B",
+  },
+  dark: {
+    // warm espresso — never grey-black, so the mascot's world holds at night
+    primary: accentDark,
+    accent: accentDark,
+    accentSoft: accentSoftDark,
+    secondary: "#B98A66",
+    gold: "#E8B04B",
+    background: "#1E1712",
+    bg: "#1E1712",
+    card: "#2A211B",
+    surface: "#2A211B",
+    surfaceWarm: "#332822",
+    white: "#FFFFFF", // stays white: text on colored buttons / gradients
+    text: "#F3E9DA",
+    ink: "#F3E9DA",
+    textLight: "#B9A895",
+    inkSoft: "#B9A895",
+    border: "#3E322A",
+    gray: "#6E6055",
+    shadow: "#000000",
+  },
+});
 
 export const THEMES = {
-  coffee: coffeeTheme,
-  forest: forestTheme,
-  purple: purpleTheme,
-  ocean: oceanTheme,
-  sunset: sunsetTheme,
-  mint: mintTheme,
-  midnight: midnightTheme,
-  roseGold: roseGoldTheme,
+  base: makeTheme({ accent: "#C4562E", accentSoft: "#F3D9CD", accentDark: "#E0774E", accentSoftDark: "#4A2E20" }),
+  lean: makeTheme({ accent: "#10B3A3", accentSoft: "#CDEEEA", accentDark: "#3FD0C1", accentSoftDark: "#123C38" }),
+  keto: makeTheme({ accent: "#2E8B4E", accentSoft: "#D2E9D8", accentDark: "#54B473", accentSoftDark: "#153A24" }),
+  bulk: makeTheme({ accent: "#F5793B", accentSoft: "#FBE0D2", accentDark: "#FB9160", accentSoftDark: "#4A2C1C" }),
 };
 
-// 👇 change this to switch theme
-export const COLORS = THEMES.purple;
+// Functional nutrition colors — FIXED, never re-skinned by theme or niche.
+// Fat = purple is the one convention shared by MyFitnessPal + Lifesum (see MOBBIN_COMPARISON.md).
+export const NUTRITION_COLORS = {
+  protein: "#3B82F6", // blue
+  carbs: "#F0A020", // amber
+  fat: "#8B5CF6", // purple
+};
+
+// Static default export for the many screens that still import COLORS directly.
+// The base app in light mode. For reactive theming use useTheme() from context/ThemeContext.
+export const COLORS = THEMES.base.light;
