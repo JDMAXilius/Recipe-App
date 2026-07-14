@@ -34,12 +34,14 @@ NODE_ENV=development
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+# Backend base URL — optional; defaults to http://localhost:5001/api.
+# Set to your machine's LAN IP (physical device) or a deployed backend URL.
+EXPO_PUBLIC_API_URL=http://localhost:5001/api
 ```
 
-> **Note:** The mobile app talks to the backend at the URL defined in
-> `mobile/constants/api.js` (defaults to `http://localhost:5001/api`). If you run
-> the app on a physical device, update that value to your machine's LAN IP or a
-> deployed backend URL.
+> **Note:** The mobile app talks to the backend at `EXPO_PUBLIC_API_URL`
+> (read in `mobile/constants/api.js`, falling back to `http://localhost:5001/api`).
+> Restart Expo after changing `.env` — `EXPO_PUBLIC_*` vars are inlined at build time.
 
 ---
 

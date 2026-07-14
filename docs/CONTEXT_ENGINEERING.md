@@ -243,8 +243,10 @@ API_URL=<self_url_for_cron_keepalive>   # used by cron.js in production
 ```
 EXPO_PUBLIC_SUPABASE_URL=<supabase_project_url>
 EXPO_PUBLIC_SUPABASE_ANON_KEY=<supabase_anon_key>
+EXPO_PUBLIC_API_URL=<backend_base_url>   # optional; defaults to http://localhost:5001/api
 ```
-Backend base URL for the app is **not** an env var — it's hardcoded in `mobile/constants/api.js`.
+Backend base URL comes from `EXPO_PUBLIC_API_URL` (read in `mobile/constants/api.js`,
+localhost fallback). `EXPO_PUBLIC_*` vars are inlined at build time — restart Expo after edits.
 
 **Run**
 ```bash
@@ -258,7 +260,7 @@ cd mobile && npm install && npx expo start
 
 ## 11. Known gotchas / tech debt (read before "fixing" things)
 
-1. **`API_URL` hardcoded to `http://localhost:5001/api`.** Breaks on physical devices. Should be env-driven (`EXPO_PUBLIC_API_URL`) with a LAN/deployed fallback.
+1. ~~**`API_URL` hardcoded to `http://localhost:5001/api`.**~~ **Fixed (F2):** now env-driven via `EXPO_PUBLIC_API_URL` with the localhost fallback (see §10).
 2. **Backend has zero auth/authorization.** Any client can read/modify any user's favorites by passing a `userId`. No Supabase JWT verification. Fine for a tutorial, not production.
 3. **No runtime theme switching** despite 8 themes existing (see §8).
 4. **`cookTime`/`servings` are fabricated** in `transformMealData` (`"30 minutes"`, `4`). Any "prep time" shown is not real data.
