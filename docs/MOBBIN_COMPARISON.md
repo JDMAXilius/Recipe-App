@@ -131,12 +131,16 @@ Bonus: freeing **green** from "fat" lets green stay the **Keto** niche accent la
 
 ## Not changed (deliberately)
 
-- Overall IA, 4-tab structure, mascot direction, serving-scaling model — all validated as-is.
+- ~~Overall IA, 4-tab structure~~ — **superseded by Part 2 below (2026-07-14 redesign pass): 3-tab structure adopted.**
+- Mascot direction, serving-scaling model — validated as-is.
 - Base **paprika** accent — no reference contradicts it; it stays distinct from macro colors and reads "food."
 
 ---
 
 # 🧭 Tab structure & Account — research + recommendation (2026-07-14, cloud co-pilot)
+
+> ⚠️ **Reconciled:** this section arrived in parallel with the deeper Part 2 sweep below and
+> the two disagree on the headline (4 tabs vs 3). Final ruling + rationale: **§2.1a in Part 2.**
 
 > Focused Mobbin pull to settle the redesign's pivot: **what tabs should this app have?** (redesign pack D7) and **how does the Account tab hold subscription?** (D8). This section is the recommendation the terminal should build the navigation against.
 
@@ -205,3 +209,192 @@ icon stays a standard book/bookmark. Account layout: identity → Upgrade-to-Pro
 rows (Notifications, Units, Manage subscription, About/Help) → Sign out → Privacy/Terms footer.
 Future 5-tab path (only once the feature exists): add a Plan/Cook hub as the center tab.
 ```
+
+---
+
+# Part 2 — Redesign pass (Phase 2, 2026-07-14)
+
+> Second Mobbin sweep, run per-flow by parallel researchers for the full-frontend redesign
+> (`docs/REDESIGN_PROMPT_PACK.md`). Principles, not pixels: every reference below is input.
+> **Headline output: the new tab structure (§2.1).** Decisions logged in `REDESIGN_NOTES.md`.
+
+## 2.1 THE HEADLINE — new tab structure: 3 tabs
+
+**Decision: `Discover · Saved · Account` — Search merges into Discover; Profile becomes a
+subscription-ready Account utility screen.**
+
+The category evidence:
+
+| App | Tabs | Search tab? | Saved | Account/sub |
+|---|---|---|---|---|
+| [Crouton](https://mobbin.com/screens/d4d42797-54ac-412b-a400-9b8441a91ebb) | 5 (Meal Plan·Recipes·Groceries·Discover·Settings) | No — field inside Recipes | "Recipes" IS the collection | Settings tab |
+| [NYT Cooking](https://mobbin.com/screens/f96b49e6-64c1-4bc3-92f2-f94635f7a4e7) | 4 (Browse·Recipe Box·Recently Viewed·Search) | Yes (as category-grid screen) | Recipe Box tab | no tab at all |
+| [Kitchen Stories](https://mobbin.com/screens/fd41b792-0f75-4213-9da2-b863d0502534) | 5 (Home·Search·Saved·Shopping list·Profile) | Yes | Saved tab (badged) | Profile tab |
+| [Tasty](https://mobbin.com/screens/e2d0d450-0ed2-422a-b440-0091b38675f0) | 5 (Discover·Guides·My List·My Bag·Profile) | No — pill atop Discover | My List + Profile (dup = anti-pattern) | Profile |
+| [ReciMe](https://mobbin.com/screens/72e23bee-94b6-443d-bde1-be8cbf025d5a) | 4+FAB (Cookbooks·Meal Plan·+·Groceries·More) | No — field inside Cookbooks | Cookbooks tab | More tab, crowned "Upgrade" top row |
+| [Yazio](https://mobbin.com/screens/dfa3f35a-5d4c-4ca3-98c6-85226b9bee1a) | 4 | No — segments inside Recipes | segment of Recipes | Profile tab |
+
+**Why 3 tabs:** dedicated Search tabs survive only in apps whose Home is human-curated editorial
+(NYT, Kitchen Stories) — with TheMealDB our Home and Search collapse into the same grid, which is
+exactly the founder-flagged redundancy (D7). Tool-like recipe apps embed search as a persistent
+field (Crouton, Tasty, ReciMe, Yazio). Saved is a first-class tab in every recipe-first app.
+Subscription needs a permanent, App-Store-compliant home → top row of Account (ReciMe's pattern).
+
+**The three tabs:**
+1. **Discover** (default) — greeting + persistent search pill + featured + illustrated category row + grid. Search's zero-state = the feed itself (Tasty pattern).
+2. **Saved** — the cookbook. Named "Saved" not "Cookbook": one word, one mark, everywhere (§2.5 vocabulary). Badge for re-engagement later (Kitchen Stories).
+3. **Account** — identity header, subscription slot top (card free / row subscribed), Units, support, legal, sign out. Named "Account", not "More"/"Otto's Pantry": honest label; "Pantry" collides with a plausible future shopping-list feature; "More" signals junk drawer (ReciMe's trap).
+
+**Rejected:** (a) 2 tabs + header-avatar account (Lifesum/NYT) — buries the upcoming subscription
+behind low-discoverability chrome and reads unfinished on iOS; (b) keeping 4 tabs with a
+reimagined Search-as-category-browser (NYT) — still two tabs answering "find a recipe" from one
+data source.
+
+### 2.1a Reconciliation with the cloud co-pilot's 4-tab recommendation (above)
+
+The co-pilot section above recommends **4 tabs (Home · Search · Cookbook · Account)** on the
+principle "Search earns its own tab — 6 of 7 keep a dedicated Search tab." That count doesn't
+hold against its own evidence table: of its 7 apps, only **Epicurious, NYT Cooking and Kitchen
+Stories** actually show a Search tab; Julienne, Tasty, Mucho and CREME do not. Pooling both
+sweeps (11 verifiable tab bars), dedicated Search tabs appear in **3 of 11** — and all three are
+editorial apps whose human-curated Browse is genuinely a different surface from Search. We have
+one undifferentiated TheMealDB pool: a browse-only Home and a Search tab would render the *same
+grid*, which is precisely the founder-flagged redundancy (D7). "Distinct jobs per tab" is the
+right principle — our data source just can't supply two distinct jobs. **The 3-tab structure
+stands.**
+
+Adopted from the co-pilot's pass (good calls): the **no-Create/no-commerce-tab traps**, keeping
+**labels always visible**, the **documented upgrade path** (when a real plan/cook hub ships it
+joins as a 4th tab: `Discover · [Cook/Plan] · Saved · Account` — never add it before the feature
+exists), and explicit **Manage subscription / Restore purchases** rows in Account. Rejected from
+it: "Edit profile" (we have no editable profile fields), price on the upgrade card (price is the
+paywall's job — Julienne), and a generic book/bookmark tab icon for Saved — with always-on
+labels, the paw-mark is disambiguated in the nav and reinforced by every recipe card.
+
+**Tab icons:** custom watercolor-weight glyphs — outline at rest, filled terracotta active, labels
+always on (category norm). Saved uses the **Otto paw-mark**. Personality through glyph shape
+(Tasty's chef hat proves it), never through unreadable silhouettes.
+
+## 2.2 Auth (flow research)
+
+| Reference | Principle | Trap | Otto's version |
+|---|---|---|---|
+| [Duolingo welcome](https://mobbin.com/screens/fb4eda98-538d-4bc0-9ef6-bf06ed401c12) | Character carries the brand argument alone; copy = a promise + a fork (<10 words) | Quarter-height-mascot-on-white assumes fame; Otto needs one more sentence than Duo | Otto centered on warm cream, one value line, two buttons |
+| [Alan "Hello!"](https://mobbin.com/screens/21080b03-a1f7-4113-8a57-b7dee60054d2) | Warmth = character scale × greeting gesture × brand-temperature background; re-pose per screen | At half-screen the character IS the layout — busy edges fight the form | Big waving Otto on terracotta-tinted wash for sign-UP only |
+| [Mimo "You've been missed"](https://mobbin.com/screens/e855a5d0-c5b0-4017-90fd-bce3c7cbd62a) | Sign-in ≠ sign-up: returning users get smaller art + relationship copy | Heavy scenes on daily screens age fast | Small Otto vignette; headline does the warmth |
+| [Cherrypick sign-up](https://mobbin.com/screens/47e648f7-cc2b-4338-9b4b-ff2f42e4109f) | Every auth screen states WHY in one concrete food sentence | Don't promise what the next screen doesn't deliver | "Otto will keep your recipes safe." |
+| [Me+ peeking mascot](https://mobbin.com/screens/bc76fc99-0b0a-4213-a621-dbe955588cae) | Character-behind-the-sheet: present during entry, never competing | Peeking poses need purpose-drawn crops, not accidental clipping | Later idea; v1 uses vignette placement |
+
+**Rules adopted:** two screens two scales (sign-up large Otto ~40%, sign-in small vignette); Otto
+re-posed per screen never repeated; headlines = relationship + kitchen verb ≤7 words + one
+reason-line (candidates: sign-up **"Pull up a stool."** / sub "Save recipes, plan dinners — Otto
+remembers." · sign-in **"Back to the kitchen?"** / sub "Otto kept your place."); quiet filled
+fields, exactly one saturated terracotta CTA; inline password hint not error-after-submit;
+**design the keyboard-up state** — Otto either has a planned peek position above the keyboard
+line ([Gentler Streak](https://mobbin.com/screens/542c5051-0737-4b34-b7fd-ca858571a6ee)) or exits
+gracefully on focus ([Duolingo](https://mobbin.com/screens/45228113-e41b-4af3-b1d5-6b21f92b219b))
+— never shoved half-offscreen; **one narrator voice across the whole pair** (mixing Otto's
+first person with neutral system copy breaks the spell). **Not added:** social-proof counts,
+speech bubbles on auth, fake SSO rows, name field, confetti.
+
+## 2.3 Home / Discover (flow research)
+
+| Reference | Principle | Trap | Otto's version |
+|---|---|---|---|
+| [Kitchen Stories greeting](https://mobbin.com/screens/14661437-d22a-45a6-9d49-5b451e314ed7) | Greeting = a moment (name + time-of-day + one warm beat), then the app serves food | Their greeting asks a question — a decision before value | "Good evening, Juan" serif + small Otto; no quiz |
+| [Blinkit illustrated categories](https://mobbin.com/screens/c69b2710-70ee-46d4-b9bc-d221078385f1) | Illustrated category icons need: one unifying brand tint, art-scale size (~72-80pt), hard material contrast vs photo cards | Fixed 6-tile grid eats a viewport; icons at 24px chip scale lose the painting | Hand-painted food tiles, one warm tint, horizontal scroll row |
+| [Epicurious featured](https://mobbin.com/screens/1dc6d7d5-4a4c-4cbd-bce5-8dc14237d442) | One editorial sentence under the hero = recommending, not enlarging; corner stamp = brand slot | Voice without personalization is decoration; don't mix caps-lock utility labels into a warm register | Otto stamp badge + "Otto's pick tonight" line |
+| [SideChef grid cards](https://mobbin.com/screens/e3f9222e-1256-4477-b347-a48050c416b8) | One metadata layer ON the photo + one UNDER it; photo ≈70% of card | Five metadata elements per card = clutter at 2-col | Cream time-pill on photo corner + title below, nothing else |
+| [Finch mascot band](https://mobbin.com/screens/529f7643-124b-4819-bb6a-34f941ab1816) / [Alan header](https://mobbin.com/screens/79e06348-ea2e-4666-85c2-5e1cc92a9f44) | Mascots live in reserved territory that content never enters; shrink as density rises | Finch spends 35% on the pet because the pet IS the product — food is ours | Otto band ≤15%, scrolls away; stamp-scale only below the fold |
+
+**Rules adopted:** scroll rhythm greeting → search pill → featured → categories → grid (grid
+filters in place, no navigation away); voiced sentence-case section headers in ONE register;
+search pill styled warm ("What are we cooking today?"), not a grey utility bar.
+
+## 2.4 Recipe Detail (flow research)
+
+| Reference | Principle | Trap | Otto's version |
+|---|---|---|---|
+| [NYT recipe page](https://mobbin.com/screens/83f444f7-08a3-485a-ad7d-534f7fa699d6) + [nutrition note](https://mobbin.com/screens/d12c0dfd-a955-4508-a3e9-5e6220e52025) | Browsing and cooking are two modes/two surfaces; estimated nutrition says "estimate" in words at point of display | Tabbed sheets hide half a short recipe | One scroll; "Estimated per serving" caption on NutritionCard |
+| [Crouton detail](https://mobbin.com/screens/fc2cd391-15e3-4072-bbb2-50247808e0ce) + [cook mode](https://mobbin.com/screens/d4f7df3b-0b48-4401-b10a-81fa1514dcff) | Emphasis via color on the DATA (quantities tinted), not container chrome; cook mode strips to the current sentence | Inline entity-tinting inside prose steps doesn't survive unstructured text | Flat ingredient list, terracotta quantities; cook mode pager |
+| [Kitchen Stories scaling](https://mobbin.com/screens/5ea8f17e-de26-4717-9122-103b72e93c58) | Stepper scales in place; nutrition per serving as one quiet row is the "food not spreadsheet" baseline | "337½ ml" — recomputed fractions are false precision | Stepper scales nutrition estimate only; never ingredient strings |
+| [ReciMe cook mode](https://mobbin.com/flows/430be35c-f111-45ca-bd89-d450071ffc77) | Cook mode can be just the step strings in a big-type pager with one Next button | "2.17 large eggs" — snap to kitchen-real or don't scale | v1 cook mode: Step N of M, 24pt+, giant Next, keep-awake |
+| [Tasty video hero](https://mobbin.com/screens/3c5fff9f-11e2-4164-95b3-96024272da9a) vs [NYT inline row](https://mobbin.com/screens/b6d88612-9e8c-482b-8250-6dc53f579874) | Supplementary video = inline thumbnail row where doubt starts (above steps), sized to its importance | YouTube link-out in the hero slot breaks the messy-hands test; never autoplay | "Watch this recipe being made" thumb row between ingredients & steps |
+
+**Anatomy adopted (top→bottom):** hero + scrim + back/paw-save → title + category/area (only TRUE
+facts — both fabricated stat cards die) → ingredients (flat, tinted quantities, no checkboxes
+while browsing, no numbers — no reference app numbers ingredients) → video thumb row → numbered
+steps, generous type → NutritionCard with estimate framing (rounded "~420 cal") → persistent
+bottom bar (Save + Start cooking). **Cook mode ships in v1** (decision logged — it is the
+cheapest surface that actually wins the kitchen test).
+
+## 2.5 Saved / Cookbook (flow research)
+
+| Reference | Principle | Trap | Otto's version |
+|---|---|---|---|
+| [NYT Recipe Box](https://mobbin.com/screens/a9499b8c-8a22-4e53-b3f8-9ef5d1db1a99) | ONE verb ("Save"), one mark, everywhere; "Favorites" demoted to a folder inside Saved; organization offered AFTER the save | The full hub (carousel+folders+chips) before users have volume = empty-folder covers | Paw = the bookmark; folders later |
+| [Pinterest Saved](https://mobbin.com/screens/6d5a71ca-8d1e-477c-a8a7-b312cda6ca8e) | Graduated organization: flat first, "All" preserved as system view, collections layered later | Three taxonomies of saved-nav = saving feels like filing | Flat grid v1; chip-row slot reserved |
+| [MyFitnessPal Saved Recipes](https://mobbin.com/screens/cb979167-c4b2-43b2-a12f-a75329fb2515) | Flat grid works IF the card carries the mark (in-place unsave) + one metadata line | Instant unsave mis-taps need an undo toast, not a dialog | Filled paw on card corner; "Removed from Saved" + Undo |
+| [Kitchen Stories Saved](https://mobbin.com/screens/9600552a-3d7a-465b-9467-f2580cf91399) | (cautionary) heart icon + "Saved" label + "favourites" folder = every surface re-teaches the metaphor | This is our current disease at scale | One word, one paw, zero exceptions |
+| [Julienne chips-over-flat](https://mobbin.com/flows/939bfbfd-7b75-47fd-9344-4ebb400e5906) | Chips over a flat list = cheapest credible step toward collections | Only works if "All" stays first and default | Future: "All · <collections> · + New" in the reserved row |
+
+**Vocabulary decision (kills ledger item #1):** verb **Save**, state **Saved**, screen **Saved**,
+mark **Otto's paw-print** (outline=unsaved, inked=saved) on cards, detail, and tab. "Favorites"
+retired from v1 UI entirely. Empty state: Otto + empty recipe book, "Nothing saved… yet" /
+"Tap the paw on any recipe and Otto will keep it here." / one CTA "Explore recipes".
+
+## 2.6 Account (flow research)
+
+| Reference | Principle | Trap | Otto's version |
+|---|---|---|---|
+| [Julienne "Try Pro" card](https://mobbin.com/screens/edb1e117-85d7-437e-a488-ba374ca9cbf5) | One illustrated card at top of settings IS the marketing surface: one benefit line, no price (price = paywall's job) | The card must use the app's own palette/tone or it reads as adware | Otto-illustrated Pro card, terracotta, one line |
+| [ReciMe crowned Upgrade row](https://mobbin.com/screens/72e23bee-94b6-443d-bde1-be8cbf025d5a) | Upsell as first row; position + one distinct icon carry all emphasis | Row upsell drowns if every row has colored icons | Only colored row on screen |
+| [Duolingo subscription group](https://mobbin.com/screens/1eba1545-d0bb-4ba5-bbb7-a0f024acf4f3) | Named group whose contents swap by state: "Choose a plan" ↔ "Manage Subscription"; Restore purchases lives here; legal = footer links | Double-selling (banner + row) on one screen | State-swapped slot, single surface |
+| [NYT Cooking settings](https://mobbin.com/screens/e05a5022-72da-4114-96e2-69956bb6cf95) | Email-as-identity + status word is enough; cancel is a quiet ordinary row | Log-out adjacent to cancel-subscription confuses destruction levels | Sign out separated from subscription group |
+| [Fable footer identity](https://mobbin.com/screens/dea12ba1-6caf-4954-95a7-b46c3b93229c) | "Signed in with email" as passive text answers identity without faking a profile | Delete above Log Out invites fat-fingers | Sign out first, Delete last in red, confirm dialog |
+
+**Row inventory adopted (v1):** Header = Otto bust badge + email + "SIGNED IN WITH EMAIL" (kept
+from current) → [Subscription slot: hidden until paywall ships; layout reserves it] → Preferences:
+Units (US/Metric) → Support: Contact us, Rate the app → Legal footer links: Privacy · Terms →
+Account: Sign out, Delete account (red, confirm; ships with subscription per App Store rules) →
+version footer. ~8 rows: minimal but legitimate.
+
+## 2.7 Supporting states (flow research)
+
+| Reference | Principle | Trap | Otto's version |
+|---|---|---|---|
+| [Finch streak takeover](https://mobbin.com/screens/aa4e5c2e-3cb5-48e5-8fa4-5441894d435a) | Celebration = character emotion + one big number + one exclamatory CTA, nothing else | Confetti as wallpaper; keep ~20 pieces at the edges | Proud Otto, sparse confetti, "Let's cook!" |
+| [Duolingo loader](https://mobbin.com/screens/d06a7cb6-e99c-4f20-b99b-89fddc6fe44d) | Mascot loader = narrative device for once-per-flow waits, paired with a rotating tip | A mascot on every 300ms fetch becomes the most-resented asset | Sleepy Otto on cold start ONLY + cooking tip |
+| [Hopper sad bunny error](https://mobbin.com/screens/765a7283-e069-4735-be22-eac25029b489) | Character takes blame physically, copy verbally; recovery action always present; characters NEVER in toasts | Sad mascot + guilt copy flips charm into blame | "We dropped the pan. Try again in a bit." |
+| [Zomato search-empty](https://mobbin.com/screens/4d98c52d-4123-4353-ac8d-6abe5a586b8a) / [Telegram duck](https://mobbin.com/screens/e35cc22c-c770-4459-a4c8-691c4ad48095) | Search-empty fits above the keyboard; prop carries the joke; second sentence points forward; no button (keyboard IS the CTA) | Full-screen empty under an active keyboard | Thinking Otto (not Sad) above keyboard |
+| [Waterllama circle chips](https://mobbin.com/screens/7bf86a04-c841-44d3-8710-4aa81476be90) + [LINE](https://mobbin.com/screens/dd8d61b5-98e1-4f0e-b28d-c845fe4d08d1) | Circle crops cut bodies, never headwear: bust asset, hat peak 8–12% below circle top, head 60–70% of diameter, crop exits bottom only, flat color disc behind | Center-cropping a full-body asset into a circle (our current bug) | Purpose-cut Otto bust badge asset |
+
+**State→Otto map adopted:** full-screen Otto (25–35%) for first-run empties, offline/server
+errors, milestone saves; small Otto (12–15%) for search-empty (Thinking) and in-panel empties;
+NO Otto in toasts/snackbars/inline banners/confirm dialogs/routine fetch loading. Routine save =
+plain "Saved" toast; Excited Otto reserved for the FIRST save.
+
+## 2.8 Ten principles we adopt (ranked by impact)
+
+1. **Merge Search into Discover; 3 tabs total** — kills the structural redundancy (Crouton/Tasty/ReciMe).
+2. **One save vocabulary: Save/Saved + paw-mark everywhere** — kills ledger item #1 (NYT).
+3. **Show only true facts; label estimates as estimates** — kills the fabricated stat cards and un-caveated nutrition (NYT).
+4. **Cook mode v1 as a big-type step pager** — the cheapest surface that wins the kitchen test (ReciMe).
+5. **Otto in reserved territory at two scales** — full at emotional beats, stamp elsewhere, never in toasts (Finch/Alan/Hopper).
+6. **Illustrated category tiles at art scale with one unifying tint** — the D5 food-icon delivery vehicle (Blinkit).
+7. **Grid cards: max one metadata element on photo + one below** (SideChef's trap inverted).
+8. **Subscription = one state-swapped slot at the top of Account** — card free / quiet row paying (Julienne/Duolingo/ReciMe).
+9. **Auth: two scales of Otto, headline does the relationship, one reason-line** (Alan/Mimo/Cherrypick).
+10. **Emphasis via color on data (tinted quantities), not container chrome** (Crouton).
+
+## 2.9 Three conventions we deliberately break
+
+1. **No ratings/social proof anywhere** (every big app shows stars/hearts/counts): TheMealDB has no rating data and fake counts poison trust — our credibility device is Otto's editorial voice ("Otto's pick") instead.
+2. **No ingredient checkboxes on the detail page** (SideChef/many): checkboxes while *browsing* are a mode lie; checking belongs to cook mode only (NYT agrees — sheet-gated).
+3. **No serving-scaled ingredient quantities** (Kitchen Stories/Tasty/ReciMe all scale): TheMealDB measures are unstructured prose; "2.17 large eggs" is the industry's own counter-example. The stepper scales the nutrition estimate only, clearly framed.
+
+## 2.10 Skeptics' corner (apps that are just polished defaults)
+
+- **Yazio's recipe tab** — segmented Discover/Favorites inside a tracking app; fine, but its recipe browsing is a default grid with kcal badges — nothing to steal beyond what MFP already gave us.
+- **Tasty's saved-in-two-places** (My List tab AND Profile segments) — polish over an unresolved IA; explicitly avoided.
+- **Kitchen Stories' vocabulary** (heart icon / "Saved" label / "favourites" folder) — a great app shipping our exact current bug at scale; used above as the cautionary reference, not a source.
