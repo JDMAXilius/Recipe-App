@@ -1,37 +1,26 @@
 import { useMemo } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Alert, Platform } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
-import { THEMES } from "../../constants/colors";
 import { createProfileStyles } from "../../assets/styles/profile.styles";
 
-const APPEARANCE_OPTIONS = [
-  { key: "light", label: "Light" },
-  { key: "dark", label: "Dark" },
-  { key: "system", label: "System" },
-];
-
-const NICHE_OPTIONS = [
-  { key: "base", label: "Otto (Base)" },
-  { key: "lean", label: "Lean" },
-  { key: "keto", label: "Keto" },
-  { key: "bulk", label: "Bulk" },
-];
+// Light-only (D2): the Appearance + Theme pickers are gone. This screen is a
+// placeholder until the Phase-4 Account redesign (subscription slot, units,
+// support rows — see docs/DESIGN_SYSTEM.md B8 / MOBBIN_COMPARISON.md §2.6).
 
 const ProfileScreen = () => {
   const { user, signOut } = useAuth();
-  const { colors, niche, mode, setNiche, setMode } = useTheme();
+  const { colors } = useTheme();
   const profileStyles = useMemo(() => createProfileStyles(colors), [colors]);
 
-  const pick = (fn, value) => {
-    Haptics.selectionAsync().catch(() => {});
-    fn(value);
-  };
-
   const handleSignOut = () => {
+    // Alert.alert buttons are no-ops on web — confirm() keeps web usable.
+    if (Platform.OS === "web") {
+      if (window.confirm("Are you sure you want to sign out?")) signOut();
+      return;
+    }
     Alert.alert("Sign out", "Are you sure you want to sign out?", [
       { text: "Cancel", style: "cancel" },
       { text: "Sign Out", style: "destructive", onPress: signOut },
@@ -44,7 +33,7 @@ const ProfileScreen = () => {
         contentContainerStyle={profileStyles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={profileStyles.title}>Profile</Text>
+        <Text style={profileStyles.title}>Account</Text>
 
         {/* IDENTITY */}
         <View style={profileStyles.identityCard}>
@@ -60,63 +49,6 @@ const ProfileScreen = () => {
               {user?.email}
             </Text>
             <Text style={profileStyles.identityCaption}>SIGNED IN WITH EMAIL</Text>
-          </View>
-        </View>
-
-        {/* APPEARANCE */}
-        <View style={profileStyles.section}>
-          <Text style={profileStyles.sectionLabel}>Appearance</Text>
-          <View style={profileStyles.card}>
-            <View style={profileStyles.chipRow}>
-              {APPEARANCE_OPTIONS.map((option) => {
-                const selected = mode === option.key;
-                return (
-                  <TouchableOpacity
-                    key={option.key}
-                    style={[profileStyles.chip, selected && profileStyles.chipSelected]}
-                    onPress={() => pick(setMode, option.key)}
-                    activeOpacity={0.8}
-                  >
-                    <Text
-                      style={[profileStyles.chipText, selected && profileStyles.chipTextSelected]}
-                    >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        </View>
-
-        {/* THEME */}
-        <View style={profileStyles.section}>
-          <Text style={profileStyles.sectionLabel}>Theme</Text>
-          <View style={profileStyles.card}>
-            {NICHE_OPTIONS.map((option) => {
-              const selected = niche === option.key;
-              return (
-                <TouchableOpacity
-                  key={option.key}
-                  style={profileStyles.themeRow}
-                  onPress={() => pick(setNiche, option.key)}
-                  activeOpacity={0.7}
-                >
-                  <View
-                    style={[
-                      profileStyles.swatch,
-                      { backgroundColor: THEMES[option.key].light.accent },
-                    ]}
-                  />
-                  <Text
-                    style={[profileStyles.themeName, selected && profileStyles.themeNameSelected]}
-                  >
-                    {option.label}
-                  </Text>
-                  {selected && <Ionicons name="checkmark-circle" size={22} color={colors.accent} />}
-                </TouchableOpacity>
-              );
-            })}
           </View>
         </View>
 

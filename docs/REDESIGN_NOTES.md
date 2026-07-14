@@ -81,7 +81,28 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
 
 ## Phase 3 — Design system
 
-*(pending)*
+- **P3-1. DESIGN_SYSTEM.md restructured:** Part A (v1) kept for token tables/traceability;
+  **Part B appended as authoritative** (tokens incl. overlay scrims, typography, motion, haptic
+  map, icon spec + 14-item food-icon set, Otto usage rules + voice, badge/app-icon fix,
+  component deltas). D2 banner at top of file.
+- **P3-2. Typography decision:** Part A specced New York + SF Pro Rounded — neither is
+  reachable from RN without native font-descriptor work, and Figma already substituted Lora.
+  **Display = bundled Lora (600/700), body = system font.** Aligns code with the Figma library
+  exactly. *Rejected:* Georgia (reads dated), bundling a rounded body face (cost > benefit).
+- **P3-3. Light-lock implemented:** `ThemeContext` pinned to `base.light` (same `useTheme()`
+  read API — zero churn in consumers); `setNiche`/`setMode` removed (profile.jsx was the only
+  caller); `app.json` `userInterfaceStyle: "light"`; Profile pickers stripped now (dead UI),
+  full Account rebuild lands in Phase 4. THEMES dark/niche sets stay in colors.js per D2.
+- **P3-4. New `constants/tokens.js`:** SPACING/RADIUS/OVERLAY/TYPE/SPRING/TIMING. Style
+  factories migrate opportunistically in Phase 4 (no big-bang).
+- **P3-5. Otto animation (D4) written as separate approve-first proposal:**
+  `docs/OTTO_ANIMATION_PLAN.md` — recommends Rive; ships NOTHING now.
+- **P3-6. Sign-out made web-safe** (`window.confirm` on web — Alert.alert no-ops there).
+- **P3-7. Figma sync deferred to Phase 4's design pass** (one consolidated write session when
+  the redesigned screens exist, instead of two half-syncs). **Library publish remains a manual
+  founder step in the Figma UI** (noted since the DS build). Verified: app boots + renders on
+  web with the lock + fonts (Chrome check).
+- **P3-8. Deps added:** `@expo-google-fonts/lora`, `expo-keep-awake` (cook mode).
 
 ## Phase 4 — Screens
 
