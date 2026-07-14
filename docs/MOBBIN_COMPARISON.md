@@ -157,7 +157,7 @@ Bonus: freeing **green** from "fat" lets green stay the **Keto** niche accent la
 | [CREME](https://mobbin.com/screens/715a96fa-90bc-4180-b8ba-1342b060bd0f) | **Home · Browse · ✦ · Cart · Profile** | 5 tabs, icon-only, center AI/remix. |
 
 ### Principles (what transfers)
-- **Search earns its own tab** — 6 of 7 keep a dedicated Search tab. → *Do NOT merge Search into Home.* (This overrides the founder's "Search feels redundant" hunch — the redundancy is real but the fix is scoping, not removal; see below.)
+- **Search** — ⚠️ **CORRECTION (see §2.1a):** my original claim here — "6 of 7 keep a dedicated Search tab" — miscounted my own table. It is **3 of 7** (Epicurious, NYT, Kitchen Stories), and all three are *editorial/human-curated* apps whose Browse is a genuinely different surface from Search. Our single undifferentiated TheMealDB pool can't supply two distinct jobs, so a browse-only Home + a Search tab render the *same grid* — the founder's redundancy. **The 3-tab decision (Discover · Saved · Account) is correct and supersedes the 4-tab recommendation below.**
 - **A "Saved/Cookbook/Recipe Box" tab is universal.** → keep it, rename to something warmer than "Favorites."
 - **4 tabs = clean browsers (Epicurious, NYT); 5 tabs = apps with a create/plan/commerce hub.** The 5th tab always earns its place with real function (Create, Shopping, For-Today, AI) — never filler.
 - **Profile/Settings is the last tab and holds subscription.**
@@ -170,7 +170,9 @@ Bonus: freeing **green** from "fat" lets green stay the **Keto** niche accent la
 ## The real reason the current tabs feel redundant
 It isn't that we have too many tabs — it's that **Home and Search overlap** (Home has browsing *and* the app also has a Search tab that browses), and **Favorites is thin**. Every 4-tab pro app avoids this by giving each tab a distinct job.
 
-## ✅ Recommended structure — 4 tabs
+## ~~Recommended structure — 4 tabs~~ · SUPERSEDED → use the **3-tab** decision (Discover · Saved · Account), §2.1a
+<!-- Kept for provenance. The 4-tab recommendation below was superseded after the count above was corrected (3/7, not 6/7). Build against the 3-tab decision in §2.1a. -->
+### (historical) 4-tab recommendation
 
 **Home · Search · Cookbook · Account**
 
