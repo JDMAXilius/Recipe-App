@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { API_URL } from "../../constants/api";
 import { MealAPI } from "../../services/mealAPI";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import NutritionCard from "../../components/nutrition/NutritionCard";
 import { Image } from "expo-image";
 
 import { recipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
@@ -22,6 +23,7 @@ const RecipeDetailScreen = () => {
   const [loading, setLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [servings, setServings] = useState(4);
 
   const { user } = useAuth();
   const userId = user?.id;
@@ -51,6 +53,9 @@ const RecipeDetailScreen = () => {
           };
 
           setRecipe(recipeWithVideo);
+          if (typeof transformedRecipe.servings === "number") {
+            setServings(transformedRecipe.servings);
+          }
         }
       } catch (error) {
         console.error("Error loading recipe detail:", error);
@@ -192,6 +197,19 @@ const RecipeDetailScreen = () => {
               <Text style={recipeDetailStyles.statValue}>{recipe.servings}</Text>
               <Text style={recipeDetailStyles.statLabel}>Servings</Text>
             </View>
+          </View>
+
+          {/* NUTRITION (per serving) — values are UI placeholders:
+              TheMealDB provides no nutrition data (see docs/DESIGN_SYSTEM.md) */}
+          <View style={recipeDetailStyles.sectionContainer}>
+            <NutritionCard
+              calories={420}
+              protein={32}
+              carbs={38}
+              fat={12}
+              servings={servings}
+              onServingsChange={setServings}
+            />
           </View>
 
           {recipe.youtubeUrl && (
