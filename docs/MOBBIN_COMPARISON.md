@@ -133,3 +133,75 @@ Bonus: freeing **green** from "fat" lets green stay the **Keto** niche accent la
 
 - Overall IA, 4-tab structure, mascot direction, serving-scaling model — all validated as-is.
 - Base **paprika** accent — no reference contradicts it; it stays distinct from macro colors and reads "food."
+
+---
+
+# 🧭 Tab structure & Account — research + recommendation (2026-07-14, cloud co-pilot)
+
+> Focused Mobbin pull to settle the redesign's pivot: **what tabs should this app have?** (redesign pack D7) and **how does the Account tab hold subscription?** (D8). This section is the recommendation the terminal should build the navigation against.
+
+## Evidence — real recipe/cooking-app tab bars
+
+| App | Tabs (left→right) | Notes |
+|---|---|---|
+| [Epicurious](https://mobbin.com/screens/a9d5ee7a-4fab-46a3-9dba-54b96c3901a9) | **Home · Search · My Saved Recipes · Settings** | 4 tabs, no center action. The cleanest match to us. |
+| [NYT Cooking](https://mobbin.com/screens/f70fda63-0996-4f66-b91d-2c11a5484912) | **Browse · Recipe Box · Recently Viewed · Search** | 4 tabs; "Recipe Box" = saved. |
+| [Kitchen Stories](https://mobbin.com/screens/93270eaf-8b78-4e31-9250-ae0668b7e3da) | **Today · Search · ⊕ Create · Shopping · Profile** | 5 tabs, center "Create" (they support user recipes — we don't). |
+| [Julienne](https://mobbin.com/screens/91185201-65b7-4062-8670-0c0e9c5e60c1) | **Discover · Recipes · ⊕ Add · Ask · Settings** | 5 tabs + "Pro ☀️" badge (subscription) top-right; "Ask" = AI. |
+| [Tasty](https://mobbin.com/screens/8d50cb31-1687-423e-a520-7ee7b70f823d) | **Discover · Guides · My List · My Bag · Profile** | 5 tabs; shopping (My List/Bag). |
+| [Mucho](https://mobbin.com/screens/323f8a15-a321-4967-ad31-a0f7c9330571) | **Profile · Recipes · ⬤ For Today · Products · Basket** | 5 tabs, commerce-heavy. |
+| [CREME](https://mobbin.com/screens/715a96fa-90bc-4180-b8ba-1342b060bd0f) | **Home · Browse · ✦ · Cart · Profile** | 5 tabs, icon-only, center AI/remix. |
+
+### Principles (what transfers)
+- **Search earns its own tab** — 6 of 7 keep a dedicated Search tab. → *Do NOT merge Search into Home.* (This overrides the founder's "Search feels redundant" hunch — the redundancy is real but the fix is scoping, not removal; see below.)
+- **A "Saved/Cookbook/Recipe Box" tab is universal.** → keep it, rename to something warmer than "Favorites."
+- **4 tabs = clean browsers (Epicurious, NYT); 5 tabs = apps with a create/plan/commerce hub.** The 5th tab always earns its place with real function (Create, Shopping, For-Today, AI) — never filler.
+- **Profile/Settings is the last tab and holds subscription.**
+
+### Traps (what NOT to copy)
+- **Center "⊕ Create"** (Kitchen Stories, Julienne, Mucho) — assumes user-generated recipes. **Our content is TheMealDB (read-only); a Create tab would be a dead end.** Skip it.
+- **Commerce tabs** (Mucho Basket, Tasty My Bag) — we have no store. Skip.
+- Icon-only bars (CREME) look sleek but hurt first-time clarity — keep labels.
+
+## The real reason the current tabs feel redundant
+It isn't that we have too many tabs — it's that **Home and Search overlap** (Home has browsing *and* the app also has a Search tab that browses), and **Favorites is thin**. Every 4-tab pro app avoids this by giving each tab a distinct job.
+
+## ✅ Recommended structure — 4 tabs
+
+**Home · Search · Cookbook · Account**
+
+| Tab | Job (distinct, no overlap) | Ionicon | Otto |
+|---|---|---|---|
+| **Home** | *Browse/discover only* — Otto greeting, featured recipe, category filters, curated rows. **No search box here** (that's the Search tab's job). Keeps D9's featured+grid+filters. | `home` / `restaurant` | greeting (happy) |
+| **Search** | *Intent-driven find* — query + filters + results. The dedicated tab the research demands. | `search` | thinking (empty query) |
+| **Cookbook** | Saved recipes, richer than today's Favorites (collections later). "Cookbook"/"Recipe Box" reads warmer + more premium than "Favorites." | `book` / `bookmarks` | sad (empty state) |
+| **Account** | Profile + **subscription** + settings (NO theme controls — light-only). | `person` | happy (badge) |
+
+**Why 4, not 5:** we have no user-created recipes, no store, no shopping list *yet*. A 5th tab today would be filler — and the research says the 5th tab must earn its place. **Documented 5-tab upgrade path:** when we ship a **meal planner / "For You" personalized hub** (a natural subscription value-driver) or a **guided Cook mode**, add it as the center/4th tab → `Home · Search · [Plan/Cook] · Cookbook · Account`. Don't add it before the feature exists.
+
+**Save action = Otto paw mark (D3)**, but the **Cookbook tab icon stays a standard book/bookmark** (recognizability > cleverness on nav).
+
+## Account tab — contents + subscription (D8)
+
+Evidence (near-universal pattern across [Slopes](https://mobbin.com/screens/df9c89b7-6093-4480-b454-fd7261dc3ebd), [Runna](https://mobbin.com/screens/27e968a9-ce87-4e7b-ac11-742fc3febb26), [ElevenLabs](https://mobbin.com/screens/3d335c1f-c269-4328-9c7a-503e52c6a0d3), [MS Copilot](https://mobbin.com/screens/a2da43d2-6ca3-4ba3-995c-28ec9356ceee), [Coffee Meets Bagel](https://mobbin.com/screens/298b5ad8-0f91-448a-953d-7cff2624d3d8)):
+
+1. **Identity block** — Otto avatar + email + "Edit profile".
+2. **Upgrade card** (the subscription hook) — right under identity: "Try Otto Pro" + CTA + price ("then $X/yr"). Slopes/Runna/ElevenLabs all lead the account with this. A small **"Pro" pill** can also sit on Home (Julienne).
+3. **Settings rows** (grouped, chevrons) — Notifications, Units (metric/imperial), About, Help, **Manage subscription / Restore purchases** (ElevenLabs). **No Appearance/Theme/Niche row** (D2, light-only).
+4. **Sign out** (destructive, near bottom).
+5. **Footer** — Privacy · Terms · FAQ (Copilot).
+
+## → Copy-paste for the terminal (build against this)
+
+```
+Navigation decision (from docs/MOBBIN_COMPARISON.md tab-structure research):
+Ship a 4-tab bar: Home · Search · Cookbook · Account (Ionicons: home/restaurant, search,
+book/bookmarks, person). Each tab has ONE distinct job — Home is browse-only (no search box;
+keep featured+categories+grid+Otto greeting), Search owns querying+filters, Cookbook is the
+renamed+richer Favorites, Account holds profile + a subscription Upgrade card + settings (NO
+theme controls — light only). Do NOT add a center "Create"/commerce tab (our content is
+read-only TheMealDB). The save/favorite ACTION uses the Otto paw mark, but the Cookbook tab
+icon stays a standard book/bookmark. Account layout: identity → Upgrade-to-Pro card → settings
+rows (Notifications, Units, Manage subscription, About/Help) → Sign out → Privacy/Terms footer.
+Future 5-tab path (only once the feature exists): add a Plan/Cook hub as the center tab.
+```
