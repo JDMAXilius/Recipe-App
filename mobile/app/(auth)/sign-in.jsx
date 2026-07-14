@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { supabase } from "../../lib/supabase";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -15,11 +15,13 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { Image } from "expo-image";
 
-import { authStyles } from "../../assets/styles/auth.styles";
-import { COLORS } from "../../constants/colors";
+import { createAuthStyles } from "../../assets/styles/auth.styles";
+import { useTheme } from "../../context/ThemeContext";
 
 const SignInScreen = () => {
   const router = useRouter();
+  const { colors } = useTheme();
+  const authStyles = useMemo(() => createAuthStyles(colors), [colors]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -78,7 +80,7 @@ const SignInScreen = () => {
               <TextInput
                 style={authStyles.textInput}
                 placeholder="Enter email"
-                placeholderTextColor={COLORS.textLight}
+                placeholderTextColor={colors.textLight}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -91,7 +93,7 @@ const SignInScreen = () => {
               <TextInput
                 style={authStyles.textInput}
                 placeholder="Enter password"
-                placeholderTextColor={COLORS.textLight}
+                placeholderTextColor={colors.textLight}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -104,7 +106,7 @@ const SignInScreen = () => {
                 <Ionicons
                   name={showPassword ? "eye-outline" : "eye-off-outline"}
                   size={20}
-                  color={COLORS.textLight}
+                  color={colors.textLight}
                 />
               </TouchableOpacity>
             </View>

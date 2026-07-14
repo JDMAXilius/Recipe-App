@@ -1,10 +1,11 @@
 import { useAuth } from "../../context/AuthContext";
 import { Redirect, Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { COLORS } from "../../constants/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 const TabsLayout = () => {
   const { isSignedIn, isLoaded } = useAuth();
+  const { colors } = useTheme();
 
   if (!isLoaded) return null;
 
@@ -14,11 +15,11 @@ const TabsLayout = () => {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textLight,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textLight,
         tabBarStyle: {
-          backgroundColor: COLORS.white,
-          borderTopColor: COLORS.border,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           borderTopWidth: 1,
           paddingBottom: 8,
           paddingTop: 8,

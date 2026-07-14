@@ -73,6 +73,7 @@ export const NUTRITION_COLORS = {
   fat: "#8B5CF6", // purple
 };
 
-// Static default export for the many screens that still import COLORS directly.
-// The base app in light mode. For reactive theming use useTheme() from context/ThemeContext.
+// Legacy static export (base app, light mode). All screens/components now read
+// colors reactively via useTheme() from context/ThemeContext — kept only for
+// scripts/back-compat. Do not import this in app code.
 export const COLORS = THEMES.base.light;

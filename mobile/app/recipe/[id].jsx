@@ -1,6 +1,6 @@
 import { View, Text, Alert, ScrollView, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { authFetch } from "../../lib/api";
 import { MealAPI } from "../../services/mealAPI";
@@ -8,9 +8,9 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import NutritionCard from "../../components/nutrition/NutritionCard";
 import { Image } from "expo-image";
 
-import { recipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
+import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
 import { LinearGradient } from "expo-linear-gradient";
-import { COLORS } from "../../constants/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
@@ -18,6 +18,8 @@ import { WebView } from "react-native-webview";
 const RecipeDetailScreen = () => {
   const { id: recipeId } = useLocalSearchParams();
   const router = useRouter();
+  const { colors } = useTheme();
+  const recipeDetailStyles = useMemo(() => createRecipeDetailStyles(colors), [colors]);
 
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -138,13 +140,13 @@ const RecipeDetailScreen = () => {
               style={recipeDetailStyles.floatingButton}
               onPress={() => router.back()}
             >
-              <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+              <Ionicons name="arrow-back" size={24} color={colors.white} />
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
                 recipeDetailStyles.floatingButton,
-                { backgroundColor: isSaving ? COLORS.gray : COLORS.primary },
+                { backgroundColor: isSaving ? colors.gray : colors.primary },
               ]}
               onPress={handleToggleSave}
               disabled={isSaving}
@@ -152,7 +154,7 @@ const RecipeDetailScreen = () => {
               <Ionicons
                 name={isSaving ? "hourglass" : isSaved ? "bookmark" : "bookmark-outline"}
                 size={24}
-                color={COLORS.white}
+                color={colors.white}
               />
             </TouchableOpacity>
           </View>
@@ -165,7 +167,7 @@ const RecipeDetailScreen = () => {
             <Text style={recipeDetailStyles.recipeTitle}>{recipe.title}</Text>
             {recipe.area && (
               <View style={recipeDetailStyles.locationRow}>
-                <Ionicons name="location" size={16} color={COLORS.white} />
+                <Ionicons name="location" size={16} color={colors.white} />
                 <Text style={recipeDetailStyles.locationText}>{recipe.area} Cuisine</Text>
               </View>
             )}
@@ -180,7 +182,7 @@ const RecipeDetailScreen = () => {
                 colors={["#FF6B6B", "#FF8E53"]}
                 style={recipeDetailStyles.statIconContainer}
               >
-                <Ionicons name="time" size={20} color={COLORS.white} />
+                <Ionicons name="time" size={20} color={colors.white} />
               </LinearGradient>
               <Text style={recipeDetailStyles.statValue}>{recipe.cookTime}</Text>
               <Text style={recipeDetailStyles.statLabel}>Prep Time</Text>
@@ -191,7 +193,7 @@ const RecipeDetailScreen = () => {
                 colors={["#4ECDC4", "#44A08D"]}
                 style={recipeDetailStyles.statIconContainer}
               >
-                <Ionicons name="people" size={20} color={COLORS.white} />
+                <Ionicons name="people" size={20} color={colors.white} />
               </LinearGradient>
               <Text style={recipeDetailStyles.statValue}>{recipe.servings}</Text>
               <Text style={recipeDetailStyles.statLabel}>Servings</Text>
@@ -218,7 +220,7 @@ const RecipeDetailScreen = () => {
                   colors={["#FF0000", "#CC0000"]}
                   style={recipeDetailStyles.sectionIcon}
                 >
-                  <Ionicons name="play" size={16} color={COLORS.white} />
+                  <Ionicons name="play" size={16} color={colors.white} />
                 </LinearGradient>
 
                 <Text style={recipeDetailStyles.sectionTitle}>Video Tutorial</Text>
@@ -239,10 +241,10 @@ const RecipeDetailScreen = () => {
           <View style={recipeDetailStyles.sectionContainer}>
             <View style={recipeDetailStyles.sectionTitleRow}>
               <LinearGradient
-                colors={[COLORS.primary, COLORS.primary + "80"]}
+                colors={[colors.primary, colors.primary + "80"]}
                 style={recipeDetailStyles.sectionIcon}
               >
-                <Ionicons name="list" size={16} color={COLORS.white} />
+                <Ionicons name="list" size={16} color={colors.white} />
               </LinearGradient>
               <Text style={recipeDetailStyles.sectionTitle}>Ingredients</Text>
               <View style={recipeDetailStyles.countBadge}>
@@ -258,7 +260,7 @@ const RecipeDetailScreen = () => {
                   </View>
                   <Text style={recipeDetailStyles.ingredientText}>{ingredient}</Text>
                   <View style={recipeDetailStyles.ingredientCheck}>
-                    <Ionicons name="checkmark-circle-outline" size={20} color={COLORS.textLight} />
+                    <Ionicons name="checkmark-circle-outline" size={20} color={colors.textLight} />
                   </View>
                 </View>
               ))}
@@ -272,7 +274,7 @@ const RecipeDetailScreen = () => {
                 colors={["#9C27B0", "#673AB7"]}
                 style={recipeDetailStyles.sectionIcon}
               >
-                <Ionicons name="book" size={16} color={COLORS.white} />
+                <Ionicons name="book" size={16} color={colors.white} />
               </LinearGradient>
               <Text style={recipeDetailStyles.sectionTitle}>Instructions</Text>
               <View style={recipeDetailStyles.countBadge}>
@@ -284,7 +286,7 @@ const RecipeDetailScreen = () => {
               {recipe.instructions.map((instruction, index) => (
                 <View key={index} style={recipeDetailStyles.instructionCard}>
                   <LinearGradient
-                    colors={[COLORS.primary, COLORS.primary + "CC"]}
+                    colors={[colors.primary, colors.primary + "CC"]}
                     style={recipeDetailStyles.stepIndicator}
                   >
                     <Text style={recipeDetailStyles.stepNumber}>{index + 1}</Text>
@@ -294,7 +296,7 @@ const RecipeDetailScreen = () => {
                     <View style={recipeDetailStyles.instructionFooter}>
                       <Text style={recipeDetailStyles.stepLabel}>Step {index + 1}</Text>
                       <TouchableOpacity style={recipeDetailStyles.completeButton}>
-                        <Ionicons name="checkmark" size={16} color={COLORS.primary} />
+                        <Ionicons name="checkmark" size={16} color={colors.primary} />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -309,10 +311,10 @@ const RecipeDetailScreen = () => {
             disabled={isSaving}
           >
             <LinearGradient
-              colors={[COLORS.primary, COLORS.primary + "CC"]}
+              colors={[colors.primary, colors.primary + "CC"]}
               style={recipeDetailStyles.buttonGradient}
             >
-              <Ionicons name="heart" size={20} color={COLORS.white} />
+              <Ionicons name="heart" size={20} color={colors.white} />
               <Text style={recipeDetailStyles.buttonText}>
                 {isSaved ? "Remove from Favorites" : "Add to Favorites"}
               </Text>

@@ -1,12 +1,15 @@
+import { useMemo } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { COLORS } from "../constants/colors";
-import { recipeCardStyles } from "../assets/styles/home.styles";
+import { useTheme } from "../context/ThemeContext";
+import { createRecipeCardStyles } from "../assets/styles/home.styles";
 
 export default function RecipeCard({ recipe }) {
   const router = useRouter();
+  const { colors } = useTheme();
+  const recipeCardStyles = useMemo(() => createRecipeCardStyles(colors), [colors]);
 
   return (
     <TouchableOpacity
@@ -36,13 +39,13 @@ export default function RecipeCard({ recipe }) {
         <View style={recipeCardStyles.footer}>
           {recipe.cookTime && (
             <View style={recipeCardStyles.timeContainer}>
-              <Ionicons name="time-outline" size={14} color={COLORS.textLight} />
+              <Ionicons name="time-outline" size={14} color={colors.textLight} />
               <Text style={recipeCardStyles.timeText}>{recipe.cookTime}</Text>
             </View>
           )}
           {recipe.servings && (
             <View style={recipeCardStyles.servingsContainer}>
-              <Ionicons name="people-outline" size={14} color={COLORS.textLight} />
+              <Ionicons name="people-outline" size={14} color={colors.textLight} />
               <Text style={recipeCardStyles.servingsText}>{recipe.servings}</Text>
             </View>
           )}

@@ -1,12 +1,11 @@
 import { StyleSheet, Dimensions } from "react-native";
-import { COLORS } from "../../constants/colors";
 
 const { height } = Dimensions.get("window");
 
-export const authStyles = StyleSheet.create({
+export const createAuthStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -29,13 +28,13 @@ export const authStyles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: COLORS.text,
+    color: colors.text,
     textAlign: "center",
     marginBottom: 40,
   },
   subtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textLight,
     textAlign: "center",
     marginBottom: 30,
   },
@@ -48,13 +47,13 @@ export const authStyles = StyleSheet.create({
   },
   textInput: {
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
     paddingVertical: 16,
     paddingHorizontal: 20,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   eyeButton: {
     position: "absolute",
@@ -63,7 +62,7 @@ export const authStyles = StyleSheet.create({
     padding: 4,
   },
   authButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 18,
     borderRadius: 12,
     marginTop: 20,
@@ -75,7 +74,7 @@ export const authStyles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: COLORS.white,
+    color: colors.white,
     textAlign: "center",
   },
   linkContainer: {
@@ -84,10 +83,10 @@ export const authStyles = StyleSheet.create({
   },
   linkText: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textLight,
   },
   link: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: "600",
   },
 });

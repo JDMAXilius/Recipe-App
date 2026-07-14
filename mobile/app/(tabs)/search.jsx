@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList } from "react-native";
 import { MealAPI } from "../../services/mealAPI";
 import { useDebounce } from "../../hooks/useDebounce";
-import { searchStyles } from "../../assets/styles/search.styles";
-import { COLORS } from "../../constants/colors";
+import { createSearchStyles } from "../../assets/styles/search.styles";
+import { useTheme } from "../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import RecipeCard from "../../components/RecipeCard";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
 const SearchScreen = () => {
+  const { colors } = useTheme();
+  const searchStyles = useMemo(() => createSearchStyles(colors), [colors]);
   const [searchQuery, setSearchQuery] = useState("");
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -85,20 +87,20 @@ const SearchScreen = () => {
           <Ionicons
             name="search"
             size={20}
-            color={COLORS.textLight}
+            color={colors.textLight}
             style={searchStyles.searchIcon}
           />
           <TextInput
             style={searchStyles.searchInput}
             placeholder="Search recipes, ingredients..."
-            placeholderTextColor={COLORS.textLight}
+            placeholderTextColor={colors.textLight}
             value={searchQuery}
             onChangeText={setSearchQuery}
             returnKeyType="search"
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery("")} style={searchStyles.clearButton}>
-              <Ionicons name="close-circle" size={20} color={COLORS.textLight} />
+              <Ionicons name="close-circle" size={20} color={colors.textLight} />
             </TouchableOpacity>
           )}
         </View>
@@ -135,9 +137,11 @@ const SearchScreen = () => {
 export default SearchScreen;
 
 function NoResultsFound() {
+  const { colors } = useTheme();
+  const searchStyles = useMemo(() => createSearchStyles(colors), [colors]);
   return (
     <View style={searchStyles.emptyState}>
-      <Ionicons name="search-outline" size={64} color={COLORS.textLight} />
+      <Ionicons name="search-outline" size={64} color={colors.textLight} />
       <Text style={searchStyles.emptyTitle}>No recipes found</Text>
       <Text style={searchStyles.emptyDescription}>
         Try adjusting your search or try different keywords

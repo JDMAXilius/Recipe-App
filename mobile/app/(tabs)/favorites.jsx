@@ -1,9 +1,9 @@
 import { View, Text, Alert, ScrollView, TouchableOpacity, FlatList } from "react-native";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { authFetch } from "../../lib/api";
-import { favoritesStyles } from "../../assets/styles/favorites.styles";
-import { COLORS } from "../../constants/colors";
+import { createFavoritesStyles } from "../../assets/styles/favorites.styles";
+import { useTheme } from "../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import RecipeCard from "../../components/RecipeCard";
 import NoFavoritesFound from "../../components/NoFavoritesFound";
@@ -11,6 +11,8 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 
 const FavoritesScreen = () => {
   const { signOut, user } = useAuth();
+  const { colors } = useTheme();
+  const favoritesStyles = useMemo(() => createFavoritesStyles(colors), [colors]);
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +57,7 @@ const FavoritesScreen = () => {
         <View style={favoritesStyles.header}>
           <Text style={favoritesStyles.title}>Favorites</Text>
           <TouchableOpacity style={favoritesStyles.logoutButton} onPress={handleSignOut}>
-            <Ionicons name="log-out-outline" size={22} color={COLORS.text} />
+            <Ionicons name="log-out-outline" size={22} color={colors.text} />
           </TouchableOpacity>
         </View>
 

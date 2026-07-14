@@ -1,10 +1,10 @@
 import { View, Text, ScrollView, TouchableOpacity, FlatList, RefreshControl } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "expo-router";
 import { MealAPI } from "../../services/mealAPI";
-import { homeStyles } from "../../assets/styles/home.styles";
+import { createHomeStyles } from "../../assets/styles/home.styles";
 import { Image } from "expo-image";
-import { COLORS } from "../../constants/colors";
+import { useTheme } from "../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import CategoryFilter from "../../components/CategoryFilter";
 import RecipeCard from "../../components/RecipeCard";
@@ -14,6 +14,8 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const HomeScreen = () => {
   const router = useRouter();
+  const { colors } = useTheme();
+  const homeStyles = useMemo(() => createHomeStyles(colors), [colors]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -96,7 +98,7 @@ const HomeScreen = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={COLORS.primary}
+            tintColor={colors.primary}
           />
         }
         contentContainerStyle={homeStyles.scrollContent}
@@ -153,16 +155,16 @@ const HomeScreen = () => {
 
                     <View style={homeStyles.featuredMeta}>
                       <View style={homeStyles.metaItem}>
-                        <Ionicons name="time-outline" size={16} color={COLORS.white} />
+                        <Ionicons name="time-outline" size={16} color={colors.white} />
                         <Text style={homeStyles.metaText}>{featuredRecipe.cookTime}</Text>
                       </View>
                       <View style={homeStyles.metaItem}>
-                        <Ionicons name="people-outline" size={16} color={COLORS.white} />
+                        <Ionicons name="people-outline" size={16} color={colors.white} />
                         <Text style={homeStyles.metaText}>{featuredRecipe.servings}</Text>
                       </View>
                       {featuredRecipe.area && (
                         <View style={homeStyles.metaItem}>
-                          <Ionicons name="location-outline" size={16} color={COLORS.white} />
+                          <Ionicons name="location-outline" size={16} color={colors.white} />
                           <Text style={homeStyles.metaText}>{featuredRecipe.area}</Text>
                         </View>
                       )}
@@ -200,7 +202,7 @@ const HomeScreen = () => {
             />
           ) : (
             <View style={homeStyles.emptyState}>
-              <Ionicons name="restaurant-outline" size={64} color={COLORS.textLight} />
+              <Ionicons name="restaurant-outline" size={64} color={colors.textLight} />
               <Text style={homeStyles.emptyTitle}>No recipes found</Text>
               <Text style={homeStyles.emptyDescription}>Try a different category</Text>
             </View>

@@ -1,8 +1,12 @@
+import { useMemo } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Image } from "expo-image";
-import { homeStyles } from "../assets/styles/home.styles";
+import { useTheme } from "../context/ThemeContext";
+import { createHomeStyles } from "../assets/styles/home.styles";
 
 export default function CategoryFilter({ categories, selectedCategory, onSelectCategory }) {
+  const { colors } = useTheme();
+  const homeStyles = useMemo(() => createHomeStyles(colors), [colors]);
   return (
     <View style={homeStyles.categoryFilterContainer}>
       <ScrollView

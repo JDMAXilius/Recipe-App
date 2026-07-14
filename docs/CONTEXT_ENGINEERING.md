@@ -208,15 +208,18 @@ and derives the user id from the token — client-supplied userIds are ignored.
 
 ## 8. Theming
 
-`constants/colors.js` defines **8 themes**: `coffee, forest, purple, ocean, sunset, mint, midnight, roseGold`. Each exposes: `primary, background, text, border, white, textLight, card, shadow`.
+`constants/colors.js` defines the **Otto design system** (see `docs/DESIGN_SYSTEM.md`): `THEMES = { base, lean, keto, bulk }`, each with `{ light, dark }` token sets (legacy keys `primary/background/text/…` AND design-system keys `accent/bg/surface/ink/…`), plus `NUTRITION_COLORS` (fixed, never themed).
+
+**Theming is reactive.** `context/ThemeContext.jsx` provides `useTheme()` → `{ colors, nutrition, niche, mode, isDark, setNiche, setMode }`, persisted in AsyncStorage, with `mode: "system"` following the OS appearance.
+
+**Styling convention:** each screen has a matching `assets/styles/<name>.styles.js` module exporting a **factory** — `createXStyles(colors) => StyleSheet.create({...})`. Consumers do:
 
 ```js
-export const COLORS = THEMES.purple; // active theme — currently hardcoded
+const { colors } = useTheme();
+const homeStyles = useMemo(() => createHomeStyles(colors), [colors]);
 ```
 
-⚠️ **There is no runtime theme switcher.** The theme is a build-time constant. Every screen/component imports `COLORS` directly. To support user-selectable themes, this needs to become reactive (Context + persisted choice) — see the feature backlog. This is the single highest-leverage "new feature" because the 8 palettes already exist.
-
-**Styling convention:** each screen has a matching `assets/styles/<name>.styles.js` `StyleSheet.create` module that reads `COLORS`. Components import the relevant style module (note: `RecipeCard` and `CategoryFilter` both pull from `home.styles.js`).
+`RecipeCard` and `CategoryFilter` both pull factories from `home.styles.js`. The static `COLORS` export still exists for back-compat but **must not be imported in app code** — new code always goes through `useTheme()`. A theme-picker UI (F1's last piece / F3 Profile screen) is not built yet; themes currently switch via `setNiche`/`setMode` callers.
 
 ---
 
@@ -265,7 +268,7 @@ cd mobile && npm install && npx expo start
 
 1. ~~**`API_URL` hardcoded to `http://localhost:5001/api`.**~~ **Fixed (F2):** now env-driven via `EXPO_PUBLIC_API_URL` with the localhost fallback (see §10).
 2. ~~**Backend has zero auth/authorization.**~~ **Fixed (F8):** favorites routes now require a Supabase access token (`Authorization: Bearer`), verified server-side via `auth.getUser(token)`; userId is derived from the token (see §6).
-3. **No runtime theme switching** despite 8 themes existing (see §8).
+3. ~~**No runtime theme switching.**~~ **Fixed (F1, mostly):** all screens/components read colors via `useTheme()` and re-render on change (see §8). Remaining: a user-facing theme-picker UI (pairs with F3 Profile screen).
 4. **`cookTime`/`servings` are fabricated** in `transformMealData` (`"30 minutes"`, `4`). Any "prep time" shown is not real data.
 5. **`servings` type mismatch:** DB column is `text`, but the client POSTs a number. Postgres coerces, but favorites read back as strings — keep in mind for sorting/formatting.
 6. **Two Postgres drivers** in `backend/package.json` (`@neondatabase/serverless` **and** `postgres`); likely only one is used.

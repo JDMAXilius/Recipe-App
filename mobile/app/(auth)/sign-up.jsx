@@ -10,15 +10,17 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { supabase } from "../../lib/supabase";
-import { useState } from "react";
-import { authStyles } from "../../assets/styles/auth.styles";
+import { useMemo, useState } from "react";
+import { createAuthStyles } from "../../assets/styles/auth.styles";
 import { Image } from "expo-image";
-import { COLORS } from "../../constants/colors";
+import { useTheme } from "../../context/ThemeContext";
 
 import { Ionicons } from "@expo/vector-icons";
 
 const SignUpScreen = () => {
   const router = useRouter();
+  const { colors } = useTheme();
+  const authStyles = useMemo(() => createAuthStyles(colors), [colors]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -75,7 +77,7 @@ const SignUpScreen = () => {
               <TextInput
                 style={authStyles.textInput}
                 placeholder="Enter email"
-                placeholderTextColor={COLORS.textLight}
+                placeholderTextColor={colors.textLight}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -88,7 +90,7 @@ const SignUpScreen = () => {
               <TextInput
                 style={authStyles.textInput}
                 placeholder="Enter password"
-                placeholderTextColor={COLORS.textLight}
+                placeholderTextColor={colors.textLight}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -101,7 +103,7 @@ const SignUpScreen = () => {
                 <Ionicons
                   name={showPassword ? "eye-outline" : "eye-off-outline"}
                   size={20}
-                  color={COLORS.textLight}
+                  color={colors.textLight}
                 />
               </TouchableOpacity>
             </View>
