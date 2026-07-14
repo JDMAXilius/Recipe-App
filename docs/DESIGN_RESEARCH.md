@@ -94,8 +94,8 @@ This is the core new content. Three components carry it.
 - Compact variant = three colored dots with gram counts (for RecipeCard footer).
 
 ### 3.3 ServingStepper (portions)
-- `Serves [ − ] 4 [ + ]`. Changing it **live-scales** ingredient quantities *and* the CalorieRing/MacroBars (all per-recipe totals ÷ servings × selected).
-- Round to friendly fractions. This single control is the highest-value new interaction.
+- `Serves [ − ] 4 [ + ]`. Changing it **live-scales the ingredient quantities and the recipe total** — but **per-serving nutrition stays constant** (that's how recipe scaling actually works). The CalorieRing keeps showing kcal *per serving*; the stepper changes how much you cook, optionally surfacing a scaled "recipe total."
+- Round to friendly fractions (4 tbsp → ¼ cup). Note: spices/leaveners don't scale linearly — flag rather than blindly multiply. This single control is the highest-value new interaction.
 
 ### 3.4 Where they live
 ```
