@@ -176,16 +176,19 @@ Base URL: `https://www.themealdb.com/api/json/v1/1`
 - Splits `strInstructions` on newlines → `instructions[]`.
 - ⚠️ `cookTime` and `servings` are **hardcoded** (`"30 minutes"`, `4`) — TheMealDB doesn't provide them.
 
-### Favorites → own backend (`constants/api.js` → Express)
-Base URL: `API_URL` (default `http://localhost:5001/api`).
+### Favorites → own backend (`lib/api.js` → Express)
+Base URL: `API_URL` (env-driven, default `http://localhost:5001/api`).
+All favorites routes **require** `Authorization: Bearer <supabase access token>`;
+the server validates it via `supabase.auth.getUser(token)` (`src/middleware/auth.js`)
+and derives the user id from the token — client-supplied userIds are ignored.
 | Verb | Route | Purpose |
 |---|---|---|
-| `GET` | `/api/health` | health check |
-| `POST` | `/api/favorites` | add favorite (body: userId, recipeId, title, image, cookTime, servings) |
-| `GET` | `/api/favorites/:userId` | list a user's favorites |
-| `DELETE` | `/api/favorites/:userId/:recipeId` | remove one favorite |
+| `GET` | `/api/health` | health check (public) |
+| `POST` | `/api/favorites` | add favorite for the authenticated user (body: recipeId, title, image, cookTime, servings) |
+| `GET` | `/api/favorites` | list the authenticated user's favorites |
+| `DELETE` | `/api/favorites/:recipeId` | remove one of the authenticated user's favorites |
 
-**Client callers:**
+**Client callers** (via `lib/api.js` → `authFetch()`, which attaches the session token):
 - `recipe/[id].jsx` — checks saved state on load; POST/DELETE on toggle.
 - `favorites.jsx` — GET on mount, maps `recipeId` → `id` for `RecipeCard`.
 
@@ -261,12 +264,12 @@ cd mobile && npm install && npx expo start
 ## 11. Known gotchas / tech debt (read before "fixing" things)
 
 1. ~~**`API_URL` hardcoded to `http://localhost:5001/api`.**~~ **Fixed (F2):** now env-driven via `EXPO_PUBLIC_API_URL` with the localhost fallback (see §10).
-2. **Backend has zero auth/authorization.** Any client can read/modify any user's favorites by passing a `userId`. No Supabase JWT verification. Fine for a tutorial, not production.
+2. ~~**Backend has zero auth/authorization.**~~ **Fixed (F8):** favorites routes now require a Supabase access token (`Authorization: Bearer`), verified server-side via `auth.getUser(token)`; userId is derived from the token (see §6).
 3. **No runtime theme switching** despite 8 themes existing (see §8).
 4. **`cookTime`/`servings` are fabricated** in `transformMealData` (`"30 minutes"`, `4`). Any "prep time" shown is not real data.
 5. **`servings` type mismatch:** DB column is `text`, but the client POSTs a number. Postgres coerces, but favorites read back as strings — keep in mind for sorting/formatting.
 6. **Two Postgres drivers** in `backend/package.json` (`@neondatabase/serverless` **and** `postgres`); likely only one is used.
-7. **`cors` is a dependency but not applied** in `server.js` (no `app.use(cors())`). Add it if the app calls the backend cross-origin.
+7. ~~**`cors` is a dependency but not applied**~~ **Fixed (with F8):** `app.use(cors())` is applied in `server.js`.
 8. **`recipe/[id].jsx` `getYouTubeEmbedUrl`** naively splits on `v=`; non-standard YouTube URLs (e.g. `youtu.be/...`) would break the embed.
 9. **No tests, no linting in CI.** `expo lint` exists; nothing enforced.
 10. **TypeScript half-configured:** `tsconfig.json` present but all code is `.jsx`/`.js`.

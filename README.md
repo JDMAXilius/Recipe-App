@@ -27,6 +27,9 @@ PostgreSQL database are used only to store each user's favorites.
 PORT=5001
 DATABASE_URL=your_neon_db_url
 NODE_ENV=development
+# Same Supabase project as the mobile app — used to verify access tokens
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### Mobile App (`/mobile`)

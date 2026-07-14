@@ -1,7 +1,7 @@
 import { View, Text, Alert, ScrollView, TouchableOpacity, FlatList } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect, useState } from "react";
-import { API_URL } from "../../constants/api";
+import { authFetch } from "../../lib/api";
 import { favoritesStyles } from "../../assets/styles/favorites.styles";
 import { COLORS } from "../../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,7 +17,7 @@ const FavoritesScreen = () => {
   useEffect(() => {
     const loadFavorites = async () => {
       try {
-        const response = await fetch(`${API_URL}/favorites/${user.id}`);
+        const response = await authFetch(`/favorites`);
         if (!response.ok) throw new Error("Failed to fetch favorites");
 
         const favorites = await response.json();
