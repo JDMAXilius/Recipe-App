@@ -1,16 +1,15 @@
-import { View, Text, Alert, ScrollView, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, Alert, ScrollView, FlatList } from "react-native";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect, useMemo, useState } from "react";
 import { authFetch } from "../../lib/api";
 import { createFavoritesStyles } from "../../assets/styles/favorites.styles";
 import { useTheme } from "../../context/ThemeContext";
-import { Ionicons } from "@expo/vector-icons";
 import RecipeCard from "../../components/RecipeCard";
 import NoFavoritesFound from "../../components/NoFavoritesFound";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
 const FavoritesScreen = () => {
-  const { signOut, user } = useAuth();
+  const { user } = useAuth();
   const { colors } = useTheme();
   const favoritesStyles = useMemo(() => createFavoritesStyles(colors), [colors]);
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
@@ -42,23 +41,13 @@ const FavoritesScreen = () => {
     loadFavorites();
   }, [user.id]);
 
-  const handleSignOut = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Logout", style: "destructive", onPress: signOut },
-    ]);
-  };
-
   if (loading) return <LoadingSpinner message="Loading your favorites..." />;
 
   return (
     <View style={favoritesStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={favoritesStyles.header}>
-          <Text style={favoritesStyles.title}>Favorites</Text>
-          <TouchableOpacity style={favoritesStyles.logoutButton} onPress={handleSignOut}>
-            <Ionicons name="log-out-outline" size={22} color={colors.text} />
-          </TouchableOpacity>
+          <Text style={favoritesStyles.title}>Saved</Text>
         </View>
 
         <View style={favoritesStyles.recipesSection}>

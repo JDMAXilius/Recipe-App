@@ -34,6 +34,7 @@ const makeTheme = ({ accent, accentSoft, accentDark, accentSoftDark }) => ({
     border: "#E8DECF",
     gray: "#B9A895", // disabled / muted warm grey
     shadow: "#2A211B",
+    destructive: "#D64545", // outline sign-out / delete actions
   },
   dark: {
     // warm espresso — never grey-black, so the mascot's world holds at night
@@ -55,6 +56,7 @@ const makeTheme = ({ accent, accentSoft, accentDark, accentSoftDark }) => ({
     border: "#3E322A",
     gray: "#6E6055",
     shadow: "#000000",
+    destructive: "#D64545",
   },
 });
 
