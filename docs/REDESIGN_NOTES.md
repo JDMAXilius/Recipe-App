@@ -585,3 +585,25 @@ Cookbook is ONE tab with in-screen segments.
   **C27 addendum (founder rule):** never replace board designs in place — earlier versions are
   restored under "2D · Alternates" on the screens page (Account home v1 · Otto Club v1 · Add
   bottom-sheet v1) and every future redesign duplicates first, edits the copy.
+- **C28. Board synced 1:1 with the RUNNING APP; every superseded design kept as "Alternative
+  version — [name]"** (founder ask, 2026-07-15). Method: e2e-authed headless-Chrome walk of all
+  web routes at 393×852 (co-pilot session holds the shared MCP browser + sim deep links hit the
+  "Open in Otto?" springboard prompt — headless Chrome sidesteps both), screen-by-screen diff
+  vs the board, duplicate-then-rebuild per the C27b rule. **Real TheMealDB photos** (teriyaki/
+  kefta/waterzooi/lasagne/spotted-dick/beef-pie) uploaded so cards/heroes are true to content.
+  **Components resynced:** RecipeCard (photo + •CAL pill + paw-on-photo + macro dots + imported-
+  source pill variant — spec-v1 card kept as alternative), NEW TextTabs (underline All·Saved·My
+  recipes) replacing pill SegmentedControl (kept as alternative), NEW FilterChip (🔥 Cooked),
+  CategoryTile v2 (label outside, Selected variant), TabBar back to shipped Ionicons-style
+  glyphs (painted-glyph proposal kept as "Alternative version — TabBar"). **Screens resynced:**
+  Splash (big hero low wordmark), Onboarding ×3 (full-bleed art, left-aligned copy, pill CTA),
+  Discover (evening greeting + right Otto, filter+search row, outlined tonight band, photo
+  Otto's-pick card w/ title-on-photo, selected category tile, "Beef · 93 RECIPES" grid),
+  Cookbook (count header, text tabs + Cooked chip, new cards), Detail v4 (photo hero, category
+  caption, "From Otto's kitchen" attribution, 4|9|9 divider meta, inline hairline ingredients,
+  paw·calendar·Start-cooking bottom bar), NEW Screen/Recipe/MiseEnPlace ("Everything on the
+  counter before the heat goes on" checklist), Planner (Build-my-list on top, Today card w/
+  meal rows + flame/remove, "Open — no plans, no guilt."), Shopping list (basket count, source
+  chips, inline aisle rows "for <recipe>"), Journal (shipped empty state; spec-v1 filled kept
+  as alternative). Store-kit clones + 8 flow thumbnails re-captured. All 11 prior designs live
+  in "2D · Alternates".
