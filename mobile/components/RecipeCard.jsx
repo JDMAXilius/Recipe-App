@@ -4,11 +4,13 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useTheme } from "../context/ThemeContext";
 import { createRecipeCardStyles } from "../assets/styles/home.styles";
+import { getNutritionEstimate } from "../constants/nutritionEstimates";
 import PawMark from "./PawMark";
 
-// v2 (redesign B8): photo-dominant card, ONE metadata pill on the photo
-// (category — a true fact; cookTime is fabricated upstream so it's gone),
-// title below, paw save-mark in place. No calorie/macros on cards.
+// v2 (redesign B8, amended by founder mid-run — P4-4): photo-dominant card,
+// ONE pill on the photo: "~N cal", the category-typical estimate (same
+// estimator as the detail NutritionCard, always tilde-framed). Title below,
+// paw save-mark in place.
 export default function RecipeCard({ recipe }) {
   const router = useRouter();
   const { colors } = useTheme();
@@ -29,11 +31,11 @@ export default function RecipeCard({ recipe }) {
           contentFit="cover"
           transition={300}
         />
-        {recipe.category ? (
-          <View style={recipeCardStyles.categoryPill}>
-            <Text style={recipeCardStyles.categoryPillText}>{recipe.category}</Text>
-          </View>
-        ) : null}
+        <View style={recipeCardStyles.categoryPill}>
+          <Text style={recipeCardStyles.categoryPillText}>
+            ~{getNutritionEstimate(recipe.category).calories} cal
+          </Text>
+        </View>
         <PawMark recipe={recipe} style={recipeCardStyles.pawPosition} />
       </View>
 

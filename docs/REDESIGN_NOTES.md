@@ -173,6 +173,18 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
   signature moment beyond the shared paw/haptics; entrance staggers deferred with reduced-
   motion support noted for Phase 5.
 
+- **P4-4. FOUNDER REQUEST MID-RUN: "calories on the recipe cards."** This amends B8 (which had
+  removed calorie badges from cards over placeholder-data honesty). Reconciliation that honors
+  both the ask and the honesty rule (P2-7): a single **category-typical estimator**
+  (`constants/nutritionEstimates.js` — per-serving values typical for each TheMealDB category)
+  now feeds BOTH the card pill ("~450 cal", tilde always) and the detail NutritionCard (which
+  stops showing a flat 420 for every recipe — strictly better than before). Cards show the
+  calorie pill as their ONE on-photo metadata element (replacing the category pill; category
+  remains on the detail). Grid results from filter.php get the category stamped client-side
+  (the endpoint omits it). Saved-tab cards lack a category column → default estimate; noted.
+  *Rejected:* per-recipe pseudo-random estimates (pure fabrication), uniform "~420" everywhere
+  (reads broken on a grid).
+
 ## Phase 5 — QA
 
 *(pending)*

@@ -79,7 +79,11 @@ const DiscoverScreen = () => {
         setSelectedCategory(transformedCategories[0].name);
         const meals = await MealAPI.filterByCategory(transformedCategories[0].name);
         setRecipes(
-          meals.map((meal) => MealAPI.transformMealData(meal)).filter((meal) => meal !== null)
+          meals
+            .map((meal) => MealAPI.transformMealData(meal))
+            .filter((meal) => meal !== null)
+            // filter.php omits strCategory — stamp the one we filtered by
+            .map((meal) => ({ ...meal, category: transformedCategories[0].name }))
         );
       }
     } catch (error) {
@@ -95,7 +99,11 @@ const DiscoverScreen = () => {
     try {
       const meals = await MealAPI.filterByCategory(category);
       setRecipes(
-        meals.map((meal) => MealAPI.transformMealData(meal)).filter((meal) => meal !== null)
+        meals
+          .map((meal) => MealAPI.transformMealData(meal))
+          .filter((meal) => meal !== null)
+          // filter.php omits strCategory — stamp the one we filtered by
+          .map((meal) => ({ ...meal, category }))
       );
     } catch (error) {
       console.error("Error loading category", error);

@@ -8,6 +8,7 @@ import { WebView } from "react-native-webview";
 import { MealAPI } from "../../services/mealAPI";
 import { useTheme } from "../../context/ThemeContext";
 import { OVERLAY } from "../../constants/tokens";
+import { getNutritionEstimate } from "../../constants/nutritionEstimates";
 import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import NutritionCard from "../../components/nutrition/NutritionCard";
@@ -187,14 +188,11 @@ const RecipeDetailScreen = () => {
             ))}
           </View>
 
-          {/* NUTRITION — estimate-framed, placeholder values (TheMealDB has none) */}
+          {/* NUTRITION — category-typical estimate (P4-4), tilde-framed */}
           <View style={recipeDetailStyles.sectionContainer}>
             <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
             <NutritionCard
-              calories={420}
-              protein={32}
-              carbs={38}
-              fat={12}
+              {...getNutritionEstimate(recipe.category)}
               servings={servings}
               onServingsChange={setServings}
             />
