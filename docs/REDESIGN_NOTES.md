@@ -607,3 +607,14 @@ Cookbook is ONE tab with in-screen segments.
   chips, inline aisle rows "for <recipe>"), Journal (shipped empty state; spec-v1 filled kept
   as alternative). Store-kit clones + 8 flow thumbnails re-captured. All 11 prior designs live
   in "2D · Alternates".
+- **C29. Tab bar 1:1 + DS-page component sync.** Primary Comp/TabBar now uses the REAL glyphs:
+  MIT-licensed Ionicons SVGs (restaurant/-outline, calendar/-outline, person/-outline, add) +
+  the app's own paw PNGs — outline at rest, filled terracotta active (gotcha: createNodeFromSvg
+  needs rescale(), resize() crops children to a solid square). Painted-glyph proposal (steam-pan
+  Discover · planner-leaf Plan · apron-bow Account) stays as "Alternative version — TabBar",
+  per founder. Remaining DS components resynced to shipped, spec-v1 kept as alternatives:
+  Header (Greeting = "Good evening, chef" + Otto right; ScreenTitle = warm back circle +
+  centered Lora title), ServingStepper ("For N servings" + warm square −/＋), Input (Kind=
+  SearchPill / FieldWarm / FieldBordered), Button (PrimaryPill 🔥 / PrimaryRect ⬇ /
+  SecondaryOutlinePill ✎ / DestructiveOutline). All "Alternative version — *" component sets
+  gathered under a labeled block at the bottom of 1C.
