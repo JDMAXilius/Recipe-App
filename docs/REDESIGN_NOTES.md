@@ -532,3 +532,16 @@ Cookbook is ONE tab with in-screen segments.
   honest placeholders, no fabricated ratings/times anywhere; nutrition framed as estimate
   throughout. REJECTED: reusing the old DS file X1eGT54… as the base (ticket recommended a
   clean file; old file stays as history).
+- **C25. Master Board round 2** (founder asks: glyphs + "any screens/components we need, even
+  empty" + a strategy-review page). (1) **Painted tab glyphs generated** (B5 finally has assets):
+  steam-pan / planner-leaf / apron-bow, hero style lock, 2 takes each, cutouts in
+  `mobile/assets/glyphs/` — swapped into the board's Comp/TabBar (active = full ink, inactive =
+  52% opacity; screen instances inherit). NOT wired into the app yet (Ionicons stay until founder
+  approves the look — README in the glyphs dir has the wire-up note). (2) **Comp/Toast** added
+  (Undo + the one FirstSave Excited card, per B6). (3) **"Future — not yet designed" row** on the
+  screens page: Ask Otto, Collections, Membership-subscribed, Notifications-ask — labeled parking
+  spots so scope stays visible. (4) **Page 3 "Otto · Mobile Strategy Review"**: 8 deck-style
+  slides (cover/agenda/vision/quarter goals/research insights/how-we'll-win/design concepts/Q&A)
+  mirroring the founder's Slides template structure but grounded in repo truth — no invented
+  metrics; Q&A slide is the founder-inputs list. Mid-run image-crop bug from C24 stayed fixed
+  (aspect audit re-run clean). Co-pilot's in-flight backend edits left uncommitted on purpose.
