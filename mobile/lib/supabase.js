@@ -13,6 +13,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     ...(Platform.OS !== "web" && { storage: AsyncStorage }),
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    // web needs this true so the OAuth redirect return (#access_token=…)
+    // becomes a session (P10 §3); native handles its own deep-link callback
+    detectSessionInUrl: Platform.OS === "web",
   },
 });

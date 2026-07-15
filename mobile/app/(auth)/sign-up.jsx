@@ -40,7 +40,13 @@ const SignUpScreen = () => {
     setError(null);
     setLoading(true);
     try {
-      const { error: authError } = await supabase.auth.signUp({ email, password });
+      // Anonymous session → UPGRADE in place (updateUser) so everything the
+      // guest already made (imports, plans, saves) keeps its owner. A fresh
+      // signUp here would mint a second user and orphan that data.
+      const { data: current } = await supabase.auth.getUser();
+      const { error: authError } = current?.user?.is_anonymous
+        ? await supabase.auth.updateUser({ email, password })
+        : await supabase.auth.signUp({ email, password });
       if (authError) {
         setError(authError.message || "Couldn't create your account. Try again.");
       } else {

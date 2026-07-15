@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { Image as ExpoImage } from "expo-image";
 import { supabase } from "../../lib/supabase";
 import { useMemo, useState } from "react";
 import {
@@ -13,7 +14,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { createAuthStyles } from "../../assets/styles/auth.styles";
-import OttoIdle from "../../components/OttoIdle";
+import SocialAuthButtons from "../../components/SocialAuthButtons";
 import { useTheme } from "../../context/ThemeContext";
 
 // Sign-in v2 — the everyday screen: compact Otto vignette, the headline does
@@ -63,10 +64,14 @@ const SignInScreen = () => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={authStyles.vignetteContainer}>
-            <OttoIdle
-              source={require("../../assets/mascot/otto-happy-cut.png")}
-              style={authStyles.vignetteImage}
+          {/* Same framed-hero scale as sign-up — the two doors match */}
+          <View style={authStyles.heroContainer}>
+            <ExpoImage
+              source={require("../../assets/mascot/otto-hero.png")}
+              style={authStyles.heroImage}
+              contentFit="cover"
+              contentPosition="top"
+              accessible={false}
             />
           </View>
 
@@ -75,6 +80,9 @@ const SignInScreen = () => {
 
           <View style={authStyles.formContainer}>
             {error && <Text style={authStyles.errorText}>{error}</Text>}
+
+            {/* social rows render only for providers Supabase has enabled (P10 §3) */}
+            <SocialAuthButtons onError={setError} />
 
             <View style={authStyles.inputContainer}>
               <TextInput
