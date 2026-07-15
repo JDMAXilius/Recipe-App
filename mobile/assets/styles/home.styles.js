@@ -303,6 +303,25 @@ export const createRecipeCardStyles = (colors) =>
       bottom: SPACING.sm,
       right: SPACING.sm,
     },
+    // ONE corner stamp per card — provenance for user recipes ("By you" /
+    // source-link pill). Sits where the paw would; they never co-exist.
+    ownStamp: {
+      position: "absolute",
+      bottom: SPACING.sm,
+      right: SPACING.sm,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      borderRadius: RADIUS.pill,
+      paddingHorizontal: SPACING.sm + 2,
+      paddingVertical: 4,
+      maxWidth: "70%",
+    },
+    ownStampText: {
+      ...TYPE.caption,
+      fontSize: 10,
+      color: colors.white,
+    },
     content: {
       paddingHorizontal: SPACING.md,
       paddingVertical: SPACING.md,

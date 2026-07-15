@@ -83,6 +83,14 @@ export const createRecipeDetailStyles = (colors) =>
       borderRadius: 11,
       backgroundColor: colors.surfaceWarm,
     },
+    attributionIcon: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: colors.accentSoft,
+      alignItems: "center",
+      justifyContent: "center",
+    },
     attributionText: {
       ...TYPE.label,
       fontSize: 13,

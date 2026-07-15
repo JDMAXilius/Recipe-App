@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import * as Haptics from "expo-haptics";
 import { MealAPI } from "../../services/mealAPI";
+import { UserRecipeAPI, transformUserRecipe, isUserRecipeId } from "../../services/userRecipes";
 import { useTheme } from "../../context/ThemeContext";
 import { getNutritionEstimate } from "../../constants/nutritionEstimates";
 import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
@@ -50,7 +51,9 @@ const RecipeDetailScreen = () => {
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [unitSystem, setUnitSystem] = useUnitSystem();
 
-  const scaleFactor = servings / BASE_SERVINGS;
+  const baseServings = recipe?.servings || BASE_SERVINGS;
+  const scaleFactor = servings / baseServings;
+  const isOwn = isUserRecipeId(recipeId);
 
   const tickServings = (next) => {
     if (next < 1 || next > 24) return;
@@ -69,6 +72,13 @@ const RecipeDetailScreen = () => {
       setLoading(true);
       setRelated([]);
       try {
+        if (isUserRecipeId(recipeId)) {
+          const row = await UserRecipeAPI.get(recipeId);
+          const transformed = transformUserRecipe(row);
+          setRecipe(transformed);
+          if (transformed.servings) setServings(transformed.servings);
+          return;
+        }
         const mealData = await MealAPI.getMealById(recipeId);
         if (mealData) {
           const transformedRecipe = MealAPI.transformMealData(mealData);
@@ -172,7 +182,18 @@ const RecipeDetailScreen = () => {
               >
                 <Ionicons name="share-outline" size={20} color={colors.ink} />
               </TouchableOpacity>
-              <PawMark recipe={recipe} size={26} style={{ width: 44, height: 44 }} />
+              {isOwn ? (
+                <TouchableOpacity
+                  style={recipeDetailStyles.backButton}
+                  onPress={() => router.push(`/recipe/edit?id=${recipeId}`)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Edit recipe"
+                >
+                  <Ionicons name="pencil" size={20} color={colors.ink} />
+                </TouchableOpacity>
+              ) : (
+                <PawMark recipe={recipe} size={26} style={{ width: 44, height: 44 }} />
+              )}
             </View>
           </View>
         </View>
@@ -184,15 +205,39 @@ const RecipeDetailScreen = () => {
           </Text>
           <Text style={recipeDetailStyles.recipeTitle}>{recipe.title}</Text>
 
-          {/* Attribution slot — v2 imports swap in favicon + source domain ↗ */}
-          <View style={recipeDetailStyles.attributionRow}>
-            <Image
-              source={require("../../assets/mascot/otto-badge.png")}
-              style={recipeDetailStyles.attributionBadge}
-              contentFit="cover"
-            />
-            <Text style={recipeDetailStyles.attributionText}>From Otto's kitchen</Text>
-          </View>
+          {/* Attribution slot — source = author; the credit never edits away */}
+          {recipe.source === "imported" && recipe.sourceUrl ? (
+            <TouchableOpacity
+              style={recipeDetailStyles.attributionRow}
+              onPress={() => Linking.openURL(recipe.sourceUrl)}
+              accessibilityRole="link"
+              accessibilityLabel={`Open the original recipe on ${recipe.sourceName || "the source site"}`}
+            >
+              <View style={recipeDetailStyles.attributionIcon}>
+                <Ionicons name="link" size={12} color={colors.accent} />
+              </View>
+              <Text style={recipeDetailStyles.attributionText}>
+                From {recipe.sourceName || "the web"}{" "}
+                <Ionicons name="open-outline" size={12} color={colors.accent} />
+              </Text>
+            </TouchableOpacity>
+          ) : recipe.source === "manual" ? (
+            <View style={recipeDetailStyles.attributionRow}>
+              <View style={recipeDetailStyles.attributionIcon}>
+                <Ionicons name="person" size={12} color={colors.accent} />
+              </View>
+              <Text style={recipeDetailStyles.attributionText}>By you — from your kitchen</Text>
+            </View>
+          ) : (
+            <View style={recipeDetailStyles.attributionRow}>
+              <Image
+                source={require("../../assets/mascot/otto-badge.png")}
+                style={recipeDetailStyles.attributionBadge}
+                contentFit="cover"
+              />
+              <Text style={recipeDetailStyles.attributionText}>From Otto's kitchen</Text>
+            </View>
+          )}
 
           {/* Honest meta — every number computed from real data */}
           <View style={recipeDetailStyles.metaRow}>
@@ -273,7 +318,7 @@ const RecipeDetailScreen = () => {
             {scaleFactor !== 1 && (
               <TouchableOpacity
                 style={recipeDetailStyles.scaleChip}
-                onPress={() => tickServings(BASE_SERVINGS)}
+                onPress={() => tickServings(baseServings)}
                 accessibilityRole="button"
                 accessibilityLabel="Reset servings"
               >
@@ -427,7 +472,7 @@ const RecipeDetailScreen = () => {
 
       {/* PINNED BOTTOM BAR */}
       <View style={recipeDetailStyles.bottomBar}>
-        <PawMark recipe={recipe} size={26} style={{ width: 52, height: 52 }} />
+        {!isOwn && <PawMark recipe={recipe} size={26} style={{ width: 52, height: 52 }} />}
         <Bounceable
           style={recipeDetailStyles.cookButton}
           containerStyle={{ flex: 1 }}

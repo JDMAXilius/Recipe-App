@@ -18,6 +18,7 @@ import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useKeepAwake } from "expo-keep-awake";
 import { MealAPI } from "../../../services/mealAPI";
+import { UserRecipeAPI, transformUserRecipe, isUserRecipeId } from "../../../services/userRecipes";
 import { useTheme } from "../../../context/ThemeContext";
 import { SPACING, RADIUS, TYPE } from "../../../constants/tokens";
 import { splitSteps, matchStepIngredients } from "../../../lib/cookSession";
@@ -122,8 +123,13 @@ const CookModeScreen = () => {
   useEffect(() => {
     (async () => {
       try {
-        const mealData = await MealAPI.getMealById(recipeId);
-        if (mealData) setRecipe(MealAPI.transformMealData(mealData));
+        if (isUserRecipeId(recipeId)) {
+          const row = await UserRecipeAPI.get(recipeId);
+          setRecipe(transformUserRecipe(row));
+        } else {
+          const mealData = await MealAPI.getMealById(recipeId);
+          if (mealData) setRecipe(MealAPI.transformMealData(mealData));
+        }
       } catch (error) {
         console.error("Error loading cook mode:", error);
       } finally {
@@ -136,7 +142,7 @@ const CookModeScreen = () => {
   const pairs = recipe?.ingredientPairs?.length
     ? recipe.ingredientPairs
     : (recipe?.ingredients || []).map((s) => ({ measure: "", name: s }));
-  const scaleFactor = servings / BASE_SERVINGS;
+  const scaleFactor = servings / (recipe?.servings || BASE_SERVINGS);
 
   // step advance animation
   const stepAnim = useRef(new RNAnimated.Value(1)).current;
