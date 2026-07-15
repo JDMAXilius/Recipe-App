@@ -106,7 +106,28 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
 
 ## Phase 4 — Screens
 
-*(pending)*
+- **P4-0. Asset pack landed first** (gates everything): 14 food icons (512 webp, 332KB total),
+  paw filled/outline (transparent, tintable), badge bust, padded icon/adaptive/splash/favicon.
+  All committed; no expiring CDN links.
+- **P4-1. TAB BAR + DISCOVER (one commit — the tab decision IS the merge).**
+  *Plan:* 3 tabs (Discover restaurant-glyph / Saved paw / Account person), labels always on,
+  selection haptics. Discover rhythm: greeting ("Good evening, chef" — no name data, "chef" is
+  Otto's address) + small Otto → warm search pill → featured card (Otto's pick stamp, serif
+  title, TRUE meta only: area+category) → illustrated category tiles → grid. Search-in-place:
+  typing swaps grid to results (name→ingredient fallback kept), browse sections hide;
+  Thinking-Otto empty state, no button (keyboard is the CTA). RecipeCard v2: photo ~70%,
+  category pill (real fact — fabricated cookTime dropped from cards), title 2 lines, paw-mark
+  with pop+haptics. NEW SavedContext: one favorites fetch, optimistic paw toggles everywhere.
+  *Directions rejected:* pinned/sticky search header (fights the greeting moment; revisit if
+  scroll-usage data demands); "Misc" tile dropped for a display-name map instead of renaming
+  data. *Verified in Chrome:* sign-in → Discover render, search "tom yum" → 2 results, paw
+  save → persisted through full reload ("Remove from saved"), tabs navigate. Capture:
+  `docs/redesign/captures/01-discover.png`.
+  *Grades:* Motion 3 (paw-pop signature in; entrance staggers deferred) · Illustration 5 ·
+  Haptics 4 · Icons 4 · Taste 4 (strip test: painted tiles + serif + cream = ours) ·
+  Token-purity 5.
+  *Known gaps (for Phase 5):* no undo toast on unsave yet; deep-link /favorites lands on
+  Discover after cold load (router redirect timing) — investigate in QA.
 
 ## Phase 5 — QA
 

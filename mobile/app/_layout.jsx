@@ -3,6 +3,7 @@ import { useFonts, Lora_600SemiBold, Lora_700Bold } from "@expo-google-fonts/lor
 import SafeScreen from "@/components/SafeScreen";
 import { AuthProvider } from "../context/AuthContext";
 import { ThemeProvider } from "../context/ThemeContext";
+import { SavedProvider } from "../context/SavedContext";
 
 export default function RootLayout() {
   // Lora = the display serif (docs/DESIGN_SYSTEM.md B2). Body text stays system.
@@ -12,9 +13,11 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <SafeScreen>
-          <Slot />
-        </SafeScreen>
+        <SavedProvider>
+          <SafeScreen>
+            <Slot />
+          </SafeScreen>
+        </SavedProvider>
       </AuthProvider>
     </ThemeProvider>
   );

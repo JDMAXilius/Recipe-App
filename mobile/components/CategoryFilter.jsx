@@ -1,38 +1,65 @@
 import { useMemo } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
+import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
-import { createHomeStyles } from "../assets/styles/home.styles";
+import { createCategoryStyles } from "../assets/styles/home.styles";
+import { getFoodIcon } from "../constants/foodIcons";
 
+// TheMealDB names that don't fit a tile label.
+const DISPLAY_NAMES = { Miscellaneous: "Misc" };
+
+// Illustrated category tiles (D5): hand-painted Otto-style food art at art
+// scale on a shared warm tint — replaces TheMealDB photo thumbnails.
 export default function CategoryFilter({ categories, selectedCategory, onSelectCategory }) {
   const { colors } = useTheme();
-  const homeStyles = useMemo(() => createHomeStyles(colors), [colors]);
+  const categoryStyles = useMemo(() => createCategoryStyles(colors), [colors]);
+
+  const handleSelect = (name) => {
+    Haptics.selectionAsync().catch(() => {});
+    onSelectCategory(name);
+  };
+
   return (
-    <View style={homeStyles.categoryFilterContainer}>
+    <View style={categoryStyles.categoryFilterContainer}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={homeStyles.categoryFilterScrollContent}
+        contentContainerStyle={categoryStyles.categoryFilterScrollContent}
       >
         {categories.map((category) => {
-          const isSelected = selectedCategory === category.name;
+          const selected = selectedCategory === category.name;
           return (
             <TouchableOpacity
               key={category.id}
-              style={[homeStyles.categoryButton, isSelected && homeStyles.selectedCategory]}
-              onPress={() => onSelectCategory(category.name)}
-              activeOpacity={0.7}
+              style={categoryStyles.categoryButton}
+              onPress={() => handleSelect(category.name)}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={`${category.name} recipes`}
+              accessibilityState={{ selected }}
             >
-              <Image
-                source={{ uri: category.image }}
-                style={[homeStyles.categoryImage, isSelected && homeStyles.selectedCategoryImage]}
-                contentFit="cover"
-                transition={300}
-              />
-              <Text
-                style={[homeStyles.categoryText, isSelected && homeStyles.selectedCategoryText]}
+              <View
+                style={[
+                  categoryStyles.categoryTile,
+                  selected && categoryStyles.selectedCategoryTile,
+                ]}
               >
-                {category.name}
+                <Image
+                  source={getFoodIcon(category.name)}
+                  style={categoryStyles.categoryImage}
+                  contentFit="cover"
+                  transition={200}
+                />
+              </View>
+              <Text
+                style={[
+                  categoryStyles.categoryText,
+                  selected && categoryStyles.selectedCategoryText,
+                ]}
+                numberOfLines={1}
+              >
+                {DISPLAY_NAMES[category.name] || category.name}
               </Text>
             </TouchableOpacity>
           );
