@@ -225,6 +225,8 @@ export function parseIngredients(list) {
   const totalGrams = withGrams.reduce((sum, l) => sum + l.grams, 0);
   const lowShare = lines.length ? lines.filter((l) => l.confidence === "low").length / lines.length : 1;
   const medShare = lines.length ? lines.filter((l) => l.confidence === "medium").length / lines.length : 0;
-  const confidence = lowShare > 0.25 ? "low" : lowShare > 0 || medShare > 0.5 ? "medium" : "high";
+  // >25% unreadable → low; >25% of lines carrying any approximation → medium.
+  // "high" means the numbers are genuinely mostly measured, not mostly guessed.
+  const confidence = lowShare > 0.25 ? "low" : lowShare + medShare > 0.25 ? "medium" : "high";
   return { lines, totalGrams: Math.round(totalGrams), confidence };
 }
