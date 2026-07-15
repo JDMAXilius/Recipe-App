@@ -83,7 +83,7 @@ one-line subhead · progress dots · **Continue** (last screen: **Start cooking*
 - **Illustration:** Otto's week grid → a checkable shopping list
 - **Subhead:** "Plan your meals and Otto builds the shopping list for you."
 - **Bundles:** Meal Plan · Shopping list · Cookbook is where it all lives
-- ⭑ **Membership-dependent.** If Plan isn't in the launch build, drop B3 → 2-screen onboarding (collect → cook) and add it back when Plan ships.
+- ✅ **Confirmed (founder, 2026-07-15): Plan is in launch scope** → B3 stays, onboarding is **3 screens**. (Plan ships ungated at launch, then gates under Otto Club when IAP opens — see ticket.)
 
 ---
 

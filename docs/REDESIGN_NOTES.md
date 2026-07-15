@@ -445,13 +445,16 @@ Cookbook is ONE tab with in-screen segments.
   differentiator; **curated-first re-feature** ("From the Otto kitchen") before any
   algorithm. Full deep-think `docs/DISCOVER_SOCIAL_EXPLORATION.md`.
 
-### Defaults locked while founder is away (ratify or overturn)
-- **Plan at launch:** treated as **membership fast-follow (not v1)** per the v2 direction doc →
-  onboarding keeps all **3 screens** (B3 shows the vision, Kitchen-Stories precedent). If founder
-  says Plan is NOT shown at launch, drop to 2 screens (B1→B2). B3 art already made either way.
-- **Facebook login:** kept in the spec, flagged optional.
-- **Social plan + cook-then-rate + curated re-feature:** adopted as the recommended path;
-  Phase 2 build, v1 seeds only.
+### Founder ruling (2026-07-15, "yes to all") — ratified
+- **Plan IS in launch scope** (overturns the away-default of "fast-follow"). Onboarding stays
+  **3 screens** (B1→B2→B3); Plan screens (`SCREEN_MAP §G`) are v1. **Ships ungated at launch**,
+  then gates under Otto Club when IAP opens (don't block launch on IAP).
+- **4 renders approved** (B1 `52c078e5`, B2 `44b0d5b4`, B3 `ce3750fb`, splash `3411c1ab`).
+- **Facebook login:** confirmed kept (still flagged optional in-spec).
+- **Discover-social:** phased plan + cook-then-rate + curated re-feature **adopted**; Phase 2
+  build, v1 seeds attribution + `visibility` flag only.
+- **Splash video:** approved to proceed (terminal, seeded from the approved still `3411c1ab`).
+- **Handoff:** batch packaged as a terminal build ticket → `docs/TERMINAL_TICKET_P10.md`.
 
 ### Blocked in the cloud session (handed to terminal)
 - CDN egress still 403 → generated PNGs (onboarding ×3, splash still) **not committable here**;
