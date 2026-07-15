@@ -514,3 +514,21 @@ Cookbook is ONE tab with in-screen segments.
   build still needs one rebuild (plugin + `usesAppleSignIn` entitlement) before Apple's
   native sheet can work; web needed `detectSessionInUrl: true` (web only) for the
   redirect return.
+- **C24. Figma Master Board shipped** (ticket `docs/FIGMA_MASTER_BOARD_PROMPT.md`, 2026-07-15).
+  New file **"Otto — Master Board"**: https://www.figma.com/design/mM0uWkHod9rL1Ff1VJ64Au —
+  2 pages. Page 1 "Otto · Design System": Variables (Color 15 · Spacing 6 · Radius 5, scoped,
+  code-syntaxed to `theme.*`/`SPACING.*`/`RADIUS.*`), 6 text styles (Lora display + SF Pro),
+  swatch/type/spacing/radius/overlay/motion spec cards, all 45 repo assets uploaded as labeled
+  tiles (webp food icons converted to PNG — Figma placed webp fills blank), and 20 components
+  with variants (TabBar ×4 actives, RecipeCard saved/unsaved, NutritionCard/CalorieRing/MacroBar/
+  ServingStepper, PawMark, buttons/chips/inputs/segmented/dots/auth rows/list rows, FilterSheet,
+  EmptyState, OttoStates ×6). Page 2: app map (entry flow + auth cloakroom + 5 tab zones),
+  32 low-fi wireframes, and 28 full-length hi-fi screens grouped by flow — unbuilt surfaces
+  (by-ingredient, scan-photo, video/IG, connected accounts) are dashed "PLACEHOLDER — not built"
+  frames. Founder caught mid-run that images were cropping: root cause was upload placement
+  frames landing at arbitrary fit-box sizes (e.g. 560×420) that don't match intrinsic aspect —
+  fixed globally by resizing every IMAGE-fill node to its true ratio (42 nodes page 1, 10 page 2),
+  then re-audited to zero. Recipe photos on the board are painted food icons on surfaceWarm —
+  honest placeholders, no fabricated ratings/times anywhere; nutrition framed as estimate
+  throughout. REJECTED: reusing the old DS file X1eGT54… as the base (ticket recommended a
+  clean file; old file stays as history).
