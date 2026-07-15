@@ -228,6 +228,22 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
 - **B5. Cuisine list ordering:** 30 known-stocked cuisines first, long tail after — nothing
   hidden, counts stay honest.
 
+## Post-run 3 — Animations & interactions pass (founder: "lets go with the animations")
+
+- **M1. `Bounceable`** (new): spring.snappy press-scale (1→0.97→1) on RecipeCard, featured
+  card, category tiles, Start-cooking, cook-mode Next. Reduced motion → opacity dip.
+- **M2. `OttoIdle`** (new) — **D4-lite, in code, no Rive**: a barely-there breathing loop
+  (±1.5% scale, −2pt lift, ~4s cycle; optional sway; optional spring-pop entrance). Applied
+  within B6 territory only: Discover greeting, sign-in vignette, Thinking search-empty (sway),
+  Sad saved-empty, Sleepy cold-start, Proud cook-finish (entrance pop). Sad ERROR Otto stays
+  still — errors don't wiggle. Reduced motion → static PNG. The full Rive plan
+  (`OTTO_ANIMATION_PLAN.md`) remains open for interactive reactions.
+- **M3. Cook-mode step transition:** incoming sentence fades + lifts 8pt over 220ms per
+  advance (RN Animated — web-safe; reanimated core is fine, its LAYOUT animations are not,
+  see B1).
+- **M4.** All verified on web: cards still navigate via Pressable, cook run 6/6 → Proud pop,
+  no console errors. Figma "Interactions / animations" frame updated to match.
+
 ## Phase 5 — QA
 
 - **P5-1. Adversarial pass complete → `docs/QA.md`.** 10 findings: 4 P0s all FIXED in-pass

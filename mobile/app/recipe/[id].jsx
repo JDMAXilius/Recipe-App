@@ -13,6 +13,7 @@ import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styl
 import LoadingSpinner from "../../components/LoadingSpinner";
 import NutritionCard from "../../components/nutrition/NutritionCard";
 import PawMark from "../../components/PawMark";
+import Bounceable from "../../components/Bounceable";
 
 // Recipe Detail v2 (MOBBIN_COMPARISON §2.4): one scroll, true facts only —
 // the fabricated Prep-Time/Servings stat cards are gone, ingredients are flat
@@ -203,15 +204,16 @@ const RecipeDetailScreen = () => {
       {/* PINNED BOTTOM BAR */}
       <View style={recipeDetailStyles.bottomBar}>
         <PawMark recipe={recipe} size={26} style={{ width: 52, height: 52 }} />
-        <TouchableOpacity
+        <Bounceable
           style={recipeDetailStyles.cookButton}
+          containerStyle={{ flex: 1 }}
           onPress={() => router.push(`/recipe/cook/${recipe.id}`)}
           accessibilityRole="button"
           accessibilityLabel="Start cooking step by step"
         >
           <Ionicons name="flame-outline" size={20} color={colors.white} />
           <Text style={recipeDetailStyles.cookButtonText}>Start cooking</Text>
-        </TouchableOpacity>
+        </Bounceable>
       </View>
     </View>
   );

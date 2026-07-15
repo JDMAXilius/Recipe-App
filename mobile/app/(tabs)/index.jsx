@@ -20,6 +20,8 @@ import RecipeCard from "../../components/RecipeCard";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import FilterSheet from "../../components/FilterSheet";
 import { OttoLoading, OttoError } from "../../components/OttoStates";
+import OttoIdle from "../../components/OttoIdle";
+import Bounceable from "../../components/Bounceable";
 
 // Discover — Home + Search merged (tab decision P2-1, MOBBIN_COMPARISON §2.1).
 // Scroll rhythm: greeting → search pill → featured → category tiles → grid.
@@ -219,11 +221,9 @@ const DiscoverScreen = () => {
         {/* GREETING — Otto's one appearance on this screen */}
         <View style={homeStyles.greetingSection}>
           <Text style={homeStyles.greetingText}>{greeting}</Text>
-          <Image
+          <OttoIdle
             source={require("../../assets/mascot/otto-happy-cut.png")}
             style={homeStyles.greetingOtto}
-            contentFit="contain"
-            accessible={false}
           />
         </View>
 
@@ -272,9 +272,8 @@ const DiscoverScreen = () => {
           <>
             {featuredRecipe && (
               <View style={homeStyles.featuredSection}>
-                <TouchableOpacity
+                <Bounceable
                   style={homeStyles.featuredCard}
-                  activeOpacity={0.9}
                   onPress={() => router.push(`/recipe/${featuredRecipe.id}`)}
                   accessibilityRole="button"
                   accessibilityLabel={`Otto's pick: ${featuredRecipe.title}`}
@@ -311,7 +310,7 @@ const DiscoverScreen = () => {
                       </View>
                     </View>
                   </View>
-                </TouchableOpacity>
+                </Bounceable>
               </View>
             )}
 
@@ -348,11 +347,10 @@ const DiscoverScreen = () => {
             />
           ) : isSearching ? (
             <View style={homeStyles.emptyState}>
-              <Image
+              <OttoIdle
                 source={require("../../assets/mascot/otto-thinking-cut.png")}
                 style={homeStyles.emptyOtto}
-                contentFit="contain"
-                accessible={false}
+                sway
               />
               <Text style={homeStyles.emptyTitle}>Nothing for “{debouncedQuery.trim()}” yet</Text>
               <Text style={homeStyles.emptyDescription}>

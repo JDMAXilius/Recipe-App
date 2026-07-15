@@ -11,9 +11,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import * as Haptics from "expo-haptics";
 import { createAuthStyles } from "../../assets/styles/auth.styles";
+import OttoIdle from "../../components/OttoIdle";
 import { useTheme } from "../../context/ThemeContext";
 
 // Sign-in v2 — the everyday screen: compact Otto vignette, the headline does
@@ -64,11 +64,9 @@ const SignInScreen = () => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={authStyles.vignetteContainer}>
-            <Image
+            <OttoIdle
               source={require("../../assets/mascot/otto-happy-cut.png")}
               style={authStyles.vignetteImage}
-              contentFit="contain"
-              accessible={false}
             />
           </View>
 

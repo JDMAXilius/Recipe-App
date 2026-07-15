@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useRouter } from "expo-router";
 import { View, Text, TouchableOpacity } from "react-native";
-import { Image } from "expo-image";
+import OttoIdle from "./OttoIdle";
 import { useTheme } from "@/context/ThemeContext";
 import { createFavoritesStyles } from "@/assets/styles/favorites.styles";
 
@@ -14,12 +14,7 @@ function NoFavoritesFound() {
 
   return (
     <View style={favoritesStyles.emptyState}>
-      <Image
-        source={require("../assets/mascot/otto-sad-cut.png")}
-        style={favoritesStyles.emptyOtto}
-        contentFit="contain"
-        accessible={false}
-      />
+      <OttoIdle source={require("../assets/mascot/otto-sad-cut.png")} style={favoritesStyles.emptyOtto} />
       <Text style={favoritesStyles.emptyTitle}>Nothing saved… yet</Text>
       <Text style={favoritesStyles.emptyDescription}>
         Tap the paw on any recipe and Otto will keep it here for later.

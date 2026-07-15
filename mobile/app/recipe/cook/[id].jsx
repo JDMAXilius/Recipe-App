@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Animated as RNAnimated, Easing } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useKeepAwake } from "expo-keep-awake";
@@ -9,6 +8,8 @@ import { MealAPI } from "../../../services/mealAPI";
 import { useTheme } from "../../../context/ThemeContext";
 import { SPACING, RADIUS, TYPE } from "../../../constants/tokens";
 import LoadingSpinner from "../../../components/LoadingSpinner";
+import OttoIdle from "../../../components/OttoIdle";
+import Bounceable from "../../../components/Bounceable";
 
 // Cook Mode v1 (P2-5): the messy-hands surface. One step per screen, big
 // type, one giant Next, ingredients peek, screen kept awake. No timers, no
@@ -26,6 +27,19 @@ const CookModeScreen = () => {
   const [step, setStep] = useState(0);
   const [showIngredients, setShowIngredients] = useState(false);
   const [finished, setFinished] = useState(false);
+  const stepAnim = useRef(new RNAnimated.Value(1)).current;
+
+  // Step advance motion: quick fade + 8pt lift on the incoming sentence
+  // (RN Animated — cheap, interruptible, web-safe).
+  useEffect(() => {
+    stepAnim.setValue(0);
+    RNAnimated.timing(stepAnim, {
+      toValue: 1,
+      duration: 220,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  }, [step, stepAnim]);
 
   useEffect(() => {
     (async () => {
@@ -70,11 +84,10 @@ const CookModeScreen = () => {
   if (finished) {
     return (
       <View style={[styles.container, styles.finishContainer]}>
-        <Image
+        <OttoIdle
           source={require("../../../assets/mascot/otto-proud-cut.png")}
           style={styles.finishOtto}
-          contentFit="contain"
-          accessible={false}
+          entrance
         />
         <Text style={styles.finishTitle}>Dinner, done.</Text>
         <Text style={styles.finishBody}>Otto's proud of you.</Text>
@@ -118,7 +131,16 @@ const CookModeScreen = () => {
 
       {/* THE STEP */}
       <ScrollView style={styles.stepScroll} contentContainerStyle={styles.stepContent}>
-        <Text style={styles.stepText}>{steps[step]}</Text>
+        <RNAnimated.View
+          style={{
+            opacity: stepAnim,
+            transform: [
+              { translateY: stepAnim.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) },
+            ],
+          }}
+        >
+          <Text style={styles.stepText}>{steps[step]}</Text>
+        </RNAnimated.View>
       </ScrollView>
 
       {/* INGREDIENTS PEEK */}
@@ -154,14 +176,15 @@ const CookModeScreen = () => {
             <Ionicons name="arrow-back" size={22} color={colors.ink} />
           </TouchableOpacity>
         )}
-        <TouchableOpacity
+        <Bounceable
           onPress={advance}
           style={styles.nextButton}
+          containerStyle={{ flex: 1 }}
           accessibilityRole="button"
           accessibilityLabel={isLast ? "Finish cooking" : "Next step"}
         >
           <Text style={styles.nextButtonText}>{isLast ? "Finish" : "Next step"}</Text>
-        </TouchableOpacity>
+        </Bounceable>
       </View>
     </View>
   );

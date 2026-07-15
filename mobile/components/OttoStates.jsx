@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
 import { useTheme } from "../context/ThemeContext";
+import OttoIdle from "./OttoIdle";
 import { SPACING, RADIUS, TYPE, TIMING } from "../constants/tokens";
 
 // Full-screen Otto states (DESIGN_SYSTEM B6).
@@ -33,13 +34,7 @@ export function OttoLoading() {
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("../assets/mascot/otto-sleepy-cut.png")}
-        style={styles.otto}
-        contentFit="contain"
-        transition={TIMING.fade}
-        accessible={false}
-      />
+      <OttoIdle source={require("../assets/mascot/otto-sleepy-cut.png")} style={styles.otto} />
       <Text style={styles.caption}>Warming up the kitchen…</Text>
       <Text style={styles.tip}>{TIPS[tipIndex]}</Text>
     </View>

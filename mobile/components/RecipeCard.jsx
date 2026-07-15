@@ -1,11 +1,12 @@
 import { useMemo } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useTheme } from "../context/ThemeContext";
 import { createRecipeCardStyles } from "../assets/styles/home.styles";
 import { getNutritionEstimate } from "../constants/nutritionEstimates";
 import PawMark from "./PawMark";
+import Bounceable from "./Bounceable";
 
 // RecipeCard — one-to-one with the Figma DS component (page "RecipeCard"):
 // image 5:4 · calorie badge top-right (surface pill + accent dot) · title max
@@ -19,10 +20,9 @@ export default function RecipeCard({ recipe }) {
   const estimate = getNutritionEstimate(recipe.category);
 
   return (
-    <TouchableOpacity
+    <Bounceable
       style={recipeCardStyles.container}
       onPress={() => router.push(`/recipe/${recipe.id}`)}
-      activeOpacity={0.85}
       accessibilityRole="button"
       accessibilityLabel={`Open recipe ${recipe.title}`}
     >
@@ -50,6 +50,6 @@ export default function RecipeCard({ recipe }) {
           <View style={[recipeCardStyles.macroDot, { backgroundColor: nutrition.fat }]} />
         </View>
       </View>
-    </TouchableOpacity>
+    </Bounceable>
   );
 }

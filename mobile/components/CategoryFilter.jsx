@@ -1,10 +1,11 @@
 import { useMemo } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
 import { createCategoryStyles } from "../assets/styles/home.styles";
 import { getFoodIcon } from "../constants/foodIcons";
+import Bounceable from "./Bounceable";
 
 // TheMealDB names that don't fit a tile label.
 const DISPLAY_NAMES = { Miscellaneous: "Misc" };
@@ -30,11 +31,10 @@ export default function CategoryFilter({ categories, selectedCategory, onSelectC
         {categories.map((category) => {
           const selected = selectedCategory === category.name;
           return (
-            <TouchableOpacity
+            <Bounceable
               key={category.id}
               style={categoryStyles.categoryButton}
               onPress={() => handleSelect(category.name)}
-              activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel={`${category.name} recipes`}
               accessibilityState={{ selected }}
@@ -61,7 +61,7 @@ export default function CategoryFilter({ categories, selectedCategory, onSelectC
               >
                 {DISPLAY_NAMES[category.name] || category.name}
               </Text>
-            </TouchableOpacity>
+            </Bounceable>
           );
         })}
       </ScrollView>
