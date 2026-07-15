@@ -18,6 +18,7 @@ import { createHomeStyles } from "../../assets/styles/home.styles";
 import CategoryFilter from "../../components/CategoryFilter";
 import RecipeCard from "../../components/RecipeCard";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { OttoLoading, OttoError } from "../../components/OttoStates";
 
 // Discover — Home + Search merged (tab decision P2-1, MOBBIN_COMPARISON §2.1).
 // Scroll rhythm: greeting → search pill → featured → category tiles → grid.
@@ -39,6 +40,7 @@ const DiscoverScreen = () => {
   const [categories, setCategories] = useState([]);
   const [featuredRecipe, setFeaturedRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,6 +54,7 @@ const DiscoverScreen = () => {
   const loadData = async () => {
     try {
       setLoading(true);
+      setLoadError(false);
       const [apiCategories, randomMeals, featuredMeal] = await Promise.all([
         MealAPI.getCategories(),
         MealAPI.getRandomMeals(12),
@@ -81,6 +84,7 @@ const DiscoverScreen = () => {
       }
     } catch (error) {
       console.log("Error loading Discover", error);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -144,7 +148,9 @@ const DiscoverScreen = () => {
     loadData();
   }, []);
 
-  if (loading && !refreshing) return <LoadingSpinner message="Warming up the kitchen..." />;
+  // Cold start = the one Sleepy-Otto moment (B6); failures = Sad Otto + retry.
+  if (loading && !refreshing) return <OttoLoading />;
+  if (loadError && recipes.length === 0) return <OttoError onRetry={loadData} />;
 
   const gridData = isSearching ? searchResults : recipes;
   const gridTitle = isSearching ? `Results for “${debouncedQuery.trim()}”` : selectedCategory;
