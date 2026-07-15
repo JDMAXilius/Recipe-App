@@ -25,14 +25,14 @@ export const createClubStyles = (colors) =>
       justifyContent: "center",
     },
     heroBand: {
-      backgroundColor: colors.surfaceWarm,
+      backgroundColor: colors.bg, // cutout floats on the page itself — no band seam
       overflow: "hidden",
+      paddingTop: SPACING.xxl,
     },
-    // The painting IS the band: full-width at its own aspect ratio
-    // (1184×764) — its cream water blends into the surface, nothing crops.
     heroArt: {
-      width: "100%",
-      aspectRatio: 1184 / 764,
+      width: "88%",
+      alignSelf: "center",
+      aspectRatio: 900 / 582, // cutout's native ratio
     },
     body: {
       padding: SPACING.lg,

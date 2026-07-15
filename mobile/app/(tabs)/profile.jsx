@@ -152,7 +152,7 @@ const AccountScreen = () => {
               </View>
             </View>
             <Image
-              source={require("../../assets/mascot/otto-scene-floating.png")}
+              source={require("../../assets/mascot/otto-floating-cut.png")}
               style={styles.clubArt}
               contentFit="contain"
             />

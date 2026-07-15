@@ -100,12 +100,12 @@ const OttoClubScreen = () => {
       </TouchableOpacity>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 48 }]}>
-        {/* Hero — the floating-Otto painting, full width at its own ratio */}
+        {/* Hero — transparent floating-Otto cutout on the page's own cream */}
         <View style={styles.heroBand}>
           <Image
-            source={require("../assets/mascot/otto-scene-floating.png")}
+            source={require("../assets/mascot/otto-floating-cut.png")}
             style={styles.heroArt}
-            contentFit="cover"
+            contentFit="contain"
           />
         </View>
 

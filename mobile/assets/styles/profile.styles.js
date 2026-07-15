@@ -170,12 +170,14 @@ export const createProfileStyles = (colors) =>
       fontSize: 12,
       color: colors.white,
     },
+    // transparent cutout (otto-floating-cut) — blends into any card color,
+    // no pasted-box seam; native ratio so Otto never squishes
     clubArt: {
-      width: "44%",
-      aspectRatio: 1184 / 764, // painting's native ratio — never squished
+      width: "46%",
+      aspectRatio: 900 / 582,
       alignSelf: "flex-end",
-      marginRight: -SPACING.lg, // art bleeds off the card edge
-      marginBottom: -SPACING.md,
+      marginRight: -SPACING.sm,
+      marginBottom: -SPACING.xs,
     },
     deleteRow: {
       alignSelf: "center",
