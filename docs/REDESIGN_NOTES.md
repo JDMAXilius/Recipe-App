@@ -545,3 +545,16 @@ Cookbook is ONE tab with in-screen segments.
   mirroring the founder's Slides template structure but grounded in repo truth — no invented
   metrics; Q&A slide is the founder-inputs list. Mid-run image-crop bug from C24 stayed fixed
   (aspect audit re-run clean). Co-pilot's in-flight backend edits left uncommitted on purpose.
+- **C26. Master Board grows to 6 pages** (founder picked all three proposals). **Page 4 · App
+  Store Launch Kit:** five 6.7" (1290×2796) store screenshots — live clones of the Page-2 screens
+  inside ink device mocks on alternating cream/warm fields, honest Lora captions (no ratings
+  bait); listing-copy draft (name/subtitle/promo/description/keywords, Facebook-login note);
+  icon-on-grid tile. Export frames @1x for App Store Connect; legacy 5.5" exports from the same
+  frames. **Page 5 · User Flows:** the three carrying journeys as thumbnail lanes (first-run →
+  first-save → cloakroom; import → review → cook → celebrate; plan → list → tonight band), gold
+  chips = decision points, dashed chips = edge branches (parse-fail, offline mid-cook, dismiss,
+  empty week). **Page 6 · Brand & Voice:** wordmark lockups (Lora Bold + badge, cream-on-ink
+  rule), the five canonical voice specimens as cards + narrator rules, art-usage do/don't tiles
+  (stretch/tint/photo-bg/rotate demos labeled as violations), app-icon anatomy w/ Android 66%
+  safe-zone ring. Store screenshots note: clones are LIVE — regenerate captures after screen
+  changes.
