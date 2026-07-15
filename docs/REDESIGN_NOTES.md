@@ -185,6 +185,30 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
   *Rejected:* per-recipe pseudo-random estimates (pure fabrication), uniform "~420" everywhere
   (reads broken on a grid).
 
+## Post-run — Figma ↔ app one-to-one pass (founder request, 2026-07-14)
+
+- **F1. NutritionCard:** app already matched the Figma component structurally (ring left /
+  3 macro bars grams-right / stepper footer — MacroBar is 1:1 with the primitive). The v2
+  estimate framing (~kcal, "EST. / SERVING", honesty footnote) was pushed INTO the Figma
+  component + CalorieRing primitive so both sides now agree exactly.
+- **F2. RecipeCard aligned to the Figma spec:** image 5:4, calorie badge top-right (surface
+  pill + accent dot, "~450 cal"), title ≤2 lines + 3 macro dots restored; paw moved to
+  bottom-right on the image. Deviation kept + documented in Figma: the "30 MIN" chip stays
+  out (fabricated data). Figma component updated to match (chip removed, paw added).
+- **F3. FilterSheet SHIPPED** (was specced-only): grab handle, Category + Cuisine chip groups,
+  Clear all + live "Show N recipes" CTA, sheet radius, impactLight/selection haptics; opened
+  from a filter button beside the Discover search pill; Category × Cuisine intersected
+  client-side (TheMealDB can't combine). Deviation documented in Figma: Sort group omitted —
+  no honest sort data. Verified: Japanese → "Show 9 recipes" → grid "Japanese · 9 RECIPES";
+  Beef × Japanese honestly shows 0. Known quirk: list.php?a=list returns ~200 cuisines, many
+  empty — long scroll; P2 backlog to prune to cuisines with results.
+- **F4. Figma DS file updated to shipped v2:** all five component doc notes rewritten
+  (Tab Bar, NutritionCard, primitives, RecipeCard, FilterSheet — deviations called out);
+  Tab Bar v2 frame (3 tabs, paw, active states) added and v1 strips marked SUPERSEDED at 45%
+  opacity; new page "📱 App Map & Wireframes v2" with app map, tab/top-bar spec, per-screen
+  sections + text wireframe, design style, core features, interactions/animations (springs +
+  haptic map as coded), plus 5 shipped-screen captures.
+
 ## Phase 5 — QA
 
 - **P5-1. Adversarial pass complete → `docs/QA.md`.** 10 findings: 4 P0s all FIXED in-pass
