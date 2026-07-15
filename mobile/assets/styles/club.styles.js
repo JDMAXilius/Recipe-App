@@ -25,17 +25,14 @@ export const createClubStyles = (colors) =>
       justifyContent: "center",
     },
     heroBand: {
-      height: 190,
       backgroundColor: colors.surfaceWarm,
       overflow: "hidden",
-      justifyContent: "flex-end",
     },
+    // The painting IS the band: full-width at its own aspect ratio
+    // (1184×764) — its cream water blends into the surface, nothing crops.
     heroArt: {
-      position: "absolute",
-      right: -40, // art bleeds off the edge (Duolingo/KS bleed)
-      bottom: -10,
-      width: 300,
-      height: 194,
+      width: "100%",
+      aspectRatio: 1184 / 764,
     },
     body: {
       padding: SPACING.lg,
