@@ -37,21 +37,35 @@ const AddScreen = () => {
   const [phase, setPhase] = useState("pick"); // pick | parsing | failed
   const [failMessage, setFailMessage] = useState("");
 
-  // Clipboard detection — "Otto spotted a recipe link" (Crouton pattern).
+  // Clipboard detection — "Otto spotted a link" (Crouton pattern). iOS shows
+  // a system paste prompt the moment an app READS the clipboard, so we only
+  // CHECK for a URL here (hasUrlAsync never prompts) and read on explicit tap.
+  const [clipboardHasLink, setClipboardHasLink] = useState(false);
   useEffect(() => {
     (async () => {
       try {
-        if (Clipboard.hasStringAsync && !(await Clipboard.hasStringAsync())) return;
-        const text = (await Clipboard.getStringAsync())?.trim();
-        if (text && LOOKS_LIKE_URL.test(text)) {
-          setUrl(text);
-          setFromClipboard(true);
+        if (Platform.OS === "web") {
+          // navigator.clipboard.read needs a permission prompt too — skip
+          return;
         }
+        setClipboardHasLink(await Clipboard.hasUrlAsync());
       } catch {
-        // clipboard permission quirks — the input still works by hand
+        // clipboard quirks — the input still works by hand
       }
     })();
   }, []);
+
+  const pasteFromClipboard = async () => {
+    try {
+      const text = ((await Clipboard.getUrlAsync()) || (await Clipboard.getStringAsync()))?.trim();
+      if (text && LOOKS_LIKE_URL.test(text)) {
+        setUrl(text);
+        setFromClipboard(true);
+      }
+    } catch {
+      // user declined the paste — nothing to do
+    }
+  };
 
   const startImport = async () => {
     const target = url.trim();
@@ -176,9 +190,19 @@ const AddScreen = () => {
               <Text style={styles.modeHint}>
                 A recipe page from anywhere on the web — Otto reads the ingredients and steps.
               </Text>
-              {fromClipboard && (
-                <Text style={styles.clipboardHint}>Otto spotted a recipe link on your clipboard.</Text>
-              )}
+              {fromClipboard ? (
+                <Text style={styles.clipboardHint}>Pasted — Otto spotted that link.</Text>
+              ) : clipboardHasLink ? (
+                <TouchableOpacity
+                  onPress={pasteFromClipboard}
+                  accessibilityRole="button"
+                  accessibilityLabel="Paste the link from your clipboard"
+                >
+                  <Text style={styles.clipboardHint}>
+                    Otto spotted a link on your clipboard — tap to paste it.
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
               <TextInput
                 style={styles.urlInput}
                 value={url}
