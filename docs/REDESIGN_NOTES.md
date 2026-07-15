@@ -244,6 +244,18 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
 - **M4.** All verified on web: cards still navigate via Pressable, cook run 6/6 → Proud pop,
   no console errors. Figma "Interactions / animations" frame updated to match.
 
+## Post-run 4 — Interactive Otto, Phase A (founder: "lets do it !")
+
+- **M5. Otto now REACTS (D4 Phase A, in code):** new `lib/ottoBus.js` (tiny pub/sub);
+  PawMark emits "save" on every successful save; `OttoIdle` accepts `reactTo` +
+  `reactionSource` — the Discover greeting Otto hops (−8pt + spring) and flashes to the
+  Excited expression for 1.4s, then settles back to Happy + breathing. One reaction at a
+  time; skipped entirely under reduced motion; uses only locked expression art (zero drift).
+  Verified on web: happy → excited (during save) → happy (after revert).
+- **M6. Rive scoped honestly as Phase B** in OTTO_ANIMATION_PLAN.md: editor-authored rigs +
+  dev build required (rive-react-native is incompatible with Expo Go) — stays approve-first
+  with a real art budget attached.
+
 ## Phase 5 — QA
 
 - **P5-1. Adversarial pass complete → `docs/QA.md`.** 10 findings: 4 P0s all FIXED in-pass

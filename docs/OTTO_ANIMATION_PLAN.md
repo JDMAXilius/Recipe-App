@@ -1,10 +1,19 @@
-# 🎬 Otto, Animated & Interactive — Proposal (D4, APPROVE BEFORE BUILDING)
+# 🎬 Otto, Animated & Interactive — Plan (D4)
 
-> **Status: PROPOSAL — not part of the current redesign.** Per D4, v1 ships static Otto
-> everywhere (see `DESIGN_SYSTEM.md` B6). This is the separate mini-plan for the animated
-> upgrade, written so the founder can approve/reject it as a unit. Nothing below is built.
+> **Status: PHASE A SHIPPED IN CODE (founder go-ahead 2026-07-14, "lets do it").**
+> `OttoIdle` + `ottoBus` deliver the idle loop AND event reactions with the locked PNG art —
+> no Rive, no contractor, runs in Expo Go:
+> • idle breathing (~4s cycle, ±1.5% scale) on greeting / sign-in / empties / loading
+> • sway on Thinking, spring pop-in on Proud (cook finish)
+> • REACTION: on every save, the Discover greeting Otto hops and flashes to Excited for
+>   1.4s, then settles back (ottoBus "save" event from PawMark)
+> All guardrails below hold: ≤1.5s, non-blocking, one-at-a-time, reduced-motion → static.
+>
+> **Phase B (below) remains open:** a true Rive rig buys blended interruptible states,
+> in-place costume/prop changes, and richer physics — needs Rive-editor art + a dev build
+> (rive-react-native won't run in Expo Go). Approve separately when it's worth the art budget.
 
-**Written:** 2026-07-14 (redesign Phase 3)
+**Written:** 2026-07-14 (redesign Phase 3) · **Phase A shipped:** 2026-07-14
 
 ## 1. Scope — what "animated Otto" means (and doesn't)
 

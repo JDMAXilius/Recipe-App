@@ -13,6 +13,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useSaved } from "../context/SavedContext";
 import { useToast } from "../context/ToastContext";
 import { SPRING } from "../constants/tokens";
+import { ottoBus } from "../lib/ottoBus";
 
 const pawOutline = require("../assets/mascot/paw-outline.png");
 const pawFilled = require("../assets/mascot/paw-filled.png");
@@ -45,6 +46,7 @@ export default function PawMark({ recipe, size = 22, style }) {
     }
     if (nowSaved) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      ottoBus.emit("save"); // any visible Otto with reactTo="save" celebrates
       if (!reducedMotion) {
         scale.value = withSequence(withSpring(1.25, SPRING.pop), withSpring(1, SPRING.pop));
       }

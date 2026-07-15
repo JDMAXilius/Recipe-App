@@ -223,6 +223,8 @@ const DiscoverScreen = () => {
           <Text style={homeStyles.greetingText}>{greeting}</Text>
           <OttoIdle
             source={require("../../assets/mascot/otto-happy-cut.png")}
+            reactionSource={require("../../assets/mascot/otto-excited-cut.png")}
+            reactTo="save"
             style={homeStyles.greetingOtto}
           />
         </View>
