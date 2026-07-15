@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Platform, Linking } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Platform, Linking, Share } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { WebView } from "react-native-webview";
 import * as Haptics from "expo-haptics";
 import { MealAPI } from "../../services/mealAPI";
 import { useTheme } from "../../context/ThemeContext";
-import { OVERLAY } from "../../constants/tokens";
 import { getNutritionEstimate } from "../../constants/nutritionEstimates";
 import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
 import { scaledIngredient, formatQty } from "../../lib/ingredientParser";
@@ -19,14 +17,16 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import NutritionCard from "../../components/nutrition/NutritionCard";
 import PawMark from "../../components/PawMark";
 import Bounceable from "../../components/Bounceable";
+import RecipeCard from "../../components/RecipeCard";
 
 const BASE_SERVINGS = 4;
 
-// Recipe Detail v2 (MOBBIN_COMPARISON §2.4): one scroll, true facts only —
-// the fabricated Prep-Time/Servings stat cards are gone, ingredients are flat
-// rows with tinted quantities (browsing surface: no checkboxes), video is an
-// inline tap-to-play row, nutrition reads as an estimate, and the pinned bar
-// keeps Save + Start cooking always reachable.
+// Recipe Detail v3 (Mobbin layout study, 2026-07-15): photo-only hero (title
+// never sits on the art — the NYT/Kitchen Stories/Blue Apron norm), then on
+// cream: eyebrow → serif title → attribution chip (reserved for v2 import
+// sources) → computed meta row. Ingredients before Method (12/12 apps),
+// video in the Kitchen Stories slot, nutrition after Method, and the page
+// exits into related recipes instead of dead-ending on a data card.
 
 // Handles watch?v=, youtu.be/ and /shorts/ URLs (gotcha #8 fixed).
 export const getYouTubeId = (url) => {
@@ -44,6 +44,7 @@ const RecipeDetailScreen = () => {
   const recipeDetailStyles = useMemo(() => createRecipeDetailStyles(colors), [colors]);
 
   const [recipe, setRecipe] = useState(null);
+  const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [servings, setServings] = useState(BASE_SERVINGS);
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -66,11 +67,30 @@ const RecipeDetailScreen = () => {
   useEffect(() => {
     const loadRecipeDetail = async () => {
       setLoading(true);
+      setRelated([]);
       try {
         const mealData = await MealAPI.getMealById(recipeId);
         if (mealData) {
           const transformedRecipe = MealAPI.transformMealData(mealData);
           setRecipe({ ...transformedRecipe, youtubeUrl: mealData.strYoutube || null });
+
+          // Exit section: same-category recipes (filter.php omits strCategory —
+          // stamp it back on, same fix as Discover).
+          if (mealData.strCategory) {
+            MealAPI.filterByCategory(mealData.strCategory)
+              .then((meals) =>
+                setRelated(
+                  meals
+                    .filter((m) => m.idMeal !== String(mealData.idMeal))
+                    .slice(0, 4)
+                    .map((m) => ({
+                      ...MealAPI.transformMealData(m),
+                      category: mealData.strCategory,
+                    }))
+                )
+              )
+              .catch(() => setRelated([]));
+          }
         }
       } catch (error) {
         console.error("Error loading recipe detail:", error);
@@ -111,22 +131,27 @@ const RecipeDetailScreen = () => {
     setVideoPlaying(true);
   };
 
+  const handleShare = async () => {
+    try {
+      const link = recipe.youtubeUrl ? `\n${recipe.youtubeUrl}` : "";
+      await Share.share({ message: `${recipe.title} — found it with Otto 🦦${link}` });
+    } catch {
+      // user dismissed, or web without navigator.share — nothing to do
+    }
+  };
+
   return (
     <View style={recipeDetailStyles.container}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={recipeDetailStyles.scrollContent}
       >
-        {/* HERO */}
+        {/* HERO — photo only; the art is never a text background (v3) */}
         <View style={recipeDetailStyles.headerContainer}>
           <Image
             source={{ uri: recipe.image }}
             style={recipeDetailStyles.headerImage}
             contentFit="cover"
-          />
-          <LinearGradient
-            colors={["transparent", OVERLAY.scrim, OVERLAY.scrimStrong]}
-            style={recipeDetailStyles.gradientOverlay}
           />
 
           <View style={recipeDetailStyles.floatingButtons}>
@@ -138,23 +163,55 @@ const RecipeDetailScreen = () => {
             >
               <Ionicons name="arrow-back" size={22} color={colors.ink} />
             </TouchableOpacity>
-            <PawMark recipe={recipe} size={26} style={{ width: 44, height: 44 }} />
+            <View style={recipeDetailStyles.heroActionCluster}>
+              <TouchableOpacity
+                style={recipeDetailStyles.backButton}
+                onPress={handleShare}
+                accessibilityRole="button"
+                accessibilityLabel="Share recipe"
+              >
+                <Ionicons name="share-outline" size={20} color={colors.ink} />
+              </TouchableOpacity>
+              <PawMark recipe={recipe} size={26} style={{ width: 44, height: 44 }} />
+            </View>
+          </View>
+        </View>
+
+        {/* TITLE BLOCK — identity lives on the cream, not the photo */}
+        <View style={recipeDetailStyles.titleBlock}>
+          <Text style={recipeDetailStyles.eyebrow}>
+            {[recipe.category, recipe.area].filter(Boolean).join("  ·  ")}
+          </Text>
+          <Text style={recipeDetailStyles.recipeTitle}>{recipe.title}</Text>
+
+          {/* Attribution slot — v2 imports swap in favicon + source domain ↗ */}
+          <View style={recipeDetailStyles.attributionRow}>
+            <Image
+              source={require("../../assets/mascot/otto-badge.png")}
+              style={recipeDetailStyles.attributionBadge}
+              contentFit="cover"
+            />
+            <Text style={recipeDetailStyles.attributionText}>From Otto's kitchen</Text>
           </View>
 
-          <View style={recipeDetailStyles.titleSection}>
-            <View style={recipeDetailStyles.badgeRow}>
-              {recipe.category ? (
-                <View style={recipeDetailStyles.categoryBadge}>
-                  <Text style={recipeDetailStyles.categoryText}>{recipe.category}</Text>
-                </View>
-              ) : null}
-              {recipe.area ? (
-                <View style={recipeDetailStyles.categoryBadge}>
-                  <Text style={recipeDetailStyles.categoryText}>{recipe.area}</Text>
-                </View>
-              ) : null}
+          {/* Honest meta — every number computed from real data */}
+          <View style={recipeDetailStyles.metaRow}>
+            <View style={recipeDetailStyles.metaSlot}>
+              <Text style={recipeDetailStyles.metaValue}>{servings}</Text>
+              <Text style={recipeDetailStyles.metaLabel}>
+                {servings === 1 ? "serving" : "servings"}
+              </Text>
             </View>
-            <Text style={recipeDetailStyles.recipeTitle}>{recipe.title}</Text>
+            <View style={recipeDetailStyles.metaDivider} />
+            <View style={recipeDetailStyles.metaSlot}>
+              <Text style={recipeDetailStyles.metaValue}>{pairs.length}</Text>
+              <Text style={recipeDetailStyles.metaLabel}>ingredients</Text>
+            </View>
+            <View style={recipeDetailStyles.metaDivider} />
+            <View style={recipeDetailStyles.metaSlot}>
+              <Text style={recipeDetailStyles.metaValue}>{methodSteps.length}</Text>
+              <Text style={recipeDetailStyles.metaLabel}>steps</Text>
+            </View>
           </View>
         </View>
 
@@ -345,11 +402,26 @@ const RecipeDetailScreen = () => {
             })}
           </View>
 
-          {/* NUTRITION — closing card, live-linked to the Ingredients stepper */}
+          {/* NUTRITION — after Method (Crouton/ReciMe placement) */}
           <View style={recipeDetailStyles.sectionContainer}>
             <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
             <NutritionCard {...getNutritionEstimate(recipe.category)} servings={servings} />
           </View>
+
+          {/* EXIT — the page never dead-ends on a data card */}
+          {related.length > 0 && (
+            <View style={recipeDetailStyles.sectionContainer}>
+              <Text style={recipeDetailStyles.sectionTitle}>More from the pantry</Text>
+              <Text style={recipeDetailStyles.relatedCaption}>
+                Other {recipe.category?.toLowerCase()} dishes Otto keeps close by.
+              </Text>
+              <View style={recipeDetailStyles.relatedGrid}>
+                {related.map((r) => (
+                  <RecipeCard key={r.id} recipe={r} />
+                ))}
+              </View>
+            </View>
+          )}
         </View>
       </ScrollView>
 

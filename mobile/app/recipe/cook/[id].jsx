@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Modal,
+  Image,
   Animated as RNAnimated,
   Easing,
 } from "react-native";
@@ -21,6 +22,7 @@ import { useTheme } from "../../../context/ThemeContext";
 import { SPACING, RADIUS, TYPE } from "../../../constants/tokens";
 import { splitSteps, matchStepIngredients } from "../../../lib/cookSession";
 import { segmentStep } from "../../../lib/stepEnrich";
+import { detectStepAction, ACTION_ART } from "../../../lib/stepAction";
 import { scaledIngredient } from "../../../lib/ingredientParser";
 import { useUnitSystem } from "../../../hooks/useUnitSystem";
 import LoadingSpinner from "../../../components/LoadingSpinner";
@@ -479,6 +481,13 @@ const CookModeScreen = () => {
               {segmentStep(steps[step]).some((s) => s.type === "duration") && (
                 <Text style={styles.timerHint}>Tap a time to start a timer</Text>
               )}
+              {/* Otto acting out this step (deterministic: lib/stepAction) */}
+              <Image
+                source={ACTION_ART[detectStepAction(steps[step])]}
+                style={styles.actionArt}
+                resizeMode="contain"
+                accessible={false}
+              />
             </RNAnimated.View>
           </ScrollView>
         </View>
@@ -835,6 +844,13 @@ const createStyles = (colors) =>
     },
     stepTemp: { color: colors.secondary, fontWeight: "800" },
     timerHint: { ...TYPE.caption, color: colors.inkSoft, marginTop: SPACING.md },
+    actionArt: {
+      width: 132,
+      height: 132,
+      alignSelf: "center",
+      marginTop: SPACING.xl,
+      opacity: 0.95,
+    },
 
     footerBar: {
       flexDirection: "row",

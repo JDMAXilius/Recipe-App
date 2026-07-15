@@ -295,3 +295,27 @@ in the research transcripts; built same-day:
   (PawMark hardcoded shadow, silent save failure, sub-44pt eye/clear targets, deep-link reset),
   3 P1s + 3 P2s logged with dispositions. Light-only check, one-icon-family check, vocabulary
   check, kitchen test, strip test: all pass. No open P0s.
+
+## Phase 6 — Detail v3 + Otto action art (2026-07-15)
+
+- **C6. Recipe Detail v3** (Mobbin layout study: KS, NYT, Crouton, SideChef, Tasty, ReciMe,
+  CREME, Alma, Cherrypick, Blue Apron; Yummly discontinued — full study in the task log):
+  photo-only hero — title never sits on the art (9/11 apps set the title below the image;
+  scrim dropped, floating buttons are self-legible chips) → title block on cream: terracotta
+  small-caps eyebrow (category · area) → serif display title → **attribution chip** ("From
+  Otto's kitchen", otto-badge) — the row is RESERVED so v2 imports swap in favicon + source
+  domain ↗ without reflowing the page (ReciMe/CREME/Instacart pattern) → **computed meta row**
+  (N servings · N ingredients · N steps — every number derived from real data; NYT authored-
+  only-time spirit) → Ingredients → video (KS slot) → Method → Nutrition (Crouton/ReciMe
+  placement) → **"More from the pantry" exit**: 2-up same-category RecipeCards — content apps
+  never dead-end on a data card. Share ghost button added to the hero cluster (8/11 norm).
+  Skipped deliberately: section tabs (Cherrypick — page is ~5 sections, not a catalog), a
+  second cook entrance at the Method header (SideChef's mistake), tag chips (no search route
+  yet — would be a dead end).
+- **C7. Otto action art in cook mode:** 10 hand-painted action illustrations (chop, mix,
+  saute, simmer, bake, wait, season, pour, serve + generic cook) generated in the locked
+  Otto style (hero reference + lock phrase), flood-fill cutouts, 512px, in
+  `assets/actions/`. `lib/stepAction.js` maps step text → action deterministically
+  (earliest keyword wins; fallback "cook"). Step screen shows the matching art at 132pt
+  under the step text — per-step *type* art at zero content cost (cook-mode blueprint).
+  Verified web + iOS sim: preheat→bake art, sauce-thicken→cook art, action swaps per step.

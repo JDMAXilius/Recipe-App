@@ -3,9 +3,10 @@ import { SPACING, RADIUS, OVERLAY, TYPE } from "../../constants/tokens";
 
 const { width } = Dimensions.get("window");
 
-// Recipe Detail v2 — anatomy per MOBBIN_COMPARISON §2.4:
-// hero → true facts → ingredients (tinted quantities, no chrome) →
-// video row → steps → NutritionCard (estimate-framed) → pinned bottom bar.
+// Recipe Detail v3 — anatomy per the Mobbin layout study (docs/REDESIGN_NOTES):
+// photo-only hero → title block on cream (eyebrow → serif title → attribution
+// → computed meta row) → ingredients → video → method → nutrition →
+// related-recipes exit → pinned bottom bar.
 export const createRecipeDetailStyles = (colors) =>
   StyleSheet.create({
     container: {
@@ -25,9 +26,6 @@ export const createRecipeDetailStyles = (colors) =>
       width: "100%",
       height: "100%",
       backgroundColor: colors.surfaceWarm,
-    },
-    gradientOverlay: {
-      ...StyleSheet.absoluteFillObject,
     },
     floatingButtons: {
       position: "absolute",
@@ -51,33 +49,76 @@ export const createRecipeDetailStyles = (colors) =>
       shadowOffset: { width: 0, height: 2 },
       elevation: 3,
     },
-    titleSection: {
-      position: "absolute",
-      bottom: SPACING.lg,
-      left: SPACING.lg,
-      right: SPACING.lg,
-    },
-    badgeRow: {
+    heroActionCluster: {
       flexDirection: "row",
+      alignItems: "center",
       gap: SPACING.sm,
-      marginBottom: SPACING.sm,
     },
-    categoryBadge: {
-      backgroundColor: colors.surface,
-      paddingHorizontal: SPACING.md,
-      paddingVertical: 4,
-      borderRadius: RADIUS.pill,
+
+    // TITLE BLOCK — on cream, below the photo (9/11 apps in the study)
+    titleBlock: {
+      paddingHorizontal: SPACING.lg,
+      paddingTop: SPACING.xl,
     },
-    categoryText: {
+    eyebrow: {
       ...TYPE.caption,
       color: colors.accent,
+      textTransform: "uppercase",
+      letterSpacing: 1.2,
+      marginBottom: SPACING.sm,
     },
     recipeTitle: {
       ...TYPE.display,
-      color: colors.white,
-      textShadowColor: OVERLAY.textShadow,
-      textShadowOffset: { width: 0, height: 2 },
-      textShadowRadius: 4,
+      color: colors.ink,
+    },
+    attributionRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.sm,
+      marginTop: SPACING.md,
+    },
+    attributionBadge: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: colors.surfaceWarm,
+    },
+    attributionText: {
+      ...TYPE.label,
+      fontSize: 13,
+      color: colors.inkSoft,
+    },
+    metaRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginTop: SPACING.lg,
+      paddingVertical: SPACING.md,
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    metaSlot: {
+      flex: 1,
+      alignItems: "center",
+      flexDirection: "row",
+      justifyContent: "center",
+      gap: 5,
+    },
+    metaDivider: {
+      width: 1,
+      height: 18,
+      backgroundColor: colors.border,
+    },
+    metaValue: {
+      ...TYPE.body,
+      fontWeight: "700",
+      color: colors.ink,
+      fontVariant: ["tabular-nums"],
+    },
+    metaLabel: {
+      ...TYPE.body,
+      fontSize: 13,
+      color: colors.inkSoft,
     },
 
     // CONTENT
@@ -298,6 +339,20 @@ export const createRecipeDetailStyles = (colors) =>
       lineHeight: 24,
       color: colors.ink,
       flex: 1,
+    },
+
+    // EXIT — related recipes close the page (never dead-end on data)
+    relatedCaption: {
+      ...TYPE.body,
+      fontSize: 13,
+      color: colors.inkSoft,
+      marginTop: -SPACING.md,
+      marginBottom: SPACING.lg,
+    },
+    relatedGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: SPACING.lg,
     },
 
     // PINNED BOTTOM BAR — the next action never scrolls away
