@@ -582,3 +582,6 @@ Cookbook is ONE tab with in-screen segments.
   something good? Otto will copy it down." · ONE primary path (Paste a link card w/ url field +
   Import it) · OR · Write it myself outline · footer "TIKTOK & INSTAGRAM SHARE-IN — COMING
   SOON." (honest future note replaces disabled rows).
+  **C27 addendum (founder rule):** never replace board designs in place — earlier versions are
+  restored under "2D · Alternates" on the screens page (Account home v1 · Otto Club v1 · Add
+  bottom-sheet v1) and every future redesign duplicates first, edits the copy.
