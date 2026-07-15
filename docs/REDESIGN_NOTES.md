@@ -421,3 +421,40 @@ Cookbook is ONE tab with in-screen segments.
   breaking the card edge, "See how it works"). One card, three states designed (free /
   trial / member — trial+member ship with IAP; selling stops for members, Duolingo MAX
   rule). Prices are roadmap §6 placeholders — founder sets final.
+
+## Phase 10 — Onboarding, splash, auth SSO, Discover-social (2026-07-15, cloud co-pilot)
+
+- **P10-1. Onboarding = feature-showcase, NOT a quiz.** Founder shared 3 Kitchen Stories
+  screens; agreed. 3 painted Otto screens (collect → cook → plan), no questions, no account
+  wall, no "tailored just for you" (honesty). Full spec `docs/ONBOARDING_BRIEF.md`; screens
+  `SCREEN_MAP.md §B`. Art generated (take 1) — manifest `mobile/assets/onboarding/README.md`.
+- **P10-2. Auth SSO reversal.** Old rule (`MOBBIN_COMPARISON §2.2` "no fake SSO rows") was
+  scoped to the pre-account app. v2 has real accounts → **real Apple + Google + Facebook
+  OAuth (Supabase)** on both sign-up and sign-in. Apple listed first (App Store 4.8).
+  **Facebook flagged optional** (Meta SDK + review cost, declining share) — include per
+  founder ask, first to cut if scope tightens. `SCREEN_MAP §A3/A4`.
+- **P10-3. Splash = still now, Otto video fast-follow.** Frame one is *always* a still
+  (native splash paints before RN mounts) — so the still is permanent, video is a second
+  stage that resolves INTO it. Still art generated; manifest `mobile/assets/splash/README.md`.
+  Video deferred to terminal (seed = the approved still). Spec `docs/SPLASH_BRIEF.md`.
+- **P10-4. Discover-social — reconciled + phased.** Old "no ratings ever" (`§2.9.1`) was
+  scoped to read-only TheMealDB; **v2 UGC makes real ratings/comments honest.** Ruling:
+  **v1 seeds author attribution + a `visibility` flag only; the public feed is Phase 2**
+  (moderation kit per App Store 1.2 + cold-start make it a subsystem). Adopt the
+  **cook-then-rate gate** ("★ from N cooks", rate only after Cook Mode) as the trust
+  differentiator; **curated-first re-feature** ("From the Otto kitchen") before any
+  algorithm. Full deep-think `docs/DISCOVER_SOCIAL_EXPLORATION.md`.
+
+### Defaults locked while founder is away (ratify or overturn)
+- **Plan at launch:** treated as **membership fast-follow (not v1)** per the v2 direction doc →
+  onboarding keeps all **3 screens** (B3 shows the vision, Kitchen-Stories precedent). If founder
+  says Plan is NOT shown at launch, drop to 2 screens (B1→B2). B3 art already made either way.
+- **Facebook login:** kept in the spec, flagged optional.
+- **Social plan + cook-then-rate + curated re-feature:** adopted as the recommended path;
+  Phase 2 build, v1 seeds only.
+
+### Blocked in the cloud session (handed to terminal)
+- CDN egress still 403 → generated PNGs (onboarding ×3, splash still) **not committable here**;
+  IDs+URLs in the two asset manifests for the terminal to download + commit.
+- Mobbin needs re-auth (OAuth, non-interactive) → 3 reference gaps flagged for a fresh pull:
+  splash/launch screens, report/block flow, public-profile/cookbook layout.
