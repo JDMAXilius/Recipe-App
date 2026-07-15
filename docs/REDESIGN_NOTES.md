@@ -150,6 +150,28 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
   *Grades:* Motion 3 (paw pop + step transitions are instant-but-clean; ring sweep deferred) ·
   Illustration 4 (Proud Otto finish; detail itself correctly Otto-free) · Haptics 5 ·
   Icons 5 (rainbow gradients dead) · Taste 4 · Token-purity 5.
+- **P4-3. SAVED + AUTH PAIR + ACCOUNT (one commit — three small screens sharing SavedContext
+  and the new copy voice).**
+  *Saved:* reads SavedContext (no per-screen fetch), count header, focus-refresh, Otto-Sad
+  empty state with the paw-teaching line + one CTA. Vocabulary now Save/Saved everywhere.
+  *Auth:* sign-up = framed Otto hero (mascot radius 24, top-anchored so the hat never crops) +
+  "Pull up a stool." + value line + password hint + "Join Otto's kitchen"; sign-in = compact
+  Otto vignette + "Back to the kitchen?" / "Otto kept your place."; inline error text replaces
+  Alert.alert (which is invisible on web); Success haptic on auth. The 3D human chefs are gone.
+  *Account:* badge-safe Otto bust in the circle (D6 FIXED — hat whole), reserved subscription
+  slot (renders nothing until the paywall — one surface, no fake rows), Support→Contact us
+  (mailto), Sign out (web-safe confirm), version footer. Rows we can't honor (Units — data
+  can't convert; legal — no URLs exist; delete-account — ships with subscription per App
+  Store timing) intentionally absent; logged for the paywall milestone.
+  *Bug fixed en route:* cold-load deep links into (tabs) reset to Discover — the auth gate
+  returned null before Tabs mounted. Guard now keeps Tabs mounted and replaces unauthed users
+  after load. Verified: /profile and /favorites deep links land correctly.
+  *Verified in Chrome:* Saved shows 1 test recipe + count; sign-out confirm → sign-in with new
+  copy → sign-in succeeds → Discover; sign-up renders with hero. Captures 04–07.
+  *Grades:* Saved: M2/I5/H4/Ic5/T4/TP5 · Auth: M2/I5/H3/Ic4/T5 (strip test: instantly ours) /
+  TP5 · Account: M2/I4/H3/Ic4/T4/TP5. Motion 2s acceptable v1: these screens have no natural
+  signature moment beyond the shared paw/haptics; entrance staggers deferred with reduced-
+  motion support noted for Phase 5.
 
 ## Phase 5 — QA
 

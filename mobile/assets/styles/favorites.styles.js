@@ -1,119 +1,78 @@
 import { StyleSheet } from "react-native";
+import { SPACING, RADIUS, TYPE } from "../../constants/tokens";
 
-export const createFavoritesStyles = (colors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "800",
-    color: colors.text,
-    letterSpacing: -0.5,
-  },
-  logoutButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.card,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: colors.shadow,
-    shadowOffset: {
-      width: 0,
-      height: 2,
+// Saved screen v2 — flat grid, count header, Otto-Sad first-run empty state
+// (MOBBIN_COMPARISON §2.5).
+export const createFavoritesStyles = (colors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.bg,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    marginTop: 24,
-    gap: 12,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
-    alignItems: "center",
-    shadowColor: colors.shadow,
-    shadowOffset: {
-      width: 0,
-      height: 2,
+    header: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "space-between",
+      paddingHorizontal: SPACING.lg,
+      paddingTop: SPACING.lg,
+      paddingBottom: SPACING.md,
     },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: colors.text,
-  },
-  recipesSection: {
-    paddingHorizontal: 16,
-    marginTop: 24,
-    paddingBottom: 32,
-  },
-  recipesGrid: {
-    gap: 16,
-  },
-  row: {
-    justifyContent: "space-between",
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 64,
-    paddingHorizontal: 32,
-  },
-  emptyIconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: colors.card,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: colors.border,
-    borderStyle: "dashed",
-  },
-  emptyTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: colors.text,
-    marginBottom: 24,
-  },
-  exploreButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 24,
-    gap: 8,
-  },
-  exploreButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.white,
-  },
-});
+    title: {
+      ...TYPE.display,
+      fontSize: 28,
+      lineHeight: 34,
+      color: colors.ink,
+    },
+    count: {
+      ...TYPE.caption,
+      color: colors.inkSoft,
+    },
+    recipesSection: {
+      paddingHorizontal: SPACING.lg,
+    },
+    recipesGrid: {
+      gap: SPACING.lg,
+      paddingBottom: SPACING.xxl,
+    },
+    row: {
+      justifyContent: "space-between",
+      gap: SPACING.lg,
+    },
+
+    // Empty state — full-screen Otto moment (first-run)
+    emptyState: {
+      alignItems: "center",
+      paddingTop: SPACING.xxl * 2,
+      paddingHorizontal: SPACING.xxl,
+    },
+    emptyOtto: {
+      width: 200,
+      height: 200,
+      marginBottom: SPACING.lg,
+    },
+    emptyTitle: {
+      ...TYPE.title,
+      color: colors.ink,
+      marginBottom: SPACING.sm,
+      textAlign: "center",
+    },
+    emptyDescription: {
+      ...TYPE.body,
+      color: colors.inkSoft,
+      textAlign: "center",
+      marginBottom: SPACING.xl,
+    },
+    exploreButton: {
+      backgroundColor: colors.accent,
+      borderRadius: RADIUS.button,
+      height: 52,
+      paddingHorizontal: SPACING.xxl,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    exploreButtonText: {
+      ...TYPE.body,
+      fontWeight: "700",
+      color: colors.white,
+    },
+  });

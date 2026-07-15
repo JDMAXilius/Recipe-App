@@ -1,58 +1,49 @@
-import { View, Text, Alert, ScrollView, FlatList } from "react-native";
-import { useAuth } from "../../context/AuthContext";
-import { useEffect, useMemo, useState } from "react";
-import { authFetch } from "../../lib/api";
-import { createFavoritesStyles } from "../../assets/styles/favorites.styles";
+import { useCallback, useMemo } from "react";
+import { View, Text, ScrollView, FlatList } from "react-native";
+import { useFocusEffect } from "expo-router";
 import { useTheme } from "../../context/ThemeContext";
+import { useSaved } from "../../context/SavedContext";
+import { createFavoritesStyles } from "../../assets/styles/favorites.styles";
 import RecipeCard from "../../components/RecipeCard";
 import NoFavoritesFound from "../../components/NoFavoritesFound";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
-const FavoritesScreen = () => {
-  const { user } = useAuth();
+// Saved v2 — reads from SavedContext (no per-screen fetch); paw on each card
+// unsaves in place; count in the header; Otto-Sad empty state.
+const SavedScreen = () => {
   const { colors } = useTheme();
+  const { savedList, loaded, refresh } = useSaved();
   const favoritesStyles = useMemo(() => createFavoritesStyles(colors), [colors]);
-  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadFavorites = async () => {
-      try {
-        const response = await authFetch(`/favorites`);
-        if (!response.ok) throw new Error("Failed to fetch favorites");
+  // Reconcile with the server whenever the tab gains focus.
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
 
-        const favorites = await response.json();
+  if (!loaded) return <LoadingSpinner message="Fetching your saved recipes..." />;
 
-        // transform the data to match the RecipeCard component's expected format
-        const transformedFavorites = favorites.map((favorite) => ({
-          ...favorite,
-          id: favorite.recipeId,
-        }));
-
-        setFavoriteRecipes(transformedFavorites);
-      } catch (error) {
-        console.log("Error loading favorites", error);
-        Alert.alert("Error", "Failed to load favorites");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadFavorites();
-  }, [user.id]);
-
-  if (loading) return <LoadingSpinner message="Loading your favorites..." />;
+  const recipes = savedList.map((favorite) => ({
+    ...favorite,
+    id: favorite.recipeId,
+  }));
 
   return (
     <View style={favoritesStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={favoritesStyles.header}>
           <Text style={favoritesStyles.title}>Saved</Text>
+          {recipes.length > 0 && (
+            <Text style={favoritesStyles.count}>
+              {recipes.length} {recipes.length === 1 ? "recipe" : "recipes"}
+            </Text>
+          )}
         </View>
 
         <View style={favoritesStyles.recipesSection}>
           <FlatList
-            data={favoriteRecipes}
+            data={recipes}
             renderItem={({ item }) => <RecipeCard recipe={item} />}
             keyExtractor={(item) => item.id.toString()}
             numColumns={2}
@@ -66,4 +57,4 @@ const FavoritesScreen = () => {
     </View>
   );
 };
-export default FavoritesScreen;
+export default SavedScreen;
