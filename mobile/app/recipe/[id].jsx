@@ -9,7 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import * as Haptics from "expo-haptics";
 import { MealAPI } from "../../services/mealAPI";
-import { UserRecipeAPI, transformUserRecipe, isUserRecipeId, PlanAPI } from "../../services/userRecipes";
+import { UserRecipeAPI, transformUserRecipe, isUserRecipeId, PlanAPI, NutritionAPI } from "../../services/userRecipes";
 import { weekDays } from "../../lib/week";
 import { useToast } from "../../context/ToastContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -53,6 +53,9 @@ const RecipeDetailScreen = () => {
 
   const [recipe, setRecipe] = useState(null);
   const [related, setRelated] = useState([]);
+  // computed per-serving nutrition (B1) — user recipes carry it on the row;
+  // seed recipes ask the server's compute-once cache. Null = category estimate.
+  const [computedNutrition, setComputedNutrition] = useState(null);
   const [loading, setLoading] = useState(true);
   const [servings, setServings] = useState(BASE_SERVINGS);
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -80,14 +83,21 @@ const RecipeDetailScreen = () => {
     const loadRecipeDetail = async () => {
       setLoading(true);
       setRelated([]);
+      setComputedNutrition(null);
       try {
         if (isUserRecipeId(recipeId)) {
           const row = await UserRecipeAPI.get(recipeId);
           const transformed = transformUserRecipe(row);
           setRecipe(transformed);
+          setComputedNutrition(transformed.nutrition);
           if (transformed.servings) setServings(transformed.servings);
           return;
         }
+        // seed nutrition: cached server-side; null while the provider is
+        // dormant or the visitor is anonymous — card keeps the estimate
+        NutritionAPI.seed(recipeId)
+          .then((r) => setComputedNutrition(r?.nutrition || null))
+          .catch(() => setComputedNutrition(null));
         const mealData = await MealAPI.getMealById(recipeId);
         if (mealData) {
           const transformedRecipe = MealAPI.transformMealData(mealData);
@@ -512,7 +522,11 @@ const RecipeDetailScreen = () => {
           {/* NUTRITION — after Method (Crouton/ReciMe placement) */}
           <View style={recipeDetailStyles.sectionContainer}>
             <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
-            <NutritionCard {...getNutritionEstimate(recipe.category)} servings={servings} />
+            <NutritionCard
+              {...getNutritionEstimate(recipe.category)}
+              computed={computedNutrition}
+              servings={servings}
+            />
           </View>
 
           {/* EXIT — the page never dead-ends on a data card */}

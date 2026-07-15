@@ -11,14 +11,30 @@ import CalorieRing from "./CalorieRing";
 // footnote. No daily-goal framing ever (that's a diet app's contract).
 // The servings stepper now lives in the Ingredients section only.
 // Inputs are PER-SERVING estimates; whole-recipe = × servings.
-export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 0, servings = 4 }) {
+// `computed` (B1): the backend's per-serving nutrition object — when present
+// it replaces the category-typical props and the footnote says so, degrading
+// further when its confidence is low. Both paths stay estimates, honestly framed.
+export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 0, servings = 4, computed = null }) {
   const { colors, nutrition } = useTheme();
   const [scope, setScope] = useState("serving"); // "serving" | "recipe"
   const styles = useMemo(() => createStyles(colors), [colors]);
 
+  const perServing = computed
+    ? {
+        calories: computed.kcal || 0,
+        protein: computed.protein_g || 0,
+        carbs: computed.carbs_g || 0,
+        fat: computed.fat_g || 0,
+      }
+    : { calories, protein, carbs, fat };
+
   const mult = scope === "recipe" ? servings : 1;
-  const cal = Math.round(calories * mult);
-  const grams = { protein: protein * mult, carbs: carbs * mult, fat: fat * mult };
+  const cal = Math.round(perServing.calories * mult);
+  const grams = {
+    protein: perServing.protein * mult,
+    carbs: perServing.carbs * mult,
+    fat: perServing.fat * mult,
+  };
 
   const pCal = grams.protein * 4;
   const cCal = grams.carbs * 4;
@@ -56,7 +72,8 @@ export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 
       </View>
       <Text style={styles.scopeSentence}>
         {scope === "serving"
-          ? `Per serving, at ${servings} servings`
+          ? `Per serving, at ${servings} servings` +
+            (computed?.basis_grams ? ` · about ${Math.round(computed.basis_grams)}g each` : "")
           : `The whole recipe, at ${servings} servings`}
       </Text>
 
@@ -92,7 +109,11 @@ export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 
       </View>
 
       <Text style={[styles.footnote, { color: colors.inkSoft }]}>
-        Otto's estimate, from this kind of dish — a guide, not a guarantee.
+        {computed
+          ? computed.confidence === "low"
+            ? "Otto could only read some of these ingredients — a rough sketch, not a guarantee."
+            : "Otto worked this out from the ingredients — an estimate, not a guarantee."
+          : "Otto's estimate, from this kind of dish — a guide, not a guarantee."}
       </Text>
     </View>
   );

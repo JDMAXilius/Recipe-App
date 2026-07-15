@@ -461,3 +461,43 @@ Cookbook is ONE tab with in-screen segments.
   IDs+URLs in the two asset manifests for the terminal to download + commit.
 - Mobbin needs re-auth (OAuth, non-interactive) → 3 reference gaps flagged for a fresh pull:
   splash/launch screens, report/block flow, public-profile/cookbook layout.
+
+## Phase 11 — Backend B0+B1 (2026-07-15, terminal, TERMINAL_TICKET_B0_B1)
+
+- **C18. Live DB confirmed + RLS on.** `DATABASE_URL` and `SUPABASE_URL` both point at
+  project `mepzfdefanfpnrvydyty` — one project, no drift. The MCP-visible
+  `supabase-orvenue` (INACTIVE) is a different org entirely; the Supabase MCP is linked
+  to the wrong account, so `get_advisors` can't run — equivalent checks done by hand
+  (RLS + policies + user_id indexes). *Founder follow-up:* re-link the Supabase MCP to
+  the real org to restore advisor coverage. Drizzle journal is empty (schema was pushed,
+  never migrated) — kept the repo's `push` convention; `drizzle-kit push` hung in a
+  non-interactive shell, so hardening is applied via idempotent SQL scripts
+  (`backend/scripts/b0-hardening.mjs`, `b1-schema.mjs`) — rerunnable, reviewable.
+- **C19. RLS policy shape.** Own-rows policies for `authenticated` on all three tables
+  (`auth.uid()::text = user_id`), plus a `visibility='public'` SELECT policy on recipes
+  as Phase-2 social groundwork. Express keeps full access via table-owner bypass —
+  verified with an authed smoke test after enabling. `recipes.visibility` was
+  schema-only (P10 §4 shipped the code, not the column) — now live.
+- **C20. Nutrition compute is ASYNC on save.** Save returns instantly; nutrition
+  backfills onto the row and the client picks it up on next fetch. Ingredient/serving
+  edits null the cached numbers in the same UPDATE — the honest in-between state is
+  "no numbers," never stale ones. Cache-once everywhere; compute never runs on read
+  (budget guard). Range quantities parse to the midpoint ("2–3 tbsp" → 2.5, documented
+  here so it never gets re-decided).
+- **C21. Provider dormancy over local guessing.** No Edamam/Spoonacular keys in env
+  (founder inputs, per ticket). Built the full pipeline — deterministic parser
+  (qty/unit/grams + per-line confidence), Edamam adapter, seed cache, lifecycle wiring,
+  test-batch delta script — all activating the moment `EDAMAM_APP_ID`/`EDAMAM_APP_KEY`
+  land. REJECTED: shipping a hand-rolled local nutrient table so numbers appear sooner —
+  unvetted numbers dressed as computed ones is exactly the fabrication the honesty laws
+  ban. Dormant state verified end-to-end: seed endpoint → null, recompute → honest
+  `queued:false`, NutritionCard keeps category-estimate framing untouched.
+- **C22. NutritionCard confidence copy.** Computed numbers swap the footnote to "Otto
+  worked this out from the ingredients — an estimate, not a guarantee." (low confidence
+  degrades to "could only read some of these ingredients — a rough sketch"); category
+  estimates keep the existing "from this kind of dish" line. Per-serving sentence gains
+  "about ~Ng each" from `basis_grams`. No daily-goal framing, ever.
+- **Coordination note:** a second agent session shares this working tree and commits
+  in-flight files (e.g. `01dc56a`, `22e4c34` carry B0.2/B0.3 work authored here mixed
+  with its splash batch). Nothing lost — history is linear — but commit-immediately is
+  now the cadence, and mixed-authorship commits are a known artifact of this run.

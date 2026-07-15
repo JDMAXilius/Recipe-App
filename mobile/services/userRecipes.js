@@ -26,6 +26,10 @@ export function transformUserRecipe(row) {
     source: row.source, // "imported" | "manual"
     sourceUrl: row.sourceUrl || null,
     sourceName: row.sourceName || null,
+    // computed per-serving nutrition (B1) — null until the backend backfill
+    // has run (or while the provider is dormant); the card falls back to the
+    // honest category estimate
+    nutrition: row.nutrition || null,
   };
 }
 
@@ -76,6 +80,15 @@ export const UserRecipeAPI = {
       body: JSON.stringify({ url }),
     });
     return parseOrThrow(res, "Otto couldn't read that page");
+  },
+};
+
+export const NutritionAPI = {
+  // Seed (TheMealDB) nutrition — server computes once and caches; returns
+  // { recipeId, nutrition } with nutrition null while the provider is dormant.
+  seed: async (mealId) => {
+    const res = await authFetch(`/nutrition/seed/${mealId}`);
+    return parseOrThrow(res, "Couldn't load nutrition");
   },
 };
 
