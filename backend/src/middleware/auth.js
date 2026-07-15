@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { ENV } from "../config/env.js";
+import { reportError } from "../lib/logger.js";
 
 const supabase = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY);
 
@@ -21,7 +22,7 @@ export async function requireAuth(req, res, next) {
     req.userId = data.user.id;
     next();
   } catch (error) {
-    console.log("Error verifying access token", error);
+    reportError(error, { msg: "token verification failed" });
     res.status(500).json({ error: "Something went wrong" });
   }
 }

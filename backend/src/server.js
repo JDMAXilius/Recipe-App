@@ -165,11 +165,11 @@ app.get("/api/recipes/:id", requireAuth, async (req, res) => {
   }
 });
 
-app.put("/api/recipes/:id", requireAuth, async (req, res) => {
+app.put("/api/recipes/:id", requireAuth, validate(schemas.recipeUpdate), async (req, res) => {
   try {
     const id = intId(req.params.id);
     if (!id) return res.status(400).json({ error: "Bad id" });
-    const { title, image, category, area, servings, ingredients, steps, youtubeUrl } = req.body;
+    const { title, image, category, area, servings, ingredients, steps, youtubeUrl, visibility } = req.body;
     // source/sourceUrl/sourceName are immutable — attribution never edits away
     const updated = await db
       .update(recipesTable)
@@ -178,15 +178,11 @@ app.put("/api/recipes/:id", requireAuth, async (req, res) => {
         ...(image !== undefined && { image }),
         ...(category !== undefined && { category }),
         ...(area !== undefined && { area }),
-        ...(servings !== undefined && {
-          servings:
-            Number.isInteger(Number(servings)) && Number(servings) > 0 && Number(servings) <= 48
-              ? Number(servings)
-              : null,
-        }),
+        ...(servings !== undefined && { servings }),
         ...(ingredients !== undefined && { ingredients }),
         ...(steps !== undefined && { steps }),
         ...(youtubeUrl !== undefined && { youtubeUrl }),
+        ...(visibility !== undefined && { visibility }),
         updatedAt: new Date(),
       })
       .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, id)))
@@ -194,7 +190,7 @@ app.put("/api/recipes/:id", requireAuth, async (req, res) => {
     if (!updated.length) return res.status(404).json({ error: "Not found" });
     res.status(200).json(updated[0]);
   } catch (error) {
-    console.log("Error updating recipe", error);
+    reportError(error, { msg: "update recipe failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -208,7 +204,7 @@ app.delete("/api/recipes/:id", requireAuth, async (req, res) => {
       .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, id)));
     res.status(200).json({ message: "Recipe removed" });
   } catch (error) {
-    console.log("Error deleting recipe", error);
+    reportError(error, { msg: "delete recipe failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -227,16 +223,14 @@ app.get("/api/plan", requireAuth, async (req, res) => {
       .orderBy(asc(planEntriesTable.day), asc(planEntriesTable.createdAt));
     res.status(200).json(entries);
   } catch (error) {
-    console.log("Error fetching plan", error);
+    reportError(error, { msg: "fetch plan failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-app.post("/api/plan", requireAuth, async (req, res) => {
+app.post("/api/plan", requireAuth, validate(schemas.planCreate), async (req, res) => {
   try {
     const { day, recipeId, title, image, category, note } = req.body;
-    if (!day || !title) return res.status(400).json({ error: "Missing required fields" });
-    if (!DAY_RE.test(String(day))) return res.status(400).json({ error: "Bad day" });
     const created = await db
       .insert(planEntriesTable)
       .values({
@@ -251,17 +245,16 @@ app.post("/api/plan", requireAuth, async (req, res) => {
       .returning();
     res.status(201).json(created[0]);
   } catch (error) {
-    console.log("Error adding plan entry", error);
+    reportError(error, { msg: "add plan entry failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-app.patch("/api/plan/:id", requireAuth, async (req, res) => {
+app.patch("/api/plan/:id", requireAuth, validate(schemas.planUpdate), async (req, res) => {
   try {
     const id = intId(req.params.id);
     if (!id) return res.status(400).json({ error: "Bad id" });
     const { day, note, cooked } = req.body;
-    if (day !== undefined && !DAY_RE.test(String(day))) return res.status(400).json({ error: "Bad day" });
     const updated = await db
       .update(planEntriesTable)
       .set({
@@ -274,7 +267,7 @@ app.patch("/api/plan/:id", requireAuth, async (req, res) => {
     if (!updated.length) return res.status(404).json({ error: "Not found" });
     res.status(200).json(updated[0]);
   } catch (error) {
-    console.log("Error updating plan entry", error);
+    reportError(error, { msg: "update plan entry failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -288,7 +281,7 @@ app.delete("/api/plan/:id", requireAuth, async (req, res) => {
       .where(and(eq(planEntriesTable.userId, req.userId), eq(planEntriesTable.id, id)));
     res.status(200).json({ message: "Plan entry removed" });
   } catch (error) {
-    console.log("Error deleting plan entry", error);
+    reportError(error, { msg: "delete plan entry failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -304,19 +297,19 @@ app.delete("/api/account", requireAuth, async (req, res) => {
     await db.delete(planEntriesTable).where(eq(planEntriesTable.userId, req.userId));
 
     let authUserDeleted = false;
-    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    if (ENV.SUPABASE_SERVICE_ROLE_KEY) {
       const { createClient } = await import("@supabase/supabase-js");
-      const admin = createClient(ENV.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+      const admin = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_SERVICE_ROLE_KEY);
       const { error } = await admin.auth.admin.deleteUser(req.userId);
       authUserDeleted = !error;
     }
     res.status(200).json({ dataDeleted: true, authUserDeleted });
   } catch (error) {
-    console.log("Error deleting account", error);
+    reportError(error, { msg: "delete account failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
 app.listen(PORT, () => {
-  console.log("Server is running on PORT:", PORT);
+  logger.info({ port: PORT }, "server listening");
 });
