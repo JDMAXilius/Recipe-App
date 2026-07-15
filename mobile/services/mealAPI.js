@@ -75,6 +75,30 @@ export const MealAPI = {
     }
   },
 
+  // list cuisines (areas)
+  listAreas: async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/list.php?a=list`);
+      const data = await response.json();
+      return (data.meals || []).map((m) => m.strArea).filter(Boolean);
+    } catch (error) {
+      console.error("Error listing areas:", error);
+      return [];
+    }
+  },
+
+  // filter by cuisine (area)
+  filterByArea: async (area) => {
+    try {
+      const response = await fetch(`${BASE_URL}/filter.php?a=${encodeURIComponent(area)}`);
+      const data = await response.json();
+      return data.meals || [];
+    } catch (error) {
+      console.error("Error filtering by area:", error);
+      return [];
+    }
+  },
+
   // filter by category
   filterByCategory: async (category) => {
     try {

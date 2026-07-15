@@ -18,6 +18,7 @@ import { createHomeStyles } from "../../assets/styles/home.styles";
 import CategoryFilter from "../../components/CategoryFilter";
 import RecipeCard from "../../components/RecipeCard";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import FilterSheet from "../../components/FilterSheet";
 import { OttoLoading, OttoError } from "../../components/OttoStates";
 
 // Discover — Home + Search merged (tab decision P2-1, MOBBIN_COMPARISON §2.1).
@@ -48,6 +49,9 @@ const DiscoverScreen = () => {
   const [searching, setSearching] = useState(false);
   const debouncedQuery = useDebounce(searchQuery, 300);
   const isSearching = debouncedQuery.trim().length > 0;
+
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [activeArea, setActiveArea] = useState(null);
 
   const greeting = greetingForHour(new Date().getHours());
 
@@ -96,6 +100,7 @@ const DiscoverScreen = () => {
 
   const handleCategorySelect = async (category) => {
     setSelectedCategory(category);
+    setActiveArea(null); // tile tap = quick path; clears any cuisine filter
     try {
       const meals = await MealAPI.filterByCategory(category);
       setRecipes(
@@ -146,6 +151,43 @@ const DiscoverScreen = () => {
     };
   }, [debouncedQuery, isSearching]);
 
+  // FilterSheet apply (Category × Cuisine — intersected client-side; TheMealDB
+  // can't combine filters server-side)
+  const applyFilters = async (category, area) => {
+    setFilterVisible(false);
+    if (!category && !area) {
+      setActiveArea(null);
+      if (categories.length > 0) await handleCategorySelect(categories[0].name);
+      return;
+    }
+    setSelectedCategory(category || null);
+    setActiveArea(area || null);
+    try {
+      let list = [];
+      if (category && area) {
+        const [byCat, byArea] = await Promise.all([
+          MealAPI.filterByCategory(category),
+          MealAPI.filterByArea(area),
+        ]);
+        const ids = new Set(byArea.map((m) => m.idMeal));
+        list = byCat.filter((m) => ids.has(m.idMeal));
+      } else if (category) {
+        list = await MealAPI.filterByCategory(category);
+      } else {
+        list = await MealAPI.filterByArea(area);
+      }
+      setRecipes(
+        list
+          .map((meal) => MealAPI.transformMealData(meal))
+          .filter((meal) => meal !== null)
+          .map((meal) => (category ? { ...meal, category } : meal))
+      );
+    } catch (error) {
+      console.error("Error applying filters", error);
+      setRecipes([]);
+    }
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await loadData();
@@ -161,7 +203,8 @@ const DiscoverScreen = () => {
   if (loadError && recipes.length === 0) return <OttoError onRetry={loadData} />;
 
   const gridData = isSearching ? searchResults : recipes;
-  const gridTitle = isSearching ? `Results for “${debouncedQuery.trim()}”` : selectedCategory;
+  const browseTitle = [selectedCategory, activeArea].filter(Boolean).join(" · ") || "Recipes";
+  const gridTitle = isSearching ? `Results for “${debouncedQuery.trim()}”` : browseTitle;
 
   return (
     <View style={homeStyles.container}>
@@ -184,8 +227,17 @@ const DiscoverScreen = () => {
           />
         </View>
 
-        {/* SEARCH PILL */}
+        {/* SEARCH PILL + FILTER */}
         <View style={homeStyles.searchSection}>
+          <TouchableOpacity
+            style={homeStyles.filterButton}
+            onPress={() => setFilterVisible(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Open filters"
+          >
+            <Ionicons name="options-outline" size={20} color={colors.ink} />
+            {activeArea && <View style={homeStyles.filterActiveDot} />}
+          </TouchableOpacity>
           <View style={homeStyles.searchContainer}>
             <Ionicons
               name="search-outline"
@@ -315,6 +367,15 @@ const DiscoverScreen = () => {
           )}
         </View>
       </ScrollView>
+
+      <FilterSheet
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        categories={categories.map((c) => c.name)}
+        initialCategory={selectedCategory}
+        initialArea={activeArea}
+        onApply={applyFilters}
+      />
     </View>
   );
 };

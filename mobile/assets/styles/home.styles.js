@@ -41,8 +41,31 @@ export const createHomeStyles = (colors) =>
     searchSection: {
       paddingHorizontal: SPACING.lg,
       paddingBottom: SPACING.lg,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.sm,
+    },
+    filterButton: {
+      width: 48,
+      height: 48,
+      borderRadius: RADIUS.pill,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    filterActiveDot: {
+      position: "absolute",
+      top: 10,
+      right: 10,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.accent,
     },
     searchContainer: {
+      flex: 1,
       flexDirection: "row",
       alignItems: "center",
       backgroundColor: colors.surface,
@@ -244,40 +267,60 @@ export const createRecipeCardStyles = (colors) =>
     },
     imageContainer: {
       position: "relative",
-      height: cardWidth * 1.05,
+      height: cardWidth * 0.8, // 5:4 per the Figma RecipeCard spec
     },
     image: {
       width: "100%",
       height: "100%",
       backgroundColor: colors.surfaceWarm,
     },
-    categoryPill: {
+    // Calorie badge — top-right surface pill with accent dot (Figma spec)
+    calorieBadge: {
       position: "absolute",
-      left: SPACING.sm,
-      bottom: SPACING.sm,
+      top: SPACING.sm,
+      right: SPACING.sm,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
       backgroundColor: colors.surface,
       borderRadius: RADIUS.pill,
       paddingHorizontal: SPACING.sm + 2,
       paddingVertical: 4,
     },
-    categoryPillText: {
+    calorieDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: colors.accent,
+    },
+    calorieBadgeText: {
       ...TYPE.caption,
       fontSize: 10,
       color: colors.ink,
     },
     pawPosition: {
       position: "absolute",
-      top: SPACING.sm,
+      bottom: SPACING.sm,
       right: SPACING.sm,
     },
     content: {
       paddingHorizontal: SPACING.md,
       paddingVertical: SPACING.md,
+      gap: SPACING.sm,
     },
     title: {
       ...TYPE.body,
       fontWeight: "700",
       color: colors.ink,
       lineHeight: 20,
+    },
+    macroDots: {
+      flexDirection: "row",
+      gap: 5,
+    },
+    macroDot: {
+      width: 7,
+      height: 7,
+      borderRadius: 3.5,
     },
   });

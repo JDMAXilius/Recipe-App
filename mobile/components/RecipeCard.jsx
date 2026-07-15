@@ -7,14 +7,16 @@ import { createRecipeCardStyles } from "../assets/styles/home.styles";
 import { getNutritionEstimate } from "../constants/nutritionEstimates";
 import PawMark from "./PawMark";
 
-// v2 (redesign B8, amended by founder mid-run — P4-4): photo-dominant card,
-// ONE pill on the photo: "~N cal", the category-typical estimate (same
-// estimator as the detail NutritionCard, always tilde-framed). Title below,
-// paw save-mark in place.
+// RecipeCard — one-to-one with the Figma DS component (page "RecipeCard"):
+// image 5:4 · calorie badge top-right (surface pill + accent dot) · title max
+// 2 lines · 3 macro dots. v2 additions kept: paw save-mark (bottom-right) and
+// tilde framing on the calorie estimate. The Figma "30 MIN" chip is omitted —
+// cookTime is fabricated upstream and honesty beats fidelity (QA rule).
 export default function RecipeCard({ recipe }) {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, nutrition } = useTheme();
   const recipeCardStyles = useMemo(() => createRecipeCardStyles(colors), [colors]);
+  const estimate = getNutritionEstimate(recipe.category);
 
   return (
     <TouchableOpacity
@@ -31,10 +33,9 @@ export default function RecipeCard({ recipe }) {
           contentFit="cover"
           transition={300}
         />
-        <View style={recipeCardStyles.categoryPill}>
-          <Text style={recipeCardStyles.categoryPillText}>
-            ~{getNutritionEstimate(recipe.category).calories} cal
-          </Text>
+        <View style={recipeCardStyles.calorieBadge}>
+          <View style={recipeCardStyles.calorieDot} />
+          <Text style={recipeCardStyles.calorieBadgeText}>~{estimate.calories} cal</Text>
         </View>
         <PawMark recipe={recipe} style={recipeCardStyles.pawPosition} />
       </View>
@@ -43,6 +44,11 @@ export default function RecipeCard({ recipe }) {
         <Text style={recipeCardStyles.title} numberOfLines={2}>
           {recipe.title}
         </Text>
+        <View style={recipeCardStyles.macroDots}>
+          <View style={[recipeCardStyles.macroDot, { backgroundColor: nutrition.protein }]} />
+          <View style={[recipeCardStyles.macroDot, { backgroundColor: nutrition.carbs }]} />
+          <View style={[recipeCardStyles.macroDot, { backgroundColor: nutrition.fat }]} />
+        </View>
       </View>
     </TouchableOpacity>
   );
