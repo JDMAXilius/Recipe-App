@@ -30,7 +30,11 @@ export default function PawMark({ recipe, size = 22, style }) {
 
   const handlePress = async () => {
     const nowSaved = await toggleSave(recipe);
-    if (nowSaved === null) return;
+    if (nowSaved === null) {
+      // Save failed (offline/backend down) — state already rolled back.
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
+      return;
+    }
     if (nowSaved) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       if (!reducedMotion) {
@@ -45,7 +49,7 @@ export default function PawMark({ recipe, size = 22, style }) {
     <TouchableOpacity
       onPress={handlePress}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-      style={[styles.touch, { backgroundColor: colors.surface }, style]}
+      style={[styles.touch, { backgroundColor: colors.surface, shadowColor: colors.shadow }, style]}
       activeOpacity={0.8}
       accessibilityRole="button"
       accessibilityLabel={saved ? "Remove from saved" : "Save recipe"}
@@ -69,7 +73,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#2A211B",
     shadowOpacity: 0.12,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },

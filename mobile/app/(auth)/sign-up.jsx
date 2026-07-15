@@ -108,6 +108,7 @@ const SignUpScreen = () => {
               />
               <TouchableOpacity
                 style={authStyles.eyeButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 onPress={() => setShowPassword(!showPassword)}
                 accessibilityRole="button"
                 accessibilityLabel={showPassword ? "Hide password" : "Show password"}

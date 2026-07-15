@@ -187,4 +187,7 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
 
 ## Phase 5 — QA
 
-*(pending)*
+- **P5-1. Adversarial pass complete → `docs/QA.md`.** 10 findings: 4 P0s all FIXED in-pass
+  (PawMark hardcoded shadow, silent save failure, sub-44pt eye/clear targets, deep-link reset),
+  3 P1s + 3 P2s logged with dispositions. Light-only check, one-icon-family check, vocabulary
+  check, kitchen test, strip test: all pass. No open P0s.

@@ -1,0 +1,86 @@
+# 🔎 Adversarial QA — Redesign v2 (Phase 5)
+
+> Walked every screen/flow in Chrome (390×844) and on the iOS 26 simulator (iPhone 17 Pro Max,
+> Expo Go). Static sweeps via grep across `mobile/`. **P0s fixed in this pass; P1/P2 logged.**
+> Date: 2026-07-14 · Run: autonomous (see REDESIGN_NOTES.md).
+
+## Flows walked
+
+| Flow | Web | iOS sim | Result |
+|---|---|---|---|
+| Sign up screen render | ✅ | — | new copy + framed Otto (hat un-cropped after contentPosition fix) |
+| Sign in → Discover | ✅ | ✅ (restored session) | success haptic path; inline errors |
+| Discover browse + category filter | ✅ | ✅ | tiles filter in place; ~cal pills match category |
+| Search-in-place ("tom yum" → 2 results; gibberish → Thinking Otto) | ✅ | — | browse hides/restores |
+| Paw save → persists across full reload | ✅ | — | POST/DELETE verified against live backend |
+| Recipe detail (52772) | ✅ | ✅ | true facts only; tinted quantities; video row |
+| Cook mode full run (6/6 steps → Proud Otto) | ✅ | — | keep-awake, haptic cadence |
+| Saved tab with 1 recipe + count | ✅ | — | in-place unsave available |
+| Account → sign out (confirm) → sign in | ✅ | — | web-safe confirm |
+| Deep links /profile, /favorites, /recipe/:id after cold load | ✅ | ✅ (expo deep link) | fixed this run (tabs auth-gate kept mounted) |
+
+## Consistency
+- **Icon family:** one (Ionicons) + the two Otto marks (paw, food tiles). All glyphs outline at
+  rest; filled variants only as active states (tab bar). No second library. ✅
+- **Hardcoded colors:** repo-wide grep → **1 found** (PawMark shadow `#2A211B`) → **FIXED**
+  (now `colors.shadow`). All scrims/shadows via `OVERLAY.*`. ✅
+- **Spacing/radius:** all rewritten factories use `tokens.js` scales. Legacy `LoadingSpinner`
+  uses literal 16/32 padding — P2, harmless. Buttons: one primary style (accent fill, radius 14);
+  destructive = outline. Screen titles: Lora display on Discover/Saved/Account/Auth/Detail. ✅
+
+## Vocabulary
+- **Save → Saved everywhere:** button/tab/screen/empty state one word; "Favorites" appears in
+  ZERO user-facing strings (grep-verified — only the route filename `favorites.jsx` and API
+  paths remain, per P2-4). Heart and bookmark icons: gone. ✅
+- One narrator voice (warm third-person Otto): greeting, empty, error, finish, auth all match.
+  ✅
+
+## Motion
+- Paw-pop = the signature; springs from named `SPRING.*` configs; `useReducedMotion()`
+  respected in PawMark. Nothing animates on scroll; no decorative loops. CalorieRing sweep
+  (timing.sweep) **not implemented** — P1 backlog, ring is currently static (acceptable: no
+  false motion, just absent).
+
+## Accessibility
+- Icon-only buttons all have `accessibilityLabel` + role (paw, back, close, eye, clear, play,
+  tabs via labels). Paw exposes `accessibilityState.selected`. ✅
+- Touch targets: paw 36pt + 10 hitSlop (56 effective), cook-mode Next 56pt, eye/clear buttons
+  **FIXED** this pass with hitSlop ≥40pt effective. ✅
+- Contrast: ink on bg 12.9:1; inkSoft on bg 4.6:1; white on accent 4.29:1 — used at ≥15pt
+  bold only (buttons/labels) per DS note. Caption-on-photo sits on scrim. ✅
+- Dynamic Type: no `allowFontScaling` disabling anywhere. ✅
+
+## Light-only check (D2)
+- No theme switcher, appearance row, or niche picker anywhere in UI (grep + walkthrough). ✅
+- `useColorScheme`/`isDark` consumers: **zero** outside the locked ThemeContext. ✅
+- `app.json` `userInterfaceStyle: "light"`; splash/adaptive colors pinned to palette. ✅
+- THEMES dark/niche sets remain in `colors.js` unused — by design (D2). ✅
+
+## The kitchen test
+Cook mode: one thumb-sized Next (56pt), one sentence per screen at 24/32, screen stays awake,
+ingredients one tap away, progress visible. **Passes** for the first time in this app's life.
+Detail page fallback (no cook mode): quantities tinted + 16/24 body — readable at arm's length.
+
+## The strip test
+Logo cropped out: hand-painted food tiles + watercolor otter + paw marks + Lora serif on cream +
+terracotta = identifiable in any single viewport. Weakest screen: Account (mostly neutral rows —
+but the Otto badge + serif title carry it). **Passes.**
+
+## Findings & dispositions
+
+| # | Sev | Finding | Disposition |
+|---|---|---|---|
+| 1 | P0 | PawMark hardcoded shadow hex | **FIXED** → `colors.shadow` |
+| 2 | P0 | Failed save was silent (offline) | **FIXED** → error haptic + optimistic rollback (was already rolling back) |
+| 3 | P0 | Eye/clear-search touch targets < 44pt | **FIXED** → hitSlop |
+| 4 | P0 | Cold-load deep links reset to Discover | **FIXED** in P4-3 (tabs gate kept mounted) |
+| 5 | P1 | No undo affordance after unsave (mis-tap loses a recipe silently) | Backlog: toast+undo needs a toast primitive; SavedContext refresh() makes data recoverable server-side until then |
+| 6 | P1 | CalorieRing sweep + entrance staggers unimplemented | Backlog (motion pass) |
+| 7 | P1 | Saved-tab cards show default ~420 est. (no category column in DB) | Backlog: add `category` column to favorites table (backend migration) |
+| 8 | P2 | LoadingSpinner literal paddings | Cosmetic; migrate on next touch |
+| 9 | P2 | `youtu.be` fix untested against a live shorts URL | Regex unit-verified only; no shorts URLs in TheMealDB sample |
+| 10 | P2 | Haptics no-op on web (expected) — no web fallback feedback for save | Acceptable: web is a preview surface, not truth |
+
+## Verdict
+No open P0s. The four release-blocking classes the founder flagged — theme switcher remnants,
+stray dark-mode paths, second icon family, hardcoded colors — are all **clean**.
