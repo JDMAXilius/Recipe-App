@@ -15,35 +15,48 @@
 
 ## A · Launch & Auth (4 screens)
 
-### A1 · Splash / loader 🟢🦦
-The first frame. Warm, branded, fast.
+### A1 · Splash / loader 🟢🦦 → full brief: `SPLASH_BRIEF.md`
+The first frame. Warm, branded, fast. **Still now, Otto video as a fast-follow** (the first frame is always a still — see brief §2).
 - Full-bleed cream background (`cream #FAF4EA`)
 - Otto hero cutout, centered (painted welcome pose — video planned, still image for now)
 - Wordmark "Otto" (Lora display) under the mascot
 - Quiet loading shimmer — no spinner chrome
 - Auto-advances to onboarding (first run) or Discover (returning, session valid)
 
-### A2 · Onboarding showcase 🟢🦦
+### A2 · Onboarding showcase 🟢🦦 → full brief: `ONBOARDING_BRIEF.md`
 *(3-screen carousel — full breakdown in section B.)* Feature trailer, no questions.
 
 ### A3 · Sign up 🟢
 Account is a **cloakroom** — only reached the first time someone saves/imports, never a hard wall on cooking.
 - Back / dismiss (X) — dismissible; browsing stays anonymous
-- Otto stamp + one warm line: "Save it, and it's yours."
-- Email + password fields (Supabase Auth)
-- "Continue with Apple" (iOS-native, expected on App Store)
-- Primary button: **Create account**
+- Large framed Otto (sign-up gets the big pose, ~40% — §2.2)
+- Headline + one reason-line: **"Pull up a stool."** / "Save recipes, plan dinners — Otto remembers."
+- **Social sign-in — real OAuth (Supabase), each a full-width row with the brand icon:**
+  -  **Continue with Apple** (black button, Apple brand mark)
+  - <span>G</span> **Continue with Google** (white/outlined, Google "G")
+  - **Continue with Facebook** (white/outlined, Facebook "f") — *optional, see note*
+- "or" divider
+- Email + password fields (Supabase Auth), inline "6+ characters" hint
+- Primary button: **Join Otto's kitchen**
 - Footer link: "Already have an account? Sign in"
 - Legal microcopy: Privacy · Terms
 
 ### A4 · Sign in 🟢
 - Back / dismiss (X)
-- Otto stamp + "Welcome back."
+- Small Otto vignette (returning users get less art — §2.2), headline does the warmth
+- Headline: **"Back to the kitchen?"** / "Otto kept your place."
+- **Same three social rows** (Apple · Google · Facebook) — real OAuth
+- "or" divider
 - Email + password
-- "Continue with Apple"
 - Primary: **Sign in**
 - "Forgot password?" link
 - Footer: "New here? Create an account"
+
+> **⚠️ Auth notes for the terminal (supersedes the old "no SSO rows" line in `MOBBIN_COMPARISON.md §2.2`):**
+> - These are **real** providers wired in **Supabase Auth** (Apple + Google + Facebook OAuth), *not* decorative rows. Each must be configured in the Supabase dashboard and the native Expo config (`expo-apple-authentication` for Apple; `expo-auth-session`/native for Google; Facebook SDK for Meta). Do not add a provider button that isn't actually wired.
+> - **App Store guideline 4.8:** offering Google/Facebook login on iOS *requires* also offering **Sign in with Apple** — we do, so keep Apple present and listed first.
+> - **Recommendation:** Apple + Google cover ~95% of sign-ins and are the lightest to ship. **Facebook** adds the Meta SDK + app-review overhead and its login share is declining — include it per the founder's ask, but it's the one to cut first if launch scope tightens. Flagged, not decided.
+> - Same three rows appear on **both** sign-up and sign-in (consistency); order is identical (Apple, Google, Facebook).
 
 ---
 
@@ -85,6 +98,7 @@ one-line subhead · progress dots · **Continue** (last screen: **Start cooking*
 - **Category tiles** — Otto painted food icons, real TheMealDB categories
 - **Recipe grid** — the browse payoff
 - ❌ cut: "Tonight" framing, cuisine rail, recently-viewed, quizzes (see rejection list in the decision prompt)
+- 🔎 **Social/community direction** (showcase users, re-feature the best, ratings + comments) is deep-thought in `DISCOVER_SOCIAL_EXPLORATION.md` — **v1 seeds author attribution + a visibility flag only; the public feed is Phase 2** (moderation + cold-start make it a subsystem, not a launch add-on).
 
 ### C2 · Search (active) 🟢
 - Search bar (focused) + cancel
