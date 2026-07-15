@@ -256,6 +256,39 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
   dev build required (rive-react-native is incompatible with Expo Go) — stays approve-first
   with a real art budget attached.
 
+## Post-run 5 — Cooking surfaces remade 100% (founder directive, 2026-07-15)
+
+Two Mobbin deep-dives (cook mode; ingredients/method/nutrition — ~20 searches) → blueprints
+in the research transcripts; built same-day:
+
+- **C1. Deterministic foundations:** `lib/ingredientParser` (qty/unit parse, kitchen-real
+  fraction snapping — ¾ cup ×1.5 → 1⅛ cups, never 0.81 — US↔Metric with friendly rounding,
+  unparseables stay honest), `lib/stepEnrich` (durations incl. ranges→upper bound + temps),
+  `lib/cookSession` (sentence-boundary step splitting ≤220ch; per-step ingredient matching,
+  all-significant-words rule after "the sauce"≠"soy sauce" bug).
+- **C2. Ingredients v2:** header band + US/Metric text toggle (global AsyncStorage pref),
+  "For N servings" + stepper (moved OUT of NutritionCard — one control, one mental model),
+  ×N·Reset scale chip, live-scaled tinted qty column, pantry rows sink positionally, metric
+  candor footnote. Tinting semantics everywhere: terracotta = computed, ink = authored.
+- **C3. Method v2:** split steps share cook-mode numbering; duration chips ◷ + tinted dual-
+  unit temps inline; scaled "uses:" recap per step; per-step play → cook mode at that step
+  (+servings param).
+- **C4. NutritionCard v2:** per-serving ◦ whole-recipe scope toggle + scope sentence in
+  words, ONE segmented macro bar + grams/%-of-dish legend (never daily goals), footnote.
+  Founder call: tilde dropped from all calorie numbers ("EST." caption + footnote carry the
+  honesty).
+- **C5. COOK MODE v2:** mise-en-place entry (Otto, servings, checkable scaled list) →
+  step screens (serif Step N of M, tappable daub progress → jump sheet, You'll-need chips
+  scaled, ≥24pt step text with TAPPABLE duration tokens) → NAMED timers ("Step 5 — 35
+  minutes"): floating card +1/+5/✕, multi-timer hub with startable timers from every step,
+  done modal = the undercooked escape hatch ("Otto sniffs the pan… A bit more (+1 min) /
+  Done") → This-step/Everything ingredients sheet → swipe + Next + back → exit confirm when
+  progress/timers live ("Your timers will stop.") → finish arc: Proud Otto + "Would you cook
+  it again?" thumbs (persisted) + cooked-at logged (AsyncStorage until the DB column ships).
+  NOT built, per blueprint: voice control, per-step video, in-cook AI chat.
+- Verified end-to-end on web: scaling (×1.5, metric), timer start/extend/hub, jump sheet,
+  chips, finish. Captures: `docs/redesign/captures/11-cookmode-v2-timers.png`.
+
 ## Phase 5 — QA
 
 - **P5-1. Adversarial pass complete → `docs/QA.md`.** 10 findings: 4 P0s all FIXED in-pass

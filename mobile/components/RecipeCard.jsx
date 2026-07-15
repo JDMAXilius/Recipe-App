@@ -35,7 +35,7 @@ export default function RecipeCard({ recipe }) {
         />
         <View style={recipeCardStyles.calorieBadge}>
           <View style={recipeCardStyles.calorieDot} />
-          <Text style={recipeCardStyles.calorieBadgeText}>~{estimate.calories} cal</Text>
+          <Text style={recipeCardStyles.calorieBadgeText}>{estimate.calories} cal</Text>
         </View>
         <PawMark recipe={recipe} style={recipeCardStyles.pawPosition} />
       </View>

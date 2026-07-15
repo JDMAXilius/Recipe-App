@@ -331,7 +331,7 @@ const RecipeDetailScreen = () => {
                       </View>
                       <TouchableOpacity
                         style={recipeDetailStyles.stepPlayButton}
-                        onPress={() => router.push(`/recipe/cook/${recipe.id}?step=${index}`)}
+                        onPress={() => router.push(`/recipe/cook/${recipe.id}?step=${index}&servings=${servings}`)}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                         accessibilityRole="button"
                         accessibilityLabel={`Start cooking from step ${index + 1}`}
@@ -359,7 +359,7 @@ const RecipeDetailScreen = () => {
         <Bounceable
           style={recipeDetailStyles.cookButton}
           containerStyle={{ flex: 1 }}
-          onPress={() => router.push(`/recipe/cook/${recipe.id}`)}
+          onPress={() => router.push(`/recipe/cook/${recipe.id}?servings=${servings}`)}
           accessibilityRole="button"
           accessibilityLabel="Start cooking step by step"
         >

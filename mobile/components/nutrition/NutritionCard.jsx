@@ -61,7 +61,7 @@ export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 
       </Text>
 
       <View style={styles.top}>
-        <CalorieRing kcal={`~${cal}`} label="est. kcal" />
+        <CalorieRing kcal={cal} label="est. kcal" />
         <View style={styles.barArea}>
           {/* ONE segmented bar — proportions of this dish's calories */}
           <View style={styles.segmentBar}>
