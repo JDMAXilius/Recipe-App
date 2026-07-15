@@ -69,7 +69,16 @@ const TabsLayout = () => {
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    if (isLoaded && !isSignedIn) router.replace("/(auth)/sign-in");
+    if (!isLoaded || isSignedIn) return;
+    // First run gets the painted showcase; returning visitors go to the stool.
+    (async () => {
+      let seen = null;
+      try {
+        const AsyncStorage = (await import("@react-native-async-storage/async-storage")).default;
+        seen = await AsyncStorage.getItem("otto.onboarded.v1");
+      } catch {}
+      router.replace(seen ? "/(auth)/sign-in" : "/onboarding");
+    })();
   }, [isLoaded, isSignedIn, router]);
 
   if (isLoaded && !isSignedIn) return null;

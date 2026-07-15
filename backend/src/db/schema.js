@@ -30,6 +30,9 @@ export const recipesTable = pgTable("recipes", {
   // [string]
   steps: jsonb("steps").notNull().default([]),
   youtubeUrl: text("youtube_url"),
+  // Discover-social seed (ticket P10 §4): private by default; the public
+  // feed/profiles are Phase 2 (needs the moderation kit first).
+  visibility: text("visibility").notNull().default("private"), // "private" | "public"
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
