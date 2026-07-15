@@ -93,6 +93,128 @@ export const createRecipeDetailStyles = (colors) =>
       color: colors.ink,
       marginBottom: SPACING.lg,
     },
+    // Section header band: serif title left + ONE quiet action right (deep-dive rule)
+    sectionHeaderRow: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "space-between",
+      marginBottom: SPACING.md,
+    },
+    sectionTitleInline: {
+      ...TYPE.title,
+      color: colors.ink,
+    },
+    unitToggleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    unitToggleText: {
+      ...TYPE.label,
+      color: colors.inkSoft,
+      opacity: 0.5,
+    },
+    unitToggleActive: {
+      color: colors.accent,
+      opacity: 1,
+    },
+    unitToggleSep: {
+      ...TYPE.label,
+      color: colors.border,
+    },
+
+    // Serves band — "For N servings" + compact stepper (Tasty × Kitchen Stories)
+    servesBand: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: SPACING.md,
+    },
+    servesText: {
+      ...TYPE.body,
+      color: colors.ink,
+    },
+    servesCount: {
+      fontWeight: "700",
+      color: colors.accent,
+      fontVariant: ["tabular-nums"],
+    },
+    servesControls: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.md,
+    },
+    servesButton: {
+      width: 32,
+      height: 32,
+      borderRadius: 10,
+      backgroundColor: colors.surfaceWarm,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    servesButtonText: {
+      fontSize: 20,
+      fontWeight: "700",
+      color: colors.ink,
+      lineHeight: 22,
+    },
+    scaleChip: {
+      alignSelf: "flex-start",
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      backgroundColor: colors.accentSoft,
+      borderRadius: RADIUS.pill,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 4,
+      marginBottom: SPACING.md,
+    },
+    scaleChipText: {
+      ...TYPE.label,
+      color: colors.accent,
+    },
+    pantryGap: {
+      height: SPACING.md,
+    },
+    metricNote: {
+      ...TYPE.body,
+      fontSize: 12,
+      color: colors.inkSoft,
+      marginTop: SPACING.sm,
+    },
+
+    // METHOD — inline semantic ink (terracotta = computed, ink = authored)
+    durationChip: {
+      color: colors.accent,
+      fontWeight: "700",
+      backgroundColor: colors.accentSoft,
+    },
+    tempText: {
+      color: colors.secondary,
+      fontWeight: "700",
+    },
+    ingredientBold: {
+      fontWeight: "700",
+    },
+    usesLine: {
+      ...TYPE.body,
+      fontSize: 12,
+      color: colors.inkSoft,
+      marginTop: SPACING.xs,
+    },
+    stepHeaderRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    stepPlayButton: {
+      width: 28,
+      height: 28,
+      borderRadius: RADIUS.pill,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.surfaceWarm,
+    },
 
     // INGREDIENTS — flat rows, quantity tinted (Crouton pattern)
     ingredientRow: {

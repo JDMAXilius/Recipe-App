@@ -5,15 +5,22 @@ import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { WebView } from "react-native-webview";
+import * as Haptics from "expo-haptics";
 import { MealAPI } from "../../services/mealAPI";
 import { useTheme } from "../../context/ThemeContext";
 import { OVERLAY } from "../../constants/tokens";
 import { getNutritionEstimate } from "../../constants/nutritionEstimates";
 import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
+import { scaledIngredient, formatQty } from "../../lib/ingredientParser";
+import { segmentStep } from "../../lib/stepEnrich";
+import { splitSteps, matchStepIngredients } from "../../lib/cookSession";
+import { useUnitSystem } from "../../hooks/useUnitSystem";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import NutritionCard from "../../components/nutrition/NutritionCard";
 import PawMark from "../../components/PawMark";
 import Bounceable from "../../components/Bounceable";
+
+const BASE_SERVINGS = 4;
 
 // Recipe Detail v2 (MOBBIN_COMPARISON §2.4): one scroll, true facts only —
 // the fabricated Prep-Time/Servings stat cards are gone, ingredients are flat
@@ -38,8 +45,23 @@ const RecipeDetailScreen = () => {
 
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [servings, setServings] = useState(4);
+  const [servings, setServings] = useState(BASE_SERVINGS);
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const [unitSystem, setUnitSystem] = useUnitSystem();
+
+  const scaleFactor = servings / BASE_SERVINGS;
+
+  const tickServings = (next) => {
+    if (next < 1 || next > 24) return;
+    Haptics.selectionAsync().catch(() => {});
+    setServings(next);
+  };
+
+  const pickUnits = (next) => {
+    if (next === unitSystem) return;
+    Haptics.selectionAsync().catch(() => {});
+    setUnitSystem(next);
+  };
 
   useEffect(() => {
     const loadRecipeDetail = async () => {
@@ -64,6 +86,21 @@ const RecipeDetailScreen = () => {
   if (!recipe) return null;
 
   const videoId = getYouTubeId(recipe.youtubeUrl);
+
+  // Ingredients: scaled + converted rows; unscalable ("Dash", "to taste")
+  // sink to the bottom — positional separation, no "Pantry" ghetto.
+  const pairs = recipe.ingredientPairs?.length
+    ? recipe.ingredientPairs
+    : recipe.ingredients.map((s) => ({ measure: "", name: s }));
+  const scaledRows = pairs.map((pair) => ({
+    pair,
+    ...scaledIngredient(pair, scaleFactor, unitSystem),
+  }));
+  const scalableRows = scaledRows.filter((r) => r.scalable);
+  const pantryRows = scaledRows.filter((r) => !r.scalable);
+
+  // Method: same split steps the cook mode uses — numbering stays aligned.
+  const methodSteps = splitSteps(recipe.instructions);
 
   const handlePlayVideo = () => {
     // WebView isn't supported on web — open YouTube directly there.
@@ -122,20 +159,94 @@ const RecipeDetailScreen = () => {
         </View>
 
         <View style={recipeDetailStyles.contentSection}>
-          {/* INGREDIENTS */}
+          {/* INGREDIENTS — live scaling + US/Metric (deep-dive blueprint) */}
           <View style={recipeDetailStyles.sectionContainer}>
-            <Text style={recipeDetailStyles.sectionTitle}>Ingredients</Text>
-            {(recipe.ingredientPairs?.length
-              ? recipe.ingredientPairs
-              : recipe.ingredients.map((s) => ({ measure: "", name: s }))
-            ).map((pair, index) => (
+            <View style={recipeDetailStyles.sectionHeaderRow}>
+              <Text style={recipeDetailStyles.sectionTitleInline}>Ingredients</Text>
+              <View style={recipeDetailStyles.unitToggleRow}>
+                <TouchableOpacity onPress={() => pickUnits("us")} accessibilityRole="button">
+                  <Text
+                    style={[
+                      recipeDetailStyles.unitToggleText,
+                      unitSystem === "us" && recipeDetailStyles.unitToggleActive,
+                    ]}
+                  >
+                    US
+                  </Text>
+                </TouchableOpacity>
+                <Text style={recipeDetailStyles.unitToggleSep}>/</Text>
+                <TouchableOpacity onPress={() => pickUnits("metric")} accessibilityRole="button">
+                  <Text
+                    style={[
+                      recipeDetailStyles.unitToggleText,
+                      unitSystem === "metric" && recipeDetailStyles.unitToggleActive,
+                    ]}
+                  >
+                    Metric
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={recipeDetailStyles.servesBand}>
+              <Text style={recipeDetailStyles.servesText}>
+                For <Text style={recipeDetailStyles.servesCount}>{servings}</Text>{" "}
+                {servings === 1 ? "serving" : "servings"}
+              </Text>
+              <View style={recipeDetailStyles.servesControls}>
+                <TouchableOpacity
+                  style={recipeDetailStyles.servesButton}
+                  onPress={() => tickServings(servings - 1)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Decrease servings"
+                >
+                  <Text style={recipeDetailStyles.servesButtonText}>−</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={recipeDetailStyles.servesButton}
+                  onPress={() => tickServings(servings + 1)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Increase servings"
+                >
+                  <Text style={recipeDetailStyles.servesButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {scaleFactor !== 1 && (
+              <TouchableOpacity
+                style={recipeDetailStyles.scaleChip}
+                onPress={() => tickServings(BASE_SERVINGS)}
+                accessibilityRole="button"
+                accessibilityLabel="Reset servings"
+              >
+                <Text style={recipeDetailStyles.scaleChipText}>
+                  ×{formatQty(scaleFactor)} · Reset
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {scalableRows.map((row, index) => (
               <View key={index} style={recipeDetailStyles.ingredientRow}>
-                {pair.measure ? (
-                  <Text style={recipeDetailStyles.ingredientMeasure}>{pair.measure}</Text>
-                ) : null}
-                <Text style={recipeDetailStyles.ingredientName}>{pair.name}</Text>
+                <Text style={recipeDetailStyles.ingredientMeasure}>{row.display}</Text>
+                <Text style={recipeDetailStyles.ingredientName}>{row.name}</Text>
               </View>
             ))}
+            {pantryRows.length > 0 && <View style={recipeDetailStyles.pantryGap} />}
+            {pantryRows.map((row, index) => (
+              <View key={`p${index}`} style={recipeDetailStyles.ingredientRow}>
+                {row.display ? (
+                  <Text style={recipeDetailStyles.ingredientMeasure}>{row.display}</Text>
+                ) : null}
+                <Text style={recipeDetailStyles.ingredientName}>{row.name}</Text>
+              </View>
+            ))}
+
+            {unitSystem === "metric" && (
+              <Text style={recipeDetailStyles.metricNote}>
+                Converted automatically — Otto rounds to kitchen-friendly amounts.
+              </Text>
+            )}
           </View>
 
           {/* VIDEO — inline, tap to play, exactly where doubt starts */}
@@ -176,27 +287,68 @@ const RecipeDetailScreen = () => {
             </View>
           )}
 
-          {/* STEPS */}
+          {/* METHOD — semantic ink: terracotta = computed, ink = authored */}
           <View style={recipeDetailStyles.sectionContainer}>
             <Text style={recipeDetailStyles.sectionTitle}>Method</Text>
-            {recipe.instructions.map((instruction, index) => (
-              <View key={index} style={recipeDetailStyles.instructionRow}>
-                <View style={recipeDetailStyles.stepIndicator}>
-                  <Text style={recipeDetailStyles.stepNumber}>{index + 1}</Text>
+            {methodSteps.map((instruction, index) => {
+              const uses = matchStepIngredients(instruction, pairs).slice(0, 3);
+              return (
+                <View key={index} style={recipeDetailStyles.instructionRow}>
+                  <View style={recipeDetailStyles.stepIndicator}>
+                    <Text style={recipeDetailStyles.stepNumber}>{index + 1}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={recipeDetailStyles.stepHeaderRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={recipeDetailStyles.instructionText}>
+                          {segmentStep(instruction).map((seg, i) => {
+                            if (seg.type === "duration")
+                              return (
+                                <Text key={i} style={recipeDetailStyles.durationChip}>
+                                  {" "}◷ {seg.text}{" "}
+                                </Text>
+                              );
+                            if (seg.type === "temp")
+                              return (
+                                <Text key={i} style={recipeDetailStyles.tempText}>
+                                  {seg.text}
+                                </Text>
+                              );
+                            return <Text key={i}>{seg.text}</Text>;
+                          })}
+                        </Text>
+                        {uses.length > 0 && (
+                          <Text style={recipeDetailStyles.usesLine} numberOfLines={1}>
+                            uses:{" "}
+                            {uses
+                              .map((p) => {
+                                const s = scaledIngredient(p, scaleFactor, unitSystem);
+                                return `${s.display} ${s.name}`.trim();
+                              })
+                              .join(" · ")}
+                          </Text>
+                        )}
+                      </View>
+                      <TouchableOpacity
+                        style={recipeDetailStyles.stepPlayButton}
+                        onPress={() => router.push(`/recipe/cook/${recipe.id}?step=${index}`)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Start cooking from step ${index + 1}`}
+                      >
+                        <Ionicons name="play" size={14} color={colors.accent} />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 </View>
-                <Text style={recipeDetailStyles.instructionText}>{instruction}</Text>
-              </View>
-            ))}
+              );
+            })}
           </View>
 
-          {/* NUTRITION — category-typical estimate (P4-4), tilde-framed */}
+          {/* NUTRITION — closing card, live-linked to the Ingredients stepper */}
           <View style={recipeDetailStyles.sectionContainer}>
             <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
-            <NutritionCard
-              {...getNutritionEstimate(recipe.category)}
-              servings={servings}
-              onServingsChange={setServings}
-            />
+            <NutritionCard {...getNutritionEstimate(recipe.category)} servings={servings} />
           </View>
         </View>
       </ScrollView>
