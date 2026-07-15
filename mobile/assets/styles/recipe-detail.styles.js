@@ -394,4 +394,65 @@ export const createRecipeDetailStyles = (colors) =>
       fontWeight: "700",
       color: colors.white,
     },
+    planButton: {
+      width: 52,
+      height: 52,
+      borderRadius: RADIUS.button,
+      borderWidth: 1.5,
+      borderColor: colors.accent,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
+    // Add-to-week day sheet
+    sheetScrim: {
+      flex: 1,
+      backgroundColor: OVERLAY.scrim,
+      justifyContent: "flex-end",
+    },
+    sheet: {
+      backgroundColor: colors.bg,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      padding: SPACING.lg,
+      paddingBottom: SPACING.xl,
+    },
+    sheetHandle: {
+      alignSelf: "center",
+      width: 40,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: colors.border,
+      marginBottom: SPACING.md,
+    },
+    sheetTitle: {
+      ...TYPE.title,
+      color: colors.ink,
+      marginBottom: SPACING.sm,
+    },
+    dayRow: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      justifyContent: "space-between",
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    dayRowText: {
+      ...TYPE.body,
+      fontWeight: "600",
+      color: colors.ink,
+    },
+    dayRowSub: {
+      ...TYPE.caption,
+      color: colors.inkSoft,
+    },
+    sheetClose: {
+      alignSelf: "center",
+      paddingVertical: SPACING.md,
+    },
+    sheetCloseText: {
+      ...TYPE.label,
+      color: colors.inkSoft,
+    },
   });

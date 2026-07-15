@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Platform, Linking, Share } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Platform, Linking, Share, Modal } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import * as Haptics from "expo-haptics";
 import { MealAPI } from "../../services/mealAPI";
-import { UserRecipeAPI, transformUserRecipe, isUserRecipeId } from "../../services/userRecipes";
+import { UserRecipeAPI, transformUserRecipe, isUserRecipeId, PlanAPI } from "../../services/userRecipes";
+import { weekDays } from "../../lib/week";
+import { useToast } from "../../context/ToastContext";
 import { useTheme } from "../../context/ThemeContext";
 import { getNutritionEstimate } from "../../constants/nutritionEstimates";
 import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
@@ -49,6 +51,8 @@ const RecipeDetailScreen = () => {
   const [loading, setLoading] = useState(true);
   const [servings, setServings] = useState(BASE_SERVINGS);
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const [planOpen, setPlanOpen] = useState(false);
+  const { show } = useToast();
   const [unitSystem, setUnitSystem] = useUnitSystem();
 
   const baseServings = recipe?.servings || BASE_SERVINGS;
@@ -139,6 +143,23 @@ const RecipeDetailScreen = () => {
       return;
     }
     setVideoPlaying(true);
+  };
+
+  const addToWeek = async (day) => {
+    setPlanOpen(false);
+    try {
+      await PlanAPI.add({
+        day: day.key,
+        recipeId: String(recipe.id),
+        title: recipe.title,
+        image: recipe.image,
+        category: recipe.category,
+      });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      show({ message: `On ${day.label === "Today" || day.label === "Tomorrow" ? day.label.toLowerCase() : day.label}'s card — Otto's week has plans.` });
+    } catch (error) {
+      show({ message: error.message || "Couldn't add it to the week." });
+    }
   };
 
   const handleShare = async () => {
@@ -470,9 +491,17 @@ const RecipeDetailScreen = () => {
         </View>
       </ScrollView>
 
-      {/* PINNED BOTTOM BAR */}
+      {/* PINNED BOTTOM BAR — Start cooking primary, plan + paw quiet (SideChef dual-bar) */}
       <View style={recipeDetailStyles.bottomBar}>
         {!isOwn && <PawMark recipe={recipe} size={26} style={{ width: 52, height: 52 }} />}
+        <TouchableOpacity
+          style={recipeDetailStyles.planButton}
+          onPress={() => setPlanOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Add to Otto's week"
+        >
+          <Ionicons name="calendar-outline" size={22} color={colors.accent} />
+        </TouchableOpacity>
         <Bounceable
           style={recipeDetailStyles.cookButton}
           containerStyle={{ flex: 1 }}
@@ -484,6 +513,36 @@ const RecipeDetailScreen = () => {
           <Text style={recipeDetailStyles.cookButtonText}>Start cooking</Text>
         </Bounceable>
       </View>
+
+      {/* Day picker — which card does this land on? */}
+      <Modal visible={planOpen} transparent animationType="slide">
+        <View style={recipeDetailStyles.sheetScrim}>
+          <View style={recipeDetailStyles.sheet}>
+            <View style={recipeDetailStyles.sheetHandle} />
+            <Text style={recipeDetailStyles.sheetTitle}>Add to Otto's week</Text>
+            {weekDays().map((day) => (
+              <TouchableOpacity
+                key={day.key}
+                style={recipeDetailStyles.dayRow}
+                onPress={() => addToWeek(day)}
+                accessibilityRole="button"
+                accessibilityLabel={`Add to ${day.label}`}
+              >
+                <Text style={recipeDetailStyles.dayRowText}>{day.label}</Text>
+                <Text style={recipeDetailStyles.dayRowSub}>{day.sub}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={recipeDetailStyles.sheetClose}
+              onPress={() => setPlanOpen(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
+              <Text style={recipeDetailStyles.sheetCloseText}>Not now</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
