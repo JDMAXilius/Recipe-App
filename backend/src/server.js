@@ -9,7 +9,7 @@ import job from "./config/cron.js";
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
-import { apiLimiter, costlyLimiter } from "./lib/rateLimits.js";
+import { apiLimiter, costlyLimiter, seedReadLimiter } from "./lib/rateLimits.js";
 import { backfillUserRecipeNutrition, seedNutritionFor, nutritionActive } from "./lib/nutrition/lifecycle.js";
 
 const app = express();
@@ -174,6 +174,18 @@ app.put("/api/recipes/:id", requireAuth, validate(schemas.recipeUpdate), async (
     const id = intId(req.params.id);
     if (!id) return res.status(400).json({ error: "Bad id" });
     const { title, image, category, area, servings, ingredients, steps, youtubeUrl, visibility } = req.body;
+    // the editor always sends the full payload — only a REAL ingredient/
+    // serving change should void cached nutrition + re-pay the provider
+    // (QA P3-9: a title typo fix must not downgrade the card)
+    const existingRows = await db
+      .select({ ingredients: recipesTable.ingredients, servings: recipesTable.servings })
+      .from(recipesTable)
+      .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, id)));
+    if (!existingRows.length) return res.status(404).json({ error: "Not found" });
+    const nutritionStale =
+      (ingredients !== undefined &&
+        JSON.stringify(ingredients) !== JSON.stringify(existingRows[0].ingredients)) ||
+      (servings !== undefined && (servings ?? null) !== existingRows[0].servings);
     // source/sourceUrl/sourceName are immutable — attribution never edits away
     const updated = await db
       .update(recipesTable)
@@ -187,17 +199,14 @@ app.put("/api/recipes/:id", requireAuth, validate(schemas.recipeUpdate), async (
         ...(steps !== undefined && { steps }),
         ...(youtubeUrl !== undefined && { youtubeUrl }),
         ...(visibility !== undefined && { visibility }),
-        // ingredient/serving edits invalidate the cached numbers immediately;
         // the honest state while recomputing is "no numbers", never stale ones
-        ...((ingredients !== undefined || servings !== undefined) && { nutrition: null }),
+        ...(nutritionStale && { nutrition: null }),
         updatedAt: new Date(),
       })
       .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, id)))
       .returning();
     if (!updated.length) return res.status(404).json({ error: "Not found" });
-    if (ingredients !== undefined || servings !== undefined) {
-      backfillUserRecipeNutrition(id, req.userId);
-    }
+    if (nutritionStale) backfillUserRecipeNutrition(id, req.userId);
     res.status(200).json(updated[0]);
   } catch (error) {
     reportError(error, { msg: "update recipe failed", userId: req.userId });
@@ -242,9 +251,10 @@ app.post("/api/recipes/:id/nutrition/recompute", requireAuth, costlyLimiter, asy
   }
 });
 
-// Seed (TheMealDB) nutrition — cache-first, compute-once-per-recipe. The
-// costly limiter only guards the compute path; cached rows are cheap reads.
-app.get("/api/nutrition/seed/:mealId", requireAuth, costlyLimiter, async (req, res) => {
+// Seed (TheMealDB) nutrition — cache-first, compute-once-per-recipe. Browsing
+// fires one of these per detail view, so it gets its own generous limiter —
+// NEVER the import budget (QA P1-1); the compute-once cache guards the spend.
+app.get("/api/nutrition/seed/:mealId", requireAuth, seedReadLimiter, async (req, res) => {
   try {
     const mealId = String(req.params.mealId).trim();
     if (!/^\d{1,10}$/.test(mealId)) return res.status(400).json({ error: "Bad id" });
@@ -257,12 +267,19 @@ app.get("/api/nutrition/seed/:mealId", requireAuth, costlyLimiter, async (req, r
 });
 
 // ------------------------------------------------------------ OTTO'S WEEK
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 app.get("/api/plan", requireAuth, async (req, res) => {
   try {
     const { start, end } = req.query;
+    // query strings reach a date column — garbage (or Express array-params)
+    // must 400 here, not 500 in postgres (QA P3-10)
+    if ((start && !DAY_RE.test(String(start))) || (end && !DAY_RE.test(String(end)))) {
+      return res.status(400).json({ error: "Bad date range" });
+    }
     const conditions = [eq(planEntriesTable.userId, req.userId)];
-    if (start) conditions.push(gte(planEntriesTable.day, start));
-    if (end) conditions.push(lte(planEntriesTable.day, end));
+    if (start) conditions.push(gte(planEntriesTable.day, String(start)));
+    if (end) conditions.push(lte(planEntriesTable.day, String(end)));
     const entries = await db
       .select()
       .from(planEntriesTable)

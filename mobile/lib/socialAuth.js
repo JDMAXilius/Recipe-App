@@ -31,17 +31,23 @@ export async function fetchEnabledProviders() {
   }
 }
 
-// Anonymous guests upgrade IN PLACE (same rule as email sign-up: a fresh
-// sign-in would mint a second user and orphan their imports/plans/saves).
-// linkIdentity attaches the OAuth identity to the current anonymous user.
+// Anonymous guests upgrade IN PLACE on SIGN-UP (same rule as email sign-up:
+// linkIdentity attaches the OAuth identity to the current anonymous user so
+// their imports/plans/saves keep their owner). On SIGN-IN we switch accounts
+// like the email path does — linking there would wrongly reject users whose
+// identity already belongs to their real account (QA P2-6). Local session
+// read, no network — a transient fetch failure must not misroute the guest
+// into a fresh account (QA P3-7).
 async function isAnonymousSession() {
-  const { data } = await supabase.auth.getUser().catch(() => ({ data: null }));
-  return Boolean(data?.user?.is_anonymous);
+  const { data } = await supabase.auth.getSession().catch(() => ({ data: null }));
+  return Boolean(data?.session?.user?.is_anonymous);
 }
 
+const shouldLink = async (mode) => mode === "sign-up" && (await isAnonymousSession());
+
 // ---- Apple (native sheet; iOS native builds only) -----------------------
-export async function signInWithApple() {
-  if (await isAnonymousSession()) {
+export async function signInWithApple(mode) {
+  if (await shouldLink(mode)) {
     // keep the guest's data: link via the browser OAuth flow instead of the
     // native sheet (signInWithIdToken can't link — it signs in)
     return linkOAuthIdentity("apple");
@@ -97,8 +103,10 @@ async function createSessionFromUrl(url) {
 
 async function runBrowserFlow(getUrl) {
   if (Platform.OS === "web") {
-    // full-page redirect; supabase-js picks the session out of the URL on return
-    const { error } = await getUrl({});
+    // full-page redirect; supabase-js picks the session out of the URL on
+    // return. Explicit origin so dev/preview hosts don't bounce to the
+    // dashboard Site URL and strand the session on another origin (QA P3-11).
+    const { error } = await getUrl({ redirectTo: window.location.origin });
     if (error) throw error;
     return;
   }
@@ -117,7 +125,7 @@ async function linkOAuthIdentity(provider) {
   return runBrowserFlow((options) => supabase.auth.linkIdentity({ provider, options }));
 }
 
-export async function signInWithOAuthProvider(provider) {
-  if (await isAnonymousSession()) return linkOAuthIdentity(provider);
+export async function signInWithOAuthProvider(provider, mode) {
+  if (await shouldLink(mode)) return linkOAuthIdentity(provider);
   return runBrowserFlow((options) => supabase.auth.signInWithOAuth({ provider, options }));
 }

@@ -82,7 +82,7 @@ const SignInScreen = () => {
             {error && <Text style={authStyles.errorText}>{error}</Text>}
 
             {/* social rows render only for providers Supabase has enabled (P10 §3) */}
-            <SocialAuthButtons onError={setError} />
+            <SocialAuthButtons mode="sign-in" onError={setError} />
 
             <View style={authStyles.inputContainer}>
               <TextInput

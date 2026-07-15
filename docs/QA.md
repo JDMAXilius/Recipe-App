@@ -84,3 +84,28 @@ but the Otto badge + serif title carry it). **Passes.**
 ## Verdict
 No open P0s. The four release-blocking classes the founder flagged — theme switcher remnants,
 stray dark-mode paths, second icon family, hardcoded colors — are all **clean**.
+
+## Round 3 — Adversarial QA on the B0/B1/SSO batch (2026-07-15, terminal)
+
+Read-only QA subagent over the backend hardening + nutrition pipeline + social
+sign-in diff. 12 findings, all dispositioned same-session; suite + live smoke
+green after fixes.
+
+| # | Sev | Finding | Disposition |
+|---|---|---|---|
+| 1 | P1 | Seed-nutrition views shared the import rate budget — browsing ~20 recipes 429'd `/api/import` | **FIXED** → dedicated `seedReadLimiter` (120/15min); generic 429 copy |
+| 2 | P2 | Backfill stale-write race: overlapping edits could pair old nutrition with new ingredients | **FIXED** → conditional UPDATE guarded on `updated_at` captured at read |
+| 3 | P2 | `null/servings === 0` fabricated `0g` macros when Edamam omitted a nutrient | **FIXED** → null-preserving `per()` helper ("null beats a guess") |
+| 4 | P2 | Import could emit drafts its own save schema rejects (>2000-char steps, >200-char names) | **FIXED** → clamps + sentence-boundary step splitting in `importRecipeFromUrl` |
+| 5 | P2 | Editor return didn't refresh computed nutrition → pre-edit numbers on new ingredients | **FIXED** → focus refetch also sets `computedNutrition` + `servings` |
+| 6 | P2 | Anonymous guest on SIGN-IN got `linkIdentity` → "already linked" dead end for returning users | **FIXED** → mode split: sign-in switches accounts (email parity), sign-up links |
+| 7 | P3 | Anonymous check was a network call — transient failure could mint a fresh user | **FIXED** → local `getSession()` read |
+| 8 | P3 | Unanalyzable seed recipes re-paid the provider on every view (no negative cache) | **FIXED** → `{unavailable:true}` sentinel row; dormant state never caches |
+| 9 | P3 | Any PUT (even a title typo) voided nutrition + burned an Edamam call | **FIXED** → invalidate only when ingredients/servings actually differ |
+| 10 | P3 | `/api/plan?start=garbage` reached postgres → 500 | **FIXED** → DAY-regex 400 |
+| 11 | P3 | Web OAuth fell back to dashboard Site URL → session stranded on wrong origin | **FIXED** → `redirectTo: window.location.origin` |
+| 12 | P3 | OAuth deep link flashed Unmatched Route (no `/auth/callback` screen) | **FIXED** → redirect stub route |
+
+Clean areas confirmed by the same pass: all zod schemas vs. every live mobile
+call site, Apple nonce handling, lazy native imports, RecipeSource, parser math,
+NutritionCard partial-object rendering.

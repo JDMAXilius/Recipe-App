@@ -41,6 +41,9 @@ export const edamamProvider = {
 
     const n = data.totalNutrients || {};
     const q = (key) => (Number.isFinite(n[key]?.quantity) ? n[key].quantity : null);
+    // null must stay null through the division — null/4 === 0 in JS would
+    // fabricate a "0g" where the source honestly had no data (QA P2-3)
+    const per = (v, dp) => (v == null ? null : round(v / perServing, dp));
 
     // Edamam flags lines it couldn't parse; use that as our confidence signal.
     const unmatched = Array.isArray(data.ingredients)
@@ -51,12 +54,12 @@ export const edamamProvider = {
 
     return {
       kcal: round(data.calories / perServing),
-      protein_g: round(q("PROCNT") / perServing, 1),
-      carbs_g: round(q("CHOCDF") / perServing, 1),
-      fat_g: round(q("FAT") / perServing, 1),
-      fiber_g: round(q("FIBTG") / perServing, 1),
-      sugar_g: round(q("SUGAR") / perServing, 1),
-      sodium_mg: round(q("NA") / perServing),
+      protein_g: per(q("PROCNT"), 1),
+      carbs_g: per(q("CHOCDF"), 1),
+      fat_g: per(q("FAT"), 1),
+      fiber_g: per(q("FIBTG"), 1),
+      sugar_g: per(q("SUGAR"), 1),
+      sodium_mg: per(q("NA"), 0),
       basis_grams: round((data.totalWeight || 0) / perServing),
       per: "serving",
       source: "edamam",

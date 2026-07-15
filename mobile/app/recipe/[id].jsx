@@ -138,7 +138,14 @@ const RecipeDetailScreen = () => {
     useCallback(() => {
       if (!isUserRecipeId(recipeId)) return;
       UserRecipeAPI.get(recipeId)
-        .then((row) => setRecipe(transformUserRecipe(row)))
+        .then((row) => {
+          const fresh = transformUserRecipe(row);
+          setRecipe(fresh);
+          // an edit may have voided/recomputed nutrition server-side — the
+          // card must never show pre-edit numbers against new ingredients
+          setComputedNutrition(fresh.nutrition);
+          if (fresh.servings) setServings(fresh.servings);
+        })
         .catch((error) => {
           if (/not found/i.test(error.message)) setRecipe(null);
         });

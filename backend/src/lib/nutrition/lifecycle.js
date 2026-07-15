@@ -31,10 +31,19 @@ export function backfillUserRecipeNutrition(recipeId, userId) {
       logger.info({ recipeId }, "nutrition unavailable for recipe");
       return;
     }
+    // guard against the overlapping-edit race (QA P2-2): if the row changed
+    // while the provider ran, these numbers describe stale ingredients —
+    // drop them; the edit's own backfill is already in flight
     await db
       .update(recipesTable)
       .set({ nutrition })
-      .where(and(eq(recipesTable.id, recipeId), eq(recipesTable.userId, userId)));
+      .where(
+        and(
+          eq(recipesTable.id, recipeId),
+          eq(recipesTable.userId, userId),
+          eq(recipesTable.updatedAt, recipe.updatedAt)
+        )
+      );
   })().catch((error) => reportError(error, { msg: "nutrition backfill failed", recipeId }));
 }
 
@@ -46,20 +55,23 @@ export async function seedNutritionFor(mealId) {
     .select()
     .from(seedNutritionTable)
     .where(eq(seedNutritionTable.recipeId, mealId));
-  if (cached.length) return cached[0].nutrition;
+  if (cached.length) {
+    // negative-cache sentinel (QA P3-8): this recipe was tried and honestly
+    // couldn't be analyzed — don't re-pay the provider on every view
+    return cached[0].nutrition?.unavailable ? null : cached[0].nutrition;
+  }
 
-  if (!nutritionActive()) return null;
+  if (!nutritionActive()) return null; // dormant — never cache, so keys landing later still compute
 
   const meal = await recipeSource.getById(mealId);
-  if (!meal || !meal.ingredients?.length) return null;
+  const nutrition =
+    meal && meal.ingredients?.length ? await computeNutrition(meal.ingredients, 4) : null;
   // TheMealDB has no servings field; category-typical default of 4 — the
   // basis_grams on the result keeps the portion honest.
-  const nutrition = await computeNutrition(meal.ingredients, 4);
-  if (!nutrition) return null;
 
   await db
     .insert(seedNutritionTable)
-    .values({ recipeId: mealId, nutrition })
+    .values({ recipeId: mealId, nutrition: nutrition ?? { unavailable: true } })
     .onConflictDoNothing();
   return nutrition;
 }

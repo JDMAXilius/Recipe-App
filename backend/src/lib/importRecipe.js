@@ -172,6 +172,23 @@ async function fetchPublicHtml(startUrl) {
   throw new Error("Too many redirects");
 }
 
+// A single-paragraph instruction blob > 2000 chars gets split at sentence
+// boundaries so every piece fits the save schema.
+function splitOversizedStep(step, max = 2000) {
+  if (step.length <= max) return [step];
+  const out = [];
+  let current = "";
+  for (const sentence of step.match(/[^.!?]+[.!?]*\s*/g) || [step]) {
+    if (current && current.length + sentence.length > max) {
+      out.push(current.trim());
+      current = "";
+    }
+    current += sentence.length > max ? sentence.slice(0, max) : sentence;
+  }
+  if (current.trim()) out.push(current.trim());
+  return out;
+}
+
 export async function importRecipeFromUrl(url) {
   const start = new URL(url); // throws on garbage — caller maps to 400
   const { html, finalUrl } = await fetchPublicHtml(start);
@@ -191,24 +208,32 @@ export async function importRecipeFromUrl(url) {
   }
   if (!recipe) return null;
 
+  // Clamp to the save schema's limits (validate.js) — the import must never
+  // hand the editor a draft that POST /api/recipes will reject (QA P2-4).
   const ingredients = (recipe.recipeIngredient || recipe.ingredients || [])
     .map((line) => splitIngredientLine(line))
-    .filter((p) => p.name);
-  const steps = flattenInstructions(recipe.recipeInstructions).filter(Boolean);
+    .filter((p) => p.name)
+    .slice(0, 100)
+    .map((p) => ({ measure: p.measure.slice(0, 80), name: p.name.slice(0, 200) }));
+  const steps = flattenInstructions(recipe.recipeInstructions)
+    .filter(Boolean)
+    .flatMap(splitOversizedStep)
+    .slice(0, 60);
   const sourceName =
     firstString(recipe.publisher?.name) ||
     firstString(recipe.author?.name || recipe.author) ||
     target.hostname.replace(/^www\./, "");
 
+  const clamp = (s, max) => (s == null ? s : String(s).slice(0, max));
   return {
-    title: firstString(recipe.name) || "Untitled recipe",
-    image: firstString(recipe.image),
+    title: clamp(firstString(recipe.name), 300) || "Untitled recipe",
+    image: clamp(firstString(recipe.image), 2000),
     servings: parseYield(recipe.recipeYield),
-    category: firstString(recipe.recipeCategory),
-    area: firstString(recipe.recipeCuisine),
+    category: clamp(firstString(recipe.recipeCategory), 100),
+    area: clamp(firstString(recipe.recipeCuisine), 100),
     ingredients,
     steps,
-    sourceUrl: target.href,
-    sourceName,
+    sourceUrl: clamp(target.href, 2000),
+    sourceName: clamp(sourceName, 200),
   };
 }

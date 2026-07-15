@@ -90,7 +90,7 @@ const SignUpScreen = () => {
             {error && <Text style={authStyles.errorText}>{error}</Text>}
 
             {/* same rows, same order as sign-in (P10 §3) — Apple first (4.8) */}
-            <SocialAuthButtons onError={setError} />
+            <SocialAuthButtons mode="sign-up" onError={setError} />
 
             <View style={authStyles.inputContainer}>
               <TextInput

@@ -19,7 +19,9 @@ const LABELS = {
   facebook: { label: "Continue with Facebook", icon: "logo-facebook" },
 };
 
-export default function SocialAuthButtons({ onError }) {
+// mode: "sign-in" switches accounts (like the email path); "sign-up" upgrades
+// an anonymous guest in place so their data keeps its owner.
+export default function SocialAuthButtons({ onError, mode = "sign-in" }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [providers, setProviders] = useState([]);
@@ -44,8 +46,8 @@ export default function SocialAuthButtons({ onError }) {
     Haptics.selectionAsync().catch(() => {});
     setBusy(provider);
     try {
-      if (provider === "apple") await signInWithApple();
-      else await signInWithOAuthProvider(provider);
+      if (provider === "apple") await signInWithApple(mode);
+      else await signInWithOAuthProvider(provider, mode);
       // success: AuthProvider sees the session and the layout redirects home
     } catch (err) {
       // user-cancelled Apple sheet arrives as ERR_REQUEST_CANCELED — stay quiet
