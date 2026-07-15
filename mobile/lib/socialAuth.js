@@ -11,7 +11,6 @@
 import { Platform } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
-import * as Crypto from "expo-crypto";
 import { supabase } from "./supabase";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -32,10 +31,27 @@ export async function fetchEnabledProviders() {
   }
 }
 
+// Anonymous guests upgrade IN PLACE (same rule as email sign-up: a fresh
+// sign-in would mint a second user and orphan their imports/plans/saves).
+// linkIdentity attaches the OAuth identity to the current anonymous user.
+async function isAnonymousSession() {
+  const { data } = await supabase.auth.getUser().catch(() => ({ data: null }));
+  return Boolean(data?.user?.is_anonymous);
+}
+
 // ---- Apple (native sheet; iOS native builds only) -----------------------
 export async function signInWithApple() {
-  // dynamic import — the native module doesn't exist on web/Android/Expo Go
-  const AppleAuthentication = await import("expo-apple-authentication");
+  if (await isAnonymousSession()) {
+    // keep the guest's data: link via the browser OAuth flow instead of the
+    // native sheet (signInWithIdToken can't link — it signs in)
+    return linkOAuthIdentity("apple");
+  }
+  // dynamic imports — these native modules only exist in freshly-built iOS
+  // binaries; a top-level import would crash older dev builds at boot
+  const [AppleAuthentication, Crypto] = await Promise.all([
+    import("expo-apple-authentication"),
+    import("expo-crypto"),
+  ]);
   const available = await AppleAuthentication.isAvailableAsync().catch(() => false);
   if (!available) throw new Error("Apple sign-in isn't available on this device.");
 
@@ -79,25 +95,29 @@ async function createSessionFromUrl(url) {
   if (error) throw error;
 }
 
-export async function signInWithOAuthProvider(provider) {
+async function runBrowserFlow(getUrl) {
   if (Platform.OS === "web") {
     // full-page redirect; supabase-js picks the session out of the URL on return
-    const { error } = await supabase.auth.signInWithOAuth({ provider });
+    const { error } = await getUrl({});
     if (error) throw error;
     return;
   }
-
   const redirectTo = Linking.createURL("auth/callback"); // runtime scheme, always right
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: { redirectTo, skipBrowserRedirect: true },
-  });
+  const { data, error } = await getUrl({ redirectTo, skipBrowserRedirect: true });
   if (error) throw error;
-
   const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
   if (result.type === "success" && result.url) {
     await createSessionFromUrl(result.url);
   } else if (result.type !== "cancel" && result.type !== "dismiss") {
     throw new Error("Sign-in didn't finish. Try again.");
   }
+}
+
+async function linkOAuthIdentity(provider) {
+  return runBrowserFlow((options) => supabase.auth.linkIdentity({ provider, options }));
+}
+
+export async function signInWithOAuthProvider(provider) {
+  if (await isAnonymousSession()) return linkOAuthIdentity(provider);
+  return runBrowserFlow((options) => supabase.auth.signInWithOAuth({ provider, options }));
 }

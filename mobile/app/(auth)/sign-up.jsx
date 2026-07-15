@@ -14,6 +14,7 @@ import { createAuthStyles } from "../../assets/styles/auth.styles";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import SocialAuthButtons from "../../components/SocialAuthButtons";
 import { useTheme } from "../../context/ThemeContext";
 
 // Sign-up v2 — first contact, the thesis statement: large framed Otto,
@@ -87,6 +88,9 @@ const SignUpScreen = () => {
 
           <View style={authStyles.formContainer}>
             {error && <Text style={authStyles.errorText}>{error}</Text>}
+
+            {/* same rows, same order as sign-in (P10 §3) — Apple first (4.8) */}
+            <SocialAuthButtons onError={setError} />
 
             <View style={authStyles.inputContainer}>
               <TextInput

@@ -501,3 +501,16 @@ Cookbook is ONE tab with in-screen segments.
   in-flight files (e.g. `01dc56a`, `22e4c34` carry B0.2/B0.3 work authored here mixed
   with its splash batch). Nothing lost — history is linear — but commit-immediately is
   now the cadence, and mixed-authorship commits are a known artifact of this run.
+- **C23. SSO rows are live-gated on Supabase settings** (P10 §3). The auth screens ask
+  `/auth/v1/settings` which providers are actually configured and render only those —
+  today none are (all three need founder-owned developer credentials; steps in
+  `docs/SSO_SETUP.md`), so the UI is unchanged and honest. The moment a provider is
+  enabled its row appears, Apple first (4.8). Anonymous guests link identities in place
+  (`linkIdentity`) so guest data keeps its owner — same rule as the email upgrade path.
+  Apple = native sheet via `signInWithIdToken` (iOS builds only; row hidden elsewhere);
+  Google/Facebook = system browser → deep-link back → `setSession`. Caught in sim
+  verification: top-level `expo-crypto` import crashed the existing dev build (module
+  not in the old binary) — made native imports lazy inside `signInWithApple`. iOS dev
+  build still needs one rebuild (plugin + `usesAppleSignIn` entitlement) before Apple's
+  native sheet can work; web needed `detectSessionInUrl: true` (web only) for the
+  redirect return.
