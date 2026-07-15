@@ -16,6 +16,35 @@ export const createHomeStyles = (colors) =>
     },
 
     // Greeting band — one warm line + small Otto; scrolls away (B6).
+    // Tonight band — the plan surfacing at 5pm, one quiet row
+    tonightBand: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.md,
+      backgroundColor: colors.surfaceWarm,
+      borderWidth: 1,
+      borderColor: colors.accent,
+      borderRadius: RADIUS.card,
+      marginHorizontal: SPACING.lg,
+      marginBottom: SPACING.lg,
+      padding: SPACING.md,
+    },
+    tonightThumb: {
+      width: 44,
+      height: 44,
+      borderRadius: 10,
+      backgroundColor: colors.surface,
+    },
+    tonightLabel: {
+      ...TYPE.caption,
+      fontSize: 10,
+      color: colors.accent,
+    },
+    tonightTitle: {
+      ...TYPE.body,
+      fontWeight: "700",
+      color: colors.ink,
+    },
     greetingSection: {
       flexDirection: "row",
       alignItems: "center",

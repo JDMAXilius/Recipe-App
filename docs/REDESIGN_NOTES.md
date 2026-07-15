@@ -319,3 +319,48 @@ in the research transcripts; built same-day:
   (earliest keyword wins; fallback "cook"). Step screen shows the matching art at 132pt
   under the step text — per-step *type* art at zero content cost (cook-mode blueprint).
   Verified web + iOS sim: preheat→bake art, sauce-thicken→cook art, action swaps per step.
+
+## Phase 7 — v2 build-out: the pivot shipped (2026-07-15)
+
+Founder calls honored: ALL premium functionality + frontend built now, ZERO gating
+(no meters, no paywall, no RevenueCat — Phase 2 of the roadmap deliberately skipped);
+Cookbook is ONE tab with in-screen segments.
+
+- **C8. Backend v2** (Express+Drizzle+Neon): `recipes` (owner, source imported/manual,
+  immutable source_url/source_name, ingredients JSONB {measure,name} pairs, steps JSONB,
+  real servings), `plan_entries` (day buckets, snapshot title/image, cooked). POST
+  /api/import = deterministic schema.org JSON-LD extraction (NO LLM): Recipe node
+  discovery (incl. @graph), HowToStep/HowToSection flattening, ingredient-line splitting
+  into pairs, publisher/author → attribution. Verified against AllRecipes end-to-end.
+- **C9. Tab bar v2:** Discover · Cookbook(paw) · raised terracotta ＋ · Plan · Account.
+  ＋ is an action (opens /add), never a destination — placeholder tab slot named `create`
+  so the sheet route /add stays unshadowed (group segments are optional in expo-router!).
+- **C10. Cookbook:** segments All · Saved · My recipes + Cooked chip (reads
+  otto.cooked.* keys). One corner stamp per card: paw / "By you" / source-link pill.
+  Per-segment Otto empty states; "Add a recipe" invitation on My-recipes-empty.
+- **C11. Add flow:** clipboard link detection ("Otto spotted a recipe link"), parsing
+  state in Otto's voice ("check his work"), failure = blame-free + tip + "Write it
+  myself instead" carrying the URL; TikTok/IG share-in honestly labeled coming-soon
+  (needs dev-build share extension). ONE editor, two fill states ("Check Otto's work"
+  banner on imports); tokenized terracotta measure column; steps optional at save;
+  delete = двойной two-tap arm (Alert.alert is a web no-op). [sic: two-tap]
+- **C12. User recipes everywhere:** id convention u-<dbId> (`isUserRecipeId` is the only
+  place that knows); detail + cook mode load either source into the SAME transformed
+  shape; scaling uses real authored servings as base; attribution row swaps to
+  source-domain ↗ (live link, immutable) or "By you"; edit pencil replaces the paw on
+  own recipes (you don't "save" your own cooking).
+- **C13. Otto's week:** rolling 7 days, loose buckets, today tinted, empty days are
+  painted invitations ("Open — no plans, no guilt."), cookbook picker per day, flame
+  cooked-toggle, optimistic updates w/ rollback. Detail bottom bar = Start cooking
+  (primary) + calendar day-sheet (quiet) — SideChef dual-bar. Discover surfaces
+  "What's cooking tonight?" (today's first uncooked entry) — payoff at 5pm, not Sunday.
+- **C14. Shopping list:** built ONLY by explicit push; one row per ingredient, summed
+  when units agree (parseMeasure canonical), honest side-by-side when they don't; aisle
+  keyword sections (pantry phrases outrank meat: "chicken stock" ≠ chicken); provenance
+  "for …" line; removable source chips; check-off never reorders; inline add-item;
+  week-changed banner asks before rebuilding — never silent rewrites.
+- **C15. Growth bits:** finish screen "Snap your plate" → private journal
+  (otto.journal.<id>, camera on device / library fallback); Cooked filter chip.
+- **Blocked on founder inputs (roadmap Phase 0 list):** Ask Otto needs an LLM API key +
+  budget; share extension + Rive need the dev-build transition; IAP/RevenueCat whenever
+  gating is wanted. Everything else from Phases 0/1/4/5-lite is LIVE.

@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Modal,
   Image,
+  Platform,
   Animated as RNAnimated,
   Easing,
 } from "react-native";
@@ -57,6 +58,7 @@ const CookModeScreen = () => {
   const [sheetFilter, setSheetFilter] = useState("step"); // step | all
   const [exitConfirm, setExitConfirm] = useState(false);
   const [thumbs, setThumbs] = useState(null);
+  const [platePhoto, setPlatePhoto] = useState(null);
 
   // ---- timers ------------------------------------------------------------
   const [timers, setTimers] = useState([]); // {id,label,total,remaining,running,done}
@@ -204,6 +206,33 @@ const CookModeScreen = () => {
     } catch {}
   };
 
+  // "I cooked this" — private journal snap (roadmap Phase 5: celebrate →
+  // snap → journal; life before any public feed). Camera on device, library
+  // fallback (web/sim have no camera).
+  const snapPlate = async () => {
+    try {
+      const ImagePicker = await import("expo-image-picker");
+      let result;
+      if (Platform.OS !== "web") {
+        const { granted } = await ImagePicker.requestCameraPermissionsAsync();
+        result = granted
+          ? await ImagePicker.launchCameraAsync({ quality: 0.6 })
+          : await ImagePicker.launchImageLibraryAsync({ quality: 0.6 });
+      } else {
+        result = await ImagePicker.launchImageLibraryAsync({ quality: 0.6 });
+      }
+      if (result?.canceled || !result?.assets?.[0]?.uri) return;
+      const uri = result.assets[0].uri;
+      setPlatePhoto(uri);
+      await AsyncStorage.setItem(
+        `otto.journal.${recipeId}`,
+        JSON.stringify({ uri, at: Date.now(), title: recipe?.title })
+      );
+    } catch {
+      // no camera, no drama — the button just stays
+    }
+  };
+
   if (loading) return <LoadingSpinner message="Setting up your station..." />;
   if (!recipe || steps.length === 0) {
     router.back();
@@ -254,6 +283,24 @@ const CookModeScreen = () => {
             />
           </TouchableOpacity>
         </View>
+
+        {/* Private journal snap — celebrate, then capture (Blue Apron moment) */}
+        {platePhoto ? (
+          <View style={styles.plateRow}>
+            <Image source={{ uri: platePhoto }} style={styles.plateThumb} />
+            <Text style={styles.plateText}>In your journal. It looks great.</Text>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.plateButton}
+            onPress={snapPlate}
+            accessibilityRole="button"
+            accessibilityLabel="Snap a photo of your plate"
+          >
+            <Ionicons name="camera-outline" size={18} color={colors.accent} />
+            <Text style={styles.plateButtonText}>Snap your plate</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           style={styles.finishButton}
@@ -1059,6 +1106,31 @@ const createStyles = (colors) =>
       justifyContent: "center",
     },
     thumbActive: { backgroundColor: colors.accent },
+    plateButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.sm,
+      borderWidth: 1.5,
+      borderColor: colors.accent,
+      borderRadius: RADIUS.button,
+      paddingHorizontal: SPACING.xl,
+      height: 46,
+      marginBottom: SPACING.lg,
+    },
+    plateButtonText: { ...TYPE.body, fontWeight: "700", color: colors.accent },
+    plateRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.md,
+      marginBottom: SPACING.lg,
+    },
+    plateThumb: {
+      width: 56,
+      height: 56,
+      borderRadius: 12,
+      backgroundColor: colors.surfaceWarm,
+    },
+    plateText: { ...TYPE.body, color: colors.inkSoft },
     finishButton: {
       height: 56,
       paddingHorizontal: SPACING.xxl,

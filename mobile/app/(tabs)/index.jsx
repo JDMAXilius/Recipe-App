@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,12 @@ import {
   FlatList,
   RefreshControl,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { MealAPI } from "../../services/mealAPI";
+import { PlanAPI } from "../../services/userRecipes";
+import { toDayKey } from "../../lib/week";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useTheme } from "../../context/ThemeContext";
 import { createHomeStyles } from "../../assets/styles/home.styles";
@@ -42,6 +44,17 @@ const DiscoverScreen = () => {
   const [recipes, setRecipes] = useState([]);
   const [categories, setCategories] = useState([]);
   const [featuredRecipe, setFeaturedRecipe] = useState(null);
+  const [tonight, setTonight] = useState(null);
+
+  // Today's first uncooked plan entry — quiet, one line, only when it exists.
+  useFocusEffect(
+    useCallback(() => {
+      const today = toDayKey(new Date());
+      PlanAPI.list(today, today)
+        .then((rows) => setTonight(rows.find((r) => !r.cooked && r.recipeId) || null))
+        .catch(() => {});
+    }, [])
+  );
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -272,6 +285,27 @@ const DiscoverScreen = () => {
         {/* BROWSE (hidden while searching) */}
         {!isSearching && (
           <>
+            {/* Tonight — the plan's payoff moment is 5pm, not Sunday */}
+            {tonight && (
+              <TouchableOpacity
+                style={homeStyles.tonightBand}
+                onPress={() => router.push(`/recipe/${tonight.recipeId}`)}
+                accessibilityRole="button"
+                accessibilityLabel={`Tonight: ${tonight.title}`}
+              >
+                {tonight.image ? (
+                  <Image source={{ uri: tonight.image }} style={homeStyles.tonightThumb} contentFit="cover" />
+                ) : null}
+                <View style={{ flex: 1 }}>
+                  <Text style={homeStyles.tonightLabel}>WHAT'S COOKING TONIGHT?</Text>
+                  <Text style={homeStyles.tonightTitle} numberOfLines={1}>
+                    {tonight.title}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.accent} />
+              </TouchableOpacity>
+            )}
+
             {featuredRecipe && (
               <View style={homeStyles.featuredSection}>
                 <Bounceable
