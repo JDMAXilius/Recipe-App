@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mobile",
+    "name": "Otto",
     "slug": "mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +9,8 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.otto.recipes"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,6 +33,13 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#FAF4EA"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Otto saves your plate photos to your private cooking journal.",
+          "cameraPermission": "Otto uses the camera so you can snap your finished plate."
         }
       ]
     ],
