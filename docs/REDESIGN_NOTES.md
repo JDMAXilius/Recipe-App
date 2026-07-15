@@ -618,3 +618,11 @@ Cookbook is ONE tab with in-screen segments.
   SearchPill / FieldWarm / FieldBordered), Button (PrimaryPill 🔥 / PrimaryRect ⬇ /
   SecondaryOutlinePill ✎ / DestructiveOutline). All "Alternative version — *" component sets
   gathered under a labeled block at the bottom of 1C.
+- **C30. Search + Filters synced 1:1** (headless-browser interaction captures: typed query, tapped
+  "Open filters"). Shipped search = results replace home modules IN PLACE — same greeting +
+  filter/search header, field holds the query with an ⊗ clear, "Results for "query"" + N RECIPES,
+  card grid; NO cancel button, NO recent-searches chips (spec-v1 kept as alternative). Shipped
+  Filters sheet = grab handle, "Filters" Lora title, warm pill chips (solid terracotta + white
+  when selected) for ALL 14 categories + full cuisine list, footer "Clear all" + "Show N recipes"
+  pill. Comp/Chip + Comp/FilterSheet rebuilt to match (outlined spec-v1 chips kept as
+  alternatives). Discover surface is now fully verified 1:1.
