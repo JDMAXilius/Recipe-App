@@ -122,18 +122,39 @@ const RecipeDetailScreen = () => {
   }, [recipeId]);
 
   // Own recipes can be edited in place — re-pull on focus so returning from
-  // the editor never shows stale rows. (Seed recipes are immutable upstream.)
+  // the editor never shows stale rows; a 404 means it was deleted, so the
+  // ghost page empties out instead of staying interactive.
   useFocusEffect(
     useCallback(() => {
       if (!isUserRecipeId(recipeId)) return;
       UserRecipeAPI.get(recipeId)
         .then((row) => setRecipe(transformUserRecipe(row)))
-        .catch(() => {});
+        .catch((error) => {
+          if (/not found/i.test(error.message)) setRecipe(null);
+        });
     }, [recipeId])
   );
 
   if (loading) return <LoadingSpinner message="Getting the recipe ready..." />;
-  if (!recipe) return null;
+  if (!recipe) {
+    // never a blank wall — plan/tonight snapshots can point at deleted recipes
+    return (
+      <View style={[recipeDetailStyles.container, { alignItems: "center", justifyContent: "center", padding: 32, gap: 12 }]}>
+        <Text style={recipeDetailStyles.recipeTitle}>That page is gone</Text>
+        <Text style={recipeDetailStyles.attributionText}>
+          Otto looked everywhere — this recipe isn't on the shelf anymore.
+        </Text>
+        <TouchableOpacity
+          onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+          style={[recipeDetailStyles.backButton, { width: "auto", paddingHorizontal: 20 }]}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <Text style={{ color: colors.ink, fontWeight: "700" }}>Take me back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const videoId = getYouTubeId(recipe.youtubeUrl);
 
@@ -303,7 +324,7 @@ const RecipeDetailScreen = () => {
             <View style={recipeDetailStyles.sectionHeaderRow}>
               <Text style={recipeDetailStyles.sectionTitleInline}>Ingredients</Text>
               <View style={recipeDetailStyles.unitToggleRow}>
-                <TouchableOpacity onPress={() => pickUnits("us")} accessibilityRole="button">
+                <TouchableOpacity onPress={() => pickUnits("us")} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Show US units">
                   <Text
                     style={[
                       recipeDetailStyles.unitToggleText,
@@ -314,7 +335,7 @@ const RecipeDetailScreen = () => {
                   </Text>
                 </TouchableOpacity>
                 <Text style={recipeDetailStyles.unitToggleSep}>/</Text>
-                <TouchableOpacity onPress={() => pickUnits("metric")} accessibilityRole="button">
+                <TouchableOpacity onPress={() => pickUnits("metric")} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Show metric units">
                   <Text
                     style={[
                       recipeDetailStyles.unitToggleText,
@@ -335,6 +356,7 @@ const RecipeDetailScreen = () => {
               <View style={recipeDetailStyles.servesControls}>
                 <TouchableOpacity
                   style={recipeDetailStyles.servesButton}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   onPress={() => tickServings(servings - 1)}
                   accessibilityRole="button"
                   accessibilityLabel="Decrease servings"
@@ -343,6 +365,7 @@ const RecipeDetailScreen = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={recipeDetailStyles.servesButton}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   onPress={() => tickServings(servings + 1)}
                   accessibilityRole="button"
                   accessibilityLabel="Increase servings"

@@ -71,19 +71,24 @@ const CookModeScreen = () => {
 
   useEffect(() => {
     const tick = setInterval(() => {
-      if (!timersRef.current.some((t) => t.running)) return;
-      setTimers((prev) =>
-        prev.map((t) => {
-          if (!t.running) return t;
-          const remaining = t.remaining - 1;
-          if (remaining <= 0) {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-            setDoneTimer({ ...t, remaining: 0 });
-            return { ...t, remaining: 0, running: false, done: true };
-          }
-          return { ...t, remaining };
-        })
-      );
+      const prev = timersRef.current;
+      if (!prev.some((t) => t.running)) return;
+      // compute next state OUTSIDE the updater — updaters must stay pure
+      const finished = [];
+      const next = prev.map((t) => {
+        if (!t.running) return t;
+        const remaining = t.remaining - 1;
+        if (remaining <= 0) {
+          finished.push(t);
+          return { ...t, remaining: 0, running: false, done: true };
+        }
+        return { ...t, remaining };
+      });
+      setTimers(next);
+      if (finished.length) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+        setDoneTimer({ ...finished[0], remaining: 0 });
+      }
     }, 1000);
     return () => clearInterval(tick);
   }, []);
@@ -236,11 +241,19 @@ const CookModeScreen = () => {
     }
   };
 
+  // Bail out via effect, never during render (double-invoke would pop twice).
+  const mustLeave = !loading && (!recipe || steps.length === 0);
+  useEffect(() => {
+    if (mustLeave) leave();
+  }, [mustLeave]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Deep links can carry an out-of-range ?step= — clamp once steps exist.
+  useEffect(() => {
+    if (steps.length > 0 && step >= steps.length) setStep(steps.length - 1);
+  }, [steps.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (loading) return <LoadingSpinner message="Setting up your station..." />;
-  if (!recipe || steps.length === 0) {
-    router.back();
-    return null;
-  }
+  if (mustLeave) return null;
 
   const runningTimers = timers.filter((t) => t.running);
   const floatingTimer = timers.find((t) => t.running) || timers.find((t) => t.done);
@@ -352,7 +365,7 @@ const CookModeScreen = () => {
             </Text>
             <View style={styles.servesControls}>
               <TouchableOpacity
-                style={styles.servesButton}
+                style={styles.servesButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={() => servings > 1 && setServings(servings - 1)}
                 accessibilityRole="button"
                 accessibilityLabel="Decrease servings"
@@ -360,7 +373,7 @@ const CookModeScreen = () => {
                 <Text style={styles.servesButtonText}>−</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.servesButton}
+                style={styles.servesButton} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={() => servings < 24 && setServings(servings + 1)}
                 accessibilityRole="button"
                 accessibilityLabel="Increase servings"
@@ -868,6 +881,7 @@ const createStyles = (colors) =>
     },
     timerTimeDone: { color: colors.accent },
     timerChip: {
+      minHeight: 40,
       backgroundColor: colors.surfaceWarm,
       borderRadius: RADIUS.pill,
       paddingHorizontal: SPACING.md,

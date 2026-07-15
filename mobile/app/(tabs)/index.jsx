@@ -94,15 +94,18 @@ const DiscoverScreen = () => {
 
       setFeaturedRecipe(MealAPI.transformMealData(featuredMeal));
 
-      if (!selectedCategory && transformedCategories.length > 0) {
-        setSelectedCategory(transformedCategories[0].name);
-        const meals = await MealAPI.filterByCategory(transformedCategories[0].name);
+      // keep the grid honest: whatever category chip is selected is what loads
+      // (random meals under a "Beef" title was a refresh-time lie)
+      const category = selectedCategory || transformedCategories[0]?.name;
+      if (category) {
+        if (!selectedCategory) setSelectedCategory(category);
+        const meals = await MealAPI.filterByCategory(category);
         setRecipes(
           meals
             .map((meal) => MealAPI.transformMealData(meal))
             .filter((meal) => meal !== null)
             // filter.php omits strCategory — stamp the one we filtered by
-            .map((meal) => ({ ...meal, category: transformedCategories[0].name }))
+            .map((meal) => ({ ...meal, category }))
         );
       }
     } catch (error) {

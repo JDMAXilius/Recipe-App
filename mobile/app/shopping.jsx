@@ -71,6 +71,7 @@ const ShoppingScreen = () => {
         seen.add(entry.recipeId);
         wanted.push(entry);
       }
+      let failures = 0;
       const recipes = (
         await Promise.all(
           wanted.map(async (entry) => {
@@ -81,11 +82,19 @@ const ShoppingScreen = () => {
               const meal = await MealAPI.getMealById(entry.recipeId);
               return meal ? MealAPI.transformMealData(meal) : null;
             } catch {
+              failures += 1;
               return null;
             }
           })
         )
       ).filter(Boolean);
+
+      // Never persist a silently-gutted list — offline mid-store, the old
+      // one (checks and all) is worth more than an "updated" empty one.
+      if (failures > 0 && previous) {
+        show({ message: "Couldn't reach the pantry — keeping your current list." });
+        return previous;
+      }
 
       const items = buildShoppingList(recipes);
       const next = {
@@ -155,7 +164,8 @@ const ShoppingScreen = () => {
     setNewItem("");
     persist({
       ...state,
-      custom: [...state.custom, { key: `custom-${name.toLowerCase()}-${state.custom.length}`, name }],
+      // Date.now() key — an index reuses keys after removals (shared checkbox bug)
+      custom: [...state.custom, { key: `custom-${Date.now()}`, name }],
     });
   };
 

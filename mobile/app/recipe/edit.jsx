@@ -51,6 +51,11 @@ const RecipeEditScreen = () => {
   const [steps, setSteps] = useState([""]);
 
   useEffect(() => {
+    if (editId && !isUserRecipeId(editId)) {
+      // stale/foreign deep link — fall through to a blank manual editor
+      setLoading(false);
+      return;
+    }
     if (editId && isUserRecipeId(editId)) {
       (async () => {
         try {
@@ -114,6 +119,8 @@ const RecipeEditScreen = () => {
       await UserRecipeAPI.remove(editId);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
       show({ message: "Gone — Otto tore out the page." });
+      // pop the whole stack (the detail screen underneath is a ghost now)
+      if (router.dismissAll) router.dismissAll();
       router.replace("/(tabs)/cookbook");
     } catch (error) {
       show({ message: error.message || "Couldn't delete it. Try again." });

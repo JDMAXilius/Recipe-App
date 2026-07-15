@@ -16,6 +16,15 @@ if (ENV.NODE_ENV === "production") job.start();
 app.use(cors());
 app.use(express.json());
 
+
+// Route-param / payload guards — a NaN reaching postgres.js becomes a 500;
+// bad input should be a 400 before the DB ever sees it.
+const intId = (value) => {
+  const n = Number(value);
+  return Number.isInteger(n) && n > 0 ? n : null;
+};
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 app.get("/api/health", (req, res) => {
   res.status(200).json({ success: true });
 });
@@ -66,12 +75,13 @@ app.get("/api/favorites", requireAuth, async (req, res) => {
 
 app.delete("/api/favorites/:recipeId", requireAuth, async (req, res) => {
   try {
-    const { recipeId } = req.params;
+    const recipeId = intId(req.params.recipeId);
+    if (!recipeId) return res.status(400).json({ error: "Bad id" });
 
     await db
       .delete(favoritesTable)
       .where(
-        and(eq(favoritesTable.userId, req.userId), eq(favoritesTable.recipeId, parseInt(recipeId)))
+        and(eq(favoritesTable.userId, req.userId), eq(favoritesTable.recipeId, recipeId))
       );
 
     res.status(200).json({ message: "Favorite removed successfully" });
@@ -114,7 +124,7 @@ app.post("/api/recipes", requireAuth, async (req, res) => {
         image: image || null,
         category: category || null,
         area: area || null,
-        servings: servings || null,
+        servings: Number.isInteger(Number(servings)) && Number(servings) > 0 && Number(servings) <= 48 ? Number(servings) : null,
         ingredients: Array.isArray(ingredients) ? ingredients : [],
         steps: Array.isArray(steps) ? steps : [],
         youtubeUrl: youtubeUrl || null,
@@ -143,10 +153,12 @@ app.get("/api/recipes", requireAuth, async (req, res) => {
 
 app.get("/api/recipes/:id", requireAuth, async (req, res) => {
   try {
+    const id = intId(req.params.id);
+    if (!id) return res.status(400).json({ error: "Bad id" });
     const rows = await db
       .select()
       .from(recipesTable)
-      .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, parseInt(req.params.id))));
+      .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, id)));
     if (!rows.length) return res.status(404).json({ error: "Not found" });
     res.status(200).json(rows[0]);
   } catch (error) {
@@ -157,6 +169,8 @@ app.get("/api/recipes/:id", requireAuth, async (req, res) => {
 
 app.put("/api/recipes/:id", requireAuth, async (req, res) => {
   try {
+    const id = intId(req.params.id);
+    if (!id) return res.status(400).json({ error: "Bad id" });
     const { title, image, category, area, servings, ingredients, steps, youtubeUrl } = req.body;
     // source/sourceUrl/sourceName are immutable — attribution never edits away
     const updated = await db
@@ -166,13 +180,18 @@ app.put("/api/recipes/:id", requireAuth, async (req, res) => {
         ...(image !== undefined && { image }),
         ...(category !== undefined && { category }),
         ...(area !== undefined && { area }),
-        ...(servings !== undefined && { servings }),
+        ...(servings !== undefined && {
+          servings:
+            Number.isInteger(Number(servings)) && Number(servings) > 0 && Number(servings) <= 48
+              ? Number(servings)
+              : null,
+        }),
         ...(ingredients !== undefined && { ingredients }),
         ...(steps !== undefined && { steps }),
         ...(youtubeUrl !== undefined && { youtubeUrl }),
         updatedAt: new Date(),
       })
-      .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, parseInt(req.params.id))))
+      .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, id)))
       .returning();
     if (!updated.length) return res.status(404).json({ error: "Not found" });
     res.status(200).json(updated[0]);
@@ -184,9 +203,11 @@ app.put("/api/recipes/:id", requireAuth, async (req, res) => {
 
 app.delete("/api/recipes/:id", requireAuth, async (req, res) => {
   try {
+    const id = intId(req.params.id);
+    if (!id) return res.status(400).json({ error: "Bad id" });
     await db
       .delete(recipesTable)
-      .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, parseInt(req.params.id))));
+      .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, id)));
     res.status(200).json({ message: "Recipe removed" });
   } catch (error) {
     console.log("Error deleting recipe", error);
@@ -217,6 +238,7 @@ app.post("/api/plan", requireAuth, async (req, res) => {
   try {
     const { day, recipeId, title, image, category, note } = req.body;
     if (!day || !title) return res.status(400).json({ error: "Missing required fields" });
+    if (!DAY_RE.test(String(day))) return res.status(400).json({ error: "Bad day" });
     const created = await db
       .insert(planEntriesTable)
       .values({
@@ -238,7 +260,10 @@ app.post("/api/plan", requireAuth, async (req, res) => {
 
 app.patch("/api/plan/:id", requireAuth, async (req, res) => {
   try {
+    const id = intId(req.params.id);
+    if (!id) return res.status(400).json({ error: "Bad id" });
     const { day, note, cooked } = req.body;
+    if (day !== undefined && !DAY_RE.test(String(day))) return res.status(400).json({ error: "Bad day" });
     const updated = await db
       .update(planEntriesTable)
       .set({
@@ -246,7 +271,7 @@ app.patch("/api/plan/:id", requireAuth, async (req, res) => {
         ...(note !== undefined && { note }),
         ...(cooked !== undefined && { cooked }),
       })
-      .where(and(eq(planEntriesTable.userId, req.userId), eq(planEntriesTable.id, parseInt(req.params.id))))
+      .where(and(eq(planEntriesTable.userId, req.userId), eq(planEntriesTable.id, id)))
       .returning();
     if (!updated.length) return res.status(404).json({ error: "Not found" });
     res.status(200).json(updated[0]);
@@ -258,12 +283,38 @@ app.patch("/api/plan/:id", requireAuth, async (req, res) => {
 
 app.delete("/api/plan/:id", requireAuth, async (req, res) => {
   try {
+    const id = intId(req.params.id);
+    if (!id) return res.status(400).json({ error: "Bad id" });
     await db
       .delete(planEntriesTable)
-      .where(and(eq(planEntriesTable.userId, req.userId), eq(planEntriesTable.id, parseInt(req.params.id))));
+      .where(and(eq(planEntriesTable.userId, req.userId), eq(planEntriesTable.id, id)));
     res.status(200).json({ message: "Plan entry removed" });
   } catch (error) {
     console.log("Error deleting plan entry", error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// ------------------------------------------------------------ ACCOUNT
+// Deletes every row we hold for the user. Removing the AUTH user itself needs
+// the Supabase service-role key — when SUPABASE_SERVICE_ROLE_KEY lands in env
+// this route finishes the job automatically (App Store 5.1.1(v)).
+app.delete("/api/account", requireAuth, async (req, res) => {
+  try {
+    await db.delete(favoritesTable).where(eq(favoritesTable.userId, req.userId));
+    await db.delete(recipesTable).where(eq(recipesTable.userId, req.userId));
+    await db.delete(planEntriesTable).where(eq(planEntriesTable.userId, req.userId));
+
+    let authUserDeleted = false;
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      const { createClient } = await import("@supabase/supabase-js");
+      const admin = createClient(ENV.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+      const { error } = await admin.auth.admin.deleteUser(req.userId);
+      authUserDeleted = !error;
+    }
+    res.status(200).json({ dataDeleted: true, authUserDeleted });
+  } catch (error) {
+    console.log("Error deleting account", error);
     res.status(500).json({ error: "Something went wrong" });
   }
 });

@@ -41,10 +41,16 @@ const AISLE_RULES = [
   },
 ];
 
+// Word-boundary matching — substring hits misfiled things ("nutmeg" → "nut"
+// → Pantry, "boiled egg" → "oil", "graham cracker" → "ham").
+const RULE_MATCHERS = AISLE_RULES.map((rule) => ({
+  aisle: rule.aisle,
+  re: new RegExp(`\\b(?:${rule.words.join("|").replace(/ /g, "\\s+")})`, "i"),
+}));
+
 export function aisleFor(name) {
-  const hay = ` ${name.toLowerCase()} `;
-  for (const rule of AISLE_RULES) {
-    if (rule.words.some((w) => hay.includes(w))) return rule.aisle;
+  for (const rule of RULE_MATCHERS) {
+    if (rule.re.test(name)) return rule.aisle;
   }
   return "Other";
 }
@@ -55,7 +61,10 @@ const keyFor = (name) =>
     .replace(/\(.*?\)/g, "")
     .replace(/[^a-z\s]/g, " ")
     .replace(/\s+/g, " ")
-    .trim();
+    .trim()
+    // singularize the tail word so "Tomatoes" and "tomato" share a row
+    .replace(/(oes|ches|shes|sses)$/, (m) => m.slice(0, -2))
+    .replace(/([^s])s$/, "$1");
 
 // Pluralize display units the same way scaledIngredient does.
 const PLURAL_UNITS = new Set(["cup", "clove", "can", "slice", "pound", "stick"]);

@@ -85,21 +85,98 @@ function findRecipeNode(node) {
   return null;
 }
 
-export async function importRecipeFromUrl(url) {
-  const target = new URL(url); // throws on garbage — caller maps to 400
-  if (!/^https?:$/.test(target.protocol)) throw new Error("Only http(s) URLs");
+// ---- SSRF guardrails --------------------------------------------------
+// The endpoint fetches arbitrary user URLs; never let it reach private
+// address space (cloud metadata, localhost, LAN) — directly or via redirect.
+import { lookup } from "node:dns/promises";
+import net from "node:net";
 
-  const response = await fetch(target.href, {
-    redirect: "follow",
-    signal: AbortSignal.timeout(12000),
-    headers: {
-      // some recipe sites 403 the default undici UA
-      "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) OttoRecipeReader/1.0",
-      accept: "text/html,application/xhtml+xml",
-    },
-  });
-  if (!response.ok) throw new Error(`Page answered ${response.status}`);
-  const html = await response.text();
+const MAX_BYTES = 3 * 1024 * 1024; // recipe pages are big; 3MB is generous
+const MAX_REDIRECTS = 4;
+
+function isPrivateAddress(address) {
+  if (net.isIPv6(address)) {
+    const a = address.toLowerCase();
+    return (
+      a === "::1" ||
+      a.startsWith("fe80") ||
+      a.startsWith("fc") ||
+      a.startsWith("fd") ||
+      a.startsWith("::ffff:127.") ||
+      a.startsWith("::ffff:10.") ||
+      a.startsWith("::ffff:192.168.")
+    );
+  }
+  const octets = address.split(".").map(Number);
+  const [a, b] = octets;
+  return (
+    a === 127 ||
+    a === 10 ||
+    a === 0 ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    (a === 169 && b === 254) ||
+    (a === 100 && b >= 64 && b <= 127)
+  );
+}
+
+async function assertPublicHost(target) {
+  if (net.isIP(target.hostname)) {
+    if (isPrivateAddress(target.hostname)) throw new Error("Blocked address");
+    return;
+  }
+  const results = await lookup(target.hostname, { all: true });
+  if (!results.length || results.some((r) => isPrivateAddress(r.address))) {
+    throw new Error("Blocked address");
+  }
+}
+
+async function fetchPublicHtml(startUrl) {
+  let target = startUrl;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    if (!/^https?:$/.test(target.protocol)) throw new Error("Only http(s) URLs");
+    await assertPublicHost(target);
+    const response = await fetch(target.href, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(12000),
+      headers: {
+        // some recipe sites 403 the default undici UA
+        "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) OttoRecipeReader/1.0",
+        accept: "text/html,application/xhtml+xml",
+      },
+    });
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (!location) throw new Error("Broken redirect");
+      target = new URL(location, target); // re-validated on next hop
+      continue;
+    }
+    if (!response.ok) throw new Error(`Page answered ${response.status}`);
+    const type = response.headers.get("content-type") || "";
+    if (!/text\/html|application\/xhtml/.test(type)) throw new Error("Not an HTML page");
+    // stream with a hard byte cap — never buffer an unbounded body
+    const reader = response.body.getReader();
+    const chunks = [];
+    let total = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > MAX_BYTES) {
+        reader.cancel().catch(() => {});
+        break;
+      }
+      chunks.push(value);
+    }
+    return { html: Buffer.concat(chunks).toString("utf8"), finalUrl: target };
+  }
+  throw new Error("Too many redirects");
+}
+
+export async function importRecipeFromUrl(url) {
+  const start = new URL(url); // throws on garbage — caller maps to 400
+  const { html, finalUrl } = await fetchPublicHtml(start);
+  const target = finalUrl;
 
   let recipe = null;
   const scripts = html.matchAll(

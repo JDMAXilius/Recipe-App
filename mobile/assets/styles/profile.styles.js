@@ -1,8 +1,9 @@
 import { StyleSheet } from "react-native";
 import { SPACING, RADIUS, TYPE } from "../../constants/tokens";
 
-// Account v2 (MOBBIN_COMPARISON §2.6): identity header (badge-crop-safe Otto),
-// reserved subscription slot, honest utility rows only, sign-out, version.
+// "You" — Account v3 (Mobbin account study): identity header, earned-stats
+// card (each number a door), journal row, inline units toggle, support rows,
+// quiet sign-out + visible delete. No fabricated numbers, ever.
 export const createProfileStyles = (colors) =>
   StyleSheet.create({
     container: {
@@ -47,16 +48,100 @@ export const createProfileStyles = (colors) =>
     identityText: {
       flex: 1,
     },
-    email: {
-      ...TYPE.body,
-      fontSize: 16,
-      fontWeight: "700",
+    identityName: {
+      ...TYPE.title,
+      fontSize: 20,
       color: colors.ink,
       marginBottom: 2,
     },
-    identityCaption: {
+    email: {
+      ...TYPE.body,
+      fontSize: 13,
+      color: colors.inkSoft,
+    },
+
+    // STATS — earned numbers, each one a door (AllTrails pattern)
+    statsCard: {
+      flexDirection: "row",
+      backgroundColor: colors.surface,
+      borderRadius: RADIUS.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: SPACING.lg,
+    },
+    statCell: {
+      flex: 1,
+      alignItems: "center",
+      gap: 2,
+    },
+    statCellDivider: {
+      borderLeftWidth: 1,
+      borderLeftColor: colors.border,
+    },
+    statValue: {
+      ...TYPE.display,
+      fontSize: 26,
+      lineHeight: 32,
+      color: colors.ink,
+      fontVariant: ["tabular-nums"],
+    },
+    statLabel: {
       ...TYPE.caption,
       color: colors.inkSoft,
+    },
+    statsEmptyNote: {
+      ...TYPE.body,
+      fontSize: 12,
+      color: colors.inkSoft,
+      marginTop: SPACING.sm,
+      marginLeft: SPACING.xs,
+    },
+    rowValue: {
+      ...TYPE.body,
+      fontSize: 13,
+      fontWeight: "700",
+      color: colors.inkSoft,
+      fontVariant: ["tabular-nums"],
+    },
+
+    // UNITS — inline segmented value, one tap, no subscreen (SideChef)
+    unitToggle: {
+      flexDirection: "row",
+      backgroundColor: colors.surfaceWarm,
+      borderRadius: RADIUS.pill,
+      padding: 3,
+    },
+    unitOption: {
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 5,
+      borderRadius: RADIUS.pill,
+    },
+    unitOptionActive: {
+      backgroundColor: colors.accent,
+    },
+    unitOptionText: {
+      ...TYPE.label,
+      fontSize: 12,
+      color: colors.inkSoft,
+    },
+    unitOptionTextActive: {
+      color: colors.white,
+    },
+
+    deleteRow: {
+      alignSelf: "center",
+      paddingVertical: SPACING.sm,
+      marginBottom: SPACING.lg,
+    },
+    deleteText: {
+      ...TYPE.body,
+      fontSize: 13,
+      color: colors.destructive,
+      opacity: 0.8,
+    },
+    deleteTextArmed: {
+      fontWeight: "800",
+      opacity: 1,
     },
 
     // GROUPED ROWS

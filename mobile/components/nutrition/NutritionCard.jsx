@@ -42,13 +42,13 @@ export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 
     <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       {/* scope toggle — quiet words, no switch chrome (SideChef rule) */}
       <View style={styles.scopeRow}>
-        <TouchableOpacity onPress={() => toggleScope("serving")} accessibilityRole="button">
+        <TouchableOpacity onPress={() => toggleScope("serving")} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Show per serving">
           <Text style={[styles.scopeText, scope === "serving" && styles.scopeActive]}>
             per serving
           </Text>
         </TouchableOpacity>
         <Text style={styles.scopeSep}>◦</Text>
-        <TouchableOpacity onPress={() => toggleScope("recipe")} accessibilityRole="button">
+        <TouchableOpacity onPress={() => toggleScope("recipe")} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Show the whole recipe">
           <Text style={[styles.scopeText, scope === "recipe" && styles.scopeActive]}>
             whole recipe
           </Text>

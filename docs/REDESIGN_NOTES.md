@@ -364,3 +364,33 @@ Cookbook is ONE tab with in-screen segments.
 - **Blocked on founder inputs (roadmap Phase 0 list):** Ask Otto needs an LLM API key +
   budget; share extension + Rive need the dev-build transition; IAP/RevenueCat whenever
   gating is wanted. Everything else from Phases 0/1/4/5-lite is LIVE.
+
+## Phase 8 — Adversarial QA pass 2 + Account v3 + safe-area (2026-07-15)
+
+- **QA sweep (17 findings, all dispositioned):** P1s fixed — cook-mode render-phase
+  router.back on 0-step recipes (→ effect + detail CTA swap "Add steps to cook this");
+  SSRF hardening on /api/import (DNS + private-range block re-checked per redirect hop,
+  content-type gate, 3MB stream cap); deleted-recipe dead ends (detail renders "That page
+  is gone" instead of a blank wall; delete pops the whole stack; focus-refetch treats 404
+  as gone). P2s fixed — refresh no longer swaps a labeled category grid for random meals;
+  shopping keeps the old list when fetches fail ("couldn't reach the pantry"), custom-item
+  key collisions, plural dedup ("Tomatoes"="tomato") + word-boundary aisles (nutmeg≠nut);
+  plan week recomputes on focus (midnight rollover); timer tick side-effect-free updaters;
+  out-of-range ?step= clamped; backend 400-guards (intId, day regex, servings bounds);
+  touch targets — hitSlop on serves steppers/unit+scope toggles/segments/day-add/cooked
+  mark, taller timer chips. SKIPPED by founder decision: re-adding "~" to card calories
+  (C4). Noted, not fixed: CORS left open (mobile Bearer API), Alert.alert in sign-out
+  removed anyway.
+- **C16. Account v3 — "You"** (Mobbin account study: KS, SideChef, Crouton, ReciMe, CREME,
+  Cherrypick, Tasty, NYT, Yazio + Strava/Duolingo/AllTrails): warm header cold facts
+  (Otto avatar, plain email caption); "Your kitchen so far" 3-stat card — cooked/saved/
+  your-recipes, all EARNED, each a door (deep-links into Cookbook segments), honest zero
+  note; Cooking journal row + new /journal screen (private grid of snapped plates);
+  inline US/Metric segmented row (SideChef — no settings dungeon); "boring-but-important
+  bits" (mailto, About+version; privacy/terms rows render only when founder provides
+  URLs); quiet sign-out; **Delete my account visible below it** (never buried — NYT trap),
+  two-tap arm → DELETE /api/account wipes all rows; auth-user deletion auto-activates
+  when SUPABASE_SERVICE_ROLE_KEY is added. OMITTED as fabricated: followers, streaks,
+  XP, badges, notification/appearance rows.
+- Safe-area: tab bar 60pt+inset (labels clear the home indicator), ＋ ring; all pinned
+  bars & sheets inset-aware.

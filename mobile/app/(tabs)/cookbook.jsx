@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { View, Text, ScrollView, FlatList, TouchableOpacity } from "react-native";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { Ionicons } from "@expo/vector-icons";
@@ -30,11 +30,22 @@ const CookbookScreen = () => {
   const { savedList, loaded, refresh } = useSaved();
   const styles = useMemo(() => createFavoritesStyles(colors), [colors]);
 
-  const [segment, setSegment] = useState("all");
+  // Deep-linkable: /cookbook?segment=mine|saved, ?cooked=1 (Account stat doors)
+  const params = useLocalSearchParams();
+  const [segment, setSegment] = useState(
+    ["all", "saved", "mine"].includes(params.segment) ? params.segment : "all"
+  );
   const [mine, setMine] = useState([]);
   const [mineLoaded, setMineLoaded] = useState(false);
-  const [cookedOnly, setCookedOnly] = useState(false);
+  const [cookedOnly, setCookedOnly] = useState(params.cooked === "1");
   const [cookedIds, setCookedIds] = useState(new Set());
+
+  useFocusEffect(
+    useCallback(() => {
+      if (["all", "saved", "mine"].includes(params.segment)) setSegment(params.segment);
+      if (params.cooked === "1") setCookedOnly(true);
+    }, [params.segment, params.cooked])
+  );
 
   const loadMine = useCallback(async () => {
     try {
@@ -140,6 +151,7 @@ const CookbookScreen = () => {
           {SEGMENTS.map((s) => (
             <TouchableOpacity
               key={s.key}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               onPress={() => pickSegment(s.key)}
               accessibilityRole="button"
               accessibilityState={{ selected: segment === s.key }}

@@ -39,22 +39,26 @@ const PlanScreen = () => {
   const [pickerDay, setPickerDay] = useState(null); // day key while choosing a recipe
   const [mine, setMine] = useState([]);
 
-  const days = useMemo(() => weekDays(), []);
+  // Recomputed on every focus — an app left open past midnight must not
+  // keep calling yesterday "Today" (tabs stay mounted).
+  const [days, setDays] = useState(() => weekDays());
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (range) => {
     try {
-      const rows = await PlanAPI.list(days[0].key, days[6].key);
+      const rows = await PlanAPI.list(range[0].key, range[6].key);
       setEntries(rows);
     } catch {
       // keep the last known week — never blank the plan on a flaky request
     } finally {
       setLoaded(true);
     }
-  }, [days]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      load();
+      const fresh = weekDays();
+      setDays(fresh);
+      load(fresh);
       UserRecipeAPI.list()
         .then((rows) => setMine(rows.map(transformUserRecipe)))
         .catch(() => {});
@@ -161,6 +165,7 @@ const PlanScreen = () => {
                 <View style={{ flex: 1 }} />
                 <TouchableOpacity
                   style={styles.dayAdd}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   onPress={() => {
                     Haptics.selectionAsync().catch(() => {});
                     setPickerDay(day.key);
@@ -201,6 +206,7 @@ const PlanScreen = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => toggleCooked(entry)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       style={[styles.cookedMark, entry.cooked && styles.cookedMarkOn]}
                       accessibilityRole="button"
                       accessibilityState={{ selected: Boolean(entry.cooked) }}
