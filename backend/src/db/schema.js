@@ -33,8 +33,19 @@ export const recipesTable = pgTable("recipes", {
   // Discover-social seed (ticket P10 §4): private by default; the public
   // feed/profiles are Phase 2 (needs the moderation kit first).
   visibility: text("visibility").notNull().default("private"), // "private" | "public"
+  // Computed per-serving nutrition (B1) — { kcal, protein_g, carbs_g, fat_g,
+  // fiber_g, sugar_g, sodium_mg, basis_grams, per, source, confidence,
+  // computed_at }. Null until the provider has run — never a guess.
+  nutrition: jsonb("nutrition"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Compute-once nutrition cache for seed (TheMealDB) + test-batch recipes (B1).
+export const seedNutritionTable = pgTable("seed_nutrition", {
+  recipeId: text("recipe_id").primaryKey(),
+  nutrition: jsonb("nutrition").notNull(),
+  computedAt: timestamp("computed_at", { withTimezone: true }).defaultNow(),
 });
 
 // Otto's week — loose buckets, one row per planned dish. Recipe fields are a
