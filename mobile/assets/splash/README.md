@@ -21,3 +21,5 @@ lower third — not painted into the image.
    `generate_video` (image-to-video, **seed = this still's job id `3411c1ab-…`**) using the storyboard
    + prompt in `docs/SPLASH_BRIEF.md §7`. The video's final frame must match this still pixel-for-pixel.
    Commit as `otto-splash.mp4` (or a Rive/Lottie export) + manifest row here.
+
+| **Splash video** (3s lid-lift/steam) | `otto-splash.mp4` | `5ba5c673-5a2d-413c-ada1-5d2dcdf82c80` | kling3_0_turbo 1080×1920 — wired to the in-app animated splash layer |
