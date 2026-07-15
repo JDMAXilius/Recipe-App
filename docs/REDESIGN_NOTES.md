@@ -558,3 +558,27 @@ Cookbook is ONE tab with in-screen segments.
   (stretch/tint/photo-bg/rotate demos labeled as violations), app-icon anatomy w/ Android 66%
   safe-zone ring. Store screenshots note: clones are LIVE — regenerate captures after screen
   changes.
+- **C27. Shipped account/club/add patterns DEFINED as kept** (founder review of sim screens,
+  2026-07-15; board screens rebuilt to match — Screen/Account/You, Screen/Account/OttoClub,
+  Screen/Add/AddToCookbook + flow thumb + map node refreshed).
+  **"You" screen anatomy (Account v3):** page title "You" · identity card (badge 52 + "Chef" +
+  email) · MEMBERSHIP section = "Current plan | Free" row + Otto Club promo card (warm field,
+  terracotta stroke, "Everything Otto can do, one simple membership. Opening soon." + pill CTA
+  "See how it works" + floating-Otto art right) · YOUR KITCHEN SO FAR stats row (cooked/saved/
+  your-recipes, tappable into Cookbook segments) · Cooking journal row (count + chevron — the
+  journal's entry point lives HERE, not in Plan) · PREFERENCES w/ inline US/Metric pill ·
+  "THE BORING-BUT-IMPORTANT BITS" section label (kept verbatim — it's the voice) · Sign out ·
+  Delete my account (two-tap).
+  **Otto Club paywall anatomy:** floating-Otto hero (otto-floating-cut = THE membership art —
+  add to B6 usage map) · "One membership. Everything Otto can do." · 4 perk rows incl. the
+  honesty perk "Keeps the lights on — the Club is how Otto pays the cooks and the servers" ·
+  "How your 5 free days work" 3-step dated timeline (unlock → reminder → charge, "cancel any
+  time — it takes two taps") · two-tier pricing (Yearly $29.99 selected w/ SAVE 50%, Monthly
+  $4.99 w/ full-year math shown) · dormant state = "Otto Club opens soon" band + "MEMBERSHIPS
+  AREN'T ON SALE YET — THIS IS THE MENU, NOT THE BILL." + Notify-me link · "How do I cancel?"
+  card spelling out the iOS Settings path. This is the honesty-laws paywall: full price math,
+  no hidden tiers, cancel path documented on the sell screen.
+  **Add to your cookbook (full screen, not sheet):** X top-left · happy-cut Otto · "Found
+  something good? Otto will copy it down." · ONE primary path (Paste a link card w/ url field +
+  Import it) · OR · Write it myself outline · footer "TIKTOK & INSTAGRAM SHARE-IN — COMING
+  SOON." (honest future note replaces disabled rows).
