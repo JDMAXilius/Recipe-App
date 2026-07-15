@@ -343,7 +343,7 @@ Cookbook is ONE tab with in-screen segments.
   myself instead" carrying the URL; TikTok/IG share-in honestly labeled coming-soon
   (needs dev-build share extension). ONE editor, two fill states ("Check Otto's work"
   banner on imports); tokenized terracotta measure column; steps optional at save;
-  delete = двойной two-tap arm (Alert.alert is a web no-op). [sic: two-tap]
+  delete = two-tap arm (Alert.alert is a web no-op).
 - **C12. User recipes everywhere:** id convention u-<dbId> (`isUserRecipeId` is the only
   place that knows); detail + cook mode load either source into the SAME transformed
   shape; scaling uses real authored servings as base; attribution row swaps to
