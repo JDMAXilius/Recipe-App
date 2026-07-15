@@ -1,19 +1,32 @@
-import { View, Text, Alert, ScrollView, TouchableOpacity } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { authFetch } from "../../lib/api";
+import { View, Text, ScrollView, TouchableOpacity, Platform, Linking } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Image } from "expo-image";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { WebView } from "react-native-webview";
 import { MealAPI } from "../../services/mealAPI";
+import { useTheme } from "../../context/ThemeContext";
+import { OVERLAY } from "../../constants/tokens";
+import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import NutritionCard from "../../components/nutrition/NutritionCard";
-import { Image } from "expo-image";
+import PawMark from "../../components/PawMark";
 
-import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
-import { LinearGradient } from "expo-linear-gradient";
-import { useTheme } from "../../context/ThemeContext";
+// Recipe Detail v2 (MOBBIN_COMPARISON §2.4): one scroll, true facts only —
+// the fabricated Prep-Time/Servings stat cards are gone, ingredients are flat
+// rows with tinted quantities (browsing surface: no checkboxes), video is an
+// inline tap-to-play row, nutrition reads as an estimate, and the pinned bar
+// keeps Save + Start cooking always reachable.
 
-import { Ionicons } from "@expo/vector-icons";
-import { WebView } from "react-native-webview";
+// Handles watch?v=, youtu.be/ and /shorts/ URLs (gotcha #8 fixed).
+export const getYouTubeId = (url) => {
+  if (!url) return null;
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+};
 
 const RecipeDetailScreen = () => {
   const { id: recipeId } = useLocalSearchParams();
@@ -23,41 +36,17 @@ const RecipeDetailScreen = () => {
 
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isSaved, setIsSaved] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [servings, setServings] = useState(4);
-
-  const { user } = useAuth();
-  const userId = user?.id;
+  const [videoPlaying, setVideoPlaying] = useState(false);
 
   useEffect(() => {
-    const checkIfSaved = async () => {
-      try {
-        const response = await authFetch(`/favorites`);
-        const favorites = await response.json();
-        const isRecipeSaved = favorites.some((fav) => fav.recipeId === parseInt(recipeId));
-        setIsSaved(isRecipeSaved);
-      } catch (error) {
-        console.error("Error checking if recipe is saved:", error);
-      }
-    };
-
     const loadRecipeDetail = async () => {
       setLoading(true);
       try {
         const mealData = await MealAPI.getMealById(recipeId);
         if (mealData) {
           const transformedRecipe = MealAPI.transformMealData(mealData);
-
-          const recipeWithVideo = {
-            ...transformedRecipe,
-            youtubeUrl: mealData.strYoutube || null,
-          };
-
-          setRecipe(recipeWithVideo);
-          if (typeof transformedRecipe.servings === "number") {
-            setServings(transformedRecipe.servings);
-          }
+          setRecipe({ ...transformedRecipe, youtubeUrl: mealData.strYoutube || null });
         }
       } catch (error) {
         console.error("Error loading recipe detail:", error);
@@ -65,144 +54,142 @@ const RecipeDetailScreen = () => {
         setLoading(false);
       }
     };
-
-    checkIfSaved();
     loadRecipeDetail();
-  }, [recipeId, userId]);
+    setVideoPlaying(false);
+  }, [recipeId]);
 
-  const getYouTubeEmbedUrl = (url) => {
-    // example url: https://www.youtube.com/watch?v=mTvlmY4vCug
-    const videoId = url.split("v=")[1];
-    return `https://www.youtube.com/embed/${videoId}`;
-  };
+  if (loading) return <LoadingSpinner message="Getting the recipe ready..." />;
+  if (!recipe) return null;
 
-  const handleToggleSave = async () => {
-    setIsSaving(true);
+  const videoId = getYouTubeId(recipe.youtubeUrl);
 
-    try {
-      if (isSaved) {
-        // remove from favorites
-        const response = await authFetch(`/favorites/${recipeId}`, {
-          method: "DELETE",
-        });
-        if (!response.ok) throw new Error("Failed to remove recipe");
-
-        setIsSaved(false);
-      } else {
-        // add to favorites — the server derives the user from the token
-        const response = await authFetch(`/favorites`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            recipeId: parseInt(recipeId),
-            title: recipe.title,
-            image: recipe.image,
-            cookTime: recipe.cookTime,
-            servings: recipe.servings,
-          }),
-        });
-
-        if (!response.ok) throw new Error("Failed to save recipe");
-        setIsSaved(true);
-      }
-    } catch (error) {
-      console.error("Error toggling recipe save:", error);
-      Alert.alert("Error", `Something went wrong. Please try again.`);
-    } finally {
-      setIsSaving(false);
+  const handlePlayVideo = () => {
+    // WebView isn't supported on web — open YouTube directly there.
+    if (Platform.OS === "web") {
+      Linking.openURL(`https://www.youtube.com/watch?v=${videoId}`);
+      return;
     }
+    setVideoPlaying(true);
   };
-
-  if (loading) return <LoadingSpinner message="Loading recipe details..." />;
 
   return (
     <View style={recipeDetailStyles.container}>
-      <ScrollView>
-        {/* HEADER */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={recipeDetailStyles.scrollContent}
+      >
+        {/* HERO */}
         <View style={recipeDetailStyles.headerContainer}>
-          <View style={recipeDetailStyles.imageContainer}>
-            <Image
-              source={{ uri: recipe.image }}
-              style={recipeDetailStyles.headerImage}
-              contentFit="cover"
-            />
-          </View>
-
+          <Image
+            source={{ uri: recipe.image }}
+            style={recipeDetailStyles.headerImage}
+            contentFit="cover"
+          />
           <LinearGradient
-            colors={["transparent", "rgba(0,0,0,0.5)", "rgba(0,0,0,0.9)"]}
+            colors={["transparent", OVERLAY.scrim, OVERLAY.scrimStrong]}
             style={recipeDetailStyles.gradientOverlay}
           />
 
           <View style={recipeDetailStyles.floatingButtons}>
             <TouchableOpacity
-              style={recipeDetailStyles.floatingButton}
+              style={recipeDetailStyles.backButton}
               onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
             >
-              <Ionicons name="arrow-back" size={24} color={colors.white} />
+              <Ionicons name="arrow-back" size={22} color={colors.ink} />
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                recipeDetailStyles.floatingButton,
-                { backgroundColor: isSaving ? colors.gray : colors.primary },
-              ]}
-              onPress={handleToggleSave}
-              disabled={isSaving}
-            >
-              <Ionicons
-                name={isSaving ? "hourglass" : isSaved ? "bookmark" : "bookmark-outline"}
-                size={24}
-                color={colors.white}
-              />
-            </TouchableOpacity>
+            <PawMark recipe={recipe} size={26} style={{ width: 44, height: 44 }} />
           </View>
 
-          {/* Title Section */}
           <View style={recipeDetailStyles.titleSection}>
-            <View style={recipeDetailStyles.categoryBadge}>
-              <Text style={recipeDetailStyles.categoryText}>{recipe.category}</Text>
+            <View style={recipeDetailStyles.badgeRow}>
+              {recipe.category ? (
+                <View style={recipeDetailStyles.categoryBadge}>
+                  <Text style={recipeDetailStyles.categoryText}>{recipe.category}</Text>
+                </View>
+              ) : null}
+              {recipe.area ? (
+                <View style={recipeDetailStyles.categoryBadge}>
+                  <Text style={recipeDetailStyles.categoryText}>{recipe.area}</Text>
+                </View>
+              ) : null}
             </View>
             <Text style={recipeDetailStyles.recipeTitle}>{recipe.title}</Text>
-            {recipe.area && (
-              <View style={recipeDetailStyles.locationRow}>
-                <Ionicons name="location" size={16} color={colors.white} />
-                <Text style={recipeDetailStyles.locationText}>{recipe.area} Cuisine</Text>
-              </View>
-            )}
           </View>
         </View>
 
         <View style={recipeDetailStyles.contentSection}>
-          {/* QUICK STATS */}
-          <View style={recipeDetailStyles.statsContainer}>
-            <View style={recipeDetailStyles.statCard}>
-              <LinearGradient
-                colors={["#FF6B6B", "#FF8E53"]}
-                style={recipeDetailStyles.statIconContainer}
-              >
-                <Ionicons name="time" size={20} color={colors.white} />
-              </LinearGradient>
-              <Text style={recipeDetailStyles.statValue}>{recipe.cookTime}</Text>
-              <Text style={recipeDetailStyles.statLabel}>Prep Time</Text>
-            </View>
-
-            <View style={recipeDetailStyles.statCard}>
-              <LinearGradient
-                colors={["#4ECDC4", "#44A08D"]}
-                style={recipeDetailStyles.statIconContainer}
-              >
-                <Ionicons name="people" size={20} color={colors.white} />
-              </LinearGradient>
-              <Text style={recipeDetailStyles.statValue}>{recipe.servings}</Text>
-              <Text style={recipeDetailStyles.statLabel}>Servings</Text>
-            </View>
+          {/* INGREDIENTS */}
+          <View style={recipeDetailStyles.sectionContainer}>
+            <Text style={recipeDetailStyles.sectionTitle}>Ingredients</Text>
+            {(recipe.ingredientPairs?.length
+              ? recipe.ingredientPairs
+              : recipe.ingredients.map((s) => ({ measure: "", name: s }))
+            ).map((pair, index) => (
+              <View key={index} style={recipeDetailStyles.ingredientRow}>
+                {pair.measure ? (
+                  <Text style={recipeDetailStyles.ingredientMeasure}>{pair.measure}</Text>
+                ) : null}
+                <Text style={recipeDetailStyles.ingredientName}>{pair.name}</Text>
+              </View>
+            ))}
           </View>
 
-          {/* NUTRITION (per serving) — values are UI placeholders:
-              TheMealDB provides no nutrition data (see docs/DESIGN_SYSTEM.md) */}
+          {/* VIDEO — inline, tap to play, exactly where doubt starts */}
+          {videoId && (
+            <View style={recipeDetailStyles.sectionContainer}>
+              <Text style={recipeDetailStyles.sectionTitle}>See it made</Text>
+              {videoPlaying && Platform.OS !== "web" ? (
+                <View style={recipeDetailStyles.videoCard}>
+                  <WebView
+                    style={recipeDetailStyles.webview}
+                    source={{ uri: `https://www.youtube.com/embed/${videoId}` }}
+                    allowsFullscreenVideo
+                  />
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={recipeDetailStyles.videoCard}
+                  onPress={handlePlayVideo}
+                  activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel="Play recipe video"
+                >
+                  <Image
+                    source={{ uri: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` }}
+                    style={recipeDetailStyles.videoThumb}
+                    contentFit="cover"
+                  />
+                  <View style={recipeDetailStyles.videoScrim}>
+                    <View style={recipeDetailStyles.videoPlayButton}>
+                      <Ionicons name="play" size={28} color={colors.accent} />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )}
+              <Text style={recipeDetailStyles.videoCaption}>
+                Watch this one being made before you start.
+              </Text>
+            </View>
+          )}
+
+          {/* STEPS */}
           <View style={recipeDetailStyles.sectionContainer}>
+            <Text style={recipeDetailStyles.sectionTitle}>Method</Text>
+            {recipe.instructions.map((instruction, index) => (
+              <View key={index} style={recipeDetailStyles.instructionRow}>
+                <View style={recipeDetailStyles.stepIndicator}>
+                  <Text style={recipeDetailStyles.stepNumber}>{index + 1}</Text>
+                </View>
+                <Text style={recipeDetailStyles.instructionText}>{instruction}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* NUTRITION — estimate-framed, placeholder values (TheMealDB has none) */}
+          <View style={recipeDetailStyles.sectionContainer}>
+            <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
             <NutritionCard
               calories={420}
               protein={32}
@@ -212,116 +199,22 @@ const RecipeDetailScreen = () => {
               onServingsChange={setServings}
             />
           </View>
-
-          {recipe.youtubeUrl && (
-            <View style={recipeDetailStyles.sectionContainer}>
-              <View style={recipeDetailStyles.sectionTitleRow}>
-                <LinearGradient
-                  colors={["#FF0000", "#CC0000"]}
-                  style={recipeDetailStyles.sectionIcon}
-                >
-                  <Ionicons name="play" size={16} color={colors.white} />
-                </LinearGradient>
-
-                <Text style={recipeDetailStyles.sectionTitle}>Video Tutorial</Text>
-              </View>
-
-              <View style={recipeDetailStyles.videoCard}>
-                <WebView
-                  style={recipeDetailStyles.webview}
-                  source={{ uri: getYouTubeEmbedUrl(recipe.youtubeUrl) }}
-                  allowsFullscreenVideo
-                  mediaPlaybackRequiresUserAction={false}
-                />
-              </View>
-            </View>
-          )}
-
-          {/* INGREDIENTS SECTION */}
-          <View style={recipeDetailStyles.sectionContainer}>
-            <View style={recipeDetailStyles.sectionTitleRow}>
-              <LinearGradient
-                colors={[colors.primary, colors.primary + "80"]}
-                style={recipeDetailStyles.sectionIcon}
-              >
-                <Ionicons name="list" size={16} color={colors.white} />
-              </LinearGradient>
-              <Text style={recipeDetailStyles.sectionTitle}>Ingredients</Text>
-              <View style={recipeDetailStyles.countBadge}>
-                <Text style={recipeDetailStyles.countText}>{recipe.ingredients.length}</Text>
-              </View>
-            </View>
-
-            <View style={recipeDetailStyles.ingredientsGrid}>
-              {recipe.ingredients.map((ingredient, index) => (
-                <View key={index} style={recipeDetailStyles.ingredientCard}>
-                  <View style={recipeDetailStyles.ingredientNumber}>
-                    <Text style={recipeDetailStyles.ingredientNumberText}>{index + 1}</Text>
-                  </View>
-                  <Text style={recipeDetailStyles.ingredientText}>{ingredient}</Text>
-                  <View style={recipeDetailStyles.ingredientCheck}>
-                    <Ionicons name="checkmark-circle-outline" size={20} color={colors.textLight} />
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* INSTRUCTIONS SECTION */}
-          <View style={recipeDetailStyles.sectionContainer}>
-            <View style={recipeDetailStyles.sectionTitleRow}>
-              <LinearGradient
-                colors={["#9C27B0", "#673AB7"]}
-                style={recipeDetailStyles.sectionIcon}
-              >
-                <Ionicons name="book" size={16} color={colors.white} />
-              </LinearGradient>
-              <Text style={recipeDetailStyles.sectionTitle}>Instructions</Text>
-              <View style={recipeDetailStyles.countBadge}>
-                <Text style={recipeDetailStyles.countText}>{recipe.instructions.length}</Text>
-              </View>
-            </View>
-
-            <View style={recipeDetailStyles.instructionsContainer}>
-              {recipe.instructions.map((instruction, index) => (
-                <View key={index} style={recipeDetailStyles.instructionCard}>
-                  <LinearGradient
-                    colors={[colors.primary, colors.primary + "CC"]}
-                    style={recipeDetailStyles.stepIndicator}
-                  >
-                    <Text style={recipeDetailStyles.stepNumber}>{index + 1}</Text>
-                  </LinearGradient>
-                  <View style={recipeDetailStyles.instructionContent}>
-                    <Text style={recipeDetailStyles.instructionText}>{instruction}</Text>
-                    <View style={recipeDetailStyles.instructionFooter}>
-                      <Text style={recipeDetailStyles.stepLabel}>Step {index + 1}</Text>
-                      <TouchableOpacity style={recipeDetailStyles.completeButton}>
-                        <Ionicons name="checkmark" size={16} color={colors.primary} />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={recipeDetailStyles.primaryButton}
-            onPress={handleToggleSave}
-            disabled={isSaving}
-          >
-            <LinearGradient
-              colors={[colors.primary, colors.primary + "CC"]}
-              style={recipeDetailStyles.buttonGradient}
-            >
-              <Ionicons name="heart" size={20} color={colors.white} />
-              <Text style={recipeDetailStyles.buttonText}>
-                {isSaved ? "Remove from Favorites" : "Add to Favorites"}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* PINNED BOTTOM BAR */}
+      <View style={recipeDetailStyles.bottomBar}>
+        <PawMark recipe={recipe} size={26} style={{ width: 52, height: 52 }} />
+        <TouchableOpacity
+          style={recipeDetailStyles.cookButton}
+          onPress={() => router.push(`/recipe/cook/${recipe.id}`)}
+          accessibilityRole="button"
+          accessibilityLabel="Start cooking step by step"
+        >
+          <Ionicons name="flame-outline" size={20} color={colors.white} />
+          <Text style={recipeDetailStyles.cookButtonText}>Start cooking</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

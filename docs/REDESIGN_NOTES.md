@@ -128,6 +128,28 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
   Token-purity 5.
   *Known gaps (for Phase 5):* no undo toast on unsave yet; deep-link /favorites lands on
   Discover after cold load (router redirect timing) — investigate in QA.
+- **P4-2. RECIPE DETAIL + COOK MODE (one commit — cook mode is Detail's second surface).**
+  *Plan:* §2.4 anatomy verbatim. Both fabricated stat cards deleted; badges = category+area
+  (true). Ingredients = flat hairline rows, terracotta tabular quantities (new
+  `ingredientPairs` in transformMealData), no checkboxes/numbers. Video = "See it made"
+  tap-to-play thumbnail row (poster from img.youtube.com; web opens YouTube — also kills the
+  RN-web WebView error banner); `getYouTubeId` now handles watch/youtu.be/shorts (gotcha #8
+  closed). Method = plain numbered steps, 16/24 type, zero fake affordances. NutritionCard:
+  "~420 EST./SERVING" + honesty footnote. Pinned bottom bar: paw + Start cooking.
+  COOK MODE v1 (`recipe/cook/[id]`): progress segments, Step N of M, ≥24pt text, giant Next
+  (56pt), ingredients peek panel, back-step, keep-awake, Medium impact per advance, finish =
+  Proud Otto + "Dinner, done." + Success haptic.
+  *Also:* transparent Otto cutouts generated for all six expressions (`*-cut.png`) — opaque
+  cream plates no longer float on the bg; Discover greeting/search-empty and cook-finish now
+  use cutouts.
+  *Directions rejected:* NYT tabbed ingredients/prep sheet (hides half of a short recipe);
+  hero-slot video (breaks messy-hands test; it's a YouTube link-out, not our player).
+  *Verified in Chrome:* detail renders (Teriyaki Casserole), tinted quantities, video row,
+  cook mode full run 6/6 steps → Proud Otto finish. Captures:
+  `docs/redesign/captures/02-recipe-detail.png`, `03-cook-finish.png`.
+  *Grades:* Motion 3 (paw pop + step transitions are instant-but-clean; ring sweep deferred) ·
+  Illustration 4 (Proud Otto finish; detail itself correctly Otto-free) · Haptics 5 ·
+  Icons 5 (rainbow gradients dead) · Taste 4 · Token-purity 5.
 
 ## Phase 5 — QA
 

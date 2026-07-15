@@ -163,7 +163,7 @@ const DiscoverScreen = () => {
         <View style={homeStyles.greetingSection}>
           <Text style={homeStyles.greetingText}>{greeting}</Text>
           <Image
-            source={require("../../assets/mascot/otto-happy.png")}
+            source={require("../../assets/mascot/otto-happy-cut.png")}
             style={homeStyles.greetingOtto}
             contentFit="contain"
             accessible={false}
@@ -282,7 +282,7 @@ const DiscoverScreen = () => {
           ) : isSearching ? (
             <View style={homeStyles.emptyState}>
               <Image
-                source={require("../../assets/mascot/otto-thinking.png")}
+                source={require("../../assets/mascot/otto-thinking-cut.png")}
                 style={homeStyles.emptyOtto}
                 contentFit="contain"
                 accessible={false}

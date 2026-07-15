@@ -93,12 +93,17 @@ export const MealAPI = {
 
     // extract ingredients from the meal object
     const ingredients = [];
+    const ingredientPairs = []; // { measure, name } — lets the UI tint quantities
     for (let i = 1; i <= 20; i++) {
       const ingredient = meal[`strIngredient${i}`];
       const measure = meal[`strMeasure${i}`];
       if (ingredient && ingredient.trim()) {
         const measureText = measure && measure.trim() ? `${measure.trim()} ` : "";
         ingredients.push(`${measureText}${ingredient.trim()}`);
+        ingredientPairs.push({
+          measure: measure && measure.trim() ? measure.trim() : "",
+          name: ingredient.trim(),
+        });
       }
     }
 
@@ -119,6 +124,7 @@ export const MealAPI = {
       category: meal.strCategory || "Main Course",
       area: meal.strArea,
       ingredients,
+      ingredientPairs,
       instructions,
       originalData: meal,
     };

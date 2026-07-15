@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import CalorieRing from "./CalorieRing";
 import MacroBar from "./MacroBar";
@@ -28,7 +28,7 @@ export default function NutritionCard({
   return (
     <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={styles.top}>
-        <CalorieRing kcal={calories} />
+        <CalorieRing kcal={`~${calories}`} label="est. / serving" />
         <View style={styles.macros}>
           <MacroBar label="Protein" grams={protein} percent={pct(pCal)} color={nutrition.protein} />
           <MacroBar label="Carbs" grams={carbs} percent={pct(cCal)} color={nutrition.carbs} />
@@ -41,6 +41,11 @@ export default function NutritionCard({
           <ServingStepper servings={servings} onChange={onServingsChange} />
         </View>
       )}
+
+      {/* Honesty rule (P2-7): TheMealDB has no nutrition data — say so. */}
+      <Text style={[styles.footnote, { color: colors.inkSoft }]}>
+        Estimated from typical ingredients — a guide, not a guarantee.
+      </Text>
     </View>
   );
 }
@@ -63,5 +68,9 @@ const styles = StyleSheet.create({
   },
   stepper: {
     marginTop: 2,
+  },
+  footnote: {
+    fontSize: 11,
+    lineHeight: 15,
   },
 });
