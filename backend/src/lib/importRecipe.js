@@ -3,8 +3,7 @@
 // when no Recipe object exists so the client can fall back to manual entry
 // with honesty ("Otto couldn't read that page") instead of guessing.
 
-const UNIT_WORDS =
-  "cups?|cup|tablespoons?|tbsps?|tbsp|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?";
+import { UNIT_WORDS } from "./nutrition/parseIngredient.js"; // one unit vocabulary, one place (B1.1)
 
 // "2 1/2 cups plain flour" → { measure: "2 1/2 cups", name: "plain flour" }
 export function splitIngredientLine(line) {

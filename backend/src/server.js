@@ -10,6 +10,7 @@ import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
 import { apiLimiter, costlyLimiter } from "./lib/rateLimits.js";
+import { backfillUserRecipeNutrition, seedNutritionFor, nutritionActive } from "./lib/nutrition/lifecycle.js";
 
 const app = express();
 const PORT = ENV.PORT || 5001;
@@ -128,6 +129,9 @@ app.post("/api/recipes", requireAuth, validate(schemas.recipeCreate), async (req
         visibility,
       })
       .returning();
+    // async by design — the save returns now, nutrition lands on the row
+    // shortly after and the client picks it up on next fetch (B1.4)
+    backfillUserRecipeNutrition(created[0].id, req.userId);
     res.status(201).json(created[0]);
   } catch (error) {
     reportError(error, { msg: "create recipe failed", userId: req.userId });
@@ -183,11 +187,17 @@ app.put("/api/recipes/:id", requireAuth, validate(schemas.recipeUpdate), async (
         ...(steps !== undefined && { steps }),
         ...(youtubeUrl !== undefined && { youtubeUrl }),
         ...(visibility !== undefined && { visibility }),
+        // ingredient/serving edits invalidate the cached numbers immediately;
+        // the honest state while recomputing is "no numbers", never stale ones
+        ...((ingredients !== undefined || servings !== undefined) && { nutrition: null }),
         updatedAt: new Date(),
       })
       .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, id)))
       .returning();
     if (!updated.length) return res.status(404).json({ error: "Not found" });
+    if (ingredients !== undefined || servings !== undefined) {
+      backfillUserRecipeNutrition(id, req.userId);
+    }
     res.status(200).json(updated[0]);
   } catch (error) {
     reportError(error, { msg: "update recipe failed", userId: req.userId });
@@ -205,6 +215,43 @@ app.delete("/api/recipes/:id", requireAuth, async (req, res) => {
     res.status(200).json({ message: "Recipe removed" });
   } catch (error) {
     reportError(error, { msg: "delete recipe failed", userId: req.userId });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// ------------------------------------------------------------ NUTRITION (B1)
+
+// Owner-forced recompute (e.g. after fixing a messy ingredient line).
+app.post("/api/recipes/:id/nutrition/recompute", requireAuth, costlyLimiter, async (req, res) => {
+  try {
+    const id = intId(req.params.id);
+    if (!id) return res.status(400).json({ error: "Bad id" });
+    const rows = await db
+      .select({ id: recipesTable.id })
+      .from(recipesTable)
+      .where(and(eq(recipesTable.userId, req.userId), eq(recipesTable.id, id)));
+    if (!rows.length) return res.status(404).json({ error: "Not found" });
+    if (!nutritionActive()) {
+      return res.status(200).json({ queued: false, reason: "nutrition provider not configured" });
+    }
+    backfillUserRecipeNutrition(id, req.userId);
+    res.status(202).json({ queued: true });
+  } catch (error) {
+    reportError(error, { msg: "recompute nutrition failed", userId: req.userId });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// Seed (TheMealDB) nutrition — cache-first, compute-once-per-recipe. The
+// costly limiter only guards the compute path; cached rows are cheap reads.
+app.get("/api/nutrition/seed/:mealId", requireAuth, costlyLimiter, async (req, res) => {
+  try {
+    const mealId = String(req.params.mealId).trim();
+    if (!/^\d{1,10}$/.test(mealId)) return res.status(400).json({ error: "Bad id" });
+    const nutrition = await seedNutritionFor(mealId);
+    res.status(200).json({ recipeId: mealId, nutrition });
+  } catch (error) {
+    reportError(error, { msg: "seed nutrition failed", mealId: req.params.mealId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
