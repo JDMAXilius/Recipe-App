@@ -23,7 +23,7 @@ app.get("/api/health", (req, res) => {
 // validates the Supabase access token and sets req.userId from it.
 app.post("/api/favorites", requireAuth, async (req, res) => {
   try {
-    const { recipeId, title, image, cookTime, servings } = req.body;
+    const { recipeId, title, image, cookTime, servings, category } = req.body;
 
     if (!recipeId || !title) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -38,6 +38,7 @@ app.post("/api/favorites", requireAuth, async (req, res) => {
         image,
         cookTime,
         servings,
+        category,
       })
       .returning();
 

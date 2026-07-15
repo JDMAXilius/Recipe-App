@@ -5,6 +5,23 @@ import { MealAPI } from "../services/mealAPI";
 import { useTheme } from "../context/ThemeContext";
 import { SPACING, RADIUS, TYPE, OVERLAY } from "../constants/tokens";
 
+// Cuisines TheMealDB actually stocks well — shown first so the list stays
+// scannable. Everything else the API lists still appears below (nothing is
+// hidden; counts stay honest).
+const PRIORITY_AREAS = [
+  "American", "British", "Canadian", "Chinese", "Croatian", "Dutch", "Egyptian",
+  "Filipino", "French", "Greek", "Indian", "Irish", "Italian", "Jamaican",
+  "Japanese", "Kenyan", "Malaysian", "Mexican", "Moroccan", "Norwegian",
+  "Polish", "Portuguese", "Russian", "Spanish", "Thai", "Tunisian", "Turkish",
+  "Ukrainian", "Uruguayan", "Vietnamese",
+];
+const orderAreas = (all) => {
+  const set = new Set(all);
+  const first = PRIORITY_AREAS.filter((a) => set.has(a));
+  const rest = all.filter((a) => !PRIORITY_AREAS.includes(a));
+  return [...first, ...rest];
+};
+
 // FilterSheet — one-to-one with the Figma DS component (page "FilterSheet"):
 // grab handle · chip groups · footer with Clear all + live-count CTA
 // (Beli/eBay/Vivino pattern) · sheet radius on top corners · impactLight on
@@ -33,7 +50,7 @@ export default function FilterSheet({
       setCategory(initialCategory || null);
       setArea(initialArea || null);
       if (areas.length === 0) {
-        MealAPI.listAreas().then(setAreas);
+        MealAPI.listAreas().then((all) => setAreas(orderAreas(all)));
       }
     }
   }, [visible]);

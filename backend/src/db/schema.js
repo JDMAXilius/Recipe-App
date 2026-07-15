@@ -8,5 +8,6 @@ export const favoritesTable = pgTable("favorites", {
   image: text("image"),
   cookTime: text("cook_time"),
   servings: text("servings"),
+  category: text("category"), // TheMealDB category — drives calorie estimates on Saved cards
   createdAt: timestamp("created_at").defaultNow(),
 });

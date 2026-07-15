@@ -74,9 +74,9 @@ but the Otto badge + serif title carry it). **Passes.**
 | 2 | P0 | Failed save was silent (offline) | **FIXED** → error haptic + optimistic rollback (was already rolling back) |
 | 3 | P0 | Eye/clear-search touch targets < 44pt | **FIXED** → hitSlop |
 | 4 | P0 | Cold-load deep links reset to Discover | **FIXED** in P4-3 (tabs gate kept mounted) |
-| 5 | P1 | No undo affordance after unsave (mis-tap loses a recipe silently) | Backlog: toast+undo needs a toast primitive; SavedContext refresh() makes data recoverable server-side until then |
-| 6 | P1 | CalorieRing sweep + entrance staggers unimplemented | Backlog (motion pass) |
-| 7 | P1 | Saved-tab cards show default ~420 est. (no category column in DB) | Backlog: add `category` column to favorites table (backend migration) |
+| 5 | P1 | No undo affordance after unsave (mis-tap loses a recipe silently) | **FIXED** (post-QA pass): ToastProvider + "Removed from Saved · Undo"; stale-closure bug in Undo found & fixed (SavedContext reads state via ref); verified end-to-end on web |
+| 6 | P1 | CalorieRing sweep + entrance staggers unimplemented | **FIXED** (partial): ring now counts 0→~N over 500ms ease-out, reduced-motion safe; entrance staggers still backlog |
+| 7 | P1 | Saved-tab cards show default ~420 est. (no category column in DB) | **FIXED**: `category` column added (drizzle push, additive), POST/optimistic rows carry it; Saved cards now estimate by real category |
 | 8 | P2 | LoadingSpinner literal paddings | Cosmetic; migrate on next touch |
 | 9 | P2 | `youtu.be` fix untested against a live shorts URL | Regex unit-verified only; no shorts URLs in TheMealDB sample |
 | 10 | P2 | Haptics no-op on web (expected) — no web fallback feedback for save | Acceptable: web is a preview surface, not truth |

@@ -4,6 +4,7 @@ import SafeScreen from "@/components/SafeScreen";
 import { AuthProvider } from "../context/AuthContext";
 import { ThemeProvider } from "../context/ThemeContext";
 import { SavedProvider } from "../context/SavedContext";
+import { ToastProvider } from "../context/ToastContext";
 
 export default function RootLayout() {
   // Lora = the display serif (docs/DESIGN_SYSTEM.md B2). Body text stays system.
@@ -14,9 +15,11 @@ export default function RootLayout() {
     <ThemeProvider>
       <AuthProvider>
         <SavedProvider>
-          <SafeScreen>
-            <Slot />
-          </SafeScreen>
+          <ToastProvider>
+            <SafeScreen>
+              <Slot />
+            </SafeScreen>
+          </ToastProvider>
         </SavedProvider>
       </AuthProvider>
     </ThemeProvider>

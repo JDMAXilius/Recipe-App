@@ -209,6 +209,25 @@ states); ~50 searches, ~200 screens examined. Full output: `MOBBIN_COMPARISON.md
   sections + text wireframe, design style, core features, interactions/animations (springs +
   haptic map as coded), plus 5 shipped-screen captures.
 
+## Post-run 2 — P1 backlog cleared (2026-07-14, "anything else? lets do it")
+
+- **B1. Toast system shipped** (`context/ToastContext.jsx`): warm-ink toast above the tab bar,
+  200ms fade (plain RN Animated — reanimated *layout* animations proved unreliable on web and
+  even stalled the renderer; springs/shared-values elsewhere are unaffected). Unsave → "Removed
+  from Saved · Undo" (5s); failed save → "We dropped the pan…"; FIRST save ever → the one
+  Excited-Otto toast (AsyncStorage flag). Routine saves stay silent — pop + haptic is the
+  feedback (B6: no Otto in routine toasts).
+- **B2. Undo stale-closure bug found & fixed:** the toast's Undo captured a `toggleSave` whose
+  savedIds predated the unsave → it re-deleted instead of re-saving. SavedContext now reads
+  current state through a ref; toggleSave is closure-safe. Verified: unsave → Undo → restored.
+- **B3. favorites.category column** added via `drizzle-kit push` (additive; migrate journal was
+  out of sync with the live DB — 0001 SQL kept for the record). POST + optimistic rows carry
+  category; Saved cards now show real per-category estimates instead of the 420 default.
+- **B4. CalorieRing count-up:** 0→~N over TIMING.sweep with ease-out, tilde preserved,
+  reduced-motion → static. Verified ~400 for Chicken detail.
+- **B5. Cuisine list ordering:** 30 known-stocked cuisines first, long tail after — nothing
+  hidden, counts stay honest.
+
 ## Phase 5 — QA
 
 - **P5-1. Adversarial pass complete → `docs/QA.md`.** 10 findings: 4 P0s all FIXED in-pass

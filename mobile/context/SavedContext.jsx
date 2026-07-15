@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { authFetch } from "../lib/api";
 
@@ -46,18 +46,26 @@ export const SavedProvider = ({ children }) => {
     [savedList]
   );
 
+  // Ref mirror so long-lived closures (e.g. a toast's Undo action) always see
+  // the CURRENT saved state — a captured toggleSave would otherwise re-delete
+  // instead of re-saving.
+  const savedIdsRef = useRef(savedIds);
+  useEffect(() => {
+    savedIdsRef.current = savedIds;
+  }, [savedIds]);
+
   const isSaved = useCallback((recipeId) => savedIds.has(parseInt(recipeId)), [savedIds]);
 
   // Returns the new saved state, or null on failure (caller may show feedback).
   const toggleSave = useCallback(
     async (recipe) => {
       const id = parseInt(recipe.id);
-      const currentlySaved = savedIds.has(id);
+      const currentlySaved = savedIdsRef.current.has(id);
       // optimistic
       setSavedList((prev) =>
         currentlySaved
           ? prev.filter((f) => parseInt(f.recipeId) !== id)
-          : [...prev, { recipeId: id, title: recipe.title, image: recipe.image, cookTime: recipe.cookTime, servings: recipe.servings }]
+          : [...prev, { recipeId: id, title: recipe.title, image: recipe.image, cookTime: recipe.cookTime, servings: recipe.servings, category: recipe.category }]
       );
       try {
         if (currentlySaved) {
@@ -74,6 +82,7 @@ export const SavedProvider = ({ children }) => {
             image: recipe.image,
             cookTime: recipe.cookTime,
             servings: recipe.servings,
+            category: recipe.category, // drives the Saved-tab calorie estimate
           }),
         });
         if (!res.ok) throw new Error("save failed");
@@ -84,7 +93,7 @@ export const SavedProvider = ({ children }) => {
         return null;
       }
     },
-    [savedIds, refresh]
+    [refresh]
   );
 
   return (
