@@ -1,4 +1,5 @@
 import { Slot } from "expo-router";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFonts, Lora_600SemiBold, Lora_700Bold } from "@expo-google-fonts/lora";
 import SafeScreen from "@/components/SafeScreen";
 import { AuthProvider } from "../context/AuthContext";
@@ -12,16 +13,18 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <SavedProvider>
-          <ToastProvider>
-            <SafeScreen>
-              <Slot />
-            </SafeScreen>
-          </ToastProvider>
-        </SavedProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
+        <AuthProvider>
+          <SavedProvider>
+            <ToastProvider>
+              <SafeScreen>
+                <Slot />
+              </SafeScreen>
+            </ToastProvider>
+          </SavedProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

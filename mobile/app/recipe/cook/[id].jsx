@@ -177,10 +177,15 @@ const CookModeScreen = () => {
       else if (e.translationX > 60) runOnJS(goBackStep)();
     });
 
+  const leave = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace(`/recipe/${recipeId}`);
+  };
+
   const requestExit = () => {
     const hasProgress = step > 0 || timers.some((t) => t.running);
     if (phase === "steps" && hasProgress) setExitConfirm(true);
-    else router.back();
+    else leave();
   };
 
   const rateThumb = async (up) => {
@@ -244,7 +249,7 @@ const CookModeScreen = () => {
 
         <TouchableOpacity
           style={styles.finishButton}
-          onPress={() => router.back()}
+          onPress={leave}
           accessibilityRole="button"
           accessibilityLabel="Back to recipe"
         >
@@ -260,7 +265,7 @@ const CookModeScreen = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={leave}
             style={styles.iconButton}
             accessibilityRole="button"
             accessibilityLabel="Close"
@@ -707,7 +712,7 @@ const CookModeScreen = () => {
                 style={styles.doneSecondary}
                 onPress={() => {
                   setExitConfirm(false);
-                  router.back();
+                  leave();
                 }}
                 accessibilityRole="button"
               >
