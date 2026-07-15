@@ -394,3 +394,10 @@ Cookbook is ONE tab with in-screen segments.
   XP, badges, notification/appearance rows.
 - Safe-area: tab bar 60pt+inset (labels clear the home indicator), ＋ ring; all pinned
   bars & sheets inset-aware.
+- **Figma synced:** new DS page "🧭 v2 Build — shipped 2026-07-15" with 1:1 wireframes of
+  Add sheet, Cookbook (segments + all three card stamps + 5-slot tab bar), Otto's week,
+  Shopping list (banner/chips/aisles/check-off), and You (Account). File
+  X1eGT54CTwtowHNve30vvE.
+- **Discover remake:** Mobbin research complete (16 searches, 10 apps) — 3 candidate
+  directions documented for founder discussion; NOT implemented by design. See the
+  session summary / research output ("Tonight, sorted" recommended).
