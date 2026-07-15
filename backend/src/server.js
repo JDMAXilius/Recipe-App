@@ -7,23 +7,29 @@ import { and, eq, desc, asc, gte, lte } from "drizzle-orm";
 import { importRecipeFromUrl } from "./lib/importRecipe.js";
 import job from "./config/cron.js";
 import { requireAuth } from "./middleware/auth.js";
+import { logger, reportError } from "./lib/logger.js";
+import { validate, schemas } from "./lib/validate.js";
+import { apiLimiter, costlyLimiter } from "./lib/rateLimits.js";
 
 const app = express();
 const PORT = ENV.PORT || 5001;
 
 if (ENV.NODE_ENV === "production") job.start();
 
+// Behind a proxy in production, the client IP lives in X-Forwarded-For —
+// without this the per-IP limiter would throttle the proxy, not users.
+if (ENV.NODE_ENV === "production") app.set("trust proxy", 1);
+
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
+app.use(apiLimiter);
 
-
-// Route-param / payload guards — a NaN reaching postgres.js becomes a 500;
+// Route-param guard — a NaN reaching postgres.js becomes a 500;
 // bad input should be a 400 before the DB ever sees it.
 const intId = (value) => {
   const n = Number(value);
   return Number.isInteger(n) && n > 0 ? n : null;
 };
-const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ success: true });
@@ -31,13 +37,9 @@ app.get("/api/health", (req, res) => {
 
 // All favorites routes are scoped to the authenticated user: requireAuth
 // validates the Supabase access token and sets req.userId from it.
-app.post("/api/favorites", requireAuth, async (req, res) => {
+app.post("/api/favorites", requireAuth, validate(schemas.favoriteCreate), async (req, res) => {
   try {
     const { recipeId, title, image, cookTime, servings, category } = req.body;
-
-    if (!recipeId || !title) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
 
     const newFavorite = await db
       .insert(favoritesTable)
@@ -54,7 +56,7 @@ app.post("/api/favorites", requireAuth, async (req, res) => {
 
     res.status(201).json(newFavorite[0]);
   } catch (error) {
-    console.log("Error adding favorite", error);
+    reportError(error, { msg: "add favorite failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -68,7 +70,7 @@ app.get("/api/favorites", requireAuth, async (req, res) => {
 
     res.status(200).json(userFavorites);
   } catch (error) {
-    console.log("Error fetching the favorites", error);
+    reportError(error, { msg: "fetch favorites failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -86,7 +88,7 @@ app.delete("/api/favorites/:recipeId", requireAuth, async (req, res) => {
 
     res.status(200).json({ message: "Favorite removed successfully" });
   } catch (error) {
-    console.log("Error removing a favorite", error);
+    reportError(error, { msg: "remove favorite failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -94,25 +96,20 @@ app.delete("/api/favorites/:recipeId", requireAuth, async (req, res) => {
 // ------------------------------------------------------------ USER RECIPES
 // Imported (URL) + manual recipes. Seed content never lands here.
 
-app.post("/api/import", requireAuth, async (req, res) => {
+app.post("/api/import", requireAuth, costlyLimiter, validate(schemas.importBody), async (req, res) => {
   try {
-    const { url } = req.body;
-    if (!url) return res.status(400).json({ error: "Missing url" });
-    const draft = await importRecipeFromUrl(url);
+    const draft = await importRecipeFromUrl(req.body.url);
     if (!draft) return res.status(422).json({ error: "No recipe found on that page" });
     res.status(200).json(draft);
   } catch (error) {
-    console.log("Error importing recipe", error.message);
+    logger.warn({ url: req.body?.url, err: error.message }, "import failed");
     res.status(422).json({ error: "Couldn't read that page" });
   }
 });
 
-app.post("/api/recipes", requireAuth, async (req, res) => {
+app.post("/api/recipes", requireAuth, validate(schemas.recipeCreate), async (req, res) => {
   try {
-    const { source, sourceUrl, sourceName, title, image, category, area, servings, ingredients, steps, youtubeUrl } = req.body;
-    if (!title || !["imported", "manual"].includes(source)) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
+    const { source, sourceUrl, sourceName, title, image, category, area, servings, ingredients, steps, youtubeUrl, visibility } = req.body;
     const created = await db
       .insert(recipesTable)
       .values({
@@ -124,15 +121,16 @@ app.post("/api/recipes", requireAuth, async (req, res) => {
         image: image || null,
         category: category || null,
         area: area || null,
-        servings: Number.isInteger(Number(servings)) && Number(servings) > 0 && Number(servings) <= 48 ? Number(servings) : null,
-        ingredients: Array.isArray(ingredients) ? ingredients : [],
-        steps: Array.isArray(steps) ? steps : [],
+        servings: servings ?? null,
+        ingredients,
+        steps,
         youtubeUrl: youtubeUrl || null,
+        visibility,
       })
       .returning();
     res.status(201).json(created[0]);
   } catch (error) {
-    console.log("Error creating recipe", error);
+    reportError(error, { msg: "create recipe failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -146,7 +144,7 @@ app.get("/api/recipes", requireAuth, async (req, res) => {
       .orderBy(desc(recipesTable.createdAt));
     res.status(200).json(mine);
   } catch (error) {
-    console.log("Error fetching recipes", error);
+    reportError(error, { msg: "fetch recipes failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });
@@ -162,7 +160,7 @@ app.get("/api/recipes/:id", requireAuth, async (req, res) => {
     if (!rows.length) return res.status(404).json({ error: "Not found" });
     res.status(200).json(rows[0]);
   } catch (error) {
-    console.log("Error fetching recipe", error);
+    reportError(error, { msg: "fetch recipe failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
   }
 });

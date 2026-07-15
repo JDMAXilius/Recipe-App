@@ -41,7 +41,8 @@
           "photosPermission": "Otto saves your plate photos to your private cooking journal.",
           "cameraPermission": "Otto uses the camera so you can snap your finished plate."
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true

@@ -9,7 +9,9 @@ import Animated, {
   withSpring,
   useReducedMotion,
 } from "react-native-reanimated";
+import { useRouter } from "expo-router";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 import { useSaved } from "../context/SavedContext";
 import { useToast } from "../context/ToastContext";
 import { SPRING } from "../constants/tokens";
@@ -28,6 +30,8 @@ const FIRST_SAVE_KEY = "otto.firstSaveCelebrated.v1";
 // toast (mis-tap protection, Instacart pattern).
 export default function PawMark({ recipe, size = 22, style }) {
   const { colors } = useTheme();
+  const router = useRouter();
+  const { user } = useAuth();
   const { isSaved, toggleSave } = useSaved();
   const { show } = useToast();
   const reducedMotion = useReducedMotion();
@@ -37,6 +41,13 @@ export default function PawMark({ recipe, size = 22, style }) {
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   const handlePress = async () => {
+    // Anonymous wanderers hit the cloakroom at their FIRST save (ticket P10 §1
+    // — value first, account only when something's worth keeping).
+    if (user?.is_anonymous) {
+      show({ message: "Want Otto to remember this kitchen? Pull up a stool." });
+      router.push("/(auth)/sign-up");
+      return;
+    }
     const nowSaved = await toggleSave(recipe);
     if (nowSaved === null) {
       // Save failed (offline/backend down) — state already rolled back.

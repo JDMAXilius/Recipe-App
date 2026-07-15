@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Slot } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import AnimatedSplash from "@/components/AnimatedSplash";
 import { useFonts, Lora_600SemiBold, Lora_700Bold } from "@expo-google-fonts/lora";
 import SafeScreen from "@/components/SafeScreen";
 import { AuthProvider } from "../context/AuthContext";
@@ -10,6 +12,7 @@ import { ToastProvider } from "../context/ToastContext";
 export default function RootLayout() {
   // Lora = the display serif (docs/DESIGN_SYSTEM.md B2). Body text stays system.
   const [fontsLoaded] = useFonts({ Lora_600SemiBold, Lora_700Bold });
+  const [splashDone, setSplashDone] = useState(false);
   if (!fontsLoaded) return null;
 
   return (
@@ -20,6 +23,7 @@ export default function RootLayout() {
             <ToastProvider>
               <SafeScreen>
                 <Slot />
+                {!splashDone && <AnimatedSplash onDone={() => setSplashDone(true)} />}
               </SafeScreen>
             </ToastProvider>
           </SavedProvider>
