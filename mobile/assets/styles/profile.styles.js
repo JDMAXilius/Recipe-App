@@ -171,11 +171,11 @@ export const createProfileStyles = (colors) =>
       color: colors.white,
     },
     clubArt: {
-      width: 150,
-      height: 105,
+      width: "44%",
+      aspectRatio: 1184 / 764, // painting's native ratio — never squished
       alignSelf: "flex-end",
-      marginRight: -SPACING.xl, // art bleeds off the card edge
-      marginBottom: -SPACING.lg,
+      marginRight: -SPACING.lg, // art bleeds off the card edge
+      marginBottom: -SPACING.md,
     },
     deleteRow: {
       alignSelf: "center",
