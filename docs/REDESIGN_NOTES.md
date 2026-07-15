@@ -401,3 +401,23 @@ Cookbook is ONE tab with in-screen segments.
 - **Discover remake:** Mobbin research complete (16 searches, 10 apps) — 3 candidate
   directions documented for founder discussion; NOT implemented by design. See the
   session summary / research output ("Tonight, sorted" recommended).
+
+## Phase 9 — Otto Club frontend (2026-07-15)
+
+- **C17. Otto Club paywall + membership card** (Mobbin paywall study: Blinkist dated
+  timeline, Headspace plan-aware recompute, CREME both-directions price math, Kitchen
+  Stories painted benefits + two-piece account entry, Duolingo/Strava state rules):
+  `/otto-club` — floating-Otto hero (art bleeds off edge) → serif title → 4 painted
+  benefit rows (incl. the CREME-style "keeps the lights on" honesty row) → "How your 5
+  free days work" timeline with REAL computed dates (unlock today / reminder day 4 /
+  charge day 5; rail fades after the charge node) → price radio cards, annual
+  preselected, math shown both directions ($29.99/yr = $2.50/mo; $4.99/mo = $59.88/yr),
+  SAVE % computed only against our own monthly price (no anchors, no strikethroughs,
+  ever) → total-truth line → **ship-honest pre-IAP state**: CTA = "Otto Club opens soon"
+  + "Notify me" (otto.clubWaitlist), NO Restore link (dead one = trust bug + App Store
+  reject), no remind-me toggle yet, charge copy stays conditional ("you'd be charged") →
+  inline "How do I cancel?" card with literal iOS steps. You-tab: MEMBERSHIP section =
+  factual "Current plan — Free" row + painted Otto Club card (copy left, floating Otto
+  breaking the card edge, "See how it works"). One card, three states designed (free /
+  trial / member — trial+member ship with IAP; selling stops for members, Duolingo MAX
+  rule). Prices are roadmap §6 placeholders — founder sets final.

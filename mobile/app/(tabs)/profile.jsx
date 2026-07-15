@@ -124,6 +124,41 @@ const AccountScreen = () => {
           </View>
         </View>
 
+        {/* MEMBERSHIP — factual row + painted card (KS two-piece pattern).
+            One component, three states; pre-IAP shows the honest free state. */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Membership</Text>
+          <View style={styles.card}>
+            <View style={styles.row}>
+              <Ionicons name="ribbon-outline" size={20} color={colors.inkSoft} />
+              <Text style={styles.rowText}>Current plan</Text>
+              <Text style={styles.rowValue}>Free</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.clubCard}
+            onPress={() => router.push("/otto-club")}
+            activeOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel="Otto Club — see how it works"
+          >
+            <View style={styles.clubCopy}>
+              <Text style={styles.clubTitle}>Otto Club</Text>
+              <Text style={styles.clubBody}>
+                Everything Otto can do, one simple membership. Opening soon.
+              </Text>
+              <View style={styles.clubPill}>
+                <Text style={styles.clubPillText}>See how it works</Text>
+              </View>
+            </View>
+            <Image
+              source={require("../../assets/mascot/otto-scene-floating.png")}
+              style={styles.clubArt}
+              contentFit="contain"
+            />
+          </TouchableOpacity>
+        </View>
+
         {/* YOUR KITCHEN SO FAR — earned numbers, each one a door */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Your kitchen so far</Text>

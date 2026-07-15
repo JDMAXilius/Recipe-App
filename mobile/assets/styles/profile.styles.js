@@ -128,6 +128,55 @@ export const createProfileStyles = (colors) =>
       color: colors.white,
     },
 
+    // Otto Club card — copy left, floating-Otto art anchored right, breaking
+    // the card edge (Duolingo sticker bleed). Renders ONLY in the free state.
+    clubCard: {
+      marginTop: SPACING.sm,
+      backgroundColor: colors.surfaceWarm,
+      borderWidth: 1,
+      borderColor: colors.accent,
+      borderRadius: RADIUS.card,
+      flexDirection: "row",
+      overflow: "hidden",
+      padding: SPACING.lg,
+      minHeight: 120,
+    },
+    clubCopy: {
+      flex: 1,
+      gap: SPACING.sm,
+      paddingRight: SPACING.sm,
+    },
+    clubTitle: {
+      ...TYPE.display,
+      fontSize: 20,
+      lineHeight: 26,
+      color: colors.accent,
+    },
+    clubBody: {
+      ...TYPE.body,
+      fontSize: 12,
+      lineHeight: 17,
+      color: colors.ink,
+    },
+    clubPill: {
+      alignSelf: "flex-start",
+      backgroundColor: colors.accent,
+      borderRadius: RADIUS.pill,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 6,
+    },
+    clubPillText: {
+      ...TYPE.label,
+      fontSize: 12,
+      color: colors.white,
+    },
+    clubArt: {
+      width: 150,
+      height: 105,
+      alignSelf: "flex-end",
+      marginRight: -SPACING.xl, // art bleeds off the card edge
+      marginBottom: -SPACING.lg,
+    },
     deleteRow: {
       alignSelf: "center",
       paddingVertical: SPACING.sm,
