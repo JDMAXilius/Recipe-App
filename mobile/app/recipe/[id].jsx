@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Platform, Linking, Share, Modal } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SPACING } from "../../constants/tokens";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
@@ -44,7 +47,9 @@ const RecipeDetailScreen = () => {
   const { id: recipeId } = useLocalSearchParams();
   const router = useRouter();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const recipeDetailStyles = useMemo(() => createRecipeDetailStyles(colors), [colors]);
+  const safeBottom = Math.max(insets.bottom, SPACING.lg);
 
   const [recipe, setRecipe] = useState(null);
   const [related, setRelated] = useState([]);
@@ -115,6 +120,17 @@ const RecipeDetailScreen = () => {
     loadRecipeDetail();
     setVideoPlaying(false);
   }, [recipeId]);
+
+  // Own recipes can be edited in place — re-pull on focus so returning from
+  // the editor never shows stale rows. (Seed recipes are immutable upstream.)
+  useFocusEffect(
+    useCallback(() => {
+      if (!isUserRecipeId(recipeId)) return;
+      UserRecipeAPI.get(recipeId)
+        .then((row) => setRecipe(transformUserRecipe(row)))
+        .catch(() => {});
+    }, [recipeId])
+  );
 
   if (loading) return <LoadingSpinner message="Getting the recipe ready..." />;
   if (!recipe) return null;
@@ -411,6 +427,7 @@ const RecipeDetailScreen = () => {
           )}
 
           {/* METHOD — semantic ink: terracotta = computed, ink = authored */}
+          {methodSteps.length > 0 && (
           <View style={recipeDetailStyles.sectionContainer}>
             <Text style={recipeDetailStyles.sectionTitle}>Method</Text>
             {methodSteps.map((instruction, index) => {
@@ -467,6 +484,7 @@ const RecipeDetailScreen = () => {
               );
             })}
           </View>
+          )}
 
           {/* NUTRITION — after Method (Crouton/ReciMe placement) */}
           <View style={recipeDetailStyles.sectionContainer}>
@@ -492,7 +510,7 @@ const RecipeDetailScreen = () => {
       </ScrollView>
 
       {/* PINNED BOTTOM BAR — Start cooking primary, plan + paw quiet (SideChef dual-bar) */}
-      <View style={recipeDetailStyles.bottomBar}>
+      <View style={[recipeDetailStyles.bottomBar, { paddingBottom: safeBottom }]}>
         {!isOwn && <PawMark recipe={recipe} size={26} style={{ width: 52, height: 52 }} />}
         <TouchableOpacity
           style={recipeDetailStyles.planButton}
@@ -502,22 +520,36 @@ const RecipeDetailScreen = () => {
         >
           <Ionicons name="calendar-outline" size={22} color={colors.accent} />
         </TouchableOpacity>
-        <Bounceable
-          style={recipeDetailStyles.cookButton}
-          containerStyle={{ flex: 1 }}
-          onPress={() => router.push(`/recipe/cook/${recipe.id}?servings=${servings}`)}
-          accessibilityRole="button"
-          accessibilityLabel="Start cooking step by step"
-        >
-          <Ionicons name="flame-outline" size={20} color={colors.white} />
-          <Text style={recipeDetailStyles.cookButtonText}>Start cooking</Text>
-        </Bounceable>
+        {methodSteps.length > 0 ? (
+          <Bounceable
+            style={recipeDetailStyles.cookButton}
+            containerStyle={{ flex: 1 }}
+            onPress={() => router.push(`/recipe/cook/${recipe.id}?servings=${servings}`)}
+            accessibilityRole="button"
+            accessibilityLabel="Start cooking step by step"
+          >
+            <Ionicons name="flame-outline" size={20} color={colors.white} />
+            <Text style={recipeDetailStyles.cookButtonText}>Start cooking</Text>
+          </Bounceable>
+        ) : (
+          // Steps were optional at save — no fake cook entrance, offer the fix
+          <Bounceable
+            style={recipeDetailStyles.cookButton}
+            containerStyle={{ flex: 1 }}
+            onPress={() => router.push(`/recipe/edit?id=${recipeId}`)}
+            accessibilityRole="button"
+            accessibilityLabel="Add steps to cook this"
+          >
+            <Ionicons name="create-outline" size={20} color={colors.white} />
+            <Text style={recipeDetailStyles.cookButtonText}>Add steps to cook this</Text>
+          </Bounceable>
+        )}
       </View>
 
       {/* Day picker — which card does this land on? */}
       <Modal visible={planOpen} transparent animationType="slide">
         <View style={recipeDetailStyles.sheetScrim}>
-          <View style={recipeDetailStyles.sheet}>
+          <View style={[recipeDetailStyles.sheet, { paddingBottom: safeBottom + SPACING.md }]}>
             <View style={recipeDetailStyles.sheetHandle} />
             <Text style={recipeDetailStyles.sheetTitle}>Add to Otto's week</Text>
             {weekDays().map((day) => (

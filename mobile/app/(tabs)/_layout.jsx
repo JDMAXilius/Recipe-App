@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { TouchableOpacity, View, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
 import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,7 +24,10 @@ const AddButton = () => {
   return (
     <View style={addStyles.slot}>
       <TouchableOpacity
-        style={[addStyles.button, { backgroundColor: colors.accent, shadowColor: colors.shadow }]}
+        style={[
+          addStyles.button,
+          { backgroundColor: colors.accent, shadowColor: colors.shadow, borderColor: colors.surface },
+        ]}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
           router.push("/add");
@@ -44,12 +48,13 @@ const addStyles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: -22, // raised above the bar
+    marginTop: -26, // raised above the bar
+    borderWidth: 3, // surface ring so the disc reads over any content
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
@@ -61,6 +66,7 @@ const TabsLayout = () => {
   const { isSignedIn, isLoaded } = useAuth();
   const { colors } = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) router.replace("/(auth)/sign-in");
@@ -78,9 +84,11 @@ const TabsLayout = () => {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 80,
+          // safe-area aware: 60pt of content + the device's own bottom inset —
+          // labels never crowd the home indicator (fixed 80pt did on iPhone)
+          height: 60 + Math.max(insets.bottom, 8),
+          paddingBottom: Math.max(insets.bottom, 8),
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
           fontSize: 12,

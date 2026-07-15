@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useKeepAwake } from "expo-keep-awake";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MealAPI } from "../../../services/mealAPI";
 import { UserRecipeAPI, transformUserRecipe, isUserRecipeId } from "../../../services/userRecipes";
 import { useTheme } from "../../../context/ThemeContext";
@@ -46,6 +47,8 @@ const CookModeScreen = () => {
   const router = useRouter();
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const insets = useSafeAreaInsets();
+  const safeBottom = Math.max(insets.bottom, SPACING.lg);
   const [unitSystem] = useUnitSystem();
 
   const [recipe, setRecipe] = useState(null);
@@ -393,7 +396,7 @@ const CookModeScreen = () => {
           })}
         </ScrollView>
 
-        <View style={styles.footerBar}>
+        <View style={[styles.footerBar, { paddingBottom: safeBottom }]}>
           <Bounceable
             onPress={() => setPhase("steps")}
             style={styles.primaryButton}
@@ -547,7 +550,7 @@ const CookModeScreen = () => {
       </GestureDetector>
 
       {/* CONTROLS */}
-      <View style={styles.footerBar}>
+      <View style={[styles.footerBar, { paddingBottom: safeBottom }]}>
         <TouchableOpacity
           onPress={() => {
             setSheetFilter("step");
@@ -588,7 +591,7 @@ const CookModeScreen = () => {
         onRequestClose={() => setSheetOpen(null)}
       >
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setSheetOpen(null)} />
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingBottom: safeBottom + SPACING.md }]}>
           <View style={styles.handle} />
           <View style={styles.filterRow}>
             {[
@@ -638,7 +641,7 @@ const CookModeScreen = () => {
         onRequestClose={() => setSheetOpen(null)}
       >
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setSheetOpen(null)} />
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingBottom: safeBottom + SPACING.md }]}>
           <View style={styles.handle} />
           <Text style={styles.sheetTitle}>Otto's timers</Text>
           <ScrollView style={{ maxHeight: 380 }}>
@@ -698,7 +701,7 @@ const CookModeScreen = () => {
         onRequestClose={() => setSheetOpen(null)}
       >
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setSheetOpen(null)} />
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { paddingBottom: safeBottom + SPACING.md }]}>
           <View style={styles.handle} />
           <Text style={styles.sheetTitle}>Jump to a step</Text>
           <ScrollView style={{ maxHeight: 420 }}>

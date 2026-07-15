@@ -12,6 +12,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../context/ThemeContext";
 import { useToast } from "../../context/ToastContext";
 import { createAddStyles } from "../../assets/styles/add.styles";
@@ -33,6 +34,7 @@ const RecipeEditScreen = () => {
   const { colors } = useTheme();
   const { show } = useToast();
   const styles = useMemo(() => createAddStyles(colors), [colors]);
+  const safeBottom = Math.max(useSafeAreaInsets().bottom, 24);
 
   const [loading, setLoading] = useState(Boolean(editId));
   const [saving, setSaving] = useState(false);
@@ -358,7 +360,7 @@ const RecipeEditScreen = () => {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <View style={styles.footerBar}>
+      <View style={[styles.footerBar, { paddingBottom: safeBottom }]}>
         <Bounceable
           style={styles.primaryButton}
           containerStyle={{ flex: 1 }}

@@ -247,9 +247,7 @@ const AddScreen = () => {
             <View style={styles.comingRow}>
               <Ionicons name="logo-tiktok" size={13} color={colors.inkSoft} />
               <Ionicons name="logo-instagram" size={13} color={colors.inkSoft} />
-              <Text style={styles.comingText}>
-                Sharing straight from TikTok & Instagram is coming soon.
-              </Text>
+              <Text style={styles.comingText}>TikTok & Instagram share-in — coming soon.</Text>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>

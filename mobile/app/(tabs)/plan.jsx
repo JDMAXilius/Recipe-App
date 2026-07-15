@@ -11,6 +11,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../context/ThemeContext";
 import { useToast } from "../../context/ToastContext";
 import { useSaved } from "../../context/SavedContext";
@@ -31,6 +32,7 @@ const PlanScreen = () => {
   const router = useRouter();
   const { savedList } = useSaved();
   const styles = useMemo(() => createPlanStyles(colors), [colors]);
+  const safeBottom = Math.max(useSafeAreaInsets().bottom, 24);
 
   const [entries, setEntries] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -243,7 +245,7 @@ const PlanScreen = () => {
       {/* Recipe picker — your cookbook, own recipes first */}
       <Modal visible={pickerDay !== null} transparent animationType="slide">
         <View style={styles.sheetScrim}>
-          <View style={styles.sheet}>
+          <View style={[styles.sheet, { paddingBottom: safeBottom }]}>
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>What's cooking?</Text>
             {pickerChoices.length === 0 ? (
