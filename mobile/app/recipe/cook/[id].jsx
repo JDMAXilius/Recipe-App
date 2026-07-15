@@ -845,8 +845,9 @@ const createStyles = (colors) =>
     stepTemp: { color: colors.secondary, fontWeight: "800" },
     timerHint: { ...TYPE.caption, color: colors.inkSoft, marginTop: SPACING.md },
     actionArt: {
-      width: 132,
-      height: 132,
+      width: "68%",
+      maxWidth: 300,
+      aspectRatio: 1,
       alignSelf: "center",
       marginTop: SPACING.xl,
       opacity: 0.95,
