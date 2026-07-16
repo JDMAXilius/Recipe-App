@@ -22,6 +22,24 @@
 // Otto surfaces this alongside its TheMealDB credit.
 import { parseIngredientLine } from "./parseIngredient.js";
 import table from "./usdaTable.json" with { type: "json" };
+import recipeFacts from "./recipeFacts.json" with { type: "json" };
+import cookedTable from "./usdaCookedTable.json" with { type: "json" };
+
+// recipeFacts.json — the two things TheMealDB does not tell us, read once from
+// each recipe's own instructions and committed as static data:
+//
+//   servings : never stated anywhere in the API. A flat default of 4 divided
+//              "2kg Shredded Meat" into a 1200 kcal/serving card. Judged from
+//              the ingredient quantities and dish type.
+//   cooked   : which lines are ALREADY cooked when added. The lines never say,
+//              but the instructions do — "add the cooked vegetables and rice"
+//              means raw brown rice (360 kcal/100g) is wrong and cooked (123)
+//              is right. That single line was a 3x error.
+//
+// This is a language judgement, not a number: the facts only choose WHICH USDA
+// record applies and how many the pot feeds. Every calorie still comes from
+// USDA, and any recipe missing from this file falls back to the old guards.
+const factsFor = (id) => (id ? recipeFacts[String(id)] : null);
 
 const round = (n, dp = 0) =>
   n == null || Number.isNaN(n) ? null : Math.round(n * 10 ** dp) / 10 ** dp;
@@ -86,11 +104,27 @@ function hasAmbiguousGrain(list) {
 // dividing by the wrong number and should say we don't know.
 const MAX_PLAUSIBLE_SERVING_GRAMS = 700;
 
+// Human range for one serving of one dish. Anything outside it means the inputs
+// were broken, not that the food is remarkable.
+const MIN_PLAUSIBLE_KCAL = 40;
+const MAX_PLAUSIBLE_KCAL = 1500;
+
 // Seed recipes arrive as { measure, name } where `name` IS the TheMealDB
 // ingredient name the table is keyed on — so it matches directly. User-written
 // recipes are freeform, so fall back to the parser's extracted item
 // ("2 tbsp olive oil" → "olive oil") before giving up.
-function lookup(name, parsedItem) {
+//
+// `cooked` swaps in the cooked USDA record where the instructions say the line
+// goes in already cooked. The two differ enough to dominate a recipe: brown
+// rice is 360 kcal/100g raw and 123 cooked.
+function lookup(name, parsedItem, cooked) {
+  if (cooked) {
+    const c = cookedTable[key(name)] || cookedTable[key(parsedItem)];
+    if (c) return c;
+    // Flagged cooked but we have no cooked record — the raw row would be ~3x
+    // wrong, so drop the line rather than substitute it.
+    return null;
+  }
   return table[key(name)] || table[key(parsedItem)] || null;
 }
 
@@ -98,17 +132,26 @@ export const usdaProvider = {
   name: "usda",
 
   // async to satisfy the NutritionProvider contract; no I/O actually happens.
-  async computeNutrition(ingredients, servings) {
+  // `recipeId` opts a seed recipe into its curated facts (servings + which
+  // lines are cooked); user recipes pass none and use their own real servings.
+  async computeNutrition(ingredients, servings, recipeId) {
     const list = (ingredients || []).filter((p) => p && (p.name || p.measure));
     if (!list.length) return null;
-    // Refuse rather than ship a confident ~2x error — see AMBIGUOUS_GRAIN.
-    if (hasAmbiguousGrain(list)) return null;
-    const perServing = Math.max(1, Number(servings) || 1);
+
+    const facts = factsFor(recipeId);
+    // Facts RESOLVE the raw/cooked ambiguity, so the blunt guards are only for
+    // recipes we have no facts for (user recipes, or a seed id we missed).
+    if (!facts && hasAmbiguousGrain(list)) return null;
+
+    // A curated serving count beats the caller's flat default of 4 — that
+    // default is what turned "2kg Shredded Meat" into 1200 kcal/serving.
+    const perServing = Math.max(1, Number(facts?.servings) || Number(servings) || 1);
+    const cookedSet = new Set((facts?.cooked || []).map(key));
 
     const rows = list.map((p) => {
       const line = [p.measure, p.name].filter(Boolean).join(" ").trim();
       const parsed = parseIngredientLine(line);
-      const food = lookup(p.name, parsed.item);
+      const food = lookup(p.name, parsed.item, cookedSet.has(key(p.name)));
       return { parsed, food };
     });
 
@@ -128,10 +171,20 @@ export const usdaProvider = {
     };
     const per = (v, dp) => (v == null ? null : round(v / perServing, dp));
 
+    // Final plausibility check on the ANSWER, not the inputs. A real serving of
+    // real food is not 12 kcal (Bakewell tart, when almost nothing resolved and
+    // the total silently collapsed) and not 1855 (Ayam Percik, where the
+    // serving count is still wrong). Whatever the cause, a figure outside human
+    // range is evidence the inputs were broken — so say we don't know and let
+    // the ~category estimate answer. Catches ~6% of the catalogue.
+    const kcalPerServing = round(sum("kcal") / perServing, 0);
+    if (!Number.isFinite(kcalPerServing)) return null;
+    if (kcalPerServing < MIN_PLAUSIBLE_KCAL || kcalPerServing > MAX_PLAUSIBLE_KCAL) return null;
+
     const gramsTotal = usable.reduce((a, r) => a + r.parsed.grams, 0);
-    // The servings guess is wrong — see MAX_PLAUSIBLE_SERVING_GRAMS. Refuse
-    // rather than divide by a number we know is not the recipe's yield.
-    if (gramsTotal / perServing > MAX_PLAUSIBLE_SERVING_GRAMS) return null;
+    // Only a fallback: with curated facts the serving count is read from the
+    // recipe rather than assumed, so this backstop does not apply.
+    if (!facts && gramsTotal / perServing > MAX_PLAUSIBLE_SERVING_GRAMS) return null;
 
     // Confidence weights the two failure modes differently:
     //  - unmatched → the line is dropped from the sum, so the total is WRONG
@@ -144,7 +197,7 @@ export const usdaProvider = {
     const confidence = doubt === 0 ? "high" : doubt <= 0.2 ? "medium" : "low";
 
     return {
-      kcal: per(sum("kcal"), 0),
+      kcal: kcalPerServing,
       protein_g: per(sum("protein_g"), 1),
       carbs_g: per(sum("carbs_g"), 1),
       fat_g: per(sum("fat_g"), 1),

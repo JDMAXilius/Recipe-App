@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { View, Text } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
+import { useNutrition } from "../context/NutritionContext";
 import { createRecipeCardStyles } from "../assets/styles/home.styles";
 import { getNutritionEstimate } from "../constants/nutritionEstimates";
 import PawMark from "./PawMark";
@@ -22,19 +23,19 @@ export default function RecipeCard({ recipe }) {
   const estimate = getNutritionEstimate(recipe.category);
   const isOwn = recipe.source === "manual" || recipe.source === "imported";
 
-  // Computed nutrition for YOUR recipes; category estimate for seed recipes.
-  //
-  // Seed recipes cannot be computed honestly: TheMealDB has no servings field
-  // (so every per-serving figure divides by a guessed 4 — "2kg Shredded Meat"
-  // became 1200 kcal/serving) and its ingredient lines never say raw or cooked
-  // ("3 cups brown rice" added already-cooked read 789 vs a true ~415; "1 Can
-  // Black Beans" hit the dry-bean row at 4x). On every recipe checked by hand
-  // the category estimate was CLOSER than the computed number.
-  //
-  // Your recipes have neither problem: you give the real servings and your own
-  // ingredient lines, so the backend's per-serving figure is trustworthy and
-  // rides along on the row — no fetch needed.
-  const computed = isOwn ? recipe.nutrition : null;
+  // Prefer the computed figure so the card and the detail screen agree — they
+  // used to read 450 and 255 for the same recipe. The context batches every
+  // card on screen into one request and caches for the session; user recipes
+  // carry their own nutrition, so they are skipped.
+  const { getNutrition, request } = useNutrition();
+  useEffect(() => {
+    if (!isOwn) request(recipe.id);
+  }, [recipe.id, isOwn, request]);
+
+  const computed = isOwn ? recipe.nutrition : getNutrition(recipe.id);
+  // undefined = still loading → show the estimate rather than a spinner or a
+  // gap. null = the backend honestly can't compute it → the estimate IS the
+  // answer. Either way the badge below says which one is on screen.
   const kcal = computed?.kcal ?? estimate.calories;
   const isComputed = Number.isFinite(computed?.kcal);
 

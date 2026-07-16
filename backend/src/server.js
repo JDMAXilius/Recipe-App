@@ -8,8 +8,8 @@ import { importRecipeFromUrl } from "./lib/importRecipe.js";
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
-import { apiLimiter, costlyLimiter } from "./lib/rateLimits.js";
-import { backfillUserRecipeNutrition, nutritionActive } from "./lib/nutrition/lifecycle.js";
+import { apiLimiter, costlyLimiter, seedReadLimiter } from "./lib/rateLimits.js";
+import { backfillUserRecipeNutrition, seedNutritionFor, nutritionActive } from "./lib/nutrition/lifecycle.js";
 
 const app = express();
 const PORT = ENV.PORT || 5001;
@@ -244,6 +244,60 @@ app.post("/api/recipes/:id/nutrition/recompute", requireAuth, costlyLimiter, asy
     res.status(202).json({ queued: true });
   } catch (error) {
     reportError(error, { msg: "recompute nutrition failed", userId: req.userId });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// Seed (TheMealDB) nutrition — cache-first, compute-once-per-recipe. Browsing
+// fires one of these per detail view, so it gets its own generous limiter —
+// NEVER the import budget (QA P1-1); the compute-once cache guards the spend.
+app.get("/api/nutrition/seed/:mealId", requireAuth, seedReadLimiter, async (req, res) => {
+  try {
+    const mealId = String(req.params.mealId).trim();
+    if (!/^\d{1,10}$/.test(mealId)) return res.status(400).json({ error: "Bad id" });
+    const nutrition = await seedNutritionFor(mealId);
+    res.status(200).json({ recipeId: mealId, nutrition });
+  } catch (error) {
+    reportError(error, { msg: "seed nutrition failed", mealId: req.params.mealId });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// Batch seed nutrition — one call for a whole grid of cards.
+//
+// Why this exists: RecipeCard showed a category-typical estimate (every beef
+// dish "450 CAL") while the detail screen showed the computed figure, so the
+// same recipe read 450 on the card and 255 on the page it opened. The rule in
+// mobile/constants/nutritionEstimates.js is that one estimator feeds both "so
+// numbers never disagree"; B1 broke it.
+//
+// Cards cannot compute for themselves — TheMealDB's filter.php returns only
+// id/title/image, no ingredients — so the numbers have to come from here.
+// Per-card requests would be ~20 round trips per screen; this is one.
+//
+// Reads are cache-first (seedNutritionFor), and a null value is meaningful:
+// it means "honestly unknown" and the card keeps its ~estimate.
+app.get("/api/nutrition/seed", requireAuth, seedReadLimiter, async (req, res) => {
+  try {
+    const raw = String(req.query.ids || "").trim();
+    if (!raw) return res.status(400).json({ error: "Missing ids" });
+    const ids = [...new Set(raw.split(",").map((s) => s.trim()).filter(Boolean))];
+    // Bounded so one request can't fan out into an unbounded compute job.
+    if (ids.length > 40) return res.status(400).json({ error: "Too many ids (max 40)" });
+    if (!ids.every((id) => /^\d{1,10}$/.test(id))) {
+      return res.status(400).json({ error: "Bad id" });
+    }
+    const pairs = await Promise.all(
+      ids.map(async (id) => {
+        // One bad recipe must not fail the whole grid — null just means the
+        // card keeps its estimate.
+        const nutrition = await seedNutritionFor(id).catch(() => null);
+        return [id, nutrition];
+      })
+    );
+    res.status(200).json({ nutrition: Object.fromEntries(pairs) });
+  } catch (error) {
+    reportError(error, { msg: "batch seed nutrition failed" });
     res.status(500).json({ error: "Something went wrong" });
   }
 });

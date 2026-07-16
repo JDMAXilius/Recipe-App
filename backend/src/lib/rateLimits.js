@@ -22,3 +22,16 @@ export const costlyLimiter = rateLimit({
   keyGenerator: (req) => req.userId, // always mounted after requireAuth
   message: { error: "Too many requests — give it a few minutes and try again" },
 });
+
+// Seed-nutrition views are cache-first reads (browsing recipes fires one per
+// detail view) — they must NEVER share the import budget (QA P1-1). Generous
+// per-user ceiling; the compute path is additionally guarded by the
+// compute-once cache itself.
+export const seedReadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 120,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  keyGenerator: (req) => req.userId,
+  message: { error: "Too many requests — give it a few minutes and try again" },
+});
