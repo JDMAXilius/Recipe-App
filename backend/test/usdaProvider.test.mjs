@@ -136,3 +136,32 @@ test("known ingredients match real-world values — guards the kJ/kcal trap", ()
     assert.ok(off <= 0.35, `${name}: ${row.kcal} kcal vs expected ~${kcal} (${row.usda})`);
   }
 });
+
+test("refuses a volume-measured grain rather than ship a ~2x error", async () => {
+  // TheMealDB 52772: "3 cups brown rice" that the instructions add ALREADY
+  // COOKED. Raw brown rice is 360 kcal/100g, cooked 123 — we shipped 789
+  // kcal/serving against a true ~415. The parser rates the line "high", so
+  // confidence cannot warn. null → UI falls back to the ~category estimate.
+  const out = await usdaProvider.computeNutrition(
+    [
+      { measure: "2", name: "chicken breasts" },
+      { measure: "3 cups", name: "brown rice" },
+    ],
+    4
+  );
+  assert.equal(out, null, "volume-measured grain must refuse, not guess");
+});
+
+test("a grain measured by WEIGHT still computes — that shape means raw", async () => {
+  const out = await usdaProvider.computeNutrition([{ measure: "200g", name: "Brown Rice" }], 2);
+  assert.ok(out, "weight-measured grain should still compute");
+  assert.ok(out.kcal > 300, `expected ~360, got ${out?.kcal}`);
+});
+
+test("non-grain recipes are unaffected by the guard", async () => {
+  const out = await usdaProvider.computeNutrition(
+    [{ measure: "200g", name: "Chicken" }, { measure: "1 cup", name: "Carrots" }],
+    2
+  );
+  assert.ok(out, "a cup of carrots is not ambiguous");
+});

@@ -28,6 +28,42 @@ const round = (n, dp = 0) =>
 
 const key = (s) => String(s || "").trim().toLowerCase();
 
+// RAW-vs-COOKED GUARD.
+//
+// "3 cups brown rice" does not say whether the rice is raw or cooked, and the
+// two differ ~3x (brown rice: 360 kcal/100g raw, 123 cooked). The table holds
+// the raw record, which is right when a recipe cooks the grain and wrong when
+// it assembles one already cooked. TheMealDB 52772 is the latter — its
+// instructions say "add the cooked vegetables and rice" — and we shipped 789
+// kcal/serving against a true ~415. The category estimate (~400) was closer.
+//
+// Nothing in an ingredient LINE resolves this; only the instructions do. And
+// the parser rates these lines "high" confidence (the grams are fine — it is
+// the food identity that is wrong), so the confidence field cannot warn about
+// it. That makes it the one failure the honesty law most forbids: silently,
+// confidently wrong.
+//
+// So refuse the recipe instead. null means "honestly unknown" and the UI falls
+// back to the ~category estimate, which is cruder but not a fabrication.
+// Deliberately whole-recipe, not per-line: dropping the grain would understate
+// the total by more than the estimate errs.
+//
+// ponytail: a blunt guard. The real fix reads the instructions ("add the
+// cooked rice") and picks the cooked record — that is an LLM-shaped language
+// task with USDA still supplying every number, and it needs a key + budget.
+const AMBIGUOUS_GRAIN =
+  /\b(rice|pasta|spaghetti|macaroni|noodles?|penne|rigatoni|tagliatelle|fettuccine|linguine|farfalle|couscous|quinoa|bulgur|orzo|barley|farro|lentils?|oats|polenta|grits)\b/i;
+const VOLUME_MEASURE = /\b(cups?|c\.)\b/i;
+
+// A grain measured by VOLUME is the high-risk shape: "3 cups rice" reads
+// naturally as either. Weight ("400g rice") almost always means raw in a
+// recipe, so it is left alone rather than nulling half the catalogue.
+function hasAmbiguousGrain(list) {
+  return list.some(
+    (p) => AMBIGUOUS_GRAIN.test(String(p.name || "")) && VOLUME_MEASURE.test(String(p.measure || ""))
+  );
+}
+
 // Seed recipes arrive as { measure, name } where `name` IS the TheMealDB
 // ingredient name the table is keyed on — so it matches directly. User-written
 // recipes are freeform, so fall back to the parser's extracted item
@@ -43,6 +79,8 @@ export const usdaProvider = {
   async computeNutrition(ingredients, servings) {
     const list = (ingredients || []).filter((p) => p && (p.name || p.measure));
     if (!list.length) return null;
+    // Refuse rather than ship a confident ~2x error — see AMBIGUOUS_GRAIN.
+    if (hasAmbiguousGrain(list)) return null;
     const perServing = Math.max(1, Number(servings) || 1);
 
     const rows = list.map((p) => {
