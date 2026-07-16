@@ -336,6 +336,20 @@ const RecipeDetailScreen = () => {
         </View>
 
         <View style={recipeDetailStyles.contentSection}>
+          {/* NUTRITION — sits directly under the attribution/meta block, above
+              Ingredients (founder call, 2026-07-16). Was after Method
+              (Crouton/ReciMe placement). It reads the SAME `servings` the
+              stepper drives, so "whole recipe" tracks the scaled ingredients;
+              per-serving is per-serving and correctly does not move. */}
+          <View style={recipeDetailStyles.sectionContainer}>
+            <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
+            <NutritionCard
+              {...getNutritionEstimate(recipe.category)}
+              computed={computedNutrition}
+              servings={servings}
+            />
+          </View>
+
           {/* INGREDIENTS — live scaling + US/Metric (deep-dive blueprint) */}
           <View style={recipeDetailStyles.sectionContainer}>
             <View style={recipeDetailStyles.sectionHeaderRow}>
@@ -525,16 +539,6 @@ const RecipeDetailScreen = () => {
             })}
           </View>
           )}
-
-          {/* NUTRITION — after Method (Crouton/ReciMe placement) */}
-          <View style={recipeDetailStyles.sectionContainer}>
-            <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
-            <NutritionCard
-              {...getNutritionEstimate(recipe.category)}
-              computed={computedNutrition}
-              servings={servings}
-            />
-          </View>
 
           {/* EXIT — the page never dead-ends on a data card */}
           {related.length > 0 && (
