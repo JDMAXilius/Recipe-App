@@ -1,4 +1,6 @@
-# 🧰 App Kit — replicate a full app (frontend + backend) on any new project
+# 🧰 Reusable App Kit — replicate a full app (frontend + backend) on any new project
+
+> **Portable:** copy this entire `reusable-app/` folder into any new repo and follow the 3 steps.
 
 A **portable, app-agnostic kit** for standing up a new app the way Otto was built: a complete
 **Figma master board** (frontend/design) *and* a **backend data-services spine** — with a **clean
@@ -27,7 +29,7 @@ Change the contract deliberately, in one place, and both sides update.
 
 ## Folder map
 ```
-app-kit/
+reusable-app/
   README.md                    ← this file
   EXAMPLE-otto.md              ← one worked example (shared + FE + BE), filled for Otto
   shared/
