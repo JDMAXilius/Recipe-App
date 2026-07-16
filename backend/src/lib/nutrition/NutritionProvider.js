@@ -15,17 +15,20 @@
 // Honesty law: null beats a guess. Callers render nothing (or the old
 // category estimate) when this returns null — never a fabricated number.
 
-import { ENV } from "../../config/env.js";
-import { foodDbProvider } from "./foodDbProvider.js";
+import { usdaProvider } from "./usdaProvider.js";
 
-// Both Edamam products authenticate with the same APP_ID/APP_KEY pair, so env
-// cannot tell them apart — the active provider is a deliberate choice. The
-// account's plan is Food DB, so that is the live path. edamamProvider.js
-// (Recipe Nutrition Analysis) is kept for the day that subscription is bought:
-// it needs no code change, only swapping the import here.
+// USDA is the live provider and needs no keys: usdaTable.json ships with the
+// app, so nutrition works offline, for free, forever.
+//
+// It replaced Edamam on licensing, not price. Edamam's Food DB Enterprise Basic
+// permits caching "FoodId, Food Label" only and forbids "automated programatic
+// requests with the goal to collect, scrape or save data" — and Otto's design
+// is a permanent per-recipe cache, so no Edamam tier under $299/mo could hold
+// it legally. USDA FoodData Central is public domain (CC0): store it, ship it,
+// redistribute it. edamamProvider.js / foodDbProvider.js remain for reference
+// if a caching-permitted Edamam tier is ever bought.
 export function activeNutritionProvider() {
-  if (ENV.EDAMAM_APP_ID && ENV.EDAMAM_APP_KEY) return foodDbProvider;
-  return null; // no keys yet — pipeline stays dormant, UI keeps estimate framing
+  return usdaProvider;
 }
 
 export async function computeNutrition(ingredients, servings) {
