@@ -123,6 +123,40 @@ test("no ingredients → null", async () => {
   assert.equal(await foodDbProvider.computeNutrition(null, 4), null);
 });
 
+test("never exceeds the concurrency cap — a 429 storm drops ingredients silently", async () => {
+  let inFlight = 0;
+  let peak = 0;
+  const counting = async (url, options) => {
+    inFlight++;
+    peak = Math.max(peak, inFlight);
+    await new Promise((r) => setTimeout(r, 5));
+    inFlight--;
+    return stubFetch({ panel: simplePanel })(url, options);
+  };
+  await withStub(counting, () =>
+    foodDbProvider.computeNutrition(
+      Array.from({ length: 12 }, (_, i) => ({ measure: "100g", name: `thing ${i}` })),
+      4
+    )
+  );
+  assert.ok(peak <= 2, `peak concurrency ${peak} exceeded cap of 2`);
+});
+
+test("retries a 429 rather than recording a false miss", async () => {
+  let calls = 0;
+  const flaky = async (url, options) => {
+    calls++;
+    if (calls <= 2) return { ok: false, status: 429, json: async () => ({}) };
+    return stubFetch({ panel: simplePanel })(url, options);
+  };
+  const out = await withStub(flaky, () =>
+    foodDbProvider.computeNutrition([{ measure: "100g", name: "thing a" }], 1)
+  );
+  // without retry the first 429 would drop the only ingredient → null
+  assert.ok(out, "429 should be retried, not treated as unmatched");
+  assert.equal(out.kcal, 100);
+});
+
 test("upstream failure → null, not a partial total", async () => {
   const failing = async () => ({ ok: false, status: 429, json: async () => ({}) });
   const out = await withStub(failing, () =>

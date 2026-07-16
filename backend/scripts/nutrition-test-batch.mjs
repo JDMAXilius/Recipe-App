@@ -6,7 +6,7 @@
 // Run from backend/:  node --env-file=.env scripts/nutrition-test-batch.mjs [count]
 // Needs: SPOONACULAR_KEY (vendor truth) + EDAMAM_APP_ID/EDAMAM_APP_KEY (our pipeline).
 import postgres from "postgres";
-import { edamamProvider } from "../src/lib/nutrition/edamamProvider.js";
+import { computeNutrition } from "../src/lib/nutrition/NutritionProvider.js";
 import { ENV } from "../src/config/env.js";
 
 const COUNT = Math.min(Number(process.argv[2]) || 50, 100);
@@ -41,7 +41,9 @@ for (const r of results) {
   const vendorPerServing = Object.fromEntries(
     (r.nutrition?.nutrients || []).map((n) => [n.name, n.amount])
   );
-  const ours = await edamamProvider.computeNutrition(ingredients, servings).catch(() => null);
+  // go through the seam, not a named adapter — this script must always test
+  // whatever provider is actually live (B1.2b: Food DB, not Nutrition Analysis)
+  const ours = await computeNutrition(ingredients, servings).catch(() => null);
   if (!ours) {
     report.push({ id: r.id, title: r.title, skipped: "our pipeline returned null" });
     continue;

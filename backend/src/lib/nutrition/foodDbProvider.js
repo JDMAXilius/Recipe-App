@@ -29,12 +29,51 @@ const round = (n, dp = 0) =>
 
 const auth = () => `app_id=${ENV.EDAMAM_APP_ID}&app_key=${ENV.EDAMAM_APP_KEY}`;
 
+// Edamam rate-limits hard and exposes NO limit/remaining/reset headers, so the
+// ceiling can only be respected empirically: firing one recipe's ingredients at
+// once (a 20-line recipe = 40 calls) returned a wall of 429s, and every 429
+// surfaces as a dropped ingredient — i.e. a silently understated total. Nutrition
+// is computed async-on-save and cached per recipe, so trading latency for
+// correctness here is free.
+// ponytail: fixed pool of 2 + backoff. Raise if Edamam ever documents a limit.
+const CONCURRENCY = 2;
+const RETRIES = 3;
+
+async function pooledMap(items, fn) {
+  const out = new Array(items.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const i = next++;
+      out[i] = await fn(items[i]);
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(CONCURRENCY, items.length) }, worker)
+  );
+  return out;
+}
+
+// A 429 is transient, not an answer — retrying beats recording a false miss.
+async function fetchRetrying(url, options = {}) {
+  let response;
+  for (let attempt = 0; attempt < RETRIES; attempt++) {
+    response = await fetch(url, { signal: AbortSignal.timeout(15000), ...options });
+    if (response.status !== 429) return response;
+    if (attempt < RETRIES - 1) {
+      await new Promise((r) => setTimeout(r, 600 * 2 ** attempt)); // 600ms, 1.2s
+    }
+  }
+  logger.warn({ url: String(url).split("?")[0] }, "food-db still 429 after retries");
+  return response;
+}
+
 // Resolve one ingredient name → foodId. null when Food DB has no match: the
 // line is dropped from the sum and counted against confidence.
 async function resolveFoodId(item) {
   try {
     const url = `${PARSER}?${auth()}&ingr=${encodeURIComponent(item)}`;
-    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    const response = await fetchRetrying(url);
     if (!response.ok) {
       logger.warn({ status: response.status, item }, "food-db parser failed");
       return null;
@@ -52,13 +91,12 @@ async function resolveFoodId(item) {
 // One food at its gram weight → full nutrient panel. null on any failure.
 async function fetchPanel(foodId, grams) {
   try {
-    const response = await fetch(`${NUTRIENTS}?${auth()}`, {
+    const response = await fetchRetrying(`${NUTRIENTS}?${auth()}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         ingredients: [{ quantity: grams, measureURI: GRAM, foodId }],
       }),
-      signal: AbortSignal.timeout(15000),
     });
     if (!response.ok) {
       logger.warn({ status: response.status, foodId }, "food-db nutrients failed");
@@ -82,18 +120,13 @@ export const foodDbProvider = {
     if (!lines.length) return null;
     const perServing = Math.max(1, Number(servings) || 1);
 
-    // ponytail: every ingredient's 2-call chain runs concurrently — ~10-20 in
-    // flight for a real recipe, and cached per recipe after. Add a concurrency
-    // cap if Edamam starts 429ing.
-    const results = await Promise.all(
-      lines.map(async (line) => {
-        const p = parseIngredientLine(line);
-        if (!(p.grams > 0)) return { p, panel: null };
-        const foodId = await resolveFoodId(p.item);
-        const panel = foodId ? await fetchPanel(foodId, p.grams) : null;
-        return { p, panel };
-      })
-    );
+    const results = await pooledMap(lines, async (line) => {
+      const p = parseIngredientLine(line);
+      if (!(p.grams > 0)) return { p, panel: null };
+      const foodId = await resolveFoodId(p.item);
+      const panel = foodId ? await fetchPanel(foodId, p.grams) : null;
+      return { p, panel };
+    });
 
     const usable = results.filter((r) => r.panel);
     if (!usable.length) return null; // matched nothing — honestly unknown
