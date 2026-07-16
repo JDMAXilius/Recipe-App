@@ -5,7 +5,6 @@ import { db } from "./config/db.js";
 import { favoritesTable, recipesTable, planEntriesTable } from "./db/schema.js";
 import { and, eq, desc, asc, gte, lte } from "drizzle-orm";
 import { importRecipeFromUrl } from "./lib/importRecipe.js";
-import job from "./config/cron.js";
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
@@ -14,8 +13,6 @@ import { backfillUserRecipeNutrition, seedNutritionFor, nutritionActive } from "
 
 const app = express();
 const PORT = ENV.PORT || 5001;
-
-if (ENV.NODE_ENV === "production") job.start();
 
 // Behind a proxy in production, the client IP lives in X-Forwarded-For —
 // without this the per-IP limiter would throttle the proxy, not users.

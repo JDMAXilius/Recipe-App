@@ -17,7 +17,6 @@
     "@sentry/node": "^10.65.0",
     "@supabase/supabase-js": "^2.110.5",
     "cors": "^2.8.5",
-    "cron": "^4.3.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.2",
     "express": "^5.1.0",
