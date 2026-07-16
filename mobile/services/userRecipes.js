@@ -90,6 +90,16 @@ export const NutritionAPI = {
     const res = await authFetch(`/nutrition/seed/${mealId}`);
     return parseOrThrow(res, "Couldn't load nutrition");
   },
+
+  // Batch — one call for a grid of cards. Returns { nutrition: { id: obj|null } };
+  // null means honestly unknown and the card keeps its ~category estimate.
+  // Server caps at 40 ids per request.
+  seedBatch: async (mealIds) => {
+    const ids = (mealIds || []).filter(Boolean).slice(0, 40);
+    if (!ids.length) return { nutrition: {} };
+    const res = await authFetch(`/nutrition/seed?ids=${ids.join(",")}`);
+    return parseOrThrow(res, "Couldn't load nutrition");
+  },
 };
 
 export const PlanAPI = {

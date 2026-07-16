@@ -263,6 +263,45 @@ app.get("/api/nutrition/seed/:mealId", requireAuth, seedReadLimiter, async (req,
   }
 });
 
+// Batch seed nutrition — one call for a whole grid of cards.
+//
+// Why this exists: RecipeCard showed a category-typical estimate (every beef
+// dish "450 CAL") while the detail screen showed the computed figure, so the
+// same recipe read 450 on the card and 255 on the page it opened. The rule in
+// mobile/constants/nutritionEstimates.js is that one estimator feeds both "so
+// numbers never disagree"; B1 broke it.
+//
+// Cards cannot compute for themselves — TheMealDB's filter.php returns only
+// id/title/image, no ingredients — so the numbers have to come from here.
+// Per-card requests would be ~20 round trips per screen; this is one.
+//
+// Reads are cache-first (seedNutritionFor), and a null value is meaningful:
+// it means "honestly unknown" and the card keeps its ~estimate.
+app.get("/api/nutrition/seed", requireAuth, seedReadLimiter, async (req, res) => {
+  try {
+    const raw = String(req.query.ids || "").trim();
+    if (!raw) return res.status(400).json({ error: "Missing ids" });
+    const ids = [...new Set(raw.split(",").map((s) => s.trim()).filter(Boolean))];
+    // Bounded so one request can't fan out into an unbounded compute job.
+    if (ids.length > 40) return res.status(400).json({ error: "Too many ids (max 40)" });
+    if (!ids.every((id) => /^\d{1,10}$/.test(id))) {
+      return res.status(400).json({ error: "Bad id" });
+    }
+    const pairs = await Promise.all(
+      ids.map(async (id) => {
+        // One bad recipe must not fail the whole grid — null just means the
+        // card keeps its estimate.
+        const nutrition = await seedNutritionFor(id).catch(() => null);
+        return [id, nutrition];
+      })
+    );
+    res.status(200).json({ nutrition: Object.fromEntries(pairs) });
+  } catch (error) {
+    reportError(error, { msg: "batch seed nutrition failed" });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
 // ------------------------------------------------------------ OTTO'S WEEK
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 

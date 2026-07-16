@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { View, Text } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
+import { useNutrition } from "../context/NutritionContext";
 import { createRecipeCardStyles } from "../assets/styles/home.styles";
 import { getNutritionEstimate } from "../constants/nutritionEstimates";
 import PawMark from "./PawMark";
@@ -22,6 +23,22 @@ export default function RecipeCard({ recipe }) {
   const estimate = getNutritionEstimate(recipe.category);
   const isOwn = recipe.source === "manual" || recipe.source === "imported";
 
+  // Prefer the computed figure so the card and the detail screen agree — they
+  // used to read 450 and 255 for the same recipe. The context batches every
+  // card on screen into one request and caches for the session; user recipes
+  // carry their own nutrition, so they are skipped.
+  const { getNutrition, request } = useNutrition();
+  useEffect(() => {
+    if (!isOwn) request(recipe.id);
+  }, [recipe.id, isOwn, request]);
+
+  const computed = isOwn ? recipe.nutrition : getNutrition(recipe.id);
+  // undefined = still loading → show the estimate rather than a spinner or a
+  // gap. null = the backend honestly can't compute it → the estimate IS the
+  // answer. Either way the badge below says which one is on screen.
+  const kcal = computed?.kcal ?? estimate.calories;
+  const isComputed = Number.isFinite(computed?.kcal);
+
   return (
     <Bounceable
       style={recipeCardStyles.container}
@@ -36,9 +53,15 @@ export default function RecipeCard({ recipe }) {
           contentFit="cover"
           transition={300}
         />
+        {/* "~" marks a category-typical estimate; a bare number is computed
+            from this recipe's own ingredients. Honesty law: never present an
+            estimate with the precision of a measurement. */}
         <View style={recipeCardStyles.calorieBadge}>
           <View style={recipeCardStyles.calorieDot} />
-          <Text style={recipeCardStyles.calorieBadgeText}>{estimate.calories} cal</Text>
+          <Text style={recipeCardStyles.calorieBadgeText}>
+            {isComputed ? "" : "~"}
+            {kcal} cal
+          </Text>
         </View>
         {!isOwn && <PawMark recipe={recipe} style={recipeCardStyles.pawPosition} />}
         {recipe.source === "manual" && (

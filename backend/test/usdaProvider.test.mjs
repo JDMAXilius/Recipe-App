@@ -165,3 +165,39 @@ test("non-grain recipes are unaffected by the guard", async () => {
   );
   assert.ok(out, "a cup of carrots is not ambiguous");
 });
+
+test("refuses canned legumes — the table holds DRY beans", async () => {
+  // "1 Can Black Beans" is cooked+drained (~91 kcal/100g); the table row is dry
+  // (341). Arepa Pabellón read 1364 kcal off this one line.
+  const out = await usdaProvider.computeNutrition(
+    [{ measure: "1 Can", name: "Black Beans" }, { measure: "200g", name: "Tomato" }],
+    4
+  );
+  assert.equal(out, null, "canned legume must refuse, not use the dry row");
+});
+
+test("dry beans by weight still compute", async () => {
+  const out = await usdaProvider.computeNutrition([{ measure: "200g", name: "Black Beans" }], 2);
+  assert.ok(out, "weight-measured beans are unambiguous");
+});
+
+test("refuses only an absurd portion — a backstop, not a fix", async () => {
+  // TheMealDB has no servings field so callers pass 4. Measured across 742
+  // recipes, per-serving weight runs <300g (50%), 300-500g (29%), 500-700g
+  // (14%) — so only ~50 recipes clear 700g and they are plainly broken
+  // (Vegetable Shepherds Pie: 1489g/serving). This catches those.
+  //
+  // It does NOT catch Arepa Pabellón (675g/serving, 2kg of meat) — that recipe
+  // simply serves more than 4 and nothing in the data says so. The servings
+  // guess is a systematic error this guard cannot repair.
+  const out = await usdaProvider.computeNutrition([{ measure: "6kg", name: "Shredded Meat" }], 4);
+  assert.equal(out, null, "1500g/serving is not a portion");
+});
+
+test("a normal-sized recipe is unaffected by the portion guard", async () => {
+  const out = await usdaProvider.computeNutrition(
+    [{ measure: "500g", name: "Chicken" }, { measure: "300g", name: "Potatoes" }],
+    4
+  );
+  assert.ok(out, "200g/serving is plausible and must still compute");
+});

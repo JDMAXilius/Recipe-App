@@ -55,14 +55,36 @@ const AMBIGUOUS_GRAIN =
   /\b(rice|pasta|spaghetti|macaroni|noodles?|penne|rigatoni|tagliatelle|fettuccine|linguine|farfalle|couscous|quinoa|bulgur|orzo|barley|farro|lentils?|oats|polenta|grits)\b/i;
 const VOLUME_MEASURE = /\b(cups?|c\.)\b/i;
 
+// Same trap in legumes: the table holds DRY beans (black beans, 341 kcal/100g)
+// but "1 Can Black Beans" is cooked and drained (~91). Arepa Pabellón read
+// 1364 kcal off one bean line alone. A can/tin measure means cooked; the table
+// row does not, and it cannot vary per line.
+const LEGUME = /\b(beans?|chickpeas?|lentils?|peas)\b/i;
+const CANNED_MEASURE = /\b(cans?|tins?|tinned|canned)\b/i;
+
 // A grain measured by VOLUME is the high-risk shape: "3 cups rice" reads
 // naturally as either. Weight ("400g rice") almost always means raw in a
 // recipe, so it is left alone rather than nulling half the catalogue.
 function hasAmbiguousGrain(list) {
-  return list.some(
-    (p) => AMBIGUOUS_GRAIN.test(String(p.name || "")) && VOLUME_MEASURE.test(String(p.measure || ""))
-  );
+  return list.some((p) => {
+    const name = String(p.name || "");
+    const measure = String(p.measure || "");
+    if (AMBIGUOUS_GRAIN.test(name) && VOLUME_MEASURE.test(measure)) return true;
+    if (LEGUME.test(name) && CANNED_MEASURE.test(measure)) return true;
+    return false;
+  });
 }
+
+// TheMealDB ships no servings field, so callers pass a flat default of 4. That
+// is fine for a weeknight dinner and nonsense for a party dish: Arepa Pabellón
+// lists "2kg Shredded Meat", which at 4 servings implies 500g of meat per
+// person and produced a 1200 kcal/serving card.
+//
+// There is no signal in the data to tell us the real yield, so treat an
+// implausible per-serving weight as proof the assumption broke. ~700g of total
+// ingredients per serving is already a very large plate; beyond that we are
+// dividing by the wrong number and should say we don't know.
+const MAX_PLAUSIBLE_SERVING_GRAMS = 700;
 
 // Seed recipes arrive as { measure, name } where `name` IS the TheMealDB
 // ingredient name the table is keyed on — so it matches directly. User-written
@@ -107,6 +129,9 @@ export const usdaProvider = {
     const per = (v, dp) => (v == null ? null : round(v / perServing, dp));
 
     const gramsTotal = usable.reduce((a, r) => a + r.parsed.grams, 0);
+    // The servings guess is wrong — see MAX_PLAUSIBLE_SERVING_GRAMS. Refuse
+    // rather than divide by a number we know is not the recipe's yield.
+    if (gramsTotal / perServing > MAX_PLAUSIBLE_SERVING_GRAMS) return null;
 
     // Confidence weights the two failure modes differently:
     //  - unmatched → the line is dropped from the sum, so the total is WRONG
