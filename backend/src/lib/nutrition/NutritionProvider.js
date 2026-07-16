@@ -16,10 +16,15 @@
 // category estimate) when this returns null — never a fabricated number.
 
 import { ENV } from "../../config/env.js";
-import { edamamProvider } from "./edamamProvider.js";
+import { foodDbProvider } from "./foodDbProvider.js";
 
+// Both Edamam products authenticate with the same APP_ID/APP_KEY pair, so env
+// cannot tell them apart — the active provider is a deliberate choice. The
+// account's plan is Food DB, so that is the live path. edamamProvider.js
+// (Recipe Nutrition Analysis) is kept for the day that subscription is bought:
+// it needs no code change, only swapping the import here.
 export function activeNutritionProvider() {
-  if (ENV.EDAMAM_APP_ID && ENV.EDAMAM_APP_KEY) return edamamProvider;
+  if (ENV.EDAMAM_APP_ID && ENV.EDAMAM_APP_KEY) return foodDbProvider;
   return null; // no keys yet — pipeline stays dormant, UI keeps estimate framing
 }
 
