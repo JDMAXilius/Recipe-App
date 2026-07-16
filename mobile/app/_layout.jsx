@@ -8,7 +8,6 @@ import { AuthProvider } from "../context/AuthContext";
 import { ThemeProvider } from "../context/ThemeContext";
 import { SavedProvider } from "../context/SavedContext";
 import { ToastProvider } from "../context/ToastContext";
-import { NutritionProvider } from "../context/NutritionContext";
 
 export default function RootLayout() {
   // Lora = the display serif (docs/DESIGN_SYSTEM.md B2). Body text stays system.
@@ -20,18 +19,14 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
         <AuthProvider>
-          {/* NutritionProvider needs the session (cards fetch via authFetch),
-              so it sits inside AuthProvider. */}
-          <NutritionProvider>
-            <SavedProvider>
-              <ToastProvider>
-                <SafeScreen>
-                  <Slot />
-                  {!splashDone && <AnimatedSplash onDone={() => setSplashDone(true)} />}
-                </SafeScreen>
-              </ToastProvider>
-            </SavedProvider>
-          </NutritionProvider>
+          <SavedProvider>
+            <ToastProvider>
+              <SafeScreen>
+                <Slot />
+                {!splashDone && <AnimatedSplash onDone={() => setSplashDone(true)} />}
+              </SafeScreen>
+            </ToastProvider>
+          </SavedProvider>
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

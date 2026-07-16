@@ -9,7 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import * as Haptics from "expo-haptics";
 import { MealAPI } from "../../services/mealAPI";
-import { UserRecipeAPI, transformUserRecipe, isUserRecipeId, PlanAPI, NutritionAPI } from "../../services/userRecipes";
+import { UserRecipeAPI, transformUserRecipe, isUserRecipeId, PlanAPI } from "../../services/userRecipes";
 import { weekDays } from "../../lib/week";
 import { useToast } from "../../context/ToastContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -93,11 +93,15 @@ const RecipeDetailScreen = () => {
           if (transformed.servings) setServings(transformed.servings);
           return;
         }
-        // seed nutrition: cached server-side; null while the provider is
-        // dormant or the visitor is anonymous — card keeps the estimate
-        NutritionAPI.seed(recipeId)
-          .then((r) => setComputedNutrition(r?.nutrition || null))
-          .catch(() => setComputedNutrition(null));
+        // Seed recipes keep the ~category estimate — deliberately, not for want
+        // of a pipeline. TheMealDB has no servings field, so every per-serving
+        // figure divided by a guessed 4 ("2kg Shredded Meat" → 1200 kcal), and
+        // its lines never say raw or cooked ("3 cups brown rice" added already
+        // cooked read 789 vs a true ~415). On every recipe checked by hand the
+        // estimate was closer than the computed number. Your own recipes are
+        // computed (real servings, your own lines) — see the isUserRecipeId
+        // branch above.
+        setComputedNutrition(null);
         const mealData = await MealAPI.getMealById(recipeId);
         if (mealData) {
           const transformedRecipe = MealAPI.transformMealData(mealData);
