@@ -64,4 +64,16 @@ app-kit/
 - **Honest by construction** — both `CONTEXT.md`s carry the same honesty law (state only true facts;
   label estimates; no invented data), so the board and the API tell the same truth.
 
+## This repo IS the reference implementation
+Alongside the `*.template.md` files, this repo carries Otto's **filled** instances (the convention the
+templates point to — same name, `.template` dropped):
+- `shared/APP-CONFIG.md` · `shared/CONTRACT.md` — derived 1:1 from the running code (`backend/src/*`,
+  `mobile/services/*`, `schema.js`).
+- `frontend/SCREEN-MAP.md` — the real screen inventory, each screen tied to its contract data, with
+  **contract gaps flagged** (shopping list, entitlements, by-ingredient/photo/video import).
+- `EXAMPLE-otto.md` — the condensed walkthrough.
+
+So a new app copies the `.template.md` files and fills its own; Otto's filled files stay as the worked
+reference. When the code changes, update the filled files (they're a mirror, not a snapshot).
+
 *(Supersedes the earlier `docs/figma-kit/` — that content now lives, generalized, under `frontend/`.)*
