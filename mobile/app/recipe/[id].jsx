@@ -385,6 +385,21 @@ const RecipeDetailScreen = () => {
                 {servings === 1 ? "serving" : "servings"}
               </Text>
               <View style={recipeDetailStyles.servesControls}>
+                {/* Reset sits beside the stepper, not under it: it belongs to
+                    the control it undoes, and a chip appearing below used to
+                    push the ingredient rows down as soon as you tapped +. */}
+                {scaleFactor !== 1 && (
+                  <TouchableOpacity
+                    style={recipeDetailStyles.scaleChip}
+                    onPress={() => tickServings(baseServings)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Reset servings"
+                  >
+                    <Text style={recipeDetailStyles.scaleChipText}>
+                      ×{formatQty(scaleFactor)} · Reset
+                    </Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   style={recipeDetailStyles.servesButton}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -405,19 +420,6 @@ const RecipeDetailScreen = () => {
                 </TouchableOpacity>
               </View>
             </View>
-
-            {scaleFactor !== 1 && (
-              <TouchableOpacity
-                style={recipeDetailStyles.scaleChip}
-                onPress={() => tickServings(baseServings)}
-                accessibilityRole="button"
-                accessibilityLabel="Reset servings"
-              >
-                <Text style={recipeDetailStyles.scaleChipText}>
-                  ×{formatQty(scaleFactor)} · Reset
-                </Text>
-              </TouchableOpacity>
-            )}
 
             {scalableRows.map((row, index) => (
               <View key={index} style={recipeDetailStyles.ingredientRow}>

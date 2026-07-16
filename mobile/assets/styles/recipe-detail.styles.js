@@ -207,16 +207,17 @@ export const createRecipeDetailStyles = (colors) =>
       color: colors.ink,
       lineHeight: 22,
     },
+    // Sits INLINE in servesControls, beside the − / + stepper. The old
+    // alignSelf/marginBottom were for the stacked position under the band.
     scaleChip: {
-      alignSelf: "flex-start",
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
       backgroundColor: colors.accentSoft,
       borderRadius: RADIUS.pill,
-      paddingHorizontal: SPACING.md,
+      paddingHorizontal: SPACING.sm,
       paddingVertical: 4,
-      marginBottom: SPACING.md,
+      marginRight: SPACING.xs,
     },
     scaleChipText: {
       ...TYPE.label,
