@@ -9,7 +9,18 @@
 //   filterByIngredient(name)   → recipe[]  (summary rows: id/title/image)
 //   randomBatch(count)         → recipe[]
 
-const BASE_URL = "https://www.themealdb.com/api/json/v1/1";
+// TheMealDB's test key "1" is documented as a development key — their FAQ asks
+// commercial apps to hold a supporter key ("we expect you to sign up on a
+// commecial tier"). A supporter key also moves us to v2, so version and key
+// travel together. Defaults keep the free v1/1 path working with no env set.
+//
+// This key belongs ONLY on the server: mobile/services/mealAPI.js still calls
+// TheMealDB directly, and any key shipped in the app bundle (including
+// EXPO_PUBLIC_*) is extractable. Point the client at this backend before a
+// supporter key goes anywhere near it.
+const MEALDB_KEY = process.env.THEMEALDB_KEY || "1";
+const MEALDB_VERSION = MEALDB_KEY === "1" ? "v1" : "v2"; // v2 is supporter-only
+const BASE_URL = `https://www.themealdb.com/api/json/${MEALDB_VERSION}/${MEALDB_KEY}`;
 
 async function getJson(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
