@@ -130,7 +130,7 @@ async function assertPublicHost(target) {
   }
 }
 
-async function fetchPublicHtml(startUrl) {
+export async function fetchPublicHtml(startUrl) {
   let target = startUrl;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     if (!/^https?:$/.test(target.protocol)) throw new Error("Only http(s) URLs");

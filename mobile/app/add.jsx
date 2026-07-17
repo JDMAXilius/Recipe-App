@@ -93,10 +93,14 @@ const AddScreen = () => {
       });
       router.replace("/recipe/edit");
     } catch (error) {
+      // Social imports (I1a) return user-ready copy in Otto's voice —
+      // show it verbatim instead of flattening it into the generic line.
       setFailMessage(
-        error.message === "No recipe found on that page"
-          ? "That page keeps its recipe well hidden — Otto couldn't find one."
-          : "Otto couldn't read that page. Some sites just won't open the kitchen door."
+        error.message?.startsWith("Otto ")
+          ? error.message
+          : error.message === "No recipe found on that page"
+            ? "That page keeps its recipe well hidden — Otto couldn't find one."
+            : "Otto couldn't read that page. Some sites just won't open the kitchen door."
       );
       setPhase("failed");
     }

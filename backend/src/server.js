@@ -5,6 +5,7 @@ import { db } from "./config/db.js";
 import { favoritesTable, recipesTable, planEntriesTable } from "./db/schema.js";
 import { and, eq, desc, asc, gte, lte } from "drizzle-orm";
 import { importRecipeFromUrl } from "./lib/importRecipe.js";
+import { detectSocialPlatform, importFromSocialUrl, SocialImportError } from "./lib/import/social.js";
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
@@ -96,10 +97,20 @@ app.delete("/api/favorites/:recipeId", requireAuth, async (req, res) => {
 
 app.post("/api/import", requireAuth, costlyLimiter, validate(schemas.importBody), async (req, res) => {
   try {
+    // TikTok/Instagram links route through the caption pipeline (I1a);
+    // everything else stays on the deterministic JSON-LD importer.
+    if (detectSocialPlatform(req.body.url)) {
+      const draft = await importFromSocialUrl(req.body.url);
+      return res.status(200).json(draft);
+    }
     const draft = await importRecipeFromUrl(req.body.url);
     if (!draft) return res.status(422).json({ error: "No recipe found on that page" });
     res.status(200).json(draft);
   } catch (error) {
+    if (error instanceof SocialImportError) {
+      logger.warn({ url: req.body?.url, code: error.code }, "social import failed");
+      return res.status(422).json({ error: error.message });
+    }
     logger.warn({ url: req.body?.url, err: error.message }, "import failed");
     res.status(422).json({ error: "Couldn't read that page" });
   }

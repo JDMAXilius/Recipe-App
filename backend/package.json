@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.112.1",
     "@neondatabase/serverless": "^1.0.0",
     "@sentry/node": "^10.65.0",
     "@supabase/supabase-js": "^2.110.5",
