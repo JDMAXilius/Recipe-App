@@ -140,6 +140,34 @@ export const createPlanStyles = (colors) =>
     entryRemove: {
       padding: 4,
     },
+    entrySwap: {
+      padding: 4,
+    },
+    leftoverBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      alignSelf: "flex-start",
+      gap: 3,
+      backgroundColor: colors.accentSoft,
+      borderRadius: RADIUS.pill,
+      paddingHorizontal: SPACING.sm,
+      paddingVertical: 1,
+      marginTop: 2,
+    },
+    leftoverBadgeText: {
+      ...TYPE.label,
+      fontSize: 11,
+      color: colors.accent,
+    },
+    sheetSectionLabel: {
+      ...TYPE.label,
+      fontSize: 12,
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      color: colors.inkSoft,
+      marginTop: SPACING.sm,
+      marginBottom: SPACING.xs,
+    },
     emptyWeek: {
       alignItems: "center",
       paddingHorizontal: SPACING.xxl,

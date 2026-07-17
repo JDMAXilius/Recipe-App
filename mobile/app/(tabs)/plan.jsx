@@ -21,6 +21,8 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import OttoIdle from "../../components/OttoIdle";
 import Bounceable from "../../components/Bounceable";
 import { weekDays } from "../../lib/week";
+import { loadPrefs } from "../../lib/prefs";
+import { pickPreferredMeal } from "../../lib/suggest";
 
 // Otto's week (roadmap Phase 4): vertical day cards, LOOSE buckets — no meal
 // slots, no gray guilt. Empty days are painted invitations. A 2-dinner week
@@ -38,6 +40,7 @@ const PlanScreen = () => {
   const [loaded, setLoaded] = useState(false);
   const [pickerDay, setPickerDay] = useState(null); // day key while choosing a recipe
   const [mine, setMine] = useState([]);
+  const [swappingId, setSwappingId] = useState(null); // entry mid-swap (guards double taps)
 
   // Recomputed on every focus — an app left open past midnight must not
   // keep calling yesterday "Today" (tabs stay mounted).
@@ -85,7 +88,7 @@ const PlanScreen = () => {
     })),
   ];
 
-  const assign = async (recipe) => {
+  const assign = async (recipe, note = null) => {
     const day = pickerDay;
     setPickerDay(null);
     try {
@@ -95,11 +98,53 @@ const PlanScreen = () => {
         title: recipe.title,
         image: recipe.image,
         category: recipe.category,
+        ...(note ? { note } : {}),
       });
       setEntries((prev) => [...prev, created]);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     } catch (error) {
       show({ message: error.message || "Couldn't add that to the week." });
+    }
+  };
+
+  // Cook once, eat twice (Cherrypick's leftovers pattern): a day can hold
+  // the leftovers of a dish planned earlier in the week. Same recipeId, so
+  // the shopping list dedupes it automatically — leftovers add nothing.
+  const leftoverChoices = pickerDay
+    ? entries.filter((e) => {
+        if (!e.recipeId || e.note === "leftovers") return false;
+        return String(e.day).slice(0, 10) < pickerDay;
+      })
+    : [];
+
+  // Swap (SideChef pattern): one tap trades a planned dinner for a fresh
+  // idea from the preference pool. Add-then-remove so a failure never eats
+  // the original entry.
+  const swap = async (entry) => {
+    if (swappingId) return;
+    Haptics.selectionAsync().catch(() => {});
+    setSwappingId(entry.id);
+    try {
+      const prefs = await loadPrefs();
+      const suggestion = await pickPreferredMeal(prefs, { excludeId: entry.recipeId });
+      if (!suggestion) {
+        show({ message: "Otto couldn't find a fresh idea right now." });
+        return;
+      }
+      const created = await PlanAPI.add({
+        day: String(entry.day).slice(0, 10),
+        recipeId: String(suggestion.id),
+        title: suggestion.title,
+        image: suggestion.image,
+        category: suggestion.category,
+      });
+      await PlanAPI.remove(entry.id).catch(() => {});
+      setEntries((prev) => prev.map((e) => (e.id === entry.id ? created : e)));
+      show({ message: `Swapped for ${suggestion.title} — tap again for another.` });
+    } catch {
+      show({ message: "Couldn't swap right now — the original stays put." });
+    } finally {
+      setSwappingId(null);
     }
   };
 
@@ -197,13 +242,37 @@ const PlanScreen = () => {
                           <Ionicons name="restaurant-outline" size={16} color={colors.inkSoft} />
                         </View>
                       )}
-                      <Text
-                        style={[styles.entryTitle, entry.cooked && styles.entryTitleCooked]}
-                        numberOfLines={2}
-                      >
-                        {entry.title}
-                      </Text>
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={[styles.entryTitle, entry.cooked && styles.entryTitleCooked]}
+                          numberOfLines={2}
+                        >
+                          {entry.title}
+                        </Text>
+                        {entry.note === "leftovers" && (
+                          <View style={styles.leftoverBadge}>
+                            <Ionicons name="refresh-outline" size={11} color={colors.accent} />
+                            <Text style={styles.leftoverBadgeText}>Leftovers</Text>
+                          </View>
+                        )}
+                      </View>
                     </TouchableOpacity>
+                    {entry.recipeId && !entry.cooked && entry.note !== "leftovers" && (
+                      <TouchableOpacity
+                        onPress={() => swap(entry)}
+                        style={styles.entrySwap}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        disabled={swappingId === entry.id}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Swap ${entry.title} for another idea`}
+                      >
+                        <Ionicons
+                          name="shuffle-outline"
+                          size={16}
+                          color={swappingId === entry.id ? colors.border : colors.inkSoft}
+                        />
+                      </TouchableOpacity>
+                    )}
                     <TouchableOpacity
                       onPress={() => toggleCooked(entry)}
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -254,7 +323,7 @@ const PlanScreen = () => {
           <View style={[styles.sheet, { paddingBottom: safeBottom }]}>
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>What's cooking?</Text>
-            {pickerChoices.length === 0 ? (
+            {pickerChoices.length === 0 && leftoverChoices.length === 0 ? (
               <View style={styles.sheetEmpty}>
                 <Text style={styles.sheetEmptyText}>
                   Your cookbook is empty — save a few recipes or add your own first.
@@ -265,6 +334,35 @@ const PlanScreen = () => {
                 data={pickerChoices}
                 keyExtractor={(item) => String(item.id)}
                 style={{ maxHeight: 420 }}
+                ListHeaderComponent={
+                  leftoverChoices.length > 0 ? (
+                    <View>
+                      <Text style={styles.sheetSectionLabel}>Cook once, eat twice</Text>
+                      {leftoverChoices.map((entry) => (
+                        <TouchableOpacity
+                          key={`leftover-${entry.id}`}
+                          style={styles.pickRow}
+                          onPress={() => assign({ ...entry, id: entry.recipeId }, "leftovers")}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Plan leftovers of ${entry.title}`}
+                        >
+                          {entry.image ? (
+                            <Image source={{ uri: entry.image }} style={styles.pickThumb} contentFit="cover" />
+                          ) : (
+                            <View style={[styles.pickThumb, styles.entryThumbEmpty]}>
+                              <Ionicons name="refresh-outline" size={16} color={colors.inkSoft} />
+                            </View>
+                          )}
+                          <Text style={styles.pickTitle} numberOfLines={2}>
+                            Leftovers of {entry.title}
+                          </Text>
+                          <Ionicons name="refresh-circle" size={22} color={colors.accent} />
+                        </TouchableOpacity>
+                      ))}
+                      <Text style={styles.sheetSectionLabel}>From your cookbook</Text>
+                    </View>
+                  ) : null
+                }
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.pickRow}
