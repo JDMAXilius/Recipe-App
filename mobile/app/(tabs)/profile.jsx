@@ -29,6 +29,11 @@ const SUPPORT_EMAIL = "juandlugopro@gmail.com";
 // Founder: drop the App Store URL in here at launch — until then the share
 // message carries no link (a placeholder link would be a lie).
 const TELL_A_FRIEND_URL = null;
+// Founder: the store review URL at launch, e.g.
+// "https://apps.apple.com/app/idXXXXXXXXX?action=write-review". The Rate
+// row stays hidden until this is real — a rating row that goes nowhere
+// would be dead-end UI.
+const RATE_APP_URL = null;
 // Founder input: set these when the pages exist — rows render only when real.
 const PRIVACY_URL = null;
 const TERMS_URL = null;
@@ -270,6 +275,18 @@ const AccountScreen = () => {
               <Text style={styles.rowText}>Tell a friend</Text>
               <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
             </TouchableOpacity>
+            {RATE_APP_URL && (
+              <TouchableOpacity
+                style={[styles.row, styles.rowDivider]}
+                onPress={() => Linking.openURL(RATE_APP_URL).catch(() => {})}
+                accessibilityRole="link"
+                accessibilityLabel="Rate Otto on the App Store"
+              >
+                <Ionicons name="star-outline" size={20} color={colors.inkSoft} />
+                <Text style={styles.rowText}>Rate Otto</Text>
+                <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
@@ -277,10 +294,20 @@ const AccountScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>The boring-but-important bits</Text>
           <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={() => router.push("/faq")}
+              accessibilityRole="button"
+              accessibilityLabel="Little questions — FAQs"
+            >
+              <Ionicons name="help-buoy-outline" size={20} color={colors.inkSoft} />
+              <Text style={styles.rowText}>Little questions</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
+            </TouchableOpacity>
             {/* feedback and bug reports arrive pre-labeled — a bug mail
                 carries version + platform so it lands diagnosable */}
             <TouchableOpacity
-              style={styles.row}
+              style={[styles.row, styles.rowDivider]}
               onPress={() =>
                 Linking.openURL(
                   `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("A thought about Otto")}`
