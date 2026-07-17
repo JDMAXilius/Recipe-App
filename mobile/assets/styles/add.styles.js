@@ -15,6 +15,7 @@ export const createAddStyles = (colors) =>
       justifyContent: "space-between",
       paddingHorizontal: SPACING.lg,
       paddingTop: SPACING.md,
+      paddingBottom: SPACING.sm,
     },
     iconButton: {
       width: 44,

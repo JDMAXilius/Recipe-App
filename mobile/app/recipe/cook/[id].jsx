@@ -344,7 +344,7 @@ const CookModeScreen = () => {
             <Ionicons name="close" size={24} color={colors.ink} />
           </TouchableOpacity>
           <Text style={styles.prepHeading}>Mise en place</Text>
-          <View style={styles.iconButton} />
+          <View style={{ width: 44, height: 44 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.prepContent} showsVerticalScrollIndicator={false}>
@@ -818,12 +818,15 @@ const createStyles = (colors) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingHorizontal: SPACING.md,
-      paddingTop: SPACING.sm,
+      paddingHorizontal: SPACING.lg,
+      paddingTop: SPACING.md,
+      paddingBottom: SPACING.sm,
     },
     iconButton: {
       width: 44,
       height: 44,
+      borderRadius: RADIUS.pill,
+      backgroundColor: colors.surfaceWarm,
       alignItems: "center",
       justifyContent: "center",
     },
