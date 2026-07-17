@@ -66,7 +66,7 @@ export async function seedNutritionFor(mealId) {
 
   const meal = await recipeSource.getById(mealId);
   const nutrition =
-    meal && meal.ingredients?.length ? await computeNutrition(meal.ingredients, 4) : null;
+    meal && meal.ingredients?.length ? await computeNutrition(meal.ingredients, 4, mealId) : null;
   // TheMealDB has no servings field; category-typical default of 4 — the
   // basis_grams on the result keeps the portion honest.
 

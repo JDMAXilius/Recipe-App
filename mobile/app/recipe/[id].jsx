@@ -367,6 +367,20 @@ const RecipeDetailScreen = () => {
         </View>
 
         <View style={recipeDetailStyles.contentSection}>
+          {/* NUTRITION — sits directly under the attribution/meta block, above
+              Ingredients (founder call, 2026-07-16). Was after Method
+              (Crouton/ReciMe placement). It reads the SAME `servings` the
+              stepper drives, so "whole recipe" tracks the scaled ingredients;
+              per-serving is per-serving and correctly does not move. */}
+          <View style={recipeDetailStyles.sectionContainer}>
+            <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
+            <NutritionCard
+              {...getNutritionEstimate(recipe.category)}
+              computed={computedNutrition}
+              servings={servings}
+            />
+          </View>
+
           {/* INGREDIENTS — live scaling + US/Metric (deep-dive blueprint) */}
           <View style={recipeDetailStyles.sectionContainer}>
             <View style={recipeDetailStyles.sectionHeaderRow}>
@@ -402,6 +416,21 @@ const RecipeDetailScreen = () => {
                 {servings === 1 ? "serving" : "servings"}
               </Text>
               <View style={recipeDetailStyles.servesControls}>
+                {/* Reset sits beside the stepper, not under it: it belongs to
+                    the control it undoes, and a chip appearing below used to
+                    push the ingredient rows down as soon as you tapped +. */}
+                {scaleFactor !== 1 && (
+                  <TouchableOpacity
+                    style={recipeDetailStyles.scaleChip}
+                    onPress={() => tickServings(baseServings)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Reset servings"
+                  >
+                    <Text style={recipeDetailStyles.scaleChipText}>
+                      ×{formatQty(scaleFactor)} · Reset
+                    </Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   style={recipeDetailStyles.servesButton}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -422,19 +451,6 @@ const RecipeDetailScreen = () => {
                 </TouchableOpacity>
               </View>
             </View>
-
-            {scaleFactor !== 1 && (
-              <TouchableOpacity
-                style={recipeDetailStyles.scaleChip}
-                onPress={() => tickServings(baseServings)}
-                accessibilityRole="button"
-                accessibilityLabel="Reset servings"
-              >
-                <Text style={recipeDetailStyles.scaleChipText}>
-                  ×{formatQty(scaleFactor)} · Reset
-                </Text>
-              </TouchableOpacity>
-            )}
 
             {scalableRows.map((row, index) => (
               <View key={index} style={recipeDetailStyles.ingredientRow}>
@@ -556,16 +572,6 @@ const RecipeDetailScreen = () => {
             })}
           </View>
           )}
-
-          {/* NUTRITION — after Method (Crouton/ReciMe placement) */}
-          <View style={recipeDetailStyles.sectionContainer}>
-            <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
-            <NutritionCard
-              {...getNutritionEstimate(recipe.category)}
-              computed={computedNutrition}
-              servings={servings}
-            />
-          </View>
 
           {/* EXIT — the page never dead-ends on a data card */}
           {related.length > 0 && (

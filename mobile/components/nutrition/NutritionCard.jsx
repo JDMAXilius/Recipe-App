@@ -16,7 +16,13 @@ import CalorieRing from "./CalorieRing";
 // further when its confidence is low. Both paths stay estimates, honestly framed.
 export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 0, servings = 4, computed = null }) {
   const { colors, nutrition } = useTheme();
-  const [scope, setScope] = useState("serving"); // "serving" | "recipe"
+  // Defaults to "recipe" (founder call): people reach for the servings stepper
+  // and expect the number to move with it. Per-serving correctly does NOT —
+  // cooking for 8 instead of 4 doubles the pot, not the plate — so opening on
+  // per-serving read as a bug. "whole recipe" multiplies by servings, which is
+  // the number the stepper visibly changes. Per-serving stays one tap away and
+  // is still the right number for comparing dishes.
+  const [scope, setScope] = useState("recipe"); // "serving" | "recipe"
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const perServing = computed

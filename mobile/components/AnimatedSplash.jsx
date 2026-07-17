@@ -100,10 +100,16 @@ export default function AnimatedSplash({ onDone }) {
         accessibilityLabel="Skip intro"
       >
         {useVideo ? (
+          // contentFit="contain", not "cover": the art is 1176x1756 (0.67) and a
+          // modern phone is ~0.46, so "cover" scaled to fill the height and cut
+          // ~600px — 30% of the frame — off Otto's sides. "contain" keeps the
+          // whole painting; the surrounding cream matches the video's own
+          // background, so the letterbox is invisible (same trick the still
+          // variant already relies on).
           <VideoView
             player={player}
             style={styles.media}
-            contentFit="cover"
+            contentFit="contain"
             nativeControls={false}
           />
         ) : (
