@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "expo-share-intent": "^4.1.2",
+    "expo-sharing": "~13.1.5",
+    "react-native-view-shot": "^4.0.3"
+  }
+}

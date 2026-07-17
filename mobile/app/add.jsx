@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import * as Haptics from "expo-haptics";
@@ -33,6 +33,12 @@ const AddScreen = () => {
   const styles = useMemo(() => createAddStyles(colors), [colors]);
 
   const [url, setUrl] = useState("");
+  // Share-sheet arrivals (lib/shareIntent.js) land here as ?url= — prefill
+  // the paste box so the user reviews before anything imports.
+  const { url: sharedUrl } = useLocalSearchParams();
+  useEffect(() => {
+    if (typeof sharedUrl === "string" && sharedUrl) setUrl(sharedUrl);
+  }, [sharedUrl]);
   const [fromClipboard, setFromClipboard] = useState(false);
   const [phase, setPhase] = useState("pick"); // pick | parsing | failed
   const [failMessage, setFailMessage] = useState("");
@@ -192,7 +198,8 @@ const AddScreen = () => {
                 <Text style={styles.modeTitle}>Paste a link</Text>
               </View>
               <Text style={styles.modeHint}>
-                A recipe page from anywhere on the web — Otto reads the ingredients and steps.
+                A recipe page from anywhere on the web — or a TikTok or Instagram post — Otto
+                reads the ingredients and steps.
               </Text>
               {fromClipboard ? (
                 <Text style={styles.clipboardHint}>Pasted — Otto spotted that link.</Text>
@@ -251,7 +258,10 @@ const AddScreen = () => {
             <View style={styles.comingRow}>
               <Ionicons name="logo-tiktok" size={13} color={colors.inkSoft} />
               <Ionicons name="logo-instagram" size={13} color={colors.inkSoft} />
-              <Text style={styles.comingText}>TikTok & Instagram share-in — coming soon.</Text>
+              <Text style={styles.comingText}>
+                Pasting TikTok & Instagram links works now — the share button in those apps
+                comes soon.
+              </Text>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>

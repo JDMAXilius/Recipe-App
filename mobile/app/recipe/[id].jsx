@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Platform, Linking, Share, Modal } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback } from "react";
@@ -19,6 +19,8 @@ import { scaledIngredient, formatQty } from "../../lib/ingredientParser";
 import { segmentStep } from "../../lib/stepEnrich";
 import { splitSteps, matchStepIngredients } from "../../lib/cookSession";
 import { buildRecipeShareText, sharePlainText } from "../../lib/shareText";
+import { shareCardAvailable, captureAndShareCard } from "../../lib/shareCard";
+import ShareCard from "../../components/ShareCard";
 import { useUnitSystem } from "../../hooks/useUnitSystem";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import NutritionCard from "../../components/nutrition/NutritionCard";
@@ -78,6 +80,17 @@ const RecipeDetailScreen = () => {
     if (next === unitSystem) return;
     Haptics.selectionAsync().catch(() => {});
     setUnitSystem(next);
+  };
+
+  const shareCardRef = useRef(null);
+
+  // Long-press = share the painted card image (the Instagram answer);
+  // only offered when the build actually carries the capture modules.
+  const shareAsCard = async () => {
+    if (!shareCardAvailable()) return shareRecipe();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    const shared = await captureAndShareCard(shareCardRef, recipe.title);
+    if (!shared) await shareRecipe(); // capture failed — text share still works
   };
 
   const shareRecipe = async () => {
@@ -571,14 +584,24 @@ const RecipeDetailScreen = () => {
         </View>
       </ScrollView>
 
+      {/* Off-screen share card — capture needs a mounted, laid-out view;
+          positioned out of the viewport, never unmounted mid-capture. */}
+      {shareCardAvailable() && (
+        <View style={{ position: "absolute", left: -9999, top: 0 }} pointerEvents="none">
+          <ShareCard ref={shareCardRef} recipe={recipe} />
+        </View>
+      )}
+
       {/* PINNED BOTTOM BAR — Start cooking primary, plan + paw quiet (SideChef dual-bar) */}
       <View style={[recipeDetailStyles.bottomBar, { paddingBottom: safeBottom }]}>
         {!isOwn && <PawMark recipe={recipe} size={26} style={{ width: 52, height: 52 }} />}
         <TouchableOpacity
           style={recipeDetailStyles.planButton}
           onPress={shareRecipe}
+          onLongPress={shareAsCard}
           accessibilityRole="button"
           accessibilityLabel="Share this recipe"
+          accessibilityHint={shareCardAvailable() ? "Long press to share as a picture" : undefined}
         >
           <Ionicons name="share-outline" size={22} color={colors.accent} />
         </TouchableOpacity>
