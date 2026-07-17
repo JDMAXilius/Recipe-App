@@ -56,6 +56,9 @@ export const createAuthStyles = (colors) =>
       color: colors.inkSoft,
       textAlign: "center",
       marginBottom: SPACING.xl,
+      // reserve two lines so a longer subtitle never shifts the form down
+      // relative to the other screen (sign-in ↔ sign-up stay aligned)
+      minHeight: 44,
     },
 
     formContainer: {
@@ -87,8 +90,12 @@ export const createAuthStyles = (colors) =>
       textTransform: "none",
       letterSpacing: 0,
       color: colors.inkSoft,
-      marginTop: SPACING.xs,
-      marginLeft: SPACING.xs,
+      // absolute so it lives in the input's bottom margin instead of adding
+      // height — keeps the CTA at the same Y on sign-up as on sign-in
+      position: "absolute",
+      top: "100%",
+      left: SPACING.xs,
+      marginTop: 2,
     },
     errorText: {
       ...TYPE.body,

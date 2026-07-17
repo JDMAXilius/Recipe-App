@@ -60,6 +60,10 @@ const OnboardingScreen = () => {
       page: { width, flex: 1 },
       art: { width: "100%", flex: 1 },
       panel: { padding: SPACING.xl, paddingTop: SPACING.lg, gap: SPACING.md },
+      // fixed-height text block: every slide reserves the same space for
+      // words, so the image area above never resizes between slides no
+      // matter how long the copy is (longest = 2-line title + 3-line body)
+      textBlock: { height: 150, gap: SPACING.sm },
       title: { ...TYPE.display, fontSize: 26, lineHeight: 33, color: colors.ink },
       body: { ...TYPE.body, fontSize: 15, lineHeight: 22, color: colors.inkSoft },
       dotsRow: { flexDirection: "row", gap: 8, justifyContent: "center" },
@@ -136,8 +140,10 @@ const OnboardingScreen = () => {
             <View key={i} style={[styles.dot, i === page && styles.dotActive]} />
           ))}
         </View>
-        <Text style={styles.title}>{SCREENS[page].title}</Text>
-        <Text style={styles.body}>{SCREENS[page].body}</Text>
+        <View style={styles.textBlock}>
+          <Text style={styles.title}>{SCREENS[page].title}</Text>
+          <Text style={styles.body}>{SCREENS[page].body}</Text>
+        </View>
         <Bounceable
           style={styles.cta}
           onPress={advance}
