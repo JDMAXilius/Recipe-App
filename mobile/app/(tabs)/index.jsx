@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { MealAPI } from "../../services/mealAPI";
+import { loadPrefs, hasPrefs, DIET_CATEGORY, DIET_HIDDEN_CATEGORIES } from "../../lib/prefs";
 import { PlanAPI } from "../../services/userRecipes";
 import { toDayKey } from "../../lib/week";
 import { useDebounce } from "../../hooks/useDebounce";
@@ -70,15 +71,54 @@ const DiscoverScreen = () => {
 
   const greeting = greetingForHour(new Date().getHours());
 
-  const loadData = async () => {
+  // Food preferences (profile → Food preferences) shape exactly two things
+  // here, as the picker promises: Otto's pick and where the grid starts.
+  const [prefs, setPrefs] = useState(null);
+  const appliedPrefsRef = useRef(null);
+  const loadDataRef = useRef(() => {});
+
+  // Otto's pick, honoring prefs: diet always wins, cuisines narrow within it
+  // when the sets overlap. Any gap falls back honestly (null → random pick).
+  const pickPreferredFeatured = async (p) => {
+    try {
+      let pool = [];
+      const dietCategory = DIET_CATEGORY[p.diet];
+      if (dietCategory) {
+        pool = await MealAPI.filterByCategory(dietCategory);
+        if (p.cuisines.length > 0 && pool.length > 0) {
+          const areaLists = await Promise.all(p.cuisines.map((a) => MealAPI.filterByArea(a)));
+          const areaIds = new Set(areaLists.flat().map((m) => m.idMeal));
+          const both = pool.filter((m) => areaIds.has(m.idMeal));
+          if (both.length > 0) pool = both;
+        }
+      } else if (p.cuisines.length > 0) {
+        const area = p.cuisines[Math.floor(Math.random() * p.cuisines.length)];
+        pool = await MealAPI.filterByArea(area);
+      }
+      if (pool.length === 0) return null;
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      // filter.php rows are id/name/thumb only — the featured card needs the
+      // full record
+      return await MealAPI.getMealById(pick.idMeal);
+    } catch {
+      return null;
+    }
+  };
+
+  const loadData = async ({ resetCategory = false } = {}) => {
     try {
       setLoading(true);
       setLoadError(false);
-      const [apiCategories, randomMeals, featuredMeal] = await Promise.all([
+      const userPrefs = await loadPrefs();
+      setPrefs(userPrefs);
+      appliedPrefsRef.current = JSON.stringify(userPrefs);
+
+      const [apiCategories, randomMeals, preferredMeal] = await Promise.all([
         MealAPI.getCategories(),
         MealAPI.getRandomMeals(12),
-        MealAPI.getRandomMeal(),
+        hasPrefs(userPrefs) ? pickPreferredFeatured(userPrefs) : Promise.resolve(null),
       ]);
+      const featuredMeal = preferredMeal || (await MealAPI.getRandomMeal());
 
       const transformedCategories = apiCategories.map((cat, index) => ({
         id: index + 1,
@@ -95,10 +135,16 @@ const DiscoverScreen = () => {
       setFeaturedRecipe(MealAPI.transformMealData(featuredMeal));
 
       // keep the grid honest: whatever category chip is selected is what loads
-      // (random meals under a "Beef" title was a refresh-time lie)
-      const category = selectedCategory || transformedCategories[0]?.name;
+      // (random meals under a "Beef" title was a refresh-time lie).
+      // A set diet moves the STARTING category (a vegetarian shouldn't land
+      // on Beef); an explicit tile tap still goes anywhere.
+      const dietStart = transformedCategories.find(
+        (c) => c.name === DIET_CATEGORY[userPrefs.diet]
+      )?.name;
+      const category =
+        (!resetCategory && selectedCategory) || dietStart || transformedCategories[0]?.name;
       if (category) {
-        if (!selectedCategory) setSelectedCategory(category);
+        if (selectedCategory !== category) setSelectedCategory(category);
         const meals = await MealAPI.filterByCategory(category);
         setRecipes(
           meals
@@ -115,6 +161,19 @@ const DiscoverScreen = () => {
       setLoading(false);
     }
   };
+  loadDataRef.current = loadData;
+
+  // Returning from the picker with changed prefs re-seats Discover (fresh
+  // pick + starting category); an unchanged visit costs nothing.
+  useFocusEffect(
+    useCallback(() => {
+      loadPrefs().then((p) => {
+        if (appliedPrefsRef.current !== null && JSON.stringify(p) !== appliedPrefsRef.current) {
+          loadDataRef.current({ resetCategory: true });
+        }
+      });
+    }, [])
+  );
 
   const handleCategorySelect = async (category) => {
     setSelectedCategory(category);
@@ -221,6 +280,10 @@ const DiscoverScreen = () => {
   if (loadError && recipes.length === 0) return <OttoError onRetry={loadData} />;
 
   const gridData = isSearching ? searchResults : recipes;
+  // A set diet puts the meat tiles away (default row only — the filter
+  // sheet and search still offer everything).
+  const hiddenTiles = new Set(DIET_HIDDEN_CATEGORIES[prefs?.diet] || []);
+  const visibleCategories = categories.filter((c) => !hiddenTiles.has(c.name));
   const browseTitle = [selectedCategory, activeArea].filter(Boolean).join(" · ") || "Recipes";
   const gridTitle = isSearching ? `Results for “${debouncedQuery.trim()}”` : browseTitle;
 
@@ -353,9 +416,9 @@ const DiscoverScreen = () => {
               </View>
             )}
 
-            {categories.length > 0 && (
+            {visibleCategories.length > 0 && (
               <CategoryFilter
-                categories={categories}
+                categories={visibleCategories}
                 selectedCategory={selectedCategory}
                 onSelectCategory={handleCategorySelect}
               />

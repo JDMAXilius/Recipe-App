@@ -204,6 +204,16 @@ const AccountScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Preferences</Text>
           <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={() => router.push("/preferences")}
+              accessibilityRole="button"
+              accessibilityLabel="Food preferences"
+            >
+              <Ionicons name="restaurant-outline" size={20} color={colors.inkSoft} />
+              <Text style={styles.rowText}>Food preferences</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
+            </TouchableOpacity>
             <View style={styles.row}>
               <Ionicons name="scale-outline" size={20} color={colors.inkSoft} />
               <Text style={styles.rowText}>Units</Text>
