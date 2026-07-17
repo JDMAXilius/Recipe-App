@@ -30,13 +30,39 @@ if (supported) {
   try {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldShowAlert: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
         shouldPlaySound: false,
         shouldSetBadge: false,
       }),
     });
   } catch {
     // build without the native module — everything below stays guarded
+  }
+}
+
+// Android 8+ delivers through channels; register ours once (no-op on iOS).
+// Users can then tune Otto's reminders in system settings per-channel.
+const CHANNEL_ID = "reminders";
+async function ensureAndroidChannel() {
+  if (Platform.OS !== "android") return;
+  await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
+    name: "Reminders",
+    importance: Notifications.AndroidImportance.DEFAULT,
+    lightColor: "#C4562E",
+  }).catch(() => {});
+}
+
+// For the settings screen's disabled-state banner (MyFitnessPal pattern):
+// "granted" | "denied" | "undetermined" | "unsupported"
+export async function getPermissionState() {
+  if (!supported) return "unsupported";
+  try {
+    const current = await Notifications.getPermissionsAsync();
+    if (current.granted) return "granted";
+    return current.canAskAgain ? "undetermined" : "denied";
+  } catch {
+    return "unsupported";
   }
 }
 
@@ -63,6 +89,7 @@ export async function saveNotifPrefs(prefs) {
 export async function ensurePermission() {
   if (!supported) return false;
   try {
+    await ensureAndroidChannel();
     const current = await Notifications.getPermissionsAsync();
     if (current.granted) return true;
     const asked = await Notifications.requestPermissionsAsync();
@@ -90,7 +117,11 @@ export async function syncTonightReminder(entry) {
         title: `Tonight: ${entry.title}`,
         body: "It's on your week — Otto has the list if you need it.",
       },
-      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: fireAt },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: fireAt,
+        channelId: CHANNEL_ID,
+      },
     });
   } catch {
     // no scheduler in this build — the settings screen already said so
@@ -113,6 +144,7 @@ export async function syncSundayNudge(enabled) {
         weekday: 1, // Sunday
         hour: 9,
         minute: 0,
+        channelId: CHANNEL_ID,
       },
     });
   } catch {

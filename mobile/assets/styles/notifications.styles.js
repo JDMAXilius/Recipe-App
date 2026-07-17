@@ -38,6 +38,23 @@ export const createNotificationStyles = (colors) =>
       paddingHorizontal: SPACING.lg,
       paddingBottom: SPACING.md,
     },
+    permissionBanner: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.sm,
+      backgroundColor: colors.accentSoft,
+      borderRadius: RADIUS.card,
+      marginHorizontal: SPACING.lg,
+      marginBottom: SPACING.md,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.sm + 2,
+    },
+    permissionText: {
+      ...TYPE.body,
+      fontSize: 13,
+      color: colors.ink,
+      flex: 1,
+    },
     card: {
       backgroundColor: colors.surface,
       borderRadius: RADIUS.card,

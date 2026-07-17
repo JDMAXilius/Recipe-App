@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Switch, Platform } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Switch, Platform, Linking } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -12,6 +12,7 @@ import {
   loadNotifPrefs,
   saveNotifPrefs,
   ensurePermission,
+  getPermissionState,
   syncTonightReminder,
   syncSundayNudge,
   TONIGHT_HOURS,
@@ -29,9 +30,11 @@ const NotificationsScreen = () => {
   const { show } = useToast();
   const styles = useMemo(() => createNotificationStyles(colors), [colors]);
   const [prefs, setPrefs] = useState(null);
+  const [permission, setPermission] = useState("granted");
 
   useEffect(() => {
     loadNotifPrefs().then(setPrefs);
+    getPermissionState().then(setPermission);
   }, []);
 
   if (!prefs) return <LoadingSpinner message="Checking the kitchen bell..." />;
@@ -54,6 +57,7 @@ const NotificationsScreen = () => {
         return;
       }
       const ok = await ensurePermission();
+      getPermissionState().then(setPermission);
       if (!ok) {
         show({ message: "Your phone has notifications off for Otto — flip them in Settings first." });
         return;
@@ -91,6 +95,23 @@ const NotificationsScreen = () => {
           Everything here lives on this phone — Otto only reminds you about
           things the phone already knows, and both nudges start off.
         </Text>
+
+        {/* Permission-denied state stays visible with a way out (the
+            MyFitnessPal pattern) — never a toggle that silently can't work */}
+        {permission === "denied" && (prefs.tonight || prefs.sunday) && (
+          <TouchableOpacity
+            style={styles.permissionBanner}
+            onPress={() => Linking.openSettings().catch(() => {})}
+            accessibilityRole="button"
+            accessibilityLabel="Notifications are off for Otto — open phone settings"
+          >
+            <Ionicons name="notifications-off-outline" size={18} color={colors.accent} />
+            <Text style={styles.permissionText}>
+              Your phone has notifications off for Otto, so these won&apos;t
+              arrive. Tap to open Settings.
+            </Text>
+          </TouchableOpacity>
+        )}
 
         <View style={styles.card}>
           <View style={styles.row}>
