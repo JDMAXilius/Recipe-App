@@ -104,8 +104,15 @@ const LIST_STYLE = `
   /* the pad: generated printed-sheet cutout (frame, stacked edge and cast
      shadow live in the artwork); stretched so the printed frame follows the
      content no matter how long the list runs */
-  .sheet{max-width:560px;margin:22px auto 14px;padding:38px 44px 64px;
+  .sheet{position:relative;max-width:560px;margin:22px auto 14px;padding:38px 44px 64px;
     background:url('/share-assets/paper-note.png') center/100% 100% no-repeat}
+  /* Otto's paw trail — printed motif walking onto the pad from the top-left
+     corner, toward the list (classic stationery convention: prints alternate
+     across the travel line, toes pointing where he's headed). Drawn in the
+     page, not the paper texture, so the prints keep their shape however far
+     the pad stretches; sits before the banner in the DOM so on narrow
+     screens any overlap tucks behind the flag. */
+  .paws{position:absolute;left:7.5%;top:5.6%;width:52px;pointer-events:none}
   /* printed banner flag, like the "things to do:" pad */
   .flag{width:230px;margin:0 auto 4px;text-align:center;background:#2B2118;color:#FAF4EA;
     font-size:15px;font-weight:700;letter-spacing:3px;padding:10px 0 16px;
@@ -123,6 +130,21 @@ const LIST_STYLE = `
   .src{color:#8A7A66;font-size:.85rem}
   .sign{margin-top:30px;color:#8A7A66;font-size:.85rem;font-style:italic;text-align:center}
 `;
+
+// Otto's paw prints: one reusable paw (big pad + four toes), stamped three
+// times along a diagonal gait toward the corner. Decoration only.
+const PAW_TRAIL = `<svg class="paws" viewBox="0 0 60 130" aria-hidden="true">
+  <defs><g id="paw" fill="#C4562E" opacity=".30">
+    <ellipse cx="0" cy="6.5" rx="10.5" ry="8.5"/>
+    <ellipse cx="-10.5" cy="-6.5" rx="4.2" ry="5.4" transform="rotate(-22 -10.5 -6.5)"/>
+    <ellipse cx="-3.6" cy="-11" rx="4" ry="5.2" transform="rotate(-7 -3.6 -11)"/>
+    <ellipse cx="3.6" cy="-11" rx="4" ry="5.2" transform="rotate(7 3.6 -11)"/>
+    <ellipse cx="10.5" cy="-6.5" rx="4.2" ry="5.4" transform="rotate(22 10.5 -6.5)"/>
+  </g></defs>
+  <use href="#paw" transform="translate(19 18) rotate(174) scale(.78)"/>
+  <use href="#paw" transform="translate(40 56) rotate(158) scale(.84)"/>
+  <use href="#paw" transform="translate(25 98) rotate(170) scale(.9)"/>
+</svg>`;
 
 // payload: {items: [{name, amount, aisle, sources[]}]} — the sender's snapshot.
 export function renderListPage(payload, url) {
@@ -174,6 +196,7 @@ export function renderListPage(payload, url) {
 </head>
 <body>
   <main class="sheet">
+    ${PAW_TRAIL}
     <h1 class="flag">SHOPPING LIST</h1>
     <p class="meta">${escapeHtml(description)}</p>
     ${sections}
