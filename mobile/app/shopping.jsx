@@ -7,6 +7,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  ImageBackground,
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,8 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
-import { createPlanStyles } from "../assets/styles/plan.styles";
-import { createAddStyles } from "../assets/styles/add.styles";
+import { createShoppingStyles } from "../assets/styles/shopping.styles";
 import { MealAPI } from "../services/mealAPI";
 import { PlanAPI, UserRecipeAPI, transformUserRecipe, isUserRecipeId, ShareAPI } from "../services/userRecipes";
 import { buildShoppingList, AISLES } from "../lib/shoppingList";
@@ -36,8 +36,7 @@ const ShoppingScreen = () => {
   const router = useRouter();
   const { colors } = useTheme();
   const { show } = useToast();
-  const styles = useMemo(() => createPlanStyles(colors), [colors]);
-  const addStyles = useMemo(() => createAddStyles(colors), [colors]);
+  const styles = useMemo(() => createShoppingStyles(colors), [colors]);
 
   const [state, setState] = useState(null); // {builtAt, planIds, excluded, items, custom, checked}
   const [planEntries, setPlanEntries] = useState([]);
@@ -210,34 +209,41 @@ const ShoppingScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={addStyles.header}>
-        <TouchableOpacity
-          onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/plan"))}
-          style={addStyles.iconButton}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-        >
-          <Ionicons name="arrow-back" size={22} color={colors.ink} />
-        </TouchableOpacity>
-        <Text style={addStyles.editorHeaderTitle}>Shopping list</Text>
-        {total > 0 ? (
+      {/* The whole screen sits on the painted torn-notepad page — texture
+          only; every word on it stays dynamic data. */}
+      <ImageBackground
+        source={require("../assets/paper/shopping-note.jpg")}
+        style={styles.paper}
+        resizeMode="cover"
+      >
+        <View style={styles.header}>
           <TouchableOpacity
-            onPress={shareList}
-            style={addStyles.iconButton}
+            onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/plan"))}
+            style={styles.iconButton}
             accessibilityRole="button"
-            accessibilityLabel="Share the shopping list"
+            accessibilityLabel="Back"
           >
-            <Ionicons name="share-outline" size={22} color={colors.ink} />
+            <Ionicons name="arrow-back" size={22} color={colors.ink} />
           </TouchableOpacity>
-        ) : (
-          <View style={{ width: 44 }} />
-        )}
-      </View>
+          <Text style={styles.headerTitle}>Shopping list</Text>
+          {total > 0 ? (
+            <TouchableOpacity
+              onPress={shareList}
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Share the shopping list"
+            >
+              <Ionicons name="share-outline" size={22} color={colors.ink} />
+            </TouchableOpacity>
+          ) : (
+            <View style={{ width: 44 }} />
+          )}
+        </View>
 
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           {total > 0 && (
-            <View style={styles.header}>
+            <View style={styles.countHeader}>
               <Text style={styles.count}>
                 {done} of {total} in the basket
               </Text>
@@ -290,6 +296,7 @@ const ShoppingScreen = () => {
             grouped.map((group) => (
               <View key={group.aisle}>
                 <Text style={styles.aisleTitle}>{group.aisle}</Text>
+                <View style={styles.aisleRule} />
                 {group.items.map((item) => (
                   <TouchableOpacity
                     key={item.key}
@@ -325,6 +332,7 @@ const ShoppingScreen = () => {
           {state.custom.length > 0 && (
             <View>
               <Text style={styles.aisleTitle}>Your extras</Text>
+              <View style={styles.aisleRule} />
               {state.custom.map((item) => (
                 <TouchableOpacity
                   key={item.key}
@@ -379,7 +387,8 @@ const ShoppingScreen = () => {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </ImageBackground>
     </View>
   );
 };

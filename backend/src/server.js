@@ -1,4 +1,5 @@
 import express from "express";
+import { fileURLToPath } from "node:url";
 import cors from "cors";
 import { ENV } from "./config/env.js";
 import { db } from "./config/db.js";
@@ -399,6 +400,14 @@ const shareBase = (req) =>
   `${ENV.NODE_ENV === "production" ? "https" : req.protocol}://${req.get("host")}`;
 
 const TOKEN_SHAPE = /^[A-Za-z0-9_-]{8,24}$/;
+
+// The painted paper texture behind the shopping-list share page (and its
+// OG preview image). Committed asset; see mobile/assets/paper/README.md.
+const PAPER_ASSET = fileURLToPath(new URL("./assets/paper-note.jpg", import.meta.url));
+app.get("/share-assets/paper-note.jpg", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=86400");
+  res.sendFile(PAPER_ASSET);
+});
 
 // Mint (or return the existing live) share link for a user recipe.
 app.post("/api/recipes/:id/share", requireAuth, async (req, res) => {

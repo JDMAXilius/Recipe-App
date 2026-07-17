@@ -95,6 +95,29 @@ export function renderRecipePage(row, url) {
   return page({ title: row.title, description, image: row.image, url, body });
 }
 
+// The list page is a hand-painted torn notepad sheet (shopping list v2 —
+// same paper as the app screen; texture served at /share-assets/…). The
+// paper is texture only: every word on it comes from the sender's payload.
+const LIST_STYLE = `
+  body{margin:0;font-family:Georgia,'Times New Roman',serif;background:#F3E9DA;color:#2B2118;line-height:1.5}
+  .sheet{max-width:560px;margin:26px auto 16px;padding:52px 28px 40px 46px;
+    background:#FAF4EA url('/share-assets/paper-note.jpg') top center/cover no-repeat;
+    border-radius:6px;box-shadow:0 12px 34px rgba(42,33,27,.20);position:relative}
+  /* classic notepad margin line, terracotta and quiet */
+  .sheet::before{content:"";position:absolute;top:46px;bottom:34px;left:30px;
+    border-left:1.5px solid rgba(196,86,46,.28)}
+  h1{font-size:1.9rem;line-height:1.15;margin:0 0 2px}
+  .meta{color:#8A7A66;font-size:.95rem;margin:0}
+  h2{font-style:italic;font-weight:600;font-size:1.06rem;color:#C4562E;margin:26px 0 2px}
+  .rule{width:92px;border-bottom:1px solid rgba(196,86,46,.45);margin-bottom:6px}
+  ul{list-style:none;padding:0;margin:0}
+  li{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid #E6D9C2}
+  .box{width:15px;height:15px;border:2px solid #8A5A33;border-radius:50%;flex:none;align-self:center}
+  .qty{color:#C4562E;font-weight:bold}
+  .src{color:#8A7A66;font-size:.85rem}
+  .sign{margin-top:30px;color:#8A7A66;font-size:.85rem;font-style:italic}
+`;
+
 // payload: {items: [{name, amount, aisle, sources[]}]} — the sender's snapshot.
 export function renderListPage(payload, url) {
   const items = Array.isArray(payload?.items) ? payload.items : [];
@@ -109,23 +132,49 @@ export function renderListPage(payload, url) {
   const sections = [...byAisle.entries()]
     .map(
       ([aisle, rows]) => `
-      <div class="aisle"><h2>${escapeHtml(aisle)}</h2><ul>${rows
+      <h2>${escapeHtml(aisle)}</h2><div class="rule"></div><ul>${rows
         .map(
           (item) =>
-            `<li>${item.amount ? `<span class="qty">${escapeHtml(item.amount)}</span> ` : ""}${escapeHtml(item.name)}${
+            `<li><span class="box"></span><span>${
+              item.amount ? `<span class="qty">${escapeHtml(item.amount)}</span> ` : ""
+            }${escapeHtml(item.name)}${
               item.sources?.length ? ` <span class="src">— for ${escapeHtml(item.sources.join(", "))}</span>` : ""
-            }</li>`
+            }</span></li>`
         )
-        .join("")}</ul></div>`
+        .join("")}</ul>`
     )
     .join("");
 
-  const body = `
+  // the paper itself makes a warm link preview
+  let paperImage = null;
+  try {
+    paperImage = new URL("/share-assets/paper-note.jpg", url).href;
+  } catch {
+    // relative page render (tests) — preview image is optional
+  }
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shopping list — Otto</title>
+  <meta property="og:title" content="Shopping list — Otto">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  ${paperImage ? `<meta property="og:image" content="${escapeHtml(paperImage)}">` : ""}
+  ${url ? `<meta property="og:url" content="${escapeHtml(url)}">` : ""}
+  <meta property="og:type" content="article">
+  <style>${LIST_STYLE}</style>
+</head>
+<body>
+  <main class="sheet">
     <h1>Shopping list</h1>
     <p class="meta">${escapeHtml(description)}</p>
-    ${sections}`;
-
-  return page({ title: "Shopping list — Otto", description, image: null, url, body });
+    ${sections}
+    <p class="sign">Shared from Otto, the quieter kind of cookbook.</p>
+  </main>
+</body>
+</html>`;
 }
 
 export function renderNotFoundPage() {
