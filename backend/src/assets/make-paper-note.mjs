@@ -24,7 +24,6 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     <filter id="wash"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.006" numOctaves="4" seed="11"/>
       <feColorMatrix type="matrix" values="0 0 0 0 0.90  0 0 0 0 0.84  0 0 0 0 0.72  0 0 0 0.22 0"/></filter>
     <filter id="blur10"><feGaussianBlur stdDeviation="10"/></filter>
-    <filter id="blur3"><feGaussianBlur stdDeviation="3"/></filter>
     <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.5"/>
       <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/>
@@ -54,9 +53,6 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
   <rect x="${L + FR + 7}" y="${TOP + FR + 7}" width="${R - L - FR * 2 - 14}" height="${BOT - TOP - FR * 2 - 14}"
         fill="none" stroke="#C4562E" stroke-width="1" opacity="0.42"/>
 
-  <!-- one quiet imperfection: faint coffee ring kissing the frame -->
-  <circle cx="${L + 96}" cy="${BOT - 96}" r="34" fill="none" stroke="#8A5A33" stroke-width="7"
-          opacity="0.06" filter="url(#blur3)"/>
 </svg>`;
 
 writeFileSync("/tmp/pad.html", `<!doctype html><body style="margin:0;background:transparent">${svg}</body>`);
