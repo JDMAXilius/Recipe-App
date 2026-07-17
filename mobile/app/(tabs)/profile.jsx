@@ -13,6 +13,7 @@ import { useSaved } from "../../context/SavedContext";
 import { useUnitSystem } from "../../hooks/useUnitSystem";
 import { UserRecipeAPI } from "../../services/userRecipes";
 import { authFetch } from "../../lib/api";
+import { sharePlainText } from "../../lib/shareText";
 import { createProfileStyles } from "../../assets/styles/profile.styles";
 
 // "You" — Account v3 (Mobbin account study, 2026-07-15).
@@ -25,6 +26,9 @@ import { createProfileStyles } from "../../assets/styles/profile.styles";
 // notification/appearance rows, subscription rows.
 
 const SUPPORT_EMAIL = "juandlugopro@gmail.com";
+// Founder: drop the App Store URL in here at launch — until then the share
+// message carries no link (a placeholder link would be a lie).
+const TELL_A_FRIEND_URL = null;
 // Founder input: set these when the pages exist — rows render only when real.
 const PRIVACY_URL = null;
 const TERMS_URL = null;
@@ -60,6 +64,16 @@ const AccountScreen = () => {
     if (next === unitSystem) return;
     Haptics.selectionAsync().catch(() => {});
     setUnitSystem(next);
+  };
+
+  const tellAFriend = async () => {
+    Haptics.selectionAsync().catch(() => {});
+    const { copied } = await sharePlainText(
+      "I’ve been cooking with Otto — the quieter kind of cookbook. Dinner plans, one shopping list, zero feed. Ask me to show you!",
+      "Otto",
+      TELL_A_FRIEND_URL
+    );
+    if (copied) show({ message: "Copied — paste it to a friend." });
   };
 
   const handleSignOut = () => {
@@ -242,20 +256,57 @@ const AccountScreen = () => {
           </View>
         </View>
 
+        {/* SPREAD THE WORD */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Spread the word</Text>
+          <View style={styles.card}>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={tellAFriend}
+              accessibilityRole="button"
+              accessibilityLabel="Tell a friend about Otto"
+            >
+              <Ionicons name="gift-outline" size={20} color={colors.inkSoft} />
+              <Text style={styles.rowText}>Tell a friend</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* THE BORING-BUT-IMPORTANT BITS */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>The boring-but-important bits</Text>
           <View style={styles.card}>
+            {/* feedback and bug reports arrive pre-labeled — a bug mail
+                carries version + platform so it lands diagnosable */}
             <TouchableOpacity
               style={styles.row}
               onPress={() =>
-                Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=Otto%20feedback`).catch(() => {})
+                Linking.openURL(
+                  `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("A thought about Otto")}`
+                ).catch(() => {})
               }
               accessibilityRole="button"
-              accessibilityLabel="Say hi or get help by email"
+              accessibilityLabel="Send feedback by email"
             >
-              <Ionicons name="mail-outline" size={20} color={colors.inkSoft} />
-              <Text style={styles.rowText}>Say hi / get help</Text>
+              <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.inkSoft} />
+              <Text style={styles.rowText}>Send a thought</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.row, styles.rowDivider]}
+              onPress={() =>
+                Linking.openURL(
+                  `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Otto bug report")}&body=${encodeURIComponent(
+                    `What happened?\n\n\nWhat did you expect?\n\n\n—\nOtto v${Constants.expoConfig?.version || "1.0.0"} · ${Platform.OS}`
+                  )}`
+                ).catch(() => {})
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Report a bug by email"
+            >
+              <Ionicons name="bug-outline" size={20} color={colors.inkSoft} />
+              <Text style={styles.rowText}>Report a bug</Text>
               <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
             </TouchableOpacity>
             {PRIVACY_URL && (
