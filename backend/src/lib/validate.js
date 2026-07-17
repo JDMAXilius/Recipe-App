@@ -70,6 +70,21 @@ export const schemas = {
     note: optionalStr(500).optional(),
     cooked: z.boolean().optional(),
   }),
+
+  // Shopping-list snapshot share (S2/G2) — the exact rows the sender saw.
+  listShareBody: z.object({
+    items: z
+      .array(
+        z.object({
+          name: trimmed(200),
+          amount: z.string().trim().max(120).default(""),
+          aisle: z.string().trim().max(60).default(""),
+          sources: z.array(z.string().trim().max(300)).max(20).default([]),
+        })
+      )
+      .min(1)
+      .max(200),
+  }),
 };
 
 // validate(schemas.x) → middleware; parsed body replaces req.body.

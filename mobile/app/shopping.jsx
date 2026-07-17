@@ -17,7 +17,7 @@ import { useToast } from "../context/ToastContext";
 import { createPlanStyles } from "../assets/styles/plan.styles";
 import { createAddStyles } from "../assets/styles/add.styles";
 import { MealAPI } from "../services/mealAPI";
-import { PlanAPI, UserRecipeAPI, transformUserRecipe, isUserRecipeId } from "../services/userRecipes";
+import { PlanAPI, UserRecipeAPI, transformUserRecipe, isUserRecipeId, ShareAPI } from "../services/userRecipes";
 import { buildShoppingList, AISLES } from "../lib/shoppingList";
 import { buildShoppingListShareText, sharePlainText } from "../lib/shareText";
 import { weekDays } from "../lib/week";
@@ -177,8 +177,26 @@ const ShoppingScreen = () => {
 
   const shareList = async () => {
     Haptics.selectionAsync().catch(() => {});
+    // Snapshot link (S2/G2): a read-only page the recipient opens with no
+    // account. If minting fails, the plain-text list still shares alone.
+    let link = null;
+    const openItems = [
+      ...state.items
+        .filter((i) => !state.checked[i.key])
+        .map((i) => ({ name: i.name, amount: i.amount || "", aisle: i.aisle || "", sources: i.sources || [] })),
+      ...state.custom
+        .filter((c) => !state.checked[c.key])
+        .map((c) => ({ name: c.name, amount: "", aisle: "Extras", sources: [] })),
+    ];
+    if (openItems.length > 0) {
+      try {
+        link = (await ShareAPI.listSnapshot(openItems))?.url || null;
+      } catch {
+        // text-only fallback
+      }
+    }
     const text = buildShoppingListShareText(state);
-    const { copied } = await sharePlainText(text, "Shopping list");
+    const { copied } = await sharePlainText(text, "Shopping list", link);
     if (copied) show({ message: "List copied — paste it anywhere." });
   };
 

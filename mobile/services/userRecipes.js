@@ -83,6 +83,28 @@ export const UserRecipeAPI = {
   },
 };
 
+// Public share links (S2). Mint/revoke are owner-only; a mint on an
+// already-shared recipe returns the same live link. Callers treat failures
+// as "share text-only" — the share button never depends on the network.
+export const ShareAPI = {
+  recipeLink: async (id) => {
+    const res = await authFetch(`/recipes/${userDbId(id)}/share`, { method: "POST" });
+    return parseOrThrow(res, "Couldn't make a share link");
+  },
+  revokeRecipeLink: async (id) => {
+    const res = await authFetch(`/recipes/${userDbId(id)}/share`, { method: "DELETE" });
+    return parseOrThrow(res, "Couldn't turn the link off");
+  },
+  listSnapshot: async (items) => {
+    const res = await authFetch("/share/list", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items }),
+    });
+    return parseOrThrow(res, "Couldn't make a list link");
+  },
+};
+
 export const NutritionAPI = {
   // Seed (TheMealDB) nutrition — server computes once and caches; returns
   // { recipeId, nutrition } with nutrition null while the provider is dormant.

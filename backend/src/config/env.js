@@ -17,4 +17,7 @@ export const ENV = {
   // Optional "appid|appsecret" Meta app token — raises IG oEmbed rate
   // limits; the tokenless endpoint works without it (I1a).
   META_OEMBED_TOKEN: process.env.META_OEMBED_TOKEN,
+  // Public origin for share links (S2), e.g. https://otto.app — falls back
+  // to the request host so Railway works with zero config.
+  SHARE_BASE_URL: process.env.SHARE_BASE_URL,
 };

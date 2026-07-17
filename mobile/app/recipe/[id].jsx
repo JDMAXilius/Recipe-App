@@ -9,7 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import * as Haptics from "expo-haptics";
 import { MealAPI } from "../../services/mealAPI";
-import { UserRecipeAPI, transformUserRecipe, isUserRecipeId, PlanAPI, NutritionAPI } from "../../services/userRecipes";
+import { UserRecipeAPI, transformUserRecipe, isUserRecipeId, PlanAPI, NutritionAPI, ShareAPI } from "../../services/userRecipes";
 import { weekDays } from "../../lib/week";
 import { useToast } from "../../context/ToastContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -82,7 +82,17 @@ const RecipeDetailScreen = () => {
 
   const shareRecipe = async () => {
     Haptics.selectionAsync().catch(() => {});
-    const { copied } = await sharePlainText(buildRecipeShareText(recipe), recipe.title);
+    // Own recipes get a public link (S2) so previews unfurl; if minting
+    // fails (offline, signed out) the full-text share still works alone.
+    let link = null;
+    if (isOwn) {
+      try {
+        link = (await ShareAPI.recipeLink(recipeId))?.url || null;
+      } catch {
+        // text-only fallback — the button never depends on the network
+      }
+    }
+    const { copied } = await sharePlainText(buildRecipeShareText(recipe), recipe.title, link);
     // web without a share sheet lands on the clipboard — say so (no silent success)
     if (copied) show({ message: "Recipe copied — paste it anywhere." });
   };

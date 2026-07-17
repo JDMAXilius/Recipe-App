@@ -69,14 +69,18 @@ export function buildShoppingListShareText({ items = [], custom = [], checked = 
 // One entry point for both surfaces. Native opens the system share sheet;
 // web prefers the browser share sheet and falls back to the clipboard
 // (caller shows the toast — Alert.alert is a web no-op, D-rule).
+// `url` is optional (S2): when a public share link exists it rides along —
+// iOS as the native url payload (rich previews), Android appended to the
+// text (RN's Share has no url field there). Text-only stays the fallback.
 // Returns { shared, copied } so the caller knows what actually happened.
-export async function sharePlainText(message, title) {
+export async function sharePlainText(message, title, url) {
+  const withLink = url ? `${message}\n\nOpen it here: ${url}` : message;
   if (Platform.OS === "web") {
     // navigator.share exists on mobile browsers + some desktops; clipboard
     // is the universal fallback. Never both.
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title, text: message });
+        await navigator.share({ title, text: message, ...(url ? { url } : {}) });
         return { shared: true, copied: false };
       }
     } catch (error) {
@@ -84,7 +88,7 @@ export async function sharePlainText(message, title) {
       // fall through to clipboard on NotAllowedError etc.
     }
     try {
-      await navigator.clipboard.writeText(message);
+      await navigator.clipboard.writeText(withLink);
       return { shared: false, copied: true };
     } catch {
       return { shared: false, copied: false };
@@ -92,9 +96,7 @@ export async function sharePlainText(message, title) {
   }
   try {
     await Share.share(
-      // iOS accepts {message}; Android ignores title-less extras — message
-      // carries everything since there is no URL payload yet (S0).
-      { message, title },
+      Platform.OS === "ios" ? { message, title, ...(url ? { url } : {}) } : { message: withLink, title },
       { dialogTitle: title, subject: title }
     );
     return { shared: true, copied: false };

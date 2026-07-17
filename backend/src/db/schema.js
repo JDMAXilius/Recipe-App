@@ -48,6 +48,30 @@ export const seedNutritionTable = pgTable("seed_nutrition", {
   computedAt: timestamp("computed_at", { withTimezone: true }).defaultNow(),
 });
 
+// Public share links (S2, IMPORT_SHARE_RESEARCH.md §3.3). Capability URLs:
+// the slug is a CSPRNG token (~72 bits) — never derived from row ids, never
+// enumerable. Revocation = set revoked_at; the page then 410s. One active
+// share per recipe (re-sharing returns the same link).
+export const recipeSharesTable = pgTable("recipe_shares", {
+  slug: text("slug").primaryKey(),
+  recipeId: integer("recipe_id").notNull(), // recipes.id (user recipes only)
+  userId: text("user_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  revokedAt: timestamp("revoked_at"),
+});
+
+// Shopping-list snapshots — the "send my husband the list" share (G2).
+// Read-only payload; the recipient needs no account. Same capability-URL
+// rules as recipe_shares.
+export const listSharesTable = pgTable("list_shares", {
+  token: text("token").primaryKey(),
+  userId: text("user_id").notNull(),
+  // [{name, amount, aisle, sources[]}] — the exact rows the sender saw
+  payload: jsonb("payload").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  revokedAt: timestamp("revoked_at"),
+});
+
 // Otto's week — loose buckets, one row per planned dish. Recipe fields are a
 // snapshot so seed/user recipes plan identically (and survive deletions).
 export const planEntriesTable = pgTable("plan_entries", {

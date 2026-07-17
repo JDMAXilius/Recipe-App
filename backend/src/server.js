@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import { ENV } from "./config/env.js";
 import { db } from "./config/db.js";
-import { favoritesTable, recipesTable, planEntriesTable } from "./db/schema.js";
-import { and, eq, desc, asc, gte, lte } from "drizzle-orm";
+import { favoritesTable, recipesTable, planEntriesTable, recipeSharesTable, listSharesTable } from "./db/schema.js";
+import { and, eq, desc, asc, gte, lte, isNull } from "drizzle-orm";
 import { importRecipeFromUrl } from "./lib/importRecipe.js";
 import { detectSocialPlatform, importFromSocialUrl, SocialImportError } from "./lib/import/social.js";
 import { requireAuth } from "./middleware/auth.js";
@@ -11,6 +11,13 @@ import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
 import { apiLimiter, costlyLimiter, seedReadLimiter } from "./lib/rateLimits.js";
 import { backfillUserRecipeNutrition, seedNutritionFor, nutritionActive } from "./lib/nutrition/lifecycle.js";
+import {
+  makeShareToken,
+  renderRecipePage,
+  renderListPage,
+  renderGonePage,
+  renderNotFoundPage,
+} from "./lib/sharePages.js";
 
 const app = express();
 const PORT = ENV.PORT || 5001;
@@ -379,6 +386,113 @@ app.delete("/api/account", requireAuth, async (req, res) => {
   } catch (error) {
     reportError(error, { msg: "delete account failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// ---- Public share links (S2, IMPORT_SHARE_RESEARCH.md §3.3) ------------
+// Capability URLs: unguessable CSPRNG slugs, owner-revocable, SSR pages
+// with OG meta (crawlers run no JS). The client's text share upgrades to a
+// link automatically when these succeed, and falls back to text when not.
+
+const shareBase = (req) =>
+  (ENV.SHARE_BASE_URL || "").replace(/\/+$/, "") ||
+  `${ENV.NODE_ENV === "production" ? "https" : req.protocol}://${req.get("host")}`;
+
+const TOKEN_SHAPE = /^[A-Za-z0-9_-]{8,24}$/;
+
+// Mint (or return the existing live) share link for a user recipe.
+app.post("/api/recipes/:id/share", requireAuth, async (req, res) => {
+  try {
+    const recipeId = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(recipeId)) return res.status(400).json({ error: "Bad id" });
+    const [recipe] = await db
+      .select({ id: recipesTable.id })
+      .from(recipesTable)
+      .where(and(eq(recipesTable.id, recipeId), eq(recipesTable.userId, req.userId)));
+    if (!recipe) return res.status(404).json({ error: "Not found" });
+
+    const [existing] = await db
+      .select()
+      .from(recipeSharesTable)
+      .where(and(eq(recipeSharesTable.recipeId, recipeId), isNull(recipeSharesTable.revokedAt)));
+    const slug = existing?.slug || makeShareToken();
+    if (!existing) {
+      await db.insert(recipeSharesTable).values({ slug, recipeId, userId: req.userId });
+    }
+    res.status(200).json({ slug, url: `${shareBase(req)}/r/${slug}` });
+  } catch (error) {
+    reportError(error, { msg: "share mint failed", userId: req.userId });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// Turn a recipe's share link off — the page 410s from then on.
+app.delete("/api/recipes/:id/share", requireAuth, async (req, res) => {
+  try {
+    const recipeId = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(recipeId)) return res.status(400).json({ error: "Bad id" });
+    await db
+      .update(recipeSharesTable)
+      .set({ revokedAt: new Date() })
+      .where(
+        and(
+          eq(recipeSharesTable.recipeId, recipeId),
+          eq(recipeSharesTable.userId, req.userId),
+          isNull(recipeSharesTable.revokedAt)
+        )
+      );
+    res.status(200).json({ revoked: true });
+  } catch (error) {
+    reportError(error, { msg: "share revoke failed", userId: req.userId });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// Shopping-list snapshot → read-only link (G2's "send my husband the list").
+app.post("/api/share/list", requireAuth, costlyLimiter, validate(schemas.listShareBody), async (req, res) => {
+  try {
+    const token = makeShareToken();
+    await db
+      .insert(listSharesTable)
+      .values({ token, userId: req.userId, payload: { items: req.body.items } });
+    res.status(200).json({ token, url: `${shareBase(req)}/l/${token}` });
+  } catch (error) {
+    reportError(error, { msg: "list share failed", userId: req.userId });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.get("/r/:slug", async (req, res) => {
+  try {
+    if (!TOKEN_SHAPE.test(req.params.slug)) return res.status(404).type("html").send(renderNotFoundPage());
+    const [share] = await db
+      .select()
+      .from(recipeSharesTable)
+      .where(eq(recipeSharesTable.slug, req.params.slug));
+    if (!share) return res.status(404).type("html").send(renderNotFoundPage());
+    if (share.revokedAt) return res.status(410).type("html").send(renderGonePage());
+    const [recipe] = await db.select().from(recipesTable).where(eq(recipesTable.id, share.recipeId));
+    if (!recipe) return res.status(404).type("html").send(renderNotFoundPage());
+    res.status(200).type("html").send(renderRecipePage(recipe, `${shareBase(req)}/r/${share.slug}`));
+  } catch (error) {
+    reportError(error, { msg: "share page failed", slug: req.params.slug });
+    res.status(500).type("html").send(renderNotFoundPage());
+  }
+});
+
+app.get("/l/:token", async (req, res) => {
+  try {
+    if (!TOKEN_SHAPE.test(req.params.token)) return res.status(404).type("html").send(renderNotFoundPage());
+    const [share] = await db
+      .select()
+      .from(listSharesTable)
+      .where(eq(listSharesTable.token, req.params.token));
+    if (!share) return res.status(404).type("html").send(renderNotFoundPage());
+    if (share.revokedAt) return res.status(410).type("html").send(renderGonePage());
+    res.status(200).type("html").send(renderListPage(share.payload, `${shareBase(req)}/l/${share.token}`));
+  } catch (error) {
+    reportError(error, { msg: "list page failed", token: req.params.token });
+    res.status(500).type("html").send(renderNotFoundPage());
   }
 });
 
