@@ -13,6 +13,7 @@ import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { MealAPI } from "../../services/mealAPI";
 import { loadPrefs, hasPrefs, DIET_CATEGORY, DIET_HIDDEN_CATEGORIES } from "../../lib/prefs";
+import { syncTonightReminder } from "../../lib/notifications";
 import { PlanAPI } from "../../services/userRecipes";
 import { toDayKey } from "../../lib/week";
 import { useDebounce } from "../../hooks/useDebounce";
@@ -52,7 +53,13 @@ const DiscoverScreen = () => {
     useCallback(() => {
       const today = toDayKey(new Date());
       PlanAPI.list(today, today)
-        .then((rows) => setTonight(rows.find((r) => !r.cooked && r.recipeId) || null))
+        .then((rows) => {
+          const entry = rows.find((r) => !r.cooked && r.recipeId) || null;
+          setTonight(entry);
+          // keep the local dinner reminder honest: cooked/cleared plans
+          // cancel it, fresh plans (re)book it at the chosen hour
+          syncTonightReminder(entry);
+        })
         .catch(() => {});
     }, [])
   );

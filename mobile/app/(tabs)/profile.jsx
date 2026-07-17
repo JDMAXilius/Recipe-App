@@ -233,6 +233,16 @@ const AccountScreen = () => {
               <Text style={styles.rowText}>Food preferences</Text>
               <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
             </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.row, styles.rowDivider]}
+              onPress={() => router.push("/notifications")}
+              accessibilityRole="button"
+              accessibilityLabel="Reminders"
+            >
+              <Ionicons name="notifications-outline" size={20} color={colors.inkSoft} />
+              <Text style={styles.rowText}>Reminders</Text>
+              <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
+            </TouchableOpacity>
             <View style={styles.row}>
               <Ionicons name="scale-outline" size={20} color={colors.inkSoft} />
               <Text style={styles.rowText}>Units</Text>
