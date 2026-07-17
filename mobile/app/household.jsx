@@ -14,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
+import { useAuth } from "../context/AuthContext";
 import { createHouseholdStyles } from "../assets/styles/household.styles";
 import { CollabAPI } from "../services/userRecipes";
 import { sharePlainText } from "../lib/shareText";
@@ -29,17 +30,25 @@ const STORE_KEY = "otto.household.v1";
 const SHOPPING_KEY = "otto.shopping.v1";
 const TOKEN_RE = /([A-Za-z0-9_-]{8,24})\s*$/;
 
+// Turn an email into a friendly first name: "juan.lugo@x.com" → "Juan".
+const nameFromEmail = (email) => {
+  const raw = String(email || "").split("@")[0].split(/[._-]/)[0];
+  return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "Me";
+};
+
 const HouseholdScreen = () => {
   const router = useRouter();
   const { colors } = useTheme();
   const { show } = useToast();
+  const { user } = useAuth();
   const styles = useMemo(() => createHouseholdStyles(colors), [colors]);
 
   const [membership, setMembership] = useState(null); // {token, url, displayName}
   const [hydrated, setHydrated] = useState(false);
   const [data, setData] = useState(null); // {mine, items}
-  const [displayName, setDisplayName] = useState("Me");
+  const [displayName, setDisplayName] = useState(() => nameFromEmail(user?.email));
   const [joinLink, setJoinLink] = useState("");
+  const [showJoin, setShowJoin] = useState(false);
   const [newItem, setNewItem] = useState("");
   const [busy, setBusy] = useState(false);
   const pollRef = useRef(null);
@@ -216,6 +225,11 @@ const HouseholdScreen = () => {
   };
 
   const open = data?.items?.filter((i) => !i.checked).length || 0;
+  // Who's pitched in — distinct names off the items themselves (Instacart's
+  // "everyone shopping with you" strip, without a members table).
+  const members = data
+    ? [...new Set((data.items || []).flatMap((i) => [i.addedByName, i.checkedByName]).filter(Boolean))]
+    : [];
 
   return (
     <View style={styles.container}>
@@ -245,77 +259,93 @@ const HouseholdScreen = () => {
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         {!hydrated ? null : !membership ? (
-          <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-            <Text style={styles.intro}>
-              One list for the whole household — everyone adds, everyone checks
-              off, everyone sees the same thing.
+          <ScrollView contentContainerStyle={styles.setupScroll} keyboardShouldPersistTaps="handled">
+            <OttoIdle
+              source={require("../assets/mascot/otto-happy-cut.png")}
+              style={styles.setupOtto}
+            />
+            <Text style={styles.setupTitle}>One list, shared</Text>
+            <Text style={styles.setupBody}>
+              Everyone in the house adds and checks off the same list — live.
+              Start yours from what&apos;s already on your list.
             </Text>
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>What should the others call you?</Text>
+            {/* name as one quiet inline line, not a form to fill out */}
+            <View style={styles.nameLine}>
+              <Text style={styles.nameLabel}>You&apos;ll show up as</Text>
               <TextInput
-                style={styles.input}
+                style={styles.nameInput}
                 value={displayName}
                 onChangeText={setDisplayName}
-                placeholder="Your name"
+                placeholder="your name"
                 placeholderTextColor={colors.inkSoft}
                 maxLength={40}
                 accessibilityLabel="Your display name"
               />
             </View>
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Start a shared list</Text>
-              <Text style={styles.cardHint}>
-                Begins with everything still open on your own shopping list.
-              </Text>
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={() => start(true)}
-                disabled={busy}
-                accessibilityRole="button"
-                accessibilityLabel="Start a shared list from my shopping list"
-              >
-                <Ionicons name="people-outline" size={18} color={colors.white} />
-                <Text style={styles.primaryButtonText}>Start from my list</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.secondaryButton}
-                onPress={() => start(false)}
-                disabled={busy}
-                accessibilityRole="button"
-                accessibilityLabel="Start an empty shared list"
-              >
-                <Text style={styles.secondaryButtonText}>Start empty instead</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => start(true)}
+              disabled={busy}
+              accessibilityRole="button"
+              accessibilityLabel="Start a shared list"
+            >
+              <Ionicons name="people-outline" size={18} color={colors.white} />
+              <Text style={styles.primaryButtonText}>Start a shared list</Text>
+            </TouchableOpacity>
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Got an invite?</Text>
-              <TextInput
-                style={styles.input}
-                value={joinLink}
-                onChangeText={setJoinLink}
-                placeholder="Paste the link here"
-                placeholderTextColor={colors.inkSoft}
-                autoCapitalize="none"
-                autoCorrect={false}
-                accessibilityLabel="Invite link"
-              />
+            {/* joining is the rarer path — quiet until asked for */}
+            {showJoin ? (
+              <View style={styles.joinReveal}>
+                <TextInput
+                  style={styles.input}
+                  value={joinLink}
+                  onChangeText={setJoinLink}
+                  placeholder="Paste the invite link"
+                  placeholderTextColor={colors.inkSoft}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoFocus
+                  accessibilityLabel="Invite link"
+                />
+                <TouchableOpacity
+                  style={styles.secondaryButton}
+                  onPress={join}
+                  disabled={busy}
+                  accessibilityRole="button"
+                  accessibilityLabel="Join the shared list"
+                >
+                  <Ionicons name="enter-outline" size={18} color={colors.accent} />
+                  <Text style={styles.secondaryButtonText}>Join it</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
               <TouchableOpacity
-                style={styles.secondaryButton}
-                onPress={join}
-                disabled={busy}
+                style={styles.joinLink}
+                onPress={() => setShowJoin(true)}
                 accessibilityRole="button"
-                accessibilityLabel="Join the shared list"
+                accessibilityLabel="I have an invite link"
               >
-                <Ionicons name="enter-outline" size={18} color={colors.accent} />
-                <Text style={styles.secondaryButtonText}>Join it</Text>
+                <Text style={styles.joinLinkText}>Got an invite link? Join it</Text>
               </TouchableOpacity>
-            </View>
+            )}
           </ScrollView>
         ) : (
           <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+            {members.length > 0 && (
+              <View style={styles.membersRow}>
+                {members.slice(0, 6).map((name) => (
+                  <View key={name} style={styles.avatar}>
+                    <Text style={styles.avatarText}>{name.charAt(0).toUpperCase()}</Text>
+                  </View>
+                ))}
+                <Text style={styles.membersLabel} numberOfLines={1}>
+                  {members.length === 1 ? "just you so far" : members.join(", ")}
+                </Text>
+              </View>
+            )}
+
             {data && (
               <Text style={styles.countLine}>
                 {open === 0 ? "ALL DONE" : `${open} STILL TO PICK UP`}

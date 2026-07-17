@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Slot, useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useShareIntentSafe, sharedUrlFrom } from "../lib/shareIntent";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AnimatedSplash from "@/components/AnimatedSplash";
@@ -41,7 +41,18 @@ export default function RootLayout() {
             <SavedProvider>
               <ToastProvider>
                 <SafeScreen>
-                  <Slot />
+                  {/* Native stack (was <Slot/>, which had no stack under it)
+                      so every card gets the iOS "drag anywhere to the side to
+                      go back" gesture — a second, gestural way out of any
+                      X-button screen. Two opt-outs:
+                      · cook mode — its exit is guarded (don't lose a session
+                        to a stray swipe); the X stays the deliberate way out.
+                      · onboarding — it pages horizontally, which the back
+                        gesture would fight. */}
+                  <Stack screenOptions={{ headerShown: false, fullScreenGestureEnabled: true }}>
+                    <Stack.Screen name="recipe/cook/[id]" options={{ gestureEnabled: false }} />
+                    <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
+                  </Stack>
                   {!splashDone && <AnimatedSplash onDone={() => setSplashDone(true)} />}
                 </SafeScreen>
               </ToastProvider>
