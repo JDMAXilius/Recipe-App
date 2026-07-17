@@ -19,6 +19,7 @@ import { createAddStyles } from "../assets/styles/add.styles";
 import { MealAPI } from "../services/mealAPI";
 import { PlanAPI, UserRecipeAPI, transformUserRecipe, isUserRecipeId } from "../services/userRecipes";
 import { buildShoppingList, AISLES } from "../lib/shoppingList";
+import { buildShoppingListShareText, sharePlainText } from "../lib/shareText";
 import { weekDays } from "../lib/week";
 import LoadingSpinner from "../components/LoadingSpinner";
 import OttoIdle from "../components/OttoIdle";
@@ -174,6 +175,13 @@ const ShoppingScreen = () => {
     persist({ ...state, custom: state.custom.filter((c) => c.key !== key), checked });
   };
 
+  const shareList = async () => {
+    Haptics.selectionAsync().catch(() => {});
+    const text = buildShoppingListShareText(state);
+    const { copied } = await sharePlainText(text, "Shopping list");
+    if (copied) show({ message: "List copied — paste it anywhere." });
+  };
+
   const grouped = AISLES.map((aisle) => ({
     aisle,
     items: state.items.filter((i) => i.aisle === aisle),
@@ -194,7 +202,18 @@ const ShoppingScreen = () => {
           <Ionicons name="arrow-back" size={22} color={colors.ink} />
         </TouchableOpacity>
         <Text style={addStyles.editorHeaderTitle}>Shopping list</Text>
-        <View style={{ width: 44 }} />
+        {total > 0 ? (
+          <TouchableOpacity
+            onPress={shareList}
+            style={addStyles.iconButton}
+            accessibilityRole="button"
+            accessibilityLabel="Share the shopping list"
+          >
+            <Ionicons name="share-outline" size={22} color={colors.ink} />
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 44 }} />
+        )}
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>

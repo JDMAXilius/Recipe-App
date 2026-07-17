@@ -18,6 +18,7 @@ import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styl
 import { scaledIngredient, formatQty } from "../../lib/ingredientParser";
 import { segmentStep } from "../../lib/stepEnrich";
 import { splitSteps, matchStepIngredients } from "../../lib/cookSession";
+import { buildRecipeShareText, sharePlainText } from "../../lib/shareText";
 import { useUnitSystem } from "../../hooks/useUnitSystem";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import NutritionCard from "../../components/nutrition/NutritionCard";
@@ -77,6 +78,13 @@ const RecipeDetailScreen = () => {
     if (next === unitSystem) return;
     Haptics.selectionAsync().catch(() => {});
     setUnitSystem(next);
+  };
+
+  const shareRecipe = async () => {
+    Haptics.selectionAsync().catch(() => {});
+    const { copied } = await sharePlainText(buildRecipeShareText(recipe), recipe.title);
+    // web without a share sheet lands on the clipboard — say so (no silent success)
+    if (copied) show({ message: "Recipe copied — paste it anywhere." });
   };
 
   useEffect(() => {
@@ -556,6 +564,14 @@ const RecipeDetailScreen = () => {
       {/* PINNED BOTTOM BAR — Start cooking primary, plan + paw quiet (SideChef dual-bar) */}
       <View style={[recipeDetailStyles.bottomBar, { paddingBottom: safeBottom }]}>
         {!isOwn && <PawMark recipe={recipe} size={26} style={{ width: 52, height: 52 }} />}
+        <TouchableOpacity
+          style={recipeDetailStyles.planButton}
+          onPress={shareRecipe}
+          accessibilityRole="button"
+          accessibilityLabel="Share this recipe"
+        >
+          <Ionicons name="share-outline" size={22} color={colors.accent} />
+        </TouchableOpacity>
         <TouchableOpacity
           style={recipeDetailStyles.planButton}
           onPress={() => setPlanOpen(true)}
