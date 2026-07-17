@@ -125,7 +125,8 @@ const LIST_STYLE = `
   ul{list-style:none;padding:0;margin:0}
   li{display:flex;gap:12px;align-items:baseline;padding:9px 0;
     border-bottom:1.5px dotted #B9A98C}
-  .box{width:15px;height:15px;border:2px solid #8A5A33;border-radius:50%;flex:none;align-self:center}
+  /* printed bullet — the page is a plain list, nothing pretends to be tappable */
+  .dot{width:7px;height:7px;border-radius:50%;background:#8A5A33;opacity:.6;flex:none;align-self:center}
   .qty{color:#C4562E;font-weight:bold}
   .src{color:#8A7A66;font-size:.85rem}
   .sign{margin-top:30px;color:#8A7A66;font-size:.85rem;font-style:italic;text-align:center}
@@ -163,7 +164,7 @@ export function renderListPage(payload, url) {
       <h2>${escapeHtml(aisle)}</h2><div class="rule"></div><ul>${rows
         .map(
           (item) =>
-            `<li><span class="box"></span><span>${
+            `<li><span class="dot"></span><span>${
               item.amount ? `<span class="qty">${escapeHtml(item.amount)}</span> ` : ""
             }${escapeHtml(item.name)}${
               item.sources?.length ? ` <span class="src">— for ${escapeHtml(item.sources.join(", "))}</span>` : ""

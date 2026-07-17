@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
+  Image,
   ScrollView,
   TouchableOpacity,
   TextInput,
@@ -14,8 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
-import { createPlanStyles } from "../assets/styles/plan.styles";
-import { createAddStyles } from "../assets/styles/add.styles";
+import { createShoppingStyles } from "../assets/styles/shopping.styles";
 import { MealAPI } from "../services/mealAPI";
 import { PlanAPI, UserRecipeAPI, transformUserRecipe, isUserRecipeId, ShareAPI } from "../services/userRecipes";
 import { buildShoppingList, AISLES } from "../lib/shoppingList";
@@ -36,8 +36,7 @@ const ShoppingScreen = () => {
   const router = useRouter();
   const { colors } = useTheme();
   const { show } = useToast();
-  const styles = useMemo(() => createPlanStyles(colors), [colors]);
-  const addStyles = useMemo(() => createAddStyles(colors), [colors]);
+  const styles = useMemo(() => createShoppingStyles(colors), [colors]);
 
   const [state, setState] = useState(null); // {builtAt, planIds, excluded, items, custom, checked}
   const [planEntries, setPlanEntries] = useState([]);
@@ -210,20 +209,21 @@ const ShoppingScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={addStyles.header}>
+      {/* App chrome floats on the cream; the pad's own banner names the
+          screen, so no header title. */}
+      <View style={styles.header}>
         <TouchableOpacity
           onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/plan"))}
-          style={addStyles.iconButton}
+          style={styles.iconButton}
           accessibilityRole="button"
           accessibilityLabel="Back"
         >
           <Ionicons name="arrow-back" size={22} color={colors.ink} />
         </TouchableOpacity>
-        <Text style={addStyles.editorHeaderTitle}>Shopping list</Text>
         {total > 0 ? (
           <TouchableOpacity
             onPress={shareList}
-            style={addStyles.iconButton}
+            style={styles.iconButton}
             accessibilityRole="button"
             accessibilityLabel="Share the shopping list"
           >
@@ -236,8 +236,29 @@ const ShoppingScreen = () => {
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          {/* The pad is exactly as tall as the list: the three-slice art
+              stack behind the content keeps frame corners and stacked edge
+              true while the middle band stretches (see shopping.styles.js). */}
+          <View style={styles.pad}>
+            <View style={styles.padArt} pointerEvents="none">
+              <Image source={require("../assets/paper/pad-top.png")} style={styles.padTop} resizeMode="stretch" />
+              <Image source={require("../assets/paper/pad-mid.png")} style={styles.padMid} resizeMode="stretch" />
+              <Image source={require("../assets/paper/pad-bot.png")} style={styles.padBot} resizeMode="stretch" />
+            </View>
+
+            {/* printed banner flag, like the "things to do:" pad */}
+            <View style={styles.bannerWrap} accessibilityRole="header">
+              <View style={styles.banner}>
+                <Text style={styles.bannerText}>SHOPPING LIST</Text>
+              </View>
+              <View style={styles.bannerNotchRow}>
+                <View style={styles.bannerNotchLeft} />
+                <View style={styles.bannerNotchRight} />
+              </View>
+            </View>
+
           {total > 0 && (
-            <View style={styles.header}>
+            <View style={styles.countHeader}>
               <Text style={styles.count}>
                 {done} of {total} in the basket
               </Text>
@@ -290,6 +311,7 @@ const ShoppingScreen = () => {
             grouped.map((group) => (
               <View key={group.aisle}>
                 <Text style={styles.aisleTitle}>{group.aisle}</Text>
+                <View style={styles.aisleRule} />
                 {group.items.map((item) => (
                   <TouchableOpacity
                     key={item.key}
@@ -325,6 +347,7 @@ const ShoppingScreen = () => {
           {state.custom.length > 0 && (
             <View>
               <Text style={styles.aisleTitle}>Your extras</Text>
+              <View style={styles.aisleRule} />
               {state.custom.map((item) => (
                 <TouchableOpacity
                   key={item.key}
@@ -363,7 +386,7 @@ const ShoppingScreen = () => {
               style={styles.addItemInput}
               value={newItem}
               onChangeText={setNewItem}
-              placeholder="Something else? Kitchen roll, coffee…"
+              placeholder="Something else? Coffee…"
               placeholderTextColor={colors.inkSoft}
               onSubmitEditing={addCustom}
               returnKeyType="done"
@@ -377,6 +400,9 @@ const ShoppingScreen = () => {
             >
               <Ionicons name="add" size={22} color={colors.white} />
             </TouchableOpacity>
+          </View>
+
+            <View style={styles.padBottomSpace} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

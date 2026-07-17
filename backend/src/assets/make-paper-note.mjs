@@ -1,12 +1,25 @@
-// Generates paper-note.png — the printed notepad pad behind the /l/:token
-// shopping-list share page (founder references: "things to do:" pad +
-// printed SHOPPING LIST grocery pad). A clean stationery sheet: warm white
-// paper, printed terracotta double-rule frame, stacked-pad bottom edge,
-// soft cast shadow, subtle grain. Alpha cutout, stretched 100%/100% by the
-// share page's .sheet — frame lines are axis-aligned so they stay crisp
-// under stretch. The page body behind it stays Otto's cream.
+// Generates the printed notepad pad artwork (founder references: "things to
+// do:" pad + printed SHOPPING LIST grocery pad). A clean stationery sheet:
+// warm white paper, printed terracotta double-rule frame, stacked-pad
+// bottom edge, soft cast shadow. Alpha cutout on transparency; the page
+// body / app screen behind it stays Otto's cream.
+//
+// Outputs (all from ONE render so they align exactly):
+//   /tmp/pad-cut.png  full pad  -> backend/src/assets/paper-note.png
+//                                  (share page .sheet, stretched 100%/100%)
+//   /tmp/pad-top.png  y 0..150  -> mobile/assets/paper/pad-top.png
+//   /tmp/pad-mid.png  y 150..1120 -> mobile/assets/paper/pad-mid.png
+//   /tmp/pad-bot.png  y 1120..1280 -> mobile/assets/paper/pad-bot.png
+//
+// The app three-slices the pad so its height can track the dynamic list:
+// top and bottom keep their aspect (frame corners, stacked edge, shadow
+// stay true) while the middle band stretches to any length. For that to be
+// seamless the middle band MUST be vertically uniform — so the sheet is
+// flat paper + a horizontal-only sheen; no turbulence textures, and nothing
+// decorative may be drawn between y=150 and y=1120.
+//
 // Run: node make-paper-note.mjs  (needs playwright; CHROME env can point at
-// a pre-installed browser). Copy /tmp/pad-cut.png over paper-note.png.
+// a pre-installed browser).
 import { writeFileSync } from "node:fs";
 // playwright is a run-on-demand dev tool (`npx -y playwright`), not an app dep
 // eslint-disable-next-line import/no-unresolved
@@ -16,18 +29,17 @@ const W = 720, H = 1280;
 const PAD = 26;              // transparent margin for the cast shadow
 const L = PAD, R = W - PAD, TOP = PAD, BOT = H - PAD - 14; // sheet bounds
 const FR = 26;               // printed frame inset from sheet edge
+const SLICE_TOP = 150, SLICE_BOT = 1120; // slice lines (see header comment)
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
   <defs>
-    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="5"/>
-      <feColorMatrix type="matrix" values="0 0 0 0 0.78  0 0 0 0 0.70  0 0 0 0 0.58  0 0 0 0.06 0"/></filter>
-    <filter id="wash"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.006" numOctaves="4" seed="11"/>
-      <feColorMatrix type="matrix" values="0 0 0 0 0.90  0 0 0 0 0.84  0 0 0 0 0.72  0 0 0 0.22 0"/></filter>
     <filter id="blur10"><feGaussianBlur stdDeviation="10"/></filter>
-    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.5"/>
-      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/>
-      <stop offset="1" stop-color="#C9B18A" stop-opacity="0.14"/>
+    <!-- horizontal-only sheen: identical on every row, so the middle slice
+         stretches without a seam -->
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.45"/>
+      <stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="1" stop-color="#C9B18A" stop-opacity="0.12"/>
     </linearGradient>
   </defs>
 
@@ -41,8 +53,6 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
 
   <!-- the sheet -->
   <rect x="${L}" y="${TOP}" width="${R - L}" height="${BOT - TOP}" rx="6" fill="#FEFBF4"/>
-  <rect x="${L}" y="${TOP}" width="${R - L}" height="${BOT - TOP}" rx="6" filter="url(#wash)"/>
-  <rect x="${L}" y="${TOP}" width="${R - L}" height="${BOT - TOP}" rx="6" filter="url(#grain)"/>
   <rect x="${L}" y="${TOP}" width="${R - L}" height="${BOT - TOP}" rx="6" fill="url(#sheen)"/>
   <rect x="${L}" y="${TOP}" width="${R - L}" height="${BOT - TOP}" rx="6"
         fill="none" stroke="#D9CBAF" stroke-width="1.5"/>
@@ -63,5 +73,8 @@ const browser = await chromium.launch(
 const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
 await page.goto("file:///tmp/pad.html");
 await page.screenshot({ path: "/tmp/pad-cut.png", omitBackground: true });
+await page.screenshot({ path: "/tmp/pad-top.png", omitBackground: true, clip: { x: 0, y: 0, width: W, height: SLICE_TOP } });
+await page.screenshot({ path: "/tmp/pad-mid.png", omitBackground: true, clip: { x: 0, y: SLICE_TOP, width: W, height: SLICE_BOT - SLICE_TOP } });
+await page.screenshot({ path: "/tmp/pad-bot.png", omitBackground: true, clip: { x: 0, y: SLICE_BOT, width: W, height: H - SLICE_BOT } });
 await browser.close();
-console.log("v4 pad written");
+console.log("pad + slices written");
