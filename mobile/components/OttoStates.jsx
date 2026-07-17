@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
 import { useTheme } from "../context/ThemeContext";
 import OttoIdle from "./OttoIdle";
-import { SPACING, RADIUS, TYPE, TIMING } from "../constants/tokens";
+import { SPACING, RADIUS, TYPE } from "../constants/tokens";
 
 // Full-screen Otto states (DESIGN_SYSTEM B6).
 // OttoLoading: COLD START ONLY — Sleepy Otto + a rotating cooking tip

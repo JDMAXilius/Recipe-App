@@ -1,8 +1,6 @@
 // Cook-session preparation: split long prose steps into stove-readable
 // chunks and match which ingredients each step needs. Deterministic — the
 // same regex-level parsing Recime proves "reads as magic" on scraped text.
-import { parseMeasure } from "./ingredientParser.js";
-
 const MAX_STEP_CHARS = 220;
 
 // Split a paragraph step into sentence-boundary chunks ≤ MAX_STEP_CHARS.
@@ -62,11 +60,4 @@ export function matchStepIngredients(stepText, ingredientPairs) {
     if (hit) matched.push(pair);
   }
   return matched;
-}
-
-// Compact chip label: "2 tbsp olive oil" (falls back to name alone).
-export function chipLabel(pair) {
-  const { qty, unit } = parseMeasure(pair.measure);
-  if (qty == null && !pair.measure) return pair.name;
-  return `${pair.measure} ${pair.name}`.trim();
 }

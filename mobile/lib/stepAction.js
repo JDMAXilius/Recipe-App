@@ -16,8 +16,6 @@ const ACTIONS = [
   { id: "serve", words: ["serve", "plate up", "enjoy", "portion"] },
 ];
 
-export const ACTION_IDS = [...ACTIONS.map((a) => a.id), "cook"];
-
 export function detectStepAction(text) {
   const haystack = ` ${(text || "").toLowerCase()} `;
   let best = { id: "cook", index: Infinity };

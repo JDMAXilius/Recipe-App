@@ -69,12 +69,3 @@ export function segmentStep(text) {
   if (pos < text.length) segments.push({ type: "text", text: text.slice(pos) });
   return segments;
 }
-
-// Longest duration in a step — used for the step's suggested timer.
-export function primaryTimerMinutes(text) {
-  let best = null;
-  for (const seg of segmentStep(text)) {
-    if (seg.type === "duration" && (best == null || seg.minutes > best)) best = seg.minutes;
-  }
-  return best;
-}
