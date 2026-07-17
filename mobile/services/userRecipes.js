@@ -95,6 +95,47 @@ export const UserRecipeAPI = {
 // Public share links (S2). Mint/revoke are owner-only; a mint on an
 // already-shared recipe returns the same live link. Callers treat failures
 // as "share text-only" — the share button never depends on the network.
+// S3 — the household's live list. The token is the membership; display
+// names ride along on writes for attribution.
+export const CollabAPI = {
+  create: async (displayName, items) => {
+    const res = await authFetch("/lists", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ displayName, items }),
+    });
+    return parseOrThrow(res, "Couldn't start a shared list");
+  },
+  get: async (token) => {
+    const res = await authFetch(`/lists/${token}`);
+    return parseOrThrow(res, "Couldn't reach the shared list");
+  },
+  addItem: async (token, { name, amount, displayName }) => {
+    const res = await authFetch(`/lists/${token}/items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, amount, displayName }),
+    });
+    return parseOrThrow(res, "Couldn't add that");
+  },
+  check: async (token, id, checked, displayName) => {
+    const res = await authFetch(`/lists/${token}/items/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ checked, displayName }),
+    });
+    return parseOrThrow(res, "Couldn't mark that");
+  },
+  removeItem: async (token, id) => {
+    const res = await authFetch(`/lists/${token}/items/${id}`, { method: "DELETE" });
+    return parseOrThrow(res, "Couldn't remove that");
+  },
+  putAway: async (token) => {
+    const res = await authFetch(`/lists/${token}`, { method: "DELETE" });
+    return parseOrThrow(res, "Couldn't put the list away");
+  },
+};
+
 export const ShareAPI = {
   recipeLink: async (id) => {
     const res = await authFetch(`/recipes/${userDbId(id)}/share`, { method: "POST" });

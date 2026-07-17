@@ -207,6 +207,31 @@ export function renderListPage(payload, url) {
 </html>`;
 }
 
+// Landing page for a collaborative-list link opened in a browser: the list
+// itself lives in the app, so this page explains how to join. It never
+// shows the items — the browser visitor hasn't joined anything yet.
+export function renderJoinPage(itemCount, url) {
+  const description =
+    itemCount === 1 ? "1 thing on it so far" : `${itemCount} things on it so far`;
+  return page({
+    title: "You're invited to a shared list",
+    description,
+    image: null,
+    url,
+    body: `
+    <h1>You're invited to a shared list</h1>
+    <p class="meta">${escapeHtml(description)}</p>
+    <p>Someone wants to share their Otto shopping list with you — add things,
+    check things off, everyone sees the same list.</p>
+    <h2>How to join</h2>
+    <ol>
+      <li>Open <strong>Otto</strong> and go to your shopping list</li>
+      <li>Tap the <strong>shared list</strong> (people) icon</li>
+      <li>Paste this link when it asks for one</li>
+    </ol>`,
+  });
+}
+
 export function renderNotFoundPage() {
   return page({
     title: "Nothing simmering here",

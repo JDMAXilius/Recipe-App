@@ -31,6 +31,10 @@ const FAQS = [
     a: "Only people holding the link — links are long random strings nobody can guess, and the pages are read-only. A shared shopping list is a snapshot of that moment; it never updates by itself.",
   },
   {
+    q: "Can my household share one list?",
+    a: "Yes — from your shopping list, tap the people icon to start a shared list and send the invite link. Everyone who joins adds and checks off the same list, and each line shows who added it or picked it up.",
+  },
+  {
     q: "Where does my data live?",
     a: "Your recipes, cooking journal and weekly plan live in your account. Your shopping list and food preferences stay on this phone and never leave it.",
   },

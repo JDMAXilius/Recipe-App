@@ -3,8 +3,8 @@ import { fileURLToPath } from "node:url";
 import cors from "cors";
 import { ENV } from "./config/env.js";
 import { db } from "./config/db.js";
-import { favoritesTable, recipesTable, planEntriesTable, recipeSharesTable, listSharesTable } from "./db/schema.js";
-import { and, eq, desc, asc, gte, lte, isNull } from "drizzle-orm";
+import { favoritesTable, recipesTable, planEntriesTable, recipeSharesTable, listSharesTable, collabListsTable, collabItemsTable } from "./db/schema.js";
+import { and, eq, desc, asc, gte, lte, isNull, count } from "drizzle-orm";
 import { importRecipeFromUrl } from "./lib/importRecipe.js";
 import { detectSocialPlatform, importFromSocialUrl, SocialImportError } from "./lib/import/social.js";
 import { extractionActive, extractRecipeFromText } from "./lib/import/extractRecipe.js";
@@ -19,6 +19,7 @@ import {
   renderListPage,
   renderGonePage,
   renderNotFoundPage,
+  renderJoinPage,
 } from "./lib/sharePages.js";
 
 const app = express();
@@ -562,6 +563,153 @@ app.get("/l/:token", async (req, res) => {
     res.status(200).type("html").send(renderListPage(share.payload, `${shareBase(req)}/l/${share.token}`));
   } catch (error) {
     reportError(error, { msg: "list page failed", token: req.params.token });
+    res.status(500).type("html").send(renderNotFoundPage());
+  }
+});
+
+// ------------------------------------------------- S3 COLLABORATIVE LISTS
+// One list, one unguessable token, everyone who holds it pitches in. The
+// token is the membership; names travel on the items themselves. No
+// websockets — clients poll while the screen is open, which is honest
+// enough for a grocery run.
+
+const loadLiveList = async (token) => {
+  if (!TOKEN_SHAPE.test(token)) return { status: 404 };
+  const [list] = await db.select().from(collabListsTable).where(eq(collabListsTable.token, token));
+  if (!list) return { status: 404 };
+  if (list.revokedAt) return { status: 410 };
+  return { status: 200, list };
+};
+
+app.post("/api/lists", requireAuth, costlyLimiter, validate(schemas.collabCreate), async (req, res) => {
+  try {
+    const token = makeShareToken();
+    await db.insert(collabListsTable).values({ token, ownerUserId: req.userId });
+    const seed = (req.body.items || []).map((item) => ({
+      token,
+      name: item.name,
+      amount: item.amount || null,
+      addedByName: req.body.displayName,
+    }));
+    if (seed.length > 0) await db.insert(collabItemsTable).values(seed);
+    res.status(200).json({ token, url: `${shareBase(req)}/hl/${token}` });
+  } catch (error) {
+    reportError(error, { msg: "collab create failed", userId: req.userId });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.get("/api/lists/:token", requireAuth, async (req, res) => {
+  try {
+    const found = await loadLiveList(req.params.token);
+    if (found.status === 404) return res.status(404).json({ error: "No list at that link" });
+    if (found.status === 410) return res.status(410).json({ error: "That list was put away" });
+    const items = await db
+      .select()
+      .from(collabItemsTable)
+      .where(eq(collabItemsTable.token, found.list.token))
+      .orderBy(collabItemsTable.id);
+    res.status(200).json({
+      token: found.list.token,
+      mine: found.list.ownerUserId === req.userId,
+      items,
+    });
+  } catch (error) {
+    reportError(error, { msg: "collab load failed" });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.post("/api/lists/:token/items", requireAuth, validate(schemas.collabItemAdd), async (req, res) => {
+  try {
+    const found = await loadLiveList(req.params.token);
+    if (found.status !== 200) return res.status(found.status).json({ error: "That list isn't taking items" });
+    const [created] = await db
+      .insert(collabItemsTable)
+      .values({
+        token: found.list.token,
+        name: req.body.name,
+        amount: req.body.amount || null,
+        addedByName: req.body.displayName,
+      })
+      .returning();
+    res.status(200).json(created);
+  } catch (error) {
+    reportError(error, { msg: "collab add failed" });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+app.patch("/api/lists/:token/items/:id", requireAuth, validate(schemas.collabItemCheck), async (req, res) => {
+  try {
+    const found = await loadLiveList(req.params.token);
+    if (found.status !== 200) return res.status(found.status).json({ error: "That list isn't live" });
+    const id = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(id)) return res.status(400).json({ error: "Bad id" });
+    const [updated] = await db
+      .update(collabItemsTable)
+      .set({
+        checked: req.body.checked,
+        checkedByName: req.body.checked ? req.body.displayName : null,
+      })
+      .where(and(eq(collabItemsTable.token, found.list.token), eq(collabItemsTable.id, id)))
+      .returning();
+    if (!updated) return res.status(404).json({ error: "Not found" });
+    res.status(200).json(updated);
+  } catch (error) {
+    reportError(error, { msg: "collab check failed" });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// Household trust model: anyone holding the list can erase a line — it's a
+// fridge door, not a ledger.
+app.delete("/api/lists/:token/items/:id", requireAuth, async (req, res) => {
+  try {
+    const found = await loadLiveList(req.params.token);
+    if (found.status !== 200) return res.status(found.status).json({ error: "That list isn't live" });
+    const id = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(id)) return res.status(400).json({ error: "Bad id" });
+    await db
+      .delete(collabItemsTable)
+      .where(and(eq(collabItemsTable.token, found.list.token), eq(collabItemsTable.id, id)));
+    res.status(200).json({ ok: true });
+  } catch (error) {
+    reportError(error, { msg: "collab delete failed" });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// Only whoever started the list can put it away.
+app.delete("/api/lists/:token", requireAuth, async (req, res) => {
+  try {
+    const found = await loadLiveList(req.params.token);
+    if (found.status !== 200) return res.status(found.status).json({ error: "That list isn't live" });
+    if (found.list.ownerUserId !== req.userId) return res.status(403).json({ error: "Only the list's starter can put it away" });
+    await db
+      .update(collabListsTable)
+      .set({ revokedAt: new Date() })
+      .where(eq(collabListsTable.token, found.list.token));
+    res.status(200).json({ revoked: true });
+  } catch (error) {
+    reportError(error, { msg: "collab revoke failed" });
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+// The link's landing page — tells a browser visitor how to join in the app.
+app.get("/hl/:token", async (req, res) => {
+  try {
+    const found = await loadLiveList(req.params.token);
+    if (found.status === 404) return res.status(404).type("html").send(renderNotFoundPage());
+    if (found.status === 410) return res.status(410).type("html").send(renderGonePage());
+    const [row] = await db
+      .select({ n: count() })
+      .from(collabItemsTable)
+      .where(eq(collabItemsTable.token, found.list.token));
+    res.status(200).type("html").send(renderJoinPage(Number(row?.n || 0), `${shareBase(req)}/hl/${found.list.token}`));
+  } catch (error) {
+    reportError(error, { msg: "join page failed", token: req.params.token });
     res.status(500).type("html").send(renderNotFoundPage());
   }
 });

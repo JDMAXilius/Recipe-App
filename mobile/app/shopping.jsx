@@ -220,18 +220,26 @@ const ShoppingScreen = () => {
         >
           <Ionicons name="arrow-back" size={22} color={colors.ink} />
         </TouchableOpacity>
-        {total > 0 ? (
+        <View style={{ flexDirection: "row", gap: 8 }}>
           <TouchableOpacity
-            onPress={shareList}
+            onPress={() => router.push("/household")}
             style={styles.iconButton}
             accessibilityRole="button"
-            accessibilityLabel="Share the shopping list"
+            accessibilityLabel="Open the shared list"
           >
-            <Ionicons name="share-outline" size={22} color={colors.ink} />
+            <Ionicons name="people-outline" size={20} color={colors.ink} />
           </TouchableOpacity>
-        ) : (
-          <View style={{ width: 44 }} />
-        )}
+          {total > 0 ? (
+            <TouchableOpacity
+              onPress={shareList}
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Share the shopping list"
+            >
+              <Ionicons name="share-outline" size={22} color={colors.ink} />
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>

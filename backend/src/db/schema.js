@@ -72,6 +72,28 @@ export const listSharesTable = pgTable("list_shares", {
   revokedAt: timestamp("revoked_at"),
 });
 
+// S3 — collaborative lists. The capability token IS the membership: anyone
+// who holds the link (and is signed in) can read, add and check. Names are
+// denormalized onto items at write time — attribution is a courtesy label
+// ("Maria added this"), not an identity system.
+export const collabListsTable = pgTable("collab_lists", {
+  token: text("token").primaryKey(),
+  ownerUserId: text("owner_user_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  revokedAt: timestamp("revoked_at"),
+});
+
+export const collabItemsTable = pgTable("collab_items", {
+  id: serial("id").primaryKey(),
+  token: text("token").notNull(),
+  name: text("name").notNull(),
+  amount: text("amount"),
+  addedByName: text("added_by_name").notNull(),
+  checked: boolean("checked").default(false).notNull(),
+  checkedByName: text("checked_by_name"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Otto's week — loose buckets, one row per planned dish. Recipe fields are a
 // snapshot so seed/user recipes plan identically (and survive deletions).
 export const planEntriesTable = pgTable("plan_entries", {

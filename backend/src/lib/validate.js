@@ -31,6 +31,30 @@ export const schemas = {
     text: z.string().trim().min(40).max(20000),
   }),
 
+  collabCreate: z.object({
+    displayName: z.string().trim().min(1).max(40),
+    items: z
+      .array(
+        z.object({
+          name: z.string().trim().min(1).max(200),
+          amount: z.string().trim().max(60).optional(),
+        })
+      )
+      .max(200)
+      .optional(),
+  }),
+
+  collabItemAdd: z.object({
+    displayName: z.string().trim().min(1).max(40),
+    name: z.string().trim().min(1).max(200),
+    amount: z.string().trim().max(60).optional(),
+  }),
+
+  collabItemCheck: z.object({
+    displayName: z.string().trim().min(1).max(40),
+    checked: z.boolean(),
+  }),
+
   recipeCreate: z.object({
     source: z.enum(["imported", "manual"]),
     sourceUrl: optionalStr(2000),
