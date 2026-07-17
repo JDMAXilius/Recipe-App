@@ -112,6 +112,45 @@ const AddScreen = () => {
     }
   };
 
+  // Paste-text import: same extraction pipeline as social captions, fed by
+  // whatever the user copied (a DM, a note, an email). Source stays
+  // "manual" — pasted words carry no link worth attributing.
+  const [pastedText, setPastedText] = useState("");
+  const startTextImport = async () => {
+    const body = pastedText.trim();
+    if (body.length < 40) {
+      setFailMessage("Otto needs a little more than that — paste the whole recipe, ingredients and steps.");
+      setPhase("failed");
+      return;
+    }
+    setPhase("parsing");
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    try {
+      const draft = await UserRecipeAPI.importFromText(body);
+      setDraft({
+        mode: "import",
+        source: "manual",
+        sourceUrl: null,
+        sourceName: null,
+        title: draft.title,
+        image: null,
+        category: draft.category || null,
+        area: draft.area || null,
+        servings: draft.servings || 4,
+        ingredients: draft.ingredients,
+        steps: draft.steps,
+      });
+      router.replace("/recipe/edit");
+    } catch (error) {
+      setFailMessage(
+        error.message?.startsWith("Otto")
+          ? error.message
+          : "Otto couldn't sort that text into a recipe."
+      );
+      setPhase("failed");
+    }
+  };
+
   const writeMyself = (carryUrl) => {
     setDraft({
       mode: "manual",
@@ -236,6 +275,35 @@ const AddScreen = () => {
               >
                 <Ionicons name="download-outline" size={18} color={colors.white} />
                 <Text style={styles.primaryButtonText}>Import it</Text>
+              </Bounceable>
+            </View>
+
+            <View style={styles.modeCard}>
+              <View style={styles.modeTitleRow}>
+                <Ionicons name="reader-outline" size={18} color={colors.accent} />
+                <Text style={styles.modeTitle}>Paste the recipe itself</Text>
+              </View>
+              <Text style={styles.modeHint}>
+                Copied out of a DM, a note or an email? Paste the words — Otto sorts them into
+                ingredients and steps for you to check.
+              </Text>
+              <TextInput
+                style={[styles.urlInput, styles.textArea]}
+                value={pastedText}
+                onChangeText={setPastedText}
+                placeholder="Paste the whole thing — ingredients, steps and all."
+                placeholderTextColor={colors.inkSoft}
+                multiline
+                accessibilityLabel="Recipe text"
+              />
+              <Bounceable
+                style={styles.primaryButton}
+                onPress={startTextImport}
+                accessibilityRole="button"
+                accessibilityLabel="Draft a recipe from the pasted text"
+              >
+                <Ionicons name="sparkles-outline" size={18} color={colors.white} />
+                <Text style={styles.primaryButtonText}>Draft it</Text>
               </Bounceable>
             </View>
 

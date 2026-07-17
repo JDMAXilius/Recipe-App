@@ -27,6 +27,10 @@ export const schemas = {
     url: z.string().trim().url().max(2000),
   }),
 
+  importTextBody: z.object({
+    text: z.string().trim().min(40).max(20000),
+  }),
+
   recipeCreate: z.object({
     source: z.enum(["imported", "manual"]),
     sourceUrl: optionalStr(2000),

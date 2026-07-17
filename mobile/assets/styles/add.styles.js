@@ -80,6 +80,11 @@ export const createAddStyles = (colors) =>
       fontSize: 13,
       color: colors.accent,
     },
+    textArea: {
+      height: 96,
+      paddingTop: SPACING.sm + 2,
+      textAlignVertical: "top",
+    },
     urlInput: {
       borderWidth: 1,
       borderColor: colors.border,

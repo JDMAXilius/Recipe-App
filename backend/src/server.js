@@ -7,6 +7,7 @@ import { favoritesTable, recipesTable, planEntriesTable, recipeSharesTable, list
 import { and, eq, desc, asc, gte, lte, isNull } from "drizzle-orm";
 import { importRecipeFromUrl } from "./lib/importRecipe.js";
 import { detectSocialPlatform, importFromSocialUrl, SocialImportError } from "./lib/import/social.js";
+import { extractionActive, extractRecipeFromText } from "./lib/import/extractRecipe.js";
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
@@ -121,6 +122,27 @@ app.post("/api/import", requireAuth, costlyLimiter, validate(schemas.importBody)
     }
     logger.warn({ url: req.body?.url, err: error.message }, "import failed");
     res.status(422).json({ error: "Couldn't read that page" });
+  }
+});
+
+// Paste-text import: any copied text (a DM, a note, grandma's email) runs
+// through the same extraction pipeline as social captions. Same dormant
+// gate — no key, no pretending.
+app.post("/api/import/text", requireAuth, costlyLimiter, validate(schemas.importTextBody), async (req, res) => {
+  if (!extractionActive()) {
+    return res.status(503).json({
+      error: "Otto can't read pasted text just yet — that part of the kitchen is still being wired up.",
+    });
+  }
+  try {
+    const extracted = await extractRecipeFromText({ text: req.body.text, platform: "pasted text", authorName: null });
+    if (!extracted) {
+      return res.status(422).json({ error: "Otto read it twice — that text doesn't seem to hold a recipe." });
+    }
+    res.status(200).json({ ...extracted, image: null, sourceUrl: null, sourceName: null });
+  } catch (error) {
+    logger.warn({ err: error.message }, "text import failed");
+    res.status(502).json({ error: "Otto couldn't make sense of that text right now — try again in a moment." });
   }
 });
 

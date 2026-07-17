@@ -73,6 +73,15 @@ export const UserRecipeAPI = {
     const res = await authFetch(`/recipes/${userDbId(id)}`, { method: "DELETE" });
     return parseOrThrow(res, "Couldn't remove the recipe");
   },
+  importFromText: async (text) => {
+    const res = await authFetch("/import/text", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    return parseOrThrow(res, "Otto couldn't make sense of that text");
+  },
+
   importFromUrl: async (url) => {
     const res = await authFetch("/import", {
       method: "POST",
