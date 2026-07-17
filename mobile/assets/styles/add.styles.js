@@ -142,13 +142,15 @@ export const createAddStyles = (colors) =>
     comingRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: SPACING.sm,
+      gap: SPACING.xs,
       marginTop: SPACING.xl,
       justifyContent: "center",
+      paddingHorizontal: SPACING.lg,
     },
     comingText: {
       ...TYPE.caption,
       color: colors.inkSoft,
+      flexShrink: 1,
     },
 
     // PARSING STATE

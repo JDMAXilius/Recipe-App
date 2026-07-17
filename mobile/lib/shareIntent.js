@@ -12,6 +12,11 @@ try {
 
 const INERT = { hasShareIntent: false, shareIntent: null, resetShareIntent: () => {} };
 
+// True once the native module ships (the iOS rebuild). Lets the UI teach the
+// share-to-Otto flow with a live "Try it" only when it actually works, and
+// show it as "coming soon" until then — the C23 dormant/gated pattern.
+export const shareIntentAvailable = () => Boolean(realUseShareIntent);
+
 export function useShareIntentSafe() {
   // Hook order is stable for the app's lifetime: realUseShareIntent is
   // resolved once at module load, so this branch never flips mid-session.

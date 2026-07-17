@@ -16,8 +16,10 @@ import { useTheme } from "../context/ThemeContext";
 import { createAddStyles } from "../assets/styles/add.styles";
 import { UserRecipeAPI } from "../services/userRecipes";
 import { setDraft } from "../lib/draftStore";
+import { shareIntentAvailable } from "../lib/shareIntent";
 import OttoIdle from "../components/OttoIdle";
 import Bounceable from "../components/Bounceable";
+import ShareCoachSheet from "../components/ShareCoachSheet";
 
 // The ＋ sheet (roadmap Phase 1). Two live modes: Paste a link (deterministic
 // JSON-LD import — "Otto's reading it, check his work") and Write it myself.
@@ -42,6 +44,8 @@ const AddScreen = () => {
   const [fromClipboard, setFromClipboard] = useState(false);
   const [phase, setPhase] = useState("pick"); // pick | parsing | failed
   const [failMessage, setFailMessage] = useState("");
+  const [coachOpen, setCoachOpen] = useState(false);
+  const shareLive = shareIntentAvailable();
 
   // Clipboard detection — "Otto spotted a link" (Crouton pattern). iOS shows
   // a system paste prompt the moment an app READS the clipboard, so we only
@@ -323,17 +327,26 @@ const AddScreen = () => {
               <Text style={styles.secondaryButtonText}>Write it myself</Text>
             </Bounceable>
 
-            <View style={styles.comingRow}>
+            <TouchableOpacity
+              style={styles.comingRow}
+              onPress={() => setCoachOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel="How to save recipes from TikTok and Instagram"
+            >
               <Ionicons name="logo-tiktok" size={13} color={colors.inkSoft} />
               <Ionicons name="logo-instagram" size={13} color={colors.inkSoft} />
               <Text style={styles.comingText}>
-                Pasting TikTok & Instagram links works now — the share button in those apps
-                comes soon.
+                {shareLive
+                  ? "Save straight from TikTok & Instagram — show me how"
+                  : "Save straight from TikTok & Instagram — see how it'll work"}
               </Text>
-            </View>
+              <Ionicons name="chevron-forward" size={13} color={colors.inkSoft} />
+            </TouchableOpacity>
           </ScrollView>
         </KeyboardAvoidingView>
       )}
+
+      <ShareCoachSheet visible={coachOpen} onClose={() => setCoachOpen(false)} live={shareLive} />
     </View>
   );
 };
