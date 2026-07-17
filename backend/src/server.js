@@ -403,8 +403,8 @@ const TOKEN_SHAPE = /^[A-Za-z0-9_-]{8,24}$/;
 
 // The painted paper texture behind the shopping-list share page (and its
 // OG preview image). Committed asset; see mobile/assets/paper/README.md.
-const PAPER_ASSET = fileURLToPath(new URL("./assets/paper-note.jpg", import.meta.url));
-app.get("/share-assets/paper-note.jpg", (_req, res) => {
+const PAPER_ASSET = fileURLToPath(new URL("./assets/paper-note.png", import.meta.url));
+app.get("/share-assets/paper-note.png", (_req, res) => {
   res.set("Cache-Control", "public, max-age=86400");
   res.sendFile(PAPER_ASSET);
 });

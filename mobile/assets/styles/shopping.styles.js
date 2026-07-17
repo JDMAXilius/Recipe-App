@@ -1,9 +1,10 @@
-// Shopping list v2 — the note-on-paper remake (founder ask, 2026-07-17).
-// The screen sits on a hand-painted torn notepad page
-// (assets/paper/shopping-note.jpg — see assets/paper/README.md for the
-// asset provenance/swap); rows are transparent with hand-feel dashed
-// separators so the paper shows through. All content stays dynamic — the
-// paper is texture, never information. Tokens only; no new colors.
+// Shopping list v3 — the 3D torn-notepad remake (founder ask, 2026-07-17).
+// Two painted layers: wood table (assets/paper/table-wood.jpg, cover) and
+// the paper sheet as an alpha cutout (assets/paper/note-cut.png, stretched
+// to the screen so tear/curl/shadow always land where content expects).
+// See assets/paper/README.md for asset provenance/swap. Rows are
+// transparent with per-row ruled hairlines so the paper shows through.
+// All content stays dynamic — the paper is texture, never information.
 import { StyleSheet } from "react-native";
 import { SPACING, RADIUS, TYPE } from "../../constants/tokens";
 
@@ -13,16 +14,25 @@ export const createShoppingStyles = (colors) =>
       flex: 1,
       backgroundColor: colors.background,
     },
+    table: {
+      flex: 1,
+    },
+    // the stretched cutout carries ~2% built-in transparent margin for its
+    // painted shadow; these margins keep painterly wood visible around it
     paper: {
       flex: 1,
+      marginTop: SPACING.xs,
+      marginHorizontal: SPACING.sm + 2,
+      marginBottom: SPACING.sm,
     },
     header: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
+      // inset past the painted table margins at the sheet's sides, and
+      // below the chunky torn edge at the top
       paddingHorizontal: SPACING.lg,
-      // clears the painted torn edge at the top of the sheet
-      paddingTop: SPACING.xl,
+      paddingTop: SPACING.xxl + SPACING.lg,
     },
     iconButton: {
       width: 44,

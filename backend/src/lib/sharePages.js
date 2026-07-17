@@ -99,12 +99,21 @@ export function renderRecipePage(row, url) {
 // same paper as the app screen; texture served at /share-assets/…). The
 // paper is texture only: every word on it comes from the sender's payload.
 const LIST_STYLE = `
-  body{margin:0;font-family:Georgia,'Times New Roman',serif;background:#F3E9DA;color:#2B2118;line-height:1.5}
-  .sheet{max-width:560px;margin:26px auto 16px;padding:52px 28px 40px 46px;
-    background:#FAF4EA url('/share-assets/paper-note.jpg') top center/cover no-repeat;
-    border-radius:6px;box-shadow:0 12px 34px rgba(42,33,27,.20);position:relative}
+  body{margin:0;font-family:Georgia,'Times New Roman',serif;color:#2B2118;line-height:1.5;
+    /* painterly warm wood table behind the sheet */
+    background:#A9763F;
+    background-image:
+      repeating-linear-gradient(178deg, rgba(58,36,16,.10) 0 2px, rgba(0,0,0,0) 2px 9px),
+      repeating-linear-gradient(2deg, rgba(255,224,178,.07) 0 3px, rgba(0,0,0,0) 3px 14px),
+      radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 55%, rgba(58,36,16,.35) 100%)}
+  /* the sheet IS the painting: torn top, creases, curled corner and its own
+     cast shadow live in the alpha-cutout artwork; stretching keeps every
+     painted edge attached no matter how long the list runs */
+  .sheet{max-width:560px;margin:18px auto 10px;padding:70px 40px 84px 52px;
+    background:url('/share-assets/paper-note.png') center/100% 100% no-repeat;
+    position:relative}
   /* classic notepad margin line, terracotta and quiet */
-  .sheet::before{content:"";position:absolute;top:46px;bottom:34px;left:30px;
+  .sheet::before{content:"";position:absolute;top:76px;bottom:92px;left:38px;
     border-left:1.5px solid rgba(196,86,46,.28)}
   h1{font-size:1.9rem;line-height:1.15;margin:0 0 2px}
   .meta{color:#8A7A66;font-size:.95rem;margin:0}
@@ -148,7 +157,7 @@ export function renderListPage(payload, url) {
   // the paper itself makes a warm link preview
   let paperImage = null;
   try {
-    paperImage = new URL("/share-assets/paper-note.jpg", url).href;
+    paperImage = new URL("/share-assets/paper-note.png", url).href;
   } catch {
     // relative page render (tests) — preview image is optional
   }

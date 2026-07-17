@@ -209,12 +209,19 @@ const ShoppingScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* The whole screen sits on the painted torn-notepad page — texture
-          only; every word on it stays dynamic data. */}
+      {/* Two painted layers: the wood table behind (crops freely on any
+          screen) and the torn paper sheet stretched to the screen so its
+          painted tear/curl/shadow always land where the content expects
+          them. Texture only — every word on it stays dynamic data. */}
       <ImageBackground
-        source={require("../assets/paper/shopping-note.jpg")}
-        style={styles.paper}
+        source={require("../assets/paper/table-wood.jpg")}
+        style={styles.table}
         resizeMode="cover"
+      >
+      <ImageBackground
+        source={require("../assets/paper/note-cut.png")}
+        style={styles.paper}
+        resizeMode="stretch"
       >
         <View style={styles.header}>
           <TouchableOpacity
@@ -388,6 +395,7 @@ const ShoppingScreen = () => {
           </View>
         </ScrollView>
         </KeyboardAvoidingView>
+      </ImageBackground>
       </ImageBackground>
     </View>
   );
