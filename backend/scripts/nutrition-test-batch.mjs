@@ -1,10 +1,10 @@
 // B1.5 — prove the nutrition pipeline against trusted vendor numbers.
 // Pulls recipes WITH known-good nutrition from Spoonacular, runs OUR pipeline
-// (Edamam) on the same ingredient lines, and prints a per-recipe delta report.
-// This is the acceptance test for B1 — not a launch dependency.
+// (USDA, key-free) on the same ingredient lines, and prints a per-recipe delta
+// report. This is the acceptance test for B1 — not a launch dependency.
 //
 // Run from backend/:  node --env-file=.env scripts/nutrition-test-batch.mjs [count]
-// Needs: SPOONACULAR_KEY (vendor truth) + EDAMAM_APP_ID/EDAMAM_APP_KEY (our pipeline).
+// Needs: SPOONACULAR_KEY (vendor truth); our pipeline needs no keys.
 import postgres from "postgres";
 import { computeNutrition } from "../src/lib/nutrition/NutritionProvider.js";
 import { ENV } from "../src/config/env.js";
@@ -15,11 +15,6 @@ if (!ENV.SPOONACULAR_KEY) {
   console.log("SPOONACULAR_KEY missing — founder input (free tier is fine). Nothing run.");
   process.exit(0);
 }
-if (!ENV.EDAMAM_APP_ID || !ENV.EDAMAM_APP_KEY) {
-  console.log("EDAMAM keys missing — founder input. Nothing run.");
-  process.exit(0);
-}
-
 const sql = postgres(process.env.DATABASE_URL, { prepare: false });
 
 const url =

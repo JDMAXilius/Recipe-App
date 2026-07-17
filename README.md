@@ -111,7 +111,7 @@ Two Claude sessions collaborate on `main`: a **cloud co-pilot** (research, specs
 Shipped through tickets **P10** (onboarding, splash still+video, social seed) and **B0** in progress (RLS ✅, validation ✅, logging ✅). Waiting on founder to unlock:
 - **SSO** — Apple Developer team + Google OAuth client (Supabase providers)
 - **Anonymous sign-ins** toggle in Supabase Auth
-- **Nutrition pipeline (B1)** — Edamam app ID/key (or "go USDA"), Spoonacular test key
+- **Nutrition validation (B1.5)** — Spoonacular test key (the pipeline itself runs key-free on bundled USDA data)
 - **Otto Club IAP** — Apple IAP products + RevenueCat when gating should go live
 
 Recipe content by [TheMealDB](https://www.themealdb.com/api.php). Built with free-tier tools throughout.

@@ -2,8 +2,9 @@
 //
 // Decision (logged in REDESIGN_NOTES): compute is ASYNC on save. The write
 // returns immediately, nutrition backfills onto the row, the client picks it
-// up on next fetch. Rationale: Edamam adds ~1-3s and a save should never
-// feel slow; a briefly-null nutrition renders as the existing honest
+// up on next fetch. Rationale: a network provider can add seconds and a save
+// should never feel slow (USDA is local, but the seam stays provider-agnostic);
+// a briefly-null nutrition renders as the existing honest
 // estimate framing, not an error. Cache-once everywhere: compute happens on
 // create/edit/recompute — NEVER on read (budget guard).
 import { db } from "../../config/db.js";

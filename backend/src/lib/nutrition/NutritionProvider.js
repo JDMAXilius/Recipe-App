@@ -1,5 +1,5 @@
 // NutritionProvider (B0.3) — the seam for nutrition math. B1 fills this with
-// the Edamam adapter; a USDA FoodData Central adapter can replace it later
+// the USDA FoodData Central adapter; another provider can replace it later
 // without touching callers.
 //
 // Interface:
@@ -25,8 +25,9 @@ import { usdaProvider } from "./usdaProvider.js";
 // requests with the goal to collect, scrape or save data" — and Otto's design
 // is a permanent per-recipe cache, so no Edamam tier under $299/mo could hold
 // it legally. USDA FoodData Central is public domain (CC0): store it, ship it,
-// redistribute it. edamamProvider.js / foodDbProvider.js remain for reference
-// if a caching-permitted Edamam tier is ever bought.
+// redistribute it. The retired Edamam adapters (edamamProvider.js /
+// foodDbProvider.js) live in git history should a caching-permitted tier
+// ever be bought.
 export function activeNutritionProvider() {
   return usdaProvider;
 }
