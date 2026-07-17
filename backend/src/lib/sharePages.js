@@ -95,36 +95,33 @@ export function renderRecipePage(row, url) {
   return page({ title: row.title, description, image: row.image, url, body });
 }
 
-// The list page is a hand-painted torn notepad sheet (shopping list v2 —
-// same paper as the app screen; texture served at /share-assets/…). The
+// The list page is a printed stationery pad (generated cutout served at
+// /share-assets/…; regenerate with ../assets/make-paper-note.mjs). The
 // paper is texture only: every word on it comes from the sender's payload.
 const LIST_STYLE = `
   body{margin:0;font-family:Georgia,'Times New Roman',serif;color:#2B2118;line-height:1.5;
-    /* painterly warm wood table behind the sheet */
-    background:#A9763F;
-    background-image:
-      repeating-linear-gradient(178deg, rgba(58,36,16,.10) 0 2px, rgba(0,0,0,0) 2px 9px),
-      repeating-linear-gradient(2deg, rgba(255,224,178,.07) 0 3px, rgba(0,0,0,0) 3px 14px),
-      radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 55%, rgba(58,36,16,.35) 100%)}
-  /* the sheet IS the painting: torn top, creases, curled corner and its own
-     cast shadow live in the alpha-cutout artwork; stretching keeps every
-     painted edge attached no matter how long the list runs */
-  .sheet{max-width:560px;margin:18px auto 10px;padding:70px 40px 84px 52px;
-    background:url('/share-assets/paper-note.png') center/100% 100% no-repeat;
-    position:relative}
-  /* classic notepad margin line, terracotta and quiet */
-  .sheet::before{content:"";position:absolute;top:76px;bottom:92px;left:38px;
-    border-left:1.5px solid rgba(196,86,46,.28)}
-  h1{font-size:1.9rem;line-height:1.15;margin:0 0 2px}
-  .meta{color:#8A7A66;font-size:.95rem;margin:0}
-  h2{font-style:italic;font-weight:600;font-size:1.06rem;color:#C4562E;margin:26px 0 2px}
-  .rule{width:92px;border-bottom:1px solid rgba(196,86,46,.45);margin-bottom:6px}
+    background:#FAF4EA} /* the app's cream — the pad is the object on it */
+  /* the pad: generated printed-sheet cutout (frame, stacked edge and cast
+     shadow live in the artwork); stretched so the printed frame follows the
+     content no matter how long the list runs */
+  .sheet{max-width:560px;margin:22px auto 14px;padding:38px 44px 64px;
+    background:url('/share-assets/paper-note.png') center/100% 100% no-repeat}
+  /* printed banner flag, like the "things to do:" pad */
+  .flag{width:230px;margin:0 auto 4px;text-align:center;background:#2B2118;color:#FAF4EA;
+    font-size:15px;font-weight:700;letter-spacing:3px;padding:10px 0 16px;
+    clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 9px),0 100%)}
+  .meta{color:#8A7A66;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;
+    text-align:center;margin:6px 0 4px}
+  h2{font-size:.85rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+    color:#2B2118;margin:24px 0 4px}
+  .rule{border-top:1.5px solid rgba(196,86,46,.5);height:0;margin-bottom:6px}
   ul{list-style:none;padding:0;margin:0}
-  li{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid #E6D9C2}
+  li{display:flex;gap:12px;align-items:baseline;padding:9px 0;
+    border-bottom:1.5px dotted #B9A98C}
   .box{width:15px;height:15px;border:2px solid #8A5A33;border-radius:50%;flex:none;align-self:center}
   .qty{color:#C4562E;font-weight:bold}
   .src{color:#8A7A66;font-size:.85rem}
-  .sign{margin-top:30px;color:#8A7A66;font-size:.85rem;font-style:italic}
+  .sign{margin-top:30px;color:#8A7A66;font-size:.85rem;font-style:italic;text-align:center}
 `;
 
 // payload: {items: [{name, amount, aisle, sources[]}]} — the sender's snapshot.
@@ -177,7 +174,7 @@ export function renderListPage(payload, url) {
 </head>
 <body>
   <main class="sheet">
-    <h1>Shopping list</h1>
+    <h1 class="flag">SHOPPING LIST</h1>
     <p class="meta">${escapeHtml(description)}</p>
     ${sections}
     <p class="sign">Shared from Otto, the quieter kind of cookbook.</p>
