@@ -276,7 +276,7 @@ const RecipeDetailScreen = () => {
                 onPress={shareRecipe}
                 onLongPress={shareAsCard}
                 accessibilityRole="button"
-                accessibilityLabel="Share recipe"
+                accessibilityLabel="Share this recipe"
                 accessibilityHint={shareCardAvailable() ? "Long press to share as a picture" : undefined}
               >
                 <Ionicons name="share-outline" size={20} color={colors.ink} />

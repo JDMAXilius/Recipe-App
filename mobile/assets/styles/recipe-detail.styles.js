@@ -381,7 +381,11 @@ export const createRecipeDetailStyles = (colors) =>
       alignItems: "center",
     },
     cookButton: {
-      flex: 1,
+      // width comes from the Bounceable container (containerStyle: flex 1);
+      // this inner box owns only the fixed height. Do NOT add flex here — on
+      // RN-Web `flex: 1` becomes flexBasis 0% and collapses the height to the
+      // content line, leaving Start cooking shorter than the 54×54 planButton.
+      alignSelf: "stretch",
       height: 54,
       borderRadius: RADIUS.button,
       backgroundColor: colors.accent,
