@@ -3,7 +3,13 @@ import { Stack, useRouter } from "expo-router";
 import { useShareIntentSafe, sharedUrlFrom } from "../lib/shareIntent";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AnimatedSplash from "@/components/AnimatedSplash";
-import { useFonts, Lora_600SemiBold, Lora_700Bold } from "@expo-google-fonts/lora";
+import {
+  useFonts,
+  Lora_400Regular,
+  Lora_400Regular_Italic,
+  Lora_600SemiBold,
+  Lora_700Bold,
+} from "@expo-google-fonts/lora";
 import SafeScreen from "@/components/SafeScreen";
 import { AuthProvider } from "../context/AuthContext";
 import { ThemeProvider } from "../context/ThemeContext";
@@ -13,7 +19,12 @@ import { NutritionProvider } from "../context/NutritionContext";
 
 export default function RootLayout() {
   // Lora = the display serif (docs/DESIGN_SYSTEM.md B2). Body text stays system.
-  const [fontsLoaded] = useFonts({ Lora_600SemiBold, Lora_700Bold });
+  const [fontsLoaded] = useFonts({
+    Lora_400Regular,
+    Lora_400Regular_Italic,
+    Lora_600SemiBold,
+    Lora_700Bold,
+  });
   const [splashDone, setSplashDone] = useState(false);
   const router = useRouter();
 
