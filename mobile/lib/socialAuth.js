@@ -16,7 +16,7 @@ import { supabase } from "./supabase";
 WebBrowser.maybeCompleteAuthSession();
 
 const SETTINGS_URL = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/auth/v1/settings`;
-const SOCIAL_PROVIDERS = ["apple", "google", "facebook"]; // display order — Apple first (4.8)
+export const SOCIAL_PROVIDERS = ["apple", "google", "facebook"]; // display order — Apple first (4.8)
 
 export async function fetchEnabledProviders() {
   try {

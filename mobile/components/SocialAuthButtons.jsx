@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
-import { View, Text, Image, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from "react-native";
+import { View, Text, Image, TouchableOpacity, ActivityIndicator, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
 import { SPACING, RADIUS, TYPE } from "../constants/tokens";
 import {
-  fetchEnabledProviders,
+  SOCIAL_PROVIDERS,
   signInWithApple,
   signInWithOAuthProvider,
 } from "../lib/socialAuth";
 
 // Social sign-in (P10 §3) — a compact, centered row of icon buttons with the
 // real brand marks (Apple glyph, Google's multicolor G, Facebook's f), the
-// Thrive Market / eBay pattern. Renders ONLY providers the Supabase project
-// has enabled (live settings check) — no dead buttons, ever. Apple stays
-// first (App Store 4.8). Same component on sign-in and sign-up.
+// Thrive Market / eBay pattern. Shows all three marks (Apple first, App Store
+// 4.8); a provider that isn't wired up yet in Supabase surfaces a friendly
+// error on tap until it's enabled. Same component on sign-in and sign-up.
 const META = {
   apple: { label: "Continue with Apple", icon: "logo-apple", tint: (c) => c.ink },
   google: { label: "Continue with Google", image: require("../assets/brands/google-g.png") },
@@ -30,15 +30,11 @@ export default function SocialAuthButtons({ onError, mode = "sign-in" }) {
   const [busy, setBusy] = useState(null); // provider id while a flow is open
 
   useEffect(() => {
-    let alive = true;
-    fetchEnabledProviders().then((list) => {
-      // Apple's native sheet only exists on iOS builds — hide it elsewhere
-      const usable = Platform.OS === "ios" ? list : list.filter((p) => p !== "apple");
-      if (alive) setProviders(usable);
-    });
-    return () => {
-      alive = false;
-    };
+    // Show all three brand icons regardless of Supabase config or platform
+    // (product decision): the row matches the design before the providers are
+    // wired up. A provider that can't complete (Apple off iOS, or a not-yet-
+    // enabled provider) surfaces a friendly error on tap.
+    setProviders(SOCIAL_PROVIDERS);
   }, []);
 
   if (!providers.length) return null;

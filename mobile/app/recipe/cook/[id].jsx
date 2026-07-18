@@ -10,12 +10,14 @@ import {
   Platform,
   Animated as RNAnimated,
   Easing,
+  Vibration,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { useAudioPlayer, setAudioModeAsync } from "expo-audio";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useKeepAwake } from "expo-keep-awake";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -69,6 +71,14 @@ const CookModeScreen = () => {
   const timersRef = useRef(timers);
   timersRef.current = timers;
 
+  // Timer alarm: a bundled two-tone chime that plays even with the ring switch
+  // off (playsInSilentMode), fired alongside a vibration burst when a timer
+  // hits zero (see the tick effect below).
+  const alarm = useAudioPlayer(require("../../../assets/sounds/timer-alarm.wav"));
+  useEffect(() => {
+    setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     const tick = setInterval(() => {
       const prev = timersRef.current;
@@ -86,8 +96,23 @@ const CookModeScreen = () => {
       });
       setTimers(next);
       if (finished.length) {
+        const t = finished[0];
+        // Sound the alarm + a burst of ~4 vibrations over ~2.5s, and raise the
+        // "ready" banner. Then auto-dismiss the banner (unless the cook already
+        // tapped extend/done, which changes doneTimer).
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-        setDoneTimer({ ...finished[0], remaining: 0 });
+        try {
+          alarm.seekTo(0);
+          alarm.play();
+        } catch {}
+        Vibration.vibrate([0, 500, 350, 500, 350, 500, 350, 500]);
+        setDoneTimer({ ...t, remaining: 0 });
+        setTimeout(() => {
+          setDoneTimer((cur) => (cur && cur.id === t.id ? null : cur));
+          try {
+            alarm.pause();
+          } catch {}
+        }, 3000);
       }
     }, 1000);
     return () => clearInterval(tick);

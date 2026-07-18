@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Platform, Linking, Modal } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Linking, Modal, useWindowDimensions } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SPACING } from "../../constants/tokens";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { WebView } from "react-native-webview";
+import VideoEmbed from "../../components/VideoEmbed";
 import * as Haptics from "expo-haptics";
 import { MealAPI } from "../../services/mealAPI";
 import { UserRecipeAPI, transformUserRecipe, isUserRecipeId, PlanAPI, NutritionAPI, ShareAPI } from "../../services/userRecipes";
@@ -62,6 +62,7 @@ const RecipeDetailScreen = () => {
   const [loading, setLoading] = useState(true);
   const [servings, setServings] = useState(BASE_SERVINGS);
   const [videoPlaying, setVideoPlaying] = useState(false);
+  const { width: winW } = useWindowDimensions();
   const [planOpen, setPlanOpen] = useState(false);
   const { show } = useToast();
   const [unitSystem, setUnitSystem] = useUnitSystem();
@@ -221,14 +222,11 @@ const RecipeDetailScreen = () => {
   // Method: same split steps the cook mode uses — numbering stays aligned.
   const methodSteps = splitSteps(recipe.instructions);
 
-  const handlePlayVideo = () => {
-    // WebView isn't supported on web — open YouTube directly there.
-    if (Platform.OS === "web") {
-      Linking.openURL(`https://www.youtube.com/watch?v=${videoId}`);
-      return;
-    }
-    setVideoPlaying(true);
-  };
+  // Inline YouTube — plays inside the card on both native and web (via the
+  // react-native-youtube-iframe player), so a tap never leaves the app.
+  const handlePlayVideo = () => setVideoPlaying(true);
+  const videoWidth = winW - SPACING.lg * 2;
+  const videoHeight = videoWidth * 0.56; // matches videoCard's 16:9-ish ratio
 
   const addToWeek = async (day) => {
     setPlanOpen(false);
@@ -472,27 +470,12 @@ const RecipeDetailScreen = () => {
           {videoId && (
             <View style={recipeDetailStyles.sectionContainer}>
               <Text style={recipeDetailStyles.sectionTitle}>See it made</Text>
-              {videoPlaying && Platform.OS !== "web" ? (
-                <View style={recipeDetailStyles.videoCard}>
-                  <WebView
-                    style={recipeDetailStyles.webview}
-                    // Load the embed inside an HTML doc with a real baseUrl origin.
-                    // A bare `uri: youtube.com/embed/...` sends no referer, which
-                    // YouTube rejects with "Error 153 — player configuration error";
-                    // giving the iframe an origin fixes it. playsinline + the
-                    // inline-playback props keep it in the card instead of forcing
-                    // the fullscreen native player on first tap.
-                    source={{
-                      html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><style>*{margin:0;padding:0}html,body{height:100%;background:#000;overflow:hidden}iframe{position:absolute;inset:0;width:100%;height:100%;border:0}</style></head><body><iframe src="https://www.youtube.com/embed/${videoId}?playsinline=1&rel=0&modestbranding=1&fs=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></body></html>`,
-                      baseUrl: "https://www.youtube.com",
-                    }}
-                    allowsFullscreenVideo
-                    allowsInlineMediaPlayback
-                    mediaPlaybackRequiresUserAction={false}
-                    javaScriptEnabled
-                    domStorageEnabled
-                    originWhitelist={["*"]}
-                  />
+              {videoPlaying ? (
+                <View style={[recipeDetailStyles.videoCard, { backgroundColor: "#000" }]}>
+                  {/* react-native-youtube-iframe manages the embed origin/handshake
+                      internally (no "Error 153"), and plays inline in the card on
+                      both native and web — the tap never leaves the app. */}
+                  <VideoEmbed videoId={videoId} width={videoWidth} height={videoHeight} />
                 </View>
               ) : (
                 <TouchableOpacity
