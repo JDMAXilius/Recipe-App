@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from "react-native";
+import { View, Text, Image, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
@@ -10,14 +10,14 @@ import {
   signInWithOAuthProvider,
 } from "../lib/socialAuth";
 
-// Social sign-in (P10 §3) — a single HORIZONTAL row of equal buttons, one per
-// provider, each showing the brand logo. Renders ONLY providers the Supabase
-// project actually has enabled (live settings check) — no dead buttons, ever.
-// Apple stays first whenever present (App Store 4.8). Same component on
-// sign-in and sign-up so the order and layout never drift.
+// Social sign-in (P10 §3) — a compact, centered row of icon buttons with the
+// real brand marks (Apple glyph, Google's multicolor G, Facebook's f), the
+// Thrive Market / eBay pattern. Renders ONLY providers the Supabase project
+// has enabled (live settings check) — no dead buttons, ever. Apple stays
+// first (App Store 4.8). Same component on sign-in and sign-up.
 const META = {
   apple: { label: "Continue with Apple", icon: "logo-apple", tint: (c) => c.ink },
-  google: { label: "Continue with Google", icon: "logo-google", tint: () => "#4285F4" },
+  google: { label: "Continue with Google", image: require("../assets/brands/google-g.png") },
   facebook: { label: "Continue with Facebook", icon: "logo-facebook", tint: () => "#1877F2" },
 };
 
@@ -76,8 +76,10 @@ export default function SocialAuthButtons({ onError, mode = "sign-in" }) {
           >
             {busy === p ? (
               <ActivityIndicator size="small" color={colors.inkSoft} />
+            ) : META[p].image ? (
+              <Image source={META[p].image} style={styles.brandImage} resizeMode="contain" />
             ) : (
-              <Ionicons name={META[p].icon} size={24} color={META[p].tint(colors)} />
+              <Ionicons name={META[p].icon} size={22} color={META[p].tint(colors)} />
             )}
           </TouchableOpacity>
         ))}
@@ -94,10 +96,14 @@ export default function SocialAuthButtons({ onError, mode = "sign-in" }) {
 const createStyles = (colors) =>
   StyleSheet.create({
     wrap: { marginBottom: SPACING.md },
-    row: { flexDirection: "row", gap: SPACING.md },
+    row: {
+      flexDirection: "row",
+      justifyContent: "center",
+      gap: SPACING.md,
+    },
     button: {
-      flex: 1,
-      height: 52,
+      width: 76,
+      height: 50,
       borderRadius: RADIUS.button,
       borderWidth: 1,
       borderColor: colors.border,
@@ -106,6 +112,7 @@ const createStyles = (colors) =>
       justifyContent: "center",
     },
     buttonDisabled: { opacity: 0.5 },
+    brandImage: { width: 22, height: 22 },
     dividerRow: {
       flexDirection: "row",
       alignItems: "center",

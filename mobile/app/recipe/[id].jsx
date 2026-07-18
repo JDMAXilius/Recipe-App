@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Platform, Linking, Share, Modal } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Platform, Linking, Modal } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -247,15 +247,6 @@ const RecipeDetailScreen = () => {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      const link = recipe.youtubeUrl ? `\n${recipe.youtubeUrl}` : "";
-      await Share.share({ message: `${recipe.title} — found it with Otto 🦦${link}` });
-    } catch {
-      // user dismissed, or web without navigator.share — nothing to do
-    }
-  };
-
   return (
     <View style={recipeDetailStyles.container}>
       <ScrollView
@@ -282,9 +273,11 @@ const RecipeDetailScreen = () => {
             <View style={recipeDetailStyles.heroActionCluster}>
               <TouchableOpacity
                 style={recipeDetailStyles.backButton}
-                onPress={handleShare}
+                onPress={shareRecipe}
+                onLongPress={shareAsCard}
                 accessibilityRole="button"
                 accessibilityLabel="Share recipe"
+                accessibilityHint={shareCardAvailable() ? "Long press to share as a picture" : undefined}
               >
                 <Ionicons name="share-outline" size={20} color={colors.ink} />
               </TouchableOpacity>
@@ -598,19 +591,10 @@ const RecipeDetailScreen = () => {
         </View>
       )}
 
-      {/* PINNED BOTTOM BAR — Start cooking primary, plan + paw quiet (SideChef dual-bar) */}
+      {/* PINNED BOTTOM BAR — Start cooking is the primary; Add-to-plan its one
+          quiet companion. Save + Share live in the hero cluster (top-right),
+          so they're NOT repeated here (that squeezed the primary button). */}
       <View style={[recipeDetailStyles.bottomBar, { paddingBottom: safeBottom }]}>
-        {!isOwn && <PawMark recipe={recipe} size={26} style={{ width: 52, height: 52 }} />}
-        <TouchableOpacity
-          style={recipeDetailStyles.planButton}
-          onPress={shareRecipe}
-          onLongPress={shareAsCard}
-          accessibilityRole="button"
-          accessibilityLabel="Share this recipe"
-          accessibilityHint={shareCardAvailable() ? "Long press to share as a picture" : undefined}
-        >
-          <Ionicons name="share-outline" size={22} color={colors.accent} />
-        </TouchableOpacity>
         <TouchableOpacity
           style={recipeDetailStyles.planButton}
           onPress={() => setPlanOpen(true)}
