@@ -11,16 +11,16 @@ import { Image } from "expo-image";
 import { useTheme } from "../context/ThemeContext";
 import { TYPE } from "../constants/tokens";
 
-// Splash: Otto as a transparent cutout on the app's own cream — NO parchment
-// box. The old lid-lift video baked a parchment background into every frame
-// (mp4 can't carry alpha), so it always showed as a rectangle over the cream.
-// Founder call (2026-07-18): show just the character, like the cook-mode Otto.
-// A gentle fade + rise on entrance, hold, then dissolve into the app. Tap skips.
-// The "Otto" wordmark (Lora) is composited in-app under the character.
+// Splash: the animated Otto (lid-lift) as a TRANSPARENT clip on the app's own
+// cream — NO parchment box. The source mp4 baked a cream background into every
+// frame (mp4 has no alpha), so it read as a rectangle; we re-cut it per-frame
+// with ML matting into an alpha animated WebP (expo-image plays it, iOS +
+// Android). A gentle fade + rise on entrance, plays through once, then
+// dissolves into the app. Tap skips. "Otto" wordmark (Lora) sits under it.
 
-const OTTO = require("../assets/splash/otto-splash-cut.png"); // corner-flood-filled cutout
-const OTTO_AR = 848 / 1264; // native aspect of the cutout
-const HOLD_MS = 1500;
+const OTTO = require("../assets/splash/otto-splash.webp"); // matted alpha animation
+const OTTO_AR = 720 / 1075; // native aspect of the matted frames
+const HOLD_MS = 3000; // ~one full pass of the 3.0s clip before the dissolve
 
 export default function AnimatedSplash({ onDone }) {
   const { colors } = useTheme();
