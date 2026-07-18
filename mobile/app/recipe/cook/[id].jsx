@@ -97,22 +97,23 @@ const CookModeScreen = () => {
       setTimers(next);
       if (finished.length) {
         const t = finished[0];
-        // Sound the alarm + a burst of ~4 vibrations over ~2.5s, and raise the
-        // "ready" banner. Then auto-dismiss the banner (unless the cook already
-        // tapped extend/done, which changes doneTimer).
+        // Sound the alarm + a vibration burst over ~4s, and raise the "ready"
+        // banner. Then auto-dismiss the banner (unless the cook already tapped
+        // extend/done, which changes doneTimer).
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
         try {
+          alarm.volume = 1.0; // play it at full volume — a timer you can miss is no timer
           alarm.seekTo(0);
           alarm.play();
         } catch {}
-        Vibration.vibrate([0, 500, 350, 500, 350, 500, 350, 500]);
+        Vibration.vibrate([0, 500, 350, 500, 350, 500, 350, 500, 350, 500]);
         setDoneTimer({ ...t, remaining: 0 });
         setTimeout(() => {
           setDoneTimer((cur) => (cur && cur.id === t.id ? null : cur));
           try {
             alarm.pause();
           } catch {}
-        }, 3000);
+        }, 4000);
       }
     }, 1000);
     return () => clearInterval(tick);
