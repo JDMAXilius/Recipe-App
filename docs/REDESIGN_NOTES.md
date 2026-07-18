@@ -655,3 +655,12 @@ Cookbook is ONE tab with in-screen segments.
   provider's **Client IDs must include the bundle id `com.otto.recipes`** for the native
   signInWithIdToken sheet to validate. Buttons are honestly gated by `fetchEnabledProviders()`, so
   Apple-only is a valid first ship; Google/Facebook can follow with no dead UI.
+- **C29. Pre-launch checklist, grounded in real state.** `docs/PRE_LAUNCH_CHECKLIST.md` — tiered
+  (internal TestFlight / App Store review / polish), owner-tagged. Verified against code, not
+  boilerplate: delete-account exists and is unburied (`profile.jsx:24`, `DELETE /api/account`) but
+  only wipes the Supabase auth identity when `SUPABASE_SERVICE_ROLE_KEY` is set on the backend —
+  flagged as a 5.1.1(v) blocker. Privacy/Terms/Rate/Tell-a-friend rows are honestly gated on null
+  URLs (no dead links), so the checklist's job is turning them on. App Privacy "nutrition label"
+  filled from what Otto actually collects (journal photos are on-device → NOT declared; no tracking
+  SDKs → no ATT). Noted an account-deletion completeness gap: share links + collaborative lists
+  aren't wiped on delete — decide before public.
