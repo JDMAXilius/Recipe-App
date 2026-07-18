@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -24,6 +24,8 @@ import { weekDays } from "../lib/week";
 import LoadingSpinner from "../components/LoadingSpinner";
 import OttoIdle from "../components/OttoIdle";
 import ScreenHeader from "../components/ScreenHeader";
+import ShoppingListShareCard from "../components/ShoppingListShareCard";
+import { shareCardAvailable, captureAndShareTallCard } from "../lib/shareCard";
 
 // Shopping list (roadmap Phase 4): built by an EXPLICIT push from the plan,
 // one row per ingredient with summed quantities + provenance, aisle sections,
@@ -43,6 +45,7 @@ const ShoppingScreen = () => {
   const [planEntries, setPlanEntries] = useState([]);
   const [busy, setBusy] = useState(true);
   const [newItem, setNewItem] = useState("");
+  const shareCardRef = useRef(null);
 
   const persist = async (next) => {
     setState(next);
@@ -177,6 +180,12 @@ const ShoppingScreen = () => {
 
   const shareList = async () => {
     Haptics.selectionAsync().catch(() => {});
+    // Preferred: share the list as a picture of the card (matches the app).
+    // Only the current binary carries view-shot; on web/old builds this is a
+    // no-op and we fall through to the text + snapshot-link share below.
+    if (shareCardAvailable() && (await captureAndShareTallCard(shareCardRef, "Shopping list"))) {
+      return;
+    }
     // Snapshot link (S2/G2): a read-only page the recipient opens with no
     // account. If minting fails, the plain-text list still shares alone.
     let link = null;
@@ -410,6 +419,14 @@ const ShoppingScreen = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Off-screen: the snapshot source for the picture share. Mounted (real
+          layout needed for capture), parked out of the viewport. */}
+      {shareCardAvailable() && total > 0 ? (
+        <View style={{ position: "absolute", left: -9999, top: 0 }} pointerEvents="none">
+          <ShoppingListShareCard ref={shareCardRef} state={state} aisles={AISLES} />
+        </View>
+      ) : null}
     </View>
   );
 };

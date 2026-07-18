@@ -43,3 +43,27 @@ export async function captureAndShareCard(ref, title) {
     return false; // caller falls back to the text share
   }
 }
+
+// Same capture, but at the view's own laid-out size (no forced dimensions) —
+// a shopping list is variable-length, so squishing it into a fixed 4:5 frame
+// would crop or distort it. pixelRatio 2 keeps text crisp.
+export async function captureAndShareTallCard(ref, title) {
+  if (!shareCardAvailable() || !ref?.current) return false;
+  try {
+    const uri = await viewShot.captureRef(ref, {
+      format: "png",
+      quality: 1,
+      result: "tmpfile",
+      pixelRatio: 2,
+    });
+    if (!(await sharing.isAvailableAsync())) return false;
+    await sharing.shareAsync(uri, {
+      dialogTitle: title,
+      mimeType: "image/png",
+      UTI: "public.png",
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
