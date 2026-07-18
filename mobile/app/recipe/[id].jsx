@@ -476,8 +476,22 @@ const RecipeDetailScreen = () => {
                 <View style={recipeDetailStyles.videoCard}>
                   <WebView
                     style={recipeDetailStyles.webview}
-                    source={{ uri: `https://www.youtube.com/embed/${videoId}` }}
+                    // Load the embed inside an HTML doc with a real baseUrl origin.
+                    // A bare `uri: youtube.com/embed/...` sends no referer, which
+                    // YouTube rejects with "Error 153 — player configuration error";
+                    // giving the iframe an origin fixes it. playsinline + the
+                    // inline-playback props keep it in the card instead of forcing
+                    // the fullscreen native player on first tap.
+                    source={{
+                      html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><style>*{margin:0;padding:0}html,body{height:100%;background:#000;overflow:hidden}iframe{position:absolute;inset:0;width:100%;height:100%;border:0}</style></head><body><iframe src="https://www.youtube.com/embed/${videoId}?playsinline=1&rel=0&modestbranding=1&fs=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></body></html>`,
+                      baseUrl: "https://www.youtube.com",
+                    }}
                     allowsFullscreenVideo
+                    allowsInlineMediaPlayback
+                    mediaPlaybackRequiresUserAction={false}
+                    javaScriptEnabled
+                    domStorageEnabled
+                    originWhitelist={["*"]}
                   />
                 </View>
               ) : (
