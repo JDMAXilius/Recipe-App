@@ -19,7 +19,7 @@
 | Program | Apple Developer Program (Individual) |
 | Bundle identifier (app) | `com.otto.recipes` |
 | Bundle identifier (share extension) | `com.otto.recipes.share-extension` |
-| Renewal | May 31, 2026 (active) |
+| Renewal | July 18, 2027 (active) |
 
 > The share-extension bundle id exists because of the `expo-share-intent` plugin ("share a TikTok/IG
 > link into Otto"). EAS provisions **both** ids automatically — you don't create them by hand.
