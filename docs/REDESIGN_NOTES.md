@@ -679,3 +679,12 @@ Cookbook is ONE tab with in-screen segments.
   Apple warranty/support obligation). Content ownership stays with the user; license is scoped to
   operating the app. All legal specifics are `[PLACEHOLDERS]`; counsel-review banner on top. Publish
   flow mirrors privacy: fill → host → set `TERMS_URL` in profile.jsx → row appears.
+- **C32. Functional-fixes terminal ticket.** `docs/TERMINAL_TICKET_FUNCTIONAL_FIXES.md` hands the
+  device/backend-only work to the terminal Claude: (1) the recipe-save failure — frontend proven
+  correct in a SDK 54 web build (create→save→cookbook works, "BY YOU"), so the ticket routes straight
+  to the live `POST /api/recipes` + Railway logs, with the `visibility` column (via b0-hardening.mjs)
+  as prime suspect and the localhost `EXPO_PUBLIC_API_URL` as the env fallback; (2) confirm the
+  YouTube Error-153 fix (commit a5f6a8c, baseUrl-origin embed) on a real device, with
+  react-native-youtube-iframe as the fallback; (3) conditional device photo-upload (image picker +
+  Supabase Storage → recipe.image) pending founder's link-vs-upload call. YouTube fix + all other SDK
+  54 UI verified error-free from here; the ticket only carries what the Linux box genuinely can't run.
