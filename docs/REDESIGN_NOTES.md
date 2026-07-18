@@ -626,3 +626,24 @@ Cookbook is ONE tab with in-screen segments.
   when selected) for ALL 14 categories + full cuisine list, footer "Clear all" + "Show N recipes"
   pill. Comp/Chip + Comp/FilterSheet rebuilt to match (outlined spec-v1 chips kept as
   alternatives). Discover surface is now fully verified 1:1.
+
+## Phase 12 — TestFlight prep: EAS build config (2026-07-18, cloud)
+
+- **C24. Repo-side iOS release config, not a build.** The cloud box (Linux, no Apple/Expo
+  interactive auth) can't run `eas login`/`eas init`/`eas build`/`eas submit` — all need a
+  human at a Mac terminal. So this phase ships only what git *can* carry: `mobile/eas.json`
+  (profiles `development`/`preview`/`production`, `appVersionSource: "remote"` so EAS owns the
+  build number, `submit.production.ios.appleTeamId = A6J6HGNWZK`) and an `app.json` hardening
+  pass. The interactive half is handed to the terminal via
+  `docs/TERMINAL_TICKET_TESTFLIGHT.md` (ordered runbook: login → init → env vars → build →
+  submit → TestFlight internal group).
+- **C25. `ITSAppUsesNonExemptEncryption: false` baked into `app.json`.** Otto only uses standard
+  HTTPS, so this is honest and skips the export-compliance prompt on every TestFlight upload.
+- **C26. EXPO_PUBLIC_* env vars flagged as the #1 build gotcha.** They live in gitignored
+  `mobile/.env`; EAS Build does NOT read `.env`, so the ticket makes registering all three
+  (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `API_URL`) with `eas env:create` a hard step — otherwise
+  the build ships pointing at localhost/undefined and white-screens. API URL must be the deployed
+  Railway backend, not localhost. Team ID `A6J6HGNWZK` is the only membership fact committed;
+  phone/address from the founder's screenshot were deliberately NOT written to the repo.
+- **C27. Scope = internal testing only.** Internal (≤100 team testers, no App Review) is the
+  first rung; external testing (Beta App Review + Test Info tab) is explicitly out of scope here.
