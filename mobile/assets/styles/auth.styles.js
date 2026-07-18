@@ -106,7 +106,7 @@ export const createAuthStyles = (colors) =>
     },
     authButton: {
       backgroundColor: colors.accent,
-      height: 52,
+      height: 54,
       borderRadius: RADIUS.button,
       alignItems: "center",
       justifyContent: "center",

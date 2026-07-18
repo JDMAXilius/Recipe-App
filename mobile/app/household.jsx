@@ -15,6 +15,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
+import ScreenHeader from "../components/ScreenHeader";
 import { createHouseholdStyles } from "../assets/styles/household.styles";
 import { CollabAPI } from "../services/userRecipes";
 import { sharePlainText } from "../lib/shareText";
@@ -233,29 +234,22 @@ const HouseholdScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.iconButton}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-        >
-          <Ionicons name="arrow-back" size={22} color={colors.ink} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Our list</Text>
-        {membership && data ? (
-          <TouchableOpacity
-            onPress={shareLink}
-            style={styles.iconButton}
-            accessibilityRole="button"
-            accessibilityLabel="Share the invite link"
-          >
-            <Ionicons name="person-add-outline" size={20} color={colors.ink} />
-          </TouchableOpacity>
-        ) : (
-          <View style={{ width: 44 }} />
-        )}
-      </View>
+      <ScreenHeader
+        title="Our list"
+        onBack={() => router.back()}
+        right={
+          membership && data ? (
+            <TouchableOpacity
+              onPress={shareLink}
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Share the invite link"
+            >
+              <Ionicons name="person-add-outline" size={20} color={colors.ink} />
+            </TouchableOpacity>
+          ) : undefined
+        }
+      />
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         {!hydrated ? null : !membership ? (

@@ -2,13 +2,13 @@ import { useCallback, useMemo, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Dimensions } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Image } from "expo-image";
-import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme } from "../context/ThemeContext";
 import { createAddStyles } from "../assets/styles/add.styles";
 import { createFavoritesStyles } from "../assets/styles/favorites.styles";
 import { SPACING, RADIUS, TYPE } from "../constants/tokens";
 import OttoIdle from "../components/OttoIdle";
+import ScreenHeader from "../components/ScreenHeader";
 
 // Cooking journal — the private life of "Snap your plate" (roadmap Phase 5:
 // a journal life before any public feed). Photos live on-device
@@ -52,18 +52,10 @@ const JournalScreen = () => {
 
   return (
     <View style={addStyles.container}>
-      <View style={addStyles.header}>
-        <TouchableOpacity
-          onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/profile"))}
-          style={addStyles.iconButton}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-        >
-          <Ionicons name="arrow-back" size={22} color={colors.ink} />
-        </TouchableOpacity>
-        <Text style={addStyles.editorHeaderTitle}>Cooking journal</Text>
-        <View style={{ width: 44 }} />
-      </View>
+      <ScreenHeader
+        title="Cooking journal"
+        onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/profile"))}
+      />
 
       <ScrollView contentContainerStyle={{ padding: SPACING.lg, paddingBottom: SPACING.xxl * 2 }}>
         {entries.length === 0 ? (

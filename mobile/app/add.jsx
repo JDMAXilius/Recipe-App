@@ -20,6 +20,7 @@ import { shareIntentAvailable } from "../lib/shareIntent";
 import OttoIdle from "../components/OttoIdle";
 import Bounceable from "../components/Bounceable";
 import ShareCoachSheet from "../components/ShareCoachSheet";
+import ScreenHeader from "../components/ScreenHeader";
 
 // The ＋ sheet (roadmap Phase 1). Two live modes: Paste a link (deterministic
 // JSON-LD import — "Otto's reading it, check his work") and Write it myself.
@@ -173,16 +174,7 @@ const AddScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.iconButton}
-          accessibilityRole="button"
-          accessibilityLabel="Close"
-        >
-          <Ionicons name="close" size={22} color={colors.ink} />
-        </TouchableOpacity>
-      </View>
+      <ScreenHeader leftIcon="close" leftLabel="Close" onBack={() => router.back()} />
 
       {phase === "parsing" ? (
         <View style={styles.parsingWrap}>

@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
+import ScreenHeader from "../components/ScreenHeader";
 import { createFaqStyles } from "../assets/styles/faq.styles";
 
 // Little questions — an accordion of the things people actually wonder.
@@ -61,18 +62,7 @@ const FaqScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.iconButton}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-        >
-          <Ionicons name="arrow-back" size={22} color={colors.ink} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Little questions</Text>
-        <View style={{ width: 44 }} />
-      </View>
+      <ScreenHeader title="Little questions" onBack={() => router.back()} />
 
       <ScrollView contentContainerStyle={styles.scroll}>
         {FAQS.map((item, index) => {

@@ -23,6 +23,7 @@ import { buildShoppingListShareText, sharePlainText } from "../lib/shareText";
 import { weekDays } from "../lib/week";
 import LoadingSpinner from "../components/LoadingSpinner";
 import OttoIdle from "../components/OttoIdle";
+import ScreenHeader from "../components/ScreenHeader";
 
 // Shopping list (roadmap Phase 4): built by an EXPLICIT push from the plan,
 // one row per ingredient with summed quantities + provenance, aisle sections,
@@ -211,36 +212,31 @@ const ShoppingScreen = () => {
     <View style={styles.container}>
       {/* App chrome floats on the cream; the pad's own banner names the
           screen, so no header title. */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/plan"))}
-          style={styles.iconButton}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-        >
-          <Ionicons name="arrow-back" size={22} color={colors.ink} />
-        </TouchableOpacity>
-        <View style={{ flexDirection: "row", gap: 8 }}>
-          <TouchableOpacity
-            onPress={() => router.push("/household")}
-            style={styles.iconButton}
-            accessibilityRole="button"
-            accessibilityLabel="Open the shared list"
-          >
-            <Ionicons name="people-outline" size={20} color={colors.ink} />
-          </TouchableOpacity>
-          {total > 0 ? (
+      <ScreenHeader
+        onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/plan"))}
+        right={
+          <View style={{ flexDirection: "row", gap: 8 }}>
             <TouchableOpacity
-              onPress={shareList}
+              onPress={() => router.push("/household")}
               style={styles.iconButton}
               accessibilityRole="button"
-              accessibilityLabel="Share the shopping list"
+              accessibilityLabel="Open the shared list"
             >
-              <Ionicons name="share-outline" size={22} color={colors.ink} />
+              <Ionicons name="people-outline" size={20} color={colors.ink} />
             </TouchableOpacity>
-          ) : null}
-        </View>
-      </View>
+            {total > 0 ? (
+              <TouchableOpacity
+                onPress={shareList}
+                style={styles.iconButton}
+                accessibilityRole="button"
+                accessibilityLabel="Share the shopping list"
+              >
+                <Ionicons name="share-outline" size={22} color={colors.ink} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        }
+      />
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">

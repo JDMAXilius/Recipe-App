@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
+import ScreenHeader from "../components/ScreenHeader";
 import { createNotificationStyles } from "../assets/styles/notifications.styles";
 import { PlanAPI } from "../services/userRecipes";
 import { toDayKey } from "../lib/week";
@@ -77,18 +78,7 @@ const NotificationsScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.iconButton}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-        >
-          <Ionicons name="arrow-back" size={22} color={colors.ink} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Reminders</Text>
-        <View style={{ width: 44 }} />
-      </View>
+      <ScreenHeader title="Reminders" onBack={() => router.back()} />
 
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.scopeNote}>

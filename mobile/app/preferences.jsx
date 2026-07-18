@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
+import ScreenHeader from "../components/ScreenHeader";
 import { createPreferencesStyles } from "../assets/styles/preferences.styles";
 import { MealAPI } from "../services/mealAPI";
 import { loadPrefs, savePrefs, DIETS, FALLBACK_AREAS } from "../lib/prefs";
@@ -62,25 +62,20 @@ const PreferencesScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.iconButton}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-        >
-          <Ionicons name="arrow-back" size={22} color={colors.ink} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Food preferences</Text>
-        <TouchableOpacity
-          onPress={save}
-          style={styles.saveButton}
-          accessibilityRole="button"
-          accessibilityLabel="Save preferences"
-        >
-          <Text style={[styles.saveText, !dirty && styles.saveTextIdle]}>Save</Text>
-        </TouchableOpacity>
-      </View>
+      <ScreenHeader
+        title="Food preferences"
+        onBack={() => router.back()}
+        right={
+          <TouchableOpacity
+            onPress={save}
+            style={styles.saveButton}
+            accessibilityRole="button"
+            accessibilityLabel="Save preferences"
+          >
+            <Text style={[styles.saveText, !dirty && styles.saveTextIdle]}>Save</Text>
+          </TouchableOpacity>
+        }
+      />
 
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* the honesty contract, in user words */}

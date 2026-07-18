@@ -97,7 +97,7 @@ export const createAddStyles = (colors) =>
       color: colors.ink,
     },
     primaryButton: {
-      height: 50,
+      height: 54,
       borderRadius: RADIUS.button,
       backgroundColor: colors.accent,
       alignItems: "center",
@@ -126,7 +126,7 @@ export const createAddStyles = (colors) =>
       color: colors.inkSoft,
     },
     secondaryButton: {
-      height: 50,
+      height: 54,
       borderRadius: RADIUS.button,
       borderWidth: 1.5,
       borderColor: colors.accent,
