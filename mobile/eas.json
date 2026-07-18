@@ -17,7 +17,8 @@
     },
     "production": {
       "distribution": "store",
-      "autoIncrement": true
+      "autoIncrement": true,
+      "credentialsSource": "local"
     }
   },
   "submit": {

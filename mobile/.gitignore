@@ -43,3 +43,6 @@ app-example
 # native projects are generated (expo prebuild / CNG)
 /ios
 /android
+
+credentials/
+credentials.json
