@@ -647,3 +647,11 @@ Cookbook is ONE tab with in-screen segments.
   phone/address from the founder's screenshot were deliberately NOT written to the repo.
 - **C27. Scope = internal testing only.** Internal (≤100 team testers, no App Review) is the
   first rung; external testing (Beta App Review + Test Info tab) is explicitly out of scope here.
+- **C28. OAuth provider setup is its own ticket.** `docs/TERMINAL_TICKET_OAUTH_PROVIDERS.md`
+  covers Apple/Google/Facebook dashboard config (all interactive console work — Apple Developer,
+  Google Cloud, Meta, Supabase — not scriptable from the repo). Key facts pinned so they can't be
+  re-derived wrong: native redirect `mobile://auth/callback` (scheme is "mobile"), Supabase callback
+  `https://mepzfdefanfpnrvydyty.supabase.co/auth/v1/callback`, and the most-missed step — the Apple
+  provider's **Client IDs must include the bundle id `com.otto.recipes`** for the native
+  signInWithIdToken sheet to validate. Buttons are honestly gated by `fetchEnabledProviders()`, so
+  Apple-only is a valid first ship; Google/Facebook can follow with no dead UI.
