@@ -671,3 +671,11 @@ Cookbook is ONE tab with in-screen segments.
   account delete (matches current backend, doesn't overpromise). All legal specifics are visible
   `[PLACEHOLDERS]`; carries a "not legal advice, get counsel to review" banner. Publishing flow: fill
   placeholders → host → set `PRIVACY_URL` in profile.jsx → the in-app row appears.
+- **C31. Terms of Service drafted (md + hostable html).** `docs/legal/TERMS_OF_SERVICE.md` +
+  `docs/legal/terms-of-service.html`, same brand-styled hostable treatment as the privacy policy.
+  Otto-specific sections carry the weight: a highlighted §8 nutrition/health/food-safety disclaimer
+  (nutrition is an estimate, not medical advice — mirrors the honesty laws) and §15 Apple App Store
+  required clauses (agreement is with the developer not Apple; Apple as third-party beneficiary; no
+  Apple warranty/support obligation). Content ownership stays with the user; license is scoped to
+  operating the app. All legal specifics are `[PLACEHOLDERS]`; counsel-review banner on top. Publish
+  flow mirrors privacy: fill → host → set `TERMS_URL` in profile.jsx → row appears.
