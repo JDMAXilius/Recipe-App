@@ -108,6 +108,18 @@ If real upload is wanted:
 
 ---
 
+## Resolution (Mac session, v1.0.2)
+
+- **Task 1 — recipe save:** NOT a backend bug. The live DB already has `visibility` + `nutrition`
+  (checked `information_schema`), and `POST /api/recipes` was reproduced end-to-end against the
+  deployed Railway backend with a real Supabase token → **201, recipe persisted**. The founder's
+  "save fails" was on **build #13, which crashed on the splash screen** (missing
+  `react-native-worklets` after the SDK 54 bump) and never reached the save flow. Fixed in build
+  #14 (worklets + React Navigation aligned); create works once the app launches.
+- **Task 2 — video:** `react-native-webview` already at the SDK-54 version (13.15.0); the Error-153
+  fix is in `recipe/[id].jsx`. Play-on-device still to be eyeballed, but no version reconcile needed.
+- **Task 3:** not requested — skipped.
+
 ## Done when
 - [ ] Creating a recipe on a real build **saves and persists**, and the recipe is usable like any
       other (opens, plans, cooks, shares, appears in cookbook after restart).
