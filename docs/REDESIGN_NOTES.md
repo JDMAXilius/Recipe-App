@@ -664,3 +664,10 @@ Cookbook is ONE tab with in-screen segments.
   filled from what Otto actually collects (journal photos are on-device → NOT declared; no tracking
   SDKs → no ATT). Noted an account-deletion completeness gap: share links + collaborative lists
   aren't wiped on delete — decide before public.
+- **C30. Privacy policy drafted (md + hostable html).** `docs/legal/PRIVACY_POLICY.md` (canonical
+  source) + `docs/legal/privacy-policy.html` (self-contained, brand-styled, drop on any static host).
+  Written accurate to the real data map — on-device journal photos/prefs declared as NOT collected,
+  no ad/tracking SDKs, and the deletion section honestly states shared links/lists may persist after
+  account delete (matches current backend, doesn't overpromise). All legal specifics are visible
+  `[PLACEHOLDERS]`; carries a "not legal advice, get counsel to review" banner. Publishing flow: fill
+  placeholders → host → set `PRIVACY_URL` in profile.jsx → the in-app row appears.
