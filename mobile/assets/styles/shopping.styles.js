@@ -52,17 +52,51 @@ export const createShoppingStyles = (colors) =>
     padArt: {
       ...StyleSheet.absoluteFillObject,
     },
-    padTop: {
-      width: "100%",
-      aspectRatio: 720 / 150,
+    // A second sheet peeking out bottom-right — keeps the "pad of pages" feel
+    // the old art had, without any image seams.
+    padStack: {
+      position: "absolute",
+      top: 7,
+      left: 7,
+      right: -5,
+      bottom: -6,
+      backgroundColor: "#EFE7DA",
+      borderRadius: 10,
     },
-    padMid: {
-      width: "100%",
-      flex: 1,
+    // The top sheet: warm paper, soft edge, gentle cast shadow.
+    padSheet: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: "#FBF9F3",
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: "#2A211B",
+      shadowOpacity: 0.12,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 4,
     },
-    padBot: {
-      width: "100%",
-      aspectRatio: 720 / 160,
+    // Printed double rule, inset just inside the content frame (FRAME_INSET).
+    // Terracotta ink at low opacity so it reads as a printed line, not a border.
+    padFrameOuter: {
+      position: "absolute",
+      top: FRAME_INSET - 12,
+      left: FRAME_INSET - 12,
+      right: FRAME_INSET - 12,
+      bottom: FRAME_INSET - 12,
+      borderRadius: 5,
+      borderWidth: 1.5,
+      borderColor: "rgba(196, 86, 46, 0.38)",
+    },
+    padFrameInner: {
+      position: "absolute",
+      top: FRAME_INSET - 7,
+      left: FRAME_INSET - 7,
+      right: FRAME_INSET - 7,
+      bottom: FRAME_INSET - 7,
+      borderRadius: 3,
+      borderWidth: 1,
+      borderColor: "rgba(196, 86, 46, 0.22)",
     },
     // clears the bottom frame line + stacked-pad edge inside the artwork
     padBottomSpace: {

@@ -2,7 +2,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
   TouchableOpacity,
   TextInput,
@@ -249,14 +248,18 @@ const ShoppingScreen = () => {
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          {/* The pad is exactly as tall as the list: the three-slice art
-              stack behind the content keeps frame corners and stacked edge
-              true while the middle band stretches (see shopping.styles.js). */}
+          {/* The pad grows with its content. The paper + printed frame are
+              drawn with Views (not a stretched three-slice image): on iOS New
+              Architecture the stretched slices misaligned the frame's side
+              rules at the seams. A real inset double-rule can never drift from
+              the sheet, at any list length. */}
           <View style={styles.pad}>
             <View style={styles.padArt} pointerEvents="none">
-              <Image source={require("../assets/paper/pad-top.png")} style={styles.padTop} resizeMode="stretch" />
-              <Image source={require("../assets/paper/pad-mid.png")} style={styles.padMid} resizeMode="stretch" />
-              <Image source={require("../assets/paper/pad-bot.png")} style={styles.padBot} resizeMode="stretch" />
+              <View style={styles.padStack} />
+              <View style={styles.padSheet}>
+                <View style={styles.padFrameOuter} />
+                <View style={styles.padFrameInner} />
+              </View>
             </View>
 
             {/* printed banner flag, like the "things to do:" pad */}

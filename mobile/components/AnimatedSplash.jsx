@@ -71,7 +71,12 @@ export default function AnimatedSplash({ onDone }) {
       StyleSheet.create({
         fill: {
           ...StyleSheet.absoluteFillObject,
-          backgroundColor: colors.bg,
+          // Match the splash artwork's own parchment background (#FBF5E3),
+          // NOT the app cream (colors.bg #FAF4EA). contentFit="contain"
+          // letterboxes the painting top/bottom; if the bars are cream they
+          // read as a visible seam against the warmer painting. Sampled from
+          // the four corners of otto-splash.png.
+          backgroundColor: "#FBF5E3",
           alignItems: "center",
           justifyContent: "center",
           zIndex: 99,
