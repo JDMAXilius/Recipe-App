@@ -434,32 +434,42 @@ app.delete("/api/plan/:id", requireAuth, async (req, res) => {
 // this route finishes the job automatically (App Store 5.1.1(v)).
 app.delete("/api/account", requireAuth, async (req, res) => {
   try {
-    await db.delete(favoritesTable).where(eq(favoritesTable.userId, req.userId));
-    await db.delete(recipesTable).where(eq(recipesTable.userId, req.userId));
-    await db.delete(planEntriesTable).where(eq(planEntriesTable.userId, req.userId));
+    // ONE transaction. Without it a mid-sequence failure leaves the account
+    // half-deleted AND returns an error — which is exactly what happened when
+    // recipe_shares turned out to be missing from prod: recipes and favorites
+    // were already gone, the caller was told "something went wrong", and the
+    // login still worked. Deleting someone's data is not a step to get wrong
+    // by halves, so it all lands or none of it does.
+    await db.transaction(async (tx) => {
+      await tx.delete(favoritesTable).where(eq(favoritesTable.userId, req.userId));
+      await tx.delete(recipesTable).where(eq(recipesTable.userId, req.userId));
+      await tx.delete(planEntriesTable).where(eq(planEntriesTable.userId, req.userId));
 
-    // Capability URLs outlive the row they point at, so deleting the recipes
-    // above is NOT enough — an un-revoked slug would keep resolving for anyone
-    // who saved it. Delete outright rather than setting revokedAt: the user
-    // asked to be gone, and a revoked row still carries their user_id.
-    await db.delete(recipeSharesTable).where(eq(recipeSharesTable.userId, req.userId));
-    await db.delete(listSharesTable).where(eq(listSharesTable.userId, req.userId));
+      // Capability URLs outlive the row they point at, so deleting the recipes
+      // above is NOT enough — an un-revoked slug would keep resolving for anyone
+      // who saved it. Delete outright rather than setting revokedAt: the user
+      // asked to be gone, and a revoked row still carries their user_id.
+      await tx.delete(recipeSharesTable).where(eq(recipeSharesTable.userId, req.userId));
+      await tx.delete(listSharesTable).where(eq(listSharesTable.userId, req.userId));
 
-    // Collaborative lists they OWN. There is no member registry to hand these
-    // to — collab_items carries only a display name — so ownership cannot be
-    // transferred without a schema change, and an orphaned list is one nobody
-    // can ever put away. So the list dies with its owner and its items go with
-    // it. Lists they merely JOINED are untouched: those belong to someone else.
-    const owned = await db
-      .select({ token: collabListsTable.token })
-      .from(collabListsTable)
-      .where(eq(collabListsTable.ownerUserId, req.userId));
-    const tokens = owned.map((row) => row.token);
-    if (tokens.length > 0) {
-      await db.delete(collabItemsTable).where(inArray(collabItemsTable.token, tokens));
-      await db.delete(collabListsTable).where(inArray(collabListsTable.token, tokens));
-    }
+      // Collaborative lists they OWN. There is no member registry to hand these
+      // to — collab_items carries only a display name — so ownership cannot be
+      // transferred without a schema change, and an orphaned list is one nobody
+      // can ever put away. So the list dies with its owner and its items go with
+      // it. Lists they merely JOINED are untouched: those belong to someone else.
+      const owned = await tx
+        .select({ token: collabListsTable.token })
+        .from(collabListsTable)
+        .where(eq(collabListsTable.ownerUserId, req.userId));
+      const tokens = owned.map((row) => row.token);
+      if (tokens.length > 0) {
+        await tx.delete(collabItemsTable).where(inArray(collabItemsTable.token, tokens));
+        await tx.delete(collabListsTable).where(inArray(collabListsTable.token, tokens));
+      }
+    });
 
+    // Only once the data is safely gone do we drop the login — the reverse
+    // order would strand data no one can sign in to reach.
     let authUserDeleted = false;
     if (ENV.SUPABASE_SERVICE_ROLE_KEY) {
       const { createClient } = await import("@supabase/supabase-js");
