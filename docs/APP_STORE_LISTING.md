@@ -99,6 +99,13 @@ so plainly if review asks.
 
 ## App Review notes (paste into "Notes")
 
+> ⚠️ **VERIFY BEFORE PASTING (2026-07-19):** the first line below is **currently FALSE**. Anonymous
+> sign-ins are disabled on Supabase (`anonymous_provider_disabled`, confirmed against the live
+> project), so `onboarding.jsx` falls through to the sign-in screen — the app opens onto a **hard
+> account wall**. Either enable Anonymous Sign-Ins in Supabase Auth (and re-test), or delete that
+> first line and hand review a demo account. Do not submit a review note that describes a flow the
+> reviewer cannot reproduce.
+
 ```
 Otto can be browsed without an account. Signing in is only required to save a recipe, plan a week, or use a shared shopping list.
 
