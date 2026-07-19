@@ -150,13 +150,45 @@ link, and (second account/device) paste the link → **Join it** → both see th
 > `schema.js` needs a matching idempotent script run against prod, or it silently 500s in production
 > while working locally.
 
+### Task 4b — the join path itself was broken (found + fixed 2026-07-19, `bd3f2553`)
+
+With the tables finally in place, tracing the join flow end to end turned up two bugs that would
+have made "joining does nothing" look like it was *still* broken after the schema fix:
+
+1. **Valid invites were rejected.** The paste box matched `/([A-Za-z0-9_-]{8,24})\s*$/` — the token
+   had to be at the very END of the string. A trailing slash, a `?utm_source=` param added by a
+   messaging app, or the sender typing anything after the link all failed with "that link doesn't
+   look right." It also pulled a junk token out of unrelated URLs (`example.com/somepage` →
+   `somepage`), which then surfaced as "couldn't find a live list" — the wrong error entirely.
+   → `mobile/lib/inviteLink.mjs` `parseInviteToken()`: finds `/hl/<token>` anywhere in the text,
+   accepts a bare token only when it is the whole input. Covered by `mobile/test/inviteLink.test.mjs`
+   (`npm test` in `mobile/`, node's built-in runner).
+2. **A joiner could not pass the invite on.** `join()` stored the pasted string as the membership
+   URL, so anyone who joined by pasting a bare token got `url: null` — and Share then sent a message
+   with **no link in it**. → `GET /api/lists/:token` now returns the canonical `url`; the client
+   stores that and refuses to share a linkless invite.
+
+Also added: a local **"Lists you've been in"** row (last 3, this device only, `otto.household.recent.v1`)
+so losing the link isn't a dead end. Deliberately NOT a member search — the token IS the membership,
+so a directory would mean a user index and a consent surface for the sake of a grocery list.
+
+⚠️ **Still unverified:** all of the above is unit- and web-export-verified only. The two-account
+join has never been exercised on a device.
+
+⚠️ **Check `SHARE_BASE_URL` on Railway.** `shareBase()` falls back to the request host, so if it's
+unset every invite reads `https://recipe-app-production-6cf5.up.railway.app/hl/...` — functional,
+but it pins invites to the Railway host. Point it at getotto.app once the site is live.
+
 ---
 
 ## Done when
 - [ ] Creating a recipe on a real build **saves and persists**, and the recipe is usable like any
       other (opens, plans, cooks, shares, appears in cookbook after restart).
 - [ ] Shared list: after running `s3-collab-schema.mjs` on prod, "Start a shared list" and "Join it"
-      both work on device — two people see the same live list.
+      both work on device — two people see the same live list. *(Schema ✅ applied; join-path bugs
+      ✅ fixed in `bd3f2553` — Task 4b. The two-account device test is what's left.)*
+- [ ] The person who JOINED can share the invite onward and a third account can join from it
+      (this was silently broken — the joiner shared a message with no link).
 - [ ] The root cause of the save failure is identified from the backend log and **fixed at the
       source** (not worked around in the client), with a one-line note here of what it was.
 - [ ] A recipe video **plays** on device with no Error 153.

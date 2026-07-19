@@ -5,7 +5,7 @@
 > pointer to the detailed ticket. The cloud (Linux) session did all repo-side work it could and
 > verified everything reachable from web; what's left needs a device, the live DB, or a console.
 >
-> **Last updated:** 2026-07-19 · **App:** Otto, **v1.0.6** (build 19 on TestFlight), Expo **SDK 54** (RN 0.81.5), on TestFlight.
+> **Last updated:** 2026-07-19 (join-path fixes + account deletion) · **App:** Otto, **v1.0.6** (build 19 on TestFlight), Expo **SDK 54** (RN 0.81.5), on TestFlight.
 
 ---
 
@@ -39,7 +39,7 @@
 
 | # | Item | Owner | Status | Detail |
 |---|---|---|---|---|
-| 1 | ~~**Shared list dead in prod**~~ | Terminal + prod DB | ✅ **DONE 2026-07-19** — ran `s3-collab-schema.mjs` on prod; verified `collab_lists` (4 cols) + `collab_items` (8 cols) exist. Feature switched on; device-test the join flow. | `TERMINAL_TICKET_FUNCTIONAL_FIXES.md` Task 4 |
+| 1 | **Shared list** — schema + join path fixed, **device test outstanding** | Terminal + device | Schema ✅ (`s3-collab-schema.mjs` on prod). Join path ✅ (`bd3f2553`): the paste box rejected valid invites (trailing slash / `?utm_source=` / text after the link) and a joiner shared an invite with **no link in it**. Plus a local "Lists you've been in" rejoin row. **All unit/web-verified only — the two-account join has never run on a device.** | `TERMINAL_TICKET_FUNCTIONAL_FIXES.md` Task 4 + 4b |
 | 2 | **Device-verify the v1.0.5 fixes**: shopping pad frame holds (no seam), splash shows Otto on cream (no box), timer alarm is loud + ~4s, YouTube video plays inline (no Error 153). | Terminal + device | Web-verified only | Functional-fixes Task 2; commits `822e3da`, `fc1fafb`, `4eecaaf` |
 
 **P0.1 exact steps:**
@@ -72,12 +72,23 @@ paste link → **Join it** → both see the same live list.
 
 ## Suggested order for the terminal
 
-1. **P0.1** — run `s3-collab-schema.mjs` on prod (2 min) → shared list works. Highest value, lowest effort.
-2. **P0.2** — pull the next TestFlight build, eyeball the four v1.0.5 fixes on device; note any that need a nudge (pad-frame insets, splash size/animation, alarm volume).
-3. ~~**P1 #3** — OAuth providers~~ ✅ done (Apple + Google + Facebook enabled 2026-07-18).
-4. **P1 #4** — set `SUPABASE_SERVICE_ROLE_KEY` (quick, unblocks the account-deletion requirement).
-5. **P1 #5–6** — legal pages hosted + URLs set, then App Store Connect metadata → submittable.
-6. **P2** — resolve the photo decision (#7) and the deletion-completeness call (#8) before public.
+Everything repo-side that can be done without a device or a console **is done**. What remains is
+one device session, one website, and console work:
+
+1. **One device session, four things at once** (P0.1 + P0.2 + the OAuth tap-test): pull the next
+   build, then — two-account shared-list join *including the joiner re-sharing the invite*; the four
+   v1.0.5 fixes (pad frame, splash, alarm, YouTube); each visible social button end to end; and
+   confirm delete-account returns `authUserDeleted: true`.
+2. **P1 #5** — website `/privacy` + `/terms` live (separate repo/session), then set the two
+   constants in `profile.jsx`. This is the actual critical path to submitting.
+3. **P1 #6** — paste `APP_STORE_LISTING.md` into App Store Connect; add screenshots, a demo account,
+   and the App Privacy answers from `PRE_LAUNCH_CHECKLIST.md` §B.
+4. **Security, not launch-gated:** rotate `SUPABASE_SERVICE_ROLE_KEY` (it was pasted into a chat
+   transcript and bypasses RLS).
+5. **Two calls still open:** the photo decision (#7), and Facebook — take the app Live or disable
+   the provider. A visible-but-broken social button is a rejection.
+6. **Check `SHARE_BASE_URL` on Railway** — unset means every shared-list invite carries the Railway
+   hostname instead of getotto.app.
 
 ## Ticket index
 

@@ -15,6 +15,11 @@
   `captureAndShareTallCard`/`captureAndShareCard`, `components/ShoppingListShareCard.jsx`,
   `components/ShareCard.jsx`). No logic change needed — it was just uninstalled.
 
+> **Update 2026-07-19 (`bd3f2553`):** both packages are now in `mobile/package-lock.json` too —
+> `expo-sharing 14.0.8`, `react-native-view-shot 4.0.3` — resolved by npm from the ranges above, not
+> by `expo install`. Step 1 below is still worth running to confirm those are the versions Expo wants
+> for SDK 54; if it changes them, commit the change. The rebuild is unaffected either way.
+
 ## Do this
 ```bash
 cd mobile
