@@ -21,7 +21,7 @@
 | Import (photo / video-IG) | OCR / share-extension extract | free | **planned** |
 | Create / edit | write/own a recipe | free | built |
 | Cook mode | hands-free steps | free | built (client) |
-| **Nutrition (hero pipeline)** | correct per-serving kcal/macros | free | built, **dormant w/o Edamam keys** |
+| **Nutrition (hero pipeline)** | correct per-serving kcal/macros | free | built + **live on USDA FDC** (ships offline, zero runtime calls) |
 | Plan (Otto's week) | assign dishes to days | free (ungated) | built |
 | Shopping list | list from plan/recipe | free (ungated) | **planned** (client/board only) |
 | Membership (Otto Club) | trial → subscription | paid | **planned** (pre-IAP waitlist) |
@@ -83,16 +83,23 @@ favorites in `mobile/services/mealAPI.js`; all via `authFetch` (Bearer token) �
 
 ## 4. Derived-data pipelines
 **Nutrition (the hero):** `recipes.ingredients [{measure,name}]` → `parseIngredient.js` (normalize
-qty/unit/item) → `NutritionProvider.computeNutrition(ingredients, servings)` → **Edamam adapter** →
+qty/unit/item) → `NutritionProvider.computeNutrition(ingredients, servings)` → **USDA adapter** →
 ÷ servings → per-serving + `confidence` → cached on `recipes.nutrition` (user) / `seed_nutrition`
-(seed). **Dormant when `EDAMAM_APP_ID/KEY` are unset** → returns `null` → UI keeps the honest category
-estimate. Never a fabricated number. Test-batch script diffs our output vs. a trusted source.
+(seed). USDA FoodData Central is **public domain (CC0)**, and `usdaTable.json` ships inside the app —
+so this runs with **zero runtime API calls** and no key. Unresolved ingredients return `null` → the UI
+keeps the honest category estimate. Never a fabricated number.
+
+> **Provider rule for any app built from this template: check the vendor's CACHE and RETENTION terms
+> before writing the adapter.** Otto's pipeline is compute-once-then-store. It was first built on
+> Edamam, whose licence forbids exactly that (caching limited to "FoodId, Food Label"; storage needs
+> explicit permission) — discovered *after* the architecture assumed a cache. Rebuilt on USDA, which
+> permits storing and redistributing freely. Pick the provider whose licence fits the architecture.
 
 ## 5. External providers (adapters — swappable)
 | Capability | Adapter | Provider now | Swap later |
 |---|---|---|---|
 | Recipe content | `backend/src/lib/content/RecipeSource.js` + client `mealAPI` | **TheMealDB** | Spoonacular |
-| Nutrition | `backend/src/lib/nutrition/NutritionProvider.js` → `edamamProvider.js` | **Edamam** (keys pending) | USDA FDC |
+| Nutrition | `backend/src/lib/nutrition/NutritionProvider.js` → `usdaProvider.js` | **USDA FDC** (CC0, offline table) | any CC0/permissive source — **verify cache terms** |
 | Payments | — | — | **RevenueCat** (planned) |
 
 ## 6. Integrations / ingest

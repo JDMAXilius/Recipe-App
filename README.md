@@ -51,7 +51,8 @@ backend/   Express + Drizzle ORM + Supabase Postgres · Supabase Auth (JWT verif
                    recipe_shares · list_shares · collab_lists · collab_items · seed_nutrition
            deterministic /api/import (schema.org JSON-LD, SSRF-guarded)
            RLS enabled · zod validation · rate limits · structured logging
-content    TheMealDB (seed recipes) + user imports — behind a RecipeSource seam
+content    TheMealDB (seed recipes + ingredient lists) + user imports — behind a RecipeSource seam
+nutrition  USDA FoodData Central (CC0) — usdaTable.json ships in the app, zero runtime calls
 ```
 
 Deterministic client libs do the heavy lifting (no LLM in the loop): `ingredientParser` (kitchen-fraction scaling, US↔Metric), `stepEnrich` (durations/temps), `cookSession` (step splitting + ingredient matching), `stepAction` (Otto art selection), `shoppingList` (summing + aisles).
@@ -112,7 +113,12 @@ Two Claude sessions collaborate on `main`: a **cloud co-pilot** (research, specs
 Shipped through tickets **P10** (onboarding, splash still+video, social seed) and **B0** in progress (RLS ✅, validation ✅, logging ✅). Waiting on founder to unlock:
 - **SSO** — Apple Developer team + Google OAuth client (Supabase providers)
 - **Anonymous sign-ins** toggle in Supabase Auth
-- **Nutrition validation (B1.5)** — Spoonacular test key (the pipeline itself runs key-free on bundled USDA data)
+- **Nutrition validation (B1.5)** — a permissively-licensed reference set (the pipeline itself runs key-free on bundled USDA data)
 - **Otto Club IAP** — Apple IAP products + RevenueCat when gating should go live
 
-Recipe content by [TheMealDB](https://www.themealdb.com/api.php). Built with free-tier tools throughout.
+Recipe content by [TheMealDB](https://www.themealdb.com/api.php). Nutrition from
+[USDA FoodData Central](https://fdc.nal.usda.gov) (public domain, CC0). Built with free-tier tools throughout.
+
+**Two sources, one job each:** TheMealDB supplies recipes and ingredient lines; USDA supplies the
+per-ingredient nutrition those lines are costed against. TheMealDB carries no nutrition at any tier,
+by design — it isn't the nutrition source.

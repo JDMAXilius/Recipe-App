@@ -9,6 +9,32 @@
 
 ---
 
+## ⭐ DATA ARCHITECTURE — settled, founder decision 2026-07-19
+
+**Two sources, one job each. This is closed; nothing below overrides it.**
+
+| Layer | Source | Why it's the right one |
+|---|---|---|
+| **Recipes + ingredient lists** | **TheMealDB** | 755 recipes today (counted live 2026-07-19). Premium key `THEMEALDB_KEY` is set on Railway. Ships no nutrition at any tier — that's expected, it isn't the nutrition source. |
+| **Nutrition per ingredient** | **USDA FoodData Central** | Public domain (**CC0**) — the only licence that permits the permanent per-recipe cache this product is built on. `usdaTable.json` ships inside the app: **zero runtime API calls, no key, $0.** |
+
+**How they meet:** TheMealDB gives an ingredient line → `parseIngredient.js` turns it into
+`{qty, unit, item, grams}` → the grams are multiplied by USDA's per-100g figures → summed → divided
+by servings → cached on the row with a `confidence` flag. TheMealDB never supplies a nutrition
+number; USDA never supplies a recipe.
+
+**Ruled out, do not re-propose:** **Edamam** (content *and* nutrition) — its licence forbids caching,
+which is the one thing this architecture requires. **Spoonacular** — only reconsider as a *content*
+source at scale, and check its cache terms first.
+
+> **The standing rule this bought us:** check a vendor's **cache and retention terms before writing
+> the adapter.** Otto was built cache-first on Edamam, and the licence was read afterwards — that
+> cost a deleted cache, a deleted backfill script, and a rebuild.
+
+---
+
+---
+
 ## 0. Current backend — honest inventory (what actually exists)
 
 Read from `backend/src/` on 2026-07-15:
@@ -46,7 +72,7 @@ that is computed — it's guessed. Correct nutrition is a **pipeline**, not a co
 
 ```
 ingredient text ─▶ structured parse ─▶ food match + gram weight ─▶ per-ingredient nutrition
-   {qty,unit,item}      (USDA/Edamam)                              ─▶ Σ ÷ servings ─▶ per-serving
+   {qty,unit,item}      (USDA FDC, offline)                        ─▶ Σ ÷ servings ─▶ per-serving
                                                                    ─▶ confidence + honesty framing
                                                                    ─▶ cache on the recipe row
 ```
@@ -60,14 +86,29 @@ Turn `"2 1/2 cups plain flour"` → `{ qty: 2.5, unit: "cup", item: "plain flour
 ### A2. Nutrition data source — capability + cost (pick the turnkey path first)
 | Source | What it gives | Cost | Fit |
 |---|---|---|---|
-| **Edamam Nutrition Analysis** | POST an ingredient list (natural language) → full nutrition + per-serving + total weight. Does parse+match+sum for you. | Metered, free dev tier, commercial gated | ✅ **Recommended for launch** — turnkey correctness, least code |
-| **USDA FoodData Central** | Free per-food nutrition (350k+ items). You parse, match, convert to grams, sum yourself. | **Free**, gov | Best **cost-owned** path once volume grows; more engineering |
-| **Spoonacular** | Recipes arrive **with nutrition attached**; also `analyzeRecipe` nutrition endpoint. | ~$149/mo+ at scale | Good if we also use it as a content source (§B) |
+| **USDA FoodData Central** | Free per-food nutrition (350k+ items). You parse, match, convert to grams, sum yourself. | **Free**, public domain (CC0) | ✅ **SHIPPED — this is the live provider.** Only source whose licence permits a permanent cache |
+| ~~**Edamam Nutrition Analysis**~~ | POST an ingredient list → full nutrition, parse+match+sum done for you. | ~~Metered~~ | ⛔ **REJECTED — founder decision, do not revisit.** Not price: **licence.** See below |
+| **Spoonacular** | Recipes arrive **with nutrition attached**; also `analyzeRecipe`. | ~$149/mo+ at scale | Only if it also becomes the content source (§B). **Check its cache terms first** |
 
-**Recommendation:** **Edamam Nutrition Analysis at launch** (compute once per recipe, cache), with the
-architecture behind a `NutritionProvider` interface so we can swap to a **USDA-owned pipeline** later
-for cost. For TheMealDB seed recipes: run each through the provider **once**, cache the result — never
-live-call on view.
+**Decision (2026-07-16, reaffirmed 2026-07-19): USDA FoodData Central. Edamam is closed.**
+
+Edamam was the original recommendation here and it was wrong. Its Food DB Enterprise Basic tier
+permits caching **"FoodId, Food Label" only**; every tier forbids "automated programatic requests
+with the goal to collect, scrape or save data", and data "can not be stored unless explicitely
+permetted". **Otto is a permanent per-recipe cache** — the whole design is compute-once-then-store —
+so no tier under $299/mo could legally hold it. The 252 cached rows and the backfill script were
+deleted in `edc1645`; the adapter is gone.
+
+USDA is public domain (CC0): store, ship and redistribute freely, $0. `usdaTable.json` ships inside
+the app, so there are **zero runtime API calls** for nutrition.
+
+> **The lesson, worth more than the vendor choice: read the terms before designing around a vendor.**
+> The architecture was built cache-first, then the licence turned out to forbid caching. That is the
+> expensive order to discover things in. Any future provider gets its cache/retention terms checked
+> *before* a line of adapter code — including Spoonacular above.
+
+For TheMealDB seed recipes: run each through the provider **once**, cache the result — never
+live-call on view. (Trivially fine under CC0; it was the sticking point under Edamam.)
 
 ### A3. Storage + honesty
 - New columns on `recipes` (and a parallel cache for seed recipes): `nutrition JSONB` =
@@ -93,11 +134,13 @@ clean seam to grow — without a rewrite.
 
 ### B1. The `RecipeSource` adapter (server-side)
 Introduce one interface: `getById`, `search`, `filterByIngredient`, `randomBatch`. Adapters:
-**TheMealDB** (now) → **Spoonacular/Edamam** (later). The app talks to *our* API, never a vendor —
-so swapping/adding a source is a backend change only.
+**TheMealDB** (now) → **Spoonacular** (later). The app talks to *our* API, never a vendor —
+so swapping/adding a source is a backend change only. **Edamam is ruled out as a content source too**
+(founder call, 2026-07-19) — same licence problem as its nutrition product, and Otto caches content.
+Whatever comes next: **read the cache/retention terms before writing the adapter.**
 
 ### B2. Capability matrix (what each can give us)
-| Capability | TheMealDB | Spoonacular | Edamam Recipe |
+| Capability | TheMealDB | Spoonacular | ~~Edamam Recipe~~ (ruled out) |
 |---|---|---|---|
 | Catalog size | ~300 | 365k+ | 2.3M |
 | Nutrition included | ❌ | ✅ | ✅ |
@@ -107,7 +150,10 @@ so swapping/adding a source is a backend change only.
 | Cost | Free | ~$149/mo+ | Commercial gated |
 
 ### B3. Test-batch plan (validate the whole pipeline now)
-Pull a **batch of ~50–100 recipes that already carry known-good nutrition** (Spoonacular or Edamam)
+> **Status 2026-07-19:** superseded in provider, not in purpose. The validation set must come from a
+> source whose licence allows storing it — USDA-derived or hand-checked. Not Edamam.
+
+Pull a **batch of ~50–100 recipes that already carry known-good nutrition** (a permissively-licensed source)
 into a `seed_recipes` cache table, tagged `source: "spoonacular_test"`. Purpose: **prove the
 NutritionCard renders correct calories/macros/portions end-to-end** against trusted data before we
 commit to a paid tier. Keep it behind a flag; it's a correctness test-bed, not a launch dependency.
@@ -271,9 +317,9 @@ Each phase is dependency-ordered. **B0 unblocks everything.**
 - **B0 — Foundations & truth.** Confirm the live Supabase DB + run migrations + **verify RLS**;
   add `/api/v1` prefix; structured validation + logging/Sentry; the `RecipeSource` + `NutritionProvider`
   interfaces (empty adapters). *No user-visible change.*
-- **B1 — Nutrition correctness (hero).** Ingredient parser (A1) → `NutritionProvider` (Edamam) →
-  nutrition columns + cache (A3) → seed backfill + **the Spoonacular/Edamam test batch (B3)** to
-  validate the card end-to-end. Real per-serving calories/macros/portions ship.
+- **B1 — Nutrition correctness (hero).** ✅ SHIPPED. Ingredient parser (A1) → `NutritionProvider`
+  (**USDA FDC**, offline table) → nutrition columns + cache (A3) → seed backfill. Real per-serving
+  calories/macros/portions ship, framed as estimates with confidence.
 - **B2 — Create+ & structured ingredients.** Image upload (Supabase Storage), qty/unit/item editor,
   field parity, auto-nutrition on user recipes.
 - **B3 — Import expansion.** LLM fallback for URL; **photo OCR**; then the **share-extension** +
@@ -294,9 +340,9 @@ Each phase is dependency-ordered. **B0 unblocks everything.**
 
 | Service | We need | Founder input |
 |---|---|---|
-| **Edamam Nutrition** | ingredient-list → nutrition + per-serving + weight | API id/key, plan tier, budget |
-| **Spoonacular** (test/scale) | recipes w/ nutrition, findByIngredients | key (test tier free), budget if scaling |
-| **USDA FDC** (later) | per-food nutrition (own the data) | free key |
+| **TheMealDB** | seed recipes + ingredient lists — **the content source** | ✅ premium key set (`THEMEALDB_KEY`) |
+| **USDA FDC** | per-food nutrition — **the nutrition source** | ✅ none needed at runtime (table ships offline) |
+| ~~Edamam~~ / ~~Spoonacular~~ | — | ⛔ not used; see §A2 |
 | **LLM (Claude)** | extraction (URL fallback, photo, video) + Ask Otto | API key + monthly budget |
 | **RevenueCat + Apple** | subscriptions/entitlements/webhooks | RevenueCat acct, IAP products, prices |
 | **Supabase Storage** | recipe/share images | (already have Supabase) |
@@ -307,8 +353,10 @@ Each phase is dependency-ordered. **B0 unblocks everything.**
 
 ## N. Open decisions / dials (founder)
 
-1. **Nutrition provider:** Edamam turnkey at launch (recommended) vs USDA-owned from day one?
-2. **Run the paid-source test batch now** to validate correctness (recommended) — Spoonacular or Edamam?
+1. ~~**Nutrition provider:** Edamam vs USDA?~~ ✅ **DECIDED — USDA FoodData Central.** Closed
+   2026-07-19; see §A2. Do not reopen.
+2. ~~**Paid-source test batch** — Spoonacular or Edamam?~~ ✅ **Neither.** Any validation set has to
+   be storable under its own licence.
 3. **"Appy's Health" = Apple Health?** (assumed yes) — write-only nutrition on cook?
 4. **Shopping-list share:** snapshot link first (recommended) vs collaborative realtime?
 5. **Reviews scope:** cook-then-rate gate adopted (recommended) — v1 seed only, ratings in Phase B6?

@@ -24,14 +24,14 @@
 - **Features:** browse/search · save · import (URL/photo/video) · create/edit · cook mode · **nutrition
   (hero pipeline)** · plan · shopping list · membership (Otto Club) · ratings/comments (Phase 2, UGC).
 - **Entities:** `recipes {id, userId, source, sourceUrl, sourceName, title, image, category, area,
-  servings, ingredients[], steps[], nutrition(derived: parse→Edamam→per-serving→cached+confidence),
+  servings, ingredients[], steps[], nutrition(derived: parse→USDA→per-serving→cached+confidence),
   visibility}` · `favorites` · `plan_entries {day, recipeId, cooked}` · `seed_nutrition` (cache).
 - **Endpoints:** `POST /api/import` · `POST|GET|PUT|DELETE /api/recipes[/:id]` ·
   `POST /api/recipes/:id/nutrition/recompute` · `GET /api/nutrition/seed/:mealId` · `*/api/favorites` ·
   `*/api/plan` · `DELETE /api/account`. Auth = Supabase JWT; every resource owner-scoped.
-- **Pipelines:** **nutrition** = ingredient text → `parseIngredient` → Edamam adapter → ÷ servings →
+- **Pipelines:** **nutrition** = ingredient text → `parseIngredient` → USDA adapter → ÷ servings →
   cache on row / `seed_nutrition` → "estimate + confidence" framing.
-- **Providers:** nutrition → Edamam (swappable to USDA); content → TheMealDB (swappable to Spoonacular).
+- **Providers:** nutrition → **USDA FDC** (CC0; Edamam rejected — its licence forbids the cache this design needs); content → TheMealDB (swappable to Spoonacular).
 - **Ingest:** URL (JSON-LD, SSRF-guarded, built) · photo OCR (planned) · video/IG share-extension (planned).
 - **Gating:** enforced server-side; Otto Club via RevenueCat webhooks (planned).
 
@@ -52,9 +52,9 @@
 
 ## backend (excerpt)
 - **Roadmap:** `docs/BACKEND_ROADMAP.md` (B0 foundations → B1 nutrition hero → B2+ create/ingest/social/IAP).
-- **B0/B1 status:** foundations (logger/validate/rateLimits) + `RecipeSource`/`NutritionProvider`+Edamam
+- **B0/B1 status:** foundations (logger/validate/rateLimits) + `RecipeSource`/`NutritionProvider`+USDA
   adapter + `parseIngredient` + `recipes.nutrition`/`seed_nutrition` + lifecycle + test-batch — built;
-  blocked on Edamam/Spoonacular keys for live numbers.
+  live on USDA FDC (CC0, offline table — no keys, no runtime calls).
 
 ---
 

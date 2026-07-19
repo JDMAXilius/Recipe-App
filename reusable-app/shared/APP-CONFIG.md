@@ -43,5 +43,5 @@
 ## 7. Which tracks / pages to build
 - **Frontend pages:** all 6 (Design System · App Map+Wireframes+Screens · User Flows · App Store Kit ·
   Brand & Voice · Strategy Review) — **built** (`Otto — Master Board`, file `mM0uWkHod9rL1Ff1VJ64Au`).
-- **Backend phases:** B0 foundations + B1 nutrition (built; live numbers blocked on Edamam keys) → B2+
+- **Backend phases:** B0 foundations + B1 nutrition (built; **live on USDA FDC**, no keys needed) → B2+
   per `docs/BACKEND_ROADMAP.md`.

@@ -41,13 +41,20 @@ This is squarely in your AI wheelhouse and very buildable:
 **Seed / discovery content (pick one to start, scale later):**
 - **TheMealDB** — free, attribution, ~hundreds of recipes. Fine to *launch* and prototype; too small to be the whole product.
 - **Spoonacular** — ~365k recipes, deep tags/diets, **findByIngredients**, meal-plan + shopping-list endpoints, nutrition attached; self-serve free→~$149/mo, higher tiers ~$300+. The best "all-in-one" backbone.
-- **Edamam** — ~2.3M recipes + best-in-class **NLP nutrition analysis** (turns an ingredient list into nutrition); products priced separately, commercial use gated on higher tiers.
+- ~~**Edamam**~~ — ~2.3M recipes + NLP nutrition analysis. **RULED OUT (2026-07-19), content and nutrition alike:** its licence forbids the permanent cache Otto is built on. Kept here only so it isn't re-proposed.
 - **Recommendation:** launch on TheMealDB (free), architect the recipe layer behind an interface so you can swap in **Spoonacular** for scale + by-ingredient + shopping without rewrites.
 
 **Nutrition (compute your estimates):**
-- **USDA FoodData Central** — free, government, 350k+ items — compute per-ingredient nutrition yourself; or
-- **Edamam Nutrition Analysis** — plug-and-play NLP from ingredient text (metered).
-- Recommendation: USDA + a parsing layer (cheapest, owns the data); Edamam if you want it turnkey.
+- **USDA FoodData Central** — free, government, 350k+ items — compute per-ingredient nutrition yourself.
+- ~~**Edamam Nutrition Analysis**~~ — plug-and-play NLP from ingredient text (metered).
+- Recommendation: USDA + a parsing layer (cheapest, owns the data).
+
+> **RESOLVED 2026-07-16, closed 2026-07-19 — USDA won, Edamam is out.** Not on price: Edamam's
+> licence forbids the permanent per-recipe cache this product is built on (caching limited to
+> "FoodId, Food Label"; storage needs explicit permission). USDA is public domain (CC0) and its
+> table ships offline with the app. Do not re-propose Edamam. The transferable lesson:
+> **check a vendor's cache/retention terms before designing around it** — the architecture assumed
+> a cache, and the licence was read afterwards.
 
 **Ingredient parsing (this unlocks real scaling):**
 - Use an ingredient parser (e.g. open-source **ingredient-parser** / NYT-style CRF, or Zestful paid) to turn `"2 tbsp smoked paprika"` → `{qty:2, unit:tbsp, item:smoked paprika}`.
@@ -136,7 +143,7 @@ This is squarely in your AI wheelhouse and very buildable:
 - **UGC recipes: NO → YES** — the whole point of import/create.
 - **Ingredient scaling: NO → YES** — a parser gives structured quantities; TheMealDB prose is no longer the only source.
 - **Tabs: 3 → 4 (+Add), → 5 with Plan** — new real features earn the slots (the old rule: a tab must earn its place — now they do).
-- **Data: TheMealDB-only → Supabase system-of-record + swappable content API (Spoonacular/Edamam) + USDA/Edamam nutrition.**
+- **Data: TheMealDB-only → Supabase system-of-record + swappable content API (Spoonacular) + USDA nutrition.** *(Edamam ruled out for both — licence forbids caching.)*
 - Still holds: paw save vocabulary, estimate-framed nutrition, no fake ratings, Otto's voice as the recommender, cook mode in v1.
 
 ---
