@@ -15,8 +15,12 @@
 
 - [ ] **[Terminal]** Build + submit per `TERMINAL_TICKET_TESTFLIGHT.md`, and register the three
   `EXPO_PUBLIC_*` env vars (Supabase URL/key, API URL) — a build without them white-screens.
-- [ ] **[Backend]** Backend is **deployed and public** (Railway), and `EXPO_PUBLIC_API_URL` points at
-  it — a phone can't reach a laptop. Confirm a health endpoint responds over HTTPS.
+- [x] **[Backend]** Backend is **deployed and public** (Railway), and `EXPO_PUBLIC_API_URL` points at
+  it — a phone can't reach a laptop. ✅ **Redeployed 2026-07-19** after discovering prod had been
+  running a **2026-07-16** build, i.e. every share and collab route was missing. `/api/health` 200.
+  > **A health check is NOT a deploy check.** `/api/health` answered 200 the whole time prod was
+  > three days stale. Verify a route from the *newest* feature instead — unauthenticated
+  > `GET /api/lists/<anything>` gives **401 JSON** on current code, **404 HTML** on a stale build.
 - [ ] **[You]** At least **Apple** sign-in configured per `TERMINAL_TICKET_OAUTH_PROVIDERS.md`
   (buttons are honestly gated, so Apple-only is fine; Google/Facebook can follow).
 - [ ] **[Backend] Full account deletion.** `DELETE /api/account` wipes favorites/recipes/plans and
@@ -84,7 +88,10 @@
   carries a real link instead of link-free text.
 - [ ] **[You]** External TestFlight (public testers, up to 10k) needs the **Test Information** tab
   filled + a light Beta App Review. Not needed for internal.
-- [x] **[Backend] Account-deletion completeness sweep. ✅ DONE 2026-07-19.** `DELETE /api/account` now
+- [x] **[Backend] Account-deletion completeness sweep. ✅ DONE + VERIFIED IN PRODUCTION 2026-07-19**
+  (throwaway account seeded across all six user-owned tables → `{dataDeleted:true,
+  authUserDeleted:true}`, its share link 404s, DB sweep shows 0 rows; the whole sweep runs in **one
+  transaction** after a no-transaction bug was found that deleted data and then reported failure). `DELETE /api/account` now
   also deletes `recipe_shares`, `list_shares`, and the `collab_lists` (+ their `collab_items`) the
   user **owns** — hard deletes, not `revokedAt`, since a revoked row still carries their user_id.
   **Call made, easy to reverse:** a shared list dies with its owner. There is no member registry to

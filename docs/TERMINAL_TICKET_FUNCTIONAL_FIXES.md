@@ -172,12 +172,31 @@ Also added: a local **"Lists you've been in"** row (last 3, this device only, `o
 so losing the link isn't a dead end. Deliberately NOT a member search — the token IS the membership,
 so a directory would mean a user index and a consent surface for the sake of a grocery list.
 
-⚠️ **Still unverified:** all of the above is unit- and web-export-verified only. The two-account
-join has never been exercised on a device.
+### Task 4c — the real reason it was dead: the backend was never deployed (2026-07-19)
 
-⚠️ **Check `SHARE_BASE_URL` on Railway.** `shareBase()` falls back to the request host, so if it's
-unset every invite reads `https://recipe-app-production-6cf5.up.railway.app/hl/...` — functional,
-but it pins invites to the Railway host. Point it at getotto.app once the site is live.
+Running the API against production from the Mac showed **every collab and share route 404ing** —
+`/api/lists`, `/hl/`, `/l/`, `/r/`. The deployed container had been up since **2026-07-16**. So the
+schema fix in Task 4 could never have worked: the tables existed, the code did not. Pushing to
+`main` does not deploy the backend (see the deploy gotcha in `TERMINAL_HANDOFF.md`).
+
+Also found in the same pass: **`recipe_shares` and `list_shares` were missing from the prod DB** —
+the S2 share features had been silently falling back to plain-text shares. Fixed with the new
+`backend/scripts/s2-share-schema.mjs`.
+
+**After deploying + applying the schema, verified against production:**
+- A creates a shared list → B joins → `GET /api/lists/:token` returns the canonical `url` → B adds
+  an item → A sees it → public `/hl/` page renders "2 things". ✅
+- `POST /api/recipes/:id/share` → `/r/<slug>` renders the recipe. ✅
+- `POST /api/share/list` → `/l/<token>` renders the list. ✅
+- Full account deletion across all six user-owned tables → `{dataDeleted:true, authUserDeleted:true}`,
+  the deleted user's `/hl/` link 404s, DB sweep shows 0 rows. ✅
+
+⚠️ **Still unverified:** the **UI**. The paste box, the "Lists you've been in" rejoin row, and the
+share sheet have never run on a device — only the API beneath them.
+
+⚠️ **`SHARE_BASE_URL` is still unset on Railway.** Confirmed live: invites currently read
+`https://recipe-app-production-6cf5.up.railway.app/hl/...`. Functional, but it pins every invite to
+the Railway host. Point it at getotto.app once the site is live.
 
 ---
 
