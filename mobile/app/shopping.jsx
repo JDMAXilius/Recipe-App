@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
@@ -39,12 +39,16 @@ const ShoppingScreen = () => {
   const { colors } = useTheme();
   const { show } = useToast();
   const styles = useMemo(() => createShoppingStyles(colors), [colors]);
+  // The plan's "Build my list from this week" button passes a fresh nonce so
+  // we rebuild from the CURRENT plan instead of showing a stale cached list.
+  const { build: buildNonce } = useLocalSearchParams();
 
   const [state, setState] = useState(null); // {builtAt, planIds, excluded, items, custom, checked}
   const [planEntries, setPlanEntries] = useState([]);
   const [busy, setBusy] = useState(true);
   const [newItem, setNewItem] = useState("");
   const shareCardRef = useRef(null);
+  const consumedBuild = useRef(null); // last build-nonce already acted on
 
   const persist = async (next) => {
     setState(next);
@@ -74,27 +78,33 @@ const ShoppingScreen = () => {
         seen.add(entry.recipeId);
         wanted.push(entry);
       }
-      let failures = 0;
-      const recipes = (
-        await Promise.all(
-          wanted.map(async (entry) => {
-            try {
-              if (isUserRecipeId(entry.recipeId)) {
-                return transformUserRecipe(await UserRecipeAPI.get(entry.recipeId));
-              }
-              const meal = await MealAPI.getMealById(entry.recipeId);
-              return meal ? MealAPI.transformMealData(meal) : null;
-            } catch {
-              failures += 1;
-              return null;
+      // A single flaky/rate-limited fetch used to drop a whole dish — or, on a
+      // rebuild, freeze the entire list at its old state. TheMealDB throttles
+      // bursts, so retry each recipe once before giving up on it.
+      const fetchRecipe = async (entry) => {
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            if (isUserRecipeId(entry.recipeId)) {
+              return transformUserRecipe(await UserRecipeAPI.get(entry.recipeId));
             }
-          })
-        )
-      ).filter(Boolean);
+            const meal = await MealAPI.getMealById(entry.recipeId);
+            if (meal) return MealAPI.transformMealData(meal);
+          } catch {
+            // fall through to the retry
+          }
+          if (attempt === 0) await new Promise((r) => setTimeout(r, 450));
+        }
+        return null;
+      };
 
-      // Never persist a silently-gutted list — offline mid-store, the old
-      // one (checks and all) is worth more than an "updated" empty one.
-      if (failures > 0 && previous) {
+      const recipes = (await Promise.all(wanted.map(fetchRecipe))).filter(Boolean);
+      const missing = wanted.length - recipes.length;
+
+      // Only keep the old list if we couldn't load ANY dish (a real outage) and
+      // had a list worth keeping. A PARTIAL failure still rebuilds — the plan
+      // you can see is the plan the list should reflect. (Old bug: bailed on
+      // the first failure, so one bad fetch froze the whole list.)
+      if (recipes.length === 0 && wanted.length > 0 && previous) {
         show({ message: "Couldn't reach the pantry — keeping your current list." });
         return previous;
       }
@@ -110,6 +120,11 @@ const ShoppingScreen = () => {
         recipes: recipes.map((r) => ({ id: String(r.id), title: r.title })),
       };
       await persist(next);
+      if (missing > 0) {
+        show({
+          message: `${missing} dish${missing === 1 ? "" : "es"} wouldn't load — tap Update to try again.`,
+        });
+      }
       return next;
     },
     [] // eslint-disable-line react-hooks/exhaustive-deps
@@ -127,14 +142,21 @@ const ShoppingScreen = () => {
         } catch {
           stored = null;
         }
-        if (!stored) {
+        // A fresh nonce from the plan's build button means "rebuild from this
+        // week now" — don't just show the cached list. Guard on the nonce so
+        // re-focusing the tab later doesn't rebuild again.
+        const forceBuild = Boolean(buildNonce) && buildNonce !== consumedBuild.current;
+        if (forceBuild) {
+          consumedBuild.current = buildNonce;
+          await build(entries, stored?.excluded || [], stored);
+        } else if (!stored) {
           await build(entries, [], null);
         } else {
           setState(stored);
         }
         setBusy(false);
       })();
-    }, [loadPlan, build])
+    }, [loadPlan, build, buildNonce])
   );
 
   if (busy || !state) return <LoadingSpinner message="Counting the pantry..." />;

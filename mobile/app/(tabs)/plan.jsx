@@ -189,7 +189,7 @@ const PlanScreen = () => {
           <Bounceable
             style={styles.listButton}
             containerStyle={styles.listButtonWrap}
-            onPress={() => router.push("/shopping")}
+            onPress={() => router.push({ pathname: "/shopping", params: { build: String(Date.now()) } })}
             accessibilityRole="button"
             accessibilityLabel="Build my shopping list from this week"
           >
