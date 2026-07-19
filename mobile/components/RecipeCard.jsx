@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
 import { useNutrition } from "../context/NutritionContext";
 import { createRecipeCardStyles } from "../assets/styles/home.styles";
+import { getNutritionEstimate } from "../constants/nutritionEstimates";
 import PawMark from "./PawMark";
 import Bounceable from "./Bounceable";
 
@@ -31,12 +32,20 @@ export default function RecipeCard({ recipe }) {
   }, [recipe.id, isOwn, request]);
 
   const computed = isOwn ? recipe.nutrition : getNutrition(recipe.id);
-  // Only a figure computed from THIS recipe's ingredients earns a badge.
-  // Previously the card fell back to a category-typical guess wearing a "~",
-  // which meant every beef dish read the same number and every grid carried a
-  // row of tildes. The hedge now lives once, on the nutrition card that shows
-  // the actual breakdown — not on every tile. No number beats a vague one.
-  const kcal = Number.isFinite(computed?.kcal) ? computed.kcal : null;
+  // The rule is AGREEMENT WITH THE DETAIL SCREEN, not "hide anything soft".
+  // recipe/[id].jsx falls back to the same category estimate when there is no
+  // computed figure, so showing it here matches what the recipe opens to. The
+  // old 450-vs-255 bug was card-estimate vs detail-COMPUTED — not the estimate
+  // itself. ~10% of seed recipes land here (80 of 755, measured), mostly ones
+  // usdaProvider deliberately refuses (volume-measured grains, where raw-vs-
+  // cooked would be ~3x wrong). A blank tile for those is worse than an honest
+  // approximation the detail screen already agrees with.
+  //
+  // undefined = still loading → show the estimate rather than a gap that fills
+  // in a beat later. The "~" carries the whole caveat: one glyph, no sentence.
+  const estimate = getNutritionEstimate(recipe.category);
+  const isComputed = Number.isFinite(computed?.kcal);
+  const kcal = isComputed ? computed.kcal : estimate.calories;
 
   return (
     <Bounceable
@@ -52,12 +61,13 @@ export default function RecipeCard({ recipe }) {
           contentFit="cover"
           transition={300}
         />
-        {kcal != null && (
-          <View style={recipeCardStyles.calorieBadge}>
-            <View style={recipeCardStyles.calorieDot} />
-            <Text style={recipeCardStyles.calorieBadgeText}>{kcal} cal</Text>
-          </View>
-        )}
+        <View style={recipeCardStyles.calorieBadge}>
+          <View style={recipeCardStyles.calorieDot} />
+          <Text style={recipeCardStyles.calorieBadgeText}>
+            {isComputed ? "" : "~"}
+            {kcal} cal
+          </Text>
+        </View>
         {!isOwn && <PawMark recipe={recipe} style={recipeCardStyles.pawPosition} />}
         {recipe.source === "manual" && (
           <View style={[recipeCardStyles.ownStamp, { backgroundColor: colors.accent }]}>
