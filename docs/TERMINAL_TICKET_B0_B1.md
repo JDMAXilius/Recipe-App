@@ -1,5 +1,22 @@
 # 🎟️ Terminal Build Ticket — B0 + B1: Foundations & the Nutrition Pipeline
 
+> ## ⛔ SUPERSEDED — read before following anything below
+> **B0 shipped** (RLS, zod, pino, rate limits, both interface seams). **B1 did NOT ship as written.**
+>
+> Everything below prescribing **Edamam** is dead — killed on **licensing, not price**. Food DB
+> Enterprise Basic permits caching *"FoodId, Food Label" only*, every plan forbids automated
+> collection, and stored data needs explicit permission. Otto is a permanent per-recipe cache, so
+> the terms don't allow it under $299/mo. The 252 cached rows and the backfill script were deleted
+> in `edc1645`.
+>
+> **The live provider is USDA FoodData Central** (`backend/src/lib/nutrition/usdaProvider.js`) —
+> public domain (CC0), $0, and `usdaTable.json` ships with the app so there are **zero runtime API
+> calls**. Rebuild it with `USDA_API_KEY=... node scripts/build-usda-table.mjs` (~9 min).
+>
+> Still true below: B0 in full, the parser design (B1.1), the schema (B1.3), the lifecycle wiring
+> (B1.4), and the honesty rules. Ignore B1.2 and every Edamam mention.
+> **Lesson worth keeping: read a vendor's TERMS before building a cache on it.**
+
 > Highest-leverage backend work from `BACKEND_ROADMAP.md`. **B0** makes the backend safe + truthful
 > and adds the two interfaces everything else hangs off. **B1** is the hero: real, cached, per-serving
 > nutrition — correct calories/macros/portions — validated against a trusted test batch.

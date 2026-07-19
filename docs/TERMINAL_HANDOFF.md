@@ -57,14 +57,14 @@ paste link → **Join it** → both see the same live list.
 | 3 | ~~**Supabase OAuth providers**~~ | Founder + consoles | ✅ **DONE 2026-07-18** — Apple + Google + Facebook all enabled on Supabase; verified `external.{apple,google,facebook}=true`. Apple = native (bundle id as client id, no secret); Google = web client (consent screen in Testing mode); Facebook = "Login for Business" app in Dev mode. Device tap-test pending on build 19. | `TERMINAL_TICKET_OAUTH_PROVIDERS.md` |
 | 4 | ~~**`SUPABASE_SERVICE_ROLE_KEY` on the backend**~~ | Backend env | ✅ **DONE 2026-07-19** — set on Railway (using the new `sb_secret_` key; supabase-js 2.110.5 supports it). Verified backend healthy + key has GoTrue admin (admin/users → 200). Device-confirm the delete returns `authUserDeleted:true`. NOTE: key was pasted in chat — rotate it. | `PRE_LAUNCH_CHECKLIST.md` §A |
 | 5 | **Host privacy policy + terms**, then set `PRIVACY_URL` / `TERMS_URL` in `mobile/app/(tabs)/profile.jsx` (rows light up automatically). Use `docs/legal/*.html`. | Founder host + 2-line edit | Drafted | `docs/legal/`, `PRE_LAUNCH_CHECKLIST.md` §B |
-| 6 | **App Store Connect metadata**: screenshots (6.7"), description, keywords, category (Food & Drink), **App Privacy answers** (pre-filled table), support URL, demo account for review. | Founder + console | Not started | `PRE_LAUNCH_CHECKLIST.md` §B |
+| 6 | **App Store Connect metadata**: screenshots (6.7"), description, keywords, category (Food & Drink), **App Privacy answers** (pre-filled table), support URL, demo account for review. | Founder + console | **Copy drafted** — name/subtitle/promo/keywords/description/What's New all written and character-counted; screenshots, demo credentials and the getotto.app URLs still needed | `docs/APP_STORE_LISTING.md`, `PRE_LAUNCH_CHECKLIST.md` §B |
 
 ### P2 — decisions / polish
 
 | # | Item | Owner | Status | Detail |
 |---|---|---|---|---|
 | 7 | **Recipe photo: paste-a-link (current) vs device upload?** Founder decision; if upload → image picker + Supabase Storage → `recipe.image`. | Founder decision → Terminal | Awaiting decision | Functional-fixes Task 3 |
-| 8 | **Account-deletion completeness**: `DELETE /api/account` doesn't yet revoke the user's public **share links** or **collaborative lists** — decide + implement before public launch. | Backend | Open | `PRE_LAUNCH_CHECKLIST.md` §C |
+| 8 | ~~**Account-deletion completeness**~~ | Backend | ✅ **DONE 2026-07-19** — `DELETE /api/account` now also wipes `recipe_shares`, `list_shares`, and owned `collab_lists`/`collab_items`. Owned shared lists die with the owner (no member registry to transfer to); joined lists untouched. Source-level test guards against forgetting the next table. | `PRE_LAUNCH_CHECKLIST.md` §C |
 | 9 | `RATE_APP_URL` / `TELL_A_FRIEND_URL` in `profile.jsx` once the App Store listing URL exists (rows stay hidden until real). | Founder | Open | `PRE_LAUNCH_CHECKLIST.md` §C |
 | 10 | ~~**Tidy unused splash assets**~~ | Optional | ✅ **DONE** — removed `otto-splash.{mp4,png,cut.png}`; only the matted `.webp` remains. | — |
 
@@ -83,6 +83,8 @@ paste link → **Join it** → both see the same live list.
 
 - `TERMINAL_HANDOFF.md` — **this file** (start here)
 - `TERMINAL_TICKET_FUNCTIONAL_FIXES.md` — recipe save (resolved), video, photo (Task 3), **collab schema (Task 4)**
+- `APP_STORE_LISTING.md` — App Store Connect copy, drafted + character-counted (paste-ready)
+- `TERMINAL_TICKET_B0_B1.md` — ⛔ **SUPERSEDED in part**: B0 shipped, B1's Edamam path is dead (USDA replaced it)
 - `TERMINAL_TICKET_SHARE_CARD.md` — install view-shot + expo-sharing, rebuild → share sends the card image not text
 - `TERMINAL_TICKET_WEBSITE.md` — kick off the Otto website in a NEW repo (uses `WEBSITE_ASSET_MANIFEST.md`)
 - `TERMINAL_TICKET_OAUTH_PROVIDERS.md` — Apple/Google/Facebook via Supabase

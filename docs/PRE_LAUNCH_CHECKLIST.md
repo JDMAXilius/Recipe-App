@@ -59,7 +59,9 @@
 - [ ] **[You] Age rating** questionnaire (Otto has no objectionable content → 4+; note user-generated
   content + web links if the import/browser flow counts).
 - [ ] **[You] Screenshots** for required device sizes (6.7" at minimum), app name, subtitle,
-  description, keywords, category (Food & Drink).
+  description, keywords, category (Food & Drink). **Copy is drafted and character-counted in
+  `docs/APP_STORE_LISTING.md`** — paste it; only the demo-account credentials and the three
+  getotto.app URLs are still blank.
 - [ ] **[You] Sign in with Apple review note.** If review can't complete Apple sign-in, provide a
   **demo account** (email+password) in App Review notes so they can get in.
 
@@ -82,11 +84,15 @@
   carries a real link instead of link-free text.
 - [ ] **[You]** External TestFlight (public testers, up to 10k) needs the **Test Information** tab
   filled + a light Beta App Review. Not needed for internal.
-- [ ] **[Backend] Account-deletion completeness sweep.** `DELETE /api/account` currently removes
-  favorites, recipes, and plan entries. Confirm whether **public share links** (`recipe_shares`) and
-  **collaborative lists** (`lists`) tied to the user should also be revoked/wiped on delete — today
-  they aren't, which can leave live shared content after the account is gone. Decide + implement
-  before public launch.
+- [x] **[Backend] Account-deletion completeness sweep. ✅ DONE 2026-07-19.** `DELETE /api/account` now
+  also deletes `recipe_shares`, `list_shares`, and the `collab_lists` (+ their `collab_items`) the
+  user **owns** — hard deletes, not `revokedAt`, since a revoked row still carries their user_id.
+  **Call made, easy to reverse:** a shared list dies with its owner. There is no member registry to
+  hand it to (`collab_items` stores only a display name), so ownership can't transfer without a
+  schema change, and an orphaned list is one nobody can ever put away. Lists the user merely
+  *joined* are untouched — those belong to someone else. `test/accountDeletion.test.mjs` reads
+  `schema.js` and fails if any table with a `user_id` column is missing from the handler, so the
+  next user-owned table can't be forgotten.
 - [ ] **[You]** Confirm the **client-secret JWT for Apple expires ≤6 months** — set a reminder to
   regenerate (also noted in the OAuth ticket).
 - [ ] **[You]** Backend **rate limiting + error tracking** live in production (B0 work) — confirm keys

@@ -2,7 +2,7 @@
 
 <p align="center">
 A warm, hand-painted recipe app led by <b>Otto the otter chef</b>.<br/>
-300+ honest recipes, a place for yours, and nobody shouting five stars at you.
+750+ honest recipes, a place for yours, and nobody shouting five stars at you.
 </p>
 
 ---
@@ -10,7 +10,7 @@ A warm, hand-painted recipe app led by <b>Otto the otter chef</b>.<br/>
 ## What Otto does today
 
 **Discover & cook**
-- Browse and search 300+ seed recipes (TheMealDB) with painted category tiles and an "Otto's pick" hero
+- Browse and search 750+ seed recipes (TheMealDB) with painted category tiles and an "Otto's pick" hero
 - Recipe detail v3: photo-only hero, serif title on cream, source attribution, computed meta (servings · ingredients · steps), live ingredient scaling with US/Metric conversion, inline video, semantic-ink method steps, nutrition estimate card, related-recipes exit
 - **Cook mode**: mise-en-place → big-type steps with hand-painted Otto action art (chop/mix/sauté/simmer/bake/wait/season/pour/serve), tappable durations that start named timers, multi-timer hub, swipe navigation, exit protection, Proud-Otto finish with "Snap your plate" journal capture
 
@@ -43,11 +43,12 @@ Light-only, token-pure. Terracotta `#C4562E` accent, cream paper surfaces, Lora 
 ## Architecture
 
 ```
-mobile/    Expo SDK 53 · React Native 0.79 · expo-router v5 · JS/JSX only
+mobile/    Expo SDK 54 · React Native 0.81 · expo-router v6 · JS/JSX only
            tokens via useTheme() · reanimated core (no layout anims on web)
            native dev build: com.otto.recipes (expo-dev-client)
-backend/   Express + Drizzle ORM + Neon Postgres · Supabase Auth (JWT verify)
+backend/   Express + Drizzle ORM + Supabase Postgres · Supabase Auth (JWT verify)
            tables: favorites · recipes (user imports/creations) · plan_entries
+                   recipe_shares · list_shares · collab_lists · collab_items · seed_nutrition
            deterministic /api/import (schema.org JSON-LD, SSRF-guarded)
            RLS enabled · zod validation · rate limits · structured logging
 content    TheMealDB (seed recipes) + user imports — behind a RecipeSource seam
@@ -77,10 +78,10 @@ cd mobile && npx expo run:ios --device "iPhone 17 Pro Max"
 ```bash
 # backend/.env
 PORT=5001
-DATABASE_URL=...            # Neon
+DATABASE_URL=...            # Supabase (aws-0-us-east-1.pooler)
 SUPABASE_URL=...            # same project as the app — token verification
 SUPABASE_ANON_KEY=...
-# SUPABASE_SERVICE_ROLE_KEY=...   # optional: completes account deletion
+SUPABASE_SERVICE_ROLE_KEY=...   # completes account deletion (set in prod)
 
 # mobile/.env
 EXPO_PUBLIC_SUPABASE_URL=...

@@ -4,7 +4,7 @@ import cors from "cors";
 import { ENV } from "./config/env.js";
 import { db } from "./config/db.js";
 import { favoritesTable, recipesTable, planEntriesTable, recipeSharesTable, listSharesTable, collabListsTable, collabItemsTable } from "./db/schema.js";
-import { and, eq, desc, asc, gte, lte, isNull, count } from "drizzle-orm";
+import { and, eq, desc, asc, gte, lte, isNull, inArray, count } from "drizzle-orm";
 import { importRecipeFromUrl } from "./lib/importRecipe.js";
 import { detectSocialPlatform, importFromSocialUrl, SocialImportError } from "./lib/import/social.js";
 import { extractionActive, extractRecipeFromText } from "./lib/import/extractRecipe.js";
@@ -437,6 +437,28 @@ app.delete("/api/account", requireAuth, async (req, res) => {
     await db.delete(favoritesTable).where(eq(favoritesTable.userId, req.userId));
     await db.delete(recipesTable).where(eq(recipesTable.userId, req.userId));
     await db.delete(planEntriesTable).where(eq(planEntriesTable.userId, req.userId));
+
+    // Capability URLs outlive the row they point at, so deleting the recipes
+    // above is NOT enough — an un-revoked slug would keep resolving for anyone
+    // who saved it. Delete outright rather than setting revokedAt: the user
+    // asked to be gone, and a revoked row still carries their user_id.
+    await db.delete(recipeSharesTable).where(eq(recipeSharesTable.userId, req.userId));
+    await db.delete(listSharesTable).where(eq(listSharesTable.userId, req.userId));
+
+    // Collaborative lists they OWN. There is no member registry to hand these
+    // to — collab_items carries only a display name — so ownership cannot be
+    // transferred without a schema change, and an orphaned list is one nobody
+    // can ever put away. So the list dies with its owner and its items go with
+    // it. Lists they merely JOINED are untouched: those belong to someone else.
+    const owned = await db
+      .select({ token: collabListsTable.token })
+      .from(collabListsTable)
+      .where(eq(collabListsTable.ownerUserId, req.userId));
+    const tokens = owned.map((row) => row.token);
+    if (tokens.length > 0) {
+      await db.delete(collabItemsTable).where(inArray(collabItemsTable.token, tokens));
+      await db.delete(collabListsTable).where(inArray(collabListsTable.token, tokens));
+    }
 
     let authUserDeleted = false;
     if (ENV.SUPABASE_SERVICE_ROLE_KEY) {
