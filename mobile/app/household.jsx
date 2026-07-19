@@ -19,6 +19,7 @@ import ScreenHeader from "../components/ScreenHeader";
 import { createHouseholdStyles } from "../assets/styles/household.styles";
 import { CollabAPI } from "../services/userRecipes";
 import { sharePlainText } from "../lib/shareText";
+import { parseInviteToken } from "../lib/inviteLink.mjs";
 import OttoIdle from "../components/OttoIdle";
 
 // S3 — the shared list. One unguessable link is the whole membership: start
@@ -29,7 +30,22 @@ import OttoIdle from "../components/OttoIdle";
 
 const STORE_KEY = "otto.household.v1";
 const SHOPPING_KEY = "otto.shopping.v1";
-const TOKEN_RE = /([A-Za-z0-9_-]{8,24})\s*$/;
+
+// Lists you've been in, kept on THIS device only. Losing the invite link is
+// the usual way back in gets blocked, so remember the last few tokens and
+// offer one-tap rejoin. Deliberately local: there is no member directory to
+// search — the token is the membership — and building one would mean a user
+// index and a consent surface for the sake of a grocery list.
+const HISTORY_KEY = "otto.household.recent.v1";
+const HISTORY_MAX = 3;
+
+const agoLabel = (iso) => {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (!Number.isFinite(days) || days < 0) return "recently";
+  if (days === 0) return "today";
+  if (days === 1) return "yesterday";
+  return `${days} days ago`;
+};
 
 // Turn an email into a friendly first name: "juan.lugo@x.com" → "Juan".
 const nameFromEmail = (email) => {
@@ -45,6 +61,7 @@ const HouseholdScreen = () => {
   const styles = useMemo(() => createHouseholdStyles(colors), [colors]);
 
   const [membership, setMembership] = useState(null); // {token, url, displayName}
+  const [recent, setRecent] = useState([]); // [{token, url, displayName, lastSeen}]
   const [hydrated, setHydrated] = useState(false);
   const [data, setData] = useState(null); // {mine, items}
   const [displayName, setDisplayName] = useState(() => nameFromEmail(user?.email));
@@ -55,16 +72,37 @@ const HouseholdScreen = () => {
   const pollRef = useRef(null);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORE_KEY)
-      .then((raw) => {
-        const stored = raw ? JSON.parse(raw) : null;
+    Promise.all([AsyncStorage.getItem(STORE_KEY), AsyncStorage.getItem(HISTORY_KEY)])
+      .then(([rawMembership, rawHistory]) => {
+        const stored = rawMembership ? JSON.parse(rawMembership) : null;
         if (stored?.token) {
           setMembership(stored);
           setDisplayName(stored.displayName || "Me");
         }
+        const history = rawHistory ? JSON.parse(rawHistory) : [];
+        if (Array.isArray(history)) setRecent(history.filter((entry) => entry?.token));
       })
       .catch(() => {})
       .finally(() => setHydrated(true));
+  }, []);
+
+  const rememberList = useCallback((entry) => {
+    setRecent((prev) => {
+      const next = [
+        { ...entry, lastSeen: new Date().toISOString() },
+        ...prev.filter((r) => r.token !== entry.token),
+      ].slice(0, HISTORY_MAX);
+      AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  }, []);
+
+  const forgetList = useCallback((token) => {
+    setRecent((prev) => {
+      const next = prev.filter((r) => r.token !== token);
+      AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
   }, []);
 
   const leaveLocally = useCallback(
@@ -104,7 +142,29 @@ const HouseholdScreen = () => {
 
   const persistMembership = async (next) => {
     setMembership(next);
+    rememberList(next);
     await AsyncStorage.setItem(STORE_KEY, JSON.stringify(next)).catch(() => {});
+  };
+
+  // Back into a list you were already in, without hunting for the link.
+  const rejoin = async (entry) => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const fetched = await CollabAPI.get(entry.token); // proves it's still live
+      await persistMembership({
+        token: entry.token,
+        url: fetched.url || entry.url || null,
+        displayName: cleanName(),
+      });
+      setData(fetched);
+      show({ message: "You're back on the list." });
+    } catch (error) {
+      forgetList(entry.token); // put away or gone — stop offering it
+      show({ message: error.message || "That list isn't around any more." });
+    } finally {
+      setBusy(false);
+    }
   };
 
   const cleanName = () => displayName.trim() || "Me";
@@ -142,16 +202,17 @@ const HouseholdScreen = () => {
   };
 
   const join = async () => {
-    const match = joinLink.trim().match(TOKEN_RE);
-    if (!match) {
+    const token = parseInviteToken(joinLink);
+    if (!token) {
       show({ message: "That link doesn't look right — paste the whole thing." });
       return;
     }
     setBusy(true);
     try {
-      const token = match[1];
       const fetched = await CollabAPI.get(token); // proves the list is live
-      const next = { token, url: joinLink.trim().startsWith("http") ? joinLink.trim() : null, displayName: cleanName() };
+      // Take the canonical URL from the server, not the string that was pasted:
+      // a joiner who pasted a bare token still needs a real link to pass on.
+      const next = { token, url: fetched.url || null, displayName: cleanName() };
       await persistMembership(next);
       setData(fetched);
       setJoinLink("");
@@ -207,7 +268,11 @@ const HouseholdScreen = () => {
   };
 
   const shareLink = async () => {
-    const url = membership?.url || "";
+    const url = data?.url || membership?.url || "";
+    if (!url) {
+      show({ message: "Couldn't build the invite link — pull the list down to refresh." });
+      return;
+    }
     const { copied } = await sharePlainText(
       "Join our shopping list on Otto — add things, check things off, we all see the same list.",
       "Our shopping list",
@@ -219,6 +284,7 @@ const HouseholdScreen = () => {
   const putAway = async () => {
     try {
       await CollabAPI.putAway(membership.token);
+      forgetList(membership.token); // dead for everyone — don't offer a rejoin
       leaveLocally("List put away — the link is off for everyone.");
     } catch (error) {
       show({ message: error.message || "Couldn't put the list away." });
@@ -288,6 +354,29 @@ const HouseholdScreen = () => {
               <Ionicons name="people-outline" size={18} color={colors.white} />
               <Text style={styles.primaryButtonText}>Start a shared list</Text>
             </TouchableOpacity>
+
+            {/* one tap back into a list you've already been in */}
+            {recent.length > 0 && (
+              <View style={styles.joinReveal}>
+                <Text style={styles.cardHint}>Lists you’ve been in</Text>
+                {recent.map((entry) => (
+                  <TouchableOpacity
+                    key={entry.token}
+                    style={styles.itemRow}
+                    onPress={() => rejoin(entry)}
+                    disabled={busy}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Rejoin the list you were last in ${agoLabel(entry.lastSeen)}`}
+                  >
+                    <Ionicons name="repeat-outline" size={18} color={colors.accent} />
+                    <View style={styles.itemBody}>
+                      <Text style={styles.itemName}>Shared list</Text>
+                      <Text style={styles.itemWho}>last here {agoLabel(entry.lastSeen)}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
             {/* joining is the rarer path — quiet until asked for */}
             {showJoin ? (

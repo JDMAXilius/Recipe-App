@@ -611,6 +611,7 @@ app.get("/api/lists/:token", requireAuth, async (req, res) => {
       .orderBy(collabItemsTable.id);
     res.status(200).json({
       token: found.list.token,
+      url: `${shareBase(req)}/hl/${found.list.token}`,
       mine: found.list.ownerUserId === req.userId,
       items,
     });
