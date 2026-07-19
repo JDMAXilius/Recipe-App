@@ -114,12 +114,14 @@ export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 
         </View>
       </View>
 
+      {/* The ONE place nutrition is qualified. It used to be said here three
+          different ways and again with a "~" on every card in every grid —
+          repetition that reads as anxiety, not honesty. Said once, at the
+          source, where the actual numbers are. */}
       <Text style={[styles.footnote, { color: colors.inkSoft }]}>
         {computed
-          ? computed.confidence === "low"
-            ? "Otto could only read some of these ingredients — a rough sketch, not a guarantee."
-            : "Otto worked this out from the ingredients — an estimate, not a guarantee."
-          : "Otto's estimate, from this kind of dish — a guide, not a guarantee."}
+          ? "Otto worked this out from the ingredients — an estimate."
+          : "Otto's estimate, from this kind of dish."}
       </Text>
     </View>
   );

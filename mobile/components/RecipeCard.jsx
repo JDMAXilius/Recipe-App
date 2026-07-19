@@ -6,7 +6,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../context/ThemeContext";
 import { useNutrition } from "../context/NutritionContext";
 import { createRecipeCardStyles } from "../assets/styles/home.styles";
-import { getNutritionEstimate } from "../constants/nutritionEstimates";
 import PawMark from "./PawMark";
 import Bounceable from "./Bounceable";
 
@@ -20,7 +19,6 @@ export default function RecipeCard({ recipe }) {
   const router = useRouter();
   const { colors, nutrition } = useTheme();
   const recipeCardStyles = useMemo(() => createRecipeCardStyles(colors), [colors]);
-  const estimate = getNutritionEstimate(recipe.category);
   const isOwn = recipe.source === "manual" || recipe.source === "imported";
 
   // Prefer the computed figure so the card and the detail screen agree — they
@@ -33,11 +31,12 @@ export default function RecipeCard({ recipe }) {
   }, [recipe.id, isOwn, request]);
 
   const computed = isOwn ? recipe.nutrition : getNutrition(recipe.id);
-  // undefined = still loading → show the estimate rather than a spinner or a
-  // gap. null = the backend honestly can't compute it → the estimate IS the
-  // answer. Either way the badge below says which one is on screen.
-  const kcal = computed?.kcal ?? estimate.calories;
-  const isComputed = Number.isFinite(computed?.kcal);
+  // Only a figure computed from THIS recipe's ingredients earns a badge.
+  // Previously the card fell back to a category-typical guess wearing a "~",
+  // which meant every beef dish read the same number and every grid carried a
+  // row of tildes. The hedge now lives once, on the nutrition card that shows
+  // the actual breakdown — not on every tile. No number beats a vague one.
+  const kcal = Number.isFinite(computed?.kcal) ? computed.kcal : null;
 
   return (
     <Bounceable
@@ -53,16 +52,12 @@ export default function RecipeCard({ recipe }) {
           contentFit="cover"
           transition={300}
         />
-        {/* "~" marks a category-typical estimate; a bare number is computed
-            from this recipe's own ingredients. Honesty law: never present an
-            estimate with the precision of a measurement. */}
-        <View style={recipeCardStyles.calorieBadge}>
-          <View style={recipeCardStyles.calorieDot} />
-          <Text style={recipeCardStyles.calorieBadgeText}>
-            {isComputed ? "" : "~"}
-            {kcal} cal
-          </Text>
-        </View>
+        {kcal != null && (
+          <View style={recipeCardStyles.calorieBadge}>
+            <View style={recipeCardStyles.calorieDot} />
+            <Text style={recipeCardStyles.calorieBadgeText}>{kcal} cal</Text>
+          </View>
+        )}
         {!isOwn && <PawMark recipe={recipe} style={recipeCardStyles.pawPosition} />}
         {recipe.source === "manual" && (
           <View style={[recipeCardStyles.ownStamp, { backgroundColor: colors.accent }]}>
