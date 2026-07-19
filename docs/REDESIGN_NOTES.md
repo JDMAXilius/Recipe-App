@@ -688,3 +688,12 @@ Cookbook is ONE tab with in-screen segments.
   react-native-youtube-iframe as the fallback; (3) conditional device photo-upload (image picker +
   Supabase Storage → recipe.image) pending founder's link-vs-upload call. YouTube fix + all other SDK
   54 UI verified error-free from here; the ticket only carries what the Linux box genuinely can't run.
+- **C33. Shared list was dead in prod — missing tables, not a frontend bug.** Founder: "joining the
+  shopping list cart isn't doing anything." Root cause: `collab_lists`/`collab_items` are in
+  schema.js but had NO creation script/migration, so they were never created in prod → every
+  /api/lists route 500s ("relation does not exist") → household `start()` shows "Shared lists aren't
+  switched on." Frontend proven correct in a SDK 54 web build (stubbed endpoints → Start a shared
+  list transitions to "Our list", zero errors). Fix: wrote `backend/scripts/s3-collab-schema.mjs`
+  (idempotent create + token index + RLS), handed to the terminal (ticket Task 4) to run against
+  prod. Lesson logged in the ticket: any new schema.js table needs a matching idempotent script run
+  on prod, since the repo has no live migration journal.

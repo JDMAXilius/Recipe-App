@@ -120,9 +120,43 @@ If real upload is wanted:
   fix is in `recipe/[id].jsx`. Play-on-device still to be eyeballed, but no version reconcile needed.
 - **Task 3:** not requested — skipped.
 
+---
+
+## Task 4 — Shared list ("Our list") does nothing → missing DB tables (NEW, 2026-07-18)
+
+**Symptom (founder):** "joining the shopping list cart is not really doing anything" — Household →
+"Start a shared list" (or joining an invite) has no effect / silently shows "Shared lists aren't
+switched on for this kitchen yet."
+
+**Root cause (found from the cloud):** the collab tables **`collab_lists` and `collab_items`** are
+defined in `backend/src/db/schema.js` but were **never created in the live DB** — there was no
+migration or setup script for them (unlike `visibility`/`nutrition`, which had `b0-hardening.mjs`).
+Every `/api/lists` route then 500s with `relation "collab_lists" does not exist`, and the app's
+`start()` catch maps that to the "aren't switched on" toast. **The frontend is proven correct** —
+driven in a SDK 54 web build against stubbed endpoints, "Start a shared list" creates the list and
+transitions to the "Our list" view with zero errors.
+
+**Fix (repo-side done — you just run it):** `backend/scripts/s3-collab-schema.mjs` is written to
+create both tables idempotently (matching the Drizzle schema) + a `token` index + RLS on. Run it
+against **prod**:
+```bash
+cd backend && node --env-file=.env scripts/s3-collab-schema.mjs   # .env must point DATABASE_URL at prod
+# verify:  select to_regclass('public.collab_lists'), to_regclass('public.collab_items');
+```
+Then on device: Household → Start a shared list → confirm it opens the list, add an item, share the
+link, and (second account/device) paste the link → **Join it** → both see the same list.
+
+> Prevention: the repo pushes schema via scripts, not a live migration journal — any NEW table in
+> `schema.js` needs a matching idempotent script run against prod, or it silently 500s in production
+> while working locally.
+
+---
+
 ## Done when
 - [ ] Creating a recipe on a real build **saves and persists**, and the recipe is usable like any
       other (opens, plans, cooks, shares, appears in cookbook after restart).
+- [ ] Shared list: after running `s3-collab-schema.mjs` on prod, "Start a shared list" and "Join it"
+      both work on device — two people see the same live list.
 - [ ] The root cause of the save failure is identified from the backend log and **fixed at the
       source** (not worked around in the client), with a one-line note here of what it was.
 - [ ] A recipe video **plays** on device with no Error 153.
