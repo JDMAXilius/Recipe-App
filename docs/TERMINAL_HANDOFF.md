@@ -39,7 +39,7 @@
 
 | # | Item | Owner | Status | Detail |
 |---|---|---|---|---|
-| 1 | **Shared list dead in prod** — run `backend/scripts/s3-collab-schema.mjs` against prod (creates `collab_lists`/`collab_items`; they were never created). Frontend proven correct. | Terminal + prod DB | **Script written, NOT run** | `TERMINAL_TICKET_FUNCTIONAL_FIXES.md` Task 4 |
+| 1 | ~~**Shared list dead in prod**~~ | Terminal + prod DB | ✅ **DONE 2026-07-19** — ran `s3-collab-schema.mjs` on prod; verified `collab_lists` (4 cols) + `collab_items` (8 cols) exist. Feature switched on; device-test the join flow. | `TERMINAL_TICKET_FUNCTIONAL_FIXES.md` Task 4 |
 | 2 | **Device-verify the v1.0.5 fixes**: shopping pad frame holds (no seam), splash shows Otto on cream (no box), timer alarm is loud + ~4s, YouTube video plays inline (no Error 153). | Terminal + device | Web-verified only | Functional-fixes Task 2; commits `822e3da`, `fc1fafb`, `4eecaaf` |
 
 **P0.1 exact steps:**
