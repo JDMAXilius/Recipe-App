@@ -5,7 +5,7 @@
 > pointer to the detailed ticket. The cloud (Linux) session did all repo-side work it could and
 > verified everything reachable from web; what's left needs a device, the live DB, or a console.
 >
-> **Last updated:** 2026-07-18 · **App:** Otto, **v1.0.5**, Expo **SDK 54** (RN 0.81.5), on TestFlight.
+> **Last updated:** 2026-07-19 · **App:** Otto, **v1.0.6** (build 19 on TestFlight), Expo **SDK 54** (RN 0.81.5), on TestFlight.
 
 ---
 
@@ -54,7 +54,7 @@ paste link → **Join it** → both see the same live list.
 
 | # | Item | Owner | Status | Detail |
 |---|---|---|---|---|
-| 3 | **Supabase OAuth providers** (at least Apple; the buttons are honestly gated so Apple-only ships fine). Redirect + Client-ID (bundle id!) setup. | Founder + consoles | Not started | `TERMINAL_TICKET_OAUTH_PROVIDERS.md` |
+| 3 | ~~**Supabase OAuth providers**~~ | Founder + consoles | ✅ **DONE 2026-07-18** — Apple + Google + Facebook all enabled on Supabase; verified `external.{apple,google,facebook}=true`. Apple = native (bundle id as client id, no secret); Google = web client (consent screen in Testing mode); Facebook = "Login for Business" app in Dev mode. Device tap-test pending on build 19. | `TERMINAL_TICKET_OAUTH_PROVIDERS.md` |
 | 4 | **`SUPABASE_SERVICE_ROLE_KEY` on the backend** so account deletion removes the auth identity, not just data (Apple 5.1.1(v)). Verify `DELETE /api/account` returns `authUserDeleted: true`. | Backend env | Not started | `PRE_LAUNCH_CHECKLIST.md` §A |
 | 5 | **Host privacy policy + terms**, then set `PRIVACY_URL` / `TERMS_URL` in `mobile/app/(tabs)/profile.jsx` (rows light up automatically). Use `docs/legal/*.html`. | Founder host + 2-line edit | Drafted | `docs/legal/`, `PRE_LAUNCH_CHECKLIST.md` §B |
 | 6 | **App Store Connect metadata**: screenshots (6.7"), description, keywords, category (Food & Drink), **App Privacy answers** (pre-filled table), support URL, demo account for review. | Founder + console | Not started | `PRE_LAUNCH_CHECKLIST.md` §B |
@@ -66,7 +66,7 @@ paste link → **Join it** → both see the same live list.
 | 7 | **Recipe photo: paste-a-link (current) vs device upload?** Founder decision; if upload → image picker + Supabase Storage → `recipe.image`. | Founder decision → Terminal | Awaiting decision | Functional-fixes Task 3 |
 | 8 | **Account-deletion completeness**: `DELETE /api/account` doesn't yet revoke the user's public **share links** or **collaborative lists** — decide + implement before public launch. | Backend | Open | `PRE_LAUNCH_CHECKLIST.md` §C |
 | 9 | `RATE_APP_URL` / `TELL_A_FRIEND_URL` in `profile.jsx` once the App Store listing URL exists (rows stay hidden until real). | Founder | Open | `PRE_LAUNCH_CHECKLIST.md` §C |
-| 10 | **Tidy unused splash assets**: `mobile/assets/splash/otto-splash.{mp4,png}` are no longer referenced (the matted `.webp` + cutout replaced them). Remove if desired. | Optional | Open | — |
+| 10 | ~~**Tidy unused splash assets**~~ | Optional | ✅ **DONE** — removed `otto-splash.{mp4,png,cut.png}`; only the matted `.webp` remains. | — |
 
 ---
 
@@ -74,8 +74,8 @@ paste link → **Join it** → both see the same live list.
 
 1. **P0.1** — run `s3-collab-schema.mjs` on prod (2 min) → shared list works. Highest value, lowest effort.
 2. **P0.2** — pull the next TestFlight build, eyeball the four v1.0.5 fixes on device; note any that need a nudge (pad-frame insets, splash size/animation, alarm volume).
-3. **P1 #4** — set `SUPABASE_SERVICE_ROLE_KEY` (quick, unblocks the account-deletion requirement).
-4. **P1 #3** — Supabase Apple provider (unblocks the sign-in button).
+3. ~~**P1 #3** — OAuth providers~~ ✅ done (Apple + Google + Facebook enabled 2026-07-18).
+4. **P1 #4** — set `SUPABASE_SERVICE_ROLE_KEY` (quick, unblocks the account-deletion requirement).
 5. **P1 #5–6** — legal pages hosted + URLs set, then App Store Connect metadata → submittable.
 6. **P2** — resolve the photo decision (#7) and the deletion-completeness call (#8) before public.
 
@@ -98,4 +98,4 @@ paste link → **Join it** → both see the same live list.
 | Supabase project ref | `mepzfdefanfpnrvydyty` |
 | Supabase OAuth callback | `https://mepzfdefanfpnrvydyty.supabase.co/auth/v1/callback` |
 | Native deep-link redirect | `mobile://auth/callback` |
-| App version | `1.0.5` (EAS auto-increments buildNumber) |
+| App version | `1.0.6` (build 19) (EAS auto-increments buildNumber) |
