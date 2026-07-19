@@ -114,7 +114,9 @@ session, one website, and console work:
 
 ## Ticket index
 
-- `TERMINAL_HANDOFF.md` — **this file** (start here)
+- **`TERMINAL_TICKET_NEXT_SESSION.md` — ⭐ START HERE (written 2026-07-19).** Everything still open,
+  in order, with owners and exact commands. Supersedes the priority tables below where they disagree.
+- `TERMINAL_HANDOFF.md` — **this file** (the index + repo cadence + the deploy/schema gotchas)
 - `TERMINAL_TICKET_FUNCTIONAL_FIXES.md` — recipe save (resolved), video, photo (Task 3), **collab schema (Task 4)**
 - `APP_STORE_LISTING.md` — App Store Connect copy, drafted + character-counted (paste-ready)
 - `TERMINAL_TICKET_B0_B1.md` — ⛔ **SUPERSEDED in part**: B0 shipped, B1's Edamam path is dead (USDA replaced it)
