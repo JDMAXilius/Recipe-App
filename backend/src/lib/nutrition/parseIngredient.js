@@ -177,6 +177,27 @@ function gramsFor(qty, unit, item) {
   return { grams: null, level: "none" };
 }
 
+// TheMealDB writes pack sizes as a parenthetical: "1 (12 oz.) stir-fry
+// vegetables", "2 (8 oz) packages cream cheese". The main pattern below reads
+// the leading count and then treats "(12 oz.)" as part of the item name, so the
+// line resolves to no grams at all — the ingredient silently contributes zero
+// and drags the whole recipe's confidence to "low". Multiply the count by the
+// pack size and hand the parser a plain "12 oz …" instead.
+export function expandPackSize(text) {
+  const m = text.match(
+    new RegExp(
+      `^(\\d+(?:[.,]\\d+)?)?\\s*\\(\\s*(\\d+(?:[.,]\\d+)?)\\s*(${UNIT_WORDS})\\.?\\s*\\)\\s*(.+)$`,
+      "i"
+    )
+  );
+  if (!m) return text;
+  const count = m[1] ? parseFloat(m[1].replace(",", ".")) : 1;
+  const size = parseFloat(m[2].replace(",", "."));
+  if (!Number.isFinite(count) || !Number.isFinite(size)) return text;
+  const total = Math.round(count * size * 1000) / 1000;
+  return `${total} ${m[3]} ${m[4]}`;
+}
+
 // Line → { qty, unit, item, grams, confidence, raw }.
 // Accepts a string ("2 cups flour") or the app's { measure, name } pair.
 export function parseIngredientLine(input) {
@@ -184,7 +205,7 @@ export function parseIngredientLine(input) {
     typeof input === "string"
       ? input
       : [input?.measure, input?.name].filter(Boolean).join(" ");
-  const text = String(raw).replace(/\s+/g, " ").trim();
+  const text = expandPackSize(String(raw).replace(/\s+/g, " ").trim());
 
   const m = text.match(
     new RegExp(
