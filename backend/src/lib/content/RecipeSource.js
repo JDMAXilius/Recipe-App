@@ -45,10 +45,12 @@ function transformMeal(meal) {
     category: meal.strCategory || null,
     area: meal.strArea || null,
     ingredients,
+    // "STEP 1" header lines (52982 Carbonara and friends) carry no instruction —
+    // kept, they render as blank steps in cook mode and inflate the step count.
     steps: (meal.strInstructions || "")
       .split(/\r?\n+/)
       .map((s) => s.trim())
-      .filter(Boolean),
+      .filter((s) => s && !/^\s*(step\s*)?\d+\s*[:.)\-]?\s*$/i.test(s)),
     youtubeUrl: meal.strYoutube || null,
     sourceUrl: meal.strSource || null,
   };

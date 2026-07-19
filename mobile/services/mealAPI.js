@@ -1,5 +1,12 @@
 const BASE_URL = "https://www.themealdb.com/api/json/v1/1";
 
+// Some TheMealDB entries carry their own headers — "STEP 1" on its own line
+// above the actual instruction (52982 Carbonara is one). Kept as-is they become
+// steps with a number and no body, so cook mode shows a blank screen and the
+// step count roughly doubles. Drop the label; the line below it is the step.
+const isStepLabel = (line) =>
+  /^\s*(step\s*)?\d+\s*[:.)\-]?\s*$/i.test(line);
+
 export const MealAPI = {
   // search meal by name
   searchMealsByName: async (query) => {
@@ -133,7 +140,10 @@ export const MealAPI = {
 
     // extract instructions
     const instructions = meal.strInstructions
-      ? meal.strInstructions.split(/\r?\n/).filter((step) => step.trim())
+      ? meal.strInstructions
+          .split(/\r?\n/)
+          .map((step) => step.trim())
+          .filter((step) => step && !isStepLabel(step))
       : [];
 
     return {
