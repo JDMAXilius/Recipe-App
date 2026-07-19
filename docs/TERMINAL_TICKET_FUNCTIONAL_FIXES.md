@@ -93,18 +93,53 @@ is reachable in general — this is specific to the create endpoint.
 
 ---
 
-## Task 3 — (CONDITIONAL) Recipe photo: upload vs. link
+## Task 3 — Recipe photo upload (IMPLEMENTED in app — needs the Storage bucket)
 
-Only do this if the founder confirms they want a **device photo upload** (they're deciding). Today the
-create screen has a **"PHOTO LINK (OPTIONAL)"** URL field (`mobile/app/recipe/edit.jsx`), which works.
-If real upload is wanted:
-- Add an image picker (the app already depends on `expo-image-picker`, used by the cooking journal).
-- Upload the picked image to storage (Supabase Storage is already in the stack) and store the public
-  URL in the recipe's `image` field — the rest of the app already renders `recipe.image`, so no
-  downstream changes.
-- Keep the paste-a-link field too (both paths set the same `image` field). Add a backend upload/signed
-  -URL endpoint if you don't want the client writing to Storage directly.
-- Honesty/UX: show upload progress and a clear failure state; never a dead "uploading…" spinner.
+The founder asked for a **device photo upload** on the create-recipe screen so a recipe can showcase
+its own picture. **Done in the app** (cloud session, 2026-07-19):
+
+- `mobile/app/recipe/edit.jsx`: the old "PHOTO LINK (OPTIONAL)" block is now a **PHOTO** section right
+  under the title — a dashed "Upload a photo of the dish" drop zone (empty) / tappable preview +
+  "Change photo" (filled), with an "Uploading…" state and honest failure toasts. The paste-a-link
+  field stays underneath as an alternative ("Or paste a link"). Both paths set the same `image` field,
+  which the whole app already renders.
+- `mobile/lib/uploadRecipePhoto.js`: picks the image via `expo-image-picker` (`base64: true`,
+  `quality: 0.6`, library only), decodes base64 → `Uint8Array` **without** `fetch(uri).blob()` (that
+  uploads 0 bytes on RN) and **without** a new dependency, then `supabase.storage.from("recipe-photos")
+  .upload(...)` and returns `getPublicUrl(...)`. Path is `${auth.uid()}/${timestamp}.<ext>`.
+
+**What the terminal MUST do — the bucket + policies (cloud couldn't: the repo `.env` has a placeholder
+`dummy.supabase.co`; the real project is injected at build time and isn't reachable from the cloud
+box).** In the app's real Supabase project, create a **public** bucket named exactly `recipe-photos`
+and allow authenticated users to write under their own folder:
+
+```sql
+-- 1. public bucket (Dashboard → Storage → New bucket → name: recipe-photos, Public: ON — or:)
+insert into storage.buckets (id, name, public)
+values ('recipe-photos', 'recipe-photos', true)
+on conflict (id) do update set public = true;
+
+-- 2. authenticated users can upload into their own "<uid>/…" folder
+create policy "recipe photos: owner insert"
+  on storage.objects for insert to authenticated
+  with check (
+    bucket_id = 'recipe-photos'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+-- 3. public read (bucket is public, but make the read policy explicit)
+create policy "recipe photos: public read"
+  on storage.objects for select to public
+  using (bucket_id = 'recipe-photos');
+```
+
+Then on a device build: New recipe → tap "Upload a photo of the dish" → pick one → confirm it uploads,
+the preview shows, save, and the picture appears on the recipe detail + cards. **Can't be verified from
+the cloud** (native picker + real Storage). If uploads 400 with "row-level security", the insert policy
+above didn't apply. If the founder would rather not have the client write to Storage directly, the
+alternative is a backend `POST /api/recipes/photo` (multipart → service-role upload → return URL); the
+app change would just be swapping the one `supabase.storage…` call in `uploadRecipePhoto.js` for that
+fetch. The bucket approach is what's wired now.
 
 ---
 
@@ -211,4 +246,5 @@ the Railway host. Point it at getotto.app once the site is live.
 - [ ] The root cause of the save failure is identified from the backend log and **fixed at the
       source** (not worked around in the client), with a one-line note here of what it was.
 - [ ] A recipe video **plays** on device with no Error 153.
-- [ ] (If requested) photo upload from the device works end-to-end.
+- [ ] Photo upload from the device works end-to-end (app side ✅ implemented — Task 3; needs the
+      `recipe-photos` Storage bucket + policies applied to the real project, then a device test).

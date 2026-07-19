@@ -17,6 +17,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { useToast } from "../../context/ToastContext";
 import { createAddStyles } from "../../assets/styles/add.styles";
 import { UserRecipeAPI, isUserRecipeId } from "../../services/userRecipes";
+import { uploadRecipePhoto } from "../../lib/uploadRecipePhoto";
 import { takeDraft } from "../../lib/draftStore";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Bounceable from "../../components/Bounceable";
@@ -38,6 +39,7 @@ const RecipeEditScreen = () => {
 
   const [loading, setLoading] = useState(Boolean(editId));
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [mode, setMode] = useState("manual"); // manual | import | edit
   const [source, setSource] = useState("manual");
   const [sourceUrl, setSourceUrl] = useState(null);
@@ -124,6 +126,40 @@ const RecipeEditScreen = () => {
       router.replace("/(tabs)/cookbook");
     } catch (error) {
       show({ message: error.message || "Couldn't delete it. Try again." });
+    }
+  };
+
+  // Upload a real photo from the device so the dish has a picture even when
+  // there's no link to paste. Library-only (a saved recipe rarely wants the
+  // live camera); the pasted-link field below stays as an alternative.
+  const pickPhoto = async () => {
+    if (uploading) return;
+    try {
+      const ImagePicker = await import("expo-image-picker");
+      if (Platform.OS !== "web") {
+        const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!granted) {
+          show({ message: "Otto needs photo access — turn it on in Settings to add a picture." });
+          return;
+        }
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.6, base64: true });
+      const asset = result?.assets?.[0];
+      if (result?.canceled || !asset) return;
+      if (!asset.base64) {
+        show({ message: "Couldn't read that photo — try another." });
+        return;
+      }
+      setUploading(true);
+      const ext = (asset.fileName || asset.uri || "").split(".").pop();
+      const url = await uploadRecipePhoto(asset.base64, ext);
+      setImage(url);
+      Haptics.selectionAsync().catch(() => {});
+      show({ message: "Photo added." });
+    } catch (error) {
+      show({ message: error?.message || "Couldn't upload the photo. Try again." });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -215,8 +251,6 @@ const RecipeEditScreen = () => {
             </View>
           )}
 
-          {image ? <Image source={{ uri: image }} style={styles.heroPreview} contentFit="cover" /> : null}
-
           <Text style={styles.fieldLabel}>TITLE</Text>
           <TextInput
             style={styles.titleInput}
@@ -227,7 +261,55 @@ const RecipeEditScreen = () => {
             accessibilityLabel="Recipe title"
           />
 
-          <Text style={styles.fieldLabel}>PHOTO LINK (OPTIONAL)</Text>
+          <Text style={styles.fieldLabel}>PHOTO</Text>
+          {image ? (
+            <TouchableOpacity
+              onPress={pickPhoto}
+              disabled={uploading}
+              accessibilityRole="button"
+              accessibilityLabel="Change the recipe photo"
+            >
+              <Image source={{ uri: image }} style={styles.heroPreview} contentFit="cover" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.photoDrop}
+              onPress={pickPhoto}
+              disabled={uploading}
+              accessibilityRole="button"
+              accessibilityLabel="Upload a photo of the dish"
+            >
+              <Ionicons
+                name={uploading ? "cloud-upload-outline" : "camera-outline"}
+                size={26}
+                color={colors.accent}
+              />
+              <Text style={styles.photoDropText}>
+                {uploading ? "Uploading…" : "Upload a photo of the dish"}
+              </Text>
+              <Text style={styles.photoDropHint}>Tap to choose from your library</Text>
+            </TouchableOpacity>
+          )}
+          {image ? (
+            <TouchableOpacity
+              style={styles.photoAction}
+              onPress={pickPhoto}
+              disabled={uploading}
+              accessibilityRole="button"
+              accessibilityLabel="Change the recipe photo"
+            >
+              <Ionicons
+                name={uploading ? "cloud-upload-outline" : "swap-horizontal-outline"}
+                size={15}
+                color={colors.accent}
+              />
+              <Text style={styles.photoActionText}>
+                {uploading ? "Uploading…" : "Change photo"}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+
+          <Text style={styles.photoHint}>Or paste a link to a picture</Text>
           <TextInput
             style={styles.textInput}
             value={image}
