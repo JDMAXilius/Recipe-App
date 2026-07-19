@@ -426,7 +426,7 @@ const ShoppingScreen = () => {
       {/* Off-screen: the snapshot source for the picture share. Mounted (real
           layout needed for capture), parked out of the viewport. */}
       {shareCardAvailable() && total > 0 ? (
-        <View style={{ position: "absolute", left: -9999, top: 0 }} pointerEvents="none">
+        <View collapsable={false} style={{ position: "absolute", left: -9999, top: 0 }} pointerEvents="none">
           <ShoppingListShareCard ref={shareCardRef} state={state} aisles={AISLES} />
         </View>
       ) : null}

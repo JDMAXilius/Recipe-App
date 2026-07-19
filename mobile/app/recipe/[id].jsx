@@ -583,7 +583,7 @@ const RecipeDetailScreen = () => {
       {/* Off-screen share card — capture needs a mounted, laid-out view;
           positioned out of the viewport, never unmounted mid-capture. */}
       {shareCardAvailable() && (
-        <View style={{ position: "absolute", left: -9999, top: 0 }} pointerEvents="none">
+        <View collapsable={false} style={{ position: "absolute", left: -9999, top: 0 }} pointerEvents="none">
           <ShareCard ref={shareCardRef} recipe={recipe} />
         </View>
       )}
