@@ -83,6 +83,8 @@ paste link → **Join it** → both see the same live list.
 
 - `TERMINAL_HANDOFF.md` — **this file** (start here)
 - `TERMINAL_TICKET_FUNCTIONAL_FIXES.md` — recipe save (resolved), video, photo (Task 3), **collab schema (Task 4)**
+- `TERMINAL_TICKET_SHARE_CARD.md` — install view-shot + expo-sharing, rebuild → share sends the card image not text
+- `TERMINAL_TICKET_WEBSITE.md` — kick off the Otto website in a NEW repo (uses `WEBSITE_ASSET_MANIFEST.md`)
 - `TERMINAL_TICKET_OAUTH_PROVIDERS.md` — Apple/Google/Facebook via Supabase
 - `TERMINAL_TICKET_TESTFLIGHT.md` — build + submit + TestFlight internal testing
 - `PRE_LAUNCH_CHECKLIST.md` — tiered, owner-tagged launch checklist (+ App Privacy answers)
