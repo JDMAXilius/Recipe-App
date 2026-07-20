@@ -93,9 +93,12 @@ so plainly if review asks.
 
 | Field | Value | Status |
 |---|---|---|
-| Support URL | `https://ottosapp.com/support` | ⛔ pending the website |
-| Marketing URL | `https://ottosapp.com` | ⛔ pending the website |
-| Privacy Policy URL | `https://ottosapp.com/privacy` | ⛔ **required to submit** |
+| Support URL | `https://ottosapp.com/support` | ✅ live (200, verified 2026-07-20) |
+| Marketing URL | `https://ottosapp.com` | ✅ live (200, verified 2026-07-20) |
+| Privacy Policy URL | `https://ottosapp.com/privacy` | ✅ live (200, verified 2026-07-20) — **page renders, but the policy text still contains `[LEGAL NAME]` / `[CONTACT EMAIL]` / `[GOVERNING JURISDICTION]` / `[EFFECTIVE DATE]` placeholders. Do not submit until filled.** |
+
+> Use the apex `ottosapp.com`, not `www.` — the www subdomain has no TLS certificate as of
+> 2026-07-20 and fails the handshake.
 
 ## App Review notes (paste into "Notes")
 
