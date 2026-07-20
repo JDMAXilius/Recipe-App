@@ -159,6 +159,11 @@ const AccountScreen = () => {
     }
   };
 
+  // Apple/Google-only accounts have no password, so the row would be a dead end.
+  const hasPasswordLogin =
+    user?.identities?.some((i) => i.provider === "email") ??
+    user?.app_metadata?.provider === "email";
+
   const stats = [
     { label: "cooked", value: cookedCount, to: "/(tabs)/cookbook?cooked=1" },
     { label: "saved", value: savedList.length, to: "/(tabs)/cookbook?segment=saved" },
@@ -296,8 +301,20 @@ const AccountScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Preferences</Text>
           <View style={styles.card}>
+            {hasPasswordLogin && (
+              <TouchableOpacity
+                style={styles.row}
+                onPress={() => router.push("/change-password")}
+                accessibilityRole="button"
+                accessibilityLabel="Change password"
+              >
+                <Ionicons name="lock-closed-outline" size={20} color={colors.inkSoft} />
+                <Text style={styles.rowText}>Change password</Text>
+                <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
-              style={styles.row}
+              style={[styles.row, hasPasswordLogin && styles.rowDivider]}
               onPress={() => router.push("/preferences")}
               accessibilityRole="button"
               accessibilityLabel="Food preferences"
