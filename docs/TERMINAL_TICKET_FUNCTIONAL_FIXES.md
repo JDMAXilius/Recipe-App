@@ -127,10 +127,14 @@ create policy "recipe photos: owner insert"
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- 3. public read (bucket is public, but make the read policy explicit)
-create policy "recipe photos: public read"
-  on storage.objects for select to public
-  using (bucket_id = 'recipe-photos');
+-- 3. DO NOT ADD A PUBLIC SELECT POLICY. It was in this ticket originally and
+-- it is wrong: the bucket is PUBLIC, so /object/public/<bucket>/<path> already
+-- serves reads with no RLS check and getPublicUrl() works without it. All the
+-- policy adds is the ability to LIST the bucket — verified 2026-07-19 that an
+-- anon key could enumerate every object, and since paths are
+-- `<auth.uid()>/<timestamp>.<ext>` that leaks every user's id and upload
+-- history. Supabase's security advisor flags it as public_bucket_allows_listing.
+-- Applied and then dropped again; the INSERT policy above is all that's needed.
 ```
 
 Then on a device build: New recipe → tap "Upload a photo of the dish" → pick one → confirm it uploads,

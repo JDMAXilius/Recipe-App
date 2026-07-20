@@ -166,9 +166,19 @@ eas submit --platform ios --profile production --latest
   nobody notified. That is precisely how this went unseen.
 - **`SHARE_BASE_URL` is unset** (confirmed live). Invites currently carry the Railway hostname.
   Point it at `https://getotto.app` once the site exists.
-- **RLS note:** `collab_lists`, `collab_items`, `recipe_shares`, `list_shares` have RLS on with **0
-  policies**. Safe today (Express connects as table owner), inconsistent with the other four tables.
-  Matters the day any client touches Supabase directly.
+- ~~**RLS note:** `collab_lists`, `collab_items`, `recipe_shares`, `list_shares` have RLS on with 0
+  policies.~~ ✅ **DONE 2026-07-19** — owner-scoped policies on all four, matching the existing
+  `(select auth.uid())::text = user_id` convention. `collab_items` has no user column, so it scopes
+  through its parent list's token (uses `collab_lists_pkey`, no seq scan). Backend is unaffected: it
+  connects as `postgres`, the table owner, and `relforcerowsecurity` is false — verified after
+  applying (probe route still 401, health OK).
+  **Deliberate limitation:** shared lists are token-bearer — possession of the invite IS the
+  membership, there is no member table — and that cannot be expressed in RLS, since a predicate sees
+  the row and `auth.uid()`, not what the caller knows. So a **joiner gets nothing** through direct
+  Supabase access; joiner traffic must keep going through the backend, which checks the token itself.
+  These fail closed, which is the right direction.
+  Applied as a Supabase migration (`add_collab_and_share_rls_policies`), visible via `list_migrations`
+  — note that's a different mechanism from the idempotent scripts in `backend/scripts/`.
 
 ---
 
