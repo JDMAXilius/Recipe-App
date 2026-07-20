@@ -135,6 +135,16 @@ const SignInScreen = () => {
 
             <TouchableOpacity
               style={authStyles.linkContainer}
+              onPress={() => router.push("/(auth)/forgot-password")}
+              accessibilityRole="button"
+            >
+              <Text style={authStyles.linkText}>
+                <Text style={authStyles.link}>Forgot your password?</Text>
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={authStyles.linkContainer}
               onPress={() => router.push("/(auth)/sign-up")}
             >
               <Text style={authStyles.linkText}>
