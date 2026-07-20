@@ -32,21 +32,26 @@
   needs a matching script **run against prod**, or it works locally and silently 500s in production.
   Victims so far: `visibility`/`nutrition` (b0-hardening), `collab_lists`/`collab_items`
   (s3-collab-schema), and `recipe_shares`/`list_shares` (s2-share-schema, found 2026-07-19).
-- **⚠️⚠️ Deploy gotcha (cost an hour on 2026-07-19):** **pushing to `main` does NOT deploy the
-  backend.** There is no GitHub integration and no CI — deploys are a manual `railway up`. Production
-  had been running a **2026-07-16 build for three days**, so S2 share links and S3 collab lists were
-  *merged, documented as shipped, and completely absent from prod* — every route 404ing.
-  **Deploy (note the `backend` path argument — this is the part that was wrong):**
+- **✅ Deploys are automatic as of 2026-07-19 — pushing to `main` DOES deploy the backend.** The
+  service is connected to `JDMAXilius/Recipe-App` branch `main`, Root Directory `backend`, so
+  `railway.json`'s `watchPatterns: ["backend/**"]` finally applies too. Connected with:
   ```bash
-  cd /Users/juan/Recipe-App && npx -y @railway/cli up backend --service Recipe-App --ci
+  npx -y @railway/cli service source connect --repo JDMAXilius/Recipe-App --branch main --service Recipe-App
   ```
-  The service's **Root Directory** is now set to `backend` in the Railway console. Before that,
-  Railpack read the repo-root `package.json` (which has **no scripts at all**), failed with "No start
-  command detected", and uploaded 95 MB of monorepo each time. That empty root manifest is also why
-  `railway.json`'s `watchPatterns: ["backend/**"]` had never done anything.
-  **After ANY backend change: deploy, then verify the route actually exists** — an unauthenticated
-  `GET /api/lists/<anything>` returns **401 JSON** when the code is live and **404 HTML** when prod is
-  stale. Status codes alone lie here; check the body.
+  **History, so nobody re-learns it:** there used to be no GitHub integration, deploys were a manual
+  `railway up`, and production ran a **2026-07-16 build for three days** — S2 share links and S3
+  collab lists were merged, documented as shipped, and completely absent from prod, every route
+  404ing. That is the failure this connection exists to prevent.
+  **The old manual command in this file was also stale**: `railway up backend …` now fails with
+  `prefix not found`, because a bare `[PATH]` is an archive prefix in the current CLI and
+  double-applies against Root Directory `backend`. If you ever need a manual deploy again, it is
+  either `railway up --service Recipe-App --ci` from the repo root (Root Directory does the
+  prefixing) **or** `railway up backend --path-as-root --service Recipe-App --ci` with Root Directory
+  cleared — never both.
+  **Still verify after ANY backend change** — automation makes deploys reliable, not instant, and
+  the discipline is what caught this three times. An unauthenticated `GET /api/lists/<anything>`
+  returns **401 JSON** when the code is live and **404 HTML** when prod is stale. Status codes alone
+  lie here; check the body.
 
 ---
 
@@ -94,8 +99,10 @@ Everything repo-side that can be done without a device or a console **is done**,
 link types, and full account deletion all exercised end to end). What remains is one device
 session, one website, and console work:
 
-0. **Connect GitHub in the Railway service** (Settings → Source) so the 3-day drift can't recur.
-   Root Directory is now `backend`, so `railway.json`'s `watchPatterns` will finally apply.
+0. ~~**Connect GitHub in the Railway service**~~ ✅ **DONE 2026-07-19** — connected to `main`,
+   `THEMEALDB_KEY` set, and both the nutrition-confidence fix and the TheMealDB passthrough are
+   deployed and verified against production (401 on the probe route; the passthrough returns the
+   supporter key's 61 results for "chicken" where the free key returns 25).
 1. **One device session, three things at once** (P0.1 UI + P0.2 + the OAuth tap-test): pull the next
    build, then — the shared-list UI *including the joiner re-sharing the invite* and the new
    "Lists you've been in" rejoin row; the four v1.0.5 fixes (pad frame, splash, alarm, YouTube);
