@@ -322,6 +322,29 @@ live: `ottosapp.com`, `www.ottosapp.com`, and a `WEB_ORIGINS` entry all allowed;
 
 ---
 
+### Third pass — what the MCP could and couldn't reach
+Attempted the remaining items through the Supabase MCP and browser automation rather than handing
+them back. Outcome, honestly:
+
+- ❌ **Leaked-password protection and Auth rate limits cannot be set from a session like this.** The
+  Supabase MCP exposes database, storage, advisors, logs, edge functions and branches — but **no auth
+  config tool**. Those settings live in GoTrue platform config, reachable only via the Management API
+  (needs a personal access token — none on this machine, no Supabase CLI) or the dashboard. Driving
+  the dashboard with the browser MCP hit the sign-in wall: that Chrome profile has no Supabase
+  session, and signing in needs Juan's credentials and 2FA. Not attempted further.
+- ❌ **Deploy cannot happen from here either** — no Railway CLI, no Railway MCP. Which also blocks the
+  `trust proxy` check and the live share-page look, since both need the new code running.
+- ✅ **Auth logs reviewed** (last 24h, via MCP — a check the ticket didn't ask for but should have).
+  Clean: all `/user` and `/token` requests 200, no failed-login bursts, no credential stuffing, no
+  unfamiliar origins. One entry worth naming rather than burying: a single
+  **`Possible abuse attempt: 95` / `refresh_token_already_used`** at `02:29:59Z`. That's GoTrue's
+  refresh-token **reuse** detection — the signal that would fire on a replayed stolen token. In this
+  case it's near-certainly benign: same window as the `claude-e2e-a@example.com` test account, referer
+  `localhost:3000`, i.e. two local dev/E2E clients refreshing the same session at once. **Worth a
+  second look only if it recurs from a non-localhost referer once real users are on.**
+
+---
+
 ## Still open — genuinely needs Juan or the live env
 1. **Enable leaked-password protection** (the one Supabase advisor WARN):
    → https://supabase.com/dashboard/project/mepzfdefanfpnrvydyty/auth/providers
