@@ -1,0 +1,14 @@
+# Root-level ignores. backend/ and mobile/ have their own; this file covers the
+# repo root, which had none — meaning a stray root .env was one `git add .` away
+# from being committed.
+
+# Secrets — never commit, in any form.
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store

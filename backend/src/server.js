@@ -1,6 +1,7 @@
 import express from "express";
 import { fileURLToPath } from "node:url";
 import cors from "cors";
+import helmet from "helmet";
 import { ENV } from "./config/env.js";
 import { db } from "./config/db.js";
 import { favoritesTable, recipesTable, planEntriesTable, recipeSharesTable, listSharesTable, collabListsTable, collabItemsTable } from "./db/schema.js";
@@ -11,7 +12,7 @@ import { extractionActive, extractRecipeFromText } from "./lib/import/extractRec
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
-import { apiLimiter, costlyLimiter, seedReadLimiter, contentLimiter } from "./lib/rateLimits.js";
+import { apiLimiter, costlyLimiter, seedReadLimiter, contentLimiter, destructiveLimiter, publicShareLimiter } from "./lib/rateLimits.js";
 import { MEALDB_BASE_URL } from "./lib/content/RecipeSource.js";
 import { backfillUserRecipeNutrition, seedNutritionFor, nutritionActive } from "./lib/nutrition/lifecycle.js";
 import {
@@ -30,7 +31,56 @@ const PORT = ENV.PORT || 5001;
 // without this the per-IP limiter would throttle the proxy, not users.
 if (ENV.NODE_ENV === "production") app.set("trust proxy", 1);
 
-app.use(cors());
+// CORS was `*`. The API is bearer-token (no cookies), so `*` was never a
+// session-riding risk — but it does let any page on the internet read a
+// response if it ever gets hold of a token, so scope it to the origins that
+// actually exist. The native app sends NO Origin header and is untouched by
+// CORS entirely; this allowlist only governs browsers.
+const ALLOWED_ORIGINS = [
+  ENV.SHARE_BASE_URL,
+  "https://getotto.app",
+  "https://www.getotto.app",
+  // Expo web / local dev only — never allowed in production.
+  ...(ENV.NODE_ENV === "production" ? [] : ["http://localhost:8081", "http://localhost:19006"]),
+]
+  .filter(Boolean)
+  .map((origin) => origin.replace(/\/+$/, ""));
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // No Origin = native app, curl, or a link-preview crawler. Nothing to
+      // police: CORS only protects browsers from other browsers' tabs.
+      if (!origin) return callback(null, true);
+      callback(null, ALLOWED_ORIGINS.includes(origin));
+    },
+  })
+);
+
+// Security headers. The CSP matters most on the public HTML share pages —
+// defense-in-depth behind the escaping and the URL-scheme allowlist in
+// sharePages.js, so a miss in either one still isn't a script execution.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+        // Share pages ship one inline <style> block each (no external CSS).
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        // Recipe images come from whatever site the recipe was imported from.
+        imgSrc: ["'self'", "https:", "data:"],
+        // No <script> anywhere on these pages, by design. Keep it that way.
+        scriptSrc: ["'none'"],
+        formAction: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'none'"],
+      },
+    },
+    // Link-preview crawlers (WhatsApp, iMessage, Slack) fetch og:image
+    // cross-origin — same-origin CORP would break every rich preview we ship.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 app.use(express.json({ limit: "1mb" }));
 app.use(apiLimiter);
 
@@ -474,7 +524,7 @@ app.delete("/api/plan/:id", requireAuth, async (req, res) => {
 // Deletes every row we hold for the user. Removing the AUTH user itself needs
 // the Supabase service-role key — when SUPABASE_SERVICE_ROLE_KEY lands in env
 // this route finishes the job automatically (App Store 5.1.1(v)).
-app.delete("/api/account", requireAuth, async (req, res) => {
+app.delete("/api/account", requireAuth, destructiveLimiter, async (req, res) => {
   try {
     // ONE transaction. Without it a mid-sequence failure leaves the account
     // half-deleted AND returns an error — which is exactly what happened when
@@ -607,7 +657,7 @@ app.post("/api/share/list", requireAuth, costlyLimiter, validate(schemas.listSha
   }
 });
 
-app.get("/r/:slug", async (req, res) => {
+app.get("/r/:slug", publicShareLimiter, async (req, res) => {
   try {
     if (!TOKEN_SHAPE.test(req.params.slug)) return res.status(404).type("html").send(renderNotFoundPage());
     const [share] = await db
@@ -625,7 +675,7 @@ app.get("/r/:slug", async (req, res) => {
   }
 });
 
-app.get("/l/:token", async (req, res) => {
+app.get("/l/:token", publicShareLimiter, async (req, res) => {
   try {
     if (!TOKEN_SHAPE.test(req.params.token)) return res.status(404).type("html").send(renderNotFoundPage());
     const [share] = await db
@@ -773,7 +823,7 @@ app.delete("/api/lists/:token", requireAuth, async (req, res) => {
 });
 
 // The link's landing page — tells a browser visitor how to join in the app.
-app.get("/hl/:token", async (req, res) => {
+app.get("/hl/:token", publicShareLimiter, async (req, res) => {
   try {
     const found = await loadLiveList(req.params.token);
     if (found.status === 404) return res.status(404).type("html").send(renderNotFoundPage());

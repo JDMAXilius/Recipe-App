@@ -17,6 +17,23 @@ export function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+// Escaping stops tag injection but NOT a `javascript:` (or `data:`) scheme
+// sitting inside href/src — an imported recipe carrying sourceUrl:"javascript:…"
+// would be a live XSS on the public /r/:slug page. So every user-supplied URL
+// gets parsed (not regexed — the URL parser is what browsers agree with on
+// tab/newline/case tricks) and only http/https survives. "" means "don't
+// render this attribute at all", which every call site below handles.
+export function safeUrl(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+  try {
+    const { protocol } = new URL(raw);
+    return protocol === "http:" || protocol === "https:" ? raw : "";
+  } catch {
+    return ""; // relative or malformed — nothing user-supplied should be either
+  }
+}
+
 // Palette mirrors mobile/constants (terracotta on cream) — one glance says Otto.
 const PAGE_STYLE = `
   body{margin:0;font-family:Georgia,'Times New Roman',serif;background:#FAF4EA;color:#2B2118;line-height:1.55}
@@ -36,13 +53,15 @@ const PAGE_STYLE = `
 `;
 
 function page({ title, description, image, url, body }) {
+  const ogImage = safeUrl(image);
+  const ogUrl = safeUrl(url);
   const og = [
     `<meta property="og:title" content="${escapeHtml(title)}">`,
     description ? `<meta property="og:description" content="${escapeHtml(description)}">` : "",
-    image ? `<meta property="og:image" content="${escapeHtml(image)}">` : "",
-    url ? `<meta property="og:url" content="${escapeHtml(url)}">` : "",
+    ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}">` : "",
+    ogUrl ? `<meta property="og:url" content="${escapeHtml(ogUrl)}">` : "",
     `<meta property="og:type" content="article">`,
-    image ? `<meta name="twitter:card" content="summary_large_image">` : "",
+    ogImage ? `<meta name="twitter:card" content="summary_large_image">` : "",
   ]
     .filter(Boolean)
     .join("\n  ");
@@ -77,14 +96,20 @@ export function renderRecipePage(row, url) {
   const stepsHtml = steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("");
 
   // Attribution is immutable — imported recipes keep the source, live link
-  // and all, on every shared artifact.
+  // and all, on every shared artifact. A non-http(s) sourceUrl loses the link
+  // but NOT the credit: the name still shows, as plain text.
+  const href = safeUrl(row.sourceUrl);
+  const credit = escapeHtml(row.sourceName || row.sourceUrl);
   const attribution =
     row.source === "imported" && row.sourceUrl
-      ? `<p class="attr">From <a href="${escapeHtml(row.sourceUrl)}" rel="noopener nofollow">${escapeHtml(row.sourceName || row.sourceUrl)}</a> — imported into Otto with the credit attached.</p>`
+      ? `<p class="attr">From ${
+          href ? `<a href="${escapeHtml(href)}" rel="noopener nofollow">${credit}</a>` : credit
+        } — imported into Otto with the credit attached.</p>`
       : "";
 
+  const heroSrc = safeUrl(row.image);
   const body = `
-    ${row.image ? `<img class="hero" src="${escapeHtml(row.image)}" alt="">` : ""}
+    ${heroSrc ? `<img class="hero" src="${escapeHtml(heroSrc)}" alt="">` : ""}
     <h1>${escapeHtml(row.title)}</h1>
     <p class="meta">${escapeHtml(description)}</p>
     <h2>Ingredients</h2>
@@ -191,7 +216,7 @@ export function renderListPage(payload, url) {
   <meta property="og:title" content="Shopping list — Otto">
   <meta property="og:description" content="${escapeHtml(description)}">
   ${paperImage ? `<meta property="og:image" content="${escapeHtml(paperImage)}">` : ""}
-  ${url ? `<meta property="og:url" content="${escapeHtml(url)}">` : ""}
+  ${safeUrl(url) ? `<meta property="og:url" content="${escapeHtml(safeUrl(url))}">` : ""}
   <meta property="og:type" content="article">
   <style>${LIST_STYLE}</style>
 </head>
