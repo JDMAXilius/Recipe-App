@@ -165,7 +165,7 @@ eas submit --platform ios --profile production --latest
 - **`SENTRY_DSN` is unset → no error alerting.** Missing tables 500'd in production for days with
   nobody notified. That is precisely how this went unseen.
 - **`SHARE_BASE_URL` is unset** (confirmed live). Invites currently carry the Railway hostname.
-  Point it at `https://getotto.app` once the site exists.
+  Point it at `https://ottosapp.com` once the site exists.
 - ~~**RLS note:** `collab_lists`, `collab_items`, `recipe_shares`, `list_shares` have RLS on with 0
   policies.~~ ✅ **DONE 2026-07-19** — owner-scoped policies on all four, matching the existing
   `(select auth.uid())::text = user_id` convention. `collab_items` has no user column, so it scopes

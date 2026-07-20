@@ -44,7 +44,7 @@ const RECIPE_ROW = {
 };
 
 test("recipe page carries OG meta, escaped content, and attribution", () => {
-  const html = renderRecipePage(RECIPE_ROW, "https://otto.app/r/abc123def456");
+  const html = renderRecipePage(RECIPE_ROW, "https://ottosapp.com/r/abc123def456");
   // crawlers read these without running JS
   assert.match(html, /<meta property="og:title" content="Nana&#39;s &quot;Best&quot; Pie &lt;3">/);
   assert.match(html, /<meta property="og:image" content="https:\/\/cdn\.example\.com\/pie\.jpg">/);
@@ -67,7 +67,7 @@ test("hostile URL schemes never reach href/src, but credit survives", () => {
       sourceUrl: "javascript:alert(document.domain)",
       sourceName: "Sketchy Source",
     },
-    "https://otto.app/r/abc123def456"
+    "https://ottosapp.com/r/abc123def456"
   );
   assert.ok(!html.includes("javascript:"), "no javascript: scheme anywhere in the page");
   assert.ok(!html.includes("<img"), "an unsafe image src drops the whole tag");
@@ -105,7 +105,7 @@ test("list page groups by aisle and keeps provenance", () => {
         { name: "batteries", amount: "", aisle: "", sources: [] },
       ],
     },
-    "https://otto.app/l/tok"
+    "https://ottosapp.com/l/tok"
   );
   assert.match(html, /Produce/);
   assert.match(html, /for World&#39;s Best Lasagna/);

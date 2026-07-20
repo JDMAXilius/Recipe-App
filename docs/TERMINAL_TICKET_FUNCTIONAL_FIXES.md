@@ -235,7 +235,7 @@ share sheet have never run on a device — only the API beneath them.
 
 ⚠️ **`SHARE_BASE_URL` is still unset on Railway.** Confirmed live: invites currently read
 `https://recipe-app-production-6cf5.up.railway.app/hl/...`. Functional, but it pins every invite to
-the Railway host. Point it at getotto.app once the site is live.
+the Railway host. Point it at ottosapp.com once the site is live.
 
 ---
 

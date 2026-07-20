@@ -93,9 +93,9 @@ so plainly if review asks.
 
 | Field | Value | Status |
 |---|---|---|
-| Support URL | `https://getotto.app/support` | ⛔ pending the website |
-| Marketing URL | `https://getotto.app` | ⛔ pending the website |
-| Privacy Policy URL | `https://getotto.app/privacy` | ⛔ **required to submit** |
+| Support URL | `https://ottosapp.com/support` | ⛔ pending the website |
+| Marketing URL | `https://ottosapp.com` | ⛔ pending the website |
+| Privacy Policy URL | `https://ottosapp.com/privacy` | ⛔ **required to submit** |
 
 ## App Review notes (paste into "Notes")
 

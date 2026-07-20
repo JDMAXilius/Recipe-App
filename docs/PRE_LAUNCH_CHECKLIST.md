@@ -65,7 +65,7 @@
 - [ ] **[You] Screenshots** for required device sizes (6.7" at minimum), app name, subtitle,
   description, keywords, category (Food & Drink). **Copy is drafted and character-counted in
   `docs/APP_STORE_LISTING.md`** — paste it; only the demo-account credentials and the three
-  getotto.app URLs are still blank.
+  ottosapp.com URLs are still blank.
 - [ ] **[You] Sign in with Apple review note.** If review can't complete Apple sign-in, provide a
   **demo account** (email+password) in App Review notes so they can get in.
 

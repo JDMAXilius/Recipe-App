@@ -131,10 +131,10 @@ own domain, a hidden studio parent). Your latest framing — *"the website is Ot
 apps: Recipe, Lean, Bulky"* — sounds more like a **branded house** (Otto is the umbrella; the three
 are Otto sub-products). These lead to different **domains, navigation, and legal entities**:
 
-- **Branded house:** one site `getotto.app`, three product pages (`/`, `/lean`, `/bulky`), one brand, shared legal. Simpler, cheaper, apps benefit from each other's trust.
+- **Branded house:** one site `ottosapp.com`, three product pages (`/`, `/lean`, `/bulky`), one brand, shared legal. Simpler, cheaper, apps benefit from each other's trust.
 - **House of brands:** three separate branded sites + a thin studio hub. More surface, more isolation.
 
 **Recommendation to capture:** since all three are Otto meal-plan products sharing this exact design
-system and mascot, a **branded house under `getotto.app`** is the lighter, more coherent fit — the
+system and mascot, a **branded house under `ottosapp.com`** is the lighter, more coherent fit — the
 manifest above (one shared foundation, per-product hero/copy) is built for that. Decide, then update
 `WEBSITE_ARCHITECTURE.md` to match.

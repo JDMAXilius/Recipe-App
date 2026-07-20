@@ -45,17 +45,17 @@ Sources: [bendingspoons.com](https://bendingspoons.com/), [support.bendingspoons
 ```
 [STUDIO HUB]         studio.com            → about, portfolio (links out), careers-later, contact
    │
-   ├── links out to ─► OTTO         getotto.app (TBD)   → Otto marketing + /privacy /terms /support
+   ├── links out to ─► OTTO         ottosapp.com (TBD)   → Otto marketing + /privacy /terms /support
    ├── links out to ─► APP #2       app2domain.com      → its own site + legal
    │
 [UNIFIED SUPPORT]    support.studio.com    → grid of app tiles, each → that app's support
 ```
 
 - **Studio hub** (`studio.com`): thin. About the studio, a portfolio grid linking OUT to each app domain, a contact/careers page later. Built **after** Otto ships — not needed for launch.
-- **Otto** (`getotto.app` or similar): Otto's own brand site. Hosts the **App-Store-required URLs**: `/privacy`, `/support`, and the in-app `/terms`. This is the ONE site we need for App Store submission.
+- **Otto** (`ottosapp.com` or similar): Otto's own brand site. Hosts the **App-Store-required URLs**: `/privacy`, `/support`, and the in-app `/terms`. This is the ONE site we need for App Store submission.
 - **Support** (`support.studio.com`): the Bending Spoons grid. Stand up when there are ≥2 apps; until then Otto's `/support` is enough.
 
-**Naming note:** we're on an **Individual** Apple Developer account today, so "studio" is a **brand, not a legal entity** — no incorporation needed to own `getotto.app` or a studio domain. Pick a studio name when convenient; it doesn't block Otto.
+**Naming note:** we're on an **Individual** Apple Developer account today, so "studio" is a **brand, not a legal entity** — no incorporation needed to own `ottosapp.com` or a studio domain. Pick a studio name when convenient; it doesn't block Otto.
 
 ---
 
@@ -88,7 +88,7 @@ Sources: [bendingspoons.com](https://bendingspoons.com/), [support.bendingspoons
 ## 7. Open decisions (for when we build)
 
 1. **Studio name + domain** (can defer — Otto ships without it).
-2. **Otto's domain** — e.g. `getotto.app`, `ottocooks.com`, `heyotto.app`. Decide before submission (needed for privacy/support URLs).
+2. **Otto's domain** — e.g. `ottosapp.com`, `ottocooks.com`, `heyotto.app`. Decide before submission (needed for privacy/support URLs).
 3. Whether Phase 0 Otto site doubles as the temporary studio face until Phase 1.
 
 **Next action when we build:** Phase 0 — scaffold `web-otto/` (Next.js) with landing + `/privacy` + `/terms` + `/support` from `docs/legal/`, deploy to Vercel, point Otto's domain at it, then wire `PRIVACY_URL`/`TERMS_URL` into `mobile/app/(tabs)/profile.jsx`.

@@ -78,7 +78,7 @@ Also worth a look: the new **"Lists you've been in"** rejoin row on the setup sc
 | 3 | ~~**Supabase OAuth providers**~~ | Founder + consoles | ✅ **DONE 2026-07-18** — Apple + Google + Facebook all enabled on Supabase; verified `external.{apple,google,facebook}=true`. Apple = native (bundle id as client id, no secret); Google = web client (consent screen in Testing mode); Facebook = "Login for Business" app in Dev mode. Device tap-test pending on build 19. | `TERMINAL_TICKET_OAUTH_PROVIDERS.md` |
 | 4 | ~~**`SUPABASE_SERVICE_ROLE_KEY` on the backend**~~ | Backend env | ✅ **DONE 2026-07-19** — set on Railway (using the new `sb_secret_` key; supabase-js 2.110.5 supports it). Verified backend healthy + key has GoTrue admin (admin/users → 200). Device-confirm the delete returns `authUserDeleted:true`. NOTE: key was pasted in chat — rotate it. | `PRE_LAUNCH_CHECKLIST.md` §A |
 | 5 | **Host privacy policy + terms**, then set `PRIVACY_URL` / `TERMS_URL` in `mobile/app/(tabs)/profile.jsx` (rows light up automatically). Use `docs/legal/*.html`. | Founder host + 2-line edit | Drafted | `docs/legal/`, `PRE_LAUNCH_CHECKLIST.md` §B |
-| 6 | **App Store Connect metadata**: screenshots (6.7"), description, keywords, category (Food & Drink), **App Privacy answers** (pre-filled table), support URL, demo account for review. | Founder + console | **Copy drafted** — name/subtitle/promo/keywords/description/What's New all written and character-counted; screenshots, demo credentials and the getotto.app URLs still needed | `docs/APP_STORE_LISTING.md`, `PRE_LAUNCH_CHECKLIST.md` §B |
+| 6 | **App Store Connect metadata**: screenshots (6.7"), description, keywords, category (Food & Drink), **App Privacy answers** (pre-filled table), support URL, demo account for review. | Founder + console | **Copy drafted** — name/subtitle/promo/keywords/description/What's New all written and character-counted; screenshots, demo credentials and the ottosapp.com URLs still needed | `docs/APP_STORE_LISTING.md`, `PRE_LAUNCH_CHECKLIST.md` §B |
 
 ### P2 — decisions / polish
 
@@ -117,7 +117,7 @@ session, one website, and console work:
 5. **Two calls still open:** the photo decision (#7), and Facebook — take the app Live or disable
    the provider. A visible-but-broken social button is a rejection.
 6. **Check `SHARE_BASE_URL` on Railway** — unset means every shared-list invite carries the Railway
-   hostname instead of getotto.app.
+   hostname instead of ottosapp.com.
 
 ## Ticket index
 

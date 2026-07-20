@@ -35,8 +35,8 @@ const TELL_A_FRIEND_URL = null;
 // would be dead-end UI.
 const RATE_APP_URL = null;
 // Founder input: set these when the pages exist — rows render only when real.
-const PRIVACY_URL = null;
-const TERMS_URL = null;
+const PRIVACY_URL = "https://ottosapp.com/privacy";
+const TERMS_URL = "https://ottosapp.com/terms";
 
 const AccountScreen = () => {
   const { user, signOut } = useAuth();

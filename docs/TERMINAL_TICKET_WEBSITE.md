@@ -11,7 +11,7 @@
 studio parent). The founder's framing is **Otto = umbrella brand with 3 meal-plan products**
 (Recipe & Meal Plans / **Lean** = weight-loss / **Bulky** = muscle-gain). That points at a **branded
 house**:
-- **Recommended:** one site `getotto.app`, three product pages (`/`, `/lean`, `/bulky`), shared brand + legal.
+- **Recommended:** one site `ottosapp.com`, three product pages (`/`, `/lean`, `/bulky`), shared brand + legal.
 - Confirm with founder, then **update `WEBSITE_ARCHITECTURE.md`** to match the chosen model before building.
 
 ## 1. Create the new repo

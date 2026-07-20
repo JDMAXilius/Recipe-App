@@ -82,7 +82,12 @@ PORT=5001
 DATABASE_URL=...            # Supabase (aws-0-us-east-1.pooler)
 SUPABASE_URL=...            # same project as the app — token verification
 SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...   # completes account deletion (set in prod)
+SUPABASE_SERVICE_ROLE_KEY=...   # completes account deletion — auth user AND
+                                # their Storage photos (set in prod)
+SHARE_BASE_URL=https://ottosapp.com   # public origin for /r, /l, /hl share links;
+                                      # falls back to the request host
+WEB_ORIGINS=...                 # optional, comma-separated extra CORS origins.
+                                # ottosapp.com + www are already built in.
 
 # mobile/.env
 EXPO_PUBLIC_SUPABASE_URL=...

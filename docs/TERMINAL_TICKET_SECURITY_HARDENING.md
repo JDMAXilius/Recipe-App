@@ -129,7 +129,7 @@ Findings the cloud pass already surfaced, plus the checks that need the live pro
 
 - **CORS is wide open** — `app.use(cors())` (`server.js:33`) sends `Access-Control-Allow-Origin: *`.
   Lower risk here because the API is bearer-token (no cookies), but scope it to the real origins
-  (the app's web host + `getotto.app` when live) rather than `*`.
+  (the app's web host + `ottosapp.com` when live) rather than `*`.
 - **No security headers / no `helmet`.** Add `helmet` (backend dep) — at minimum on the HTML share
   routes: a **Content-Security-Policy** (defense-in-depth behind Task 3's escaping),
   `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-Frame-Options`/frame-ancestors.
@@ -212,10 +212,10 @@ Full route-by-route pass over all 35 routes in `server.js`. Coverage by class:
    server-side verification against Supabase, not a local decode. A forged token cannot pass.
 
 ### Task 4 (audit)
-- 🔧 **CORS scoped.** `app.use(cors())` (`*`) → allowlist of `SHARE_BASE_URL`, `getotto.app`,
-  `www.getotto.app`, plus `localhost:8081/19006` in **non-production only**. Requests with **no
+- 🔧 **CORS scoped.** `app.use(cors())` (`*`) → allowlist of `SHARE_BASE_URL`, `ottosapp.com`,
+  `www.ottosapp.com`, plus `localhost:8081/19006` in **non-production only**. Requests with **no
   Origin** (the native app, curl, link-preview crawlers) still pass — CORS only governs browsers, and
-  the native app never sends an Origin. Verified live: `getotto.app` → allowed, `evil.example.com` →
+  the native app never sends an Origin. Verified live: `ottosapp.com` → allowed, `evil.example.com` →
   no ACAO header.
 - 🔧 **`helmet` added** (`^8.3.0`) with an explicit CSP: `default-src 'none'`, `script-src 'none'`
   (the share pages ship zero JS by design — this keeps it that way), `style-src 'self' 'unsafe-inline'`
@@ -309,13 +309,16 @@ the root `package-lock.json`. Worth noting what it was: four Expo packages
 **`mobile/package.json` already declares** — a stray root-level `npm install`, not a real dependency
 set. The new root `.gitignore` keeps it out from here.
 
-### ⚠️ Corrected while working: the domain in this ticket was wrong
-The ticket said to allowlist `getotto.app`. The actual registered domain is **`ottosapp.com`**
-(branded house, one site). The CORS allowlist now carries `ottosapp.com` + `www.` — and, so this
-can't rot again, reads an optional comma-separated **`WEB_ORIGINS`** env var, so a preview deploy or
-a second front end is an env change rather than a code change. Verified live: `ottosapp.com`,
-`www.ottosapp.com`, and a `WEB_ORIGINS` entry all allowed; `getotto.app` and `evil.example.com`
-blocked; no-Origin requests (the native app) still pass.
+### ⚠️ Corrected while working: the domain
+This ticket was originally written against an older working domain. The real registered domain is
+**`ottosapp.com`** (branded house, one site — confirmed by Juan), and the whole repo now says so:
+the CORS allowlist, `SHARE_BASE_URL`'s documented example, the README `.env` block, and the share-page
+test fixtures. `mobile/app/(tabs)/profile.jsx` already pointed at `ottosapp.com/privacy|/terms`.
+
+So it can't rot again, the allowlist also reads an optional comma-separated **`WEB_ORIGINS`** env
+var — a preview deploy or a second front end is an env change rather than a code change. Verified
+live: `ottosapp.com`, `www.ottosapp.com`, and a `WEB_ORIGINS` entry all allowed; the old domain and
+`evil.example.com` blocked; no-Origin requests (the native app) still pass.
 
 ---
 
