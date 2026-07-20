@@ -182,6 +182,15 @@ eas submit --platform ios --profile production --latest
   app just isn't using the paid key. **Needed before public release, not before internal TestFlight.**
   Lazy version: one `/api/content/*` passthrough that injects the key server-side + repoint `BASE_URL`
   — not the 8 bespoke routes the old ticket implies.
+  **DONE 2026-07-19** — `GET /api/content/:endpoint` in `server.js`, allowlisted to the six endpoints
+  `mealAPI.js` actually calls, forwarding only TheMealDB's `s/i/a/c/f` params and the response
+  verbatim. So the client was a one-line `BASE_URL` change and every `data.meals` parse still works.
+  Unauthenticated on purpose (Discover must work before signup) and guarded by `contentLimiter`
+  (600/15min per IP) — that limiter is the only thing between the paid key and a free-proxy farm.
+  All six endpoints verified against v2 with the supporter key; web export clean.
+  ⚠️ **`THEMEALDB_KEY` must be set on Railway** or both this route and `RecipeSource` silently fall
+  back to the test key `"1"` — working, but exactly the terms violation this was meant to fix.
+  It is server-side only: never `EXPO_PUBLIC_*`, since anything bundled is readable from the IPA.
 - **Recipe photo: paste-a-link vs device upload** — still an open founder decision.
 - **Account deletion kills a shared list other people are using.** Defensible (no member registry to
   transfer ownership to) but the UI gives no warning. Consider one.

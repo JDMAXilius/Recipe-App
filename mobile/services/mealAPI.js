@@ -1,4 +1,12 @@
-const BASE_URL = "https://www.themealdb.com/api/json/v1/1";
+import { API_URL } from "../constants/api";
+
+// Recipes come through OUR backend, not themealdb.com directly. The supporter
+// key we pay for is injected server-side by the /api/content passthrough — it
+// cannot live here, because anything bundled into the app (EXPO_PUBLIC_* very
+// much included) can be read straight out of the IPA. The endpoint names,
+// query params and response shapes are unchanged, so everything below still
+// parses data.meals / data.categories exactly as it did.
+const BASE_URL = `${API_URL}/content`;
 
 // Some TheMealDB entries carry their own headers — "STEP 1" on its own line
 // above the actual instruction (52982 Carbonara is one). Kept as-is they become

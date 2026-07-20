@@ -23,6 +23,20 @@ export const costlyLimiter = rateLimit({
   message: { error: "Too many requests — give it a few minutes and try again" },
 });
 
+// /api/content passthrough (the TheMealDB supporter key). Deliberately per-IP
+// and NOT behind requireAuth: Discover is meant to be browsable before anyone
+// makes an account, which is the whole point of the anonymous-guest flow. The
+// limit is what protects the paid key from being farmed as a free proxy —
+// generous for real browsing (a Discover load is ~8 calls), tight enough that
+// scripted scraping hits a wall long before our quota does.
+export const contentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 600,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: { error: "Too many requests — give Otto a second to catch up" },
+});
+
 // Seed-nutrition views are cache-first reads (browsing recipes fires one per
 // detail view) — they must NEVER share the import budget (QA P1-1). Generous
 // per-user ceiling; the compute path is additionally guarded by the

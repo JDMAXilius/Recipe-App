@@ -22,6 +22,11 @@ const MEALDB_KEY = process.env.THEMEALDB_KEY || "1";
 const MEALDB_VERSION = MEALDB_KEY === "1" ? "v1" : "v2"; // v2 is supporter-only
 const BASE_URL = `https://www.themealdb.com/api/json/${MEALDB_VERSION}/${MEALDB_KEY}`;
 
+// The /api/content passthrough serves the client the same source this adapter
+// reads, so the key and version live in exactly one place.
+export { BASE_URL as MEALDB_BASE_URL };
+export const usingSupporterKey = () => MEALDB_KEY !== "1";
+
 async function getJson(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error(`TheMealDB answered ${response.status}`);

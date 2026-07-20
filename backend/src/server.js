@@ -11,7 +11,8 @@ import { extractionActive, extractRecipeFromText } from "./lib/import/extractRec
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
-import { apiLimiter, costlyLimiter, seedReadLimiter } from "./lib/rateLimits.js";
+import { apiLimiter, costlyLimiter, seedReadLimiter, contentLimiter } from "./lib/rateLimits.js";
+import { MEALDB_BASE_URL } from "./lib/content/RecipeSource.js";
 import { backfillUserRecipeNutrition, seedNutritionFor, nutritionActive } from "./lib/nutrition/lifecycle.js";
 import {
   makeShareToken,
@@ -42,6 +43,47 @@ const intId = (value) => {
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ success: true });
+});
+
+// TheMealDB passthrough — the ONLY reason this exists is the supporter key.
+// mobile/services/mealAPI.js used to call themealdb.com straight from the
+// bundle on the test key "1", which their terms permit for "development or
+// educational use" only: a public app store release is expected to hold a
+// supporter key. A key in the bundle is extractable by anyone who unzips the
+// IPA, so it has to be injected here instead.
+//
+// Shape is deliberately dumb: same endpoint names, same query params, response
+// forwarded verbatim. That keeps mealAPI.js a one-line change (BASE_URL) rather
+// than 8 bespoke routes with 8 response shapes to keep in sync.
+//
+// No requireAuth — Discover is meant to work before signup. contentLimiter is
+// what stands between the paid key and someone using us as a free proxy.
+const CONTENT_ENDPOINTS = new Set([
+  "search.php", "lookup.php", "random.php", "categories.php", "filter.php", "list.php",
+]);
+// TheMealDB's whole query vocabulary: s=search, i=id/ingredient, a=area,
+// c=category, f=first letter. Anything else is dropped rather than forwarded.
+const CONTENT_PARAMS = ["s", "i", "a", "c", "f"];
+
+app.get("/api/content/:endpoint", contentLimiter, async (req, res) => {
+  const { endpoint } = req.params;
+  if (!CONTENT_ENDPOINTS.has(endpoint)) {
+    return res.status(404).json({ error: "Unknown content endpoint" });
+  }
+  const query = new URLSearchParams();
+  for (const p of CONTENT_PARAMS) {
+    if (typeof req.query[p] === "string") query.set(p, req.query[p]);
+  }
+  try {
+    const upstream = await fetch(`${MEALDB_BASE_URL}/${endpoint}?${query}`, {
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!upstream.ok) throw new Error(`TheMealDB answered ${upstream.status}`);
+    res.json(await upstream.json());
+  } catch (error) {
+    reportError(error, { msg: "content passthrough failed", endpoint });
+    res.status(502).json({ error: "Couldn't reach the recipe library" });
+  }
 });
 
 // All favorites routes are scoped to the authenticated user: requireAuth
