@@ -5,7 +5,7 @@
     "version": "1.0.9",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "otto",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
