@@ -89,6 +89,34 @@ whether the threshold is wrong or the parse rate genuinely is. Fix whichever it 
 Note a co-pilot session landed `expandPackSize()` in `parseIngredient.js` (commit `35ef222d`) for
 exactly this class of problem — check whether it moved the needle before assuming it didn't.
 
+### Resolution 2026-07-19 — it was the flag, not the numbers
+
+Measured over 60 real seed recipes (642 ingredient lines), classifying every line the way
+`usdaProvider` scores it. Prod-wide the split was **78.5% low / 14.7% medium / 2.4% high** across all
+706 cached rows — so "10/10 low" was a fair read of a real problem.
+
+**Only 0.6% of lines failed to match a USDA record.** The doubt came from 28.3% of lines never
+resolving to grams, and those were overwhelmingly `To taste Salt` / `To taste Pepper` — unquantifiable
+by nature and carrying ~no calories. The formula divided by every line, so an unknowable pinch of salt
+scored the same doubt as a missing cup of flour, and `high` required `doubt === 0`, which is
+unreachable while garlic/onion/egg resolve through piece weights by design.
+
+Fixed in two places:
+- `parseIngredient.js` — `tbs` was missing from `UNIT_WORDS` (TheMealDB's usual spelling, so those
+  lines contributed zero calories), and a bare unit with no number (`Pinch Salt`, `Handful Parsley`)
+  never parsed despite `APPROX_G` already holding the weights. Unresolved lines: 28.3% → 19.6%.
+- `usdaProvider.js` — seasoning/garnish under 15g or unquantifiable is excluded from the confidence
+  denominator (still counted in the nutrition sum), and `high` relaxed to `doubt <= 0.1`.
+
+Result on the same 60: **13.3% high / 51.7% medium / 35.0% low**. Calorie totals are unchanged by the
+recalibration; the parser fixes raise them slightly where `tbs` lines had been dropped.
+Tests: `__tests__/bareUnit.test.mjs`, `__tests__/confidence.test.mjs`.
+
+⚠️ **Existing seed recipes will not change.** `seedNutritionFor()` (`lifecycle.js:54`) is cache-first
+with `onConflictDoNothing`, so the 706 cached rows keep their old flags — deliberately left as-is
+(founder call, 2026-07-19). This lands for **user-created recipes** and any seed recipe not yet
+cached. Clearing `seed_nutrition` would backfill the rest lazily at zero API cost, if that's ever wanted.
+
 ---
 
 ## 3. 🔴 Nothing has been tested on a device

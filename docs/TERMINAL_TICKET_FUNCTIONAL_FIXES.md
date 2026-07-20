@@ -246,5 +246,6 @@ the Railway host. Point it at getotto.app once the site is live.
 - [ ] The root cause of the save failure is identified from the backend log and **fixed at the
       source** (not worked around in the client), with a one-line note here of what it was.
 - [ ] A recipe video **plays** on device with no Error 153.
-- [ ] Photo upload from the device works end-to-end (app side ✅ implemented — Task 3; needs the
-      `recipe-photos` Storage bucket + policies applied to the real project, then a device test).
+- [ ] Photo upload from the device works end-to-end (app side ✅ implemented — Task 3; bucket +
+      policies ✅ applied to prod 2026-07-19; **device test is what's left**, on a build that
+      actually contains the upload commit `22e9f784`).

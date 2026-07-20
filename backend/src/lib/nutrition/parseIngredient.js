@@ -4,12 +4,12 @@
 // unresolved qty/unit/density is flagged via confidence — honesty first.
 
 export const UNIT_WORDS =
-  "cups?|cup|tablespoons?|tbsps?|tbsp|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?";
+  "cups?|cup|tablespoons?|tbsps?|tbsp|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?";
 
 // canonical unit ids
 const UNIT_ALIASES = [
   [/^cups?$/i, "cup"],
-  [/^(tablespoons?|tbsps?)$/i, "tbsp"],
+  [/^(tablespoons?|tbsps?|tbs)$/i, "tbsp"],
   [/^(teaspoons?|tsps?)$/i, "tsp"],
   [/^(grams?|g)$/i, "g"],
   [/^(kgs?|kilograms?)$/i, "kg"],
@@ -221,6 +221,20 @@ export function parseIngredientLine(input) {
     qty = parseQty(m[1]);
     unit = canonicalUnit(m[2]);
     item = m[3].trim();
+  } else {
+    // A bare unit with no number — "Pinch Salt", "Handful Parsley", "Dash
+    // Pepper". TheMealDB writes a lot of measures this way. The pattern above
+    // is anchored on a leading digit, so these resolved to NO grams: the line
+    // was dropped from the nutrition sum AND counted as doubt, dragging the
+    // recipe to "low" — when "one pinch" is the only sensible reading.
+    // Requires something after the unit, so an ingredient that IS a unit word
+    // ("Cloves" the spice, alone) still falls through unmatched.
+    const bare = text.match(new RegExp(`^(${UNIT_WORDS})\\.?\\s+(?:of\\s+)?(.+)$`, "i"));
+    if (bare) {
+      qty = 1;
+      unit = canonicalUnit(bare[1]);
+      item = bare[2].trim();
+    }
   }
 
   const { grams, level } = gramsFor(qty, unit, item);

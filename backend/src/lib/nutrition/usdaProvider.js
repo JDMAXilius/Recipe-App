@@ -109,6 +109,31 @@ const MAX_PLAUSIBLE_SERVING_GRAMS = 700;
 const MIN_PLAUSIBLE_KCAL = 40;
 const MAX_PLAUSIBLE_KCAL = 1500;
 
+// SEASONING IS NOT DOUBT.
+//
+// Measured over the seed catalogue 2026-07-19: 78.5% of recipes read "low" and
+// only 2.4% "high" — a signal that never varies carries no information. The
+// cause was not bad data. 99.4% of ingredient lines matched a USDA record; what
+// failed to resolve was overwhelmingly "To taste Salt" and "To taste Pepper",
+// which are unquantifiable BY NATURE and contribute ~no calories either way.
+//
+// The old formula divided by every line, so an unknowable pinch of salt scored
+// exactly as much doubt as a missing cup of flour. That reported the ESTIMATE as
+// poor when only the salt was unknown — the opposite of honest.
+//
+// So these lines are excluded from the confidence metric entirely. They are NOT
+// excluded from the nutrition sum: if one resolves, its grams still count. Only
+// the guard on quantity keeps this narrow — a garnish of parsley is negligible,
+// 500g of spinach is a real ingredient and is scored like one.
+const NEGLIGIBLE =
+  /\b(salt|pepper|peppercorns?|seasoning|spices?|herbs?|parsley|cilantro|coriander|basil|thyme|rosemary|oregano|sage|mint|dill|chives|bay leaf|bay leaves|garnish|zest|vanilla extract|food colou?ring)\b/i;
+const NEGLIGIBLE_MAX_G = 15;
+
+function isNegligible(row) {
+  if (!NEGLIGIBLE.test(row.name || "") && !NEGLIGIBLE.test(row.parsed.item || "")) return false;
+  return row.parsed.grams == null || row.parsed.grams <= NEGLIGIBLE_MAX_G;
+}
+
 // Seed recipes arrive as { measure, name } where `name` IS the TheMealDB
 // ingredient name the table is keyed on — so it matches directly. User-written
 // recipes are freeform, so fall back to the parser's extracted item
@@ -152,7 +177,7 @@ export const usdaProvider = {
       const line = [p.measure, p.name].filter(Boolean).join(" ").trim();
       const parsed = parseIngredientLine(line);
       const food = lookup(p.name, parsed.item, cookedSet.has(key(p.name)));
-      return { parsed, food };
+      return { parsed, food, name: p.name };
     });
 
     const usable = rows.filter((r) => r.food && r.parsed.grams > 0);
@@ -191,10 +216,19 @@ export const usdaProvider = {
     //    (understated). Counts full.
     //  - guessed   → our parser estimated the grams ("2 large eggs" → 100g,
     //    medium). The line IS in the sum, just approximate. Counts half.
-    const unmatched = rows.length - usable.length;
-    const guessed = usable.filter((r) => r.parsed.confidence !== "high").length;
-    const doubt = (unmatched + guessed * 0.5) / rows.length;
-    const confidence = doubt === 0 ? "high" : doubt <= 0.2 ? "medium" : "low";
+    // Seasoning and garnish are dropped from the denominator (see NEGLIGIBLE).
+    // The fallback keeps a recipe that is ENTIRELY seasoning from dividing by
+    // zero — it gets scored on its own lines, as before.
+    const counted = rows.filter((r) => !isNegligible(r));
+    const scored = counted.length ? counted : rows;
+    const resolved = (r) => r.food && r.parsed.grams > 0;
+    const unmatched = scored.filter((r) => !resolved(r)).length;
+    const guessed = scored.filter((r) => resolved(r) && r.parsed.confidence !== "high").length;
+    const doubt = (unmatched + guessed * 0.5) / scored.length;
+    // "high" is not perfection. Garlic, onion and egg resolve through piece
+    // weights and are rated "guessed" by design, so requiring doubt === 0 made
+    // "high" unreachable for almost every real recipe rather than meaningful.
+    const confidence = doubt <= 0.1 ? "high" : doubt <= 0.3 ? "medium" : "low";
 
     return {
       kcal: kcalPerServing,
