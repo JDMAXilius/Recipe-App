@@ -6,22 +6,16 @@
 > publish**, especially the rights sections (GDPR/CCPA) and the legal-entity details. Update it
 > whenever the app's data behavior changes.
 
-> **Before you publish, fill in every `[BRACKETED]` placeholder:**
-> - `[EFFECTIVE DATE]` — the date you publish this
-> - `[LEGAL NAME]` — you or your business entity (e.g. "Juan Lugo" or your LLC)
-> - `[CONTACT EMAIL]` — the same support address the app uses
-> - `[GOVERNING JURISDICTION]` — e.g. "Florida, United States"
-> - `[WEBSITE URL]` — where this policy is hosted (needed for the App Store + the in-app link)
-
 ---
 
-**Effective date:** [EFFECTIVE DATE]
+**Effective date:** July 20, 2026
 **App:** Otto (the "App")
-**Provider:** [LEGAL NAME] ("we", "us", "our")
+**Website:** https://ottosapp.com (the "Site")
+**Provider:** Juan Diego Lugo ("we", "us", "our")
 
 Otto is a recipe app — a quiet cookbook that lets you save, import, cook, plan, and share recipes.
-This policy explains what information the App handles, why, and the choices you have. We've tried to
-write it plainly.
+This policy covers both the **App** and our **Site**. It explains what information we handle, why,
+and the choices you have. We've tried to write it plainly.
 
 ---
 
@@ -62,10 +56,35 @@ write it plainly.
   your **reminder settings**, and **onboarding state** are stored **only on your device**. They are
   not uploaded to our servers. If you delete the App, this on-device information is removed with it.
 
-### d) Information from third parties
+### d) Our website
+Our Site is a **static marketing and legal site**. It has no accounts, no sign-in, and no shopping.
+It sets **no cookies** and embeds **no advertising or cross-site tracking scripts** — so there is
+nothing to consent to and no cookie banner.
+
+We do measure **aggregate page views** on the Site using **Vercel Web Analytics**, a cookieless
+analytics tool. It records which page was viewed, the referring site, and coarse details such as
+country, browser, and device type, and uses a **daily-rotating hash** to estimate visitor counts. It
+does **not** set cookies, does **not** keep a persistent identifier for you, does **not** build a
+profile, and does **not** follow you to other websites. We use it only to see which pages people find
+useful. There are still **no analytics of any kind inside the App itself**.
+
+Our hosting provider also processes standard server request data (such as IP address and browser
+type) to serve pages and protect against abuse.
+
+### e) Information from third parties
 - When you use a social sign-in, the provider (Apple, Google, or Facebook) sends us the limited
   profile information described in §1(a). We do not receive your social media posts, contacts, or
   friend lists.
+
+### f) The contact form on our Site
+The one exception to (d): our Site has a **contact form**. If you use it, we receive what you enter —
+your **email address**, your **message**, and, if you provide them, your **name** and a **subject**.
+We use this information for one purpose: **to read and reply to your message**. Sending the message
+uses **Resend** (an email delivery provider), which processes it to deliver it to our inbox. Our
+server also briefly processes your **IP address** to limit abuse of the form (rate limiting); it is
+not stored with your message. We keep contact messages like ordinary email correspondence — as long
+as needed to handle your request and a reasonable period after — and you can ask us to delete them at
+**hello@ottosapp.com**. The form sets no cookies and uses no CAPTCHA or tracking.
 
 ---
 
@@ -145,7 +164,7 @@ invitation.
 Depending on where you live, you may have the right to **access, correct, delete, or export** your
 personal information, and to object to or restrict certain processing. You can exercise the core of
 these directly — view and edit your content in the App, and delete your account — or contact us at
-**[CONTACT EMAIL]** and we'll help.
+**hello@ottosapp.com** and we'll help.
 
 - **California (CCPA/CPRA):** We do not sell or "share" personal information for cross-context
   behavioral advertising, and we don't use it for targeted advertising.
@@ -172,7 +191,7 @@ promptly.
 
 Otto is not directed to children under 13 (or the minimum age required in your country), and we do
 not knowingly collect personal information from them. If you believe a child has provided us personal
-information, contact us at **[CONTACT EMAIL]** and we'll delete it.
+information, contact us at **hello@ottosapp.com** and we'll delete it.
 
 ## 12. Changes to this policy
 
@@ -184,8 +203,8 @@ an update means you accept the revised policy.
 
 Questions or requests about your privacy? Reach us at:
 
-**[LEGAL NAME]**
-Email: **[CONTACT EMAIL]**
-[WEBSITE URL]
+**Juan Diego Lugo**
+Email: **hello@ottosapp.com**
+https://ottosapp.com
 
-Governed by the laws of **[GOVERNING JURISDICTION]**, without regard to conflict-of-laws principles.
+Governed by the laws of **the State of Florida, United States**, without regard to conflict-of-laws principles.

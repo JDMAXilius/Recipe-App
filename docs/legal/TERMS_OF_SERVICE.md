@@ -5,17 +5,14 @@
 > limitation-of-liability, and dispute-resolution sections (their enforceability varies by
 > jurisdiction). Update it whenever the app's behavior changes.
 
-> **Fill in every `[BRACKETED]` placeholder before publishing:**
-> `[EFFECTIVE DATE]` · `[LEGAL NAME]` · `[CONTACT EMAIL]` · `[GOVERNING JURISDICTION]` · `[WEBSITE URL]`
-
 ---
 
-**Effective date:** [EFFECTIVE DATE]
+**Effective date:** July 20, 2026
 **App:** Otto (the "App" or "Service")
-**Provider:** [LEGAL NAME] ("we", "us", "our")
+**Provider:** Juan Diego Lugo ("we", "us", "our")
 
 Welcome to Otto — a quiet cookbook for saving, importing, cooking, planning, and sharing recipes.
-These Terms of Service ("Terms") are a legal agreement between you and [LEGAL NAME]. By creating an
+These Terms of Service ("Terms") are a legal agreement between you and Juan Diego Lugo. By creating an
 account or using the App, you agree to these Terms and to our Privacy Policy. If you don't agree,
 please don't use the App.
 
@@ -32,7 +29,7 @@ parent or guardian. By using the App, you confirm you meet these requirements.
 - You're responsible for keeping your account credentials secure and for activity that happens under
   your account.
 - Provide accurate information and keep it current.
-- Tell us promptly at **[CONTACT EMAIL]** if you believe your account has been compromised.
+- Tell us promptly at **hello@ottosapp.com** if you believe your account has been compromised.
 - You may sign in using email or a third-party provider (Apple, Google, Facebook); your use of those
   is also subject to their terms.
 
@@ -125,7 +122,7 @@ warranty exclusions, so parts of this section may not apply to you.
 
 ## 13. Limitation of liability
 
-To the fullest extent permitted by law, [LEGAL NAME] will not be liable for any indirect, incidental,
+To the fullest extent permitted by law, Juan Diego Lugo will not be liable for any indirect, incidental,
 special, consequential, or punitive damages, or for lost profits, data, or goodwill, arising from or
 related to your use of the App. Our total liability for any claim relating to the App will not exceed
 the greater of the amount you paid us for the App in the 12 months before the claim (if any) or
@@ -133,14 +130,14 @@ the greater of the amount you paid us for the App in the 12 months before the cl
 
 ## 14. Indemnification
 
-You agree to indemnify and hold harmless [LEGAL NAME] from claims, damages, and expenses (including
+You agree to indemnify and hold harmless Juan Diego Lugo from claims, damages, and expenses (including
 reasonable legal fees) arising from your content, your use of the App, or your violation of these
 Terms or others' rights, to the extent permitted by law.
 
 ## 15. Apple App Store
 
 If you download Otto from the Apple App Store, the following also applies:
-- These Terms are between you and **[LEGAL NAME] only, not Apple**. Apple is not responsible for the
+- These Terms are between you and **Juan Diego Lugo only, not Apple**. Apple is not responsible for the
   App or its content.
 - Apple has no obligation to provide maintenance or support for the App.
 - To the extent permitted by law, Apple has no warranty obligation for the App, and any claims,
@@ -164,15 +161,15 @@ If you download Otto from the Apple App Store, the following also applies:
 
 ## 17. Governing law and disputes
 
-These Terms are governed by the laws of **[GOVERNING JURISDICTION]**, without regard to its
+These Terms are governed by the laws of **the State of Florida, United States**, without regard to its
 conflict-of-laws rules. You agree that disputes will be resolved in the courts located in
-**[GOVERNING JURISDICTION]**, unless applicable law gives you the right to bring a claim elsewhere.
+**the State of Florida, United States**, unless applicable law gives you the right to bring a claim elsewhere.
 Nothing here limits any non-waivable consumer rights you have where you live.
 
 ## 18. Contact
 
 Questions about these Terms?
 
-**[LEGAL NAME]**
-Email: **[CONTACT EMAIL]**
-[WEBSITE URL]
+**Juan Diego Lugo**
+Email: **hello@ottosapp.com**
+https://ottosapp.com
