@@ -428,7 +428,12 @@ const CookModeScreen = () => {
                   size={22}
                   color={checked ? colors.accent : colors.border}
                 />
-                <Text style={[styles.prepQty, checked && styles.prepDone]}>{s.display}</Text>
+                <Text style={[styles.prepQty, checked && styles.prepDone]}>
+                  {s.display}
+                  {s.weight ? (
+                    <Text style={[styles.prepWeight, checked && styles.prepDone]}>  {s.weight}</Text>
+                  ) : null}
+                </Text>
                 <Text style={[styles.prepName, checked && styles.prepDone]}>{s.name}</Text>
               </TouchableOpacity>
             );
@@ -1023,6 +1028,7 @@ const createStyles = (colors) =>
       fontVariant: ["tabular-nums"],
     },
     prepName: { ...TYPE.body, color: colors.ink, flex: 1 },
+    prepWeight: { fontWeight: "600", color: colors.inkSoft, fontVariant: ["tabular-nums"] },
     prepDone: { opacity: 0.4, textDecorationLine: "line-through" },
 
     backdrop: { flex: 1, backgroundColor: "rgba(42,33,27,0.35)" },

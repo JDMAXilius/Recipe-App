@@ -1,3 +1,5 @@
+import { weightHint } from "./ingredientWeight";
+
 // Deterministic ingredient parsing, scaling, and US↔Metric conversion.
 // Powers real ingredient scaling (v2 roadmap Phase 0) for TheMealDB's prose
 // measures and future imported recipes. Pure functions, no AI, no latency —
@@ -196,20 +198,27 @@ export function convertMeasure({ qty, unit }, system) {
 }
 
 // Full display pipeline: parse → scale → convert → format.
-// Returns { display, name } e.g. { display: "1½ cups", name: "soy sauce" }
+// Returns { display, name, weight } — weight is a scale-friendly hint like
+// "≈120 g", present ONLY for ingredients where volume is a poor instrument
+// (flour, sugar, fats, cheese, nuts, grains, meat) and blank everywhere else.
 export function scaledIngredient(pair, factor = 1, system = "us") {
   const { qty, unit, note } = parseMeasure(pair.measure);
   if (qty == null) {
     // unparseable ("Dash", "To serve", "Topping") — show as-is, never fake it
-    return { display: pair.measure || "", name: pair.name, scalable: false };
+    return { display: pair.measure || "", name: pair.name, scalable: false, weight: "" };
   }
   const scaled = factor === 1 ? qty : snapQty(qty * factor);
   const converted = system === "metric" ? convertMeasure({ qty: scaled, unit }, "metric") : { qty: scaled, unit };
   const unitLabel = converted.unit ? ` ${UNIT_LABELS[converted.unit](converted.qty)}` : "";
   const noteText = note ? ` ${note}` : "";
+  // Weight is derived from the ORIGINAL parsed qty/unit (before metric volume
+  // conversion), scaled by the serving factor — a gram figure is the same
+  // number regardless of which measuring system the reader prefers to see.
+  const weight = weightHint({ qty: scaled, unit, name: pair.name }, system);
   return {
     display: `${formatQty(converted.qty)}${unitLabel}${noteText}`.trim(),
     name: pair.name,
     scalable: true,
+    weight,
   };
 }

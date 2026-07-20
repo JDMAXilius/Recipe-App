@@ -281,6 +281,13 @@ export const createRecipeDetailStyles = (colors) =>
       minWidth: 84,
       fontVariant: ["tabular-nums"],
     },
+    // Scale weight — quieter than the measure it trails, so the row still reads
+    // volume-first and the gram figure is there when you reach for the scale.
+    ingredientWeight: {
+      fontWeight: "600",
+      color: colors.inkSoft,
+      fontVariant: ["tabular-nums"],
+    },
     ingredientName: {
       ...TYPE.body,
       color: colors.ink,

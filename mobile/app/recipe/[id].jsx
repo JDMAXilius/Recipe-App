@@ -445,7 +445,12 @@ const RecipeDetailScreen = () => {
 
             {scalableRows.map((row, index) => (
               <View key={index} style={recipeDetailStyles.ingredientRow}>
-                <Text style={recipeDetailStyles.ingredientMeasure}>{row.display}</Text>
+                <Text style={recipeDetailStyles.ingredientMeasure}>
+                  {row.display}
+                  {row.weight ? (
+                    <Text style={recipeDetailStyles.ingredientWeight}>  {row.weight}</Text>
+                  ) : null}
+                </Text>
                 <Text style={recipeDetailStyles.ingredientName}>{row.name}</Text>
               </View>
             ))}
