@@ -93,11 +93,13 @@ const TabsLayout = () => {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          // safe-area aware: 60pt of content + the device's own bottom inset —
-          // labels never crowd the home indicator (fixed 80pt did on iPhone)
-          height: 60 + Math.max(insets.bottom, 8),
+          // safe-area aware: content height + the device's own bottom inset —
+          // labels never crowd the home indicator (a fixed 80pt did on iPhone).
+          // 50pt of content fits a 24pt icon over a 12pt label with room to
+          // breathe; this is the one number to nudge if the bar feels off.
+          height: 50 + Math.max(insets.bottom, 8),
           paddingBottom: Math.max(insets.bottom, 8),
-          paddingTop: 6,
+          paddingTop: 4,
         },
         tabBarLabelStyle: {
           fontSize: 12,

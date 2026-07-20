@@ -53,6 +53,23 @@ export const createProfileStyles = (colors) =>
       fontSize: 20,
       color: colors.ink,
       marginBottom: 2,
+      flexShrink: 1, // a long name shortens rather than shoving the pencil off
+    },
+    nameRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    // Same size and weight as identityName so the card doesn't jump when the
+    // field swaps in; the underline is the only thing that says "editing".
+    nameInput: {
+      ...TYPE.title,
+      fontSize: 20,
+      color: colors.ink,
+      paddingVertical: 0,
+      paddingBottom: 2,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.accent,
     },
     email: {
       ...TYPE.body,

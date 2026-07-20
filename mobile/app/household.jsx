@@ -15,6 +15,7 @@ import * as Haptics from "expo-haptics";
 import { useTheme } from "../context/ThemeContext";
 import { useToast } from "../context/ToastContext";
 import { useAuth } from "../context/AuthContext";
+import { displayNameFor } from "../lib/username";
 import ScreenHeader from "../components/ScreenHeader";
 import { createHouseholdStyles } from "../assets/styles/household.styles";
 import { CollabAPI } from "../services/userRecipes";
@@ -47,11 +48,6 @@ const agoLabel = (iso) => {
   return `${days} days ago`;
 };
 
-// Turn an email into a friendly first name: "juan.lugo@x.com" → "Juan".
-const nameFromEmail = (email) => {
-  const raw = String(email || "").split("@")[0].split(/[._-]/)[0];
-  return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "Me";
-};
 
 const HouseholdScreen = () => {
   const router = useRouter();
@@ -64,7 +60,9 @@ const HouseholdScreen = () => {
   const [recent, setRecent] = useState([]); // [{token, url, displayName, lastSeen}]
   const [hydrated, setHydrated] = useState(false);
   const [data, setData] = useState(null); // {mine, items}
-  const [displayName, setDisplayName] = useState(() => nameFromEmail(user?.email));
+  // Seeded from the name set on the account screen — one identity, so nobody
+  // sets a name there and still shows up as a relay address on a shared list.
+  const [displayName, setDisplayName] = useState(() => displayNameFor(user, "Me"));
   const [joinLink, setJoinLink] = useState("");
   const [showJoin, setShowJoin] = useState(false);
   const [newItem, setNewItem] = useState("");

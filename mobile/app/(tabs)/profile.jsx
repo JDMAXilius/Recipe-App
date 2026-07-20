@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Platform, Linking } from "react-native";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Platform, Linking, TextInput } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
@@ -15,6 +15,13 @@ import { UserRecipeAPI } from "../../services/userRecipes";
 import { authFetch } from "../../lib/api";
 import { sharePlainText } from "../../lib/shareText";
 import { createProfileStyles } from "../../assets/styles/profile.styles";
+import {
+  displayNameFor,
+  hasUsername,
+  cleanUsername,
+  saveUsername,
+  MAX_USERNAME,
+} from "../../lib/username";
 
 // "You" — Account v3 (Mobbin account study, 2026-07-15).
 // Warm header, cold facts: Otto avatar + plain email caption (Kitchen
@@ -50,6 +57,44 @@ const AccountScreen = () => {
   const [mineCount, setMineCount] = useState(0);
   const [cookedCount, setCookedCount] = useState(0);
   const [journalCount, setJournalCount] = useState(0);
+
+  // The name Otto calls you. Lives in Supabase user_metadata, so it needs no
+  // table of its own and travels with the session — see lib/username.js.
+  // savedName is the optimistic value: updateUser's auth event can land a beat
+  // later, and the name flickering back to the old one reads as a failed save.
+  const [savedName, setSavedName] = useState(null);
+  const [editingName, setEditingName] = useState(false);
+  const [draftName, setDraftName] = useState("");
+  const displayName = savedName || displayNameFor(user);
+
+  const startEditingName = () => {
+    Haptics.selectionAsync().catch(() => {});
+    // Seed with the real stored name only — never with the guessed fallback,
+    // or "Chef" becomes everyone's actual saved name the first time they tap.
+    setDraftName(hasUsername(user) ? displayNameFor(user) : savedName || "");
+    setEditingName(true);
+  };
+
+  // Return + blur both fire on "done", and setState hasn't flushed between
+  // them — a ref is what actually dedupes the save, not the editingName state.
+  const savingName = useRef(false);
+  const commitName = async () => {
+    if (savingName.current) return;
+    savingName.current = true;
+    setEditingName(false);
+    const next = cleanUsername(draftName);
+    const current = hasUsername(user) ? displayNameFor(user) : savedName || "";
+    try {
+      if (next === current) return; // nothing typed, or typed back to the same
+      const saved = await saveUsername(next);
+      setSavedName(saved || null);
+      show({ message: saved ? `Otto will call you ${saved}.` : "Name cleared." });
+    } catch {
+      show({ message: "Couldn't save that name — try again." });
+    } finally {
+      savingName.current = false;
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -136,10 +181,38 @@ const AccountScreen = () => {
             />
           </View>
           <View style={styles.identityText}>
-            <Text style={styles.identityName}>Chef</Text>
-            <Text style={styles.email} numberOfLines={1}>
-              {user?.email}
-            </Text>
+            {editingName ? (
+              <TextInput
+                style={styles.nameInput}
+                value={draftName}
+                onChangeText={setDraftName}
+                onSubmitEditing={commitName}
+                onBlur={commitName}
+                maxLength={MAX_USERNAME}
+                autoFocus
+                selectTextOnFocus
+                returnKeyType="done"
+                placeholder="What should Otto call you?"
+                placeholderTextColor={colors.inkSoft}
+                accessibilityLabel="Your name"
+              />
+            ) : (
+              <TouchableOpacity
+                onPress={startEditingName}
+                accessibilityRole="button"
+                accessibilityLabel={`Your name, ${displayName}. Tap to change.`}
+              >
+                <View style={styles.nameRow}>
+                  <Text style={styles.identityName} numberOfLines={1}>
+                    {displayName}
+                  </Text>
+                  <Ionicons name="pencil" size={14} color={colors.inkSoft} />
+                </View>
+                <Text style={styles.email} numberOfLines={1}>
+                  {hasUsername(user) ? "Tap to change your name" : "Tap to add your name"}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
