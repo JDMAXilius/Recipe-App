@@ -63,6 +63,11 @@ const HouseholdScreen = () => {
   // Seeded from the name set on the account screen — one identity, so nobody
   // sets a name there and still shows up as a relay address on a shared list.
   const [displayName, setDisplayName] = useState(() => displayNameFor(user, "Me"));
+  // The initializer above runs on the first render, which is a beat BEFORE
+  // AuthContext resolves the session — so it sees user=null and settles on
+  // "Me". This follows the account name once the user actually arrives, but
+  // never overwrites a name loaded from a stored list or one being typed.
+  const nameTouched = useRef(false);
   const [joinLink, setJoinLink] = useState("");
   const [showJoin, setShowJoin] = useState(false);
   const [newItem, setNewItem] = useState("");
@@ -76,6 +81,7 @@ const HouseholdScreen = () => {
         if (stored?.token) {
           setMembership(stored);
           setDisplayName(stored.displayName || "Me");
+          nameTouched.current = true;
         }
         const history = rawHistory ? JSON.parse(rawHistory) : [];
         if (Array.isArray(history)) setRecent(history.filter((entry) => entry?.token));
@@ -83,6 +89,11 @@ const HouseholdScreen = () => {
       .catch(() => {})
       .finally(() => setHydrated(true));
   }, []);
+
+  useEffect(() => {
+    if (nameTouched.current || !user) return;
+    setDisplayName(displayNameFor(user, "Me"));
+  }, [user]);
 
   const rememberList = useCallback((entry) => {
     setRecent((prev) => {
@@ -334,7 +345,10 @@ const HouseholdScreen = () => {
               <TextInput
                 style={styles.nameInput}
                 value={displayName}
-                onChangeText={setDisplayName}
+                onChangeText={(text) => {
+                  nameTouched.current = true;
+                  setDisplayName(text);
+                }}
                 placeholder="your name"
                 placeholderTextColor={colors.inkSoft}
                 maxLength={40}
