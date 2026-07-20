@@ -62,11 +62,24 @@ const INGREDIENTS = [
 
   // — grains & legumes (dry) —
   [/rolled oats|oatmeal|porridge oats/i, "grain", 89],
+  [/cornmeal|polenta|semolina/i, "grain", 160],
+  [/buckwheat|millet|barley|farro|spelt/i, "grain", 170],
   [/quinoa|couscous|bulgur/i, "grain", 177],
   [/lentil/i, "grain", 192],
   [/chickpea|bean(?!\s*sprout)|pulse/i, "grain", 190],
   [/rice(?!\s*(vinegar|wine))/i, "grain", 185],
   [/pasta|macaroni|spaghetti|penne|noodle/i, "grain", 100],
+
+  // — dried fruit (sold and baked by weight; a cup varies a lot by packing) —
+  [/raisin|sultana|currant(?!\s|s?$)|dried cranberr|dried cherr/i, "grain", 145],
+  [/\bcurrants?\b/i, "grain", 145],
+  [/date(?!\s|d\b)|medjool|dried apricot|dried fig|dried mango|prune/i, "grain", 150],
+  [/desiccated coconut|shredded coconut|coconut flake/i, "nut", 80],
+  [/poppy seed/i, "nut", 145],
+  [/digestive biscuit|graham cracker|biscuit crumb|cookie crumb/i, "nut", 100],
+
+  // — soft cheeses by weight —
+  [/ricotta|paneer|cottage cheese/i, "dairySolid", 246],
 
   // — liquids: VOLUME-ONLY. A measuring cup is already exact and faster. —
   [/oil/i, "liquid", 198],

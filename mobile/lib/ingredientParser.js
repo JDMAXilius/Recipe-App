@@ -1,4 +1,4 @@
-import { weightHint } from "./ingredientWeight";
+import { weightHint } from "./ingredientWeight.js";
 
 // Deterministic ingredient parsing, scaling, and US↔Metric conversion.
 // Powers real ingredient scaling (v2 roadmap Phase 0) for TheMealDB's prose
@@ -194,7 +194,24 @@ export function convertMeasure({ qty, unit }, system) {
     if (metricUnit === "g" && value >= 1000) return { qty: Math.round(value / 50) / 20, unit: "kg" };
     return { qty: value, unit: metricUnit };
   }
-  return { qty, unit }; // US display keeps original units
+  // US mode: most of Otto's recipes are European and already metric, so a US
+  // reader otherwise sees "250 g flour". Convert mass and metric volume to the
+  // units they actually own — grams→oz/lb, ml→cups/tbsp. US-native units
+  // (cup, oz, lb…) already match and pass straight through.
+  if (system === "us") {
+    if (unit === "g" || unit === "kg") {
+      const oz = qty * (unit === "kg" ? 1000 : 1) / 28.35;
+      if (oz >= 16) return { qty: Math.round((oz / 16) * 4) / 4, unit: "lb" }; // ¼-lb steps
+      return { qty: Math.round(oz * 2) / 2, unit: "oz" }; // ½-oz steps
+    }
+    if (unit === "ml" || unit === "l") {
+      const ml = qty * (unit === "l" ? 1000 : 1);
+      if (ml >= 240) return { qty: Math.round((ml / 240) * 4) / 4, unit: "cup" }; // ¼-cup steps
+      if (ml >= 15) return { qty: Math.round(ml / 15), unit: "tbsp" };
+      return { qty: Math.max(1, Math.round(ml / 5)), unit: "tsp" };
+    }
+  }
+  return { qty, unit }; // already in the reader's system
 }
 
 // Full display pipeline: parse → scale → convert → format.
@@ -208,7 +225,9 @@ export function scaledIngredient(pair, factor = 1, system = "us") {
     return { display: pair.measure || "", name: pair.name, scalable: false, weight: "" };
   }
   const scaled = factor === 1 ? qty : snapQty(qty * factor);
-  const converted = system === "metric" ? convertMeasure({ qty: scaled, unit }, "metric") : { qty: scaled, unit };
+  // Convert for BOTH systems now — US mode also rewrites a European recipe's
+  // grams/ml into oz/cups so an American reader isn't left with "250 g flour".
+  const converted = convertMeasure({ qty: scaled, unit }, system);
   const unitLabel = converted.unit ? ` ${UNIT_LABELS[converted.unit](converted.qty)}` : "";
   const noteText = note ? ` ${note}` : "";
   // Weight is derived from the ORIGINAL parsed qty/unit (before metric volume

@@ -91,6 +91,15 @@ test("formatWeight rounds to what a scale can read", () => {
   assert.equal(formatWeight(454, "us"), "1 lb");
 });
 
+test("newly-added baking solids resolve", () => {
+  assert.ok(near(gramsFor({ qty: 1, unit: "cup", name: "raisins" }).grams, 145));
+  assert.ok(near(gramsFor({ qty: 1, unit: "cup", name: "cornmeal" }).grams, 160));
+  assert.ok(near(gramsFor({ qty: 1, unit: "cup", name: "ricotta" }).grams, 246));
+  assert.ok(near(gramsFor({ qty: 1, unit: "cup", name: "chopped dates" }).grams, 150));
+  // these should now show a weight where before they showed nothing
+  assert.ok(weightHint({ qty: 1, unit: "cup", name: "sultanas" }).startsWith("≈"));
+});
+
 test("worthWeighing is the gate", () => {
   assert.equal(worthWeighing("flour", 120, "cup"), true);
   assert.equal(worthWeighing("liquid", 500, "cup"), false); // category excluded
