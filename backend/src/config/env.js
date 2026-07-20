@@ -20,6 +20,10 @@ export const ENV = {
   // Public origin for share links (S2), e.g. https://otto.app — falls back
   // to the request host so Railway works with zero config.
   SHARE_BASE_URL: process.env.SHARE_BASE_URL,
+  // Extra browser origins allowed through CORS, comma-separated. The marketing
+  // site and localhost are already built in; this is for anything new (a
+  // preview deploy, a second front end) without a code change.
+  WEB_ORIGINS: process.env.WEB_ORIGINS,
   // TheMealDB supporter key. Serves /api/content and lib/content/RecipeSource;
   // absent, both fall back to the test key "1" (v1), which their terms allow
   // for development only. SERVER-SIDE ONLY — never EXPO_PUBLIC_*, a key in the

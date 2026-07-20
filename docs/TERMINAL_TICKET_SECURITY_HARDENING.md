@@ -275,19 +275,68 @@ that already deletes the auth user), and add an owner-scoped DELETE policy for i
       advisors verified.
 - [x] Findings log filled in with the actual result of each check.
 
-## Open items (need Juan / the live env — not code)
+---
+
+## Second pass — the deferred decisions, taken
+
+### 🔧 Photo-deletion gap closed
+`DELETE /api/account` now cleans up Storage. `deleteUserPhotos()` pages through
+`recipe-photos/${userId}/` (Storage `list()` returns 100 at a time — a first-page-only delete would
+have *looked* like it worked) and removes every object, using the service-role client that was
+already in the route for the auth-user delete. Two deliberate choices:
+- **A storage failure does not fail the request.** By that point the DB transaction has committed and
+  the account really is gone; a 500 would be a lie. Errors go to Sentry and `photosDeleted` comes
+  back short — the response now returns `{ dataDeleted, authUserDeleted, photosDeleted }`.
+- **No user-facing DELETE policy was added.** The bucket still has only `owner insert`. Nothing in
+  the app deletes a photo today, and granting an unused write permission is attack surface, not
+  safety — add it the day an in-app "remove photo" button exists.
+`accountDeletion.test.mjs` gained a check that the handler calls the helper and that the helper
+lists, removes, **and pages** — the same source-reading trick that already catches a forgotten table.
+
+### 🔧 `drizzle-orm` 0.44.7 → 0.45.2 — taken, high-severity advisory gone
+npm labelled it "breaking" only because 0.45 falls outside the `^0.44` range; the 0.45.0 release notes
+are bug fixes with **no query-builder or driver API changes**. Verified beyond the test suite by
+building the seven query shapes `server.js` actually uses (select/insert/update/delete, `and`, `eq`,
+`desc`, `gte`/`lte`, `isNull`, `inArray`) against the real schema and inspecting the generated SQL:
+all seven compile unchanged and **every user value comes through as a `$n` placeholder**, nothing
+inlined. Backend audit is now **0 high, 4 moderate** — the remainder is `esbuild`/`drizzle-kit`,
+devDependency and dev-server only, never shipped.
+
+### 🔧 Root `node_modules/` untracked
+`git rm -r --cached node_modules` — 22,024 files out of the index, still on disk, regenerable from
+the root `package-lock.json`. Worth noting what it was: four Expo packages
+(`expo-notifications`, `expo-share-intent`, `expo-sharing`, `react-native-view-shot`) that
+**`mobile/package.json` already declares** — a stray root-level `npm install`, not a real dependency
+set. The new root `.gitignore` keeps it out from here.
+
+### ⚠️ Corrected while working: the domain in this ticket was wrong
+The ticket said to allowlist `getotto.app`. The actual registered domain is **`ottosapp.com`**
+(branded house, one site). The CORS allowlist now carries `ottosapp.com` + `www.` — and, so this
+can't rot again, reads an optional comma-separated **`WEB_ORIGINS`** env var, so a preview deploy or
+a second front end is an env change rather than a code change. Verified live: `ottosapp.com`,
+`www.ottosapp.com`, and a `WEB_ORIGINS` entry all allowed; `getotto.app` and `evil.example.com`
+blocked; no-Origin requests (the native app) still pass.
+
+---
+
+## Still open — genuinely needs Juan or the live env
 1. **Enable leaked-password protection** (the one Supabase advisor WARN):
    → https://supabase.com/dashboard/project/mepzfdefanfpnrvydyty/auth/providers
    Under **Password Settings**, turn on **"Prevent use of leaked passwords"**.
 2. **Confirm Supabase Auth rate limits** are at defaults or tighter:
    → https://supabase.com/dashboard/project/mepzfdefanfpnrvydyty/auth/rate-limits
    Check the token / verify / OTP rows — this is where the reel's "5 attempts" bar actually applies.
-3. **Verify `trust proxy` on Railway** — after deploying, hit any route and confirm the
-   `X-Forwarded-For` chain is one hop, so the per-IP limiters key on the real client.
-4. **Decide on `drizzle-orm` 0.44.7 → 0.45.2** (breaking; not exploitable in our code today).
-5. **Decide on untracking the root `node_modules/`** (22,024 files; now ignored going forward).
-6. **Decide on the photo-deletion gap** above.
-7. **Deploy** — pushing `main` does NOT deploy (see `TERMINAL_HANDOFF.md`).
+   (Not exposed through the Supabase MCP tools, so it can't be read or set from a terminal session.)
+3. **Deploy** — pushing `main` does NOT deploy (see `TERMINAL_HANDOFF.md`). Nothing above is live
+   until this happens, including the XSS fix.
+4. **Then verify `trust proxy` on Railway** — hit any route and confirm the `X-Forwarded-For` chain
+   is one hop, so the per-IP limiters key on the real client rather than throttling everyone as one.
+5. **Then open one real share link** — the share pages were verified by unit test only; a live look
+   confirms the new CSP didn't break the styling or the link previews.
+6. **Set `SHARE_BASE_URL`/`WEB_ORIGINS` in Railway** if the marketing site ships on anything other
+   than `ottosapp.com`.
+7. **Mobile's 24 npm advisories** — all transitive Expo build tooling, none in the app binary. The
+   fix is an Expo SDK bump on its own schedule, not `npm audit fix`.
 
 ---
 

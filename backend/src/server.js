@@ -36,15 +36,19 @@ if (ENV.NODE_ENV === "production") app.set("trust proxy", 1);
 // response if it ever gets hold of a token, so scope it to the origins that
 // actually exist. The native app sends NO Origin header and is untouched by
 // CORS entirely; this allowlist only governs browsers.
+// WEB_ORIGINS (comma-separated) is the escape hatch: a new front end should be
+// an env change, not a redeploy of this list.
 const ALLOWED_ORIGINS = [
   ENV.SHARE_BASE_URL,
-  "https://getotto.app",
-  "https://www.getotto.app",
+  ...(ENV.WEB_ORIGINS || "").split(","),
+  // The marketing site (branded house, one site, three product pages).
+  "https://ottosapp.com",
+  "https://www.ottosapp.com",
   // Expo web / local dev only — never allowed in production.
   ...(ENV.NODE_ENV === "production" ? [] : ["http://localhost:8081", "http://localhost:19006"]),
 ]
-  .filter(Boolean)
-  .map((origin) => origin.replace(/\/+$/, ""));
+  .map((origin) => (origin || "").trim().replace(/\/+$/, ""))
+  .filter(Boolean);
 
 app.use(
   cors({
@@ -521,6 +525,41 @@ app.delete("/api/plan/:id", requireAuth, async (req, res) => {
 });
 
 // ------------------------------------------------------------ ACCOUNT
+// Recipe photos are stored at `${userId}/${timestamp}.${ext}` (see
+// mobile/lib/uploadRecipePhoto.js), so a user's whole library is one folder.
+const PHOTO_BUCKET = "recipe-photos";
+
+// Storage's list() pages at 100. A half-done cleanup here is exactly the
+// failure this route already refuses elsewhere, so page until the folder is
+// empty rather than deleting the first page and calling it done.
+// ponytail: hard page cap as a runaway guard — raise it if anyone ever holds
+// more than 5k photos, which would be a different problem anyway.
+const MAX_PHOTO_PAGES = 50;
+async function deleteUserPhotos(admin, userId) {
+  let removed = 0;
+  for (let page = 0; page < MAX_PHOTO_PAGES; page++) {
+    const { data, error } = await admin.storage.from(PHOTO_BUCKET).list(userId, { limit: 100 });
+    // A storage failure must NOT fail the request: the user's data is already
+    // gone and the account deletion genuinely succeeded. Report it and let the
+    // count come back short — an honest number beats a false 500.
+    if (error) {
+      reportError(error, { msg: "photo cleanup: list failed", userId });
+      break;
+    }
+    if (!data?.length) break;
+    const { error: removeError } = await admin.storage
+      .from(PHOTO_BUCKET)
+      .remove(data.map((object) => `${userId}/${object.name}`));
+    if (removeError) {
+      reportError(removeError, { msg: "photo cleanup: remove failed", userId });
+      break;
+    }
+    removed += data.length;
+    if (data.length < 100) break;
+  }
+  return removed;
+}
+
 // Deletes every row we hold for the user. Removing the AUTH user itself needs
 // the Supabase service-role key — when SUPABASE_SERVICE_ROLE_KEY lands in env
 // this route finishes the job automatically (App Store 5.1.1(v)).
@@ -563,13 +602,22 @@ app.delete("/api/account", requireAuth, destructiveLimiter, async (req, res) => 
     // Only once the data is safely gone do we drop the login — the reverse
     // order would strand data no one can sign in to reach.
     let authUserDeleted = false;
+    let photosDeleted = 0;
     if (ENV.SUPABASE_SERVICE_ROLE_KEY) {
       const { createClient } = await import("@supabase/supabase-js");
       const admin = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_SERVICE_ROLE_KEY);
+
+      // Photos live in Storage, not Postgres, so the transaction above never
+      // touched them — and the bucket is PUBLIC, so anything left behind stays
+      // fetchable by direct URL long after the account is gone. They go for the
+      // same 5.1.1(v) reason the auth user does. Service-role only: the bucket
+      // deliberately has no user-facing DELETE policy.
+      photosDeleted = await deleteUserPhotos(admin, req.userId);
+
       const { error } = await admin.auth.admin.deleteUser(req.userId);
       authUserDeleted = !error;
     }
-    res.status(200).json({ dataDeleted: true, authUserDeleted });
+    res.status(200).json({ dataDeleted: true, authUserDeleted, photosDeleted });
   } catch (error) {
     reportError(error, { msg: "delete account failed", userId: req.userId });
     res.status(500).json({ error: "Something went wrong" });

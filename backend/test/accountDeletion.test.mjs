@@ -37,6 +37,23 @@ test("account deletion touches every table that stores user-owned rows", () => {
   );
 });
 
+test("uploaded photos go too — they outlive the DB rows otherwise", () => {
+  // Photos live in Storage, not Postgres, so the transaction can't reach them
+  // and the table check above can never catch this. The bucket is PUBLIC: a
+  // missed cleanup leaves a deleted user's pictures fetchable by direct URL.
+  assert.ok(handler.includes("deleteUserPhotos"), "account deletion never cleans up Storage");
+  assert.match(server, /async function deleteUserPhotos/, "deleteUserPhotos helper is missing");
+  // Paging matters — list() returns 100 at a time and a first-page-only
+  // delete would look like it worked.
+  const helper = server.slice(
+    server.indexOf("async function deleteUserPhotos"),
+    server.indexOf('app.delete("/api/account"')
+  );
+  assert.match(helper, /\.list\(/, "helper must list the user's folder");
+  assert.match(helper, /\.remove\(/, "helper must actually remove the objects");
+  assert.ok(/for \(|while \(/.test(helper), "helper must page, not delete only the first 100");
+});
+
 test("collab items go with the list they hang off", () => {
   // No user_id of their own, so the check above can't catch them: they are
   // reachable only by the owning list's token.
