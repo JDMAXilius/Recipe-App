@@ -140,7 +140,11 @@ test("bare-count whole items resolve from USDA's own foodPortions (2026-07-21)",
   // from the sum AND counted as doubt. Every weight below is the exact
   // foodPortion USDA publishes for that record — see pieceWeights.json.
   const cases = [
-    [{ measure: "1", name: "Chicken" }, 1046], // "1 chicken", whole bird
+    // "1 whole chicken", not a bare "1 Chicken": the corpus writes "5 boneless
+    // Chicken" meaning breasts, and the whole-bird weight made that 5230 g at
+    // HIGH confidence. The row is scoped to the explicit whole form; a bare
+    // count of "Chicken" is genuinely ambiguous and now resolves to null.
+    [{ measure: "1 whole", name: "Chicken" }, 1046],
     [{ measure: "4", name: "Pork Chops" }, 796], // 199 g "1 chop without refuse"
     [{ measure: "8", name: "Chicken drumsticks" }, 1040], // 130 g "1 drumstick"
     [{ measure: "2", name: "Sweetcorn" }, 204], // 102 g "1 ear, medium ... yields"
@@ -187,4 +191,21 @@ test("Challots is TheMealDB's spelling of shallots (5 corpus lines)", () => {
   assert.equal(ch.grams, 150); // 30 g each
   // Still an estimate: USDA publishes no whole-shallot portion, only a volume.
   assert.equal(ch.confidence, "medium");
+});
+
+test("a parenthesised amount is the line TOTAL unless a pack noun follows", () => {
+  // Corpus-wide, "(N g)" restates the amount just given. Multiplying it read
+  // "4 (650g) Chicken Thighs" as 2600 g and pushed Coq au vin past the cap.
+  assert.equal(parseIngredientLine({ measure: "4 (650g)", name: "Chicken Thighs" }).grams, 650);
+  assert.equal(parseIngredientLine({ measure: "2 (460g)", name: "Chicken Legs" }).grams, 460);
+  // A pack noun DOES mean per-unit — that reading must survive.
+  assert.equal(parseIngredientLine({ measure: "2 (400g) tins", name: "Chopped Tomatoes" }).grams, 800);
+});
+
+test("a spice pepper does not inherit the vegetable-pepper weight", () => {
+  // "8 Cayenne Pepper" was 960 g (3053 kcal) via the 120 g bell-pepper row.
+  assert.equal(parseIngredientLine({ measure: "8", name: "Cayenne Pepper" }).grams, null);
+  // Vegetable peppers still resolve.
+  assert.equal(parseIngredientLine({ measure: "1", name: "Red Pepper" }).grams, 119);
+  assert.equal(parseIngredientLine({ measure: "1", name: "Green Pepper" }).grams, 119);
 });

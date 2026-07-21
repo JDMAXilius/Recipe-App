@@ -144,7 +144,11 @@ const EACH_G = [
   [/chicken breast/i, 170],
   [/chicken thigh/i, 130],
   [/chill?i|jalape[nñ]o|habanero|serrano|scotch bonnet/i, 12],
-  [/(bell )?pepper|capsicum/i, 120],
+  // A spice pepper is not a vegetable pepper. "8 Cayenne Pepper" was inheriting
+  // the 120 g bell-pepper weight = 960 g of cayenne (3053 kcal) and blew Ayam
+  // Percik past the plausibility cap. Ground/dried peppers are seasonings and
+  // are handled as negligible instead.
+  [/(?<!cayenne |black |white |ground |chilli |chili |red )(bell |sweet |green |yellow |orange )?pepper(?!corn)|capsicum/i, 120],
   [/zucchini|courgette/i, 200],
   [/(sh|ch)allot/i, 30], // "Challots" is TheMealDB's own spelling of shallots
   [/tortilla|wrap/i, 45],
@@ -323,7 +327,15 @@ export function expandPackSize(text) {
   const count = m[1] ? parseFloat(m[1].replace(",", ".")) : 1;
   const size = parseFloat(m[2].replace(",", "."));
   if (!Number.isFinite(count) || !Number.isFinite(size)) return text;
-  const total = Math.round(count * size * 1000) / 1000;
+  // Is the parenthetical the size of EACH pack, or the total for the line?
+  // Across the whole corpus it is the TOTAL — a metric restatement of the
+  // amount just given ("8 ounces (230 grams) Macaroni", "3 rashers (100g)
+  // Bacon", "4 (650g) Chicken Thighs" = 650 g of thighs, ~162 g each).
+  // It is per-unit only when a PACK NOUN follows it ("1 (400g) tin", "1 (200g)
+  // pack"). Multiplying unconditionally read those chicken thighs as 2600 g and
+  // blew the recipe past the plausibility cap.
+  const perUnit = /^\s*(tins?|cans?|packs?|packets?|packages?|jars?|tubs?|boxes|bags?|bottles?)\b/i.test(m[4]);
+  const total = perUnit ? Math.round(count * size * 1000) / 1000 : size;
   return `${total} ${m[3]} ${m[4]}`;
 }
 

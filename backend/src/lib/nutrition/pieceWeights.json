@@ -423,14 +423,6 @@
     "portion": "1 small (2-2/3\" x 1/2\" x 1/4\")",
     "source": "usda-foodportion"
   },
-  "chicken": {
-    "grams": 1046,
-    "unit": null,
-    "fdcId": 171047,
-    "usda": "Chicken, broilers or fryers, meat and skin and giblets and neck, raw",
-    "portion": "1 chicken",
-    "source": "usda-foodportion"
-  },
   "pork chop": {
     "grams": 199,
     "unit": null,
@@ -557,6 +549,14 @@
     "fdcId": 167776,
     "usda": "Pears, raw, bartlett (Includes foods for USDA's Food Distribution Program)",
     "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "whole chicken": {
+    "grams": 1046,
+    "unit": null,
+    "fdcId": 171047,
+    "usda": "Chicken, broilers or fryers, meat and skin and giblets and neck, raw",
+    "portion": "1 chicken",
     "source": "usda-foodportion"
   }
 }
