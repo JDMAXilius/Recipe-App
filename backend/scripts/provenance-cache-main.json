@@ -66,6 +66,29 @@
   "liveKcal": 224,
   "sim": 1
  },
+ "167673": {
+  "verdict": "ok",
+  "keys": [
+   "sirloin steak tips",
+   "sirloin steak"
+  ],
+  "stored": "DENNY'S, top sirloin steak",
+  "storedKcal": 182,
+  "liveDesc": "DENNY'S, top sirloin steak",
+  "liveKcal": 182,
+  "sim": 1
+ },
+ "167706": {
+  "verdict": "ok",
+  "keys": [
+   "jam"
+  ],
+  "stored": "Jams, preserves, marmalade, reduced sugar",
+  "storedKcal": 151,
+  "liveDesc": "Jams, preserves, marmalade, reduced sugar",
+  "liveKcal": 151,
+  "sim": 1
+ },
  "167717": {
   "verdict": "ok",
   "keys": [
@@ -116,6 +139,17 @@
   "liveKcal": 29,
   "sim": 1
  },
+ "167749": {
+  "verdict": "ok",
+  "keys": [
+   "unwaxed lemon"
+  ],
+  "stored": "Lemon peel, raw",
+  "storedKcal": 47,
+  "liveDesc": "Lemon peel, raw",
+  "liveKcal": 47,
+  "sim": 1
+ },
  "167755": {
   "verdict": "ok",
   "keys": [
@@ -125,6 +159,17 @@
   "storedKcal": 52,
   "liveDesc": "Raspberries, raw",
   "liveKcal": 52,
+  "sim": 1
+ },
+ "167758": {
+  "verdict": "ok",
+  "keys": [
+   "rhubarb"
+  ],
+  "stored": "Rhubarb, raw",
+  "storedKcal": 21,
+  "liveDesc": "Rhubarb, raw",
+  "liveKcal": 21,
   "sim": 1
  },
  "167762": {
@@ -162,6 +207,28 @@
   "liveKcal": 165,
   "sim": 1
  },
+ "167780": {
+  "verdict": "ok",
+  "keys": [
+   "prunes"
+  ],
+  "stored": "Prune puree",
+  "storedKcal": 257,
+  "liveDesc": "Prune puree",
+  "liveKcal": 257,
+  "sim": 1
+ },
+ "167781": {
+  "verdict": "ok",
+  "keys": [
+   "candied peel"
+  ],
+  "stored": "Candied fruit",
+  "storedKcal": 322,
+  "liveDesc": "Candied fruit",
+  "liveKcal": 322,
+  "sim": 1
+ },
  "167873": {
   "verdict": "ok",
   "keys": [
@@ -171,6 +238,18 @@
   "storedKcal": 315,
   "liveDesc": "Pork, cured, ham, patties, unheated",
   "liveKcal": 315,
+  "sim": 1
+ },
+ "167902": {
+  "verdict": "ok",
+  "keys": [
+   "minced pork",
+   "ground pork"
+  ],
+  "stored": "Pork, fresh, ground, raw",
+  "storedKcal": 263,
+  "liveDesc": "Pork, fresh, ground, raw",
+  "liveKcal": 263,
   "sim": 1
  },
  "167909": {
@@ -221,6 +300,17 @@
   "liveKcal": 499,
   "sim": 1
  },
+ "168038": {
+  "verdict": "ok",
+  "keys": [
+   "white cornmeal"
+  ],
+  "stored": "Cornmeal, white (Navajo)",
+  "storedKcal": 398,
+  "liveDesc": "Cornmeal, white (Navajo)",
+  "liveKcal": 398,
+  "sim": 1
+ },
  "168155": {
   "verdict": "ok",
   "keys": [
@@ -259,6 +349,17 @@
   "liveKcal": 277,
   "sim": 1
  },
+ "168238": {
+  "verdict": "ok",
+  "keys": [
+   "pork chops"
+  ],
+  "stored": "Pork, fresh, loin, center loin (chops), bone-in, separable lean and fat, raw",
+  "storedKcal": 170,
+  "liveDesc": "Pork, fresh, loin, center loin (chops), bone-in, separable lean and fat, raw",
+  "liveKcal": 170,
+  "sim": 1
+ },
  "168277": {
   "verdict": "ok",
   "keys": [
@@ -269,6 +370,17 @@
   "storedKcal": 393,
   "liveDesc": "Pork, cured, bacon, unprepared",
   "liveKcal": 393,
+  "sim": 1
+ },
+ "168287": {
+  "verdict": "ok",
+  "keys": [
+   "streaky bacon"
+  ],
+  "stored": "Pork, cured, salt pork, raw",
+  "storedKcal": 748,
+  "liveDesc": "Pork, cured, salt pork, raw",
+  "liveKcal": 748,
   "sim": 1
  },
  "168312": {
@@ -293,6 +405,17 @@
   "storedKcal": 20,
   "liveDesc": "Asparagus, raw",
   "liveKcal": 20,
+  "sim": 1
+ },
+ "168419": {
+  "verdict": "ok",
+  "keys": [
+   "mulukhiyah"
+  ],
+  "stored": "Jute, potherb, raw",
+  "storedKcal": 34,
+  "liveDesc": "Jute, potherb, raw",
+  "liveKcal": 34,
   "sim": 1
  },
  "168421": {
@@ -362,6 +485,18 @@
   "liveKcal": 23,
   "sim": 1
  },
+ "168482": {
+  "verdict": "ok",
+  "keys": [
+   "sweet potatoes",
+   "sweet potato"
+  ],
+  "stored": "Sweet potato, raw, unprepared (Includes foods for USDA's Food Distribution Program)",
+  "storedKcal": 86,
+  "liveDesc": "Sweet potato, raw, unprepared (Includes foods for USDA's Food Distribution Program)",
+  "liveKcal": 86,
+  "sim": 1
+ },
  "168556": {
   "verdict": "ok",
   "keys": [
@@ -371,6 +506,28 @@
   "storedKcal": 101,
   "liveDesc": "Catsup",
   "liveKcal": 101,
+  "sim": 1
+ },
+ "168561": {
+  "verdict": "ok",
+  "keys": [
+   "gherkin relish"
+  ],
+  "stored": "Pickle relish, sweet",
+  "storedKcal": 130,
+  "liveDesc": "Pickle relish, sweet",
+  "liveKcal": 130,
+  "sim": 1
+ },
+ "168567": {
+  "verdict": "ok",
+  "keys": [
+   "sun-dried tomatoes"
+  ],
+  "stored": "Tomatoes, sun-dried",
+  "storedKcal": 258,
+  "liveDesc": "Tomatoes, sun-dried",
+  "liveKcal": 258,
   "sim": 1
  },
  "168575": {
@@ -393,6 +550,28 @@
   "storedKcal": 29,
   "liveDesc": "Peppers, jalapeno, raw",
   "liveKcal": 29,
+  "sim": 1
+ },
+ "168581": {
+  "verdict": "ok",
+  "keys": [
+   "wood ear mushrooms"
+  ],
+  "stored": "Fungi, Cloud ears, dried",
+  "storedKcal": 284,
+  "liveDesc": "Fungi, Cloud ears, dried",
+  "liveKcal": 284,
+  "sim": 1
+ },
+ "168585": {
+  "verdict": "ok",
+  "keys": [
+   "desiccated coconut"
+  ],
+  "stored": "Nuts, coconut meat, dried (desiccated), creamed",
+  "storedKcal": 684,
+  "liveDesc": "Nuts, coconut meat, dried (desiccated), creamed",
+  "liveKcal": 684,
   "sim": 1
  },
  "168607": {
@@ -439,6 +618,17 @@
   "storedKcal": 43,
   "liveDesc": "Alcoholic beverage, beer, regular, all",
   "liveKcal": 43,
+  "sim": 1
+ },
+ "168749": {
+  "verdict": "ok",
+  "keys": [
+   "light rum"
+  ],
+  "stored": "Alcoholic beverage, beer, light",
+  "storedKcal": 29,
+  "liveDesc": "Alcoholic beverage, beer, light",
+  "liveKcal": 29,
   "sim": 1
  },
  "168820": {
@@ -496,6 +686,17 @@
   "storedKcal": 216,
   "liveDesc": "Toppings, butterscotch or caramel",
   "liveKcal": 216,
+  "sim": 1
+ },
+ "168874": {
+  "verdict": "ok",
+  "keys": [
+   "quinoa"
+  ],
+  "stored": "Quinoa, uncooked",
+  "storedKcal": 368,
+  "liveDesc": "Quinoa, uncooked",
+  "liveKcal": 368,
   "sim": 1
  },
  "168877": {
@@ -558,6 +759,19 @@
   "liveKcal": 371,
   "sim": 1
  },
+ "168931": {
+  "verdict": "ok",
+  "keys": [
+   "paella rice",
+   "sushi rice",
+   "dessert rice"
+  ],
+  "stored": "Rice, white, short-grain, raw, unenriched",
+  "storedKcal": 358,
+  "liveDesc": "Rice, white, short-grain, raw, unenriched",
+  "liveKcal": 358,
+  "sim": 1
+ },
  "168937": {
   "verdict": "ok",
   "keys": [
@@ -616,6 +830,17 @@
   "liveKcal": 81,
   "sim": 1
  },
+ "169118": {
+  "verdict": "ok",
+  "keys": [
+   "pears"
+  ],
+  "stored": "Pears, raw",
+  "storedKcal": 57,
+  "liveDesc": "Pears, raw",
+  "liveKcal": 57,
+  "sim": 1
+ },
  "169129": {
   "verdict": "ok",
   "keys": [
@@ -625,6 +850,40 @@
   "storedKcal": 33,
   "liveDesc": "Pitanga, (surinam-cherry), raw",
   "liveKcal": 33,
+  "sim": 1
+ },
+ "169145": {
+  "verdict": "ok",
+  "keys": [
+   "beetroot",
+   "beets"
+  ],
+  "stored": "Beets, raw",
+  "storedKcal": 43,
+  "liveDesc": "Beets, raw",
+  "liveKcal": 43,
+  "sim": 1
+ },
+ "169146": {
+  "verdict": "ok",
+  "keys": [
+   "cooked beetroot"
+  ],
+  "stored": "Beets, cooked, boiled, drained",
+  "storedKcal": 44,
+  "liveDesc": "Beets, cooked, boiled, drained",
+  "liveKcal": 44,
+  "sim": 1
+ },
+ "169213": {
+  "verdict": "ok",
+  "keys": [
+   "bean sprouts"
+  ],
+  "stored": "Beans, kidney, mature seeds, sprouted, raw",
+  "storedKcal": 29,
+  "liveDesc": "Beans, kidney, mature seeds, sprouted, raw",
+  "liveKcal": 29,
   "sim": 1
  },
  "169225": {
@@ -711,6 +970,17 @@
   "liveKcal": 17,
   "sim": 1
  },
+ "169248": {
+  "verdict": "ok",
+  "keys": [
+   "iceberg lettuce"
+  ],
+  "stored": "Lettuce, iceberg (includes crisphead types), raw",
+  "storedKcal": 14,
+  "liveDesc": "Lettuce, iceberg (includes crisphead types), raw",
+  "liveKcal": 14,
+  "sim": 1
+ },
  "169251": {
   "verdict": "ok",
   "keys": [
@@ -720,6 +990,18 @@
   "storedKcal": 22,
   "liveDesc": "Mushrooms, white, raw",
   "liveKcal": 22,
+  "sim": 1
+ },
+ "169279": {
+  "verdict": "ok",
+  "keys": [
+   "sauerkraut",
+   "white sauerkraut"
+  ],
+  "stored": "Sauerkraut, canned, solids and liquids",
+  "storedKcal": 19,
+  "liveDesc": "Sauerkraut, canned, solids and liquids",
+  "liveKcal": 19,
   "sim": 1
  },
  "169291": {
@@ -743,6 +1025,17 @@
   "storedKcal": 45,
   "liveDesc": "Squash, winter, butternut, raw",
   "liveKcal": 45,
+  "sim": 1
+ },
+ "169346": {
+  "verdict": "ok",
+  "keys": [
+   "creamed corn"
+  ],
+  "stored": "Corn, sweet, yellow, canned, cream style, no salt added",
+  "storedKcal": 72,
+  "liveDesc": "Corn, sweet, yellow, canned, cream style, no salt added",
+  "liveKcal": 72,
   "sim": 1
  },
  "169383": {
@@ -778,6 +1071,17 @@
   "storedKcal": 25,
   "liveDesc": "Arugula, raw",
   "liveKcal": 25,
+  "sim": 1
+ },
+ "169396": {
+  "verdict": "ok",
+  "keys": [
+   "ancho chillies"
+  ],
+  "stored": "Peppers, ancho, dried",
+  "storedKcal": 281,
+  "liveDesc": "Peppers, ancho, dried",
+  "liveKcal": 281,
   "sim": 1
  },
  "169404": {
@@ -885,6 +1189,17 @@
   "liveKcal": 130,
   "sim": 1
  },
+ "169609": {
+  "verdict": "ok",
+  "keys": [
+   "custard powder"
+  ],
+  "stored": "Puddings, vanilla, dry mix, regular",
+  "storedKcal": 379,
+  "liveDesc": "Puddings, vanilla, dry mix, regular",
+  "liveKcal": 379,
+  "sim": 1
+ },
  "169640": {
   "verdict": "ok",
   "keys": [
@@ -967,6 +1282,17 @@
   "storedKcal": 405,
   "liveDesc": "Wheat flour, white, tortilla mix, enriched",
   "liveKcal": 405,
+  "sim": 1
+ },
+ "169731": {
+  "verdict": "ok",
+  "keys": [
+   "noodles"
+  ],
+  "stored": "Noodles, egg, dry, enriched",
+  "storedKcal": 384,
+  "liveDesc": "Noodles, egg, dry, enriched",
+  "liveKcal": 384,
   "sim": 1
  },
  "169736": {
@@ -1102,6 +1428,18 @@
   "liveKcal": 14,
   "sim": 1
  },
+ "169994": {
+  "verdict": "ok",
+  "keys": [
+   "chives",
+   "chopped chive"
+  ],
+  "stored": "Chives, raw",
+  "storedKcal": 30,
+  "liveDesc": "Chives, raw",
+  "liveKcal": 30,
+  "sim": 1
+ },
  "169997": {
   "verdict": "ok",
   "keys": [
@@ -1228,6 +1566,17 @@
   "storedKcal": 24,
   "liveDesc": "Tomato products, canned, sauce",
   "liveKcal": 24,
+  "sim": 1
+ },
+ "170066": {
+  "verdict": "ok",
+  "keys": [
+   "water chestnut"
+  ],
+  "stored": "Waterchestnuts, chinese, (matai), raw",
+  "storedKcal": 97,
+  "liveDesc": "Waterchestnuts, chinese, (matai), raw",
+  "liveKcal": 97,
   "sim": 1
  },
  "170086": {
@@ -1379,6 +1728,18 @@
   "liveKcal": 854,
   "sim": 1
  },
+ "170199": {
+  "verdict": "ok",
+  "keys": [
+   "oxtail",
+   "corned beef"
+  ],
+  "stored": "Beef, cured, corned beef, brisket, raw",
+  "storedKcal": 198,
+  "liveDesc": "Beef, cured, corned beef, brisket, raw",
+  "liveKcal": 198,
+  "sim": 1
+ },
  "170271": {
   "verdict": "ok",
   "keys": [
@@ -1388,6 +1749,18 @@
   "storedKcal": 546,
   "liveDesc": "Chocolate, dark, 45- 59% cacao solids",
   "liveKcal": 546,
+  "sim": 1
+ },
+ "170286": {
+  "verdict": "ok",
+  "keys": [
+   "buckwheat",
+   "buckwheat flour"
+  ],
+  "stored": "Buckwheat",
+  "storedKcal": 343,
+  "liveDesc": "Buckwheat",
+  "liveKcal": 343,
   "sim": 1
  },
  "170375": {
@@ -1403,6 +1776,17 @@
   "liveKcal": 22,
   "sim": 1
  },
+ "170377": {
+  "verdict": "ok",
+  "keys": [
+   "broad beans"
+  ],
+  "stored": "Broadbeans, immature seeds, raw",
+  "storedKcal": 72,
+  "liveDesc": "Broadbeans, immature seeds, raw",
+  "liveKcal": 72,
+  "sim": 1
+ },
  "170383": {
   "verdict": "ok",
   "keys": [
@@ -1412,6 +1796,17 @@
   "storedKcal": 43,
   "liveDesc": "Brussels sprouts, raw",
   "liveKcal": 43,
+  "sim": 1
+ },
+ "170387": {
+  "verdict": "ok",
+  "keys": [
+   "ackee"
+  ],
+  "stored": "Butterbur, canned",
+  "storedKcal": 3,
+  "liveDesc": "Butterbur, canned",
+  "liveKcal": 3,
   "sim": 1
  },
  "170393": {
@@ -1459,6 +1854,17 @@
   "storedKcal": 81,
   "liveDesc": "Peas, green, raw",
   "liveKcal": 81,
+  "sim": 1
+ },
+ "170425": {
+  "verdict": "ok",
+  "keys": [
+   "frozen peas"
+  ],
+  "stored": "Peas and carrots, frozen, unprepared",
+  "storedKcal": 53,
+  "liveDesc": "Peas and carrots, frozen, unprepared",
+  "liveKcal": 53,
   "sim": 1
  },
  "170457": {
@@ -1597,6 +2003,28 @@
   "liveKcal": 673,
   "sim": 1
  },
+ "170599": {
+  "verdict": "ok",
+  "keys": [
+   "tripe"
+  ],
+  "stored": "Beef, variety meats and by-products, tripe, raw",
+  "storedKcal": 85,
+  "liveDesc": "Beef, variety meats and by-products, tripe, raw",
+  "liveKcal": 85,
+  "sim": 1
+ },
+ "170688": {
+  "verdict": "ok",
+  "keys": [
+   "bulgur wheat"
+  ],
+  "stored": "Bulgur, dry",
+  "storedKcal": 342,
+  "liveDesc": "Bulgur, dry",
+  "liveKcal": 342,
+  "sim": 1
+ },
  "170689": {
   "verdict": "ok",
   "keys": [
@@ -1657,6 +2085,17 @@
   "liveKcal": 392,
   "sim": 1
  },
+ "170854": {
+  "verdict": "ok",
+  "keys": [
+   "cheese slices"
+  ],
+  "stored": "Cheese, pasteurized process, pimento",
+  "storedKcal": 375,
+  "liveDesc": "Cheese, pasteurized process, pimento",
+  "liveKcal": 375,
+  "sim": 1
+ },
  "170857": {
   "verdict": "ok",
   "keys": [
@@ -1706,6 +2145,17 @@
   "storedKcal": 313,
   "liveDesc": "Spices, bay leaf",
   "liveKcal": 313,
+  "sim": 1
+ },
+ "170918": {
+  "verdict": "ok",
+  "keys": [
+   "caraway seed"
+  ],
+  "stored": "Spices, caraway seed",
+  "storedKcal": 333,
+  "liveDesc": "Spices, caraway seed",
+  "liveKcal": 333,
   "sim": 1
  },
  "170919": {
@@ -1825,6 +2275,40 @@
   "liveKcal": 310,
   "sim": 1
  },
+ "170937": {
+  "verdict": "ok",
+  "keys": [
+   "tarragon leaves"
+  ],
+  "stored": "Spices, tarragon, dried",
+  "storedKcal": 295,
+  "liveDesc": "Spices, tarragon, dried",
+  "liveKcal": 295,
+  "sim": 1
+ },
+ "171009": {
+  "verdict": "ok",
+  "keys": [
+   "mayonnaise",
+   "smoky aïoli"
+  ],
+  "stored": "Salad dressing, mayonnaise, regular",
+  "storedKcal": 680,
+  "liveDesc": "Salad dressing, mayonnaise, regular",
+  "liveKcal": 680,
+  "sim": 1
+ },
+ "171011": {
+  "verdict": "ok",
+  "keys": [
+   "shortening"
+  ],
+  "stored": "Shortening, household, soybean (partially hydrogenated)-cottonseed (partially hydrogenated)",
+  "storedKcal": 884,
+  "liveDesc": "Shortening, household, soybean (partially hydrogenated)-cottonseed (partially hydrogenated)",
+  "liveKcal": 884,
+  "sim": 1
+ },
  "171016": {
   "verdict": "ok",
   "keys": [
@@ -1846,6 +2330,17 @@
   "liveDesc": "Oil, grapeseed",
   "liveKcal": 884,
   "sim": 1
+ },
+ "171074": {
+  "verdict": "id-wrong",
+  "keys": [
+   "chicken drumsticks"
+  ],
+  "stored": "Chicken, drumstick, meat and skin, raw",
+  "storedKcal": 172,
+  "liveDesc": "Chicken, broilers or fryers, back, meat only, cooked, fried",
+  "liveKcal": 288,
+  "sim": 0.5
  },
  "171077": {
   "verdict": "ok",
@@ -1919,6 +2414,17 @@
   "liveKcal": 36,
   "sim": 1
  },
+ "171186": {
+  "verdict": "ok",
+  "keys": [
+   "sriracha"
+  ],
+  "stored": "Sauce, hot chile, sriracha",
+  "storedKcal": 93,
+  "liveDesc": "Sauce, hot chile, sriracha",
+  "liveKcal": 93,
+  "sim": 1
+ },
  "171241": {
   "verdict": "ok",
   "keys": [
@@ -1950,6 +2456,18 @@
   "storedKcal": 387,
   "liveDesc": "Cheese, romano",
   "liveKcal": 387,
+  "sim": 1
+ },
+ "171257": {
+  "verdict": "ok",
+  "keys": [
+   "soured cream and chive dip",
+   "full fat sour cream"
+  ],
+  "stored": "Cream, sour, cultured",
+  "storedKcal": 198,
+  "liveDesc": "Cream, sour, cultured",
+  "liveKcal": 198,
   "sim": 1
  },
  "171267": {
@@ -2036,6 +2554,21 @@
   "storedKcal": 900,
   "liveDesc": "Butter, Clarified butter (ghee)",
   "liveKcal": 900,
+  "sim": 1
+ },
+ "171315": {
+  "verdict": "ok",
+  "keys": [
+   "allspice",
+   "mixed spice",
+   "sumac",
+   "allspice berries",
+   "ground allspice"
+  ],
+  "stored": "Spices, allspice, ground",
+  "storedKcal": 263,
+  "liveDesc": "Spices, allspice, ground",
+  "liveKcal": 263,
   "sim": 1
  },
  "171319": {
@@ -2350,6 +2883,17 @@
   "liveKcal": 57,
   "sim": 1
  },
+ "171823": {
+  "verdict": "ok",
+  "keys": [
+   "duck sauce"
+  ],
+  "stored": "Sauce, duck, ready-to-serve",
+  "storedKcal": 245,
+  "liveDesc": "Sauce, duck, ready-to-serve",
+  "liveKcal": 245,
+  "sim": 1
+ },
  "171824": {
   "verdict": "ok",
   "keys": [
@@ -2408,6 +2952,17 @@
   "storedKcal": 353,
   "liveDesc": "Cheese, blue",
   "liveKcal": 353,
+  "sim": 1
+ },
+ "172177": {
+  "verdict": "ok",
+  "keys": [
+   "brie"
+  ],
+  "stored": "Cheese, brie",
+  "storedKcal": 334,
+  "liveDesc": "Cheese, brie",
+  "liveKcal": 334,
   "sim": 1
  },
  "172179": {
@@ -2566,6 +3121,17 @@
   "liveKcal": 884,
   "sim": 1
  },
+ "172336": {
+  "verdict": "ok",
+  "keys": [
+   "canola oil"
+  ],
+  "stored": "Oil, canola",
+  "storedKcal": 884,
+  "liveDesc": "Oil, canola",
+  "liveKcal": 884,
+  "sim": 1
+ },
  "172338": {
   "verdict": "ok",
   "keys": [
@@ -2657,6 +3223,39 @@
   "liveKcal": 343,
   "sim": 1
  },
+ "172455": {
+  "verdict": "ok",
+  "keys": [
+   "falafel"
+  ],
+  "stored": "Falafel, home-prepared",
+  "storedKcal": 333,
+  "liveDesc": "Falafel, home-prepared",
+  "liveKcal": 333,
+  "sim": 1
+ },
+ "172470": {
+  "verdict": "id-wrong",
+  "keys": [
+   "white wine vinegar"
+  ],
+  "stored": "Vinegar, red wine",
+  "storedKcal": 19,
+  "liveDesc": "Peanut butter, smooth style, without salt",
+  "liveKcal": 598,
+  "sim": 0
+ },
+ "172475": {
+  "verdict": "ok",
+  "keys": [
+   "tofu"
+  ],
+  "stored": "Tofu, raw, firm, prepared with calcium sulfate",
+  "storedKcal": 144,
+  "liveDesc": "Tofu, raw, firm, prepared with calcium sulfate",
+  "liveKcal": 144,
+  "sim": 1
+ },
  "172517": {
   "verdict": "ok",
   "keys": [
@@ -2724,6 +3323,28 @@
   "liveKcal": 473,
   "sim": 1
  },
+ "172752": {
+  "verdict": "ok",
+  "keys": [
+   "jerk"
+  ],
+  "stored": "Croutons, seasoned",
+  "storedKcal": 465,
+  "liveDesc": "Croutons, seasoned",
+  "liveKcal": 465,
+  "sim": 1
+ },
+ "172764": {
+  "verdict": "ok",
+  "keys": [
+   "muffins"
+  ],
+  "stored": "Muffins, plain, prepared from recipe, made with low fat (2%) milk",
+  "storedKcal": 296,
+  "liveDesc": "Muffins, plain, prepared from recipe, made with low fat (2%) milk",
+  "liveKcal": 296,
+  "sim": 1
+ },
  "172790": {
   "verdict": "ok",
   "keys": [
@@ -2734,6 +3355,44 @@
   "storedKcal": 551,
   "liveDesc": "Puff pastry, frozen, ready-to-bake",
   "liveKcal": 551,
+  "sim": 1
+ },
+ "172791": {
+  "verdict": "ok",
+  "keys": [
+   "filo pastry",
+   "phyllo dough"
+  ],
+  "stored": "Phyllo dough",
+  "storedKcal": 299,
+  "liveDesc": "Phyllo dough",
+  "liveKcal": 299,
+  "sim": 1
+ },
+ "172796": {
+  "verdict": "ok",
+  "keys": [
+   "bun",
+   "potatoe buns",
+   "sesame seed burger buns",
+   "buns"
+  ],
+  "stored": "Rolls, hamburger or hotdog, plain",
+  "storedKcal": 279,
+  "liveDesc": "Rolls, hamburger or hotdog, plain",
+  "liveKcal": 279,
+  "sim": 1
+ },
+ "172802": {
+  "verdict": "ok",
+  "keys": [
+   "wonton skin",
+   "egg roll wrappers"
+  ],
+  "stored": "Wonton wrappers (includes egg roll wrappers)",
+  "storedKcal": 291,
+  "liveDesc": "Wonton wrappers (includes egg roll wrappers)",
+  "liveKcal": 291,
   "sim": 1
  },
  "172805": {
@@ -2767,6 +3426,28 @@
   "storedKcal": 141,
   "liveDesc": "Emu, oyster, raw",
   "liveKcal": 141,
+  "sim": 1
+ },
+ "173021": {
+  "verdict": "ok",
+  "keys": [
+   "figs"
+  ],
+  "stored": "Figs, raw",
+  "storedKcal": 74,
+  "liveDesc": "Figs, raw",
+  "liveKcal": 74,
+  "sim": 1
+ },
+ "173040": {
+  "verdict": "ok",
+  "keys": [
+   "grape leaves"
+  ],
+  "stored": "Grapes, muscadine, raw",
+  "storedKcal": 57,
+  "liveDesc": "Grapes, muscadine, raw",
+  "liveKcal": 57,
   "sim": 1
  },
  "173086": {
@@ -2968,6 +3649,17 @@
   "liveKcal": 335,
   "sim": 1
  },
+ "173578": {
+  "verdict": "ok",
+  "keys": [
+   "sardines"
+  ],
+  "stored": "Fish oil, sardine",
+  "storedKcal": 902,
+  "liveDesc": "Fish oil, sardine",
+  "liveKcal": 902,
+  "sim": 1
+ },
  "173645": {
   "verdict": "ok",
   "keys": [
@@ -2977,6 +3669,18 @@
   "storedKcal": 234,
   "liveDesc": "Chicken, capons, meat and skin, raw",
   "liveKcal": 234,
+  "sim": 1
+ },
+ "173647": {
+  "verdict": "ok",
+  "keys": [
+   "warm water",
+   "boiling water"
+  ],
+  "stored": "Beverages, water, tap, drinking",
+  "storedKcal": 0,
+  "liveDesc": "Beverages, water, tap, drinking",
+  "liveKcal": 0,
   "sim": 1
  },
  "173676": {
@@ -2990,6 +3694,18 @@
   "liveKcal": 76,
   "sim": 1
  },
+ "173687": {
+  "verdict": "ok",
+  "keys": [
+   "smoked salmon",
+   "hot smoked flaked salmon"
+  ],
+  "stored": "Fish, salmon, chinook, smoked",
+  "storedKcal": 117,
+  "liveDesc": "Fish, salmon, chinook, smoked",
+  "liveKcal": 117,
+  "sim": 1
+ },
  "173688": {
   "verdict": "ok",
   "keys": [
@@ -2999,6 +3715,29 @@
   "storedKcal": 179,
   "liveDesc": "Fish, salmon, chinook, raw",
   "liveKcal": 179,
+  "sim": 1
+ },
+ "173698": {
+  "verdict": "ok",
+  "keys": [
+   "red snapper",
+   "snapper fish"
+  ],
+  "stored": "Fish, snapper, mixed species, raw",
+  "storedKcal": 100,
+  "liveDesc": "Fish, snapper, mixed species, raw",
+  "liveKcal": 100,
+  "sim": 1
+ },
+ "173734": {
+  "verdict": "ok",
+  "keys": [
+   "black beans"
+  ],
+  "stored": "Beans, black, mature seeds, raw",
+  "storedKcal": 341,
+  "liveDesc": "Beans, black, mature seeds, raw",
+  "liveKcal": 341,
   "sim": 1
  },
  "173744": {
@@ -3056,6 +3795,17 @@
   "liveKcal": 88,
   "sim": 1
  },
+ "173800": {
+  "verdict": "ok",
+  "keys": [
+   "can of chickpeas"
+  ],
+  "stored": "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, drained solids",
+  "storedKcal": 139,
+  "liveDesc": "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned, drained solids",
+  "liveKcal": 139,
+  "sim": 1
+ },
  "173815": {
   "verdict": "ok",
   "keys": [
@@ -3076,6 +3826,28 @@
   "storedKcal": 296,
   "liveDesc": "Sausage, pork, chorizo, link or ground, raw",
   "liveKcal": 296,
+  "sim": 1
+ },
+ "173877": {
+  "verdict": "ok",
+  "keys": [
+   "kielbasa"
+  ],
+  "stored": "Kielbasa, fully cooked, grilled",
+  "storedKcal": 337,
+  "liveDesc": "Kielbasa, fully cooked, grilled",
+  "liveKcal": 337,
+  "sim": 1
+ },
+ "173887": {
+  "verdict": "ok",
+  "keys": [
+   "rice krispies"
+  ],
+  "stored": "Cereals ready-to-eat, RALSTON CRISP RICE",
+  "storedKcal": 383,
+  "liveDesc": "Cereals ready-to-eat, RALSTON CRISP RICE",
+  "liveKcal": 383,
   "sim": 1
  },
  "173904": {
@@ -3160,6 +3932,17 @@
   "liveKcal": 56,
   "sim": 1
  },
+ "174066": {
+  "verdict": "ok",
+  "keys": [
+   "sweet chilli sauce"
+  ],
+  "stored": "Sauce, sweet and sour, ready-to-serve",
+  "storedKcal": 154,
+  "liveDesc": "Sauce, sweet and sour, ready-to-serve",
+  "liveKcal": 154,
+  "sim": 1
+ },
  "174074": {
   "verdict": "ok",
   "keys": [
@@ -3172,6 +3955,28 @@
   "liveKcal": 30,
   "sim": 1
  },
+ "174093": {
+  "verdict": "ok",
+  "keys": [
+   "english muffins"
+  ],
+  "stored": "English muffins, whole grain white",
+  "storedKcal": 245,
+  "liveDesc": "English muffins, whole grain white",
+  "liveKcal": 245,
+  "sim": 1
+ },
+ "174146": {
+  "verdict": "ok",
+  "keys": [
+   "cider"
+  ],
+  "stored": "Beverages, AMBER, hard cider",
+  "storedKcal": 56,
+  "liveDesc": "Beverages, AMBER, hard cider",
+  "liveKcal": 56,
+  "sim": 1
+ },
  "174158": {
   "verdict": "ok",
   "keys": [
@@ -3181,6 +3986,28 @@
   "storedKcal": 0,
   "liveDesc": "Water, bottled, generic",
   "liveKcal": 0,
+  "sim": 1
+ },
+ "174182": {
+  "verdict": "ok",
+  "keys": [
+   "anchovy fillet"
+  ],
+  "stored": "Fish, anchovy, european, raw",
+  "storedKcal": 131,
+  "liveDesc": "Fish, anchovy, european, raw",
+  "liveKcal": 131,
+  "sim": 1
+ },
+ "174190": {
+  "verdict": "ok",
+  "keys": [
+   "salt cod"
+  ],
+  "stored": "Fish, cod, Atlantic, dried and salted",
+  "storedKcal": 290,
+  "liveDesc": "Fish, cod, Atlantic, dried and salted",
+  "liveKcal": 290,
   "sim": 1
  },
  "174195": {
@@ -3332,6 +4159,17 @@
   "liveKcal": 11,
   "sim": 1
  },
+ "174528": {
+  "verdict": "ok",
+  "keys": [
+   "tabasco sauce"
+  ],
+  "stored": "Sauce, ready-to-serve, pepper, TABASCO",
+  "storedKcal": 12,
+  "liveDesc": "Sauce, ready-to-serve, pepper, TABASCO",
+  "liveKcal": 12,
+  "sim": 1
+ },
  "174529": {
   "verdict": "ok",
   "keys": [
@@ -3353,6 +4191,19 @@
   "storedKcal": 35,
   "liveDesc": "Sauce, fish, ready-to-serve",
   "liveKcal": 35,
+  "sim": 1
+ },
+ "174577": {
+  "verdict": "ok",
+  "keys": [
+   "polish sausage",
+   "polish kabanos",
+   "kabanos sausages"
+  ],
+  "stored": "Polish sausage, pork",
+  "storedKcal": 326,
+  "liveDesc": "Polish sausage, pork",
+  "liveKcal": 326,
   "sim": 1
  },
  "174617": {
@@ -3381,6 +4232,18 @@
   "liveKcal": 231,
   "sim": 1
  },
+ "174832": {
+  "verdict": "ok",
+  "keys": [
+   "almond milk",
+   "vegetable millk"
+  ],
+  "stored": "Beverages, almond milk, unsweetened, shelf stable",
+  "storedKcal": 15,
+  "liveDesc": "Beverages, almond milk, unsweetened, shelf stable",
+  "liveKcal": 15,
+  "sim": 1
+ },
  "174837": {
   "verdict": "ok",
   "keys": [
@@ -3392,6 +4255,28 @@
   "storedKcal": 82,
   "liveDesc": "Alcoholic beverage, wine, table, white",
   "liveKcal": 82,
+  "sim": 1
+ },
+ "174913": {
+  "verdict": "ok",
+  "keys": [
+   "ciabatta"
+  ],
+  "stored": "Bread, Italian",
+  "storedKcal": 259,
+  "liveDesc": "Bread, Italian",
+  "liveKcal": 259,
+  "sim": 1
+ },
+ "174916": {
+  "verdict": "ok",
+  "keys": [
+   "pita bread"
+  ],
+  "stored": "Bread, pita, whole-wheat",
+  "storedKcal": 262,
+  "liveDesc": "Bread, pita, whole-wheat",
+  "liveKcal": 262,
   "sim": 1
  },
  "174924": {
@@ -3415,6 +4300,17 @@
   "storedKcal": 395,
   "liveDesc": "Bread, crumbs, dry, grated, plain",
   "liveKcal": 395,
+  "sim": 1
+ },
+ "174929": {
+  "verdict": "ok",
+  "keys": [
+   "bread rolls"
+  ],
+  "stored": "Bread, sticks, plain",
+  "storedKcal": 412,
+  "liveDesc": "Bread, sticks, plain",
+  "liveKcal": 412,
   "sim": 1
  },
  "174957": {
@@ -3459,6 +4355,29 @@
   "storedKcal": 0,
   "liveDesc": "Beverages, water, tap, municipal",
   "liveKcal": 0,
+  "sim": 1
+ },
+ "175112": {
+  "verdict": "ok",
+  "keys": [
+   "sherry",
+   "dry sherry"
+  ],
+  "stored": "Alcoholic beverage, wine, dessert, dry",
+  "storedKcal": 152,
+  "liveDesc": "Alcoholic beverage, wine, dessert, dry",
+  "liveKcal": 152,
+  "sim": 1
+ },
+ "175116": {
+  "verdict": "ok",
+  "keys": [
+   "herring"
+  ],
+  "stored": "Fish, herring, Atlantic, raw",
+  "storedKcal": 158,
+  "liveDesc": "Fish, herring, Atlantic, raw",
+  "liveKcal": 158,
   "sim": 1
  },
  "175119": {
@@ -3731,6 +4650,17 @@
   "storedKcal": 44,
   "liveDesc": "Onions, red, raw",
   "liveKcal": 44,
+  "sim": 1
+ },
+ "790646": {
+  "verdict": "ok",
+  "keys": [
+   "yellow onion"
+  ],
+  "stored": "Onions, yellow, raw",
+  "storedKcal": 38,
+  "liveDesc": "Onions, yellow, raw",
+  "liveKcal": 38,
   "sim": 1
  },
  "1104647": {

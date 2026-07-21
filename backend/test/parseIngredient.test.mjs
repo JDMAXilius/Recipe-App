@@ -107,3 +107,16 @@ test("sweetener packet weighs ~1 g, not the 100 g generic packet", () => {
   const yeast = parseIngredientLine({ measure: "1 packet", name: "dried yeast" });
   assert.equal(yeast.grams, 7); // existing rows untouched
 });
+
+test("unquantified frying oil counts a conservative tbsp, flagged as an estimate", () => {
+  // Counting zero understated every fried dish; published absorption is 8-25%
+  // of food weight, far too wide to claim exactness. One tbsp, medium.
+  const fry = parseIngredientLine({ measure: "For frying", name: "Vegetable Oil" });
+  assert.equal(fry.grams, 14);
+  assert.equal(fry.confidence, "medium");
+  // An explicit amount still wins over the fallback.
+  const explicit = parseIngredientLine({ measure: "2 tbsp", name: "Olive Oil" });
+  assert.ok(explicit.grams > 25 && explicit.confidence === "high");
+  // Non-fat lines are untouched — "To serve, Rice" is not a hidden tbsp of oil.
+  assert.equal(parseIngredientLine({ measure: "To serve", name: "Rice" }).grams, null);
+});

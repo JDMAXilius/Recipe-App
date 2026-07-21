@@ -239,6 +239,16 @@ function verifiedPiece(item, unit) {
   return best?.row ?? null;
 }
 
+// "For frying" / "for deep frying" oil: the recipe never states an amount, but
+// the food does absorb some and counting ZERO understates every fried dish.
+// Published absorption spans 8–25% of food weight (some studies 10–60%), which
+// is far too wide to ever call exact — so we count a conservative single
+// tablespoon of oil retained and flag the line "approx" (medium), never high.
+// Under-counting beats over-claiming on a health-adjacent number.
+const FRY_ABSORBED_G = 14; // 1 tbsp of oil
+const FRY_RE = /\bfor (?:deep[- ])?frying\b/i;
+const OIL_RE = /\boils?\b|\bghee\b|\blard\b|\bshortening\b|\bdripping\b|\bbutter\b|\bmargarine\b/i;
+
 function gramsFor(qty, unit, item) {
   if (qty == null) return { grams: null, level: "none" };
   if (unit && MASS_G[unit]) return { grams: qty * MASS_G[unit], level: "exact" };
@@ -347,7 +357,14 @@ export function parseIngredientLine(input) {
     }
   }
 
-  const { grams, level } = gramsFor(qty, unit, item);
+  let { grams, level } = gramsFor(qty, unit, item);
+  // Unquantified frying oil — see FRY_ABSORBED_G. Only when nothing else
+  // resolved a weight, so an explicit "2 tbsp oil for frying" still wins.
+  if (grams == null && FRY_RE.test(text) && OIL_RE.test(text)) {
+    grams = FRY_ABSORBED_G;
+    level = "approx";
+    item = item || text;
+  }
   const confidence =
     level === "exact" || level === "good" ? "high"
     : level === "default-density" || level === "approx" ? "medium"
