@@ -74,7 +74,10 @@ const TARGETS = [
   // 2026-07-21 bare-count sweep. Each of these is a corpus line that resolved
   // to NO grams ("4 Pork Chops", "8 Oysters") — dropped from the sum AND
   // counted as doubt, so it hit the recipe's confidence twice.
-  { name: "chicken", fdcId: 171047, portion: /^1 chicken$/i }, // whole bird
+  // Key is "whole chicken", NOT "chicken": a bare key matches by suffix, so
+  // "5 boneless Chicken" (breasts) inherited the whole bird — 5230 g, and at
+  // HIGH confidence, which is the one thing a verified row must never do.
+  { name: "whole chicken", fdcId: 171047, portion: /^1 chicken$/i },
   { name: "pork chop", key: "pork chops", portion: /^1 chop without refuse/i },
   { name: "chicken drumstick", fdcId: 172373, portion: /^1 drumstick$/i },
   { name: "sweetcorn", fdcId: 169998, portion: /^1 ear, medium/i },
@@ -94,6 +97,23 @@ const TARGETS = [
   { name: "taco shell", fdcId: 172800, portion: /^1 shell$/i },
   { name: "peaches", fdcId: 325415, portion: /^1 medium/i },
   { name: "pear", fdcId: 167776, portion: /^1 medium$/i },
+
+  // 2026-07-21 doubt-mass sweep. Ranked by the grams these lines contribute to
+  // the 286 medium-confidence recipes, biggest lever first. Every fdcId is
+  // PINNED because usdaTable's rows for these keys are nutrition proxies or,
+  // in one case, provenance that does not match the record (see the report):
+  // "chicken thighs" carries fdcId 171077, which is the boneless BREAST.
+  { name: "chicken thigh", fdcId: 172385, portion: /^1 thigh with skin$/i },
+  { name: "chicken breast", fdcId: 171077, portion: /^1 piece$/i },
+  // "1 leg, with skin" is USDA's own whole leg quarter; the parenthetical only
+  // states what it is made of, it is not a preparation.
+  { name: "chicken leg", fdcId: 172378, portion: /^1 leg, with skin/i },
+  { name: "pita bread", fdcId: 174915, portion: /^1 pita, large/i },
+  { name: "sausage", fdcId: 171631, portion: /^1 link$/i },
+  // "6 large Cabbage Leaves" was inheriting the whole-HEAD estimate (900 g per
+  // leaf, 5400 g). USDA weighs the leaf itself; medium is the house convention
+  // where USDA offers sizes and the corpus does not commit to one.
+  { name: "cabbage leaf", fdcId: 169975, portion: /^1 leaf, medium$/i },
 ];
 
 // DELIBERATELY ABSENT (checked, USDA publishes no usable whole-item portion —
@@ -118,6 +138,19 @@ const TARGETS = [
 //   breadfruit — only "0.25 fruit, small"; scaling a quarter of a SMALL fruit
 //     up to a generic one compounds two assumptions.
 //   gelatine leafs / rice paper sheets / meringue nests — no USDA portion.
+//   baguette — "Bread, french or vienna" publishes "1 oz" and "1 slice" (139 g)
+//     only. A slice is not a loaf, and the corpus doubt is "1 Baguette".
+//   coconut milk — "1 tbsp" and "1 cup", both volumes. The 2800 g of doubt is
+//     "1 can Coconut Milk"; USDA does not publish a can.
+//   shallot — unchanged: still only "1 tbsp chopped".
+//   potatoes — the remaining doubt is NOT a piece weight ("5 Cups Potatoes",
+//     "1/2 cup Potatoes" fall to the default 1.0 density); "1 medium" is
+//     already verified at 213 g. Belongs in cupWeights, not here.
+//   spring onions — likewise: every bare count already resolves through the
+//     verified 5 g row. The doubt is "1 bunch" / "Bunch", and USDA publishes no
+//     bunch portion.
+//   bacon — already verified at 28 g, but the row is keyed to unit "slice" so
+//     the bare "4 Bacon" form cannot reach it. Not a USDA gap; see the report.
 
 const out = { ...existing };
 const unresolved = [];

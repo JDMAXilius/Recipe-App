@@ -535,8 +535,19 @@ export const usdaProvider = {
     // where we lost the main ingredient. It isn't. So "low" now means what it
     // should — something is MISSING from this number — and a recipe with every
     // food identified floors at "medium" however many amounts we inferred.
+    // FOUNDER CALL 2026-07-21: a complete total reads "high".
+    //
+    // Verified before making this change: NutritionCard.jsx is the only place
+    // in the app that reads this field, and it only branches on "low". high and
+    // medium already rendered the identical sentence, so this changes no user-
+    // facing copy — it aligns the stored label with what the card already says.
+    //
+    // The diagnostic is NOT lost: `basis` below keeps the distinction that made
+    // this field useful for finding bugs (frying oil counted as food, cherry
+    // tomatoes at 738 g, heavy cream pointing at shortening all surfaced as
+    // sub-high recipes). Audit on `basis`, not on `confidence`.
     const everyFoodIdentified = scored.every((r) => r.food);
-    if (confidence === "low" && everyFoodIdentified) confidence = "medium";
+    if (confidence !== "high" && everyFoodIdentified) confidence = "high";
 
     return {
       kcal: kcalPerServing,
@@ -550,6 +561,11 @@ export const usdaProvider = {
       per: "serving",
       source: "usda",
       confidence,
+      // How much of this total rests on amounts Otto inferred rather than ones
+      // the recipe stated. "measured" = the recipe said; "estimated" = we did.
+      // This is the honest grain the single confidence word no longer carries.
+      basis: doubt <= 0.1 ? "measured" : "estimated",
+      doubt: round(doubt, 2),
       computed_at: new Date().toISOString(),
     };
   },
