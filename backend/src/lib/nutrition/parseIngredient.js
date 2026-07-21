@@ -237,36 +237,28 @@ function singulars(word) {
   return out;
 }
 
-// Unit words that mean the same physical piece as a verified row's unit.
-// TheMealDB writes "2 rashers bacon" and "2 sticks celery" for what USDA calls
-// a slice and a stalk.
-const UNIT_SYNONYM = { rasher: "slice", stick: "stalk", stalk: "stalk", slice: "slice", clove: "clove" };
-
 function verifiedPiece(item, unit) {
   let t = String(item || "").toLowerCase().trim();
-  let effUnit = unit ? UNIT_SYNONYM[unit] || unit : null;
+  // "stick" is the only piece word canonicalUnit doesn't already fold into the
+  // noun USDA uses (rasher→slice is a UNIT_ALIAS). Celery is the one that matters.
+  let effUnit = unit === "stick" ? "stalk" : unit;
   // The piece noun sometimes rides in the NAME, not the measure: TheMealDB's
   // "Garlic Clove" with measure "1". Lift it into the unit so the verified
   // per-clove row applies.
-  const embedded = t.match(/^(.*?)\s+(cloves?|stalks?|sticks?|slices?|rashers?)$/);
+  const embedded = t.match(/^(.*?)\s+(clove|stalk|slice)s?$/);
   if (embedded && !effUnit) {
     t = embedded[1].trim();
-    effUnit = UNIT_SYNONYM[embedded[2].replace(/s$/, "")] || null;
+    effUnit = embedded[2];
   }
-  const forms = new Set();
-  for (const s of singulars(t)) forms.add(s);
-  // also try the last word ("baby new potatoes" → "potatoes" → "potato")
-  const last = t.split(/\s+/).pop();
-  if (last) for (const s of singulars(last)) forms.add(s);
+  // Match on the full item and on its last word, so "baby new potatoes" finds
+  // the "potato" row.
+  const forms = [...singulars(t), ...singulars(t.split(/\s+/).pop() || "")];
 
   let best = null;
   for (const [name, row] of Object.entries(VERIFIED_PIECE)) {
     // A piece-noun row ("clove", "stalk") only applies when that noun is the unit.
-    if (row.unit && row.unit !== effUnit) continue;
-    if (!row.unit && effUnit) continue; // bare-count rows need a bare count
-    const hit =
-      forms.has(name) ||
-      [...forms].some((f) => f === name || f.endsWith(" " + name) || f.startsWith(name + " "));
+    if ((row.unit || null) !== (effUnit || null)) continue;
+    const hit = forms.some((f) => f === name || f.endsWith(" " + name) || f.startsWith(name + " "));
     if (hit && (!best || name.length > best.name.length)) best = { name, row }; // most specific wins
   }
   return best?.row ?? null;
