@@ -495,7 +495,10 @@ const RecipeEditScreen = () => {
                 style={styles.measureInput}
                 value={row.measure}
                 onChangeText={(t) => setIngredient(index, "measure", t)}
-                placeholder="500 g"
+                // A named row with no measure is a real state ("salt, to
+                // taste") — a neutral placeholder there, so the example
+                // amount never reads like a value Otto filled in.
+                placeholder={row.name.trim() ? "amount" : "500 g"}
                 placeholderTextColor={colors.inkSoft}
                 accessibilityLabel={`Ingredient ${index + 1} amount`}
               />
