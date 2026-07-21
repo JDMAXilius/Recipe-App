@@ -75,11 +75,14 @@ export const UserRecipeAPI = {
   },
   // "Cook something up with Otto" — AI recipe creation. The server returns an
   // editor-ready draft (or an honest decline message as the error).
+  // The AI seams run long on the server (Opus writing/reading takes 10–60s) —
+  // each carries its own timeout budget instead of authFetch's 15s default.
   generate: async (payload) => {
     const res = await authFetch("/generate", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
+      timeoutMs: 90000,
     });
     return parseOrThrow(res, "Otto couldn't finish that idea right now");
   },
@@ -88,8 +91,20 @@ export const UserRecipeAPI = {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ text }),
+      timeoutMs: 60000,
     });
     return parseOrThrow(res, "Otto couldn't make sense of that text");
+  },
+
+  // Photo → recipe: a cookbook page, a recipe card, a screenshot.
+  importFromPhoto: async ({ image, mediaType }) => {
+    const res = await authFetch("/import/photo", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ image, mediaType }),
+      timeoutMs: 120000,
+    });
+    return parseOrThrow(res, "Otto couldn't read that photo");
   },
 
   importFromUrl: async (url) => {
@@ -97,6 +112,7 @@ export const UserRecipeAPI = {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ url }),
+      timeoutMs: 60000,
     });
     return parseOrThrow(res, "Otto couldn't read that page");
   },

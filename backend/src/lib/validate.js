@@ -39,6 +39,13 @@ export const schemas = {
     text: z.string().trim().min(40).max(20000),
   }),
 
+  // Photo import: base64 image body. 7M base64 chars ≈ 5 MB decoded —
+  // Claude's per-image ceiling; the client compresses before sending.
+  importPhotoBody: z.object({
+    image: z.string().min(100).max(7_000_000),
+    mediaType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif"]),
+  }),
+
   collabCreate: z.object({
     displayName: z.string().trim().min(1).max(40),
     items: z

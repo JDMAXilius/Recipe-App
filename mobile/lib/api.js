@@ -13,12 +13,12 @@ const TIMEOUT_MS = 15000;
 const offlineError = () =>
   new Error("Otto can't reach the kitchen — check your connection and try again.");
 
-async function attemptFetch(path, options) {
+async function attemptFetch(path, options, timeoutMs) {
   const { data } = await supabase.auth.getSession();
   const token = data?.session?.access_token;
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(`${API_URL}${path}`, {
       ...options,
@@ -33,15 +33,19 @@ async function attemptFetch(path, options) {
   }
 }
 
+// options.timeoutMs overrides the default budget — the AI seams (generate,
+// photo/text import) legitimately run 10–60s on the server and must not be
+// cut off by the 15s default meant for ordinary reads and writes.
 export async function authFetch(path, options = {}) {
-  const method = (options.method || "GET").toUpperCase();
+  const { timeoutMs = TIMEOUT_MS, ...fetchOptions } = options;
+  const method = (fetchOptions.method || "GET").toUpperCase();
   try {
-    return await attemptFetch(path, options);
+    return await attemptFetch(path, fetchOptions, timeoutMs);
   } catch {
     if (method !== "GET") throw offlineError();
     await new Promise((resolve) => setTimeout(resolve, 600));
     try {
-      return await attemptFetch(path, options);
+      return await attemptFetch(path, fetchOptions, timeoutMs);
     } catch {
       throw offlineError();
     }

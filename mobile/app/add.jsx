@@ -204,6 +204,62 @@ const AddScreen = () => {
     }
   };
 
+  // Photo import (API-8 seam #1) — pick a photo of a cookbook page, a
+  // handwritten card, or a screenshot; Otto copies the recipe off it into
+  // the same review editor. Library-only, like the editor's photo upload;
+  // quality 0.5 keeps the payload under the API's 5 MB image ceiling.
+  const startPhotoImport = async () => {
+    try {
+      const ImagePicker = await import("expo-image-picker");
+      if (Platform.OS !== "web") {
+        const { granted } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!granted) {
+          setFailMessage("Otto needs photo access — turn it on in Settings to import from a photo.");
+          setPhase("failed");
+          return;
+        }
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.5, base64: true });
+      const asset = result?.assets?.[0];
+      if (result?.canceled || !asset) return;
+      if (!asset.base64 || asset.base64.length > 6_800_000) {
+        setFailMessage(
+          asset.base64
+            ? "That photo is too large for Otto to read — try a smaller or closer shot of the page."
+            : "Couldn't read that photo — try another."
+        );
+        setPhase("failed");
+        return;
+      }
+      setPhase("parsing");
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      const mediaType =
+        asset.mimeType && /^image\/(jpeg|png|webp|gif)$/.test(asset.mimeType)
+          ? asset.mimeType
+          : "image/jpeg";
+      const draft = await UserRecipeAPI.importFromPhoto({ image: asset.base64, mediaType });
+      setDraft({
+        mode: "import",
+        source: "manual",
+        sourceUrl: null,
+        sourceName: null,
+        title: draft.title,
+        image: null,
+        category: draft.category || null,
+        area: draft.area || null,
+        servings: draft.servings || 4,
+        ingredients: draft.ingredients,
+        steps: draft.steps,
+      });
+      router.replace("/recipe/edit");
+    } catch (error) {
+      setFailMessage(
+        error.message?.startsWith("Otto") ? error.message : "Otto couldn't read that photo."
+      );
+      setPhase("failed");
+    }
+  };
+
   const writeMyself = (carryUrl) => {
     setDraft({
       mode: "manual",
@@ -411,6 +467,26 @@ const AddScreen = () => {
               >
                 <Ionicons name="sparkles-outline" size={18} color={colors.white} />
                 <Text style={styles.primaryButtonText}>Draft it</Text>
+              </Bounceable>
+            </View>
+
+            <View style={styles.modeCard}>
+              <View style={styles.modeTitleRow}>
+                <Ionicons name="camera-outline" size={18} color={colors.accent} />
+                <Text style={styles.modeTitle}>Snap the recipe</Text>
+              </View>
+              <Text style={styles.modeHint}>
+                A cookbook page, a handwritten card, a screenshot — pick the photo and Otto
+                copies the recipe down for you to check.
+              </Text>
+              <Bounceable
+                style={styles.primaryButton}
+                onPress={startPhotoImport}
+                accessibilityRole="button"
+                accessibilityLabel="Import a recipe from a photo"
+              >
+                <Ionicons name="camera-outline" size={18} color={colors.white} />
+                <Text style={styles.primaryButtonText}>Choose a photo</Text>
               </Bounceable>
             </View>
 

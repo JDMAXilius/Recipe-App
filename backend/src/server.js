@@ -11,6 +11,7 @@ import { and, eq, desc, asc, gte, lte, isNull, inArray, count } from "drizzle-or
 import { importRecipeFromUrl } from "./lib/importRecipe.js";
 import { detectSocialPlatform, importFromSocialUrl, SocialImportError } from "./lib/import/social.js";
 import { extractionActive, extractRecipeFromText } from "./lib/import/extractRecipe.js";
+import { photoExtractionActive, extractRecipeFromPhoto } from "./lib/import/extractPhoto.js";
 import { generateRecipe, generationActive } from "./lib/generateRecipe.js";
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
@@ -107,7 +108,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json({ limit: "1mb" }));
+// Photos are the one legitimately big payload (a base64 image runs 2–7 MB);
+// everything else stays behind the 1 MB cap. The photo route parses its own
+// body AFTER auth + limiter, so an anonymous client can't make us buffer 8 MB.
+const smallJson = express.json({ limit: "1mb" });
+const photoJson = express.json({ limit: "8mb" });
+app.use((req, res, next) =>
+  req.path === "/api/import/photo" ? next() : smallJson(req, res, next)
+);
 app.use(apiLimiter);
 
 // Route-param guard — a NaN reaching postgres.js becomes a 500;
@@ -303,6 +311,28 @@ app.post("/api/import/text", requireAuth, costlyLimiter, validate(schemas.import
   } catch (error) {
     logger.warn({ err: error.message }, "text import failed");
     res.status(502).json({ error: "Otto couldn't make sense of that text right now — try again in a moment." });
+  }
+});
+
+// Photo import (API-8 seam #1): a cookbook page, a recipe card, a screenshot.
+// Body parsing happens HERE (photoJson, 8 MB) — after auth and the limiter —
+// not in the global 1 MB parser. Same dormant gate and review-first flow as
+// every other AI seam.
+app.post("/api/import/photo", requireAuth, costlyLimiter, photoJson, validate(schemas.importPhotoBody), async (req, res) => {
+  if (!photoExtractionActive()) {
+    return res.status(503).json({
+      error: "Otto can't read photos just yet — that part of the kitchen is still being wired up.",
+    });
+  }
+  try {
+    const extracted = await extractRecipeFromPhoto({ image: req.body.image, mediaType: req.body.mediaType });
+    if (!extracted) {
+      return res.status(422).json({ error: "Otto looked closely — that photo doesn't seem to show a written recipe. A clearer shot of the page works best." });
+    }
+    res.status(200).json({ ...extracted, image: null, sourceUrl: null, sourceName: null });
+  } catch (error) {
+    reportError(error, { msg: "photo import failed", userId: req.userId, reqId: req.id });
+    res.status(502).json({ error: "Otto couldn't read the photo right now — try again in a moment." });
   }
 });
 

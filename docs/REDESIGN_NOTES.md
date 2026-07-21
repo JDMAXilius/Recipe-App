@@ -737,3 +737,19 @@ household.jsx polls at 8s under useFocusEffect; doc corrected rather than re-bui
 claims against the live code before repeating them). Smoke-verified: server boots, health shape
 + header confirmed, 404 logs the structured line. Backend 53/53, mobile 44/44, lint clean.
 NOT live until the founder's next `railway up` — push ≠ deploy.
+
+### Phase 13 addendum 2 — Run B: photo → recipe shipped dormant (2026-07-21, cloud)
+
+API-8 seam #1. Backend: `extractPhoto.js` (claude-opus-4-8 vision + adaptive thinking — the hard
+part is READING the page, unlike the Haiku caption extractor where the text is already text;
+shared EXTRACT_SCHEMA + shapeExtractedRecipe refactored out of extractRecipe.js), route
+`POST /api/import/photo` with per-route 8 MB json parser mounted AFTER requireAuth+costlyLimiter
+(anonymous clients can't make us buffer 8 MB; global parser skips that path, everything else
+keeps the 1 MB cap — verified live: unauthed photo POST → 401 before buffering, 3 MB body on a
+normal route → 413), zod importPhotoBody (7M base64 chars ≈ Claude's 5 MB image cap, mediaType
+enum). Mobile: "Snap the recipe" card on the Add sheet (library picker, quality 0.5, client-side
+size guard, review-editor flow, source "manual"); screenshot verified. CAUGHT + FIXED a Run A
+regression before it ever deployed: the new 15 s authFetch timeout would have cut off Otto's
+10–60 s AI calls — authFetch now takes options.timeoutMs and generate/text/url/photo carry
+90/60/60/120 s budgets. Backend 56/56, mobile 44/44, lint clean. Dormant until ANTHROPIC_API_KEY;
+live after the founder's next `railway up`.

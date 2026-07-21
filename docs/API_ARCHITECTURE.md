@@ -153,9 +153,10 @@ no sync-conflict machinery for a v1 household app. Scheduled after API-1…6.
 
 ### API-8 · AI plane roadmap — next seams, in order (M each, cloud)
 All copy the §1c four-part pattern; all wake with the same key.
-1. **Photo → recipe**: snap/upload a cookbook page or screenshot; vision
-   extraction into the same review editor. Highest leverage — it's the
-   share-extension's natural partner.
+1. **Photo → recipe** — **SHIPPED 2026-07-21** (dormant until the key):
+   `POST /api/import/photo` (Opus 4.8 vision, shared extraction schema,
+   auth-before-8MB-body-parse), "Snap the recipe" card on the Add sheet,
+   same review editor. Wakes with `ANTHROPIC_API_KEY` like every AI seam.
 2. **Ask Otto on a recipe**: substitutions, "can I make this dairy-free?",
    technique questions — scoped to the open recipe, answers grounded in it.
 3. **Plan my week**: generate a week from the cookbook + prefs, landing as
@@ -190,7 +191,10 @@ the user's library via the storage bucket (SQL in
   timeout + GET-only single retry + Discover stale-while-revalidate cache ·
   API-6 verified already shipped (8 s focus polling). API-4 adopted by this
   document. **Live after the founder's next `railway up` deploy.**
-- **Run B — AI seam #1**: photo → recipe extraction, end-to-end dormant.
+- **Run B — AI seam #1** — **DONE 2026-07-21**: photo → recipe shipped
+  end-to-end dormant (route + vision extractor + Add-sheet card + tests).
+  Run A's client timeout also gained per-call overrides so the AI seams
+  (60–120 s budgets) are never cut off by the 15 s default.
 - **Run C — comfort**: API-7 offline reads; Realtime upgrade only if
   households ask.
 - **Standing terminal work** (already ticketed): live-corpus line validation,

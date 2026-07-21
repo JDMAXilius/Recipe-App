@@ -22,7 +22,7 @@ const getClient = () => (client ??= new Anthropic({ apiKey: ENV.ANTHROPIC_API_KE
 // and caches it for 24h.
 const MODEL = "claude-haiku-4-5";
 
-const SCHEMA = {
+export const EXTRACT_SCHEMA = {
   type: "object",
   additionalProperties: false,
   required: ["is_recipe", "title", "servings", "ingredients", "steps", "confidence"],
@@ -67,7 +67,7 @@ export async function extractRecipeFromText({ text, platform, authorName }) {
     model: MODEL,
     max_tokens: 2000,
     system: SYSTEM,
-    output_config: { format: { type: "json_schema", schema: SCHEMA } },
+    output_config: { format: { type: "json_schema", schema: EXTRACT_SCHEMA } },
     messages: [
       {
         role: "user",
@@ -89,13 +89,16 @@ export async function extractRecipeFromText({ text, platform, authorName }) {
   } catch {
     return null; // schema-constrained, so this shouldn't happen — null beats a guess
   }
-  if (!data.is_recipe || !Array.isArray(data.ingredients) || data.ingredients.length === 0) {
+  return shapeExtractedRecipe(data);
+}
+
+// Clamp to the save schema's limits (validate.js) — same rule as the
+// JSON-LD importer: never hand the editor a draft that POST /api/recipes
+// will reject. Shared with the photo extractor, which speaks the same schema.
+export function shapeExtractedRecipe(data) {
+  if (!data || !data.is_recipe || !Array.isArray(data.ingredients) || data.ingredients.length === 0) {
     return null;
   }
-
-  // Clamp to the save schema's limits (validate.js) — same rule as the
-  // JSON-LD importer: never hand the editor a draft that POST /api/recipes
-  // will reject.
   const clamp = (value, max) => (value == null ? null : String(value).slice(0, max));
   return {
     title: clamp(data.title, 300) || "Untitled recipe",
