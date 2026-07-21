@@ -1,8 +1,12 @@
-// Per-serving nutrition ESTIMATES by TheMealDB category.
+// Per-serving nutrition ESTIMATES by category.
 // TheMealDB provides no nutrition data (docs/DESIGN_SYSTEM.md B8 / P2-7):
 // these are typical values for each kind of dish, always presented with the
 // "~" estimate framing, never as measured facts. One estimator feeds both
 // the recipe cards and the detail NutritionCard so numbers never disagree.
+//
+// Estimates are the FALLBACK — the computed per-ingredient figure (USDA)
+// always wins when available. These only answer when computation honestly
+// can't.
 
 const ESTIMATES = {
   Beef: { calories: 450, protein: 35, carbs: 22, fat: 24 },
@@ -19,8 +23,35 @@ const ESTIMATES = {
   Starter: { calories: 260, protein: 12, carbs: 24, fat: 12 },
   Vegan: { calories: 340, protein: 14, carbs: 46, fat: 12 },
   Vegetarian: { calories: 360, protein: 15, carbs: 44, fat: 14 },
+
+  // Drinks (added 2026-07-21; the old fallthrough sent a black coffee to the
+  // 420-kcal DEFAULT). Figures grounded in USDA/WebMD beverage references:
+  // black coffee ~2 kcal, latte 70–120, juice ~120/cup, smoothie 150–250,
+  // beer ~155, wine ~125/glass. Drink ranges are wide by nature — which is
+  // exactly what the "~" estimate framing is for.
+  Drink: { calories: 120, protein: 2, carbs: 22, fat: 2 },
+  Coffee: { calories: 60, protein: 2, carbs: 6, fat: 3 },
+  Tea: { calories: 40, protein: 1, carbs: 8, fat: 1 },
+  Smoothie: { calories: 200, protein: 5, carbs: 40, fat: 3 },
+  Juice: { calories: 120, protein: 1, carbs: 28, fat: 0 },
+  Cocktail: { calories: 160, protein: 0, carbs: 14, fat: 0 },
 };
 
 const DEFAULT = { calories: 420, protein: 24, carbs: 36, fat: 18 };
 
-export const getNutritionEstimate = (category) => ESTIMATES[category] || DEFAULT;
+// Seed categories arrive as exact TheMealDB strings, but user-written and
+// Otto-generated recipes carry freeform ones ("drinks", "beverage",
+// "Smoothies"). Normalize case + trailing-s, plus a few synonyms, so a drink
+// never falls through to the 420-kcal dinner default.
+const norm = (s) => String(s || "").trim().toLowerCase().replace(/s$/, "");
+
+const LOOKUP = {};
+for (const [name, value] of Object.entries(ESTIMATES)) LOOKUP[norm(name)] = value;
+LOOKUP[norm("Beverage")] = ESTIMATES.Drink;
+LOOKUP[norm("Hot drink")] = ESTIMATES.Coffee;
+LOOKUP[norm("Latte")] = ESTIMATES.Coffee;
+LOOKUP[norm("Shake")] = ESTIMATES.Smoothie;
+LOOKUP[norm("Milkshake")] = ESTIMATES.Smoothie;
+LOOKUP[norm("Mocktail")] = ESTIMATES.Juice;
+
+export const getNutritionEstimate = (category) => LOOKUP[norm(category)] || DEFAULT;

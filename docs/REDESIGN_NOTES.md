@@ -850,3 +850,24 @@ recipe's substantial mass resolved, a small total is a real light dish/drink (tr
 1 kcal); only apply the 40-kcal floor when coverage is partial (a genuine collapse). Verified: 200g
 celery now computes 28 kcal (was null); the 10%-coverage collapse case still nulls. 70/70. Net: once
 the matcher keys are live, a black coffee shows its real ~5-15 kcal instead of a 420 default estimate.
+
+### Phase 15d — Drink estimates, grounded in what other apps do (2026-07-21, cloud)
+
+Founder: "let's do that but first identify what other apps use." Research pass (WebSearch):
+- Trackers: Cronometer = verified lab/gov DBs only (USDA FDC, NCCDB, CNF…) — 30/30 entries within 5%
+  of USDA reference vs MyFitnessPal's 11/30 (14M crowdsourced entries, ~27% error rate in a 2019
+  Nutrition Journal study). Lesson: verified-DB-per-ingredient beats big crowdsourced — Otto's
+  USDA-only choice is the Cronometer philosophy.
+- Recipe apps: the industry standard is NLP-over-ingredient-lines → verified DB (Edamam Nutrition
+  Analysis API — used across recipe apps, with domain heuristics like fried-oil absorption;
+  Nutritionix natural-language API — 20k+ apps, 250M queries/mo). That is architecturally EXACTLY the
+  Claude+USDA matcher we built in-house — and the in-house version is what our licence terms allow
+  (Edamam/Nutritionix forbid Otto's permanent per-recipe cache).
+- Category fallbacks: no major app fabricates a category guess; they show nothing or take label
+  values. Our "~ estimate" framing is already more honest than the field; the real gap was no drink
+  rows.
+Implemented: Drink/Coffee/Tea/Smoothie/Juice/Cocktail estimate rows grounded in USDA/WebMD beverage
+references (black coffee ~2, latte 70–120, juice ~120/cup, smoothie 150–250, wine ~125, beer ~155),
+plus a tolerant lookup (case/plural/synonyms: beverage→Drink, latte→Coffee, shake→Smoothie…) so a
+freeform "drinks" never falls through to the 420-kcal dinner DEFAULT. Seed categories byte-identical;
+45/45. App-side change → needs an app rebuild (not railway) to appear.
