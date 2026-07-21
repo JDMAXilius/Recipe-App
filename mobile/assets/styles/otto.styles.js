@@ -13,6 +13,18 @@ export const createOttoStyles = (colors) =>
       gap: SPACING.lg,
     },
 
+    // EMPTY STATE — minimal centered prompt (no greeting bubble, no chips)
+    emptyThread: { flexGrow: 1, justifyContent: "center", padding: SPACING.lg },
+    empty: { alignItems: "center", gap: SPACING.lg },
+    emptyOtto: { width: 120, height: 120 },
+    emptyText: {
+      ...TYPE.display,
+      fontSize: 22,
+      lineHeight: 30,
+      color: colors.ink,
+      textAlign: "center",
+    },
+
     // OTTO (left)
     ottoRow: { flexDirection: "row", gap: SPACING.sm, alignItems: "flex-start" },
     avatar: { width: 34, height: 34, marginTop: 2 },

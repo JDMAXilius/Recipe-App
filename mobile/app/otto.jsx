@@ -27,19 +27,14 @@ import ScreenHeader from "../components/ScreenHeader";
 // the review editor. The whole thread is sent each turn; the backend decides
 // ask-vs-cook. Honesty unchanged: every recipe still lands on "Check Otto's work".
 
-const GREETING = {
-  from: "otto",
-  text: "Hey — I'm Otto. Tell me what you're hungry for and I'll write you a real recipe. The more you tell me, the better I cook.",
-  options: ["A cozy chicken dinner for 4", "A low-cal coffee", "Use up what's in my fridge"],
-};
-
 const OttoChatScreen = () => {
   const router = useRouter();
   const { colors } = useTheme();
   const styles = useMemo(() => createOttoStyles(colors), [colors]);
 
-  // thread: [{ from: "otto"|"you", text, options?, recipe? }]
-  const [thread, setThread] = useState([GREETING]);
+  // thread: [{ from: "otto"|"you", text, options?, recipe? }] — starts empty;
+  // an empty thread shows the minimal centered prompt, not a greeting bubble.
+  const [thread, setThread] = useState([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [prefs, setPrefs] = useState(null);
@@ -114,9 +109,17 @@ const OttoChatScreen = () => {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
         <ScrollView
           ref={scrollRef}
-          contentContainerStyle={styles.thread}
+          contentContainerStyle={thread.length ? styles.thread : styles.emptyThread}
           keyboardShouldPersistTaps="handled"
         >
+          {!thread.length && !sending ? (
+            <View style={styles.empty}>
+              <OttoIdle source={require("../assets/mascot/otto-happy-cut.png")} style={styles.emptyOtto} />
+              <Text style={styles.emptyText}>
+                Tell me what you&apos;re hungry for.{"\n"}I&apos;ll write you the recipe.
+              </Text>
+            </View>
+          ) : null}
           {thread.map((m, i) =>
             m.from === "you" ? (
               <View key={i} style={styles.youRow}>
