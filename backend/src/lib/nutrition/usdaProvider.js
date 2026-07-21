@@ -141,6 +141,34 @@ function applyFryingMedium(rows, perServing = 4) {
   }
 }
 
+// Typical amounts for a line the recipe never quantified, by role. Deliberately
+// CONSERVATIVE — under-counting is the honest direction on a health number, and
+// these are our estimates, not USDA's. Ordered: first match wins.
+const TYPICAL_G = [
+  // Condiments and sauces: a serving spoonful, not the jar.
+  [/sauce|ketchup|mustard|mayo|dressing|syrup|honey|vinegar|hot ?sauce|relish|chutney/i, 30],
+  // Dry seasonings and leaveners already fall to NEGLIGIBLE; this catches the rest.
+  [/sugar|flour|cornflour|cornstarch|starch|breadcrumb|cocoa/i, 30],
+  [/oil|butter|ghee|lard|margarine/i, 15],
+  [/cheese/i, 60],
+  [/berr|strawberr|raspberr|blackberr|blueberr/i, 100],
+  [/lettuce|spinach|rocket|salad|greens/i, 40],
+  [/onion|pepper|tomato|carrot|celery|mushroom|garlic/i, 60],
+  [/beef|pork|chicken|lamb|fish|prawn|shrimp|bacon|sausage/i, 120],
+  [/bread|bun|roll|tortilla|pastry/i, 60],
+];
+
+function applyTypicalAmounts(rows) {
+  for (const r of rows) {
+    if (!r.food || r.parsed.grams > 0 || isNegligible(r)) continue;
+    const name = String(r.name || "");
+    const hit = TYPICAL_G.find(([re]) => re.test(name));
+    if (!hit) continue;
+    r.parsed = { ...r.parsed, grams: hit[1], confidence: "low" };
+    r.estimated = true; // full doubt — the amount is ours, not the recipe's
+  }
+}
+
 const MAX_PLAUSIBLE_SERVING_GRAMS = 700;
 
 // Human range for one serving of one dish. Anything outside it means the inputs
@@ -345,6 +373,20 @@ export const usdaProvider = {
     // Edamam exposes it as `retainedWeight`).
     applyFryingMedium(rows, perServing);
 
+    // TYPICAL-AMOUNT FALLBACK (founder call, 2026-07-21). A line whose food we
+    // know but whose amount the recipe never states ("Barbeque Sauce", "Flour",
+    // "Strawberries") used to be dropped, which meant the whole recipe fell back
+    // to a CATEGORY estimate — a number derived from the dish type alone,
+    // ignoring the ingredient list entirely. Estimating a typical amount for
+    // that one line and computing the rest properly is strictly more informed:
+    // USDA still supplies every per-100g number, and only the QUANTITY is ours.
+    //
+    // The honesty contract is the flag, not the silence: every line filled this
+    // way is marked `estimated`, which counts as full doubt, so a recipe leaning
+    // on them reads low — never high. That is the difference between an estimate
+    // and a fabrication.
+    applyTypicalAmounts(rows);
+
     const usable = rows.filter((r) => r.food && r.parsed.grams > 0);
     if (!usable.length) return null; // nothing resolved — honestly unknown
 
@@ -373,6 +415,8 @@ export const usdaProvider = {
     // If most substantial LINES are unweighed, the mass fraction is describing
     // a minority of the dish and cannot vouch for it.
     const unweighed = rows.filter((r) => !isNegligible(r) && !(r.parsed.grams > 0));
+    // (lines filled by applyTypicalAmounts now have grams, so they are not
+    // "unweighed" here — they pay for themselves through `estimated` doubt above)
     const substantialLines = rows.filter((r) => !isNegligible(r)).length;
     if (substantialLines > 0 && unweighed.length / substantialLines > UNWEIGHED_LINE_MAX) return null;
 
@@ -418,7 +462,9 @@ export const usdaProvider = {
     const counted = rows.filter((r) => !isNegligible(r));
     const scored = counted.length ? counted : rows;
     const resolved = (r) => r.food && r.parsed.grams > 0;
-    const unmatched = scored.filter((r) => !resolved(r)).length;
+    // An `estimated` line is in the sum but its AMOUNT is ours, so it carries
+    // the same doubt as a line we could not match at all.
+    const unmatched = scored.filter((r) => !resolved(r) || r.estimated).length;
     // A Claude-picked food is in the sum but less certain than a direct hit, so
     // it counts as "guessed" (half weight) — a recipe leaning on resolutions
     // reads medium/low, never high.

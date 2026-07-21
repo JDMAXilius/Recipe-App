@@ -5,7 +5,7 @@
 import VERIFIED_PIECE from "./pieceWeights.json" with { type: "json" };
 
 export const UNIT_WORDS =
-  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|quarts?|qts?|pints?|pts?|cloves?|cans?|tins?|slices?|rashers?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
+  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|quarts?|qts?|pints?|pts?|cloves?|cans?|tins?|slices?|rashers?|sticks?|pinch(?:es)?|dash(?:es)?|handfulls?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
 
 // canonical unit ids
 const UNIT_ALIASES = [
@@ -26,7 +26,7 @@ const UNIT_ALIASES = [
   [/^sticks?$/i, "stick"],
   [/^pinch(es)?$/i, "pinch"],
   [/^dash(es)?$/i, "dash"],
-  [/^handfuls?$/i, "handful"],
+  [/^handful?ls?$/i, "handful"],
   [/^pieces?$/i, "piece"],
   [/^sprigs?$/i, "sprig"],
   [/^bunch(es)?$/i, "bunch"],
@@ -164,6 +164,10 @@ const EACH_G = [
   [/leek/i, 90],
   [/baguette/i, 250],
   [/pita|flatbread|naan/i, 60],
+  // "1 large Bread" (Migas) is a LOAF — the 30 g slice below made a dish for
+  // four out of one slice and computed 24 kcal/serving. Approx by nature, so it
+  // flags medium and never reads "high".
+  [/\b(loaf|large bread)\b/i, 250],
   [/\bbread\b/i, 30],
   [/sausage/i, 75],
   [/stock cube|bouillon cube/i, 10],

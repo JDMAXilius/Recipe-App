@@ -1617,15 +1617,15 @@
     "sodium_mg": 35
   },
   "green beans": {
-    "fdcId": 170375,
-    "usda": "Beet greens, raw",
-    "kcal": 22,
-    "protein_g": 2.2,
-    "fat_g": 0.13,
-    "carbs_g": 4.33,
-    "fiber_g": 3.7,
+    "fdcId": 169961,
+    "usda": "Beans, snap, green, raw",
+    "kcal": 31,
+    "protein_g": 1.83,
+    "fat_g": 0.22,
+    "carbs_g": 6.97,
+    "fiber_g": 2.7,
     "sugar_g": null,
-    "sodium_mg": 226
+    "sodium_mg": 6
   },
   "green chilli": {
     "fdcId": 170497,
@@ -6790,7 +6790,7 @@
     "fdcId": 169433,
     "usda": "Beef, flank, steak, separable lean and fat, trimmed to 0\" fat, choice, raw",
     "kcal": 165,
-    "protein_g": 21.2,
+    "protein_g": 21.22,
     "fat_g": 8.29,
     "carbs_g": 0,
     "fiber_g": 0,
@@ -10032,15 +10032,15 @@
     "sodium_mg": 628
   },
   "swiss cheese": {
-    "fdcId": 169991,
-    "usda": "Chard, swiss, raw",
-    "kcal": 19,
-    "protein_g": 1.8,
-    "fat_g": 0.2,
-    "carbs_g": 3.74,
-    "fiber_g": 1.6,
+    "fdcId": 171251,
+    "usda": "Cheese, swiss",
+    "kcal": 393,
+    "protein_g": 26.96,
+    "fat_g": 30.99,
+    "carbs_g": 1.44,
+    "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 213
+    "sodium_mg": 187
   },
   "great northern beans": {
     "fdcId": 175190,
@@ -10371,5 +10371,82 @@
     "fiber_g": 1.2,
     "sugar_g": null,
     "sodium_mg": 1208
+  },
+  "raw yucca": {
+    "fdcId": 169985,
+    "usda": "Cassava, raw",
+    "kcal": 160,
+    "protein_g": 1.36,
+    "fat_g": 0.28,
+    "carbs_g": 38.06,
+    "fiber_g": 1.8,
+    "sugar_g": null,
+    "sodium_mg": 14
+  },
+  "yucca": {
+    "fdcId": 169985,
+    "usda": "Cassava, raw",
+    "kcal": 160,
+    "protein_g": 1.36,
+    "fat_g": 0.28,
+    "carbs_g": 38.06,
+    "fiber_g": 1.8,
+    "sugar_g": null,
+    "sodium_mg": 14
+  },
+  "yuca": {
+    "fdcId": 169985,
+    "usda": "Cassava, raw",
+    "kcal": 160,
+    "protein_g": 1.36,
+    "fat_g": 0.28,
+    "carbs_g": 38.06,
+    "fiber_g": 1.8,
+    "sugar_g": null,
+    "sodium_mg": 14
+  },
+  "flank steak": {
+    "fdcId": 169433,
+    "usda": "Beef, flank, steak, separable lean and fat, trimmed to 0\" fat, choice, raw",
+    "kcal": 165,
+    "protein_g": 21.22,
+    "fat_g": 8.29,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 54
+  },
+  "cuban bread": {
+    "fdcId": 174913,
+    "usda": "Bread, Italian",
+    "kcal": 259,
+    "protein_g": 9.49,
+    "fat_g": 2.73,
+    "carbs_g": 48.11,
+    "fiber_g": 2.1,
+    "sugar_g": null,
+    "sodium_mg": 618
+  },
+  "deli ham": {
+    "fdcId": 173864,
+    "usda": "Ham, sliced, regular (approximately 11% fat)",
+    "kcal": 164,
+    "protein_g": 16.6,
+    "fat_g": 8.8,
+    "carbs_g": 3.63,
+    "fiber_g": 1.3,
+    "sugar_g": null,
+    "sodium_mg": 814
+  },
+  "pimento stuffed olives": {
+    "fdcId": 169096,
+    "usda": "Olives, pickled, canned or bottled, green",
+    "kcal": 145,
+    "protein_g": 1.03,
+    "fat_g": 15.32,
+    "carbs_g": 3.84,
+    "fiber_g": 3.3,
+    "sugar_g": null,
+    "sodium_mg": 1556
   }
 }
