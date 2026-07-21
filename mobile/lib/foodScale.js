@@ -21,9 +21,15 @@
 // (MIN_GRAMS=20, produce excluded, ≈ prefix) — those encode the opposite
 // product decision. It shares the parser so measures tokenize identically.
 //
-// Density sources: King Arthur Baking ingredient weight chart (baking staples),
-// USDA FoodData Central household-measure conventions (produce, proteins,
-// canned goods). Each row is tagged with its source category in a comment.
+// Density source: USDA FoodData Central foodPortions — PUBLIC DOMAIN (CC0 1.0).
+// Rows marked [USDA <fdcId>] were derived mechanically by
+// backend/scripts/build-cup-weights.mjs from that food's own "1 cup" portion
+// record; cupWeights.json carries the fdcId and USDA's exact portion wording.
+//
+// Rows still marked [EST] are Otto's own estimates for foods USDA publishes no
+// cup portion for. They were previously taken from a copyrighted third-party
+// baking chart; that dependency is being removed row by row. Do NOT re-add
+// values from any commercial chart — facts are free, a compiled table is not.
 
 import { parseMeasure, convertMeasure, formatQty, snapQty, scaledIngredient } from "./ingredientParser.js";
 
@@ -73,31 +79,31 @@ const LIQUID_RE =
 
 // ---------------------------------------------------------------------------
 // name → grams per US cup. First match wins; specific before general.
-// [KA] = King Arthur chart figure, [USDA] = FoodData Central household measure.
+// [USDA <id>] = derived from that food's USDA cup portion. [EST] = Otto estimate.
 const DENSITY = [
-  // — flours & starches [KA] —
+  // — flours & starches —
   [/almond flour|ground almond/i, 96],
   [/whole ?wheat flour|wholemeal/i, 113],
-  [/bread flour|strong flour/i, 120],
+  [/bread flour|strong flour/i, 137],
   [/self[- ]raising flour|self[- ]rising/i, 113],
-  [/cornflour|cornstarch|corn starch|potato starch|tapioca|arrowroot|\bstarch\b/i, 113],
-  [/cocoa|cacao/i, 85],
+  [/cornflour|cornstarch|corn starch|potato starch|tapioca|arrowroot|\bstarch\b/i, 128],
+  [/cocoa|cacao/i, 86],
   [/masarepa|whole wheat\b|semolina flour/i, 120],
-  [/flour/i, 120],
-  // — sugars [KA] —
-  [/icing sugar|powdered sugar|confectioner/i, 113],
+  [/flour/i, 125],
+  // — sugars —
+  [/icing sugar|powdered sugar|confectioner/i, 120],
   [/caster sugar|superfine sugar/i, 198],
-  [/brown sugar|muscovado|demerara|coco sugar/i, 213],
-  [/sugar/i, 198],
-  // — viscous sweeteners: weigh, don't pour [KA] —
-  [/honey/i, 336],
-  [/maple syrup|golden syrup|corn syrup|agave/i, 322],
+  [/brown sugar|muscovado|demerara|coco sugar/i, 220],
+  [/sugar/i, 188],
+  // — viscous sweeteners: weigh, don't pour —
+  [/honey/i, 339],
+  [/maple syrup|golden syrup|corn syrup|agave/i, 315],
   [/molasses|treacle/i, 337],
   [/condensed milk/i, 306],
-  // — fats [KA] —
+  // — fats —
   [/butter|margarine|shortening|lard|ghee|suet|goose fat|duck fat|dripping/i, 227],
   [/peanut butter|almond butter|tahini/i, 258],
-  // — dairy solids & cheeses [KA/USDA] —
+  // — dairy solids & cheeses [mixed: USDA where available, else EST] —
   [/cream cheese|mascarpone/i, 227],
   [/ricotta|cottage cheese|paneer|quark/i, 246],
   [/cr[eè]me fra[iî]che|sour cream|greek yog(h)?urt|yog(h)?urt|fromage frais|strained yoghurt/i, 245],
@@ -109,15 +115,15 @@ const DENSITY = [
   [/coconut (milk|cream|water)/i, 227],
   [/desiccated coconut|shredded coconut|coconut flake/i, 80],
   [/coconut/i, 80],
-  // — nuts, seeds, crumbs [KA] —
+  // — nuts, seeds, crumbs —
   [/panko/i, 50],
   [/breadcrumb|bread crumb/i, 113],
   [/flaked almond|sliced almond/i, 86],
   [/almond|walnut|pecan|peanut|cashew|pistachio|hazelnut|hazlenut|macadamia|pine nut|\bnuts?\b/i, 142],
   [/sesame|sunflower seed|pumpkin seed|chia|flax|poppy seed/i, 140],
   [/digestive biscuit|graham cracker|biscuit crumb|cookie crumb/i, 100],
-  // — grains, legumes, pasta (dry) [KA/USDA] —
-  [/rolled oats|oatmeal|porridge oats|\boats\b/i, 89],
+  // — grains, legumes, pasta (dry) [mixed: USDA where available, else EST] —
+  [/rolled oats|oatmeal|porridge oats|\boats\b/i, 81],
   [/cornmeal|polenta|semolina|grits/i, 160],
   [/buckwheat|millet|barley|farro|spelt|freekeh|mixed grain|\brye\b|grits\b/i, 170],
   [/quinoa|couscous|bulgur/i, 177],
@@ -126,7 +132,7 @@ const DENSITY = [
   [/chickpea|garbanzo|cannellini|borlotti|kidney bean|black bean|butter bean|haricot|pinto|bean(?!\s*sprout)/i, 190],
   [/basmati|jasmine|arborio|risotto rice|long[- ]grain|rice(?!\s*(vinegar|wine|paper))/i, 185],
   [/pasta|macaroni|spaghetti|penne|fusilli|farfalle|rigatoni|orzo|linguine|fettuc+ine|tagliatelle|noodle|vermicelli|fideo|sevaiiya|paccheri|pappardelle/i, 100],
-  // — dried fruit [KA] —
+  // — dried fruit —
   [/raisin|sultana|\bcurrants?\b|dried cranberr|dried cherr|goji/i, 145],
   [/\bdates?\b|medjool|dried apricot|dried fig|dried mango|prune/i, 150],
   // — condiments & canned [USDA] —
@@ -151,7 +157,7 @@ const DENSITY = [
   [/dal\b|toor|split pea/i, 192],
   [/\bolives?\b/i, 135],
   [/capers?/i, 137],
-  [/sweetcorn|corn kernel|frozen corn|canned corn|dried (white )?corn/i, 165],
+  [/sweetcorn|corn kernel|frozen corn|canned corn|dried (white )?corn/i, 145],
   [/frozen pea|garden pea|petits? pois|\bpeas\b/i, 145],
   // — produce, prepped (chopped/sliced unless noted) [USDA] —
   [/spinach|kale|rocket|arugula|watercress|salad leaves|lettuce|greens|bok cho[iy]|pak (choi|koi)|chinese leaf|morning glory|callaloo|mulukhiyah|vine leaves|grape leaves|\bchard\b/i, 30],
@@ -171,10 +177,10 @@ const DENSITY = [
   [/stir[- ]?fry vegetables|roasted vegetables|mixed vegetables|frozen vegetables|\bvegetables\b|seafood mix/i, 140],
   [/dried fruit|fruit mix|mixed peel|candied peel/i, 145],
   [/broccoli/i, 91],
-  [/cauliflower/i, 100],
+  [/cauliflower/i, 107],
   [/mushroom/i, 70],
   [/celery/i, 101],
-  [/carrot/i, 128],
+  [/carrot/i, 110],
   [/courgette|zucchini/i, 124],
   [/aubergine|egg ?plants?/i, 82],
   [/cucumber/i, 119],
@@ -193,7 +199,7 @@ const DENSITY = [
   [/chicken|beef|pork|lamb|turkey|mince|sausage meat|veal|venison|goat|oxtail|tripe|doner|shredded meat|chuck|shank|ham\b|gammon|chorizo|kidney\b|liver\b|crab|conch|tuna|salmon|mackerel|monkfish|hake|snapper|herring|sardine|pilchard|barramundi|white fish|fish fillet|smoked haddock|haddock|duck\b|squid|lobster|frozen seafood/i, 225],
   [/prawn|shrimp/i, 145],
   [/tofu/i, 252],
-  // — milk powder & misc dry [KA] —
+  // — milk powder & misc dry —
   [/milk powder|powdered milk/i, 128],
   [/gelatin(e)?/i, 150],
   // — corpus mop-up: rare single-recipe items [USDA approx] —
@@ -345,7 +351,7 @@ const EACH_G = [
 
 // Per-unit gram weights for count-ish units the parser produces.
 const UNIT_EACH_G = {
-  stick: { default: 113 }, // US butter stick [KA]
+  stick: { default: 113 }, // US butter stick [EST]
   slice: { default: 28 },
   can: { default: 400 }, // standard 400 g / 14 oz tin [USDA canned convention]
 };

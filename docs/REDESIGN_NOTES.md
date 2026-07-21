@@ -1101,3 +1101,40 @@ says so with numbers. ~100 corpus lines are `For frying | Vegetable Oil` / `Dust
 where the recipe never states an amount. Driving those to "high" would mean inventing precision on
 health-adjacent numbers — the one thing the honesty law forbids. 76 low-confidence recipes are
 recipes that genuinely deserve the flag.
+
+### Phase 20 — King Arthur densities replaced with USDA public-domain data (2026-07-21)
+
+**Compliance finding.** `mobile/lib/foodScale.js` and `ingredientWeight.js` sourced most of their
+grams-per-cup densities from the **King Arthur Baking ingredient weight chart**, tagging rows `[KA]`
+in comments. That chart is "Copyright © King Arthur Baking Company. All rights reserved" with no
+reuse grant. Individual facts (a cup of flour is 120 g) are not copyrightable, but a compiled
+table's selection and arrangement plausibly is — and our own comments documented the copying,
+row by row, inside a binary we ship. This is the **Edamam lesson repeating: read the terms before
+building the table.**
+
+**Fix.** `backend/scripts/build-cup-weights.mjs` derives grams-per-cup mechanically from each food's
+OWN USDA FoodData Central `foodPortions` record. FDC is **CC0 1.0 public domain** — "no permission
+is needed for their use, but we request that users list FoodData Central as the source."
+`cupWeights.json` stores the fdcId and USDA's exact portion wording per row, so every figure is
+auditable. **36 of 38 targets derived from USDA.** All `[KA]` tags and both source paragraphs are gone.
+
+Guards the script needed (each caught a real bad row):
+- **Food-level rejects** — `brown sugar` first resolved to "Sweeteners, sugar substitute, granulated,
+  brown" at **23 g/cup**, and `cheddar` to "Cheese, american cheddar, **imitation**".
+- **Portion-state rejects** — "1 cup sifted" is not "1 cup". But four foods are measured in a state
+  BY CONVENTION, so they take an explicit override: brown sugar "1 cup packed" (220 g), icing sugar
+  "1 cup unsifted" (120 g), raisins "1 cup (not packed)" (145 g), cheddar shredded/diced.
+
+Values that moved: flour 120 → **125**, bread flour 120 → **137**, cornstarch 113 → **128**,
+sugar 198 → **188**, icing sugar 113 → **120**, brown sugar 213 → **220**, honey 336 → **339**,
+maple syrup 322 → **315**, oats 89 → **81**, cocoa 85 → **86**. Most moved a few percent, which is
+itself the reassuring result — the old numbers were not wrong, they were just not ours to ship.
+
+**Still unresolved (2):** whole wheat flour and cheddar — USDA publishes no clean cup portion
+(whole wheat flour has literally no portion rows; the API returns only "1 RACC"). They keep an
+Otto estimate, now labelled `[EST]` rather than attributed to anyone else.
+
+> ⚠️ Note for future work: the API DOES return "1 RACC" portions for Foundation foods (observed
+> repeatedly this session). A bulk-CSV audit found zero RACC rows in the December 2025 release, so
+> API and bulk download disagree. Prefer **SR Legacy** records for portion work — 96.7% of them
+> carry portions versus ~23% of Foundation foods.

@@ -6,12 +6,16 @@
 // grams fix it. A cup of stock is a cup of stock — "(227 g)" there is noise, and
 // a recipe where every line carries a parenthetical is one nobody can scan.
 //
-// Sources: King Arthur Baking ingredient weight chart for baking staples (the
-// convention printed recipes actually use), USDA FoodData Central for produce
-// and whole-item weights.
+// Source: USDA FoodData Central (public domain, CC0) for produce, whole-item
+// weights, and every baking staple USDA publishes a cup portion for — see
+// backend/scripts/build-cup-weights.mjs and mobile/lib/cupWeights.json, which
+// record the fdcId and USDA's own portion wording for each figure. Remaining
+// values are Otto estimates. Do NOT source figures from a commercial baking
+// chart: the individual facts are free, but the compiled table is not ours.
 //
-// KA treats 1 cup = 8 oz = 227 g for water-like liquids; USDA's physically
-// correct figure is 236.6 ml/242 g. We follow KA throughout rather than mixing
+// Note the two cup conventions: US baking commonly rounds 1 cup of water-like
+// liquid to 8 oz = 227 g, while USDA's physically correct figure is
+// 236.6 ml / 242 g. We use ONE convention throughout rather than mixing
 // conventions — mixing is the only real correctness risk in this table, and
 // liquids don't display a weight anyway.
 

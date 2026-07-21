@@ -1,0 +1,254 @@
+{
+  "flour": {
+    "gramsPerCup": 125,
+    "fdcId": 169761,
+    "usda": "Wheat flour, white, all-purpose, unenriched",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "bread flour": {
+    "gramsPerCup": 137,
+    "fdcId": 168896,
+    "usda": "Wheat flour, white, bread, enriched",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "cornstarch": {
+    "gramsPerCup": 128,
+    "fdcId": 169698,
+    "usda": "Cornstarch",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "cocoa": {
+    "gramsPerCup": 86,
+    "fdcId": 169593,
+    "usda": "Cocoa, dry powder, unsweetened",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "sugar": {
+    "gramsPerCup": 188,
+    "fdcId": 746784,
+    "usda": "Sugars, granulated",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "butter": {
+    "gramsPerCup": 227,
+    "fdcId": 173410,
+    "usda": "Butter, salted",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "oil": {
+    "gramsPerCup": 218,
+    "fdcId": 172370,
+    "usda": "Oil, vegetable, soybean, refined",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "honey": {
+    "gramsPerCup": 339,
+    "fdcId": 169640,
+    "usda": "Honey",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "maple syrup": {
+    "gramsPerCup": 315,
+    "fdcId": 169661,
+    "usda": "Syrups, maple",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "milk": {
+    "gramsPerCup": 244,
+    "fdcId": 172217,
+    "usda": "Milk, whole, 3.25% milkfat, without added vitamin A and vitamin D",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "yogurt": {
+    "gramsPerCup": 245,
+    "fdcId": 171284,
+    "usda": "Yogurt, plain, whole milk",
+    "portion": "1 cup (8 fl oz)",
+    "source": "usda-foodportion"
+  },
+  "sour cream": {
+    "gramsPerCup": 230,
+    "fdcId": 171257,
+    "usda": "Cream, sour, cultured",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "rice": {
+    "gramsPerCup": 195,
+    "fdcId": 169760,
+    "usda": "Rice, white, medium-grain, raw, unenriched",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "oats": {
+    "gramsPerCup": 81,
+    "fdcId": 173904,
+    "usda": "Cereals, oats, regular and quick, not fortified, dry",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "breadcrumbs": {
+    "gramsPerCup": 108,
+    "fdcId": 174928,
+    "usda": "Bread, crumbs, dry, grated, plain",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "parmesan": {
+    "gramsPerCup": 100,
+    "fdcId": 171247,
+    "usda": "Cheese, parmesan, grated",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "almonds": {
+    "gramsPerCup": 143,
+    "fdcId": 170567,
+    "usda": "Nuts, almonds",
+    "portion": "1 cup, whole",
+    "source": "usda-foodportion"
+  },
+  "walnuts": {
+    "gramsPerCup": 80,
+    "fdcId": 170187,
+    "usda": "Nuts, walnuts, english",
+    "portion": "1 cup, ground",
+    "source": "usda-foodportion"
+  },
+  "peanuts": {
+    "gramsPerCup": 146,
+    "fdcId": 172430,
+    "usda": "Peanuts, all types, raw",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "peas": {
+    "gramsPerCup": 145,
+    "fdcId": 170419,
+    "usda": "Peas, green, raw",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "sweetcorn": {
+    "gramsPerCup": 145,
+    "fdcId": 169998,
+    "usda": "Corn, sweet, yellow, raw",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "mushrooms": {
+    "gramsPerCup": 70,
+    "fdcId": 169251,
+    "usda": "Mushrooms, white, raw",
+    "portion": "1 cup, pieces or slices",
+    "source": "usda-foodportion"
+  },
+  "spinach": {
+    "gramsPerCup": 30,
+    "fdcId": 168462,
+    "usda": "Spinach, raw",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "onion": {
+    "gramsPerCup": 160,
+    "fdcId": 170000,
+    "usda": "Onions, raw",
+    "portion": "1 cup, chopped",
+    "source": "usda-foodportion"
+  },
+  "carrot": {
+    "gramsPerCup": 110,
+    "fdcId": 170393,
+    "usda": "Carrots, raw",
+    "portion": "1 cup grated",
+    "source": "usda-foodportion"
+  },
+  "celery": {
+    "gramsPerCup": 101,
+    "fdcId": 169988,
+    "usda": "Celery, raw",
+    "portion": "1 cup chopped",
+    "source": "usda-foodportion"
+  },
+  "tomato": {
+    "gramsPerCup": 180,
+    "fdcId": 170457,
+    "usda": "Tomatoes, red, ripe, raw, year round average",
+    "portion": "1 cup, chopped or sliced",
+    "source": "usda-foodportion"
+  },
+  "cabbage": {
+    "gramsPerCup": 89,
+    "fdcId": 169975,
+    "usda": "Cabbage, raw",
+    "portion": "1 cup, chopped",
+    "source": "usda-foodportion"
+  },
+  "broccoli": {
+    "gramsPerCup": 91,
+    "fdcId": 170379,
+    "usda": "Broccoli, raw",
+    "portion": "1 cup chopped",
+    "source": "usda-foodportion"
+  },
+  "cauliflower": {
+    "gramsPerCup": 107,
+    "fdcId": 169986,
+    "usda": "Cauliflower, raw",
+    "portion": "1 cup chopped (1/2\" pieces)",
+    "source": "usda-foodportion"
+  },
+  "lentils": {
+    "gramsPerCup": 198,
+    "fdcId": 175254,
+    "usda": "Lentils, mature seeds, cooked, boiled, with salt",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "chickpeas": {
+    "gramsPerCup": 200,
+    "fdcId": 173756,
+    "usda": "Chickpeas (garbanzo beans, bengal gram), mature seeds, raw",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "water": {
+    "gramsPerCup": 237,
+    "fdcId": 174158,
+    "usda": "Water, bottled, generic",
+    "portion": "1 cup",
+    "source": "usda-foodportion"
+  },
+  "icing sugar": {
+    "gramsPerCup": 120,
+    "fdcId": 169656,
+    "usda": "Sugars, powdered",
+    "portion": "1 cup unsifted",
+    "source": "usda-foodportion"
+  },
+  "brown sugar": {
+    "gramsPerCup": 220,
+    "fdcId": 168833,
+    "usda": "Sugars, brown",
+    "portion": "1 cup packed",
+    "source": "usda-foodportion"
+  },
+  "raisins": {
+    "gramsPerCup": 145,
+    "fdcId": 168166,
+    "usda": "Raisins, seeded",
+    "portion": "1 cup (not packed)",
+    "source": "usda-foodportion"
+  }
+}

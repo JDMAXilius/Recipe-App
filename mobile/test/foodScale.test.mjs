@@ -45,7 +45,9 @@ test("everything weighable shows grams — no count exceptions", () => {
   assert.equal(formatIngredientLine("8", "Lasagne Sheets").display, "144 g");
   assert.equal(formatIngredientLine("1", "Lime").display, "67 g");
   assert.equal(formatIngredientLine("2 cloves", "Garlic").display, "6 g");
-  assert.equal(formatIngredientLine("2 tbsp", "Honey").display, "42 g");
+  // 339 g/cup = USDA's own "1 cup" portion for honey (fdcId in cupWeights.json),
+  // replacing the 336 g taken from a copyrighted baking chart.
+  assert.equal(formatIngredientLine("2 tbsp", "Honey").display, "42.4 g");
   assert.equal(formatIngredientLine("1 can", "Chickpeas").display, "400 g");
 });
 

@@ -44,7 +44,7 @@
   fats, cheese, nuts, grains, dried fruit, meat by mass). Hidden for liquids, spices, salt,
   aromatics, and anything under ~20 g. Weights are estimates → carry a `≈`.
 - US mode converts European recipes' grams→oz/lb; metric mode converts cup recipes→ml + gram
-  estimate. Both directions covered. King Arthur / USDA sourced; 972-ingredient table.
+  estimate. Both directions covered. USDA FoodData Central sourced (public domain); 972-ingredient table. (The original King Arthur chart dependency was removed 2026-07-21 — see REDESIGN_NOTES Phase 20.)
 - Shown on the recipe detail AND cook-mode prep list (the mise-en-place screen where you weigh).
 - 35 tests; full Metro export confirmed it bundles and ships.
 

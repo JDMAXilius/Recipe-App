@@ -13,7 +13,9 @@ const render = (line) => {
 };
 
 test("imported schema.org lines render weight-first", () => {
-  assert.equal(render("2 1/2 cups all-purpose flour"), "300 g");
+  // 125 g/cup = USDA all-purpose flour cup portion (was 120 g from a
+  // copyrighted chart). 2.5 cups therefore reads 312.5 g.
+  assert.equal(render("2 1/2 cups all-purpose flour"), "312.5 g");
   assert.equal(render("½ cup unsalted butter, softened"), "113.5 g");
   assert.equal(render("3 cloves garlic, minced"), "9 g");
   assert.equal(render("1kg boneless chicken thighs"), "1000 g");
