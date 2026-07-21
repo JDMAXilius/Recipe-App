@@ -138,10 +138,18 @@ const COVERAGE_MIN = 0.7;
 // the guard on quantity keeps this narrow — a garnish of parsley is negligible,
 // 500g of spinach is a real ingredient and is scored like one.
 const NEGLIGIBLE =
-  /\b(salt|pepper|peppercorns?|seasoning|spices?|herbs?|parsley|cilantro|coriander|basil|thyme|rosemary|oregano|sage|mint|dill|chives|bay leaf|bay leaves|garnish|zest|vanilla extract|food colou?ring)\b/i;
+  /\b(salt|pepper|peppercorns?|seasoning|spices?|herbs?|parsley|cilantro|coriander|basil|thyme|rosemary|oregano|sage|mint|dill|chives|bay leaf|bay leaves|garnish|zest|vanilla extract|food colou?ring|cardamom|star anise|cloves|saffron|nutmeg|vanilla pods?|orange (?:blossom|flower) water|rose ?water)\b/i;
 const NEGLIGIBLE_MAX_G = 15;
 
-function isNegligible(row) {
+// Serving-suggestion measures — "To serve", "To garnish", "For greasing": the
+// line is an optional accompaniment or trace, not measured recipe mass, so an
+// unmatched one is not missing calories. "For frying" is deliberately NOT here:
+// absorbed frying oil is real, uncounted kcal — that doubt is honest.
+const UNQUANTIFIED =
+  /\b(to serve|to garnish|for (?:the )?garnish|to taste|for greasing|for brushing|for dusting|for drizzling|as needed|as required|optional)\b/i;
+
+export function isNegligible(row) {
+  if (row.parsed.grams == null && UNQUANTIFIED.test(row.parsed.raw || "")) return true;
   if (!NEGLIGIBLE.test(row.name || "") && !NEGLIGIBLE.test(row.parsed.item || "")) return false;
   return row.parsed.grams == null || row.parsed.grams <= NEGLIGIBLE_MAX_G;
 }
@@ -174,7 +182,7 @@ function stripQualifiers(name) {
   return seen; // progressively-shortened candidates, most-specific first
 }
 
-function lookup(name, parsedItem, cooked) {
+export function lookup(name, parsedItem, cooked) {
   if (cooked) {
     const c = cookedTable[key(name)] || cookedTable[key(parsedItem)];
     if (c) return c;

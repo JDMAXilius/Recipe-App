@@ -4,7 +4,7 @@
 // unresolved qty/unit/density is flagged via confidence — honesty first.
 
 export const UNIT_WORDS =
-  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?";
+  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
 
 // canonical unit ids
 const UNIT_ALIASES = [
@@ -34,6 +34,7 @@ const UNIT_ALIASES = [
   [/^fillets?$/i, "fillet"],
   [/^knobs?$/i, "knob"],
   [/^drops?$/i, "drop"],
+  [/^splash(es)?$/i, "splash"],
 ];
 
 const UNICODE_FRACTIONS = {
@@ -46,7 +47,7 @@ const MASS_G = { g: 1, kg: 1000, oz: 28.35, lb: 453.6 };
 // volume → milliliters, exact (US customary)
 const VOLUME_ML = { cup: 240, tbsp: 15, tsp: 5, ml: 1, l: 1000 };
 // small/approximate units → grams, rough by nature
-const APPROX_G = { pinch: 0.4, dash: 0.6, drop: 0.05, knob: 15, handful: 30 };
+const APPROX_G = { pinch: 0.4, dash: 0.6, drop: 0.05, knob: 15, handful: 30, splash: 10 };
 
 // per-item density (g/ml) for volume→grams. Water-like default when unknown.
 const DENSITY = [
@@ -142,6 +143,36 @@ const EACH_G = [
   [/shallot/i, 30],
   [/tortilla|wrap/i, 45],
   [/bun|roll/i, 55],
+  // 2026-07-21 confidence sweep (audit-doubt.mjs): the corpus' most frequent
+  // bare-count lines that resolved to no grams. Estimates, flagged approx.
+  [/garlic/i, 3],
+  [/cucumber/i, 300],
+  [/celery/i, 40],
+  [/cinnamon stick/i, 3],
+  [/bacon|rasher/i, 28],
+  [/cabbage/i, 900],
+  [/leek/i, 90],
+  [/baguette/i, 250],
+  [/pita|flatbread|naan/i, 60],
+  [/\bbread\b/i, 30],
+  [/sausage/i, 75],
+  [/stock cube|bouillon cube/i, 10],
+  [/lettuce/i, 300],
+  [/whole (chicken|duck)/i, 1400],
+  [/chicken leg/i, 150],
+  [/mushroom/i, 20],
+  [/beetroot|beet\b/i, 80],
+  [/chorizo/i, 60],
+  [/fennel/i, 230],
+  [/squash|pumpkin/i, 900],
+  [/aubergine|eggplant/i, 450],
+];
+
+// "Juice of 1 lemon" / "Juice of 1/2 lime" — grams of juice yielded per fruit.
+const JUICE_G = [
+  [/lemon/i, 47],
+  [/lime/i, 30],
+  [/orange/i, 85],
 ];
 
 function canonicalUnit(raw) {
@@ -227,7 +258,32 @@ export function parseIngredientLine(input) {
     typeof input === "string"
       ? input
       : [input?.measure, input?.name].filter(Boolean).join(" ");
-  const text = expandPackSize(String(raw).replace(/\s+/g, " ").trim());
+  // TheMealDB dual-unit idiom "50g/1¾oz", "175g/6oz" — the slashed imperial
+  // half defeats the qty pattern. Keep the metric side, drop the alternative.
+  const text = expandPackSize(
+    String(raw)
+      .replace(/(\d+(?:\.\d+)?\s*(?:g|kg|ml|l)\b)\s*\/\s*[\d¼½¾⅓⅔⅛\s.\/]+(?:fl ?oz|oz|lb|pint)s?\b/i, "$1")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
+
+  // "Juice of 1 lemon" / "Juice of 1/2 lime" — TheMealDB's citrus idiom. The
+  // main pattern is digit-anchored so these resolved to no grams and dragged
+  // confidence. Grams = fruits × typical juice yield; the fruit's own food row
+  // carries the (very similar) nutrition.
+  const juice = text.match(/^juice of (\d+(?:[\/⁄]\d+)?|[¼½¾⅓⅔])\s*(?:an?\s+)?(.+)$/i);
+  if (juice) {
+    const jQty = parseQty(juice[1]);
+    const jItem = juice[2].trim();
+    const yieldG = JUICE_G.find(([re]) => re.test(jItem))?.[1];
+    if (jQty != null && yieldG) {
+      return {
+        qty: jQty, unit: null, item: jItem,
+        grams: Math.round(jQty * yieldG * 10) / 10,
+        confidence: "medium", raw: text,
+      };
+    }
+  }
 
   const m = text.match(
     new RegExp(

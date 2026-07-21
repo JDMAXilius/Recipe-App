@@ -2167,15 +2167,15 @@
     "sodium_mg": 600
   },
   "mozzarella balls": {
-    "fdcId": 172198,
-    "usda": "Cheese substitute, mozzarella",
-    "kcal": 248,
-    "protein_g": 11.5,
-    "fat_g": 12.2,
-    "carbs_g": 23.7,
+    "fdcId": 170845,
+    "usda": "Cheese, mozzarella, whole milk",
+    "kcal": 299,
+    "protein_g": 22.17,
+    "fat_g": 22.14,
+    "carbs_g": 2.4,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 685
+    "sodium_mg": 486
   },
   "muscovado sugar": {
     "fdcId": 168833,
@@ -4037,15 +4037,15 @@
     "sodium_mg": 153
   },
   "tomato sauce": {
-    "fdcId": 172091,
-    "usda": "Pasta with Sliced Franks in Tomato Sauce, canned entree",
-    "kcal": 90,
-    "protein_g": 4.37,
-    "fat_g": 2.38,
-    "carbs_g": 12.7,
-    "fiber_g": 1.6,
+    "fdcId": 170054,
+    "usda": "Tomato products, canned, sauce",
+    "kcal": 24,
+    "protein_g": 1.2,
+    "fat_g": 0.3,
+    "carbs_g": 5.31,
+    "fiber_g": 1.5,
     "sugar_g": null,
-    "sodium_mg": 287
+    "sodium_mg": 474
   },
   "mascarpone": {
     "fdcId": 169081,
@@ -4059,15 +4059,15 @@
     "sodium_mg": 436
   },
   "mozzarella": {
-    "fdcId": 172198,
-    "usda": "Cheese substitute, mozzarella",
-    "kcal": 248,
-    "protein_g": 11.5,
-    "fat_g": 12.2,
-    "carbs_g": 23.7,
+    "fdcId": 170845,
+    "usda": "Cheese, mozzarella, whole milk",
+    "kcal": 299,
+    "protein_g": 22.17,
+    "fat_g": 22.14,
+    "carbs_g": 2.4,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 685
+    "sodium_mg": 486
   },
   "ricotta": {
     "fdcId": 746766,
@@ -10118,5 +10118,16 @@
     "fiber_g": 0,
     "sugar_g": null,
     "sodium_mg": 751
+  },
+  "tomato paste": {
+    "fdcId": 170459,
+    "usda": "Tomato products, canned, paste, without salt added (Includes foods for USDA's Food Distribution Program)",
+    "kcal": 82,
+    "protein_g": 4.32,
+    "fat_g": 0.47,
+    "carbs_g": 18.91,
+    "fiber_g": 4.1,
+    "sugar_g": null,
+    "sodium_mg": 59
   }
 }

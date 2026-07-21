@@ -72,3 +72,16 @@ test("parseIngredients aggregates totals and worst-weights confidence", () => {
   const mostlyUnknown = parseIngredients(["salt to taste", "a splash of love", "1 cup milk"]);
   assert.equal(mostlyUnknown.confidence, "low");
 });
+
+test("confidence sweep 2026-07-21: juice-of, dual-unit, splash, bare counts", () => {
+  const lime = parseIngredientLine({ measure: "Juice of 1", name: "Lime" });
+  assert.equal(lime.grams, 30);
+  const halfLemon = parseIngredientLine({ measure: "Juice of 1/2", name: "Lemon" });
+  assert.equal(halfLemon.grams, 23.5);
+  const dual = parseIngredientLine({ measure: "50g/1¾oz", name: "Flaked Almonds" });
+  assert.equal(dual.grams, 50); // metric side wins, imperial alternative dropped
+  const splash = parseIngredientLine({ measure: "Splash", name: "Water" });
+  assert.equal(splash.grams, 10);
+  const cukes = parseIngredientLine({ measure: "1", name: "Cucumber" });
+  assert.equal(cukes.grams, 300);
+});
