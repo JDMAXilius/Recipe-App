@@ -83,10 +83,11 @@ export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 
         </TouchableOpacity>
       </View>
       <Text style={styles.scopeSentence}>
+        {/* singular matters now that recipes open at 1 serving */}
         {scope === "serving"
-          ? `Per serving, at ${servings} servings` +
+          ? `Per serving, at ${servings} ${servings === 1 ? "serving" : "servings"}` +
             (computed?.basis_grams ? ` · about ${Math.round(computed.basis_grams)}g each` : "")
-          : `The whole recipe, at ${servings} servings`}
+          : `The whole recipe, at ${servings} ${servings === 1 ? "serving" : "servings"}`}
       </Text>
 
       <View style={styles.top}>

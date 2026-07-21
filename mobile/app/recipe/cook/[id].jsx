@@ -55,7 +55,9 @@ const CookModeScreen = () => {
 
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [servings, setServings] = useState(parseInt(servingsParam) || BASE_SERVINGS);
+  // Falls back to 1 (the app-wide opening default) when no ?servings= param
+  // arrives; the detail screen always passes the dialled-in count through.
+  const [servings, setServings] = useState(parseInt(servingsParam) || 1);
   const [phase, setPhase] = useState(stepParam != null ? "steps" : "prep"); // prep | steps | done
   const [step, setStep] = useState(parseInt(stepParam) || 0);
   const [prepChecked, setPrepChecked] = useState({});

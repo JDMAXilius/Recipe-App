@@ -67,7 +67,7 @@ const RecipeEditScreen = () => {
   const [image, setImage] = useState("");
   const [category, setCategory] = useState("");
   const [area, setArea] = useState("");
-  const [servings, setServings] = useState(4);
+  const [servings, setServings] = useState(1); // new recipes default to 1 serving (founder call 2026-07-21)
   const [ingredients, setIngredients] = useState([emptyIngredient()]);
   const [steps, setSteps] = useState([""]);
 
@@ -89,7 +89,7 @@ const RecipeEditScreen = () => {
           setImage(row.image || "");
           setCategory(row.category || "");
           setArea(row.area || "");
-          setServings(row.servings || 4);
+          setServings(row.servings || 1);
           setIngredients(row.ingredients?.length ? row.ingredients : [emptyIngredient()]);
           setSteps(row.steps?.length ? row.steps : [""]);
         } catch {
@@ -111,7 +111,7 @@ const RecipeEditScreen = () => {
       setImage(draft.image || "");
       setCategory(draft.category || "");
       setArea(draft.area || "");
-      setServings(draft.servings || 4);
+      setServings(draft.servings || 1);
       setIngredients(draft.ingredients?.length ? draft.ingredients : [emptyIngredient()]);
       setSteps(draft.steps?.length ? draft.steps : [""]);
     }
@@ -213,7 +213,7 @@ const RecipeEditScreen = () => {
       setTitle(draft.title || "");
       setCategory(draft.category || "");
       setArea(draft.area || "");
-      setServings(draft.servings || 4);
+      setServings(draft.servings || 1);
       setIngredients(draft.ingredients?.length ? draft.ingredients : [emptyIngredient()]);
       setSteps(draft.steps?.length ? draft.steps : [""]);
       setOttoOpen(false);

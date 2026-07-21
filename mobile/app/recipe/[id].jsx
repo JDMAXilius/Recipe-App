@@ -60,7 +60,12 @@ const RecipeDetailScreen = () => {
   // seed recipes ask the server's compute-once cache. Null = category estimate.
   const [computedNutrition, setComputedNutrition] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [servings, setServings] = useState(BASE_SERVINGS);
+  // Founder call 2026-07-21: every recipe OPENS at one serving — the stepper
+  // starts at 1 and the ingredient list scales down to a single portion.
+  // The recipe's true yield stays in `baseServings` below, so the scale
+  // factor, per-serving nutrition and the snapshot in docs/SERVING_SIZES.md
+  // all keep their honest denominators; only the opening display changed.
+  const [servings, setServings] = useState(1);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const { width: winW } = useWindowDimensions();
   const [planOpen, setPlanOpen] = useState(false);
@@ -117,7 +122,8 @@ const RecipeDetailScreen = () => {
           const transformed = transformUserRecipe(row);
           setRecipe(transformed);
           setComputedNutrition(transformed.nutrition);
-          if (transformed.servings) setServings(transformed.servings);
+          // servings stays at the 1-serving opening default; the row's real
+          // yield still lands in baseServings via recipe.servings.
           return;
         }
         // seed nutrition: cached server-side; null while the provider is
@@ -171,7 +177,8 @@ const RecipeDetailScreen = () => {
           // an edit may have voided/recomputed nutrition server-side — the
           // card must never show pre-edit numbers against new ingredients
           setComputedNutrition(fresh.nutrition);
-          if (fresh.servings) setServings(fresh.servings);
+          // deliberately NOT resetting the stepper here — returning from the
+          // editor keeps whatever serving count the user had dialled in.
         })
         .catch((error) => {
           if (/not found/i.test(error.message)) setRecipe(null);
