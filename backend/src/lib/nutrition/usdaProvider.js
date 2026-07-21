@@ -141,6 +141,33 @@ function applyFryingMedium(rows, perServing = 4) {
   }
 }
 
+// ── Batch condiment (made in bulk, eaten by the spoonful) ────────────────────
+// Same shape as the frying medium, and the same failure: the Big Mac recipe
+// mixes "1 cup Mayonnaise" of special sauce and spreads "a little" on two
+// burgers. Counted whole that is 1496 of the recipe's 3056 kcal — the mixing
+// bowl, not the dish — and it pushed the card past the plausibility cap.
+//
+// Per SERVING, so a potato salad that genuinely folds a cup of mayo through
+// eight portions is untouched (~27 g each); only an implausible per-portion
+// amount trips it. 50 g of pure condiment on ONE plate is already extreme.
+const CONDIMENT_RE =
+  /\b(mayonnaise|mayo|aioli|salad dressing|dressing|ketchup|catsup|mustard|relish|bbq sauce|barbeque sauce|barbecue sauce|hot ?sauce|sriracha|tartare|remoulade|salsa|guacamole|hummus|pesto|chutney|marinade)\b/i;
+const CONDIMENT_MAX_G_PER_SERVING = 50;
+// What one portion actually gets. A generous spread, not a ladle.
+const CONDIMENT_SERVING_G = 30;
+
+function applyBatchCondiment(rows, perServing = 4) {
+  const servings = Math.max(1, perServing);
+  for (const r of rows) {
+    if (!(r.parsed.grams > 0) || !CONDIMENT_RE.test(r.name || "")) continue;
+    if (r.parsed.grams / servings <= CONDIMENT_MAX_G_PER_SERVING) continue;
+    const kept = CONDIMENT_SERVING_G * servings;
+    // Never claim more was used than the recipe made.
+    r.parsed = { ...r.parsed, grams: Math.min(kept, r.parsed.grams), confidence: "medium" };
+    r.batchCondiment = true; // an interpretation, so it scores as a guess
+  }
+}
+
 // Typical amounts for a line the recipe never quantified, by role. Deliberately
 // CONSERVATIVE — under-counting is the honest direction on a health number, and
 // these are our estimates, not USDA's. Ordered: first match wins.
@@ -372,6 +399,7 @@ export const usdaProvider = {
     // decrease in fat during cooking is incorporated into the ingredients";
     // Edamam exposes it as `retainedWeight`).
     applyFryingMedium(rows, perServing);
+    applyBatchCondiment(rows, perServing);
 
     // TYPICAL-AMOUNT FALLBACK (founder call, 2026-07-21). A line whose food we
     // know but whose amount the recipe never states ("Barbeque Sauce", "Flour",

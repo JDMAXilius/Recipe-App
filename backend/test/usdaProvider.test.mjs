@@ -314,3 +314,25 @@ test("deep-frying oil counts only what is absorbed, never the whole bath", async
   );
   assert.ok(sauteed.kcal > 200, `2 tbsp of oil is food, not a bath: ${sauteed.kcal}`);
 });
+
+test("a batch condiment counts a serving's worth, not the mixing bowl", async () => {
+  // Big Mac: "1 cup Mayonnaise" is the special-sauce batch, "a little" of which
+  // goes on two burgers. Counted whole it was 1496 of 3056 kcal.
+  const burger = await usdaProvider.computeNutrition(
+    [
+      { measure: "400g", name: "Minced Beef" },
+      { measure: "2", name: "Sesame Seed Burger Buns" },
+      { measure: "1 cup", name: "Mayonnaise" },
+    ],
+    2
+  );
+  assert.ok(burger, "should compute rather than blow the plausibility cap");
+  assert.ok(burger.kcal < 1500, `sauce batch must not dominate, got ${burger.kcal}`);
+  // A potato salad really does fold a cup of mayo through eight portions —
+  // ~27 g each is a normal amount and must be left alone.
+  const salad = await usdaProvider.computeNutrition(
+    [{ measure: "1 kg", name: "Potatoes" }, { measure: "1 cup", name: "Mayonnaise" }],
+    8
+  );
+  assert.ok(salad.fat_g > 15, `a real mayo salad keeps its fat, got ${salad.fat_g}`);
+});
