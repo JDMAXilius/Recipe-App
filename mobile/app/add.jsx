@@ -16,7 +16,6 @@ import { useTheme } from "../context/ThemeContext";
 import { createAddStyles } from "../assets/styles/add.styles";
 import { UserRecipeAPI } from "../services/userRecipes";
 import { setDraft } from "../lib/draftStore";
-import { loadPrefs } from "../lib/prefs";
 import { shareIntentAvailable } from "../lib/shareIntent";
 import OttoIdle from "../components/OttoIdle";
 import Bounceable from "../components/Bounceable";
@@ -157,52 +156,16 @@ const AddScreen = () => {
     }
   };
 
-  // "Cook something up with Otto" — describe the dinner, Claude writes the
-  // recipe, and the draft lands on the SAME review editor as imports: AI
-  // output is never trusted blindly, and it saves labeled source "otto".
-  // Presented as a button section: collapsed until tapped, so the sheet
-  // stays a row of clear choices.
-  const [ottoOpen, setOttoOpen] = useState(false);
-  const [wish, setWish] = useState("");
-  const startGenerate = async () => {
-    const ask = wish.trim();
-    if (ask.length < 3) {
-      setFailMessage("Tell Otto a little more — what kind of dish, for how many, any rules?");
-      setPhase("failed");
-      return;
-    }
-    setPhase("dreaming");
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    try {
-      const prefs = await loadPrefs().catch(() => null);
-      const draft = await UserRecipeAPI.generate({
-        prompt: ask,
-        ...(prefs?.diet && prefs.diet !== "none" ? { diet: prefs.diet } : {}),
-        ...(prefs?.cuisines?.length ? { cuisines: prefs.cuisines } : {}),
-      });
-      setDraft({
-        mode: "import",
-        source: "otto",
-        sourceUrl: null,
-        sourceName: null,
-        title: draft.title,
-        image: null,
-        category: draft.category || null,
-        area: draft.area || null,
-        servings: draft.servings || 4,
-        ingredients: draft.ingredients,
-        steps: draft.steps,
-      });
-      router.replace("/recipe/edit");
-    } catch (error) {
-      setFailMessage(
-        error.message?.startsWith("Otto")
-          ? error.message
-          : error.message || "Otto couldn't finish that idea right now — try again in a moment."
-      );
-      setPhase("failed");
-    }
-  };
+  // AI creation is now its own conversational screen ("Chat with Otto", /otto);
+  // the hero opens it. The imports below collapse into a tile grid — link and
+  // paste-text reveal a focused input inline; photo and write act immediately.
+  const [activeImport, setActiveImport] = useState(null); // "link" | "text" | null
+  const importTiles = [
+    { key: "link", icon: "link", label: "Paste a link", onPress: () => setActiveImport((a) => (a === "link" ? null : "link")) },
+    { key: "text", icon: "reader-outline", label: "Paste text", onPress: () => setActiveImport((a) => (a === "text" ? null : "text")) },
+    { key: "photo", icon: "camera-outline", label: "Snap a photo", onPress: () => { setActiveImport(null); startPhotoImport(); } },
+    { key: "write", icon: "create-outline", label: "Write it myself", onPress: () => writeMyself(null) },
+  ];
 
   // Photo import (API-8 seam #1) — pick a photo of a cookbook page, a
   // handwritten card, or a screenshot; Otto copies the recipe off it into
@@ -314,8 +277,8 @@ const AddScreen = () => {
             style={styles.secondaryButton}
             containerStyle={{ alignSelf: "stretch" }}
             onPress={() => {
-              setOttoOpen(true);
               setPhase("pick");
+              router.push("/otto");
             }}
             accessibilityRole="button"
             accessibilityLabel="Have Otto cook one up instead"
@@ -348,163 +311,117 @@ const AddScreen = () => {
               </Text>
             </View>
 
-            <View style={styles.modeCard}>
-              <TouchableOpacity
-                style={styles.modeTitleRow}
-                onPress={() => setOttoOpen((open) => !open)}
-                accessibilityRole="button"
-                accessibilityLabel="Cook something up with Otto"
-                accessibilityState={{ expanded: ottoOpen }}
-              >
-                <Ionicons name="sparkles" size={18} color={colors.accent} />
-                <Text style={styles.modeTitle}>Cook something up with Otto</Text>
-                <Ionicons
-                  name={ottoOpen ? "chevron-up" : "chevron-down"}
-                  size={16}
-                  color={colors.inkSoft}
-                  style={styles.modeChevron}
-                />
-              </TouchableOpacity>
-              <Text style={styles.modeHint}>
-                Tell Otto what you&apos;re after — &ldquo;a cozy 30-minute chicken dinner for 4,
-                no dairy&rdquo; — and he&apos;ll write a real recipe for you to check and keep.
-              </Text>
-              {ottoOpen ? (
-                <>
-                  <TextInput
-                    style={[styles.urlInput, styles.textArea]}
-                    value={wish}
-                    onChangeText={setWish}
-                    placeholder="What are you hungry for?"
-                    placeholderTextColor={colors.inkSoft}
-                    multiline
-                    autoFocus
-                    accessibilityLabel="Describe the recipe you want"
-                  />
-                  <Bounceable
-                    style={styles.primaryButton}
-                    onPress={startGenerate}
-                    accessibilityRole="button"
-                    accessibilityLabel="Have Otto write the recipe"
-                  >
-                    <Ionicons name="sparkles-outline" size={18} color={colors.white} />
-                    <Text style={styles.primaryButtonText}>Cook it up</Text>
-                  </Bounceable>
-                </>
-              ) : null}
-            </View>
-
-            <View style={styles.modeCard}>
-              <View style={styles.modeTitleRow}>
-                <Ionicons name="link" size={18} color={colors.accent} />
-                <Text style={styles.modeTitle}>Paste a link</Text>
-              </View>
-              <Text style={styles.modeHint}>
-                A recipe page from anywhere on the web — or a TikTok or Instagram post — Otto
-                reads the ingredients and steps.
-              </Text>
-              {fromClipboard ? (
-                <Text style={styles.clipboardHint}>Pasted — Otto spotted that link.</Text>
-              ) : clipboardHasLink ? (
-                <TouchableOpacity
-                  onPress={pasteFromClipboard}
-                  accessibilityRole="button"
-                  accessibilityLabel="Paste the link from your clipboard"
-                >
-                  <Text style={styles.clipboardHint}>
-                    Otto spotted a link on your clipboard — tap to paste it.
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-              <TextInput
-                style={styles.urlInput}
-                value={url}
-                onChangeText={(t) => {
-                  setUrl(t);
-                  setFromClipboard(false);
-                }}
-                placeholder="https://…"
-                placeholderTextColor={colors.inkSoft}
-                autoCapitalize="none"
-                autoCorrect={false}
-                keyboardType="url"
-                accessibilityLabel="Recipe link"
-              />
-              <Bounceable
-                style={styles.primaryButton}
-                onPress={startImport}
-                accessibilityRole="button"
-                accessibilityLabel="Import the recipe"
-              >
-                <Ionicons name="download-outline" size={18} color={colors.white} />
-                <Text style={styles.primaryButtonText}>Import it</Text>
-              </Bounceable>
-            </View>
-
-            <View style={styles.modeCard}>
-              <View style={styles.modeTitleRow}>
-                <Ionicons name="reader-outline" size={18} color={colors.accent} />
-                <Text style={styles.modeTitle}>Paste the recipe itself</Text>
-              </View>
-              <Text style={styles.modeHint}>
-                Copied out of a DM, a note or an email? Paste the words — Otto sorts them into
-                ingredients and steps for you to check.
-              </Text>
-              <TextInput
-                style={[styles.urlInput, styles.textArea]}
-                value={pastedText}
-                onChangeText={setPastedText}
-                placeholder="Paste the whole thing — ingredients, steps and all."
-                placeholderTextColor={colors.inkSoft}
-                multiline
-                accessibilityLabel="Recipe text"
-              />
-              <Bounceable
-                style={styles.primaryButton}
-                onPress={startTextImport}
-                accessibilityRole="button"
-                accessibilityLabel="Draft a recipe from the pasted text"
-              >
-                <Ionicons name="sparkles-outline" size={18} color={colors.white} />
-                <Text style={styles.primaryButtonText}>Draft it</Text>
-              </Bounceable>
-            </View>
-
-            <View style={styles.modeCard}>
-              <View style={styles.modeTitleRow}>
-                <Ionicons name="camera-outline" size={18} color={colors.accent} />
-                <Text style={styles.modeTitle}>Snap the recipe</Text>
-              </View>
-              <Text style={styles.modeHint}>
-                A cookbook page, a handwritten card, a screenshot — pick the photo and Otto
-                copies the recipe down for you to check.
-              </Text>
-              <Bounceable
-                style={styles.primaryButton}
-                onPress={startPhotoImport}
-                accessibilityRole="button"
-                accessibilityLabel="Import a recipe from a photo"
-              >
-                <Ionicons name="camera-outline" size={18} color={colors.white} />
-                <Text style={styles.primaryButtonText}>Choose a photo</Text>
-              </Bounceable>
-            </View>
-
-            <View style={styles.orRow}>
-              <View style={styles.orLine} />
-              <Text style={styles.orText}>OR</Text>
-              <View style={styles.orLine} />
-            </View>
-
+            {/* HERO — Create with Otto (the conversational build) */}
             <Bounceable
-              style={styles.secondaryButton}
-              onPress={() => writeMyself(null)}
+              style={styles.heroCard}
+              onPress={() => router.push("/otto")}
               accessibilityRole="button"
-              accessibilityLabel="Write a recipe myself"
+              accessibilityLabel="Create a recipe with Otto"
             >
-              <Ionicons name="create-outline" size={18} color={colors.accent} />
-              <Text style={styles.secondaryButtonText}>Write it myself</Text>
+              <View style={styles.heroIcon}>
+                <Ionicons name="sparkles" size={22} color={colors.white} />
+              </View>
+              <View style={styles.heroBody}>
+                <Text style={styles.heroTitle}>Create with Otto</Text>
+                <Text style={styles.heroHint}>
+                  Tell Otto what you&apos;re hungry for — he&apos;ll ask a couple of questions and
+                  write you a real recipe.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={colors.accent} />
             </Bounceable>
+
+            <Text style={styles.sectionLabel}>ALREADY HAVE ONE? BRING IT IN</Text>
+            <View style={styles.tileGrid}>
+              {importTiles.map((t) => (
+                <TouchableOpacity
+                  key={t.key}
+                  style={[styles.tile, activeImport === t.key && styles.tileActive]}
+                  onPress={t.onPress}
+                  accessibilityRole="button"
+                  accessibilityLabel={t.label}
+                >
+                  <Ionicons name={t.icon} size={22} color={colors.accent} />
+                  <Text style={styles.tileLabel}>{t.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Contextual input for the tile that needs one */}
+            {activeImport === "link" ? (
+              <View style={[styles.modeCard, { marginTop: 0 }]}>
+                {fromClipboard ? (
+                  <Text style={styles.clipboardHint}>Pasted — Otto spotted that link.</Text>
+                ) : clipboardHasLink ? (
+                  <TouchableOpacity
+                    onPress={pasteFromClipboard}
+                    accessibilityRole="button"
+                    accessibilityLabel="Paste the link from your clipboard"
+                  >
+                    <Text style={styles.clipboardHint}>
+                      Otto spotted a link on your clipboard — tap to paste it.
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <Text style={styles.modeHint}>
+                    A recipe page, or a TikTok or Instagram post — Otto reads the ingredients and
+                    steps.
+                  </Text>
+                )}
+                <TextInput
+                  style={styles.urlInput}
+                  value={url}
+                  onChangeText={(t) => {
+                    setUrl(t);
+                    setFromClipboard(false);
+                  }}
+                  placeholder="https://…"
+                  placeholderTextColor={colors.inkSoft}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="url"
+                  autoFocus
+                  accessibilityLabel="Recipe link"
+                />
+                <Bounceable
+                  style={styles.primaryButton}
+                  onPress={startImport}
+                  accessibilityRole="button"
+                  accessibilityLabel="Import the recipe"
+                >
+                  <Ionicons name="download-outline" size={18} color={colors.white} />
+                  <Text style={styles.primaryButtonText}>Import it</Text>
+                </Bounceable>
+              </View>
+            ) : null}
+
+            {activeImport === "text" ? (
+              <View style={[styles.modeCard, { marginTop: 0 }]}>
+                <Text style={styles.modeHint}>
+                  Copied out of a DM, a note or an email? Paste the words — Otto sorts them into
+                  ingredients and steps for you to check.
+                </Text>
+                <TextInput
+                  style={[styles.urlInput, styles.textArea]}
+                  value={pastedText}
+                  onChangeText={setPastedText}
+                  placeholder="Paste the whole thing — ingredients, steps and all."
+                  placeholderTextColor={colors.inkSoft}
+                  multiline
+                  autoFocus
+                  accessibilityLabel="Recipe text"
+                />
+                <Bounceable
+                  style={styles.primaryButton}
+                  onPress={startTextImport}
+                  accessibilityRole="button"
+                  accessibilityLabel="Draft a recipe from the pasted text"
+                >
+                  <Ionicons name="sparkles-outline" size={18} color={colors.white} />
+                  <Text style={styles.primaryButtonText}>Draft it</Text>
+                </Bounceable>
+              </View>
+            ) : null}
 
             <TouchableOpacity
               style={styles.comingRow}
