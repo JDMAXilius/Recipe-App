@@ -737,15 +737,15 @@
     "sodium_mg": 7
   },
   "chocolate chips": {
-    "fdcId": 173770,
-    "usda": "SILK Chocolate, soymilk",
-    "kcal": 58,
-    "protein_g": 2.06,
-    "fat_g": 1.44,
-    "carbs_g": 9.47,
-    "fiber_g": 0.8,
+    "fdcId": 167976,
+    "usda": "Candies, semisweet chocolate",
+    "kcal": 480,
+    "protein_g": 4.2,
+    "fat_g": 30,
+    "carbs_g": 63.9,
+    "fiber_g": 5.9,
     "sugar_g": null,
-    "sodium_mg": 41
+    "sodium_mg": 11
   },
   "chopped onion": {
     "fdcId": 170000,

@@ -590,5 +590,45 @@
     "usda": "Cabbage, raw",
     "portion": "1 leaf, medium",
     "source": "usda-foodportion"
+  },
+  "avocado": {
+    "grams": 201,
+    "unit": null,
+    "fdcId": 171705,
+    "usda": "Avocados, raw, all commercial varieties",
+    "portion": "1 avocado, NS as to Florida or California",
+    "source": "usda-foodportion"
+  },
+  "fennel": {
+    "grams": 234,
+    "unit": null,
+    "fdcId": 169385,
+    "usda": "Fennel, bulb, raw",
+    "portion": "1 bulb",
+    "source": "usda-foodportion"
+  },
+  "fennel bulb": {
+    "grams": 234,
+    "unit": null,
+    "fdcId": 169385,
+    "usda": "Fennel, bulb, raw",
+    "portion": "1 bulb",
+    "source": "usda-foodportion"
+  },
+  "plum tomato": {
+    "grams": 62,
+    "unit": null,
+    "fdcId": 170457,
+    "usda": "Tomatoes, red, ripe, raw, year round average",
+    "portion": "1 plum tomato",
+    "source": "usda-foodportion"
+  },
+  "sun-dried tomato": {
+    "grams": 2,
+    "unit": null,
+    "fdcId": 168567,
+    "usda": "Tomatoes, sun-dried",
+    "portion": "1 piece",
+    "source": "usda-foodportion"
   }
 }

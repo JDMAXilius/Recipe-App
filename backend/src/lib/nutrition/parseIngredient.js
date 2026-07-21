@@ -3,6 +3,7 @@
 // Deterministic, no LLM. Grams are ESTIMATES (density fallbacks) and every
 // unresolved qty/unit/density is flagged via confidence — honesty first.
 import VERIFIED_PIECE from "./pieceWeights.json" with { type: "json" };
+import CUP_WEIGHTS from "./cupWeights.json" with { type: "json" };
 
 export const UNIT_WORDS =
   "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|quarts?|qts?|pints?|pts?|cloves?|cans?|tins?|slices?|rashers?|sticks?|leaf|leaves|pinch(?:es)?|dash(?:es)?|handfulls?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
@@ -56,6 +57,9 @@ const VOLUME_ML = { cup: 240, tbsp: 15, tsp: 5, ml: 1, l: 1000, quart: 946, pint
 const APPROX_G = { pinch: 0.4, dash: 0.6, drop: 0.05, knob: 15, handful: 30, splash: 10 };
 
 // per-item density (g/ml) for volume→grams. Water-like default when unknown.
+// SECOND choice only: cupWeights.json (USDA's own "1 cup" portion for the food)
+// is consulted first for cup/tbsp/tsp — see cupWeightFor. These rows are our
+// estimates and cover the foods USDA publishes no cup portion for.
 const DENSITY = [
   [/flour|cornstarch|corn starch/i, 0.53],
   [/cocoa|cacao/i, 0.35],
@@ -72,6 +76,13 @@ const DENSITY = [
   [/cheddar|mozzarella|gruy[eè]re|monterey|colby|halloumi|emmental|feta|stilton/i, 0.47],
   [/cheese/i, 0.47],
   [/breadcrumbs|panko/i, 0.25],
+  // "coconut" CONTAINS "nut", so the nuts row below was pricing coconut milk at
+  // the density of chopped almonds: "400ml can Coconut Milk" came out as 220 g
+  // instead of ~382 — and scored HIGH, because a matched DENSITY row reads as
+  // measured. Must sit above the nuts row; first match wins.
+  // 0.96 g/ml = USDA 170173 "Nuts, coconut milk, canned (liquid expressed from
+  // grated meat and water)", portion "1 cup" = 226 g, over USDA's 236.6 ml cup.
+  [/coconut (milk|cream|water)/i, 0.96],
   [/nuts?|almond|walnut|pecan|peanut|cashew/i, 0.55],
   [/spinach|greens|kale|rocket|watercress|\bchard\b|lettuce|arugula|pak (choi|koi)|bok cho[iy]|chinese leaf|callaloo|mulukhiyah|vine leaves|grape leaves|morning glory/i, 0.12],
   [/herbs|parsley|cilantro|basil|mint|dill|chives?|tarragon|marjoram|coriander|savoury/i, 0.17],
@@ -87,6 +98,21 @@ const DENSITY = [
   [/ginger|galangal/i, 0.4],
   [/digestive|graham cracker|biscuit crumb|cookie crumb/i, 0.42],
   [/pretzel|popcorn/i, 0.25],
+  // Foods USDA publishes a portion for, but only a SUB-CUP one — so
+  // build-cup-weights.mjs correctly refuses them (its whole-cup rule exists so
+  // nobody scales a "1/4 cup, sliced" and silently changes the packing state).
+  // A density is a different question from a cup weight: grams per millilitre
+  // reads straight off any portion, and a tablespoon of jam has no packing state
+  // to change. So these live here, each with the USDA portion it came from.
+  // Every one lands within ~3% of the display table's independently-sourced
+  // figure, which is the check that the arithmetic is not doing something odd.
+  [/\bjam\b|marmalade|preserves/i, 1.35], // 169641 "Jams and preserves", 1 tbsp = 20 g
+  [/tahini|sesame butter/i, 1.01], // 169410 "Seeds, sesame butter, tahini", 1 tbsp = 15 g
+  [/tofu/i, 1.07], // 172475 "Tofu, raw, firm...", 0.5 cup = 126 g
+  [/\bolives?\b/i, 0.57], // 169094 "Olives, ripe, canned", 1 tbsp = 8.4 g
+  // The single biggest cup line in the corpus: "5 Cups Potatoes" was 1200 g on
+  // the 1.0 g/ml water default against a real ~760 g.
+  [/potato(?!\s*(starch|flour))/i, 0.63], // 170026 "Potatoes, flesh and skin, raw", 0.5 cup diced = 75 g
   [/onion|carrot|celery|pepper|tomato|mushroom|zucchini|broccoli/i, 0.6],
   [/yogurt|sour cream|cream cheese|mayo/i, 1.03],
   [/milk|cream|broth|stock|water|juice|wine|vinegar|sauce/i, 1.0],
@@ -95,12 +121,75 @@ const DENSITY = [
 ];
 const DEFAULT_DENSITY = 1.0;
 
-// count-unit piece weights (grams per item). Rough — flagged lower confidence.
+// count-unit piece weights (grams per item). Rough — flagged lower confidence,
+// EXCEPT where a row carries an explicit 4th element naming a better level.
 const PIECE_G = [
   [/^clove$/, /garlic/i, 3],
-  [/^can$/, /tomato|beans|chickpea|corn/i, 400],
-  [/^can$/, /tuna|salmon|anchov/i, 150],
-  [/^can$/, /coconut milk|evaporated|condensed/i, 400],
+
+  // ── CAN / TIN SIZES ────────────────────────────────────────────────────────
+  // One blanket "a can is 400 g" priced every tin in the corpus, at "approx",
+  // and the corpus leans on tins: coconut milk alone put 2800 g of half-weighted
+  // doubt across 7 recipes. A can is not a vague amount — it is a manufactured
+  // quantity, printed on the tin, and where USDA has weighed one it publishes
+  // the portion. So the rows below resolve "good" (high) like any other sourced
+  // weight, and anything we cannot name keeps the 400 g guess AND says it is one.
+  //
+  // DRAINED, for the pulses and the corn. Three reasons, in order of weight:
+  // USDA publishes these as "1 can drained solids" and not otherwise; the food
+  // row the grams multiply against prices the BEANS, not the brine; and every
+  // recipe here pours the tin into a sieve. Counting the 400 g net weight would
+  // add ~160 g of salt water at bean calories — a ~65% overstatement. Tomatoes
+  // and refried beans are NOT drained: their liquid is the dish.
+  //
+  // Each row is either a USDA foodPortion (fdcId + USDA's own wording) or a
+  // stated retail standard. Which one it is, is said on the row.
+  //
+  // Tomato purée first, and deliberately left as a GUESS: "puree" is a thin
+  // 15 oz canned sauce in the US and a concentrated ~70 g tube in the UK, a 6x
+  // spread, and TheMealDB mixes both dialects. No honest single can size exists,
+  // so it keeps the blanket 400 g at medium rather than being confidently wrong.
+  [/^can$/, /tomato (pur[eé]e|paste)/i, 400],
+  // USDA 173800 "Chickpeas (garbanzo beans, bengal gram), mature seeds, canned,
+  // drained solids", portion "1 can drained".
+  [/^can$/, /chickpea|garbanzo/i, 253, "good"],
+  // USDA 174285 "Beans, kidney, red, mature seeds, canned, drained solids",
+  // portion "1 can drained solids".
+  [/^can$/, /kidney bean/i, 266, "good"],
+  // USDA 174296 "Refried beans, canned, vegetarian", portion "1 can". A paste —
+  // there is nothing to drain.
+  [/^can$/, /refried/i, 444, "good"],
+  // USDA 169214 "Corn, sweet, yellow, canned, whole kernel, drained solids",
+  // portion "1 can (303 x 406)" — USDA's can-dimension wording for the standard
+  // 15-16 oz tin.
+  [/^can$/, /sweet ?corn|corn kernel/i, 298, "good"],
+  // Baked beans are eaten sauce and all, so this must sit ABOVE the drained
+  // pulses row or a tin of them would lose a third of its weight.
+  // RETAIL STANDARD: 400 g / 14 oz can, net weight. Not a USDA figure.
+  [/^can$/, /baked bean/i, 400, "good"],
+  // RETAIL STANDARD: the 400 g / 14 oz can of pulses that dominates this corpus
+  // declares a drained weight of ~240 g on the tin. Not a USDA figure — but
+  // USDA's own drained cans above (253 g, 266 g) bracket it, which is the check
+  // that this convention is real and not a round number we liked.
+  [/^can$/, /bean|lentil|pulse/i, 240, "good"],
+  // RETAIL STANDARD: 400 g / 14 oz can, undrained — the juice goes in the pan.
+  // Not a USDA figure (USDA's canned-tomato can portion, 170051, is a 190 g
+  // 8 oz tin, which is not the tin any of these recipes mean).
+  [/^can$/, /tomato|passata/i, 400, "good"],
+  // RETAIL STANDARD: the 400 ml can, which is what the corpus itself writes
+  // ("400ml can Coconut Milk"). Converted at USDA's own measured density rather
+  // than assumed to be water: 170173 "Nuts, coconut milk, canned" publishes
+  // 1 cup = 226 g, i.e. 226/236.6 = 0.955 g/ml, so 400 ml = 383 g.
+  [/^can$/, /coconut (milk|cream)/i, 383, "good"],
+  // RETAIL STANDARD: the 14 oz can, the only size condensed milk is sold in —
+  // and the size this corpus spells out ("1 – 14-ounce can"). 14 x 28.35 = 397 g.
+  [/^can$/, /condensed milk|condensed/i, 397, "good"],
+  // USDA 169966 "Beets, canned, drained solids", portion "1 can (303 x 406)".
+  [/^can$/, /beet/i, 294, "good"],
+  // USDA 171986 "Fish, tuna, light, canned in water, without salt, drained
+  // solids", portion "1 can". Replaces a hand-set 150 g. Salmon and anchovies
+  // are sold in quite different tins, so they keep the guess.
+  [/^can$/, /tuna/i, 165, "good"],
+  [/^can$/, /salmon|anchov/i, 150],
   [/^can$/, /./, 400],
   [/^stick$/, /butter/i, 113],
   [/^stick$/, /celery|cinnamon/i, 40],
@@ -291,6 +380,48 @@ function verifiedPiece(item, unit) {
   return best?.row ?? null;
 }
 
+// CUPS OF SOLIDS.
+//
+// A volume line whose food DENSITY did not name fell to the 1.0 g/ml water
+// default, which is right for stock and wrong for anything you can pile into a
+// cup: "5 Cups Potatoes" read 1200 g against a real ~750, "2 cups Chocolate
+// Chips" 480 g against 336. Those lines also scored "default-density" → medium,
+// so they paid doubt twice — wrong number AND wrong confidence.
+//
+// cupWeights.json is USDA FoodData Central's own "1 cup" foodPortion for each
+// food, carrying that record's fdcId and USDA's exact portion wording (built by
+// scripts/build-cup-weights.mjs, which rejects a "1 cup sifted"-style state word
+// and any substitute/imitation record). Same authority as the per-100g numbers
+// and the pieceWeights piece weights, so it resolves "good" like they do.
+//
+// It already fed the DISPLAY layer (mobile/lib/foodScale.js) while nutrition ran
+// off the hand-set DENSITY list above — the two disagreed by up to 60% on the
+// same ingredient. One sourced table now outranks the estimates on both sides.
+//
+// Cup-family units only. A gramsPerCup divided by 16 or 48 IS the USDA
+// tablespoon/teaspoon exactly (240/16=15, 240/48=5), so those convert cleanly.
+// ml/l/pint/quart stay on DENSITY: they measure thin liquids, where 1.0 g/ml is
+// already right, and rescaling them through a cup would only import the 240 vs
+// 236.6 ml cup difference for no gain.
+const CUP_UNITS = new Set(["cup", "tbsp", "tsp"]);
+
+function cupWeightFor(item) {
+  const t = String(item || "").toLowerCase().trim();
+  // The same suffix-only, most-specific-wins, qualifier-guarded rule
+  // verifiedPiece uses, and for the same reasons: a key that PREFIXES the item
+  // names a different food ("coconut milk" is not milk), and a state word means
+  // the generic row does not apply — sun-dried tomatoes are ~54 g/cup, not the
+  // 180 g/cup of the fresh fruit, so they must not inherit it.
+  const sized = SIZE_QUALIFIER.test(t);
+  const forms = sized ? singulars(t) : [...singulars(t), ...singulars(t.split(/\s+/).pop() || "")];
+  let best = null;
+  for (const [name, row] of Object.entries(CUP_WEIGHTS)) {
+    const hit = forms.some((f) => f === name || (!sized && f.endsWith(" " + name)));
+    if (hit && (!best || name.length > best.name.length)) best = { name, row };
+  }
+  return best?.row ?? null;
+}
+
 // "For frying" / "for deep frying" oil: the recipe never states an amount, but
 // the food does absorb some and counting ZERO understates every fried dish.
 // Published absorption spans 8–25% of food weight (some studies 10–60%), which
@@ -311,6 +442,8 @@ function gramsFor(qty, unit, item) {
   if (qty == null) return { grams: null, level: "none" };
   if (unit && MASS_G[unit]) return { grams: qty * MASS_G[unit], level: "exact" };
   if (unit && VOLUME_ML[unit]) {
+    const cup = CUP_UNITS.has(unit) ? cupWeightFor(item) : null;
+    if (cup) return { grams: (qty * VOLUME_ML[unit] * cup.gramsPerCup) / VOLUME_ML.cup, level: "good" };
     const { density, matched } = densityFor(item);
     return { grams: qty * VOLUME_ML[unit] * density, level: matched ? "good" : "default-density" };
   }
@@ -318,8 +451,10 @@ function gramsFor(qty, unit, item) {
   const verified = verifiedPiece(item, unit);
   if (verified) return { grams: qty * verified.grams, level: "good" };
   if (unit) {
-    for (const [unitRe, itemRe, g] of PIECE_G) {
-      if (unitRe.test(unit) && itemRe.test(item)) return { grams: qty * g, level: "approx" };
+    for (const [unitRe, itemRe, g, level] of PIECE_G) {
+      // Most rows are estimates ("approx"). A row may name a better level when
+      // its number is sourced — see the can sizes above.
+      if (unitRe.test(unit) && itemRe.test(item)) return { grams: qty * g, level: level || "approx" };
     }
     return { grams: null, level: "none" };
   }

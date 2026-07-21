@@ -110,6 +110,21 @@ const TARGETS = [
   // leaf, 5400 g). USDA weighs the leaf itself; medium is the house convention
   // where USDA offers sizes and the corpus does not commit to one.
   { name: "cabbage leaf", fdcId: 169975, portion: /^1 leaf, medium$/i },
+
+  // 2026-07-21 doubt-mass sweep, round 2. Every fdcId here is the SAME record
+  // usdaTable already uses for that key, pinned so a concurrent table edit
+  // cannot silently repoint a piece weight at a different food.
+  { name: "avocado", fdcId: 171705, portion: /^1 avocado, NS as to/i },
+  { name: "fennel", fdcId: 169385, portion: /^1 bulb$/i },
+  // "1 sliced Fennel Bulb" ends in "bulb", and verifiedPiece matches a key by
+  // SUFFIX — "fennel bulb" does not end in " fennel", so the bare key misses it.
+  { name: "fennel bulb", fdcId: 169385, portion: /^1 bulb$/i },
+  // "plum" is a SIZE_QUALIFIER, so these lines deliberately cannot inherit the
+  // 123 g generic tomato. USDA publishes the plum tomato itself, at half that.
+  { name: "plum tomato", fdcId: 170457, portion: /^1 plum tomato$/i },
+  // "8 Sun-Dried Tomatoes" was 960 g — 120 g apiece, a FRESH tomato's weight for
+  // something the size of a coin. USDA's piece is 2 g.
+  { name: "sun-dried tomato", fdcId: 168567, portion: /^1 piece$/i },
 ];
 
 // DELIBERATELY ABSENT (checked, USDA publishes no usable whole-item portion —
@@ -161,6 +176,49 @@ const TARGETS = [
 //     bunch portion.
 //   bacon — already verified at 28 g, but the row is keyed to unit "slice" so
 //     the bare "4 Bacon" form cannot reach it. Not a USDA gap; see the report.
+//
+// 2026-07-21 round 2 refusals:
+//   squash / butternut squash — the single biggest block of doubt (5850 g over
+//     6 recipes) and USDA simply does not publish a whole one. "Squash, winter,
+//     all varieties, raw" (170489, the record the table uses) offers ONLY
+//     "1 cup, cubes" = 116 g; butternut (169295) likewise. Summer squash
+//     (170487) does publish "1 medium" = 196 g, but that is the other vegetable
+//     — the corpus's bare "Squash" is winter/pumpkin in 3 of its 4 recipes, and
+//     borrowing a summer-squash piece for a winter-squash record is the cherry-
+//     tomato mistake in reverse. Stays estimated.
+//   broccoli — 170379 publishes "1 bunch" = 608 g and "1 stalk" = 151 g, and the
+//     corpus asks for "1 head". A USDA bunch is FOUR stalks; a head is one crown.
+//     Neither portion names the object, and the standing 600 g estimate already
+//     sits between them, so verifying here would buy a confidence flag with a
+//     guess about what "bunch" means. (Note also: usdaTable's broccoli row points
+//     at 747447, a Foundation record whose detail endpoint returns an empty body
+//     — see the report.)
+//   shortcrust pastry — 172814 publishes "1 crust, single 9"" = 194 g. The one
+//     doubtful line is "4 Shortcrust Pastry" (Classic Tourtière); a tourtière is
+//     one double-crust pie, so "4" is not 4 nine-inch crusts. Unknown object.
+//   coriander / spring onions — the remaining doubt is "Bunch", "Small bunch",
+//     "Handful", "Packet". USDA publishes "9 sprigs" and "0.25 cup" for cilantro
+//     and nothing bunch-shaped for scallions; both already have a verified
+//     per-sprig / per-onion row, which is all USDA can support.
+//   shallot — re-checked, unchanged: 170499 has "1 tbsp chopped" only, and the
+//     Foundation row (2727586) has "1 RACC" = 85 g, which is a serving size, not
+//     a shallot.
+//   baguette — re-checked, unchanged.
+//   egg plant / eggplant — BUILT, TESTED, BACKED OUT (the chicken-breast test).
+//     169228 publishes "1 eggplant, unpeeled (approx 1-1/4 lb)" = 548 g, and the
+//     key already exists under the other spelling: "aubergine" has shipped at
+//     548 g since the first sweep, so the same vegetable is 548 g written one way
+//     and 50 g written the other. Adding it flipped 5 recipes to measured and
+//     moved their kcal the RIGHT way (Tortang Talong 89 -> 213, Baba Ghanoush
+//     93 -> 155 — 50 g was never a credible eggplant). But USDA's 548 g is the
+//     American globe eggplant, and the corpus's lines are "6 small Egg Plants"
+//     (3288 g) and "4 Egg Plants" for a two-egg Filipino omelette. Replayed
+//     WITHOUT curated facts — the path every user recipe takes, where the 700
+//     g/serving cap is live — three recipes stopped answering at all: Roasted
+//     Eggplant With Tahini, Grilled eggplant with coconut milk, and Antiguan
+//     Breakfast. Same verdict as chicken breast: a right-sized estimate beats a
+//     verified weight for the wrong-sized object. (The 548 g "aubergine" row
+//     predates this and has the same problem — see the report.)
 
 const out = { ...existing };
 const unresolved = [];
@@ -193,7 +251,15 @@ for (const t of TARGETS) {
     unresolved.push(`${name}: portions fetch failed (${e.message})`);
     continue;
   }
-  const candidates = info.list.filter((p) => !MEASURE.test(p.label) && !STATE.test(p.label));
+  // The MEASURE test reads the label with any parenthetical STRIPPED. USDA puts
+  // the size of a whole item in brackets — "1 eggplant, unpeeled (approx
+  // 1-1/4 lb)", "1 pomegranate (4" dia)" — and that "lb" is describing the
+  // eggplant, not replacing it with a mass. What the guard is for is a label
+  // that IS a measure ("1 cup", "1 tsp"), and those say so outside the brackets,
+  // so this narrows the guard to where it bites without opening it up. STATE
+  // still reads the whole label.
+  const bare = (l) => l.replace(/\([^)]*\)/g, " ");
+  const candidates = info.list.filter((p) => !MEASURE.test(bare(p.label)) && !STATE.test(p.label));
   let hit = null;
   if (t.portion) {
     hit = candidates.find((p) => t.portion.test(p.label));
