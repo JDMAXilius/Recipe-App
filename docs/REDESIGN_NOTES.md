@@ -921,3 +921,18 @@ matcher validation (~30 adversarial names + identity-swap red flags; prompt bugs
 cloud), N9 app rebuild for client-side pieces (drink estimates ship in the bundle), N10 first-week
 cost watch. Tracks are independent; refresh script idempotency means order between them doesn't
 matter.
+
+### Phase 16b — Gap sweep: everything cloud-impossible is now ticketed (2026-07-21, cloud)
+
+Founder: "is there anything you are not able to do here or during the roadmap — create tickets."
+Swept the session + roadmaps against the 12 existing tickets. Hard limits of this environment:
+Railway deploys (network-blocked), prod DB (no credentials), live Claude/USDA calls (no keys),
+TheMealDB (blocked), iOS builds/simulator (Linux), TestFlight/ASC, Supabase dashboard toggles, key
+purchases/rotation. Two gaps had NO ticket → created TERMINAL_TICKET_AI_SEAMS_LIVE_FIRE.md:
+(1) live-fire the three user-facing AI seams — generation, text import, and photo import (vision
+has never executed against the real API) — with decline-gate probes, usage/latency capture, and
+prompt-bug reporting back to cloud; (2) simulator/device QA of every surface this session shipped
+web-only (Otto collapse cards, snap-the-recipe flow with real permissions, editor fill flow,
+"amount" placeholder). Also added the standing N2-migration task to the nutrition framework ticket.
+Everything else cloud-impossible was already covered (refresh/framework/weight-first/functional/
+OAuth/TestFlight tickets + checklist §D).

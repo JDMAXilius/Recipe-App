@@ -51,6 +51,12 @@ cached in-process per deploy). If resolution volume looks unexpectedly high, say
 durable resolver cache (roadmap N2) is already queued cloud-side and removes repeat cost
 across deploys.
 
+## Task 5 — Pending: N2 migration (when the cloud lands it)
+
+Roadmap N2 (durable `resolved_ingredients` cache) ships with an idempotent schema script in
+`backend/scripts/` — run it against prod when it appears, like every schema change (the
+"any new table needs its script run on prod" lesson).
+
 ## Done when
 
 - [ ] Task 1 executed; both summary lines reported
