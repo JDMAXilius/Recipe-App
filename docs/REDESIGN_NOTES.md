@@ -791,3 +791,28 @@ both missed, dropping coverage to 0.695 — just under the 0.70 floor → null �
 conservative alias layer to lookup(): "<meat> mince" → "minced <meat>", and a bare food name →
 "<name> cheese" (covers cheddar/parmesan/etc.). Lasagna now computes 743 kcal/serving P42 C49 F39 at
 HIGH confidence instead of the estimate. 60/60. Deploy-gated like Phase 14.
+
+### Phase 15 — Nutrition: Claude-as-matcher over USDA numbers (2026-07-21, cloud)
+
+Founder direction: "rather than changing correct calories ourselves we should use the USDA api or
+claude ai or a specialist API." Presented the grounded landscape (specialist APIs — Edamam/
+Nutritionix/Spoonacular — forbid the permanent per-recipe cache Otto is built on, the settled reason
+USDA/CC0 was chosen; live-USDA-search fixes coverage but not which-candidate; Claude must never invent
+numbers but is the ideal MATCHER). Founder chose **Claude matcher + USDA numbers**.
+
+Built (dormant-gated on ANTHROPIC_API_KEY, honesty-preserving):
+- `backend/src/lib/nutrition/resolveIngredient.js` — Claude (Haiku 4.5) SELECTS which real USDA food a
+  freeform ingredient refers to; it never invents a calorie. Candidate list = the 920 vetted table
+  keys, sent as a cached prompt prefix. HONESTY GUARD: a returned name is trusted only if it's an exact
+  table key (hallucinations → null). Batched once per recipe, every resolution cached forever, fail-
+  closed on error. Dormant without the key → returns all-null (no-op).
+- Wired into `computeNutrition`: deterministic lookup first (direct hits, free/instant); only the
+  substantial unmatched tail goes to Claude; cooked-flagged lines left alone (raw/cooked is a different
+  problem). Resolved rows are marked and count as "guessed" (half weight) so a recipe leaning on
+  resolutions reads medium/low, never high.
+- Numbers still 100% USDA. Cost = one cheap Haiku call per NOVEL ingredient, ever (cached). Falls back
+  to today's table + estimate when dormant. 64/64; dormant path byte-identical (lasagna still 743).
+- **Increment 2 (follow-on, needs a USDA_API_KEY + founder env):** back the candidate set with the LIVE
+  USDA FoodData Central search API so ingredients beyond the 920-row table also resolve — removes the
+  snapshot dependency for the long tail. Not built/testable here (network + key); documented as next.
+- Deploy-gated + key-gated: live only after `railway up` AND ANTHROPIC_API_KEY on Railway.

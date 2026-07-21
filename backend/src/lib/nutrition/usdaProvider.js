@@ -21,6 +21,7 @@
 // Attribution: USDA asks that FoodData Central be credited as the data source.
 // Otto surfaces this alongside its TheMealDB credit.
 import { parseIngredientLine } from "./parseIngredient.js";
+import { resolveIngredientNames, resolverActive, foodForKey } from "./resolveIngredient.js";
 import table from "./usdaTable.json" with { type: "json" };
 import recipeFacts from "./recipeFacts.json" with { type: "json" };
 import cookedTable from "./usdaCookedTable.json" with { type: "json" };
@@ -221,8 +222,28 @@ export const usdaProvider = {
       const line = [p.measure, p.name].filter(Boolean).join(" ").trim();
       const parsed = parseIngredientLine(line);
       const food = lookup(p.name, parsed.item, cookedSet.has(key(p.name)));
-      return { parsed, food, name: p.name };
+      return { parsed, food, name: p.name, resolved: false };
     });
+
+    // Claude-as-matcher (dormant without a key): the deterministic lookup above
+    // handles the direct hits; anything substantial it missed goes to Claude,
+    // which SELECTS the right USDA food (never invents a number). Batched once,
+    // cached forever. A cooked-flagged line is left alone — its raw/cooked
+    // ambiguity is a different problem the resolver must not paper over.
+    const misses = rows.filter(
+      (r) => !r.food && r.parsed.grams > 0 && !isNegligible(r) && !cookedSet.has(key(r.name))
+    );
+    if (misses.length && resolverActive()) {
+      const resolvedMap = await resolveIngredientNames(misses.map((r) => r.name));
+      for (const r of misses) {
+        const canonical = resolvedMap.get(String(r.name).trim().toLowerCase());
+        const food = canonical ? foodForKey(canonical) : null;
+        if (food) {
+          r.food = food;
+          r.resolved = true; // counts against confidence — a pick, not a direct hit
+        }
+      }
+    }
 
     const usable = rows.filter((r) => r.food && r.parsed.grams > 0);
     if (!usable.length) return null; // nothing resolved — honestly unknown
@@ -283,7 +304,12 @@ export const usdaProvider = {
     const scored = counted.length ? counted : rows;
     const resolved = (r) => r.food && r.parsed.grams > 0;
     const unmatched = scored.filter((r) => !resolved(r)).length;
-    const guessed = scored.filter((r) => resolved(r) && r.parsed.confidence !== "high").length;
+    // A Claude-picked food is in the sum but less certain than a direct hit, so
+    // it counts as "guessed" (half weight) — a recipe leaning on resolutions
+    // reads medium/low, never high.
+    const guessed = scored.filter(
+      (r) => resolved(r) && (r.resolved || r.parsed.confidence !== "high")
+    ).length;
     const doubt = (unmatched + guessed * 0.5) / scored.length;
     // "high" is not perfection. Garlic, onion and egg resolve through piece
     // weights and are rated "guessed" by design, so requiring doubt === 0 made
