@@ -43,6 +43,14 @@ On "iPhone 17 Pro Max" sim or device (dev build `com.otto.recipes`):
 - Weight-first display spot-check stays intact everywhere (detail, cook mode, shopping kg
   roll-up) — screenshots to the thread.
 
+## Task 2b — Backfill null fdcIds (5 min, needs USDA_API_KEY)
+
+The N3/N4 table fixes set `fdcId: null` on ~12 rows where the id wasn't verifiable offline
+(the `usda` description is the provenance; a wrong id is worse than none). With the USDA key:
+search each null-id row's `usda` description at api.nal.usda.gov (`/fdc/v1/foods/search`),
+confirm the record, fill the id in `usdaTable.json`/`usdaCookedTable.json`, and drop the
+`missingId <= 12` allowance in `test/usdaProvider.test.mjs` back to zero.
+
 ## Task 3 — Standing note
 
 When the cloud lands roadmap N2 (durable resolver cache), its idempotent schema script in

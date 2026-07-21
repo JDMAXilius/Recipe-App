@@ -196,14 +196,20 @@ test("a nutrient no ingredient reports stays null — never 0", async () => {
 
 // --- the shipped table itself ---
 
-test("table rows carry fdcId provenance — every number traces to USDA", () => {
+test("table rows carry USDA provenance — every number traces to its record", () => {
   const rows = Object.values(table);
   assert.ok(rows.length > 900, `expected >900 ingredients, got ${rows.length}`);
+  let missingId = 0;
   for (const r of rows) {
-    assert.ok(r.fdcId, "row missing fdcId");
+    // The USDA description is the load-bearing provenance (human-verifiable
+    // record name). fdcId is preferred but may be null on audit-fixed rows
+    // where the id wasn't verifiable offline — a wrong id is worse than none.
+    // The terminal live-fire ticket covers backfilling the few null ids.
     assert.ok(r.usda, "row missing USDA description");
     assert.ok(Number.isFinite(r.kcal), "row missing kcal");
+    if (!r.fdcId) missingId += 1;
   }
+  assert.ok(missingId <= 12, `too many rows without fdcId: ${missingId} — backfill them`);
 });
 
 test("known ingredients match real-world values — guards the kJ/kcal trap", () => {
