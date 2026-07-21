@@ -49,10 +49,12 @@ ever SELECTS the food, hallucinations resolve to null.
    ```bash
    cd backend && node --env-file=.env scripts/refresh-nutrition.mjs
    ```
-   Idempotent — safe to re-run. It wipes `seed_nutrition` (seed recipes recompute lazily on
-   next view, on Railway, using Railway's keys) and recomputes every user recipe inline
-   (using local .env keys). Expected output: two lines — cleared-count, then
-   `user recipes: N recomputed, M honestly unknown`.
+   Idempotent — safe to re-run. This is the EAGER full-database recalculation: it enumerates
+   the entire TheMealDB catalogue (a–z), wipes `seed_nutrition`, recomputes every catalogue
+   recipe on the spot (same code path the API uses, so curated facts + sentinels apply), then
+   recomputes every user recipe inline. Progress prints every 25; expect a few minutes for the
+   catalogue. Final output: `seed recipes: N computed, M honestly unknown` and
+   `user recipes: N recomputed, M honestly unknown`. Report both lines back.
 
 6. **Verify in the app** (the founder's own recipes are the fixtures):
    - "World's Best Lasagna" (2-serving user recipe): nutrition card should show a **computed**
