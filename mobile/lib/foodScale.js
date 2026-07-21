@@ -1,16 +1,21 @@
 // PROTOTYPE — weight-first ("food scale") ingredient display, Kitchen Stories
 // style. Locked product decisions (founder, 2026-07):
 //
-//   1. Weigh EVERYTHING weighable → grams, produce included (onion → grams,
-//      not a count). Liquids → ml.
-//   2. Scaled amounts read like a digital kitchen scale: "166.7 g", never
-//      "166⅔". One decimal place, trailing ".0" stripped. Same for ml.
+//   1. EVERYTHING with a known weight → grams: produce, eggs, citrus, cans,
+//      honey/syrups, lasagne sheets, tortillas — no count exceptions.
+//      Thin pourable liquids (milk, stock, wine, oil) → ml.
+//   2. Numbers read like a digital kitchen scale and are NEVER fractions —
+//      "166.7 g", "0.5 tsp", never "166⅔" or "½". One decimal place,
+//      trailing ".0" stripped. Applies to every unit in weight mode,
+//      spoons included.
 //   3. Shopping totals roll grams → kg above 1000 g ("1.2 kg", 1 dp).
-//   4. Sub-5 g seasonings (salt, spices, leaveners, "to taste") stay as
-//      tsp / tbsp / to taste — a home scale can't read them.
+//   4. Sub-5 g amounts (salt, spices, leaveners, a lone garlic clove) keep
+//      tsp / tbsp / count — a home scale can't read them. Displayed as
+//      decimals per #2 ("0.5 tsp").
 //   5. No "≈"/"~" marks. Clean numbers.
 //   6. Weight-first is the default; `mode: "uscups"` keeps the classic
-//      cups/fractions display for the account-screen toggle.
+//      cups/fractions display for the account-screen toggle (fractions are
+//      the point of that mode).
 //
 // This module deliberately does NOT reuse ingredientWeight.js's gating
 // (MIN_GRAMS=20, produce excluded, ≈ prefix) — those encode the opposite
@@ -61,10 +66,10 @@ const AS_IS_RE = /to taste|to serve|for (frying|greasing|garnish|dusting|the)|ga
 
 // Liquids display in ml (locked decision #1). Matched against the NAME.
 const LIQUID_RE =
-  /\b(water|milk(?!\s*powder)|buttermilk|cream(?!\s*cheese| of tartar)|double cream|single cream|half[- ]and[- ]half|stock|broth|wine|beer|cider|brandy|rum|sherry|marsala|vermouth|juice|vinegar|oil(?!ive)|olive oil|vegetable oil|sunflower oil|coconut milk|coconut cream|coconut water|passata|soy sauce|tamari|fish sauce|oyster sauce|hoisin|teriyaki|maple syrup|golden syrup|corn syrup|honey|molasses|treacle|condensed milk|evaporated milk|kefir|espresso|coffee|tea\b)\b/i;
-// (honey/syrups: pourable — Kitchen Stories shows them in g, but a measuring
-// jug/scale both work; we show ml for anything that pours level. Founder can
-// flip syrups to g by moving them to the density table below.)
+  /\b(water|milk(?!\s*powder)|buttermilk|cream(?!\s*cheese| of tartar)|double cream|single cream|half[- ]and[- ]half|stock|broth|wine|beer|cider|brandy|rum|sherry|marsala|vermouth|juice|vinegar|oil(?!ive)|olive oil|vegetable oil|sunflower oil|coconut milk|coconut cream|coconut water|passata|soy sauce|tamari|oyster sauce|hoisin|teriyaki|evaporated milk|kefir|espresso|coffee|tea\b)\b/i;
+// Honey/syrups/molasses/condensed milk are NOT here — they're viscous, cling
+// to the spoon, and weigh cleanly, so they take the density path → grams
+// (matches Kitchen Stories). Thin pourables above stay ml.
 
 // ---------------------------------------------------------------------------
 // name → grams per US cup. First match wins; specific before general.
@@ -83,6 +88,11 @@ const DENSITY = [
   [/caster sugar|superfine sugar/i, 198],
   [/brown sugar|muscovado|demerara|coco sugar/i, 213],
   [/sugar/i, 198],
+  // — viscous sweeteners: weigh, don't pour [KA] —
+  [/honey/i, 336],
+  [/maple syrup|golden syrup|corn syrup|agave/i, 322],
+  [/molasses|treacle/i, 337],
+  [/condensed milk/i, 306],
   // — fats [KA] —
   [/butter|margarine|shortening|lard|ghee|suet/i, 227],
   [/peanut butter|almond butter|tahini/i, 258],
@@ -186,7 +196,11 @@ const EACH_G = [
   [/bacon|rasher|pancetta slice|prosciutto slice/i, 28], // per slice
   [/egg yolk/i, 18],
   [/egg white/i, 33],
-  // (whole eggs deliberately absent — eggs stay counts, see COUNT_RE)
+  [/\beggs?\b(?!\s*(noodle|plant|wash))/i, 50], // whole, without shell
+  [/pitt?a/i, 60],
+  [/naan/i, 90],
+  [/baguette/i, 250],
+  [/\b(bun|roll)\b/i, 50],
   [/spring onions?|scallions?|green onions?/i, 15], // must precede plain onion
   [/red onion|white onion|onions?\b/i, 110],
   [/shallot|challot/i, 30],
@@ -239,10 +253,9 @@ const UNIT_EACH_G = {
   can: { default: 400 }, // standard 400 g / 14 oz tin [USDA canned convention]
 };
 
-// Things that stay COUNTS even though we could weigh them. Eggs are the big
-// one — every scale-first app (incl. Kitchen Stories) shows "2 eggs", and a
-// recipe can't use 0.7 of an egg anyway. Citrus juiced/zested stays whole.
-const COUNT_RE = /\beggs?\b(?!\s*(plant|noodle))|lemon|lime|orange\b|bay lea|cinnamon stick|star anise|cardamom pod|lasagn[ea] sheet|tortilla|wrap|pitt?a|naan|baguette|bun\b|roll\b|corn on the cob/i;
+// (No count exceptions — founder decision: everything with a known weight
+// shows grams, eggs and citrus included. The only count survivors are items
+// under the 5 g scale floor, e.g. a lone garlic clove.)
 
 // ---------------------------------------------------------------------------
 function densityFor(name) {
@@ -286,7 +299,7 @@ export function resolveAmount({ qty, unit, name, note = "", servingScale = 1, mo
     return { kind: "asis", text: raw.trim() || "to taste" };
   }
   if (AS_IS_RE.test(rawNote) && !/\d/.test(rawNote) && !unit) {
-    return { kind: "asis", text: `${formatQty(qty)} ${rawNote}`.trim() };
+    return { kind: "asis", text: `${scaleNum(qty)} ${rawNote}`.trim() };
   }
   if (unit === "pinch" || unit === "dash" || unit === "handful" || unit === "sprig" || unit === "bunch") {
     return countText(qty * servingScale, unit, "seasoning");
@@ -352,23 +365,22 @@ export function resolveAmount({ qty, unit, name, note = "", servingScale = 1, mo
   // wins ("2 sticks celery" is 2 stalks × 40 g, not 2 butter-sticks × 113 g);
   // the unit default only covers names we don't know.
   if (unit && UNIT_EACH_G[unit]) {
-    if (COUNT_RE.test(n)) return countText(scaledQty, unit, "count");
     const per = eachGramsFor(n) ?? UNIT_EACH_G[unit].default;
     const grams = scaledQty * per;
     if (grams < 5) return countText(scaledQty, unit, "seasoning");
     return { kind: "weight", text: `${scaleNum(grams)} g` };
   }
 
-  // Garlic cloves stay cloves — 3 g each is under any scale's honesty line.
+  // Garlic cloves: 3 g each — weigh when it clears the scale floor
+  // ("6 g" for 2 cloves, like the reference), cloves below it.
   if (unit === "clove" || /garlic/i.test(n)) {
     const grams = scaledQty * 3;
     if (grams < 5) return countText(scaledQty, unit || "clove", "seasoning");
-    return countText(scaledQty, unit || "clove", "count"); // "4 cloves", still countable
+    return { kind: "weight", text: `${scaleNum(grams)} g` };
   }
 
-  // Unitless count — eggs/citrus/bakery stay counts, produce & proteins weigh.
+  // Unitless count — weigh via per-item table (eggs, citrus, produce, all).
   if (!unit) {
-    if (COUNT_RE.test(n)) return countText(scaledQty, null, "count");
     const each = eachGramsFor(n);
     if (each) {
       const grams = scaledQty * each;
@@ -382,14 +394,13 @@ export function resolveAmount({ qty, unit, name, note = "", servingScale = 1, mo
   return countText(scaledQty, unit, "count");
 }
 
-// Spoon/count text: kitchen-real fractions (a ¼-tsp measure exists; a
-// "0.7 clove" does not). Fractions are allowed here ONLY — decision #2's
-// no-fraction rule is about scale-read numbers (g/ml).
+// Spoon/count text — decimals here too (decision #2 applies to EVERY number
+// in weight mode): "0.5 tsp", "1.3 tbsp", "0.7 cloves". Never "½".
 const PLURAL = new Set(["cup", "clove", "can", "slice", "stick", "pinch", "handful", "sprig", "bunch", "piece"]);
 function countText(qty, unit, kind) {
-  const snapped = snapQty(qty);
-  const label = unit ? ` ${unit}${snapped > 1 && PLURAL.has(unit) ? (unit === "pinch" ? "es" : "s") : ""}` : "";
-  return { kind, text: `${formatQty(snapped)}${label}`.trim() };
+  const r = Math.round(qty * 10) / 10;
+  const label = unit ? ` ${unit}${r !== 1 && PLURAL.has(unit) ? (unit === "pinch" ? "es" : "s") : ""}` : "";
+  return { kind, text: `${scaleNum(r)}${label}`.trim() };
 }
 
 // ---------------------------------------------------------------------------
