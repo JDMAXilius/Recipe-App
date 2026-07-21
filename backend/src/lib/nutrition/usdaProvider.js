@@ -499,7 +499,24 @@ export const usdaProvider = {
     const guessed = scored.filter(
       (r) => resolved(r) && (r.resolved || r.parsed.confidence !== "high")
     ).length;
-    const doubt = (unmatched + guessed * 0.5) / scored.length;
+    // Weighted by MASS, not by line count. Counting lines made one unmeasured
+    // pinch of parsley score the same doubt as one guessed main ingredient,
+    // which is why recipes that are 98% weighed read no better than recipes
+    // that are half guesswork. What actually determines whether the calorie
+    // total is right is how much of the DISH the uncertainty covers.
+    //
+    // Lines with no grams at all (nothing to weigh) keep a line-share penalty —
+    // their mass is unknown by definition, so they cannot be weighted by it.
+    const massOf = (r) => (r.parsed.grams > 0 ? r.parsed.grams : 0);
+    const totalMass = scored.reduce((a, r) => a + massOf(r), 0);
+    const doubtMass =
+      scored.filter((r) => !resolved(r) || r.estimated).reduce((a, r) => a + massOf(r), 0) +
+      scored.filter((r) => resolved(r) && !r.estimated && (r.resolved || r.parsed.confidence !== "high"))
+        .reduce((a, r) => a + massOf(r), 0) * 0.5;
+    const weightless = scored.filter((r) => massOf(r) === 0).length;
+    const doubt = totalMass > 0
+      ? doubtMass / totalMass + weightless / scored.length
+      : (unmatched + guessed * 0.5) / scored.length;
     // "high" is not perfection. Garlic, onion and egg resolve through piece
     // weights and are rated "guessed" by design, so requiring doubt === 0 made
     // "high" unreachable for almost every real recipe rather than meaningful.

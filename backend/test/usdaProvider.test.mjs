@@ -73,7 +73,12 @@ test("a MINOR unmatched line is dropped from the sum and lowers confidence", asy
     4
   );
   assert.ok(out && out.kcal > 0); // the unmatched 50g is absent, not counted as 0
-  assert.equal(out.confidence, "low"); // a line dropped — the total IS understated
+  // Was "low" when confidence counted LINES. Now it is weighted by MASS: the
+  // dropped line is 50 g of 450 g, so the total is ~11% understated — an
+  // approximation, not a broken number. A genuinely incomplete recipe is caught
+  // by the coverage guard, which refuses it outright rather than grading it.
+  assert.equal(out.confidence, "medium");
+  assert.notEqual(out.confidence, "high"); // but a dropped line must still cost
 });
 
 test("a DOMINANT unmatched line returns null, not a confidently-understated total", async () => {
