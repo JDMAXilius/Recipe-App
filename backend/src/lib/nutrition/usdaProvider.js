@@ -21,7 +21,7 @@
 // Attribution: USDA asks that FoodData Central be credited as the data source.
 // Otto surfaces this alongside its TheMealDB credit.
 import { parseIngredientLine } from "./parseIngredient.js";
-import { resolveIngredientNames, resolverActive, foodForKey } from "./resolveIngredient.js";
+import { resolveIngredientNames, resolverActive } from "./resolveIngredient.js";
 import table from "./usdaTable.json" with { type: "json" };
 import recipeFacts from "./recipeFacts.json" with { type: "json" };
 import cookedTable from "./usdaCookedTable.json" with { type: "json" };
@@ -236,8 +236,7 @@ export const usdaProvider = {
     if (misses.length && resolverActive()) {
       const resolvedMap = await resolveIngredientNames(misses.map((r) => r.name));
       for (const r of misses) {
-        const canonical = resolvedMap.get(String(r.name).trim().toLowerCase());
-        const food = canonical ? foodForKey(canonical) : null;
+        const food = resolvedMap.get(String(r.name).trim().toLowerCase());
         if (food) {
           r.food = food;
           r.resolved = true; // counts against confidence — a pick, not a direct hit

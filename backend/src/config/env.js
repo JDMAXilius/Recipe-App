@@ -14,6 +14,12 @@ export const ENV = {
   // Caption/photo → recipe extraction (I1b) — founder-provided; the
   // extraction seam stays dormant (honest error copy) without it.
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+  // USDA FoodData Central API key (nutrition Increment 2). Free from
+  // fdc.nal.usda.gov/api-key-signup.html; CC0 data, permanent cache OK. When
+  // present (AND the Anthropic key is too), the nutrition matcher can resolve
+  // ingredients beyond the 920-row bundled table against the full ~600k-food
+  // USDA database. Absent → the matcher uses the bundled table only.
+  USDA_API_KEY: process.env.USDA_API_KEY,
   // Optional "appid|appsecret" Meta app token — raises IG oEmbed rate
   // limits; the tokenless endpoint works without it (I1a).
   META_OEMBED_TOKEN: process.env.META_OEMBED_TOKEN,

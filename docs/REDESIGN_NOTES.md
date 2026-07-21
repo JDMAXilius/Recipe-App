@@ -816,3 +816,24 @@ Built (dormant-gated on ANTHROPIC_API_KEY, honesty-preserving):
   USDA FoodData Central search API so ingredients beyond the 920-row table also resolve — removes the
   snapshot dependency for the long tail. Not built/testable here (network + key); documented as next.
 - Deploy-gated + key-gated: live only after `railway up` AND ANTHROPIC_API_KEY on Railway.
+
+### Phase 15b — Nutrition Increment 2: live USDA FoodData Central search (2026-07-21, cloud)
+
+Founder: "Do that" → built the follow-on that backs the Claude matcher with the live USDA search API,
+so ingredients beyond the 920-row bundled table also resolve against the full ~600k-food database.
+
+- `backend/src/lib/nutrition/usdaSearch.js` — `usdaSearchActive()` (gated on new USDA_API_KEY),
+  `searchUsdaFoods(query)` (POST fdc/v1/foods/search, Foundation+SR-Legacy per-100g, 10s timeout,
+  fail-safe []), `extractPer100g()` (pure — handles both the flat search-API and nested detail-API
+  nutrient shapes; missing nutrients stay null), `candidateToFoodRow()` (USDA candidate → the same
+  row shape the bundled table uses; drops kcal-less rows).
+- `resolveIngredient.js` refactored to TWO tiers returning food ROWS: Stage 1 = Claude picks a bundled
+  key (offline, free); Stage 2 (only for Stage-1 misses, only when USDA_API_KEY present) = live USDA
+  search → Claude picks among the REAL candidates by fdcId. Honesty guards both sides: Stage-1 name
+  must be an exact key, Stage-2 fdcId must be one USDA actually returned — else null. Numbers are
+  100% USDA. Miss-caching is USDA-aware (a name asked while USDA dormant retries once the key lands).
+- computeNutrition unchanged in shape (map now yields rows); confidence still counts resolved rows as
+  "guessed". Env: USDA_API_KEY added (free from fdc.nal.usda.gov; CC0 → permanent cache OK).
+- Not live-testable here (USDA host + key unavailable) — pure extraction + dormant gating unit-tested
+  (68/68); dormant path byte-identical (lasagna still 743). Activates with USDA_API_KEY (+ the
+  Anthropic key) on Railway after deploy.
