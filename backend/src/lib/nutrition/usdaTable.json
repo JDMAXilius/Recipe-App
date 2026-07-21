@@ -10129,5 +10129,181 @@
     "fiber_g": 4.1,
     "sugar_g": null,
     "sodium_mg": 59
+  },
+  "almond creamer": {
+    "fdcId": 2102063,
+    "usda": "ALMOND MILK CREAMER (Califia Farms — representative branded record; no generic USDA creamer exists)",
+    "kcal": 133,
+    "protein_g": 0,
+    "fat_g": 3.33,
+    "carbs_g": 20,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 100
+  },
+  "almond milk creamer": {
+    "fdcId": 2102063,
+    "usda": "ALMOND MILK CREAMER (Califia Farms — representative branded record; no generic USDA creamer exists)",
+    "kcal": 133,
+    "protein_g": 0,
+    "fat_g": 3.33,
+    "carbs_g": 20,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 100
+  },
+  "coffee creamer": {
+    "fdcId": 2102063,
+    "usda": "ALMOND MILK CREAMER (Califia Farms — representative branded record; no generic USDA creamer exists)",
+    "kcal": 133,
+    "protein_g": 0,
+    "fat_g": 3.33,
+    "carbs_g": 20,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 100
+  },
+  "vanilla creamer": {
+    "fdcId": 2102063,
+    "usda": "ALMOND MILK CREAMER (Califia Farms — representative branded record; no generic USDA creamer exists)",
+    "kcal": 133,
+    "protein_g": 0,
+    "fat_g": 3.33,
+    "carbs_g": 20,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 100
+  },
+  "creamer": {
+    "fdcId": 2102063,
+    "usda": "ALMOND MILK CREAMER (Califia Farms — representative branded record; no generic USDA creamer exists)",
+    "kcal": 133,
+    "protein_g": 0,
+    "fat_g": 3.33,
+    "carbs_g": 20,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 100
+  },
+  "coffee": {
+    "fdcId": 171890,
+    "usda": "Beverages, coffee, brewed, prepared with tap water",
+    "kcal": 1,
+    "protein_g": 0.12,
+    "fat_g": 0.02,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 2
+  },
+  "black coffee": {
+    "fdcId": 171890,
+    "usda": "Beverages, coffee, brewed, prepared with tap water",
+    "kcal": 1,
+    "protein_g": 0.12,
+    "fat_g": 0.02,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 2
+  },
+  "brewed coffee": {
+    "fdcId": 171890,
+    "usda": "Beverages, coffee, brewed, prepared with tap water",
+    "kcal": 1,
+    "protein_g": 0.12,
+    "fat_g": 0.02,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 2
+  },
+  "hot coffee": {
+    "fdcId": 171890,
+    "usda": "Beverages, coffee, brewed, prepared with tap water",
+    "kcal": 1,
+    "protein_g": 0.12,
+    "fat_g": 0.02,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 2
+  },
+  "filter coffee": {
+    "fdcId": 171890,
+    "usda": "Beverages, coffee, brewed, prepared with tap water",
+    "kcal": 1,
+    "protein_g": 0.12,
+    "fat_g": 0.02,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 2
+  },
+  "americano": {
+    "fdcId": 171890,
+    "usda": "Beverages, coffee, brewed, prepared with tap water",
+    "kcal": 1,
+    "protein_g": 0.12,
+    "fat_g": 0.02,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 2
+  },
+  "espresso": {
+    "fdcId": 171891,
+    "usda": "Beverages, coffee, brewed, espresso, restaurant-prepared",
+    "kcal": 36,
+    "protein_g": 0.12,
+    "fat_g": 0.18,
+    "carbs_g": 1.67,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 14
+  },
+  "espresso coffee": {
+    "fdcId": 171891,
+    "usda": "Beverages, coffee, brewed, espresso, restaurant-prepared",
+    "kcal": 36,
+    "protein_g": 0.12,
+    "fat_g": 0.18,
+    "carbs_g": 1.67,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 14
+  },
+  "tea": {
+    "fdcId": 173227,
+    "usda": "Beverages, tea, black, brewed, prepared with tap water",
+    "kcal": 4,
+    "protein_g": 0,
+    "fat_g": 0,
+    "carbs_g": 0.3,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 3
+  },
+  "black tea": {
+    "fdcId": 173227,
+    "usda": "Beverages, tea, black, brewed, prepared with tap water",
+    "kcal": 4,
+    "protein_g": 0,
+    "fat_g": 0,
+    "carbs_g": 0.3,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 3
+  },
+  "brewed tea": {
+    "fdcId": 173227,
+    "usda": "Beverages, tea, black, brewed, prepared with tap water",
+    "kcal": 4,
+    "protein_g": 0,
+    "fat_g": 0,
+    "carbs_g": 0.3,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 3
   }
 }

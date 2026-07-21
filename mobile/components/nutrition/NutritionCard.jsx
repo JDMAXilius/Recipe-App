@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../../context/ThemeContext";
 import CalorieRing from "./CalorieRing";
+import { fdaCalories } from "../../lib/fdaCalories";
 
 // NutritionCard v2 (Mobbin deep dive, 2026-07-15):
 // header scope toggle (per serving ◦ whole recipe) + scope sentence in words,
@@ -35,7 +36,12 @@ export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 
     : { calories, protein, carbs, fat };
 
   const mult = scope === "recipe" ? servings : 1;
-  const cal = Math.round(perServing.calories * mult);
+  // FDA rounding, 21 CFR 101.9(c)(1): "amounts less than 5 calories may be
+  // expressed as zero". So a black coffee reads 0, matching every packaged label
+  // a user has ever seen. This is a LABELLING rule about a real small number —
+  // NOT the "negative calorie" folk rule (celery/lemon burning more than they
+  // carry), which has no scientific or USDA basis and is deliberately not here.
+  const cal = fdaCalories(perServing.calories * mult);
   const grams = {
     protein: perServing.protein * mult,
     carbs: perServing.carbs * mult,

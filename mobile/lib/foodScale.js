@@ -66,7 +66,7 @@ const AS_IS_RE = /to taste|to serve|for (frying|greasing|garnish|dusting|the)|ga
 
 // Liquids display in ml (locked decision #1). Matched against the NAME.
 const LIQUID_RE =
-  /\b(water|milk(?!\s*powder)|buttermilk|cream(?!\s*cheese| of tartar|ed)|double cream|single cream|half[- ]and[- ]half|stock|broth|wine(?!\s*leaves)|beer|stout|ale\b|cider|brandy|rum|sherry|marsala|vermouth|sake|mirin|liqueur|grand marnier|cointreau|kirsch|juice|vinegar|oil(?!ive)|olive oil|vegetable oil|sunflower oil|coconut milk|coconut cream|coconut water|passata|soy sauce|tamari|oyster sauce|hoisin|teriyaki|evaporated milk|millk|kefir|espresso|coffee|tea\b)\b/i;
+  /\b(water|milk(?!\s*powder)|buttermilk|cream(?!\s*cheese| of tartar|ed)|double cream|single cream|half[- ]and[- ]half|stock|broth|wine(?!\s*leaves)|beer|stout|ale\b|cider|brandy|rum|sherry|marsala|vermouth|sake|mirin|liqueur|grand marnier|cointreau|kirsch|juice|vinegar|oil(?!ive)|olive oil|vegetable oil|sunflower oil|coconut milk|coconut cream|coconut water|passata|soy sauce|tamari|oyster sauce|hoisin|teriyaki|evaporated milk|millk|kefir|espresso|coffee|creamer|americano|tea\b)\b/i;
 // Honey/syrups/molasses/condensed milk are NOT here — they're viscous, cling
 // to the spoon, and weigh cleanly, so they take the density path → grams
 // (matches Kitchen Stories). Thin pourables above stay ml.
