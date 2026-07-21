@@ -59,6 +59,30 @@ thread; nothing to do until then.
 
 ## Done when
 
-- [ ] Three seams fired live; outputs + usage reported; any prompt bugs pasted back
+- [x] Three seams fired live; outputs + usage reported; any prompt bugs pasted back *(photo
+      faithful-transcription on real cookbook/handwritten photos still needs a human — see Log)*
 - [ ] Sim/device pass done; screenshots in thread; any P1s fixed or reported
-- [ ] (standing) N2 migration executed when it lands
+- [x] (standing) N2 migration executed when it landed (see NUTRITION_REFRESH log)
+
+## Log
+
+**2026-07-21 (terminal, Fable session) — Task 1 + Task 2b done:**
+- **Generation** (prod, Opus 4.8, 9.4s): "cozy 30-min chicken dinner for 4, no dairy" →
+  "One-Pan Garlic Herb Chicken with Lemon and Olives", servings 4, weight-first ("700 g"),
+  decimals ("0.5 tsp", "0.25 tsp"), measure column holds only amounts, dairy-free honored,
+  unnumbered steps. NO prompt bugs seen. Decline gate: "a recipe for concrete" → 422 in 4.8s
+  with kind copy (offers a tiffin that *looks* like concrete — keep).
+- **Text import** (Haiku, 6.1s): social caption → faithful extraction, nothing invented,
+  "pinch of" kept as measure. Hashtag soup → 422 in 1.8s.
+- **Photo import** (Opus vision — first live run): unauthed 3 MB body → 401 in 0.3s
+  (401-before-buffer intact in prod); authed non-recipe image (Otto food painting) → 422 in
+  5.2s with the clearer-shot copy. STILL HUMAN: real cookbook page + handwritten card
+  transcription fidelity, and a real >2 MB photo through the 8 MB path.
+- **Usage** (Railway logs): generation 1228 in/697 out (27 thinking) Opus ≈ $0.07/call;
+  decline 126 out; captions 754/118 + 711/35 Haiku (fractions of a cent); photo 1299 in/46 out.
+  All three log lines fire with model + tokens as designed.
+- **Task 2b**: all 29 null-fdcId rows backfilled across `usdaTable.json` (5) and
+  `usdaCookedTable.json` (24) — every id verified by exact-description match or exact
+  kcal/protein match to the SR record (egg noodles → 168926, tortillas → 175037 refrigerated,
+  polenta → 171655 white grits; those three rows' `usda` strings corrected to the true record
+  names). `usdaProvider.test.mjs` allowance tightened `<= 12` → `equal 0`. 87/87 green.

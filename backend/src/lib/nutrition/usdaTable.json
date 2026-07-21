@@ -1562,7 +1562,7 @@
     "sodium_mg": 13
   },
   "golden syrup": {
-    "fdcId": null,
+    "fdcId": 168837,
     "usda": "Syrups, corn, light",
     "kcal": 283,
     "protein_g": 0,
@@ -3256,7 +3256,7 @@
     "sodium_mg": 9
   },
   "veal": {
-    "fdcId": null,
+    "fdcId": 173815,
     "usda": "Veal, composite of trimmed retail cuts, separable lean and fat, raw",
     "kcal": 144,
     "protein_g": 19.4,
@@ -4444,8 +4444,8 @@
     "sodium_mg": 74
   },
   "tortillas": {
-    "fdcId": null,
-    "usda": "Tortillas, ready-to-bake or -fry, flour",
+    "fdcId": 175037,
+    "usda": "Tortillas, ready-to-bake or -fry, flour, refrigerated",
     "kcal": 306,
     "protein_g": 8.2,
     "fat_g": 8,
@@ -4884,7 +4884,7 @@
     "sodium_mg": 6
   },
   "oats": {
-    "fdcId": null,
+    "fdcId": 173904,
     "usda": "Cereals, oats, regular and quick, not fortified, dry",
     "kcal": 379,
     "protein_g": 13.2,
@@ -8437,7 +8437,7 @@
     "sodium_mg": 37
   },
   "bread flour": {
-    "fdcId": null,
+    "fdcId": 168896,
     "usda": "Wheat flour, white, bread, enriched",
     "kcal": 361,
     "protein_g": 12,

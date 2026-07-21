@@ -209,7 +209,7 @@ test("table rows carry USDA provenance — every number traces to its record", (
     assert.ok(Number.isFinite(r.kcal), "row missing kcal");
     if (!r.fdcId) missingId += 1;
   }
-  assert.ok(missingId <= 12, `too many rows without fdcId: ${missingId} — backfill them`);
+  assert.equal(missingId, 0, `rows without fdcId: ${missingId} — backfill them (AI_SEAMS ticket Task 2b pattern)`);
 });
 
 test("known ingredients match real-world values — guards the kJ/kcal trap", () => {

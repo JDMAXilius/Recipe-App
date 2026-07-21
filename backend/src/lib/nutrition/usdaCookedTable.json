@@ -770,7 +770,7 @@
     "sodium_mg": 19
   },
   "pasta": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -781,7 +781,7 @@
     "sodium_mg": 1
   },
   "spaghetti": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -792,7 +792,7 @@
     "sodium_mg": 1
   },
   "macaroni": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -803,7 +803,7 @@
     "sodium_mg": 1
   },
   "penne": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -814,7 +814,7 @@
     "sodium_mg": 1
   },
   "rigatoni": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -825,7 +825,7 @@
     "sodium_mg": 1
   },
   "tagliatelle": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -836,7 +836,7 @@
     "sodium_mg": 1
   },
   "fettuccine": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -847,7 +847,7 @@
     "sodium_mg": 1
   },
   "linguine": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -858,7 +858,7 @@
     "sodium_mg": 1
   },
   "farfalle": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -869,7 +869,7 @@
     "sodium_mg": 1
   },
   "orzo": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -880,7 +880,7 @@
     "sodium_mg": 1
   },
   "lasagne sheets": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -891,7 +891,7 @@
     "sodium_mg": 1
   },
   "lasagna sheets": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -902,7 +902,7 @@
     "sodium_mg": 1
   },
   "noodles": {
-    "fdcId": null,
+    "fdcId": 168928,
     "usda": "Pasta, cooked, unenriched, without added salt",
     "kcal": 158,
     "protein_g": 5.8,
@@ -913,8 +913,8 @@
     "sodium_mg": 1
   },
   "egg noodles": {
-    "fdcId": null,
-    "usda": "Noodles, egg, cooked, unenriched",
+    "fdcId": 168926,
+    "usda": "Noodles, egg, unenriched, cooked, without added salt",
     "kcal": 138,
     "protein_g": 4.54,
     "fat_g": 2.07,
@@ -957,7 +957,7 @@
     "sodium_mg": 1
   },
   "barley": {
-    "fdcId": null,
+    "fdcId": 170285,
     "usda": "Barley, pearled, cooked",
     "kcal": 123,
     "protein_g": 2.26,
@@ -968,7 +968,7 @@
     "sodium_mg": 3
   },
   "pearl barley": {
-    "fdcId": null,
+    "fdcId": 170285,
     "usda": "Barley, pearled, cooked",
     "kcal": 123,
     "protein_g": 2.26,
@@ -979,7 +979,7 @@
     "sodium_mg": 3
   },
   "bulgur": {
-    "fdcId": null,
+    "fdcId": 170287,
     "usda": "Bulgur, cooked",
     "kcal": 83,
     "protein_g": 3.08,
@@ -990,7 +990,7 @@
     "sodium_mg": 5
   },
   "bulgur wheat": {
-    "fdcId": null,
+    "fdcId": 170287,
     "usda": "Bulgur, cooked",
     "kcal": 83,
     "protein_g": 3.08,
@@ -1001,7 +1001,7 @@
     "sodium_mg": 5
   },
   "farro": {
-    "fdcId": null,
+    "fdcId": 169746,
     "usda": "Spelt, cooked",
     "kcal": 127,
     "protein_g": 5.5,
@@ -1012,7 +1012,7 @@
     "sodium_mg": 5
   },
   "spelt": {
-    "fdcId": null,
+    "fdcId": 169746,
     "usda": "Spelt, cooked",
     "kcal": 127,
     "protein_g": 5.5,
@@ -1023,8 +1023,8 @@
     "sodium_mg": 5
   },
   "polenta": {
-    "fdcId": null,
-    "usda": "Corn grits, cooked with water, without salt",
+    "fdcId": 171655,
+    "usda": "Cereals, corn grits, white, regular and quick, enriched, cooked with water, without salt",
     "kcal": 71,
     "protein_g": 1.7,
     "fat_g": 0.23,
@@ -1034,7 +1034,7 @@
     "sodium_mg": 2
   },
   "pinto beans": {
-    "fdcId": null,
+    "fdcId": 175200,
     "usda": "Beans, pinto, mature seeds, cooked, boiled, without salt",
     "kcal": 143,
     "protein_g": 9.01,
@@ -1045,7 +1045,7 @@
     "sodium_mg": 1
   },
   "haricot beans": {
-    "fdcId": null,
+    "fdcId": 173746,
     "usda": "Beans, navy, mature seeds, cooked, boiled, without salt",
     "kcal": 140,
     "protein_g": 8.23,
@@ -1056,7 +1056,7 @@
     "sodium_mg": 0
   },
   "navy beans": {
-    "fdcId": null,
+    "fdcId": 173746,
     "usda": "Beans, navy, mature seeds, cooked, boiled, without salt",
     "kcal": 140,
     "protein_g": 8.23,
