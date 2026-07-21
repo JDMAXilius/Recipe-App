@@ -73,6 +73,16 @@ export const UserRecipeAPI = {
     const res = await authFetch(`/recipes/${userDbId(id)}`, { method: "DELETE" });
     return parseOrThrow(res, "Couldn't remove the recipe");
   },
+  // "Cook something up with Otto" — AI recipe creation. The server returns an
+  // editor-ready draft (or an honest decline message as the error).
+  generate: async (payload) => {
+    const res = await authFetch("/generate", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return parseOrThrow(res, "Otto couldn't finish that idea right now");
+  },
   importFromText: async (text) => {
     const res = await authFetch("/import/text", {
       method: "POST",

@@ -9,6 +9,7 @@ import { and, eq, desc, asc, gte, lte, isNull, inArray, count } from "drizzle-or
 import { importRecipeFromUrl } from "./lib/importRecipe.js";
 import { detectSocialPlatform, importFromSocialUrl, SocialImportError } from "./lib/import/social.js";
 import { extractionActive, extractRecipeFromText } from "./lib/import/extractRecipe.js";
+import { generateRecipe, generationActive } from "./lib/generateRecipe.js";
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
@@ -240,6 +241,30 @@ app.post("/api/import/text", requireAuth, costlyLimiter, validate(schemas.import
   } catch (error) {
     logger.warn({ err: error.message }, "text import failed");
     res.status(502).json({ error: "Otto couldn't make sense of that text right now — try again in a moment." });
+  }
+});
+
+// "Cook something up with Otto" — AI recipe creation (Claude API). Dormant
+// without a key, per-user costlyLimiter (this is the most expensive endpoint),
+// and every result goes through the review editor before it can be saved.
+app.post("/api/generate", requireAuth, costlyLimiter, validate(schemas.generateBody), async (req, res) => {
+  if (!generationActive()) {
+    return res.status(503).json({
+      error: "Otto can't cook ideas up just yet — that part of the kitchen is still being wired up.",
+    });
+  }
+  try {
+    const result = await generateRecipe(req.body);
+    if (!result) {
+      return res.status(502).json({ error: "Otto's idea burner wouldn't light — try again in a moment." });
+    }
+    if (result.declined) {
+      return res.status(422).json({ error: result.declined });
+    }
+    res.status(200).json({ ...result.recipe, image: null, source: "otto", sourceUrl: null, sourceName: null });
+  } catch (error) {
+    reportError(error, { msg: "recipe generation failed", userId: req.userId });
+    res.status(502).json({ error: "Otto couldn't finish that idea right now — try again in a moment." });
   }
 });
 

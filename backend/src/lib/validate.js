@@ -27,6 +27,14 @@ export const schemas = {
     url: z.string().trim().url().max(2000),
   }),
 
+  // "Cook something up with Otto" — the AI recipe request.
+  generateBody: z.object({
+    prompt: z.string().trim().min(3).max(600),
+    servings: z.coerce.number().int().min(1).max(24).optional(),
+    diet: z.string().trim().max(40).optional(),
+    cuisines: z.array(z.string().trim().max(40)).max(6).optional(),
+  }),
+
   importTextBody: z.object({
     text: z.string().trim().min(40).max(20000),
   }),
@@ -56,7 +64,7 @@ export const schemas = {
   }),
 
   recipeCreate: z.object({
-    source: z.enum(["imported", "manual"]),
+    source: z.enum(["imported", "manual", "otto"]),
     sourceUrl: optionalStr(2000),
     sourceName: optionalStr(200),
     title: trimmed(300),

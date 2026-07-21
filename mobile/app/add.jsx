@@ -16,6 +16,7 @@ import { useTheme } from "../context/ThemeContext";
 import { createAddStyles } from "../assets/styles/add.styles";
 import { UserRecipeAPI } from "../services/userRecipes";
 import { setDraft } from "../lib/draftStore";
+import { loadPrefs } from "../lib/prefs";
 import { shareIntentAvailable } from "../lib/shareIntent";
 import OttoIdle from "../components/OttoIdle";
 import Bounceable from "../components/Bounceable";
@@ -156,6 +157,50 @@ const AddScreen = () => {
     }
   };
 
+  // "Cook something up with Otto" — describe the dinner, Claude writes the
+  // recipe, and the draft lands on the SAME review editor as imports: AI
+  // output is never trusted blindly, and it saves labeled source "otto".
+  const [wish, setWish] = useState("");
+  const startGenerate = async () => {
+    const ask = wish.trim();
+    if (ask.length < 3) {
+      setFailMessage("Tell Otto a little more — what kind of dish, for how many, any rules?");
+      setPhase("failed");
+      return;
+    }
+    setPhase("dreaming");
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    try {
+      const prefs = await loadPrefs().catch(() => null);
+      const draft = await UserRecipeAPI.generate({
+        prompt: ask,
+        ...(prefs?.diet && prefs.diet !== "none" ? { diet: prefs.diet } : {}),
+        ...(prefs?.cuisines?.length ? { cuisines: prefs.cuisines } : {}),
+      });
+      setDraft({
+        mode: "import",
+        source: "otto",
+        sourceUrl: null,
+        sourceName: null,
+        title: draft.title,
+        image: null,
+        category: draft.category || null,
+        area: draft.area || null,
+        servings: draft.servings || 4,
+        ingredients: draft.ingredients,
+        steps: draft.steps,
+      });
+      router.replace("/recipe/edit");
+    } catch (error) {
+      setFailMessage(
+        error.message?.startsWith("Otto")
+          ? error.message
+          : error.message || "Otto couldn't finish that idea right now — try again in a moment."
+      );
+      setPhase("failed");
+    }
+  };
+
   const writeMyself = (carryUrl) => {
     setDraft({
       mode: "manual",
@@ -176,12 +221,16 @@ const AddScreen = () => {
     <View style={styles.container}>
       <ScreenHeader leftIcon="close" leftLabel="Close" onBack={() => router.back()} />
 
-      {phase === "parsing" ? (
+      {phase === "parsing" || phase === "dreaming" ? (
         <View style={styles.parsingWrap}>
           <OttoIdle source={require("../assets/mascot/otto-thinking-cut.png")} style={styles.otto} />
-          <Text style={styles.parsingTitle}>Otto's reading it…</Text>
+          <Text style={styles.parsingTitle}>
+            {phase === "dreaming" ? "Otto's cooking something up…" : "Otto's reading it…"}
+          </Text>
           <Text style={styles.parsingBody}>
-            He'll pull out the ingredients and steps — check his work before it goes on the shelf.
+            {phase === "dreaming"
+              ? "He's writing a real recipe for you — check his work before it goes on the shelf."
+              : "He'll pull out the ingredients and steps — check his work before it goes on the shelf."}
           </Text>
         </View>
       ) : phase === "failed" ? (
@@ -225,6 +274,35 @@ const AddScreen = () => {
               <Text style={styles.sheetSubtitle}>
                 Found something good? Otto will copy it down.
               </Text>
+            </View>
+
+            <View style={styles.modeCard}>
+              <View style={styles.modeTitleRow}>
+                <Ionicons name="sparkles" size={18} color={colors.accent} />
+                <Text style={styles.modeTitle}>Cook something up with Otto</Text>
+              </View>
+              <Text style={styles.modeHint}>
+                Tell Otto what you&apos;re after — &ldquo;a cozy 30-minute chicken dinner for 4,
+                no dairy&rdquo; — and he&apos;ll write a real recipe for you to check and keep.
+              </Text>
+              <TextInput
+                style={[styles.urlInput, styles.textArea]}
+                value={wish}
+                onChangeText={setWish}
+                placeholder="What are you hungry for?"
+                placeholderTextColor={colors.inkSoft}
+                multiline
+                accessibilityLabel="Describe the recipe you want"
+              />
+              <Bounceable
+                style={styles.primaryButton}
+                onPress={startGenerate}
+                accessibilityRole="button"
+                accessibilityLabel="Have Otto write the recipe"
+              >
+                <Ionicons name="sparkles-outline" size={18} color={colors.white} />
+                <Text style={styles.primaryButtonText}>Cook it up</Text>
+              </Bounceable>
             </View>
 
             <View style={styles.modeCard}>

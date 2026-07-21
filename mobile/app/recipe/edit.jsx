@@ -262,9 +262,11 @@ const RecipeEditScreen = () => {
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {mode === "import" && (
             <View style={styles.reviewBanner}>
-              <Ionicons name="paw" size={16} color={colors.accent} />
+              <Ionicons name={source === "otto" ? "sparkles" : "paw"} size={16} color={colors.accent} />
               <Text style={styles.reviewBannerText}>
-                Did Otto get this right? Fix anything that reads oddly, then save it to the shelf.
+                {source === "otto"
+                  ? "Otto dreamed this one up. Taste it with your eyes — tweak anything, then save it to the shelf."
+                  : "Did Otto get this right? Fix anything that reads oddly, then save it to the shelf."}
               </Text>
             </View>
           )}
@@ -464,11 +466,15 @@ const RecipeEditScreen = () => {
             <Text style={styles.addRowText}>Add step</Text>
           </TouchableOpacity>
 
-          {sourceUrl && (
+          {sourceUrl ? (
             <Text style={styles.sourceNote}>
               From {sourceName || sourceUrl} — the credit stays with the recipe.
             </Text>
-          )}
+          ) : source === "otto" ? (
+            <Text style={styles.sourceNote}>
+              Cooked up with Otto — checked and kept by you.
+            </Text>
+          ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
 
