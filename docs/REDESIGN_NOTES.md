@@ -871,3 +871,17 @@ references (black coffee ~2, latte 70–120, juice ~120/cup, smoothie 150–250,
 plus a tolerant lookup (case/plural/synonyms: beverage→Drink, latte→Coffee, shake→Smoothie…) so a
 freeform "drinks" never falls through to the 420-kcal dinner DEFAULT. Seed categories byte-identical;
 45/45. App-side change → needs an app rebuild (not railway) to appear.
+
+### Phase 15e — Nutrition cache refresh script (2026-07-21, cloud)
+
+Founder asked how seed/imported/created recipes are handled under the USDA+Claude framework —
+writing it up surfaced the integration gap: both caches are compute-once, so prod still holds the
+OLD engine's output (corrupt chicken-skin values in seed_nutrition, understated totals, and
+"unavailable" negative-cache sentinels that never retry even after keys land; user recipes' stored
+nutrition likewise). Deploying code does not touch stored output. Shipped
+backend/scripts/refresh-nutrition.mjs (idempotent, prod-script pattern): wipes seed_nutrition
+(lazy recompute on view) + recomputes every user recipe inline with the current engine. Added to the
+launch checklist as part of the deploy step. Flow summary recorded: one engine, three entry points —
+seed = compute-once-on-first-view cached globally w/ curated facts; imported+created = async
+backfill on save/edit onto recipes.nutrition; Claude matcher benefits freeform user/import names
+most, seed vocabulary is already the table.
