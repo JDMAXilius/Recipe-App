@@ -936,3 +936,31 @@ web-only (Otto collapse cards, snap-the-recipe flow with real permissions, edito
 "amount" placeholder). Also added the standing N2-migration task to the nutrition framework ticket.
 Everything else cloud-impossible was already covered (refresh/framework/weight-first/functional/
 OAuth/TestFlight tickets + checklist §D).
+
+### Phase 17 — Nutrition roadmap N1–N6 executed end-to-end (2026-07-21, cloud)
+
+Founder: "don't stop until the entire roadmap N1–N6 is done." All six shipped, each its own commit:
+- N1 raw-vs-cooked (900fa6a): Claude reads the recipe's METHOD to settle volume-grain/canned-legume
+  ambiguity per line (raw/cooked/unknown, enum-clamped; unknown → the honest refusal stays); steps
+  threaded through computeNutrition from both lifecycles + refresh script; verdicts count as
+  "guessed" for confidence.
+- N4 (same commit): 27 cooked USDA records (pasta family, white/long-grain rice, barley, bulgur,
+  farro, polenta, pinto/navy, egg noodles) so cooked verdicts have rows to land on.
+- N3 (71147ab + 0d7ecb7): full 920-row sweep (Atwater + identity words + class bounds) → 119 flags,
+  110 legitimate on review, 9 real identity corruptions fixed (golden syrup WAS raw apples 57→283;
+  potato starch WAS potato skin 58→381; peanut/groundnut oil WERE roasted nuts →884; tortillas WERE
+  chips 448→306; veal WAS the separable fat 638→144; wine vinegar WAS wine 82→19; oats WAS oat bran
+  246→379; bread flour WAS a baked loaf 238→361) + class regressions pinned. Provenance test
+  loosened honestly (usda description always required; ≤12 null fdcIds; backfill ticketed).
+  PROCESS NOTE: one commit briefly reached main with a failing test (syntax-check ran from the wrong
+  cwd and the && chain pushed anyway) — caught and fixed within minutes, logged here for honesty.
+- N2 (be4d1b6): resolved_ingredients durable cache (schema + idempotent RLS script + read-through/
+  write-back, all fail-open); refresh script clears stored misses, keeps hits.
+- N5 (a0cb610): golden nutrition corpus — 8 dishes with ±20% kcal ranges + macro dominance
+  (85/85 backend tests).
+- N6: NutritionCard finally honors computed.confidence — low-confidence computed keeps the number
+  but the one footnote stops implying precision ("…a few lines didn't measure cleanly — treat it as
+  a rough guide"). Verified both variants in the web build (screenshots); client-side → ships with
+  the next app build (N9).
+Roadmap statuses marked DONE. Remaining nutrition work is entirely terminal-side (N7–N10 + fdcId
+backfill), all ticketed.

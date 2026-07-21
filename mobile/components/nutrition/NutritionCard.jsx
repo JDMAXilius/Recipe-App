@@ -117,11 +117,15 @@ export default function NutritionCard({ calories, protein = 0, carbs = 0, fat = 
       {/* The ONE place nutrition is qualified. It used to be said here three
           different ways and again with a "~" on every card in every grid —
           repetition that reads as anxiety, not honesty. Said once, at the
-          source, where the actual numbers are. */}
+          source, where the actual numbers are. Low confidence (N6) means the
+          engine dropped or approximated real lines — the number stays (it's
+          the best honest figure) but the sentence stops implying precision. */}
       <Text style={[styles.footnote, { color: colors.inkSoft }]}>
-        {computed
-          ? "Otto worked this out from the ingredients — an estimate."
-          : "Otto's estimate, from this kind of dish."}
+        {!computed
+          ? "Otto's estimate, from this kind of dish."
+          : computed.confidence === "low"
+            ? "Otto worked this out from the ingredients, but a few lines didn't measure cleanly — treat it as a rough guide."
+            : "Otto worked this out from the ingredients — an estimate."}
       </Text>
     </View>
   );
