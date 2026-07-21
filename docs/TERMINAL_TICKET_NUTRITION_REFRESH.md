@@ -1,5 +1,7 @@
 # TERMINAL TICKET — Recalculate all nutrition with the USDA+Claude framework
 
+> STATUS: in-progress — terminal 2026-07-21 (ba700e68)
+
 Founder directive (2026-07-21): "We need to recalculate everything again with this new
 framework that way everything is accurate."
 
