@@ -1,0 +1,3753 @@
+{
+ "167551": {
+  "verdict": "ok",
+  "keys": [
+   "toffee popcorn"
+  ],
+  "stored": "Snacks, popcorn, caramel-coated, with peanuts",
+  "storedKcal": 400,
+  "liveDesc": "Snacks, popcorn, caramel-coated, with peanuts",
+  "liveKcal": 400,
+  "sim": 1
+ },
+ "167571": {
+  "verdict": "ok",
+  "keys": [
+   "white chocolate chips",
+   "white chocolate"
+  ],
+  "stored": "Candies, white chocolate",
+  "storedKcal": 539,
+  "liveDesc": "Candies, white chocolate",
+  "liveKcal": 539,
+  "sim": 1
+ },
+ "167575": {
+  "verdict": "ok",
+  "keys": [
+   "ice cream"
+  ],
+  "stored": "Ice creams, vanilla",
+  "storedKcal": 207,
+  "liveDesc": "Ice creams, vanilla",
+  "liveKcal": 207,
+  "sim": 1
+ },
+ "167587": {
+  "verdict": "ok",
+  "keys": [
+   "milk chocolate"
+  ],
+  "stored": "Candies, milk chocolate",
+  "storedKcal": 535,
+  "liveDesc": "Candies, milk chocolate",
+  "liveKcal": 535,
+  "sim": 1
+ },
+ "167606": {
+  "verdict": "ok",
+  "keys": [
+   "fries"
+  ],
+  "stored": "Sweet Potatoes, french fried, frozen as packaged, salt added in processing",
+  "storedKcal": 182,
+  "liveDesc": "Sweet Potatoes, french fried, frozen as packaged, salt added in processing",
+  "liveKcal": 182,
+  "sim": 1
+ },
+ "167656": {
+  "verdict": "ok",
+  "keys": [
+   "corn tortillas"
+  ],
+  "stored": "Corned beef and potatoes in tortilla (Apache)",
+  "storedKcal": 224,
+  "liveDesc": "Corned beef and potatoes in tortilla (Apache)",
+  "liveKcal": 224,
+  "sim": 1
+ },
+ "167717": {
+  "verdict": "ok",
+  "keys": [
+   "yeast"
+  ],
+  "stored": "Yeast extract spread",
+  "storedKcal": 185,
+  "liveDesc": "Yeast extract spread",
+  "liveKcal": 185,
+  "sim": 1
+ },
+ "167723": {
+  "verdict": "ok",
+  "keys": [
+   "sake",
+   "rice wine"
+  ],
+  "stored": "Alcoholic beverage, rice (sake)",
+  "storedKcal": 134,
+  "liveDesc": "Alcoholic beverage, rice (sake)",
+  "liveKcal": 134,
+  "sim": 1
+ },
+ "167726": {
+  "verdict": "ok",
+  "keys": [
+   "mixed peel",
+   "fruit mix",
+   "dried fruit"
+  ],
+  "stored": "Babyfood, mixed fruit yogurt, strained",
+  "storedKcal": 75,
+  "liveDesc": "Babyfood, mixed fruit yogurt, strained",
+  "liveKcal": 75,
+  "sim": 1
+ },
+ "167746": {
+  "verdict": "ok",
+  "keys": [
+   "lemon",
+   "lemon juice",
+   "lemon zest",
+   "lemons"
+  ],
+  "stored": "Lemons, raw, without peel",
+  "storedKcal": 29,
+  "liveDesc": "Lemons, raw, without peel",
+  "liveKcal": 29,
+  "sim": 1
+ },
+ "167755": {
+  "verdict": "ok",
+  "keys": [
+   "raspberries"
+  ],
+  "stored": "Raspberries, raw",
+  "storedKcal": 52,
+  "liveDesc": "Raspberries, raw",
+  "liveKcal": 52,
+  "sim": 1
+ },
+ "167762": {
+  "verdict": "ok",
+  "keys": [
+   "strawberries"
+  ],
+  "stored": "Strawberries, raw",
+  "storedKcal": 32,
+  "liveDesc": "Strawberries, raw",
+  "liveKcal": 32,
+  "sim": 1
+ },
+ "167763": {
+  "verdict": "ok",
+  "keys": [
+   "tamarind ball",
+   "tamarind paste",
+   "tamarind pulp"
+  ],
+  "stored": "Tamarinds, raw",
+  "storedKcal": 239,
+  "liveDesc": "Tamarinds, raw",
+  "liveKcal": 239,
+  "sim": 1
+ },
+ "167766": {
+  "verdict": "ok",
+  "keys": [
+   "glace cherry"
+  ],
+  "stored": "Maraschino cherries, canned, drained",
+  "storedKcal": 165,
+  "liveDesc": "Maraschino cherries, canned, drained",
+  "liveKcal": 165,
+  "sim": 1
+ },
+ "167873": {
+  "verdict": "ok",
+  "keys": [
+   "prosciutto"
+  ],
+  "stored": "Pork, cured, ham, patties, unheated",
+  "storedKcal": 315,
+  "liveDesc": "Pork, cured, ham, patties, unheated",
+  "liveKcal": 315,
+  "sim": 1
+ },
+ "167909": {
+  "verdict": "ok",
+  "keys": [
+   "parma ham",
+   "ham",
+   "jamón ibérico",
+   "serrano ham",
+   "smoked ham"
+  ],
+  "stored": "HORMEL, Cure 81 Ham",
+  "storedKcal": 106,
+  "liveDesc": "HORMEL, Cure 81 Ham",
+  "liveKcal": 106,
+  "sim": 1
+ },
+ "167974": {
+  "verdict": "ok",
+  "keys": [
+   "caramel"
+  ],
+  "stored": "Candies, caramels",
+  "storedKcal": 382,
+  "liveDesc": "Candies, caramels",
+  "liveKcal": 382,
+  "sim": 1
+ },
+ "167995": {
+  "verdict": "ok",
+  "keys": [
+   "miniature marshmallows"
+  ],
+  "stored": "Candies, marshmallows",
+  "storedKcal": 318,
+  "liveDesc": "Candies, marshmallows",
+  "liveKcal": 318,
+  "sim": 1
+ },
+ "168007": {
+  "verdict": "ok",
+  "keys": [
+   "sage"
+  ],
+  "stored": "Sage Valley, Gluten Free Vanilla Sandwich Cookies",
+  "storedKcal": 499,
+  "liveDesc": "Sage Valley, Gluten Free Vanilla Sandwich Cookies",
+  "liveKcal": 499,
+  "sim": 1
+ },
+ "168155": {
+  "verdict": "ok",
+  "keys": [
+   "lime",
+   "lime juice",
+   "unwaxed lime",
+   "kaffir lime"
+  ],
+  "stored": "Limes, raw",
+  "storedKcal": 30,
+  "liveDesc": "Limes, raw",
+  "liveKcal": 30,
+  "sim": 1
+ },
+ "168166": {
+  "verdict": "ok",
+  "keys": [
+   "sultanas",
+   "raisins"
+  ],
+  "stored": "Raisins, seeded",
+  "storedKcal": 296,
+  "liveDesc": "Raisins, seeded",
+  "liveKcal": 296,
+  "sim": 1
+ },
+ "168191": {
+  "verdict": "ok",
+  "keys": [
+   "medjool dates",
+   "stoned dates"
+  ],
+  "stored": "Dates, medjool",
+  "storedKcal": 277,
+  "liveDesc": "Dates, medjool",
+  "liveKcal": 277,
+  "sim": 1
+ },
+ "168277": {
+  "verdict": "ok",
+  "keys": [
+   "bacon",
+   "bacon lardon"
+  ],
+  "stored": "Pork, cured, bacon, unprepared",
+  "storedKcal": 393,
+  "liveDesc": "Pork, cured, bacon, unprepared",
+  "liveKcal": 393,
+  "sim": 1
+ },
+ "168312": {
+  "verdict": "ok",
+  "keys": [
+   "pork",
+   "pork tenderloin"
+  ],
+  "stored": "Pork, fresh, loin, tenderloin, separable lean and fat, raw",
+  "storedKcal": 120,
+  "liveDesc": "Pork, fresh, loin, tenderloin, separable lean and fat, raw",
+  "liveKcal": 120,
+  "sim": 1
+ },
+ "168389": {
+  "verdict": "ok",
+  "keys": [
+   "asparagus",
+   "white asparagus"
+  ],
+  "stored": "Asparagus, raw",
+  "storedKcal": 20,
+  "liveDesc": "Asparagus, raw",
+  "liveKcal": 20,
+  "sim": 1
+ },
+ "168421": {
+  "verdict": "ok",
+  "keys": [
+   "kale"
+  ],
+  "stored": "Kale, raw",
+  "storedKcal": 35,
+  "liveDesc": "Kale, raw",
+  "liveKcal": 35,
+  "sim": 1
+ },
+ "168422": {
+  "verdict": "ok",
+  "keys": [
+   "wild mushrooms"
+  ],
+  "stored": "Mushrooms, Chanterelle, raw",
+  "storedKcal": 32,
+  "liveDesc": "Mushrooms, Chanterelle, raw",
+  "liveKcal": 32,
+  "sim": 1
+ },
+ "168434": {
+  "verdict": "ok",
+  "keys": [
+   "chestnut mushroom"
+  ],
+  "stored": "Mushrooms, brown, italian, or crimini, raw",
+  "storedKcal": 22,
+  "liveDesc": "Mushrooms, brown, italian, or crimini, raw",
+  "liveKcal": 22,
+  "sim": 1
+ },
+ "168448": {
+  "verdict": "ok",
+  "keys": [
+   "pumpkin"
+  ],
+  "stored": "Pumpkin, raw",
+  "storedKcal": 26,
+  "liveDesc": "Pumpkin, raw",
+  "liveKcal": 26,
+  "sim": 1
+ },
+ "168454": {
+  "verdict": "ok",
+  "keys": [
+   "swede"
+  ],
+  "stored": "Rutabagas, raw",
+  "storedKcal": 37,
+  "liveDesc": "Rutabagas, raw",
+  "liveKcal": 37,
+  "sim": 1
+ },
+ "168462": {
+  "verdict": "ok",
+  "keys": [
+   "spinach",
+   "morning glory"
+  ],
+  "stored": "Spinach, raw",
+  "storedKcal": 23,
+  "liveDesc": "Spinach, raw",
+  "liveKcal": 23,
+  "sim": 1
+ },
+ "168556": {
+  "verdict": "ok",
+  "keys": [
+   "tomato ketchup"
+  ],
+  "stored": "Catsup",
+  "storedKcal": 101,
+  "liveDesc": "Catsup",
+  "liveKcal": 101,
+  "sim": 1
+ },
+ "168575": {
+  "verdict": "ok",
+  "keys": [
+   "vine leaves"
+  ],
+  "stored": "Grape leaves, raw",
+  "storedKcal": 93,
+  "liveDesc": "Grape leaves, raw",
+  "liveKcal": 93,
+  "sim": 1
+ },
+ "168576": {
+  "verdict": "ok",
+  "keys": [
+   "jalapeno"
+  ],
+  "stored": "Peppers, jalapeno, raw",
+  "storedKcal": 29,
+  "liveDesc": "Peppers, jalapeno, raw",
+  "liveKcal": 29,
+  "sim": 1
+ },
+ "168607": {
+  "verdict": "ok",
+  "keys": [
+   "beef brisket"
+  ],
+  "stored": "Beef, brisket, whole, separable lean only, all grades, raw",
+  "storedKcal": 157,
+  "liveDesc": "Beef, brisket, whole, separable lean only, all grades, raw",
+  "liveKcal": 157,
+  "sim": 1
+ },
+ "168608": {
+  "verdict": "ok",
+  "keys": [
+   "minced beef",
+   "ground beef"
+  ],
+  "stored": "Beef, grass-fed, ground, raw",
+  "storedKcal": 198,
+  "liveDesc": "Beef, grass-fed, ground, raw",
+  "liveKcal": 198,
+  "sim": 1
+ },
+ "168652": {
+  "verdict": "ok",
+  "keys": [
+   "lean minced beef",
+   "lean minced steak"
+  ],
+  "stored": "Beef, ground, 70% lean meat / 30% fat, raw",
+  "storedKcal": 332,
+  "liveDesc": "Beef, ground, 70% lean meat / 30% fat, raw",
+  "liveKcal": 332,
+  "sim": 1
+ },
+ "168746": {
+  "verdict": "ok",
+  "keys": [
+   "stout"
+  ],
+  "stored": "Alcoholic beverage, beer, regular, all",
+  "storedKcal": 43,
+  "liveDesc": "Alcoholic beverage, beer, regular, all",
+  "liveKcal": 43,
+  "sim": 1
+ },
+ "168820": {
+  "verdict": "ok",
+  "keys": [
+   "black treacle",
+   "treacle",
+   "molasses",
+   "dutch stroop",
+   "date molasses",
+   "sirop de liège"
+  ],
+  "stored": "Molasses",
+  "storedKcal": 290,
+  "liveDesc": "Molasses",
+  "liveKcal": 290,
+  "sim": 1
+ },
+ "168833": {
+  "verdict": "ok",
+  "keys": [
+   "brown sugar",
+   "dark brown sugar",
+   "dark soft brown sugar",
+   "demerara sugar",
+   "muscovado sugar",
+   "light brown soft sugar",
+   "dark brown soft sugar",
+   "palm sugar",
+   "papelon"
+  ],
+  "stored": "Sugars, brown",
+  "storedKcal": 380,
+  "liveDesc": "Sugars, brown",
+  "liveKcal": 380,
+  "sim": 1
+ },
+ "168837": {
+  "verdict": "ok",
+  "keys": [
+   "golden syrup"
+  ],
+  "stored": "Syrups, corn, light",
+  "storedKcal": 283,
+  "liveDesc": "Syrups, corn, light",
+  "liveKcal": 283,
+  "sim": 1
+ },
+ "168841": {
+  "verdict": "ok",
+  "keys": [
+   "caramel sauce"
+  ],
+  "stored": "Toppings, butterscotch or caramel",
+  "storedKcal": 216,
+  "liveDesc": "Toppings, butterscotch or caramel",
+  "liveKcal": 216,
+  "sim": 1
+ },
+ "168877": {
+  "verdict": "ok",
+  "keys": [
+   "basmati rice",
+   "arabic rice"
+  ],
+  "stored": "Rice, white, long-grain, regular, raw, enriched",
+  "storedKcal": 365,
+  "liveDesc": "Rice, white, long-grain, regular, raw, enriched",
+  "liveKcal": 365,
+  "sim": 1
+ },
+ "168893": {
+  "verdict": "ok",
+  "keys": [
+   "whole wheat"
+  ],
+  "stored": "Wheat flour, whole-grain (Includes foods for USDA's Food Distribution Program)",
+  "storedKcal": 340,
+  "liveDesc": "Wheat flour, whole-grain (Includes foods for USDA's Food Distribution Program)",
+  "liveKcal": 340,
+  "sim": 1
+ },
+ "168895": {
+  "verdict": "ok",
+  "keys": [
+   "self-raising flour"
+  ],
+  "stored": "Wheat flour, white, all-purpose, self-rising, enriched",
+  "storedKcal": 354,
+  "liveDesc": "Wheat flour, white, all-purpose, self-rising, enriched",
+  "liveKcal": 354,
+  "sim": 1
+ },
+ "168907": {
+  "verdict": "ok",
+  "keys": [
+   "udon noodles"
+  ],
+  "stored": "Noodles, japanese, soba, cooked",
+  "storedKcal": 99,
+  "liveDesc": "Noodles, japanese, soba, cooked",
+  "liveKcal": 99,
+  "sim": 1
+ },
+ "168927": {
+  "verdict": "ok",
+  "keys": [
+   "bowtie pasta",
+   "farfalle",
+   "lasagne sheets",
+   "macaroni",
+   "penne rigate"
+  ],
+  "stored": "Pasta, dry, unenriched",
+  "storedKcal": 371,
+  "liveDesc": "Pasta, dry, unenriched",
+  "liveKcal": 371,
+  "sim": 1
+ },
+ "168937": {
+  "verdict": "ok",
+  "keys": [
+   "spaghetti"
+  ],
+  "stored": "Spaghetti, protein-fortified, dry, enriched (n x 6.25)",
+  "storedKcal": 374,
+  "liveDesc": "Spaghetti, protein-fortified, dry, enriched (n x 6.25)",
+  "liveKcal": 374,
+  "sim": 1
+ },
+ "169032": {
+  "verdict": "ok",
+  "keys": [
+   "refried beans"
+  ],
+  "stored": "ON THE BORDER, refried beans",
+  "storedKcal": 144,
+  "liveDesc": "ON THE BORDER, refried beans",
+  "liveKcal": 144,
+  "sim": 1
+ },
+ "169070": {
+  "verdict": "ok",
+  "keys": [
+   "mirin",
+   "shaoxing wine"
+  ],
+  "stored": "Alcoholic beverage, wine, cooking",
+  "storedKcal": 50,
+  "liveDesc": "Alcoholic beverage, wine, cooking",
+  "liveKcal": 50,
+  "sim": 1
+ },
+ "169081": {
+  "verdict": "ok",
+  "keys": [
+   "mascarpone",
+   "paneer",
+   "farmers cheese"
+  ],
+  "stored": "Cheese spread, cream cheese base",
+  "storedKcal": 295,
+  "liveDesc": "Cheese spread, cream cheese base",
+  "liveKcal": 295,
+  "sim": 1
+ },
+ "169095": {
+  "verdict": "ok",
+  "keys": [
+   "pitted black olives"
+  ],
+  "stored": "Olives, ripe, canned (jumbo-super colossal)",
+  "storedKcal": 81,
+  "liveDesc": "Olives, ripe, canned (jumbo-super colossal)",
+  "liveKcal": 81,
+  "sim": 1
+ },
+ "169129": {
+  "verdict": "ok",
+  "keys": [
+   "cherry"
+  ],
+  "stored": "Pitanga, (surinam-cherry), raw",
+  "storedKcal": 33,
+  "liveDesc": "Pitanga, (surinam-cherry), raw",
+  "liveKcal": 33,
+  "sim": 1
+ },
+ "169225": {
+  "verdict": "ok",
+  "keys": [
+   "cucumber",
+   "persian cucumber"
+  ],
+  "stored": "Cucumber, peeled, raw",
+  "storedKcal": 10,
+  "liveDesc": "Cucumber, peeled, raw",
+  "liveKcal": 10,
+  "sim": 1
+ },
+ "169228": {
+  "verdict": "ok",
+  "keys": [
+   "aubergine",
+   "egg plants",
+   "baby aubergine"
+  ],
+  "stored": "Eggplant, raw",
+  "storedKcal": 25,
+  "liveDesc": "Eggplant, raw",
+  "liveKcal": 25,
+  "sim": 1
+ },
+ "169231": {
+  "verdict": "ok",
+  "keys": [
+   "ginger",
+   "ginger paste",
+   "galangal",
+   "galangal paste"
+  ],
+  "stored": "Ginger root, raw",
+  "storedKcal": 80,
+  "liveDesc": "Ginger root, raw",
+  "liveKcal": 80,
+  "sim": 1
+ },
+ "169236": {
+  "verdict": "ok",
+  "keys": [
+   "jerusalem artichokes"
+  ],
+  "stored": "Jerusalem-artichokes, raw",
+  "storedKcal": 73,
+  "liveDesc": "Jerusalem-artichokes, raw",
+  "liveKcal": 73,
+  "sim": 1
+ },
+ "169242": {
+  "verdict": "ok",
+  "keys": [
+   "shiitake mushrooms"
+  ],
+  "stored": "Mushrooms, shiitake, raw",
+  "storedKcal": 34,
+  "liveDesc": "Mushrooms, shiitake, raw",
+  "liveKcal": 34,
+  "sim": 1
+ },
+ "169246": {
+  "verdict": "ok",
+  "keys": [
+   "leek"
+  ],
+  "stored": "Leeks, (bulb and lower leaf-portion), raw",
+  "storedKcal": 61,
+  "liveDesc": "Leeks, (bulb and lower leaf-portion), raw",
+  "liveKcal": 61,
+  "sim": 1
+ },
+ "169247": {
+  "verdict": "ok",
+  "keys": [
+   "lettuce",
+   "little gem lettuce"
+  ],
+  "stored": "Lettuce, cos or romaine, raw",
+  "storedKcal": 17,
+  "liveDesc": "Lettuce, cos or romaine, raw",
+  "liveKcal": 17,
+  "sim": 1
+ },
+ "169251": {
+  "verdict": "ok",
+  "keys": [
+   "mushrooms"
+  ],
+  "stored": "Mushrooms, white, raw",
+  "storedKcal": 22,
+  "liveDesc": "Mushrooms, white, raw",
+  "liveKcal": 22,
+  "sim": 1
+ },
+ "169291": {
+  "verdict": "ok",
+  "keys": [
+   "zucchini",
+   "courgettes"
+  ],
+  "stored": "Squash, summer, zucchini, includes skin, raw",
+  "storedKcal": 17,
+  "liveDesc": "Squash, summer, zucchini, includes skin, raw",
+  "liveKcal": 17,
+  "sim": 1
+ },
+ "169295": {
+  "verdict": "ok",
+  "keys": [
+   "butternut squash"
+  ],
+  "stored": "Squash, winter, butternut, raw",
+  "storedKcal": 45,
+  "liveDesc": "Squash, winter, butternut, raw",
+  "liveKcal": 45,
+  "sim": 1
+ },
+ "169383": {
+  "verdict": "ok",
+  "keys": [
+   "yellow pepper"
+  ],
+  "stored": "Peppers, sweet, yellow, raw",
+  "storedKcal": 27,
+  "liveDesc": "Peppers, sweet, yellow, raw",
+  "liveKcal": 27,
+  "sim": 1
+ },
+ "169385": {
+  "verdict": "ok",
+  "keys": [
+   "fennel bulb",
+   "fennel seeds",
+   "fennel"
+  ],
+  "stored": "Fennel, bulb, raw",
+  "storedKcal": 31,
+  "liveDesc": "Fennel, bulb, raw",
+  "liveKcal": 31,
+  "sim": 1
+ },
+ "169387": {
+  "verdict": "ok",
+  "keys": [
+   "rocket"
+  ],
+  "stored": "Arugula, raw",
+  "storedKcal": 25,
+  "liveDesc": "Arugula, raw",
+  "liveKcal": 25,
+  "sim": 1
+ },
+ "169404": {
+  "verdict": "ok",
+  "keys": [
+   "chinese broccoli"
+  ],
+  "stored": "Broccoli, chinese, raw",
+  "storedKcal": 26,
+  "liveDesc": "Broccoli, chinese, raw",
+  "liveKcal": 26,
+  "sim": 1
+ },
+ "169410": {
+  "verdict": "ok",
+  "keys": [
+   "tahini",
+   "tahini paste"
+  ],
+  "stored": "Seeds, sesame butter, tahini, from raw and stone ground kernels",
+  "storedKcal": 570,
+  "liveDesc": "Seeds, sesame butter, tahini, from raw and stone ground kernels",
+  "liveKcal": 570,
+  "sim": 1
+ },
+ "169414": {
+  "verdict": "ok",
+  "keys": [
+   "flax eggs"
+  ],
+  "stored": "Seeds, flaxseed",
+  "storedKcal": 534,
+  "liveDesc": "Seeds, flaxseed",
+  "liveKcal": 534,
+  "sim": 1
+ },
+ "169449": {
+  "verdict": "ok",
+  "keys": [
+   "beef kidney"
+  ],
+  "stored": "Beef, variety meats and by-products, kidneys, raw",
+  "storedKcal": 99,
+  "liveDesc": "Beef, variety meats and by-products, kidneys, raw",
+  "liveKcal": 99,
+  "sim": 1
+ },
+ "169586": {
+  "verdict": "ok",
+  "keys": [
+   "peanut brittle"
+  ],
+  "stored": "Candies, peanut brittle, prepared-from-recipe",
+  "storedKcal": 486,
+  "liveDesc": "Candies, peanut brittle, prepared-from-recipe",
+  "liveKcal": 486,
+  "sim": 1
+ },
+ "169592": {
+  "verdict": "ok",
+  "keys": [
+   "dark chocolate chips",
+   "dark chocolate"
+  ],
+  "stored": "Candies, SPECIAL DARK Chocolate Bar",
+  "storedKcal": 556,
+  "liveDesc": "Candies, SPECIAL DARK Chocolate Bar",
+  "liveKcal": 556,
+  "sim": 1
+ },
+ "169593": {
+  "verdict": "ok",
+  "keys": [
+   "cacao",
+   "cocoa",
+   "cocoa powder",
+   "unsweetened cocoa"
+  ],
+  "stored": "Cocoa, dry powder, unsweetened",
+  "storedKcal": 228,
+  "liveDesc": "Cocoa, dry powder, unsweetened",
+  "liveKcal": 228,
+  "sim": 1
+ },
+ "169599": {
+  "verdict": "ok",
+  "keys": [
+   "gelatine leafs"
+  ],
+  "stored": "Gelatins, dry powder, unsweetened",
+  "storedKcal": 335,
+  "liveDesc": "Gelatins, dry powder, unsweetened",
+  "liveKcal": 335,
+  "sim": 1
+ },
+ "169608": {
+  "verdict": "ok",
+  "keys": [
+   "custard",
+   "vanilla custard"
+  ],
+  "stored": "Puddings, vanilla, ready-to-eat",
+  "storedKcal": 130,
+  "liveDesc": "Puddings, vanilla, ready-to-eat",
+  "liveKcal": 130,
+  "sim": 1
+ },
+ "169640": {
+  "verdict": "ok",
+  "keys": [
+   "honey",
+   "clear honey"
+  ],
+  "stored": "Honey",
+  "storedKcal": 304,
+  "liveDesc": "Honey",
+  "liveKcal": 304,
+  "sim": 1
+ },
+ "169656": {
+  "verdict": "ok",
+  "keys": [
+   "red chilli powder",
+   "icing sugar",
+   "powdered sugar",
+   "ground sugar"
+  ],
+  "stored": "Sugars, powdered",
+  "storedKcal": 389,
+  "liveDesc": "Sugars, powdered",
+  "liveKcal": 389,
+  "sim": 1
+ },
+ "169661": {
+  "verdict": "ok",
+  "keys": [
+   "maple syrup"
+  ],
+  "stored": "Syrups, maple",
+  "storedKcal": 260,
+  "liveDesc": "Syrups, maple",
+  "liveKcal": 260,
+  "sim": 1
+ },
+ "169698": {
+  "verdict": "ok",
+  "keys": [
+   "cornstarch",
+   "potato starch",
+   "corn flour",
+   "starch"
+  ],
+  "stored": "Cornstarch",
+  "storedKcal": 381,
+  "liveDesc": "Cornstarch",
+  "liveKcal": 381,
+  "sim": 1
+ },
+ "169699": {
+  "verdict": "ok",
+  "keys": [
+   "couscous"
+  ],
+  "stored": "Couscous, dry",
+  "storedKcal": 376,
+  "liveDesc": "Couscous, dry",
+  "liveKcal": 376,
+  "sim": 1
+ },
+ "169703": {
+  "verdict": "ok",
+  "keys": [
+   "brown rice"
+  ],
+  "stored": "Rice, brown, long-grain, raw (Includes foods for USDA's Food Distribution Program)",
+  "storedKcal": 367,
+  "liveDesc": "Rice, brown, long-grain, raw (Includes foods for USDA's Food Distribution Program)",
+  "liveKcal": 367,
+  "sim": 1
+ },
+ "169724": {
+  "verdict": "ok",
+  "keys": [
+   "flour tortilla"
+  ],
+  "stored": "Wheat flour, white, tortilla mix, enriched",
+  "storedKcal": 405,
+  "liveDesc": "Wheat flour, white, tortilla mix, enriched",
+  "liveKcal": 405,
+  "sim": 1
+ },
+ "169736": {
+  "verdict": "ok",
+  "keys": [
+   "rigatoni",
+   "tagliatelle",
+   "fettuccine",
+   "fideo",
+   "vermicelli pasta",
+   "pappardelle pasta",
+   "paccheri pasta",
+   "linguine pasta",
+   "penne pasta"
+  ],
+  "stored": "Pasta, dry, enriched",
+  "storedKcal": 371,
+  "liveDesc": "Pasta, dry, enriched",
+  "liveKcal": 371,
+  "sim": 1
+ },
+ "169742": {
+  "verdict": "ok",
+  "keys": [
+   "rice noodles",
+   "rice stick noodles",
+   "rice vermicelli",
+   "flat rice noodles",
+   "sevaiiya"
+  ],
+  "stored": "Rice noodles, dry",
+  "storedKcal": 364,
+  "liveDesc": "Rice noodles, dry",
+  "liveKcal": 364,
+  "sim": 1
+ },
+ "169756": {
+  "verdict": "ok",
+  "keys": [
+   "jasmine rice"
+  ],
+  "stored": "Rice, white, long-grain, regular, raw, unenriched",
+  "storedKcal": 365,
+  "liveDesc": "Rice, white, long-grain, regular, raw, unenriched",
+  "liveKcal": 365,
+  "sim": 1
+ },
+ "169760": {
+  "verdict": "ok",
+  "keys": [
+   "rice"
+  ],
+  "stored": "Rice, white, medium-grain, raw, unenriched",
+  "storedKcal": 360,
+  "liveDesc": "Rice, white, medium-grain, raw, unenriched",
+  "liveKcal": 360,
+  "sim": 1
+ },
+ "169761": {
+  "verdict": "ok",
+  "keys": [
+   "plain flour",
+   "white flour",
+   "all purpose flour",
+   "tempura flour",
+   "wheat flour"
+  ],
+  "stored": "Wheat flour, white, all-purpose, unenriched",
+  "storedKcal": 364,
+  "liveDesc": "Wheat flour, white, all-purpose, unenriched",
+  "liveKcal": 364,
+  "sim": 1
+ },
+ "169918": {
+  "verdict": "ok",
+  "keys": [
+   "orange",
+   "orange juice"
+  ],
+  "stored": "Oranges, raw, Florida",
+  "storedKcal": 46,
+  "liveDesc": "Oranges, raw, Florida",
+  "liveKcal": 46,
+  "sim": 1
+ },
+ "169919": {
+  "verdict": "ok",
+  "keys": [
+   "orange zest"
+  ],
+  "stored": "Oranges, raw, with peel",
+  "storedKcal": 63,
+  "liveDesc": "Oranges, raw, with peel",
+  "liveKcal": 63,
+  "sim": 1
+ },
+ "169975": {
+  "verdict": "ok",
+  "keys": [
+   "cabbage",
+   "white cabbage",
+   "hispi (sweetheart) cabbage",
+   "cabbage leaves"
+  ],
+  "stored": "Cabbage, raw",
+  "storedKcal": 25,
+  "liveDesc": "Cabbage, raw",
+  "liveKcal": 25,
+  "sim": 1
+ },
+ "169977": {
+  "verdict": "ok",
+  "keys": [
+   "red chilli",
+   "red cabbage",
+   "red curry paste"
+  ],
+  "stored": "Cabbage, red, raw",
+  "storedKcal": 31,
+  "liveDesc": "Cabbage, red, raw",
+  "liveKcal": 31,
+  "sim": 1
+ },
+ "169988": {
+  "verdict": "ok",
+  "keys": [
+   "celery",
+   "celery salt"
+  ],
+  "stored": "Celery, raw",
+  "storedKcal": 14,
+  "liveDesc": "Celery, raw",
+  "liveKcal": 14,
+  "sim": 1
+ },
+ "169997": {
+  "verdict": "ok",
+  "keys": [
+   "cilantro",
+   "coriander",
+   "coriander leaves",
+   "coriander seeds",
+   "ground coriander",
+   "cilantro leaves"
+  ],
+  "stored": "Coriander (cilantro) leaves, raw",
+  "storedKcal": 23,
+  "liveDesc": "Coriander (cilantro) leaves, raw",
+  "liveKcal": 23,
+  "sim": 1
+ },
+ "169998": {
+  "verdict": "ok",
+  "keys": [
+   "sweetcorn",
+   "yellow masarepa",
+   "corn on the cob"
+  ],
+  "stored": "Corn, sweet, yellow, raw",
+  "storedKcal": 86,
+  "liveDesc": "Corn, sweet, yellow, raw",
+  "liveKcal": 86,
+  "sim": 1
+ },
+ "170000": {
+  "verdict": "ok",
+  "keys": [
+   "chopped onion",
+   "onions",
+   "onion",
+   "pickled scallion heads",
+   "ground onion"
+  ],
+  "stored": "Onions, raw",
+  "storedKcal": 40,
+  "liveDesc": "Onions, raw",
+  "liveKcal": 40,
+  "sim": 1
+ },
+ "170005": {
+  "verdict": "ok",
+  "keys": [
+   "spring onions",
+   "scallions"
+  ],
+  "stored": "Onions, spring or scallions (includes tops and bulb), raw",
+  "storedKcal": 32,
+  "liveDesc": "Onions, spring or scallions (includes tops and bulb), raw",
+  "liveKcal": 32,
+  "sim": 1
+ },
+ "170010": {
+  "verdict": "ok",
+  "keys": [
+   "sugar snap peas",
+   "snow peas"
+  ],
+  "stored": "Peas, edible-podded, raw",
+  "storedKcal": 42,
+  "liveDesc": "Peas, edible-podded, raw",
+  "liveKcal": 42,
+  "sim": 1
+ },
+ "170026": {
+  "verdict": "ok",
+  "keys": [
+   "potatoes",
+   "yukon gold potatoes",
+   "baby new potatoes",
+   "jersey royal potatoes"
+  ],
+  "stored": "Potatoes, flesh and skin, raw",
+  "storedKcal": 77,
+  "liveDesc": "Potatoes, flesh and skin, raw",
+  "liveKcal": 77,
+  "sim": 1
+ },
+ "170028": {
+  "verdict": "ok",
+  "keys": [
+   "charlotte potatoes",
+   "small potatoes",
+   "new potatoes"
+  ],
+  "stored": "Potatoes, white, flesh and skin, raw",
+  "storedKcal": 69,
+  "liveDesc": "Potatoes, white, flesh and skin, raw",
+  "liveKcal": 69,
+  "sim": 1
+ },
+ "170030": {
+  "verdict": "ok",
+  "keys": [
+   "floury potatoes"
+  ],
+  "stored": "Potatoes, Russet, flesh and skin, baked",
+  "storedKcal": 95,
+  "liveDesc": "Potatoes, Russet, flesh and skin, baked",
+  "liveKcal": 95,
+  "sim": 1
+ },
+ "170051": {
+  "verdict": "ok",
+  "keys": [
+   "chopped tomatoes"
+  ],
+  "stored": "Tomatoes, red, ripe, canned, packed in tomato juice",
+  "storedKcal": 16,
+  "liveDesc": "Tomatoes, red, ripe, canned, packed in tomato juice",
+  "liveKcal": 16,
+  "sim": 1
+ },
+ "170054": {
+  "verdict": "ok",
+  "keys": [
+   "tomato sauce"
+  ],
+  "stored": "Tomato products, canned, sauce",
+  "storedKcal": 24,
+  "liveDesc": "Tomato products, canned, sauce",
+  "liveKcal": 24,
+  "sim": 1
+ },
+ "170086": {
+  "verdict": "ok",
+  "keys": [
+   "pinto beans"
+  ],
+  "stored": "Beans, pinto, mature seeds, sprouted, raw",
+  "storedKcal": 62,
+  "liveDesc": "Beans, pinto, mature seeds, sprouted, raw",
+  "liveKcal": 62,
+  "sim": 1
+ },
+ "170100": {
+  "verdict": "ok",
+  "keys": [
+   "onion salt"
+  ],
+  "stored": "Onions, cooked, boiled, drained, with salt",
+  "storedKcal": 42,
+  "liveDesc": "Onions, cooked, boiled, drained, with salt",
+  "liveKcal": 42,
+  "sim": 1
+ },
+ "170106": {
+  "verdict": "ok",
+  "keys": [
+   "chilli",
+   "scotch bonnet",
+   "dried red chillies"
+  ],
+  "stored": "Peppers, hot chili, red, raw",
+  "storedKcal": 40,
+  "liveDesc": "Peppers, hot chili, red, raw",
+  "liveKcal": 40,
+  "sim": 1
+ },
+ "170108": {
+  "verdict": "ok",
+  "keys": [
+   "red chilli flakes",
+   "red pepper",
+   "red pepper flakes",
+   "roasted pepper",
+   "mixed peppers",
+   "romano pepper",
+   "red pepper paste",
+   "sweet peppadew peppers",
+   "sweet red peppers"
+  ],
+  "stored": "Peppers, sweet, red, raw",
+  "storedKcal": 26,
+  "liveDesc": "Peppers, sweet, red, raw",
+  "liveKcal": 26,
+  "sim": 1
+ },
+ "170160": {
+  "verdict": "ok",
+  "keys": [
+   "madras paste",
+   "massaman curry paste",
+   "marzipan",
+   "gochujang",
+   "almond paste"
+  ],
+  "stored": "Nuts, almond paste",
+  "storedKcal": 458,
+  "liveDesc": "Nuts, almond paste",
+  "liveKcal": 458,
+  "sim": 1
+ },
+ "170162": {
+  "verdict": "ok",
+  "keys": [
+   "cashew nuts",
+   "cashews"
+  ],
+  "stored": "Nuts, cashew nuts, raw",
+  "storedKcal": 553,
+  "liveDesc": "Nuts, cashew nuts, raw",
+  "liveKcal": 553,
+  "sim": 1
+ },
+ "170164": {
+  "verdict": "ok",
+  "keys": [
+   "chestnuts"
+  ],
+  "stored": "Nuts, chestnuts, chinese, raw",
+  "storedKcal": 224,
+  "liveDesc": "Nuts, chestnuts, chinese, raw",
+  "liveKcal": 224,
+  "sim": 1
+ },
+ "170172": {
+  "verdict": "ok",
+  "keys": [
+   "coconut milk",
+   "unsweetened coconut milk"
+  ],
+  "stored": "Nuts, coconut milk, raw (liquid expressed from grated meat and water)",
+  "storedKcal": 230,
+  "liveDesc": "Nuts, coconut milk, raw (liquid expressed from grated meat and water)",
+  "liveKcal": 230,
+  "sim": 1
+ },
+ "170182": {
+  "verdict": "ok",
+  "keys": [
+   "pecan nuts"
+  ],
+  "stored": "Nuts, pecans",
+  "storedKcal": 691,
+  "liveDesc": "Nuts, pecans",
+  "liveKcal": 691,
+  "sim": 1
+ },
+ "170187": {
+  "verdict": "ok",
+  "keys": [
+   "walnuts",
+   "ground walnuts"
+  ],
+  "stored": "Nuts, walnuts, english",
+  "storedKcal": 654,
+  "liveDesc": "Nuts, walnuts, english",
+  "liveKcal": 654,
+  "sim": 1
+ },
+ "170192": {
+  "verdict": "ok",
+  "keys": [
+   "sesame seed"
+  ],
+  "stored": "Seeds, sesame flour, high-fat",
+  "storedKcal": 526,
+  "liveDesc": "Seeds, sesame flour, high-fat",
+  "liveKcal": 526,
+  "sim": 1
+ },
+ "170193": {
+  "verdict": "ok",
+  "keys": [
+   "suet"
+  ],
+  "stored": "Beef, variety meats and by-products, suet, raw",
+  "storedKcal": 854,
+  "liveDesc": "Beef, variety meats and by-products, suet, raw",
+  "liveKcal": 854,
+  "sim": 1
+ },
+ "170271": {
+  "verdict": "ok",
+  "keys": [
+   "plain chocolate"
+  ],
+  "stored": "Chocolate, dark, 45- 59% cacao solids",
+  "storedKcal": 546,
+  "liveDesc": "Chocolate, dark, 45- 59% cacao solids",
+  "liveKcal": 546,
+  "sim": 1
+ },
+ "170375": {
+  "verdict": "ok",
+  "keys": [
+   "green beans",
+   "green chilli",
+   "green pepper"
+  ],
+  "stored": "Beet greens, raw",
+  "storedKcal": 22,
+  "liveDesc": "Beet greens, raw",
+  "liveKcal": 22,
+  "sim": 1
+ },
+ "170383": {
+  "verdict": "ok",
+  "keys": [
+   "brussels sprouts"
+  ],
+  "stored": "Brussels sprouts, raw",
+  "storedKcal": 43,
+  "liveDesc": "Brussels sprouts, raw",
+  "liveKcal": 43,
+  "sim": 1
+ },
+ "170393": {
+  "verdict": "ok",
+  "keys": [
+   "carrots"
+  ],
+  "stored": "Carrots, raw",
+  "storedKcal": 41,
+  "liveDesc": "Carrots, raw",
+  "liveKcal": 41,
+  "sim": 1
+ },
+ "170400": {
+  "verdict": "ok",
+  "keys": [
+   "celeriac"
+  ],
+  "stored": "Celeriac, raw",
+  "storedKcal": 42,
+  "liveDesc": "Celeriac, raw",
+  "liveKcal": 42,
+  "sim": 1
+ },
+ "170416": {
+  "verdict": "ok",
+  "keys": [
+   "chopped parsley",
+   "freshly chopped parsley",
+   "parsley"
+  ],
+  "stored": "Parsley, fresh",
+  "storedKcal": 36,
+  "liveDesc": "Parsley, fresh",
+  "liveKcal": 36,
+  "sim": 1
+ },
+ "170419": {
+  "verdict": "ok",
+  "keys": [
+   "peas",
+   "petit pois"
+  ],
+  "stored": "Peas, green, raw",
+  "storedKcal": 81,
+  "liveDesc": "Peas, green, raw",
+  "liveKcal": 81,
+  "sim": 1
+ },
+ "170457": {
+  "verdict": "ok",
+  "keys": [
+   "baby plum tomatoes",
+   "cherry tomatoes",
+   "plum tomatoes",
+   "vine tomatoes",
+   "beef tomatoes"
+  ],
+  "stored": "Tomatoes, red, ripe, raw, year round average",
+  "storedKcal": 18,
+  "liveDesc": "Tomatoes, red, ripe, raw, year round average",
+  "liveKcal": 18,
+  "sim": 1
+ },
+ "170465": {
+  "verdict": "ok",
+  "keys": [
+   "turnips"
+  ],
+  "stored": "Turnips, raw",
+  "storedKcal": 28,
+  "liveDesc": "Turnips, raw",
+  "liveKcal": 28,
+  "sim": 1
+ },
+ "170471": {
+  "verdict": "ok",
+  "keys": [
+   "stir-fry vegetables",
+   "roasted vegetables",
+   "vegetables"
+  ],
+  "stored": "Vegetables, mixed, frozen, unprepared",
+  "storedKcal": 72,
+  "liveDesc": "Vegetables, mixed, frozen, unprepared",
+  "liveKcal": 72,
+  "sim": 1
+ },
+ "170489": {
+  "verdict": "ok",
+  "keys": [
+   "squash",
+   "zapallo squash"
+  ],
+  "stored": "Squash, winter, all varieties, raw",
+  "storedKcal": 34,
+  "liveDesc": "Squash, winter, all varieties, raw",
+  "liveKcal": 34,
+  "sim": 1
+ },
+ "170499": {
+  "verdict": "ok",
+  "keys": [
+   "challots",
+   "shallots"
+  ],
+  "stored": "Shallots, raw",
+  "storedKcal": 72,
+  "liveDesc": "Shallots, raw",
+  "liveKcal": 72,
+  "sim": 1
+ },
+ "170501": {
+  "verdict": "ok",
+  "keys": [
+   "canned tomatoes",
+   "tomato puree"
+  ],
+  "stored": "Tomatoes, crushed, canned",
+  "storedKcal": 32,
+  "liveDesc": "Tomatoes, crushed, canned",
+  "liveKcal": 32,
+  "sim": 1
+ },
+ "170546": {
+  "verdict": "ok",
+  "keys": [
+   "passata"
+  ],
+  "stored": "Tomato products, canned, puree, with salt added",
+  "storedKcal": 38,
+  "liveDesc": "Tomato products, canned, puree, with salt added",
+  "liveKcal": 38,
+  "sim": 1
+ },
+ "170567": {
+  "verdict": "ok",
+  "keys": [
+   "flaked almonds",
+   "ground almonds",
+   "almonds",
+   "almond extract",
+   "almond flour",
+   "almond essence"
+  ],
+  "stored": "Nuts, almonds",
+  "storedKcal": 579,
+  "liveDesc": "Nuts, almonds",
+  "liveKcal": 579,
+  "sim": 1
+ },
+ "170580": {
+  "verdict": "ok",
+  "keys": [
+   "coconut cream"
+  ],
+  "stored": "Nuts, coconut cream, raw (liquid expressed from grated meat)",
+  "storedKcal": 330,
+  "liveDesc": "Nuts, coconut cream, raw (liquid expressed from grated meat)",
+  "liveKcal": 330,
+  "sim": 1
+ },
+ "170581": {
+  "verdict": "ok",
+  "keys": [
+   "hazlenuts",
+   "shelled hazelnuts"
+  ],
+  "stored": "Nuts, hazelnuts or filberts",
+  "storedKcal": 628,
+  "liveDesc": "Nuts, hazelnuts or filberts",
+  "liveKcal": 628,
+  "sim": 1
+ },
+ "170591": {
+  "verdict": "ok",
+  "keys": [
+   "pine nuts"
+  ],
+  "stored": "Nuts, pine nuts, dried",
+  "storedKcal": 673,
+  "liveDesc": "Nuts, pine nuts, dried",
+  "liveKcal": 673,
+  "sim": 1
+ },
+ "170689": {
+  "verdict": "ok",
+  "keys": [
+   "hard taco shells"
+  ],
+  "stored": "Fast foods, taco with beef, cheese and lettuce, hard shell",
+  "storedKcal": 226,
+  "liveDesc": "Fast foods, taco with beef, cheese and lettuce, hard shell",
+  "liveKcal": 226,
+  "sim": 1
+ },
+ "170809": {
+  "verdict": "ok",
+  "keys": [
+   "beef",
+   "feather blade beef",
+   "mixed beef cuts"
+  ],
+  "stored": "Beef, chuck for stew, separable lean and fat, select, raw",
+  "storedKcal": 124,
+  "liveDesc": "Beef, chuck for stew, separable lean and fat, select, raw",
+  "liveKcal": 124,
+  "sim": 1
+ },
+ "170844": {
+  "verdict": "ok",
+  "keys": [
+   "monterey jack cheese",
+   "shredded monterey jack cheese"
+  ],
+  "stored": "Cheese, monterey",
+  "storedKcal": 373,
+  "liveDesc": "Cheese, monterey",
+  "liveKcal": 373,
+  "sim": 1
+ },
+ "170845": {
+  "verdict": "ok",
+  "keys": [
+   "mozzarella balls",
+   "mozzarella"
+  ],
+  "stored": "Cheese, mozzarella, whole milk",
+  "storedKcal": 299,
+  "liveDesc": "Cheese, mozzarella, whole milk",
+  "liveKcal": 299,
+  "sim": 1
+ },
+ "170848": {
+  "verdict": "ok",
+  "keys": [
+   "parmigiano-reggiano",
+   "västerbottensost cheese"
+  ],
+  "stored": "Cheese, parmesan, hard",
+  "storedKcal": 392,
+  "liveDesc": "Cheese, parmesan, hard",
+  "liveKcal": 392,
+  "sim": 1
+ },
+ "170857": {
+  "verdict": "ok",
+  "keys": [
+   "cream cheese",
+   "cream of tartar"
+  ],
+  "stored": "Cream, fluid, light (coffee cream or table cream)",
+  "storedKcal": 195,
+  "liveDesc": "Cream, fluid, light (coffee cream or table cream)",
+  "liveKcal": 195,
+  "sim": 1
+ },
+ "170858": {
+  "verdict": "ok",
+  "keys": [
+   "single cream"
+  ],
+  "stored": "Cream, fluid, light whipping",
+  "storedKcal": 292,
+  "liveDesc": "Cream, fluid, light whipping",
+  "liveKcal": 292,
+  "sim": 1
+ },
+ "170859": {
+  "verdict": "ok",
+  "keys": [
+   "cream",
+   "creme fraiche",
+   "double cream",
+   "clotted cream",
+   "whipping cream",
+   "malai"
+  ],
+  "stored": "Cream, fluid, heavy whipping",
+  "storedKcal": 340,
+  "liveDesc": "Cream, fluid, heavy whipping",
+  "liveKcal": 340,
+  "sim": 1
+ },
+ "170917": {
+  "verdict": "ok",
+  "keys": [
+   "bay leaf",
+   "bay leaves"
+  ],
+  "stored": "Spices, bay leaf",
+  "storedKcal": 313,
+  "liveDesc": "Spices, bay leaf",
+  "liveKcal": 313,
+  "sim": 1
+ },
+ "170919": {
+  "verdict": "ok",
+  "keys": [
+   "cardamom",
+   "green cardamom pods",
+   "black cardamom pods",
+   "ground cardomom"
+  ],
+  "stored": "Spices, cardamom",
+  "storedKcal": 311,
+  "liveDesc": "Spices, cardamom",
+  "liveKcal": 311,
+  "sim": 1
+ },
+ "170923": {
+  "verdict": "ok",
+  "keys": [
+   "cumin",
+   "cumin seeds",
+   "ground cumin"
+  ],
+  "stored": "Spices, cumin seed",
+  "storedKcal": 375,
+  "liveDesc": "Spices, cumin seed",
+  "liveKcal": 375,
+  "sim": 1
+ },
+ "170924": {
+  "verdict": "ok",
+  "keys": [
+   "biryani masala",
+   "curry powder",
+   "jamaican curry powder"
+  ],
+  "stored": "Spices, curry powder",
+  "storedKcal": 325,
+  "liveDesc": "Spices, curry powder",
+  "liveKcal": 325,
+  "sim": 1
+ },
+ "170926": {
+  "verdict": "ok",
+  "keys": [
+   "ginger garlic paste",
+   "ground ginger"
+  ],
+  "stored": "Spices, ginger, ground",
+  "storedKcal": 335,
+  "liveDesc": "Spices, ginger, ground",
+  "liveKcal": 335,
+  "sim": 1
+ },
+ "170928": {
+  "verdict": "ok",
+  "keys": [
+   "marjoram"
+  ],
+  "stored": "Spices, marjoram, dried",
+  "storedKcal": 271,
+  "liveDesc": "Spices, marjoram, dried",
+  "liveKcal": 271,
+  "sim": 1
+ },
+ "170929": {
+  "verdict": "ok",
+  "keys": [
+   "mustard powder",
+   "star anise",
+   "ground mustard"
+  ],
+  "stored": "Spices, mustard seed, ground",
+  "storedKcal": 508,
+  "liveDesc": "Spices, mustard seed, ground",
+  "liveKcal": 508,
+  "sim": 1
+ },
+ "170931": {
+  "verdict": "ok",
+  "keys": [
+   "black pepper",
+   "pepper",
+   "sichuan pepper",
+   "whole black peppercorns",
+   "szechuan peppercorns",
+   "peppercorns",
+   "kampot pepper"
+  ],
+  "stored": "Spices, pepper, black",
+  "storedKcal": 251,
+  "liveDesc": "Spices, pepper, black",
+  "liveKcal": 251,
+  "sim": 1
+ },
+ "170932": {
+  "verdict": "ok",
+  "keys": [
+   "cayenne pepper",
+   "chilli flakes",
+   "pul biber"
+  ],
+  "stored": "Spices, pepper, red or cayenne",
+  "storedKcal": 318,
+  "liveDesc": "Spices, pepper, red or cayenne",
+  "liveKcal": 318,
+  "sim": 1
+ },
+ "170934": {
+  "verdict": "ok",
+  "keys": [
+   "saffron"
+  ],
+  "stored": "Spices, saffron",
+  "storedKcal": 310,
+  "liveDesc": "Spices, saffron",
+  "liveKcal": 310,
+  "sim": 1
+ },
+ "171016": {
+  "verdict": "ok",
+  "keys": [
+   "sesame seed oil"
+  ],
+  "stored": "Oil, sesame, salad or cooking",
+  "storedKcal": 884,
+  "liveDesc": "Oil, sesame, salad or cooking",
+  "liveKcal": 884,
+  "sim": 1
+ },
+ "171028": {
+  "verdict": "ok",
+  "keys": [
+   "rapeseed oil"
+  ],
+  "stored": "Oil, grapeseed",
+  "storedKcal": 884,
+  "liveDesc": "Oil, grapeseed",
+  "liveKcal": 884,
+  "sim": 1
+ },
+ "171077": {
+  "verdict": "ok",
+  "keys": [
+   "chicken breast",
+   "chicken breasts",
+   "chicken thighs"
+  ],
+  "stored": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",
+  "storedKcal": 120,
+  "liveDesc": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",
+  "liveKcal": 120,
+  "sim": 1
+ },
+ "171110": {
+  "verdict": "ok",
+  "keys": [
+   "chicken stock",
+   "chicken stock cube",
+   "chicken stock concentrate"
+  ],
+  "stored": "Chicken, canned, no broth",
+  "storedKcal": 185,
+  "liveDesc": "Chicken, canned, no broth",
+  "liveKcal": 185,
+  "sim": 1
+ },
+ "171116": {
+  "verdict": "ok",
+  "keys": [
+   "chicken"
+  ],
+  "stored": "Chicken, ground, raw",
+  "storedKcal": 143,
+  "liveDesc": "Chicken, ground, raw",
+  "liveKcal": 143,
+  "sim": 1
+ },
+ "171166": {
+  "verdict": "ok",
+  "keys": [
+   "vegetable stock cube"
+  ],
+  "stored": "Soup, cream of vegetable, dry, powder",
+  "storedKcal": 446,
+  "liveDesc": "Soup, cream of vegetable, dry, powder",
+  "liveKcal": 446,
+  "sim": 1
+ },
+ "171181": {
+  "verdict": "ok",
+  "keys": [
+   "garam masala"
+  ],
+  "stored": "SMART SOUP, Indian Bean Masala",
+  "storedKcal": 57,
+  "liveDesc": "SMART SOUP, Indian Bean Masala",
+  "liveKcal": 57,
+  "sim": 1
+ },
+ "171183": {
+  "verdict": "ok",
+  "keys": [
+   "thai green curry paste",
+   "thai red curry paste",
+   "panang curry paste"
+  ],
+  "stored": "SMART SOUP, Thai Coconut Curry",
+  "storedKcal": 36,
+  "liveDesc": "SMART SOUP, Thai Coconut Curry",
+  "liveKcal": 36,
+  "sim": 1
+ },
+ "171241": {
+  "verdict": "ok",
+  "keys": [
+   "gouda cheese"
+  ],
+  "stored": "Cheese, gouda",
+  "storedKcal": 356,
+  "liveDesc": "Cheese, gouda",
+  "liveKcal": 356,
+  "sim": 1
+ },
+ "171242": {
+  "verdict": "ok",
+  "keys": [
+   "gruyère"
+  ],
+  "stored": "Cheese, gruyere",
+  "storedKcal": 413,
+  "liveDesc": "Cheese, gruyere",
+  "liveKcal": 413,
+  "sim": 1
+ },
+ "171249": {
+  "verdict": "ok",
+  "keys": [
+   "pecorino"
+  ],
+  "stored": "Cheese, romano",
+  "storedKcal": 387,
+  "liveDesc": "Cheese, romano",
+  "liveKcal": 387,
+  "sim": 1
+ },
+ "171267": {
+  "verdict": "ok",
+  "keys": [
+   "semi-skimmed milk"
+  ],
+  "stored": "Milk, reduced fat, fluid, 2% milkfat, with added vitamin A and vitamin D",
+  "storedKcal": 50,
+  "liveDesc": "Milk, reduced fat, fluid, 2% milkfat, with added vitamin A and vitamin D",
+  "liveKcal": 50,
+  "sim": 1
+ },
+ "171275": {
+  "verdict": "ok",
+  "keys": [
+   "condensed milk",
+   "sweetened condensed milk"
+  ],
+  "stored": "Milk, canned, condensed, sweetened",
+  "storedKcal": 321,
+  "liveDesc": "Milk, canned, condensed, sweetened",
+  "liveKcal": 321,
+  "sim": 1
+ },
+ "171284": {
+  "verdict": "ok",
+  "keys": [
+   "full fat yogurt",
+   "yogurt",
+   "fromage frais",
+   "natural yoghurt"
+  ],
+  "stored": "Yogurt, plain, whole milk",
+  "storedKcal": 61,
+  "liveDesc": "Yogurt, plain, whole milk",
+  "liveKcal": 61,
+  "sim": 1
+ },
+ "171287": {
+  "verdict": "ok",
+  "keys": [
+   "eggs",
+   "free-range egg, beaten",
+   "free-range eggs, beaten",
+   "egg",
+   "egg wash"
+  ],
+  "stored": "Egg, whole, raw, fresh",
+  "storedKcal": 143,
+  "liveDesc": "Egg, whole, raw, fresh",
+  "liveKcal": 143,
+  "sim": 1
+ },
+ "171288": {
+  "verdict": "ok",
+  "keys": [
+   "shredded mexican cheese"
+  ],
+  "stored": "Cheese, Mexican blend",
+  "storedKcal": 384,
+  "liveDesc": "Cheese, Mexican blend",
+  "liveKcal": 384,
+  "sim": 1
+ },
+ "171304": {
+  "verdict": "ok",
+  "keys": [
+   "greek yogurt",
+   "strained yoghurt"
+  ],
+  "stored": "Yogurt, Greek, plain, whole milk",
+  "storedKcal": 97,
+  "liveDesc": "Yogurt, Greek, plain, whole milk",
+  "liveKcal": 97,
+  "sim": 1
+ },
+ "171314": {
+  "verdict": "ok",
+  "keys": [
+   "ghee"
+  ],
+  "stored": "Butter, Clarified butter (ghee)",
+  "storedKcal": 900,
+  "liveDesc": "Butter, Clarified butter (ghee)",
+  "liveKcal": 900,
+  "sim": 1
+ },
+ "171319": {
+  "verdict": "ok",
+  "keys": [
+   "chili powder",
+   "chilli powder",
+   "hot chilli powder",
+   "five spice powder"
+  ],
+  "stored": "Spices, chili powder",
+  "storedKcal": 282,
+  "liveDesc": "Spices, chili powder",
+  "liveKcal": 282,
+  "sim": 1
+ },
+ "171320": {
+  "verdict": "ok",
+  "keys": [
+   "cinnamon",
+   "cinnamon stick",
+   "ground cinnamon",
+   "speculaas spice mix"
+  ],
+  "stored": "Spices, cinnamon, ground",
+  "storedKcal": 247,
+  "liveDesc": "Spices, cinnamon, ground",
+  "liveKcal": 247,
+  "sim": 1
+ },
+ "171321": {
+  "verdict": "ok",
+  "keys": [
+   "cloves",
+   "ground clove"
+  ],
+  "stored": "Spices, cloves, ground",
+  "storedKcal": 274,
+  "liveDesc": "Spices, cloves, ground",
+  "liveKcal": 274,
+  "sim": 1
+ },
+ "171324": {
+  "verdict": "ok",
+  "keys": [
+   "fenugreek",
+   "panch poran"
+  ],
+  "stored": "Spices, fenugreek seed",
+  "storedKcal": 323,
+  "liveDesc": "Spices, fenugreek seed",
+  "liveKcal": 323,
+  "sim": 1
+ },
+ "171325": {
+  "verdict": "ok",
+  "keys": [
+   "garlic powder",
+   "garlic granules"
+  ],
+  "stored": "Spices, garlic powder",
+  "storedKcal": 331,
+  "liveDesc": "Spices, garlic powder",
+  "liveKcal": 331,
+  "sim": 1
+ },
+ "171326": {
+  "verdict": "ok",
+  "keys": [
+   "nutmeg",
+   "ground nutmeg"
+  ],
+  "stored": "Spices, nutmeg, ground",
+  "storedKcal": 525,
+  "liveDesc": "Spices, nutmeg, ground",
+  "liveKcal": 525,
+  "sim": 1
+ },
+ "171328": {
+  "verdict": "ok",
+  "keys": [
+   "dried oregano",
+   "oregano"
+  ],
+  "stored": "Spices, oregano, dried",
+  "storedKcal": 265,
+  "liveDesc": "Spices, oregano, dried",
+  "liveKcal": 265,
+  "sim": 1
+ },
+ "171329": {
+  "verdict": "ok",
+  "keys": [
+   "paprika",
+   "smoked paprika",
+   "smoky paprika",
+   "sweet smoked paprika",
+   "hot smoked paprika"
+  ],
+  "stored": "Spices, paprika",
+  "storedKcal": 282,
+  "liveDesc": "Spices, paprika",
+  "liveKcal": 282,
+  "sim": 1
+ },
+ "171330": {
+  "verdict": "ok",
+  "keys": [
+   "khus khus",
+   "ground poppy seeds",
+   "poppy seeds"
+  ],
+  "stored": "Spices, poppy seed",
+  "storedKcal": 525,
+  "liveDesc": "Spices, poppy seed",
+  "liveKcal": 525,
+  "sim": 1
+ },
+ "171331": {
+  "verdict": "ok",
+  "keys": [
+   "cajun",
+   "italian seasoning"
+  ],
+  "stored": "Spices, poultry seasoning",
+  "storedKcal": 307,
+  "liveDesc": "Spices, poultry seasoning",
+  "liveKcal": 307,
+  "sim": 1
+ },
+ "171332": {
+  "verdict": "ok",
+  "keys": [
+   "harissa spice"
+  ],
+  "stored": "Spices, pumpkin pie spice",
+  "storedKcal": 342,
+  "liveDesc": "Spices, pumpkin pie spice",
+  "liveKcal": 342,
+  "sim": 1
+ },
+ "171401": {
+  "verdict": "ok",
+  "keys": [
+   "lard"
+  ],
+  "stored": "Lard",
+  "storedKcal": 902,
+  "liveDesc": "Lard",
+  "liveKcal": 902,
+  "sim": 1
+ },
+ "171410": {
+  "verdict": "ok",
+  "keys": [
+   "peanut oil",
+   "ground nut oil"
+  ],
+  "stored": "Oil, peanut, salad or cooking",
+  "storedKcal": 884,
+  "liveDesc": "Oil, peanut, salad or cooking",
+  "liveKcal": 884,
+  "sim": 1
+ },
+ "171413": {
+  "verdict": "ok",
+  "keys": [
+   "extra virgin olive oil",
+   "olive oil",
+   "truffle oil"
+  ],
+  "stored": "Oil, olive, salad or cooking",
+  "storedKcal": 884,
+  "liveDesc": "Oil, olive, salad or cooking",
+  "liveKcal": 884,
+  "sim": 1
+ },
+ "171417": {
+  "verdict": "ok",
+  "keys": [
+   "vinaigrette dressing"
+  ],
+  "stored": "Salad dressing, home recipe, vinegar and oil",
+  "storedKcal": 449,
+  "liveDesc": "Salad dressing, home recipe, vinegar and oil",
+  "liveKcal": 449,
+  "sim": 1
+ },
+ "171505": {
+  "verdict": "ok",
+  "keys": [
+   "turkey mince"
+  ],
+  "stored": "Turkey, Ground, raw",
+  "storedKcal": 148,
+  "liveDesc": "Turkey, Ground, raw",
+  "liveKcal": 148,
+  "sim": 1
+ },
+ "171538": {
+  "verdict": "ok",
+  "keys": [
+   "hot beef stock"
+  ],
+  "stored": "Soup, beef broth or bouillon canned, ready-to-serve",
+  "storedKcal": 7,
+  "liveDesc": "Soup, beef broth or bouillon canned, ready-to-serve",
+  "liveKcal": 7,
+  "sim": 1
+ },
+ "171561": {
+  "verdict": "ok",
+  "keys": [
+   "beef stock",
+   "beef stock concentrate",
+   "beef stock cubes"
+  ],
+  "stored": "Soup, beef broth, cubed, dry",
+  "storedKcal": 170,
+  "liveDesc": "Soup, beef broth, cubed, dry",
+  "liveKcal": 170,
+  "sim": 1
+ },
+ "171577": {
+  "verdict": "ok",
+  "keys": [
+   "french lentils"
+  ],
+  "stored": "SMART SOUP, French Lentil",
+  "storedKcal": 53,
+  "liveDesc": "SMART SOUP, French Lentil",
+  "liveKcal": 53,
+  "sim": 1
+ },
+ "171583": {
+  "verdict": "ok",
+  "keys": [
+   "vegetable stock"
+  ],
+  "stored": "Soup, vegetable broth, ready to serve",
+  "storedKcal": 5,
+  "liveDesc": "Soup, vegetable broth, ready to serve",
+  "liveKcal": 5,
+  "sim": 1
+ },
+ "171610": {
+  "verdict": "ok",
+  "keys": [
+   "worcestershire sauce"
+  ],
+  "stored": "Sauce, worcestershire",
+  "storedKcal": 77,
+  "liveDesc": "Sauce, worcestershire",
+  "liveKcal": 77,
+  "sim": 1
+ },
+ "171631": {
+  "verdict": "ok",
+  "keys": [
+   "italian fennel sausages"
+  ],
+  "stored": "Sausage, Italian, pork, mild, raw",
+  "storedKcal": 290,
+  "liveDesc": "Sausage, Italian, pork, mild, raw",
+  "liveKcal": 290,
+  "sim": 1
+ },
+ "171689": {
+  "verdict": "ok",
+  "keys": [
+   "bramley apples",
+   "braeburn apples",
+   "apples"
+  ],
+  "stored": "Apples, raw, without skin",
+  "storedKcal": 48,
+  "liveDesc": "Apples, raw, without skin",
+  "liveKcal": 48,
+  "sim": 1
+ },
+ "171697": {
+  "verdict": "ok",
+  "keys": [
+   "apricot",
+   "apricot jam"
+  ],
+  "stored": "Apricots, raw",
+  "storedKcal": 48,
+  "liveDesc": "Apricots, raw",
+  "liveKcal": 48,
+  "sim": 1
+ },
+ "171705": {
+  "verdict": "ok",
+  "keys": [
+   "avocado"
+  ],
+  "stored": "Avocados, raw, all commercial varieties",
+  "storedKcal": 160,
+  "liveDesc": "Avocados, raw, all commercial varieties",
+  "liveKcal": 160,
+  "sim": 1
+ },
+ "171711": {
+  "verdict": "ok",
+  "keys": [
+   "blueberries"
+  ],
+  "stored": "Blueberries, raw",
+  "storedKcal": 57,
+  "liveDesc": "Blueberries, raw",
+  "liveKcal": 57,
+  "sim": 1
+ },
+ "171824": {
+  "verdict": "ok",
+  "keys": [
+   "green salsa"
+  ],
+  "stored": "Sauce, salsa, verde, ready-to-serve",
+  "storedKcal": 38,
+  "liveDesc": "Sauce, salsa, verde, ready-to-serve",
+  "liveKcal": 38,
+  "sim": 1
+ },
+ "171845": {
+  "verdict": "ok",
+  "keys": [
+   "naan bread"
+  ],
+  "stored": "Bread, naan, plain, commercially prepared, refrigerated",
+  "storedKcal": 291,
+  "liveDesc": "Bread, naan, plain, commercially prepared, refrigerated",
+  "liveKcal": 291,
+  "sim": 1
+ },
+ "171949": {
+  "verdict": "ok",
+  "keys": [
+   "fish sauce",
+   "barramundi",
+   "hake"
+  ],
+  "stored": "Fish, bluefish, raw",
+  "storedKcal": 124,
+  "liveDesc": "Fish, bluefish, raw",
+  "liveKcal": 124,
+  "sim": 1
+ },
+ "171955": {
+  "verdict": "ok",
+  "keys": [
+   "white fish",
+   "white fish fillets",
+   "cod",
+   "fish fillet"
+  ],
+  "stored": "Fish, cod, Atlantic, raw",
+  "storedKcal": 82,
+  "liveDesc": "Fish, cod, Atlantic, raw",
+  "liveKcal": 82,
+  "sim": 1
+ },
+ "172175": {
+  "verdict": "ok",
+  "keys": [
+   "stilton cheese"
+  ],
+  "stored": "Cheese, blue",
+  "storedKcal": 353,
+  "liveDesc": "Cheese, blue",
+  "liveKcal": 353,
+  "sim": 1
+ },
+ "172179": {
+  "verdict": "ok",
+  "keys": [
+   "cheese curds"
+  ],
+  "stored": "Cheese, cottage, creamed, large or small curd",
+  "storedKcal": 98,
+  "liveDesc": "Cheese, cottage, creamed, large or small curd",
+  "liveKcal": 98,
+  "sim": 1
+ },
+ "172183": {
+  "verdict": "ok",
+  "keys": [
+   "egg white"
+  ],
+  "stored": "Egg, white, raw, fresh",
+  "storedKcal": 52,
+  "liveDesc": "Egg, white, raw, fresh",
+  "liveKcal": 52,
+  "sim": 1
+ },
+ "172184": {
+  "verdict": "ok",
+  "keys": [
+   "egg yolks"
+  ],
+  "stored": "Egg, yolk, raw, fresh",
+  "storedKcal": 322,
+  "liveDesc": "Egg, yolk, raw, fresh",
+  "liveKcal": 322,
+  "sim": 1
+ },
+ "172206": {
+  "verdict": "ok",
+  "keys": [
+   "parmesan",
+   "parmesan cheese"
+  ],
+  "stored": "Parmesan cheese topping, fat free",
+  "storedKcal": 370,
+  "liveDesc": "Parmesan cheese topping, fat free",
+  "liveKcal": 370,
+  "sim": 1
+ },
+ "172210": {
+  "verdict": "ok",
+  "keys": [
+   "sour cream"
+  ],
+  "stored": "KRAFT BREAKSTONE'S Reduced Fat Sour Cream",
+  "storedKcal": 152,
+  "liveDesc": "KRAFT BREAKSTONE'S Reduced Fat Sour Cream",
+  "liveKcal": 152,
+  "sim": 1
+ },
+ "172231": {
+  "verdict": "ok",
+  "keys": [
+   "turmeric",
+   "turmeric powder",
+   "ground turmeric"
+  ],
+  "stored": "Spices, turmeric, ground",
+  "storedKcal": 312,
+  "liveDesc": "Spices, turmeric, ground",
+  "liveKcal": 312,
+  "sim": 1
+ },
+ "172232": {
+  "verdict": "ok",
+  "keys": [
+   "basil",
+   "basil leaves",
+   "fresh basil"
+  ],
+  "stored": "Basil, fresh",
+  "storedKcal": 23,
+  "liveDesc": "Basil, fresh",
+  "liveKcal": 23,
+  "sim": 1
+ },
+ "172233": {
+  "verdict": "ok",
+  "keys": [
+   "dill",
+   "dill pickles",
+   "dried dill"
+  ],
+  "stored": "Dill weed, fresh",
+  "storedKcal": 43,
+  "liveDesc": "Dill weed, fresh",
+  "liveKcal": 43,
+  "sim": 1
+ },
+ "172237": {
+  "verdict": "ok",
+  "keys": [
+   "vinegar",
+   "white vinegar",
+   "malt vinegar",
+   "rice vinegar"
+  ],
+  "stored": "Vinegar, distilled",
+  "storedKcal": 18,
+  "liveDesc": "Vinegar, distilled",
+  "liveKcal": 18,
+  "sim": 1
+ },
+ "172238": {
+  "verdict": "ok",
+  "keys": [
+   "capers"
+  ],
+  "stored": "Capers, canned",
+  "storedKcal": 23,
+  "liveDesc": "Capers, canned",
+  "liveKcal": 23,
+  "sim": 1
+ },
+ "172240": {
+  "verdict": "ok",
+  "keys": [
+   "red wine vinegar",
+   "sherry vinegar",
+   "vegan white wine vinegar"
+  ],
+  "stored": "Vinegar, red wine",
+  "storedKcal": 19,
+  "liveDesc": "Vinegar, red wine",
+  "liveKcal": 19,
+  "sim": 1
+ },
+ "172241": {
+  "verdict": "ok",
+  "keys": [
+   "balsamic vinegar",
+   "seasoned rice vinegar"
+  ],
+  "stored": "Vinegar, balsamic",
+  "storedKcal": 88,
+  "liveDesc": "Vinegar, balsamic",
+  "liveKcal": 88,
+  "sim": 1
+ },
+ "172331": {
+  "verdict": "ok",
+  "keys": [
+   "heavy cream"
+  ],
+  "stored": "Shortening frying (heavy duty), palm (hydrogenated)",
+  "storedKcal": 884,
+  "liveDesc": "Shortening frying (heavy duty), palm (hydrogenated)",
+  "liveKcal": 884,
+  "sim": 1
+ },
+ "172338": {
+  "verdict": "ok",
+  "keys": [
+   "sunflower oil"
+  ],
+  "stored": "Oil, sunflower, high oleic (70% and over)",
+  "storedKcal": 884,
+  "liveDesc": "Oil, sunflower, high oleic (70% and over)",
+  "liveKcal": 884,
+  "sim": 1
+ },
+ "172348": {
+  "verdict": "ok",
+  "keys": [
+   "vegan butter"
+  ],
+  "stored": "Margarine-like, vegetable oil spread, 60% fat, stick, with salt",
+  "storedKcal": 537,
+  "liveDesc": "Margarine-like, vegetable oil spread, 60% fat, stick, with salt",
+  "liveKcal": 537,
+  "sim": 1
+ },
+ "172370": {
+  "verdict": "ok",
+  "keys": [
+   "oil",
+   "vegetable oil"
+  ],
+  "stored": "Oil, vegetable, soybean, refined",
+  "storedKcal": 884,
+  "liveDesc": "Oil, vegetable, soybean, refined",
+  "liveKcal": 884,
+  "sim": 1
+ },
+ "172408": {
+  "verdict": "ok",
+  "keys": [
+   "duck",
+   "duck legs"
+  ],
+  "stored": "Duck, domesticated, meat and skin, raw",
+  "storedKcal": 404,
+  "liveDesc": "Duck, domesticated, meat and skin, raw",
+  "liveKcal": 404,
+  "sim": 1
+ },
+ "172415": {
+  "verdict": "ok",
+  "keys": [
+   "goose fat"
+  ],
+  "stored": "Goose, liver, raw",
+  "storedKcal": 133,
+  "liveDesc": "Goose, liver, raw",
+  "liveKcal": 133,
+  "sim": 1
+ },
+ "172420": {
+  "verdict": "ok",
+  "keys": [
+   "brown lentils",
+   "green red lentils"
+  ],
+  "stored": "Lentils, raw",
+  "storedKcal": 352,
+  "liveDesc": "Lentils, raw",
+  "liveKcal": 352,
+  "sim": 1
+ },
+ "172430": {
+  "verdict": "ok",
+  "keys": [
+   "peanuts"
+  ],
+  "stored": "Peanuts, all types, raw",
+  "storedKcal": 567,
+  "liveDesc": "Peanuts, all types, raw",
+  "liveKcal": 567,
+  "sim": 1
+ },
+ "172436": {
+  "verdict": "ok",
+  "keys": [
+   "toor dal"
+  ],
+  "stored": "Pigeon peas (red gram), mature seeds, raw",
+  "storedKcal": 343,
+  "liveDesc": "Pigeon peas (red gram), mature seeds, raw",
+  "liveKcal": 343,
+  "sim": 1
+ },
+ "172517": {
+  "verdict": "ok",
+  "keys": [
+   "lamb loin chops"
+  ],
+  "stored": "Lamb, New Zealand, imported, loin chop, separable lean and fat, raw",
+  "storedKcal": 298,
+  "liveDesc": "Lamb, New Zealand, imported, loin chop, separable lean and fat, raw",
+  "liveKcal": 298,
+  "sim": 1
+ },
+ "172667": {
+  "verdict": "ok",
+  "keys": [
+   "baked beans"
+  ],
+  "stored": "Biscuits, plain or buttermilk, frozen, baked",
+  "storedKcal": 338,
+  "liveDesc": "Biscuits, plain or buttermilk, frozen, baked",
+  "liveKcal": 338,
+  "sim": 1
+ },
+ "172671": {
+  "verdict": "ok",
+  "keys": [
+   "mixed grain"
+  ],
+  "stored": "Biscuits, mixed grain, refrigerated dough",
+  "storedKcal": 263,
+  "liveDesc": "Biscuits, mixed grain, refrigerated dough",
+  "liveKcal": 263,
+  "sim": 1
+ },
+ "172675": {
+  "verdict": "ok",
+  "keys": [
+   "crusty bread",
+   "baguette"
+  ],
+  "stored": "Bread, french or vienna (includes sourdough)",
+  "storedKcal": 272,
+  "liveDesc": "Bread, french or vienna (includes sourdough)",
+  "liveKcal": 272,
+  "sim": 1
+ },
+ "172688": {
+  "verdict": "ok",
+  "keys": [
+   "wholegrain bread"
+  ],
+  "stored": "Bread, whole-wheat, commercially prepared",
+  "storedKcal": 252,
+  "liveDesc": "Bread, whole-wheat, commercially prepared",
+  "liveKcal": 252,
+  "sim": 1
+ },
+ "172727": {
+  "verdict": "ok",
+  "keys": [
+   "peanut cookies"
+  ],
+  "stored": "Cookies, peanut butter, commercially prepared, regular",
+  "storedKcal": 473,
+  "liveDesc": "Cookies, peanut butter, commercially prepared, regular",
+  "liveKcal": 473,
+  "sim": 1
+ },
+ "172790": {
+  "verdict": "ok",
+  "keys": [
+   "puff pastry",
+   "ready rolled shortcrust pastry"
+  ],
+  "stored": "Puff pastry, frozen, ready-to-bake",
+  "storedKcal": 551,
+  "liveDesc": "Puff pastry, frozen, ready-to-bake",
+  "liveKcal": 551,
+  "sim": 1
+ },
+ "172805": {
+  "verdict": "ok",
+  "keys": [
+   "baking powder"
+  ],
+  "stored": "Leavening agents, baking powder, low-sodium",
+  "storedKcal": 97,
+  "liveDesc": "Leavening agents, baking powder, low-sodium",
+  "liveKcal": 97,
+  "sim": 1
+ },
+ "172814": {
+  "verdict": "ok",
+  "keys": [
+   "shortcrust pastry"
+  ],
+  "stored": "Pie crust, standard-type, prepared from recipe, unbaked",
+  "storedKcal": 469,
+  "liveDesc": "Pie crust, standard-type, prepared from recipe, unbaked",
+  "liveKcal": 469,
+  "sim": 1
+ },
+ "172838": {
+  "verdict": "ok",
+  "keys": [
+   "oysters"
+  ],
+  "stored": "Emu, oyster, raw",
+  "storedKcal": 141,
+  "liveDesc": "Emu, oyster, raw",
+  "liveKcal": 141,
+  "sim": 1
+ },
+ "173086": {
+  "verdict": "ok",
+  "keys": [
+   "beef shin"
+  ],
+  "stored": "Beef, New Zealand, imported, manufacturing beef, raw",
+  "storedKcal": 119,
+  "liveDesc": "Beef, New Zealand, imported, manufacturing beef, raw",
+  "liveKcal": 119,
+  "sim": 1
+ },
+ "173109": {
+  "verdict": "ok",
+  "keys": [
+   "beef fillet",
+   "beef tenderloin"
+  ],
+  "stored": "Beef, New Zealand, imported, tenderloin, separable lean and fat, raw",
+  "storedKcal": 146,
+  "liveDesc": "Beef, New Zealand, imported, tenderloin, separable lean and fat, raw",
+  "liveKcal": 146,
+  "sim": 1
+ },
+ "173156": {
+  "verdict": "ok",
+  "keys": [
+   "pretzels"
+  ],
+  "stored": "Snack, Pretzel, hard chocolate coated",
+  "storedKcal": 467,
+  "liveDesc": "Snack, Pretzel, hard chocolate coated",
+  "liveKcal": 467,
+  "sim": 1
+ },
+ "173190": {
+  "verdict": "ok",
+  "keys": [
+   "red wine"
+  ],
+  "stored": "Alcoholic beverage, wine, table, red",
+  "storedKcal": 85,
+  "liveDesc": "Alcoholic beverage, wine, table, red",
+  "liveKcal": 85,
+  "sim": 1
+ },
+ "173332": {
+  "verdict": "ok",
+  "keys": [
+   "beef gravy"
+  ],
+  "stored": "Beef, corned beef hash, with potato, canned",
+  "storedKcal": 164,
+  "liveDesc": "Beef, corned beef hash, with potato, canned",
+  "liveKcal": 164,
+  "sim": 1
+ },
+ "173410": {
+  "verdict": "ok",
+  "keys": [
+   "butter",
+   "chilled butter",
+   "salted butter",
+   "melted butter"
+  ],
+  "stored": "Butter, salted",
+  "storedKcal": 717,
+  "liveDesc": "Butter, salted",
+  "liveKcal": 717,
+  "sim": 1
+ },
+ "173416": {
+  "verdict": "ok",
+  "keys": [
+   "colby jack cheese"
+  ],
+  "stored": "Cheese, colby",
+  "storedKcal": 394,
+  "liveDesc": "Cheese, colby",
+  "liveKcal": 394,
+  "sim": 1
+ },
+ "173420": {
+  "verdict": "ok",
+  "keys": [
+   "cubed feta cheese",
+   "feta"
+  ],
+  "stored": "Cheese, feta",
+  "storedKcal": 265,
+  "liveDesc": "Cheese, feta",
+  "liveKcal": 265,
+  "sim": 1
+ },
+ "173430": {
+  "verdict": "ok",
+  "keys": [
+   "unsalted butter"
+  ],
+  "stored": "Butter, without salt",
+  "storedKcal": 717,
+  "liveDesc": "Butter, without salt",
+  "liveKcal": 717,
+  "sim": 1
+ },
+ "173468": {
+  "verdict": "ok",
+  "keys": [
+   "kosher salt",
+   "salt",
+   "sea salt"
+  ],
+  "stored": "Salt, table",
+  "storedKcal": 0,
+  "liveDesc": "Salt, table",
+  "liveKcal": 0,
+  "sim": 1
+ },
+ "173469": {
+  "verdict": "ok",
+  "keys": [
+   "apple cider vinegar",
+   "cider vinegar"
+  ],
+  "stored": "Vinegar, cider",
+  "storedKcal": 21,
+  "liveDesc": "Vinegar, cider",
+  "liveKcal": 21,
+  "sim": 1
+ },
+ "173470": {
+  "verdict": "ok",
+  "keys": [
+   "fresh thyme",
+   "thyme"
+  ],
+  "stored": "Thyme, fresh",
+  "storedKcal": 101,
+  "liveDesc": "Thyme, fresh",
+  "liveKcal": 101,
+  "sim": 1
+ },
+ "173471": {
+  "verdict": "ok",
+  "keys": [
+   "vanilla",
+   "vanilla extract",
+   "vanilla pod",
+   "vanilla bean paste"
+  ],
+  "stored": "Vanilla extract",
+  "storedKcal": 288,
+  "liveDesc": "Vanilla extract",
+  "liveKcal": 288,
+  "sim": 1
+ },
+ "173472": {
+  "verdict": "ok",
+  "keys": [
+   "horseradish"
+  ],
+  "stored": "Horseradish, prepared",
+  "storedKcal": 48,
+  "liveDesc": "Horseradish, prepared",
+  "liveKcal": 48,
+  "sim": 1
+ },
+ "173473": {
+  "verdict": "ok",
+  "keys": [
+   "rosemary"
+  ],
+  "stored": "Rosemary, fresh",
+  "storedKcal": 131,
+  "liveDesc": "Rosemary, fresh",
+  "liveKcal": 131,
+  "sim": 1
+ },
+ "173474": {
+  "verdict": "ok",
+  "keys": [
+   "mint"
+  ],
+  "stored": "Peppermint, fresh",
+  "storedKcal": 70,
+  "liveDesc": "Peppermint, fresh",
+  "liveKcal": 70,
+  "sim": 1
+ },
+ "173476": {
+  "verdict": "ok",
+  "keys": [
+   "fajita seasoning"
+  ],
+  "stored": "Seasoning mix, dry, chili, original",
+  "storedKcal": 335,
+  "liveDesc": "Seasoning mix, dry, chili, original",
+  "liveKcal": 335,
+  "sim": 1
+ },
+ "173645": {
+  "verdict": "ok",
+  "keys": [
+   "chicken legs"
+  ],
+  "stored": "Chicken, capons, meat and skin, raw",
+  "storedKcal": 234,
+  "liveDesc": "Chicken, capons, meat and skin, raw",
+  "liveKcal": 234,
+  "sim": 1
+ },
+ "173676": {
+  "verdict": "ok",
+  "keys": [
+   "monkfish"
+  ],
+  "stored": "Fish, monkfish, raw",
+  "storedKcal": 76,
+  "liveDesc": "Fish, monkfish, raw",
+  "liveKcal": 76,
+  "sim": 1
+ },
+ "173688": {
+  "verdict": "ok",
+  "keys": [
+   "salmon"
+  ],
+  "stored": "Fish, salmon, chinook, raw",
+  "storedKcal": 179,
+  "liveDesc": "Fish, salmon, chinook, raw",
+  "liveKcal": 179,
+  "sim": 1
+ },
+ "173744": {
+  "verdict": "ok",
+  "keys": [
+   "kidney beans"
+  ],
+  "stored": "Beans, kidney, red, mature seeds, raw",
+  "storedKcal": 337,
+  "liveDesc": "Beans, kidney, red, mature seeds, raw",
+  "liveKcal": 337,
+  "sim": 1
+ },
+ "173745": {
+  "verdict": "ok",
+  "keys": [
+   "haricot beans"
+  ],
+  "stored": "Beans, navy, mature seeds, raw",
+  "storedKcal": 337,
+  "liveDesc": "Beans, navy, mature seeds, raw",
+  "liveKcal": 337,
+  "sim": 1
+ },
+ "173756": {
+  "verdict": "ok",
+  "keys": [
+   "chickpeas"
+  ],
+  "stored": "Chickpeas (garbanzo beans, bengal gram), mature seeds, raw",
+  "storedKcal": 378,
+  "liveDesc": "Chickpeas (garbanzo beans, bengal gram), mature seeds, raw",
+  "liveKcal": 378,
+  "sim": 1
+ },
+ "173770": {
+  "verdict": "ok",
+  "keys": [
+   "chocolate chips"
+  ],
+  "stored": "SILK Chocolate, soymilk",
+  "storedKcal": 58,
+  "liveDesc": "SILK Chocolate, soymilk",
+  "liveKcal": 58,
+  "sim": 1
+ },
+ "173778": {
+  "verdict": "ok",
+  "keys": [
+   "raspberry jam"
+  ],
+  "stored": "SILK Raspberry soy yogurt",
+  "storedKcal": 88,
+  "liveDesc": "SILK Raspberry soy yogurt",
+  "liveKcal": 88,
+  "sim": 1
+ },
+ "173815": {
+  "verdict": "ok",
+  "keys": [
+   "veal"
+  ],
+  "stored": "Veal, composite of trimmed retail cuts, separable lean and fat, raw",
+  "storedKcal": 144,
+  "liveDesc": "Veal, composite of trimmed retail cuts, separable lean and fat, raw",
+  "liveKcal": 144,
+  "sim": 1
+ },
+ "173859": {
+  "verdict": "ok",
+  "keys": [
+   "chorizo"
+  ],
+  "stored": "Sausage, pork, chorizo, link or ground, raw",
+  "storedKcal": 296,
+  "liveDesc": "Sausage, pork, chorizo, link or ground, raw",
+  "liveKcal": 296,
+  "sim": 1
+ },
+ "173904": {
+  "verdict": "ok",
+  "keys": [
+   "rolled oats",
+   "oatmeal",
+   "oats",
+   "porridge oats"
+  ],
+  "stored": "Cereals, oats, regular and quick, not fortified, dry",
+  "storedKcal": 379,
+  "liveDesc": "Cereals, oats, regular and quick, not fortified, dry",
+  "liveKcal": 379,
+  "sim": 1
+ },
+ "173941": {
+  "verdict": "ok",
+  "keys": [
+   "dried apricots"
+  ],
+  "stored": "Apricots, dried, sulfured, uncooked",
+  "storedKcal": 241,
+  "liveDesc": "Apricots, dried, sulfured, uncooked",
+  "liveKcal": 241,
+  "sim": 1
+ },
+ "173944": {
+  "verdict": "ok",
+  "keys": [
+   "banana",
+   "fried ripe bananas"
+  ],
+  "stored": "Bananas, raw",
+  "storedKcal": 89,
+  "liveDesc": "Bananas, raw",
+  "liveKcal": 89,
+  "sim": 1
+ },
+ "173946": {
+  "verdict": "ok",
+  "keys": [
+   "blackberries",
+   "black pudding"
+  ],
+  "stored": "Blackberries, raw",
+  "storedKcal": 43,
+  "liveDesc": "Blackberries, raw",
+  "liveKcal": 43,
+  "sim": 1
+ },
+ "173947": {
+  "verdict": "ok",
+  "keys": [
+   "black olives"
+  ],
+  "stored": "Blackberry juice, canned",
+  "storedKcal": 38,
+  "liveDesc": "Blackberry juice, canned",
+  "liveKcal": 38,
+  "sim": 1
+ },
+ "173963": {
+  "verdict": "ok",
+  "keys": [
+   "currants"
+  ],
+  "stored": "Currants, european black, raw",
+  "storedKcal": 63,
+  "liveDesc": "Currants, european black, raw",
+  "liveKcal": 63,
+  "sim": 1
+ },
+ "173964": {
+  "verdict": "ok",
+  "keys": [
+   "redcurrants"
+  ],
+  "stored": "Currants, red and white, raw",
+  "storedKcal": 56,
+  "liveDesc": "Currants, red and white, raw",
+  "liveKcal": 56,
+  "sim": 1
+ },
+ "174074": {
+  "verdict": "ok",
+  "keys": [
+   "enchilada sauce",
+   "red pepper sauce"
+  ],
+  "stored": "Sauce, enchilada, red, mild, ready to serve",
+  "storedKcal": 30,
+  "liveDesc": "Sauce, enchilada, red, mild, ready to serve",
+  "liveKcal": 30,
+  "sim": 1
+ },
+ "174158": {
+  "verdict": "ok",
+  "keys": [
+   "water"
+  ],
+  "stored": "Water, bottled, generic",
+  "storedKcal": 0,
+  "liveDesc": "Water, bottled, generic",
+  "liveKcal": 0,
+  "sim": 1
+ },
+ "174195": {
+  "verdict": "ok",
+  "keys": [
+   "fish stock"
+  ],
+  "stored": "Fish, fish sticks, frozen, prepared",
+  "storedKcal": 277,
+  "liveDesc": "Fish, fish sticks, frozen, prepared",
+  "liveKcal": 277,
+  "sim": 1
+ },
+ "174199": {
+  "verdict": "ok",
+  "keys": [
+   "smoked haddock"
+  ],
+  "stored": "Fish, haddock, smoked",
+  "storedKcal": 116,
+  "liveDesc": "Fish, haddock, smoked",
+  "liveKcal": 116,
+  "sim": 1
+ },
+ "174214": {
+  "verdict": "ok",
+  "keys": [
+   "clams"
+  ],
+  "stored": "Mollusks, clam, mixed species, raw",
+  "storedKcal": 86,
+  "liveDesc": "Mollusks, clam, mixed species, raw",
+  "liveKcal": 86,
+  "sim": 1
+ },
+ "174216": {
+  "verdict": "ok",
+  "keys": [
+   "mussels"
+  ],
+  "stored": "Mollusks, mussel, blue, raw",
+  "storedKcal": 86,
+  "liveDesc": "Mollusks, mussel, blue, raw",
+  "liveKcal": 86,
+  "sim": 1
+ },
+ "174223": {
+  "verdict": "ok",
+  "keys": [
+   "baby squid",
+   "squid"
+  ],
+  "stored": "Mollusks, squid, mixed species, raw",
+  "storedKcal": 92,
+  "liveDesc": "Mollusks, squid, mixed species, raw",
+  "liveKcal": 92,
+  "sim": 1
+ },
+ "174252": {
+  "verdict": "ok",
+  "keys": [
+   "butter beans"
+  ],
+  "stored": "Lima beans, large, mature seeds, raw",
+  "storedKcal": 338,
+  "liveDesc": "Lima beans, large, mature seeds, raw",
+  "liveKcal": 338,
+  "sim": 1
+ },
+ "174277": {
+  "verdict": "ok",
+  "keys": [
+   "dark soy sauce",
+   "soy sauce"
+  ],
+  "stored": "Soy sauce made from soy and wheat (shoyu)",
+  "storedKcal": 53,
+  "liveDesc": "Soy sauce made from soy and wheat (shoyu)",
+  "liveKcal": 53,
+  "sim": 1
+ },
+ "174294": {
+  "verdict": "ok",
+  "keys": [
+   "peanut butter"
+  ],
+  "stored": "Peanut Butter, smooth (Includes foods for USDA's Food Distribution Program)",
+  "storedKcal": 588,
+  "liveDesc": "Peanut Butter, smooth (Includes foods for USDA's Food Distribution Program)",
+  "liveKcal": 588,
+  "sim": 1
+ },
+ "174354": {
+  "verdict": "ok",
+  "keys": [
+   "lamb kidney"
+  ],
+  "stored": "Lamb, variety meats and by-products, kidneys, raw",
+  "storedKcal": 97,
+  "liveDesc": "Lamb, variety meats and by-products, kidneys, raw",
+  "liveKcal": 97,
+  "sim": 1
+ },
+ "174370": {
+  "verdict": "ok",
+  "keys": [
+   "doner meat",
+   "lamb",
+   "lamb mince",
+   "lamb leg"
+  ],
+  "stored": "Lamb, ground, raw",
+  "storedKcal": 282,
+  "liveDesc": "Lamb, ground, raw",
+  "liveKcal": 282,
+  "sim": 1
+ },
+ "174467": {
+  "verdict": "ok",
+  "keys": [
+   "duck fat"
+  ],
+  "stored": "Duck, domesticated, liver, raw",
+  "storedKcal": 136,
+  "liveDesc": "Duck, domesticated, liver, raw",
+  "liveKcal": 136,
+  "sim": 1
+ },
+ "174523": {
+  "verdict": "ok",
+  "keys": [
+   "barbeque sauce"
+  ],
+  "stored": "Sauce, barbecue",
+  "storedKcal": 172,
+  "liveDesc": "Sauce, barbecue",
+  "liveKcal": 172,
+  "sim": 1
+ },
+ "174527": {
+  "verdict": "ok",
+  "keys": [
+   "hotsauce",
+   "tobasco sauce"
+  ],
+  "stored": "Sauce, ready-to-serve, pepper or hot",
+  "storedKcal": 11,
+  "liveDesc": "Sauce, ready-to-serve, pepper or hot",
+  "liveKcal": 11,
+  "sim": 1
+ },
+ "174529": {
+  "verdict": "ok",
+  "keys": [
+   "oyster sauce"
+  ],
+  "stored": "Sauce, oyster, ready-to-serve",
+  "storedKcal": 51,
+  "liveDesc": "Sauce, oyster, ready-to-serve",
+  "liveKcal": 51,
+  "sim": 1
+ },
+ "174531": {
+  "verdict": "ok",
+  "keys": [
+   "thai fish sauce",
+   "shrimp paste"
+  ],
+  "stored": "Sauce, fish, ready-to-serve",
+  "storedKcal": 35,
+  "liveDesc": "Sauce, fish, ready-to-serve",
+  "liveKcal": 35,
+  "sim": 1
+ },
+ "174617": {
+  "verdict": "ok",
+  "keys": [
+   "sausages"
+  ],
+  "stored": "Sausage, turkey, fresh, raw",
+  "storedKcal": 155,
+  "liveDesc": "Sausage, turkey, fresh, raw",
+  "liveKcal": 155,
+  "sim": 1
+ },
+ "174817": {
+  "verdict": "ok",
+  "keys": [
+   "brandy",
+   "dark rum",
+   "rum",
+   "grand marnier",
+   "appleton rum"
+  ],
+  "stored": "Alcoholic beverage, distilled, rum, 80 proof",
+  "storedKcal": 231,
+  "liveDesc": "Alcoholic beverage, distilled, rum, 80 proof",
+  "liveKcal": 231,
+  "sim": 1
+ },
+ "174837": {
+  "verdict": "ok",
+  "keys": [
+   "dry white wine",
+   "white wine",
+   "cooking wine"
+  ],
+  "stored": "Alcoholic beverage, wine, table, white",
+  "storedKcal": 82,
+  "liveDesc": "Alcoholic beverage, wine, table, white",
+  "liveKcal": 82,
+  "sim": 1
+ },
+ "174924": {
+  "verdict": "ok",
+  "keys": [
+   "bread",
+   "white bread"
+  ],
+  "stored": "Bread, white, commercially prepared (includes soft bread crumbs)",
+  "storedKcal": 266,
+  "liveDesc": "Bread, white, commercially prepared (includes soft bread crumbs)",
+  "liveKcal": 266,
+  "sim": 1
+ },
+ "174928": {
+  "verdict": "ok",
+  "keys": [
+   "breadcrumbs"
+  ],
+  "stored": "Bread, crumbs, dry, grated, plain",
+  "storedKcal": 395,
+  "liveDesc": "Bread, crumbs, dry, grated, plain",
+  "liveKcal": 395,
+  "sim": 1
+ },
+ "174957": {
+  "verdict": "ok",
+  "keys": [
+   "digestive biscuits"
+  ],
+  "stored": "Cookies, graham crackers, plain or honey (includes cinnamon)",
+  "storedKcal": 430,
+  "liveDesc": "Cookies, graham crackers, plain or honey (includes cinnamon)",
+  "liveKcal": 430,
+  "sim": 1
+ },
+ "175037": {
+  "verdict": "ok",
+  "keys": [
+   "tortillas"
+  ],
+  "stored": "Tortillas, ready-to-bake or -fry, flour, refrigerated",
+  "storedKcal": 306,
+  "liveDesc": "Tortillas, ready-to-bake or -fry, flour, refrigerated",
+  "liveKcal": 306,
+  "sim": 1
+ },
+ "175040": {
+  "verdict": "ok",
+  "keys": [
+   "bicarbonate of soda"
+  ],
+  "stored": "Leavening agents, baking soda",
+  "storedKcal": 0,
+  "liveDesc": "Leavening agents, baking soda",
+  "liveKcal": 0,
+  "sim": 1
+ },
+ "175103": {
+  "verdict": "ok",
+  "keys": [
+   "cold water"
+  ],
+  "stored": "Beverages, water, tap, municipal",
+  "storedKcal": 0,
+  "liveDesc": "Beverages, water, tap, municipal",
+  "liveKcal": 0,
+  "sim": 1
+ },
+ "175119": {
+  "verdict": "ok",
+  "keys": [
+   "mackerel"
+  ],
+  "stored": "Fish, mackerel, Atlantic, raw",
+  "storedKcal": 205,
+  "liveDesc": "Fish, mackerel, Atlantic, raw",
+  "liveKcal": 205,
+  "sim": 1
+ },
+ "175139": {
+  "verdict": "ok",
+  "keys": [
+   "pilchards"
+  ],
+  "stored": "Fish, sardine, Atlantic, canned in oil, drained solids with bone",
+  "storedKcal": 208,
+  "liveDesc": "Fish, sardine, Atlantic, canned in oil, drained solids with bone",
+  "liveKcal": 208,
+  "sim": 1
+ },
+ "175159": {
+  "verdict": "ok",
+  "keys": [
+   "tuna"
+  ],
+  "stored": "Fish, tuna, fresh, yellowfin, raw",
+  "storedKcal": 109,
+  "liveDesc": "Fish, tuna, fresh, yellowfin, raw",
+  "liveKcal": 109,
+  "sim": 1
+ },
+ "175164": {
+  "verdict": "ok",
+  "keys": [
+   "king prawns",
+   "raw king prawns"
+  ],
+  "stored": "Crustaceans, crab, alaska king, raw",
+  "storedKcal": 84,
+  "liveDesc": "Crustaceans, crab, alaska king, raw",
+  "liveKcal": 84,
+  "sim": 1
+ },
+ "175179": {
+  "verdict": "ok",
+  "keys": [
+   "prawns",
+   "tiger prawns",
+   "shrimp",
+   "raw tiger prawns",
+   "frozen seafood mix",
+   "raw frozen prawns",
+   "jumbo shrimp",
+   "dried shrimp"
+  ],
+  "stored": "Crustaceans, shrimp, raw",
+  "storedKcal": 85,
+  "liveDesc": "Crustaceans, shrimp, raw",
+  "liveKcal": 85,
+  "sim": 1
+ },
+ "175189": {
+  "verdict": "ok",
+  "keys": [
+   "borlotti beans"
+  ],
+  "stored": "Beans, cranberry (roman), mature seeds, raw",
+  "storedKcal": 335,
+  "liveDesc": "Beans, cranberry (roman), mature seeds, raw",
+  "liveKcal": 335,
+  "sim": 1
+ },
+ "175202": {
+  "verdict": "ok",
+  "keys": [
+   "cannellini beans",
+   "dried white beans",
+   "dried white navy beans"
+  ],
+  "stored": "Beans, white, mature seeds, raw",
+  "storedKcal": 333,
+  "liveDesc": "Beans, white, mature seeds, raw",
+  "liveKcal": 333,
+  "sim": 1
+ },
+ "175223": {
+  "verdict": "ok",
+  "keys": [
+   "soya milk"
+  ],
+  "stored": "SILK Unsweetened, soymilk",
+  "storedKcal": 33,
+  "liveDesc": "SILK Unsweetened, soymilk",
+  "liveKcal": 33,
+  "sim": 1
+ },
+ "175254": {
+  "verdict": "ok",
+  "keys": [
+   "lentils"
+  ],
+  "stored": "Lentils, mature seeds, cooked, boiled, with salt",
+  "storedKcal": 114,
+  "liveDesc": "Lentils, mature seeds, cooked, boiled, with salt",
+  "liveKcal": 114,
+  "sim": 1
+ },
+ "175262": {
+  "verdict": "ok",
+  "keys": [
+   "lamb shoulder"
+  ],
+  "stored": "Lamb, New Zealand, imported, square-cut shoulder, separable lean and fat, raw",
+  "storedKcal": 272,
+  "liveDesc": "Lamb, New Zealand, imported, square-cut shoulder, separable lean and fat, raw",
+  "liveKcal": 272,
+  "sim": 1
+ },
+ "175303": {
+  "verdict": "ok",
+  "keys": [
+   "goats cheese",
+   "goat meat"
+  ],
+  "stored": "Game meat, goat, raw",
+  "storedKcal": 109,
+  "liveDesc": "Game meat, goat, raw",
+  "liveKcal": 109,
+  "sim": 1
+ },
+ "321360": {
+  "verdict": "missing",
+  "keys": [
+   "grape tomatoes",
+   "tomatoes",
+   "tomato"
+  ],
+  "stored": "Tomatoes, grape, raw",
+  "note": "Unexpected end of JSON input"
+ },
+ "325430": {
+  "verdict": "missing",
+  "keys": [
+   "peaches"
+  ],
+  "stored": "Peaches, yellow, raw",
+  "note": "Unexpected end of JSON input"
+ },
+ "326698": {
+  "verdict": "missing",
+  "keys": [
+   "english mustard",
+   "mustard",
+   "mustard seeds",
+   "dijon mustard",
+   "wholegrain mustard"
+  ],
+  "stored": "Mustard, prepared, yellow",
+  "note": "Unexpected end of JSON input"
+ },
+ "328637": {
+  "verdict": "missing",
+  "keys": [
+   "cheddar cheese",
+   "cheese",
+   "mature cheddar"
+  ],
+  "stored": "Cheese, cheddar",
+  "note": "Unexpected end of JSON input"
+ },
+ "332791": {
+  "verdict": "missing",
+  "keys": [
+   "green olives"
+  ],
+  "stored": "Olives, green, Manzanilla, stuffed with pimiento",
+  "note": "Unexpected end of JSON input"
+ },
+ "333281": {
+  "verdict": "missing",
+  "keys": [
+   "diced tomatoes",
+   "tinned tomatos"
+  ],
+  "stored": "Tomatoes, canned, red, ripe, diced",
+  "note": "Unexpected end of JSON input"
+ },
+ "333374": {
+  "verdict": "missing",
+  "keys": [
+   "haddock"
+  ],
+  "stored": "Fish, haddock, raw",
+  "note": "Unexpected end of JSON input"
+ },
+ "746766": {
+  "verdict": "missing",
+  "keys": [
+   "ricotta"
+  ],
+  "stored": "Cheese, ricotta, whole milk",
+  "note": "Unexpected end of JSON input"
+ },
+ "746777": {
+  "verdict": "missing",
+  "keys": [
+   "salsa",
+   "pico de gallo sauce"
+  ],
+  "stored": "Sauce, salsa, ready-to-serve",
+  "note": "Unexpected end of JSON input"
+ },
+ "746782": {
+  "verdict": "missing",
+  "keys": [
+   "milk",
+   "whole milk"
+  ],
+  "stored": "Milk, whole, 3.25% milkfat, with added vitamin D",
+  "note": "Unexpected end of JSON input"
+ },
+ "746784": {
+  "verdict": "ok",
+  "keys": [
+   "caster sugar",
+   "coco sugar",
+   "granulated sugar",
+   "sugar",
+   "golden caster sugar",
+   "vanilla sugar",
+   "sugar syrup",
+   "caramelized sugar sauce"
+  ],
+  "stored": "Sugars, granulated",
+  "storedKcal": 385,
+  "liveDesc": "Sugars, granulated",
+  "liveKcal": 385,
+  "sim": 1
+ },
+ "747447": {
+  "verdict": "missing",
+  "keys": [
+   "broccoli",
+   "purple sprouting broccoli"
+  ],
+  "stored": "Broccoli, raw",
+  "note": "Unexpected end of JSON input"
+ },
+ "789890": {
+  "verdict": "ok",
+  "keys": [
+   "flour"
+  ],
+  "stored": "Flour, wheat, all-purpose, enriched, bleached",
+  "storedKcal": 366,
+  "liveDesc": "Flour, wheat, all-purpose, enriched, bleached",
+  "liveKcal": 366,
+  "sim": 1
+ },
+ "790577": {
+  "verdict": "ok",
+  "keys": [
+   "red onions"
+  ],
+  "stored": "Onions, red, raw",
+  "storedKcal": 44,
+  "liveDesc": "Onions, red, raw",
+  "liveKcal": 44,
+  "sim": 1
+ },
+ "1104647": {
+  "verdict": "ok",
+  "keys": [
+   "garlic",
+   "garlic clove",
+   "garlic sauce",
+   "minced garlic",
+   "wild garlic leaves",
+   "garlic bulb",
+   "pickled garlics"
+  ],
+  "stored": "Garlic, raw",
+  "storedKcal": 143,
+  "liveDesc": "Garlic, raw",
+  "liveKcal": 143,
+  "sim": 1
+ }
+}

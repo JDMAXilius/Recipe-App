@@ -616,26 +616,26 @@
     "sodium_mg": 6
   },
   "chicken breast": {
-    "fdcId": 171116,
-    "usda": "Chicken, ground, raw",
-    "kcal": 143,
-    "protein_g": 17.4,
-    "fat_g": 8.1,
-    "carbs_g": 0.04,
+    "fdcId": 171077,
+    "usda": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",
+    "kcal": 120,
+    "protein_g": 22.5,
+    "fat_g": 2.62,
+    "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 60
+    "sodium_mg": 45
   },
   "chicken breasts": {
-    "fdcId": 171116,
-    "usda": "Chicken, ground, raw",
-    "kcal": 143,
-    "protein_g": 17.4,
-    "fat_g": 8.1,
-    "carbs_g": 0.04,
+    "fdcId": 171077,
+    "usda": "Chicken, broiler or fryers, breast, skinless, boneless, meat only, raw",
+    "kcal": 120,
+    "protein_g": 22.5,
+    "fat_g": 2.62,
+    "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 60
+    "sodium_mg": 45
   },
   "chicken legs": {
     "fdcId": 173645,
@@ -3168,15 +3168,15 @@
     "sodium_mg": 186
   },
   "tomatoes": {
-    "fdcId": 321360,
-    "usda": "Tomatoes, grape, raw",
-    "kcal": 27,
-    "protein_g": 0.83,
-    "fat_g": 0.63,
-    "carbs_g": 5.51,
-    "fiber_g": 2.1,
+    "fdcId": 170457,
+    "usda": "Tomatoes, red, ripe, raw, year round average",
+    "kcal": 18,
+    "protein_g": 0.88,
+    "fat_g": 0.2,
+    "carbs_g": 3.89,
+    "fiber_g": 1.2,
     "sugar_g": null,
-    "sodium_mg": 6
+    "sodium_mg": 5
   },
   "toor dal": {
     "fdcId": 172436,
@@ -3465,15 +3465,15 @@
     "sodium_mg": 46
   },
   "zucchini": {
-    "fdcId": 168565,
-    "usda": "Squash, zucchini, baby, raw",
-    "kcal": 21,
-    "protein_g": 2.71,
-    "fat_g": 0.4,
+    "fdcId": 169291,
+    "usda": "Squash, summer, zucchini, includes skin, raw",
+    "kcal": 17,
+    "protein_g": 1.21,
+    "fat_g": 0.32,
     "carbs_g": 3.11,
-    "fiber_g": 1.1,
+    "fiber_g": 1,
     "sugar_g": null,
-    "sodium_mg": 3
+    "sodium_mg": 8
   },
   "pretzels": {
     "fdcId": 173156,
@@ -3696,15 +3696,15 @@
     "sodium_mg": 4
   },
   "tomato": {
-    "fdcId": 321360,
-    "usda": "Tomatoes, grape, raw",
-    "kcal": 27,
-    "protein_g": 0.83,
-    "fat_g": 0.63,
-    "carbs_g": 5.51,
-    "fiber_g": 2.1,
+    "fdcId": 170457,
+    "usda": "Tomatoes, red, ripe, raw, year round average",
+    "kcal": 18,
+    "protein_g": 0.88,
+    "fat_g": 0.2,
+    "carbs_g": 3.89,
+    "fiber_g": 1.2,
     "sugar_g": null,
-    "sodium_mg": 6
+    "sodium_mg": 5
   },
   "duck": {
     "fdcId": 172408,
@@ -4301,15 +4301,15 @@
     "sodium_mg": 2
   },
   "green pepper": {
-    "fdcId": 170375,
-    "usda": "Beet greens, raw",
-    "kcal": 22,
-    "protein_g": 2.2,
-    "fat_g": 0.13,
-    "carbs_g": 4.33,
-    "fiber_g": 3.7,
+    "fdcId": 170427,
+    "usda": "Peppers, sweet, green, raw",
+    "kcal": 20,
+    "protein_g": 0.86,
+    "fat_g": 0.17,
+    "carbs_g": 4.64,
+    "fiber_g": 1.7,
     "sugar_g": null,
-    "sodium_mg": 226
+    "sodium_mg": 3
   },
   "courgettes": {
     "fdcId": 169291,
@@ -5665,15 +5665,15 @@
     "sodium_mg": 77
   },
   "sweet potatoes": {
-    "fdcId": 169303,
-    "usda": "Sweet potato leaves, raw",
-    "kcal": 42,
-    "protein_g": 2.49,
-    "fat_g": 0.51,
-    "carbs_g": 8.82,
-    "fiber_g": 5.3,
+    "fdcId": 168482,
+    "usda": "Sweet potato, raw, unprepared (Includes foods for USDA's Food Distribution Program)",
+    "kcal": 86,
+    "protein_g": 1.57,
+    "fat_g": 0.05,
+    "carbs_g": 20.1,
+    "fiber_g": 3,
     "sugar_g": null,
-    "sodium_mg": 6
+    "sodium_mg": 55
   },
   "bread rolls": {
     "fdcId": 174929,
@@ -10303,6 +10303,28 @@
     "fat_g": 0,
     "carbs_g": 0.3,
     "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 3
+  },
+  "sweet potato": {
+    "fdcId": 168482,
+    "usda": "Sweet potato, raw, unprepared (Includes foods for USDA's Food Distribution Program)",
+    "kcal": 86,
+    "protein_g": 1.57,
+    "fat_g": 0.05,
+    "carbs_g": 20.1,
+    "fiber_g": 3,
+    "sugar_g": null,
+    "sodium_mg": 55
+  },
+  "green peppers": {
+    "fdcId": 170427,
+    "usda": "Peppers, sweet, green, raw",
+    "kcal": 20,
+    "protein_g": 0.86,
+    "fat_g": 0.17,
+    "carbs_g": 4.64,
+    "fiber_g": 1.7,
     "sugar_g": null,
     "sodium_mg": 3
   }

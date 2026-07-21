@@ -2,9 +2,10 @@
 // { qty: 2.5, unit: "cup", item: "plain flour", grams: ~312, confidence }.
 // Deterministic, no LLM. Grams are ESTIMATES (density fallbacks) and every
 // unresolved qty/unit/density is flagged via confidence — honesty first.
+import VERIFIED_PIECE from "./pieceWeights.json" with { type: "json" };
 
 export const UNIT_WORDS =
-  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
+  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|quarts?|qts?|pints?|pts?|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
 
 // canonical unit ids
 const UNIT_ALIASES = [
@@ -15,6 +16,8 @@ const UNIT_ALIASES = [
   [/^(kgs?|kilograms?)$/i, "kg"],
   [/^(milliliters?|mls?)$/i, "ml"],
   [/^(liters?|litres?|l)$/i, "l"],
+  [/^(quarts?|qts?)$/i, "quart"],
+  [/^(pints?|pts?)$/i, "pint"],
   [/^(ounces?|oz)$/i, "oz"],
   [/^(pounds?|lbs?)$/i, "lb"],
   [/^cloves?$/i, "clove"],
@@ -45,7 +48,9 @@ const UNICODE_FRACTIONS = {
 // mass → grams, exact
 const MASS_G = { g: 1, kg: 1000, oz: 28.35, lb: 453.6 };
 // volume → milliliters, exact (US customary)
-const VOLUME_ML = { cup: 240, tbsp: 15, tsp: 5, ml: 1, l: 1000 };
+// US liquid quart/pint (the corpus is US-and-UK mixed; US is the commoner
+// written form and the two differ ~20%, so this is a documented choice).
+const VOLUME_ML = { cup: 240, tbsp: 15, tsp: 5, ml: 1, l: 1000, quart: 946, pint: 473 };
 // small/approximate units → grams, rough by nature
 const APPROX_G = { pinch: 0.4, dash: 0.6, drop: 0.05, knob: 15, handful: 30, splash: 10 };
 
@@ -189,8 +194,8 @@ export function parseQty(raw) {
   if (raw == null) return null;
   let s = String(raw).trim().replace(/[⁄]/g, "/");
   for (const [ch, val] of Object.entries(UNICODE_FRACTIONS)) {
-    // "1½" or standalone "½"
-    s = s.replace(new RegExp(`(\\d+)\\s*${ch}`), (_, n) => String(Number(n) + val));
+    // "1½", "1 ½", "1-⅓" (TheMealDB writes all three) or a standalone "½"
+    s = s.replace(new RegExp(`(\\d+)\\s*[-–—]?\\s*${ch}`), (_, n) => String(Number(n) + val));
     s = s.replace(new RegExp(ch), String(val));
   }
   const range = s.match(/^([\d./\s]+?)\s*(?:[-–—]|to)\s*([\d./\s]+)$/i);
@@ -213,6 +218,27 @@ function densityFor(item) {
   return { density: DEFAULT_DENSITY, matched: false };
 }
 
+// A piece weight VERIFIED against USDA's own foodPortions record for that food
+// ("1 medium onion = 110 g"). These are not our estimates — they carry the same
+// authority as the per-100g numbers we already trust from the same record, so
+// they resolve at "good" (high confidence) rather than "approx". Provenance for
+// every row (fdcId + the USDA portion wording) is in pieceWeights.json; a weight
+// USDA could not confirm is deliberately NOT in that file and keeps its estimate
+// flag via the tables below.
+function verifiedPiece(item, unit) {
+  const t = String(item || "").toLowerCase();
+  let best = null;
+  for (const [name, row] of Object.entries(VERIFIED_PIECE)) {
+    // A piece-noun row ("clove", "stalk") only applies when that noun is the unit.
+    if (row.unit && row.unit !== unit) continue;
+    if (!row.unit && unit) continue; // bare-count rows need a bare count
+    if (t === name || t.startsWith(name + " ") || t.endsWith(" " + name) || t === name + "s" || t.includes(" " + name + " ")) {
+      if (!best || name.length > best.name.length) best = { name, row }; // most specific wins
+    }
+  }
+  return best?.row ?? null;
+}
+
 function gramsFor(qty, unit, item) {
   if (qty == null) return { grams: null, level: "none" };
   if (unit && MASS_G[unit]) return { grams: qty * MASS_G[unit], level: "exact" };
@@ -221,6 +247,8 @@ function gramsFor(qty, unit, item) {
     return { grams: qty * VOLUME_ML[unit] * density, level: matched ? "good" : "default-density" };
   }
   if (unit && APPROX_G[unit]) return { grams: qty * APPROX_G[unit], level: "approx" };
+  const verified = verifiedPiece(item, unit);
+  if (verified) return { grams: qty * verified.grams, level: "good" };
   if (unit) {
     for (const [unitRe, itemRe, g] of PIECE_G) {
       if (unitRe.test(unit) && itemRe.test(item)) return { grams: qty * g, level: "approx" };
@@ -288,7 +316,10 @@ export function parseIngredientLine(input) {
 
   const m = text.match(
     new RegExp(
-      `^((?:\\d+\\s+\\d+[\\/⁄]\\d+|\\d+[\\/⁄]\\d+|\\d+(?:[.,]\\d+)?|[¼½¾⅓⅔⅛⅜⅝⅞])(?:\\s*(?:[-–—]|to)\\s*\\d+(?:[.,]\\d+)?)?)\\s*(${UNIT_WORDS})?\\.?\\s+(?:of\\s+)?(.+)$`,
+      // The mixed-unicode form ("1 ½ tbsp", "1-⅓ cups") must come FIRST or the
+      // bare-integer branch matches "1" and strips the fraction silently — the
+      // line then reads 1 tbsp instead of 1.5, or drops out entirely.
+      `^((?:\\d+\\s*[-–—]?\\s*[¼½¾⅓⅔⅛⅜⅝⅞]|\\d+\\s+\\d+[\\/⁄]\\d+|\\d+[\\/⁄]\\d+|\\d+(?:[.,]\\d+)?|[¼½¾⅓⅔⅛⅜⅝⅞])(?:\\s*(?:[-–—]|to)\\s*\\d+(?:[.,]\\d+)?)?)\\s*(${UNIT_WORDS})?\\.?\\s+(?:of\\s+)?(.+)$`,
       "i"
     )
   );

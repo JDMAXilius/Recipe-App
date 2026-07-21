@@ -42,13 +42,24 @@ test("volume converts via density (flour ≠ water)", () => {
   assert.equal(water.grams, 240);
 });
 
-test("count units and bare counts are medium confidence", () => {
-  const garlic = parseIngredientLine("3 cloves garlic");
-  assert.equal(garlic.grams, 9); // 3 g/clove [USDA] — aligned with the app's table
-  assert.equal(garlic.confidence, "medium");
+test("USDA-verified piece weights are high; unverified ones stay medium", () => {
+  // Verified against USDA's own foodPortions ("1 large egg = 50 g") →
+  // pieceWeights.json → the same authority as the food's per-100g numbers.
   const eggs = parseIngredientLine("2 eggs");
   assert.equal(eggs.grams, 100);
-  assert.equal(eggs.confidence, "medium");
+  assert.equal(eggs.confidence, "high");
+  // Garlic: USDA's SR Legacy record publishes "1 clove = 3 g" (the Foundation
+  // record carries only "1 RACC" — hence the candidate walk in
+  // build-piece-weights.mjs). Verified, so high.
+  const garlic = parseIngredientLine("3 cloves garlic");
+  assert.equal(garlic.grams, 9);
+  assert.equal(garlic.confidence, "high");
+  // Shallot: USDA publishes NO whole-shallot portion, only "1 tbsp chopped",
+  // which is a volume. Our 30 g/each stays an estimate and must say so — this
+  // is the case that proves the file is provenance and not a rubber stamp.
+  const shallot = parseIngredientLine("2 shallots");
+  assert.equal(shallot.grams, 60);
+  assert.equal(shallot.confidence, "medium");
 });
 
 test("unresolvable lines are honest: null grams, low confidence", () => {
@@ -68,7 +79,9 @@ test("parseIngredients aggregates totals and worst-weights confidence", () => {
   const all = parseIngredients(["2 cups flour", "1 cup milk", "2 eggs"]);
   assert.equal(all.lines.length, 3);
   assert.ok(all.totalGrams > 550 && all.totalGrams < 650);
-  assert.equal(all.confidence, "medium"); // eggs line drags high → medium
+  // Eggs no longer drag the aggregate down: the 50 g/large-egg weight is USDA's
+  // own published portion, not our guess, so all three lines are high.
+  assert.equal(all.confidence, "high");
   const mostlyUnknown = parseIngredients(["salt to taste", "a splash of love", "1 cup milk"]);
   assert.equal(mostlyUnknown.confidence, "low");
 });
@@ -82,8 +95,10 @@ test("confidence sweep 2026-07-21: juice-of, dual-unit, splash, bare counts", ()
   assert.equal(dual.grams, 50); // metric side wins, imperial alternative dropped
   const splash = parseIngredientLine({ measure: "Splash", name: "Water" });
   assert.equal(splash.grams, 10);
+  // 280 g = USDA "1 large (8-1/4\" long)" — replaced the hand-set 300 g estimate.
   const cukes = parseIngredientLine({ measure: "1", name: "Cucumber" });
-  assert.equal(cukes.grams, 300);
+  assert.equal(cukes.grams, 280);
+  assert.equal(cukes.confidence, "high");
 });
 
 test("sweetener packet weighs ~1 g, not the 100 g generic packet", () => {

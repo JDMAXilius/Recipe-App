@@ -165,17 +165,17 @@ test("all matched with exact weights → high confidence", async () => {
   assert.equal(out.confidence, "high");
 });
 
-test("one guessed gram weight among four does not tip to low", async () => {
+test("a USDA-verified bare count keeps the recipe high", async () => {
   const out = await usdaProvider.computeNutrition(
     [
       { measure: "100g", name: "Butter" },
       { measure: "200g", name: "Sugar" },
       { measure: "300g", name: "Milk" },
-      { measure: "2", name: "Eggs" }, // bare count → parser is medium, not high
+      { measure: "2", name: "Eggs" }, // bare count, but USDA-verified at 50 g each
     ],
     4
   );
-  assert.equal(out.confidence, "medium");
+  assert.equal(out.confidence, "high");
 });
 
 test("falls back to the parsed item for freeform user-recipe lines", async () => {
