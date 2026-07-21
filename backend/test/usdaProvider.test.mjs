@@ -105,6 +105,28 @@ test("qualifier-stripping resolves freeform names and keeps the total whole", as
   assert.ok(out.protein_g > 25, `chicken protein must be present, got ${out.protein_g}`);
 });
 
+test("a legitimately light recipe computes its real low number when coverage is complete", async () => {
+  // 200g celery ≈ 28 kcal — under the 40-kcal plausibility floor, which used to
+  // reject it as a collapsed sum. With full coverage it's a real light dish (a
+  // black coffee is the same shape), so it now computes instead of estimating.
+  const out = await usdaProvider.computeNutrition([{ measure: "200 g", name: "celery" }], 1);
+  assert.ok(out, "full-coverage light recipe should compute, not fall back");
+  assert.ok(out.kcal > 0 && out.kcal < 40, `expected a real low kcal, got ${out.kcal}`);
+});
+
+test("the low floor still guards a COLLAPSED sum (partial coverage)", async () => {
+  // 100g matched + 900g unmatched: the low total is an artifact of the drop, not
+  // a light dish. Coverage is 10%, so the floor still returns null.
+  const out = await usdaProvider.computeNutrition(
+    [
+      { measure: "100 g", name: "celery" },
+      { measure: "900 g", name: "definitely not a food xyzzy" },
+    ],
+    1
+  );
+  assert.equal(out, null);
+});
+
 test("regional/word-order aliases resolve so a normal recipe computes, not estimates", async () => {
   // "World's Best Lasagna" as created in-app: "Beef Mince" (→ minced beef) and
   // "Grated Cheddar" (→ cheddar cheese) used to miss, dropping coverage to 0.695

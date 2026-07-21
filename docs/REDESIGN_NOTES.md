@@ -837,3 +837,16 @@ so ingredients beyond the 920-row bundled table also resolve against the full ~6
 - Not live-testable here (USDA host + key unavailable) — pure extraction + dormant gating unit-tested
   (68/68); dormant path byte-identical (lasagna still 743). Activates with USDA_API_KEY (+ the
   Anthropic key) on Railway after deploy.
+
+### Phase 15c — Light drinks/dishes: plausibility floor made coverage-aware (2026-07-21, cloud)
+
+Founder asked what a black coffee + tsp almond creamer + tsp stevia would show. Traced it: (1) all
+three miss the bundled table → today (dormant) → category estimate, and there's no Drink category so
+it defaults to ~420 kcal — absurd for a coffee; (2) even with the matcher keyed and the ingredients
+resolving to their true ~10 kcal, the 40-kcal MIN_PLAUSIBLE_KCAL floor rejected the total as
+"collapsed inputs" → null → estimate again. The floor predated the coverage guard and couldn't tell a
+collapsed sum from a legitimately tiny one. Fix: make the low floor coverage-aware — when ≥90% of the
+recipe's substantial mass resolved, a small total is a real light dish/drink (trust it, floor drops to
+1 kcal); only apply the 40-kcal floor when coverage is partial (a genuine collapse). Verified: 200g
+celery now computes 28 kcal (was null); the 10%-coverage collapse case still nulls. 70/70. Net: once
+the matcher keys are live, a black coffee shows its real ~5-15 kcal instead of a 420 default estimate.

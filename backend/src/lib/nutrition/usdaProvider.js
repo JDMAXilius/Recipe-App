@@ -276,15 +276,18 @@ export const usdaProvider = {
     };
     const per = (v, dp) => (v == null ? null : round(v / perServing, dp));
 
-    // Final plausibility check on the ANSWER, not the inputs. A real serving of
-    // real food is not 12 kcal (Bakewell tart, when almost nothing resolved and
-    // the total silently collapsed) and not 1855 (Ayam Percik, where the
-    // serving count is still wrong). Whatever the cause, a figure outside human
-    // range is evidence the inputs were broken — so say we don't know and let
-    // the ~category estimate answer. Catches ~6% of the catalogue.
+    // Final plausibility check on the ANSWER, not the inputs. An impossibly
+    // HIGH figure (1855 kcal, Ayam Percik with a wrong serving count) always
+    // means broken inputs — reject it. A LOW figure is trickier: 12 kcal from a
+    // collapsed sum (Bakewell tart, almost nothing matched) is wrong, but ~5
+    // kcal from a black coffee is exactly right. The coverage fraction tells the
+    // two apart — with near-complete coverage a small total is a legitimately
+    // light dish or drink, so only apply the low floor when coverage is partial.
     const kcalPerServing = round(sum("kcal") / perServing, 0);
     if (!Number.isFinite(kcalPerServing)) return null;
-    if (kcalPerServing < MIN_PLAUSIBLE_KCAL || kcalPerServing > MAX_PLAUSIBLE_KCAL) return null;
+    const coverage = countableGrams > 0 ? resolvedGrams / countableGrams : 0;
+    const lowFloor = coverage >= 0.9 ? 1 : MIN_PLAUSIBLE_KCAL;
+    if (kcalPerServing < lowFloor || kcalPerServing > MAX_PLAUSIBLE_KCAL) return null;
 
     const gramsTotal = usable.reduce((a, r) => a + r.parsed.grams, 0);
     // Only a fallback: with curated facts the serving count is read from the
