@@ -232,7 +232,7 @@ const COVERAGE_MIN = 0.7;
 // the guard on quantity keeps this narrow — a garnish of parsley is negligible,
 // 500g of spinach is a real ingredient and is scored like one.
 const NEGLIGIBLE =
-  /\b(salt|pepper|peppercorns?|seasoning|spices?|herbs?|parsley|cilantro|coriander|basil|thyme|rosemary|oregano|sage|mint|dill|chives|bay leaf|bay leaves|garnish|zest|vanilla extract|food colou?ring|cardamom|star anise|cloves|saffron|nutmeg|vanilla pods?|orange (?:blossom|flower) water|rose ?water)\b/i;
+  /\b(salt|pepper|peppercorns?|seasoning|spices?|herbs?|parsley|cilantro|coriander|basil|thyme|rosemary|oregano|sage|mint|dill|chives|bay leaf|bay leaves|garnish|zest|vanilla extract|food colou?ring|cardamom|star anise|cloves|saffron|nutmeg|vanilla pods?|orange (?:blossom|flower) water|rose ?water|kaffir lime lea(?:f|ves)|lime lea(?:f|ves)|pandan lea(?:f|ves)|curry lea(?:f|ves)|lemongrass stalk)\b/i;
 const NEGLIGIBLE_MAX_G = 15;
 
 // Serving-suggestion measures — "To serve", "To garnish", "For greasing": the
@@ -257,7 +257,11 @@ const UNQUANTIFIED =
 // denominator at ANY mass — which is what separates this from NEGLIGIBLE, a real
 // food present in trace amounts and capped at 15 g.
 const INEDIBLE =
-  /\b(banana leaves?|bamboo leaves?|lotus leaves?|corn husks?|skewers?|toothpicks?|cocktail sticks?|kitchen twine|greaseproof paper|parchment paper|baking paper)\b/i;
+  // Aromatic leaves are simmered for perfume and lifted out before serving -
+// bay, kaffir lime, pandan, curry leaf, lemongrass stalk. They are not eaten at
+// any quantity, so the 15 g NEGLIGIBLE cap is the wrong instrument: "4 Kaffir
+// Lime Leaves" is 20 g and was being scored as a missing ingredient.
+/\b(banana leaves?|bamboo leaves?|lotus leaves?|corn husks?|kaffir lime lea(?:f|ves)|lime lea(?:f|ves)|pandan lea(?:f|ves)|curry lea(?:f|ves)|lemongrass stalks?|skewers?|toothpicks?|cocktail sticks?|kitchen twine|greaseproof paper|parchment paper|baking paper)\b/i;
 
 export function isNegligible(row) {
   if (INEDIBLE.test(row.name || "") || INEDIBLE.test(row.parsed.item || "")) return true;

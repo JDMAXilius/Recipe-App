@@ -10448,5 +10448,115 @@
     "fiber_g": 3.3,
     "sugar_g": null,
     "sodium_mg": 1556
+  },
+  "meringue nests": {
+    "fdcId": 167995,
+    "usda": "Candies, marshmallows — proxy: meringue is sugar+egg white; USDA has no meringue row, marshmallow is the nearest sugar-foam",
+    "kcal": 318,
+    "protein_g": 1.8,
+    "fat_g": 0.2,
+    "carbs_g": 81.3,
+    "fiber_g": 0.1,
+    "sugar_g": null,
+    "sodium_mg": 80
+  },
+  "meringue nest": {
+    "fdcId": 167995,
+    "usda": "Candies, marshmallows",
+    "kcal": 318,
+    "protein_g": 1.8,
+    "fat_g": 0.2,
+    "carbs_g": 81.3,
+    "fiber_g": 0.1,
+    "sugar_g": null,
+    "sodium_mg": 80
+  },
+  "ginger cordial": {
+    "fdcId": 169578,
+    "usda": "Syrups, table blends, pancake — proxy: a sugar syrup; USDA has no cordial row",
+    "kcal": 234,
+    "protein_g": 0,
+    "fat_g": 0,
+    "carbs_g": 61.47,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 82
+  },
+  "red wine jelly": {
+    "fdcId": 169642,
+    "usda": "Jellies",
+    "kcal": 266,
+    "protein_g": 0.15,
+    "fat_g": 0.02,
+    "carbs_g": 69.95,
+    "fiber_g": 1,
+    "sugar_g": null,
+    "sodium_mg": 30
+  },
+  "maria cookies": {
+    "fdcId": 174088,
+    "usda": "Cookies, sugar wafer, chocolate-covered",
+    "kcal": 526,
+    "protein_g": 3.45,
+    "fat_g": 27.59,
+    "carbs_g": 65.99,
+    "fiber_g": 3.4,
+    "sugar_g": null,
+    "sodium_mg": 138
+  },
+  "mars bar": {
+    "fdcId": 167994,
+    "usda": "Candies, MARS SNACKFOOD US, MARS Almond Bar",
+    "kcal": 467,
+    "protein_g": 8.1,
+    "fat_g": 23,
+    "carbs_g": 62.7,
+    "fiber_g": 2,
+    "sugar_g": null,
+    "sodium_mg": 170
+  },
+  "mincemeat": {
+    "fdcId": 168822,
+    "usda": "Pie fillings, apple, canned — proxy: USDA has no mincemeat preserve; apple pie filling is the nearest fruit-and-sugar filling",
+    "kcal": 100,
+    "protein_g": 0.1,
+    "fat_g": 0.1,
+    "carbs_g": 26.1,
+    "fiber_g": 1,
+    "sugar_g": null,
+    "sodium_mg": 47
+  },
+  "cafe la llave": {
+    "fdcId": 171891,
+    "usda": "Beverages, coffee, brewed, espresso, restaurant-prepared",
+    "kcal": 9,
+    "protein_g": 0.12,
+    "fat_g": 0.18,
+    "carbs_g": 1.67,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 14
+  },
+  "knafeh": {
+    "fdcId": 172791,
+    "usda": "Phyllo dough — proxy: shredded phyllo pastry",
+    "kcal": 299,
+    "protein_g": 7.1,
+    "fat_g": 6,
+    "carbs_g": 52.6,
+    "fiber_g": 1.9,
+    "sugar_g": null,
+    "sodium_mg": 483
+  },
+  "alinos sauce": {
+    "fdcId": 170463,
+    "usda": "Tomato products, canned, sauce, with tomato tidbits",
+    "kcal": 32,
+    "protein_g": 1.32,
+    "fat_g": 0.39,
+    "carbs_g": 7.09,
+    "fiber_g": 1.4,
+    "sugar_g": null,
+    "sodium_mg": 15
   }
 }
