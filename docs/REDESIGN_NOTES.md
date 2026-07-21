@@ -1138,3 +1138,19 @@ Otto estimate, now labelled `[EST]` rather than attributed to anyone else.
 > repeatedly this session). A bulk-CSV audit found zero RACC rows in the December 2025 release, so
 > API and bulk download disagree. Prefer **SR Legacy** records for portion work — 96.7% of them
 > carry portions versus ~23% of Foundation foods.
+
+### Phase 20 — "Chat with Otto" conversational build: backend brain (2026-07-21, cloud)
+
+Founder redesign of the import/create screen after Mobbin research (docs/ADD_CREATE_REDESIGN.md).
+Decisions: both entry modes (chat + structured quick-build), a FULL "Chat with Otto" screen, and
+skip-the-clarifying-question-when-the-request-is-clear. Built the foundation first — Otto's
+conversational brain:
+- `chatRecipe({messages, servings, diet, cuisines})` in generateRecipe.js: one Opus 4.8 call with a
+  discriminated CHAT_SCHEMA (mode: clarify | recipe | decline). "recipe" when the ask is specific
+  enough (skip needless questions); "clarify" asks ONE question + 2–4 tappable chip options when
+  genuinely ambiguous (the coffee case); "decline" is a normal conversational turn. Reuses
+  shapeGeneratedRecipe; weight-first rules carried over; last-turn-must-be-user guard; caps 12 turns.
+- `POST /api/generate/chat` (requireAuth + costlyLimiter + generateChatBody zod), dormant-gated 503,
+  decline/clarify return 200 (they render in the thread), recipe carries source "otto" into the
+  review editor. `UserRecipeAPI.chat()` on the client.
+- 92/92 backend; route verified mounted + auth-gated. UI (the screen + entry redesign) is next.

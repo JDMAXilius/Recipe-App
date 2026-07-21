@@ -140,3 +140,112 @@ export async function generateRecipe({ prompt, servings, diet, cuisines }) {
   const recipe = shapeGeneratedRecipe(data);
   return recipe ? { recipe } : null;
 }
+
+// ── Conversational build ("Chat with Otto") ──────────────────────────────────
+// The one-shot generateRecipe above still powers the quick paths. This adds the
+// back-and-forth: given the conversation so far, Otto EITHER asks one clarifying
+// question (with tappable suggested answers) OR — when the request is already
+// specific enough to cook — writes the recipe. Founder rules: skip the question
+// when the ask is clear; the finished recipe still lands on the review editor.
+const CHAT_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["mode", "message", "options", "title", "servings", "category", "area", "ingredients", "steps"],
+  properties: {
+    // "clarify" = ask one question; "recipe" = here's the dish; "decline" = can't/won't.
+    mode: { type: "string", enum: ["clarify", "recipe", "decline"] },
+    // Otto's conversational line: the question, the warm confirmation, or the kind decline.
+    message: { type: "string" },
+    // clarify only: 2–4 short tappable answers (chip-length). Empty otherwise.
+    options: { type: "array", items: { type: "string" } },
+    title: { anyOf: [{ type: "string" }, { type: "null" }] },
+    servings: { anyOf: [{ type: "integer" }, { type: "null" }] },
+    category: { anyOf: [{ type: "string" }, { type: "null" }] },
+    area: { anyOf: [{ type: "string" }, { type: "null" }] },
+    ingredients: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["measure", "name"],
+        properties: { measure: { type: "string" }, name: { type: "string" } },
+      },
+    },
+    steps: { type: "array", items: { type: "string" } },
+  },
+};
+
+const CHAT_SYSTEM = `You are Otto — a warm, capable home-cooking companion having a SHORT chat to build ONE recipe the person will save to their cookbook.
+
+Each turn, choose exactly one mode:
+
+- "recipe": the request is already specific enough to cook a good version of. Write it. Do NOT ask a needless question when the ask is clear ("gluten-free banana bread for 6" → just make it). Put a warm one-line confirmation in message ("Lovely — here's a gluten-free banana bread for 6."), then fill title/servings/category/area/ingredients/steps. options is [].
+
+- "clarify": the request is genuinely ambiguous in a way that WOULD change the recipe (e.g. "a coffee" — hot or iced? milk? sweetener? "pasta" — which sauce?). Ask ONE friendly question in message, and give 2–4 concrete, specific, tappable answers in options (chip-length, each a real choice a person could tap — e.g. "Black with a splash of milk", "Creamer + 1 tsp stevia"). Never ask more than needed; after at most a couple of clarifying turns, commit to a recipe. The person can always type their own answer, so options are suggestions, not the only paths. Leave title/ingredients/steps null/empty.
+
+- "decline": not food, unsafe, or nonsense. Kind plain-language reason in message. Empty/null everything else.
+
+Recipe rules (when mode is "recipe"):
+- Amounts are WEIGHT-FIRST: solids in grams ("500 g"), thin liquids in millilitres ("240 ml"), small spice amounts in tsp/tbsp ("0.5 tsp" — decimals, never fractions). measure holds ONLY the amount; name holds the ingredient. Unmeasured items get measure "".
+- Respect every stated constraint (diet, time, servings, ingredients to use/avoid) and everything agreed earlier in the chat.
+- steps: the method, one action per step, warm and clear, no numbering.
+- category is one plain word (Chicken, Dessert, Drink…); area is the cuisine or null. title: appetizing but honest.
+
+Keep message short and conversational — you're texting a friend who cooks, not writing an essay.`;
+
+// messages: [{ role: "user"|"assistant", content }] — the chat so far.
+// → { clarify: {message, options} } | { recipe: {message, ...recipe} }
+//   | { declined: message } | null (provider failure)
+export async function chatRecipe({ messages, servings, diet, cuisines }) {
+  if (!generationActive()) return null;
+  const turns = (Array.isArray(messages) ? messages : [])
+    .filter((m) => m && (m.role === "user" || m.role === "assistant") && m.content)
+    .slice(-12)
+    .map((m) => ({ role: m.role, content: String(m.content).slice(0, MAX_PROMPT_CHARS) }));
+  if (!turns.length || turns[turns.length - 1].role !== "user") return null;
+
+  const context = [];
+  if (Number.isInteger(servings) && servings > 0) context.push(`They're cooking for ${Math.min(servings, 24)}.`);
+  if (diet && diet !== "none") context.push(`Dietary preference: ${diet}.`);
+  if (Array.isArray(cuisines) && cuisines.length) {
+    context.push(`Cuisines they enjoy (a lean, not a rule): ${cuisines.slice(0, 6).join(", ")}.`);
+  }
+  const system = context.length ? `${CHAT_SYSTEM}\n\nContext for this person: ${context.join(" ")}` : CHAT_SYSTEM;
+
+  const response = await getClient().messages.create({
+    model: MODEL,
+    max_tokens: 4000,
+    thinking: { type: "adaptive" },
+    system,
+    output_config: { format: { type: "json_schema", schema: CHAT_SCHEMA } },
+    messages: turns,
+  });
+
+  logger.info({ model: MODEL, usage: response.usage, stop: response.stop_reason, turns: turns.length }, "recipe chat ran");
+  if (response.stop_reason === "max_tokens" || response.stop_reason === "refusal") return null;
+
+  const textBlock = response.content.find((block) => block.type === "text");
+  let data;
+  try {
+    data = JSON.parse(textBlock?.text ?? "");
+  } catch {
+    return null;
+  }
+
+  const message = String(data.message || "").slice(0, 600);
+  if (data.mode === "decline") {
+    return { declined: message || "Otto couldn't make a real recipe out of that." };
+  }
+  if (data.mode === "clarify") {
+    const options = (data.options || [])
+      .filter((o) => typeof o === "string" && o.trim())
+      .slice(0, 4)
+      .map((o) => o.trim().slice(0, 80));
+    return { clarify: { message: message || "Tell me a little more?", options } };
+  }
+  // mode "recipe"
+  const recipe = shapeGeneratedRecipe({ ...data, is_possible: true });
+  return recipe
+    ? { recipe: { message: message || "Here's your recipe.", ...recipe } }
+    : null;
+}

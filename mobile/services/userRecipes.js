@@ -86,6 +86,18 @@ export const UserRecipeAPI = {
     });
     return parseOrThrow(res, "Otto couldn't finish that idea right now");
   },
+  // "Chat with Otto" — send the whole thread; get back a clarifying question
+  // (mode "clarify" + options), the finished recipe (mode "recipe"), or a
+  // conversational decline (mode "decline").
+  chat: async ({ messages, servings, diet, cuisines }) => {
+    const res = await authFetch("/generate/chat", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages, servings, diet, cuisines }),
+      timeoutMs: 90000,
+    });
+    return parseOrThrow(res, "Otto lost his train of thought — try again");
+  },
   importFromText: async (text) => {
     const res = await authFetch("/import/text", {
       method: "POST",

@@ -35,6 +35,22 @@ export const schemas = {
     cuisines: z.array(z.string().trim().max(40)).max(6).optional(),
   }),
 
+  // Conversational build ("Chat with Otto"): the whole thread each turn.
+  generateChatBody: z.object({
+    messages: z
+      .array(
+        z.object({
+          role: z.enum(["user", "assistant"]),
+          content: z.string().trim().min(1).max(600),
+        })
+      )
+      .min(1)
+      .max(20),
+    servings: z.coerce.number().int().min(1).max(24).optional(),
+    diet: z.string().trim().max(40).optional(),
+    cuisines: z.array(z.string().trim().max(40)).max(6).optional(),
+  }),
+
   importTextBody: z.object({
     text: z.string().trim().min(40).max(20000),
   }),

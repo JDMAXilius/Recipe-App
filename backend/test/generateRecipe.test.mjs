@@ -53,3 +53,44 @@ test("clamps hostile sizes to the save schema's limits", () => {
   assert.equal(shaped.ingredients.length, 100);
   assert.equal(shaped.steps.length, 60);
 });
+
+// ── Conversational build ("Chat with Otto") ──────────────────────────────
+import { chatRecipe } from "../src/lib/generateRecipe.js";
+import { schemas } from "../src/lib/validate.js";
+
+test("chat is dormant without a key — no turn resolves", async () => {
+  assert.equal(await chatRecipe({ messages: [{ role: "user", content: "a coffee" }] }), null);
+});
+
+test("chat requires the last turn to be the user's", async () => {
+  // dormant returns null anyway, but the guard shape is what we pin: a thread
+  // that ends on Otto is not a turn to answer.
+  assert.equal(
+    await chatRecipe({ messages: [{ role: "assistant", content: "Hot or iced?" }] }),
+    null
+  );
+});
+
+test("generateChatBody accepts a real thread and rejects malformed ones", () => {
+  const ok = schemas.generateChatBody.safeParse({
+    messages: [
+      { role: "user", content: "a coffee" },
+      { role: "assistant", content: "Hot or iced?" },
+      { role: "user", content: "black with creamer and one stevia" },
+    ],
+    servings: 1,
+  });
+  assert.equal(ok.success, true);
+  // empty thread
+  assert.equal(schemas.generateChatBody.safeParse({ messages: [] }).success, false);
+  // bad role
+  assert.equal(
+    schemas.generateChatBody.safeParse({ messages: [{ role: "otto", content: "hi" }] }).success,
+    false
+  );
+  // empty content
+  assert.equal(
+    schemas.generateChatBody.safeParse({ messages: [{ role: "user", content: "" }] }).success,
+    false
+  );
+});

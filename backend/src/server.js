@@ -12,7 +12,7 @@ import { importRecipeFromUrl } from "./lib/importRecipe.js";
 import { detectSocialPlatform, importFromSocialUrl, SocialImportError } from "./lib/import/social.js";
 import { extractionActive, extractRecipeFromText } from "./lib/import/extractRecipe.js";
 import { photoExtractionActive, extractRecipeFromPhoto } from "./lib/import/extractPhoto.js";
-import { generateRecipe, generationActive } from "./lib/generateRecipe.js";
+import { generateRecipe, chatRecipe, generationActive } from "./lib/generateRecipe.js";
 import { requireAuth } from "./middleware/auth.js";
 import { logger, reportError } from "./lib/logger.js";
 import { validate, schemas } from "./lib/validate.js";
@@ -357,6 +357,40 @@ app.post("/api/generate", requireAuth, costlyLimiter, validate(schemas.generateB
   } catch (error) {
     reportError(error, { msg: "recipe generation failed", userId: req.userId });
     res.status(502).json({ error: "Otto couldn't finish that idea right now — try again in a moment." });
+  }
+});
+
+// "Chat with Otto" — the conversational build. Same dormant gate + cost limiter
+// as one-shot generation. Otto either asks a clarifying question (mode
+// "clarify" with tappable options) or hands back the finished recipe (mode
+// "recipe") which the app carries into the review editor. A decline is a normal
+// conversational turn (200), not an error — it renders in the thread.
+app.post("/api/generate/chat", requireAuth, costlyLimiter, validate(schemas.generateChatBody), async (req, res) => {
+  if (!generationActive()) {
+    return res.status(503).json({
+      error: "Otto can't cook ideas up just yet — that part of the kitchen is still being wired up.",
+    });
+  }
+  try {
+    const result = await chatRecipe(req.body);
+    if (!result) {
+      return res.status(502).json({ error: "Otto lost his train of thought — try again in a moment." });
+    }
+    if (result.declined) {
+      return res.status(200).json({ mode: "decline", message: result.declined });
+    }
+    if (result.clarify) {
+      return res.status(200).json({ mode: "clarify", ...result.clarify });
+    }
+    const { message, ...recipe } = result.recipe;
+    return res.status(200).json({
+      mode: "recipe",
+      message,
+      recipe: { ...recipe, image: null, source: "otto", sourceUrl: null, sourceName: null },
+    });
+  } catch (error) {
+    reportError(error, { msg: "recipe chat failed", userId: req.userId, reqId: req.id });
+    res.status(502).json({ error: "Otto couldn't finish that thought right now — try again in a moment." });
   }
 });
 
