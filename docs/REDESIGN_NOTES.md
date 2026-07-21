@@ -895,3 +895,13 @@ ticket: docs/TERMINAL_TICKET_NUTRITION_REFRESH.md with the load-bearing ORDER (k
 in local backend/.env FIRST, then deploy, then prove the sha via /api/health, then the script, then
 in-app spot-checks: lasagna computed-not-estimate, coffee single-digits, chicken-thigh seeds down).
 Checklist item updated to point at the runbook.
+
+### Phase 15g — Recalculation upgraded from lazy to eager full-database (2026-07-21, cloud)
+
+Founder: "need to recalculate the current data base of each recipe." The 15e script only wiped the
+seed cache (lazy recompute on view); upgraded it to EAGER: enumerate the whole TheMealDB catalogue
+via search.php?f=a..z, wipe, recompute every seed recipe through seedNutritionFor (one code path —
+curated facts + negative sentinel identical to the live API), keeping any previously-cached ids the
+enumeration missed (test-batch), with fallback to the cached id list if enumeration fails entirely.
+User recipes recomputed inline as before. Polite pacing (80–120ms), progress every 25. Ticket
+updated with expected output. Still terminal-run (prod credentials + open network required).
