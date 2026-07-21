@@ -1628,15 +1628,15 @@
     "sodium_mg": 226
   },
   "green chilli": {
-    "fdcId": 170375,
-    "usda": "Beet greens, raw",
-    "kcal": 22,
-    "protein_g": 2.2,
-    "fat_g": 0.13,
-    "carbs_g": 4.33,
-    "fiber_g": 3.7,
+    "fdcId": 170497,
+    "usda": "Peppers, hot chili, green, raw",
+    "kcal": 40,
+    "protein_g": 2,
+    "fat_g": 0.2,
+    "carbs_g": 9.46,
+    "fiber_g": 1.5,
     "sugar_g": null,
-    "sodium_mg": 226
+    "sodium_mg": 7
   },
   "green olives": {
     "fdcId": 332791,
@@ -2596,37 +2596,37 @@
     "sodium_mg": 836
   },
   "red chilli flakes": {
-    "fdcId": 170108,
-    "usda": "Peppers, sweet, red, raw",
-    "kcal": 26,
-    "protein_g": 0.99,
-    "fat_g": 0.3,
-    "carbs_g": 6.03,
-    "fiber_g": 2.1,
+    "fdcId": 170932,
+    "usda": "Spices, pepper, red or cayenne",
+    "kcal": 318,
+    "protein_g": 12.01,
+    "fat_g": 17.27,
+    "carbs_g": 56.63,
+    "fiber_g": 27.2,
     "sugar_g": null,
-    "sodium_mg": 4
+    "sodium_mg": 30
   },
   "red chilli": {
-    "fdcId": 169977,
-    "usda": "Cabbage, red, raw",
-    "kcal": 31,
-    "protein_g": 1.43,
-    "fat_g": 0.16,
-    "carbs_g": 7.37,
-    "fiber_g": 2.1,
+    "fdcId": 170106,
+    "usda": "Peppers, hot chili, red, raw",
+    "kcal": 40,
+    "protein_g": 1.87,
+    "fat_g": 0.44,
+    "carbs_g": 8.81,
+    "fiber_g": 1.5,
     "sugar_g": null,
-    "sodium_mg": 27
+    "sodium_mg": 9
   },
   "red chilli powder": {
-    "fdcId": 169656,
-    "usda": "Sugars, powdered",
-    "kcal": 389,
-    "protein_g": 0,
-    "fat_g": 0,
-    "carbs_g": 99.8,
-    "fiber_g": 0,
+    "fdcId": 171319,
+    "usda": "Spices, chili powder",
+    "kcal": 282,
+    "protein_g": 13.46,
+    "fat_g": 14.28,
+    "carbs_g": 49.7,
+    "fiber_g": 34.8,
     "sugar_g": null,
-    "sodium_mg": 2
+    "sodium_mg": 2867
   },
   "red onions": {
     "fdcId": 790577,
@@ -4840,15 +4840,15 @@
     "sodium_mg": 16
   },
   "cherry": {
-    "fdcId": 169129,
-    "usda": "Pitanga, (surinam-cherry), raw",
-    "kcal": 33,
-    "protein_g": 0.8,
-    "fat_g": 0.4,
-    "carbs_g": 7.49,
-    "fiber_g": null,
+    "fdcId": 171719,
+    "usda": "Cherries, sweet, raw",
+    "kcal": 63,
+    "protein_g": 1.06,
+    "fat_g": 0.2,
+    "carbs_g": 16.01,
+    "fiber_g": 2.1,
     "sugar_g": null,
-    "sodium_mg": 3
+    "sodium_mg": 0
   },
   "glace cherry": {
     "fdcId": 167766,
@@ -7161,15 +7161,15 @@
     "sodium_mg": 9
   },
   "dried red chillies": {
-    "fdcId": 170106,
-    "usda": "Peppers, hot chili, red, raw",
-    "kcal": 40,
-    "protein_g": 1.87,
-    "fat_g": 0.44,
-    "carbs_g": 8.81,
-    "fiber_g": 1.5,
+    "fdcId": 168570,
+    "usda": "Peppers, hot chile, sun-dried",
+    "kcal": 324,
+    "protein_g": 10.58,
+    "fat_g": 5.81,
+    "carbs_g": 69.86,
+    "fiber_g": 28.7,
     "sugar_g": null,
-    "sodium_mg": 9
+    "sodium_mg": 91
   },
   "shrimp paste": {
     "fdcId": 174531,
@@ -7293,15 +7293,15 @@
     "sodium_mg": 2
   },
   "thai chilli jam": {
-    "fdcId": 167676,
-    "usda": "Restaurant, Chinese, kung pao chicken",
-    "kcal": 129,
-    "protein_g": 9.76,
-    "fat_g": 6.98,
-    "carbs_g": 6.87,
-    "fiber_g": 1.5,
+    "fdcId": 171605,
+    "usda": "Sauce, chili, peppers, hot, immature green, canned",
+    "kcal": 20,
+    "protein_g": 0.7,
+    "fat_g": 0.1,
+    "carbs_g": 5,
+    "fiber_g": 1.9,
     "sugar_g": null,
-    "sodium_mg": 402
+    "sodium_mg": 25
   },
   "pork tenderloin": {
     "fdcId": 168312,
