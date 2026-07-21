@@ -171,8 +171,13 @@ const NEGLIGIBLE_MAX_G = 15;
 // line is an optional accompaniment or trace, not measured recipe mass, so an
 // unmatched one is not missing calories. "For frying" is deliberately NOT here:
 // absorbed frying oil is real, uncounted kcal — that doubt is honest.
+// TheMealDB writes these bare as often as with "for" ("Dusting", not "for
+// dusting"; "To Glaze"; "Drizzle"). The bare forms were missing, so a finishing
+// trace of flour or egg-wash was scored as a missing ingredient and dragged its
+// recipe's confidence down. A glaze or a dusting is a trace by definition — the
+// same reasoning that already excludes "to serve".
 const UNQUANTIFIED =
-  /\b(to serve|to garnish|for (?:the )?garnish|to taste|for greasing|for brushing|for dusting|for drizzling|as needed|as required|optional)\b/i;
+  /\b(to serve|to garnish|for (?:the )?garnish|to taste|for greasing|for brushing|for dusting|for drizzling|as needed|as required|optional|dusting|to glaze|for glazing|drizzle|to decorate|for decoration|to finish|beaten)\b/i;
 
 export function isNegligible(row) {
   if (row.parsed.grams == null && UNQUANTIFIED.test(row.parsed.raw || "")) return true;
