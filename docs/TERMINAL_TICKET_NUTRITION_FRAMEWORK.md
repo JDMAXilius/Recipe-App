@@ -53,9 +53,10 @@ across deploys.
 
 ## Task 5 — Pending: N2 migration (when the cloud lands it)
 
-Roadmap N2 (durable `resolved_ingredients` cache) ships with an idempotent schema script in
-`backend/scripts/` — run it against prod when it appears, like every schema change (the
-"any new table needs its script run on prod" lesson).
+Roadmap N2 landed: run `node --env-file=.env scripts/n2-resolved-cache.mjs` against prod
+(idempotent) BEFORE the refresh script, like every schema change (the "any new table needs
+its script run on prod" lesson). The refresh script tolerates its absence but the durable
+cache saves repeat Claude spend across deploys.
 
 ## Done when
 

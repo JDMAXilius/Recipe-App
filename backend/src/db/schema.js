@@ -108,3 +108,16 @@ export const planEntriesTable = pgTable("plan_entries", {
   cooked: boolean("cooked").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Durable Claude-match cache (nutrition N2): one row per normalized freeform
+// ingredient name → the USDA food row it resolved to. Survives deploys and is
+// shared across instances, so a name is paid for once, ever — and matches are
+// auditable/correctable as data. food NULL = honest full-pipeline miss (the
+// refresh script clears misses so engine improvements retry them).
+export const resolvedIngredientsTable = pgTable("resolved_ingredients", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  food: jsonb("food"),
+  tier: text("tier").notNull(), // "table" | "usda-search" | "miss"
+  resolvedAt: timestamp("resolved_at").defaultNow(),
+});

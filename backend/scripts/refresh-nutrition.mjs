@@ -18,7 +18,8 @@
 // 2. Recomputes every user recipe inline (null when honestly unknown — the app
 //    then shows the ~category estimate).
 import { db } from "../src/config/db.js";
-import { seedNutritionTable, recipesTable } from "../src/db/schema.js";
+import { seedNutritionTable, recipesTable, resolvedIngredientsTable } from "../src/db/schema.js";
+import { isNull } from "drizzle-orm";
 import { seedNutritionFor } from "../src/lib/nutrition/lifecycle.js";
 import { computeNutrition } from "../src/lib/nutrition/NutritionProvider.js";
 import { MEALDB_BASE_URL } from "../src/lib/content/RecipeSource.js";
@@ -62,6 +63,15 @@ if (catalogueIds.length === 0) {
 console.log(`recalculating ${catalogueIds.length} seed recipes eagerly…`);
 
 await db.delete(seedNutritionTable);
+
+// Stored resolver MISSES retry under the improved engine; hits are kept —
+// they are real USDA rows, and re-resolving them buys the same answer twice.
+try {
+  await db.delete(resolvedIngredientsTable).where(isNull(resolvedIngredientsTable.food));
+  console.log("resolver cache: stored misses cleared (hits kept)");
+} catch {
+  console.log("resolver cache table absent — run scripts/n2-resolved-cache.mjs first (safe to continue)");
+}
 
 let seedComputed = 0;
 let seedUnavailable = 0;

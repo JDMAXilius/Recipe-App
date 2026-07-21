@@ -21,7 +21,10 @@
 // Stage-2 fdcId only if it is one of the candidates USDA actually returned.
 // Anything else resolves to null — never a fabricated food.
 import Anthropic from "@anthropic-ai/sdk";
+import { inArray, sql } from "drizzle-orm";
 import { ENV } from "../../config/env.js";
+import { db } from "../../config/db.js";
+import { resolvedIngredientsTable } from "../../db/schema.js";
 import { logger } from "../logger.js";
 import tableJson from "./usdaTable.json" with { type: "json" };
 import { usdaSearchActive, searchUsdaFoods, candidateToFoodRow } from "./usdaSearch.js";
@@ -174,12 +177,49 @@ async function resolveViaUsdaSearch(names, into) {
   }
 }
 
+// L2 (N2): the durable resolved_ingredients table — matches survive deploys
+// and are shared across instances, so a name is paid for once, ever. All DB
+// touches fail OPEN to memory-only behavior (tests, local dev without a DB,
+// transient outages must never break nutrition).
+async function readDurable(names, out) {
+  if (!names.length) return names;
+  try {
+    const rows = await db
+      .select()
+      .from(resolvedIngredientsTable)
+      .where(inArray(resolvedIngredientsTable.name, names));
+    for (const row of rows) {
+      const food = row.food || null;
+      cache.set(row.name, food);
+      out.set(row.name, food);
+    }
+    return names.filter((n) => !out.has(n));
+  } catch {
+    return names; // no DB here — memory-only
+  }
+}
+
+async function writeDurable(records) {
+  if (!records.length) return;
+  try {
+    await db
+      .insert(resolvedIngredientsTable)
+      .values(records)
+      .onConflictDoUpdate({
+        target: resolvedIngredientsTable.name,
+        set: { food: sql`excluded.food`, tier: sql`excluded.tier` },
+      });
+  } catch (error) {
+    logger.warn({ err: error.message }, "resolver cache write failed"); // fail open
+  }
+}
+
 // names[] (freeform) → Map<normalizedName, foodRow|null>. Dormant-safe: no
 // Anthropic key → resolves nothing. Stage 2 additionally needs a USDA key.
 export async function resolveIngredientNames(names) {
   const wanted = [...new Set((names || []).map(norm).filter(Boolean))];
   const out = new Map();
-  const ask = [];
+  let ask = [];
   for (const n of wanted) {
     if (cache.has(n)) out.set(n, cache.get(n));
     else ask.push(n);
@@ -189,28 +229,39 @@ export async function resolveIngredientNames(names) {
     return out;
   }
 
+  ask = await readDurable(ask, out); // L2 before paying Claude
+  if (!ask.length) return out;
+
   const resolved = new Map(); // name → row (only successes)
+  const tiers = new Map(); // name → "table" | "usda-search"
   try {
     await resolveViaTable(ask, resolved);
+    for (const n of resolved.keys()) tiers.set(n, "table");
     const stillMissing = ask.filter((n) => !resolved.has(n));
     if (stillMissing.length && usdaSearchActive()) {
       await resolveViaUsdaSearch(stillMissing, resolved);
+      for (const n of stillMissing) if (resolved.has(n)) tiers.set(n, "usda-search");
     }
     logger.info(
-      { asked: ask.length, table: resolved.size, usdaSearch: usdaSearchActive() },
+      { asked: ask.length, hits: resolved.size, usdaSearch: usdaSearchActive() },
       "ingredient resolution ran"
     );
   } catch (error) {
     logger.warn({ err: error.message }, "ingredient resolution failed"); // fail closed
   }
 
+  const durable = [];
   for (const n of ask) {
     const row = resolved.get(n) || null;
     out.set(n, row);
     // Cache a hit always; cache a miss only when the FULL pipeline ran (USDA
     // active), so a name asked while USDA was dormant retries once the key lands.
-    if (row || usdaSearchActive()) cache.set(n, row);
+    if (row || usdaSearchActive()) {
+      cache.set(n, row);
+      durable.push({ name: n, food: row, tier: row ? tiers.get(n) : "miss" });
+    }
   }
+  await writeDurable(durable);
   return out;
 }
 
