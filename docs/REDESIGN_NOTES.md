@@ -753,3 +753,29 @@ regression before it ever deployed: the new 15 s authFetch timeout would have cu
 10–60 s AI calls — authFetch now takes options.timeoutMs and generate/text/url/photo carry
 90/60/60/120 s budgets. Backend 56/56, mobile 44/44, lint clean. Dormant until ANTHROPIC_API_KEY;
 live after the founder's next `railway up`.
+
+### Phase 14 — Created-recipe nutrition: corrupt rows + coverage guard + qualifier lookup (2026-07-21, cloud)
+
+Founder built the app: "don't see weight measurements at all" + "nutrition values for created recipes
+are wrong." Investigated both against live code.
+
+- **Weight measurements**: NOT a code bug. Engine + detail wiring verified correct in-session
+  ("2 cups plain flour" → "240 g plain flour"; useUnitSystem defaults "weight"; displayIngredient
+  called with it). → stale app build or a US-cups account toggle, not code. Rebuild resolves.
+- **Nutrition — TWO real bugs found + fixed:**
+  1. **Corrupt USDA rows.** `chicken thighs` and `chicken drumsticks` were both mapped at table-build
+     time to FDC 172855 "Chicken, SKIN (drumsticks and thighs), raw" = 440 kcal / 9.6g protein / 44g
+     fat (chicken skin, not meat). Pork knuckle/cheeks/sour-pork-sausage all mapped to FDC 167811
+     "Pork, fresh, backfat, raw" (lard, 812 kcal). Patched all five to correct meat rows.
+  2. **Silent understatement (honesty hole).** `white rice` has no exact key (`rice` does), so the
+     line dropped from the sum → 300g of rice vanished → carbs collapsed 66→8g while total stayed
+     "plausible" (971 kcal passed the 40–1500 guard). Fixed two ways: (a) qualifier-stripping fallback
+     in lookup() — non-identity leading words (white/boneless/fresh/chopped/…, NOT brown/green/sweet/
+     baby which change identity) retry against the table, so "white rice"→"rice"; (b) COVERAGE_MIN=0.7
+     guard — if <70% of a recipe's substantial (non-seasoning) mass matched, return null → honest
+     category estimate instead of a confidently-understated number.
+  - Result: sample chicken&rice for 4 went 971kcal/8C/95F → 783kcal/41P/66C/38F. Updated the one test
+    that encoded the old wrong contract (900g-unmatched shipping "717 low"); added guard + qualifier +
+    corrupt-row regression tests. Backend 59/59.
+  - **DEPLOY-GATED**: prod backend last deployed 2026-07-19, so created-recipe nutrition is computed by
+    the OLD code until `railway up` — this fix is not live until the founder redeploys.

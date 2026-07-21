@@ -109,6 +109,13 @@ const MAX_PLAUSIBLE_SERVING_GRAMS = 700;
 const MIN_PLAUSIBLE_KCAL = 40;
 const MAX_PLAUSIBLE_KCAL = 1500;
 
+// Fraction of a recipe's substantial (non-seasoning) mass that must match a
+// USDA row before the computed total is trustworthy. Below this, enough is
+// missing that the sum describes a different dish — return null (→ estimate).
+// 0.7 keeps normal recipes (a stray specialty line is fine) while catching the
+// "main ingredient dropped" case that reads plausible but is wrong.
+const COVERAGE_MIN = 0.7;
+
 // SEASONING IS NOT DOUBT.
 //
 // Measured over the seed catalogue 2026-07-19: 78.5% of recipes read "low" and
@@ -142,6 +149,26 @@ function isNegligible(row) {
 // `cooked` swaps in the cooked USDA record where the instructions say the line
 // goes in already cooked. The two differ enough to dominate a recipe: brown
 // rice is 360 kcal/100g raw and 123 cooked.
+// Leading qualifiers that DON'T change a food's identity — safe to strip when
+// the full name misses. "white rice" → "rice", "boneless chicken thighs" →
+// "chicken thighs", "fresh basil" → "basil". Deliberately excludes words that
+// DO change identity and have their own rows: brown/red/green/sweet/baby/wild
+// (brown rice ≠ rice, green beans ≠ beans, sweet potato ≠ potato). Without
+// this, freeform user recipes silently drop common lines and understate the
+// whole total — the exact confidently-wrong failure the honesty law forbids.
+const QUALIFIER =
+  /^(white|boneless|skinless|skin-on|bone-in|fresh|raw|cooked|large|small|medium|extra|jumbo|whole|halved|chopped|diced|minced|sliced|shredded|grated|crushed|ground|lean|plain|organic|free-?range|unsalted|salted|light|reduced-fat|low-?fat|full-?fat|firm|ripe|cold|warm|dried|frozen|canned|tinned)\s+/i;
+
+function stripQualifiers(name) {
+  let n = String(name || "").trim();
+  const seen = [];
+  while (QUALIFIER.test(n)) {
+    n = n.replace(QUALIFIER, "").trim();
+    seen.push(n);
+  }
+  return seen; // progressively-shortened candidates, most-specific first
+}
+
 function lookup(name, parsedItem, cooked) {
   if (cooked) {
     const c = cookedTable[key(name)] || cookedTable[key(parsedItem)];
@@ -150,7 +177,14 @@ function lookup(name, parsedItem, cooked) {
     // wrong, so drop the line rather than substitute it.
     return null;
   }
-  return table[key(name)] || table[key(parsedItem)] || null;
+  const direct = table[key(name)] || table[key(parsedItem)];
+  if (direct) return direct;
+  // Full name missed — retry with leading non-identity qualifiers stripped.
+  for (const cand of [...stripQualifiers(name), ...stripQualifiers(parsedItem)]) {
+    const hit = table[key(cand)];
+    if (hit) return hit;
+  }
+  return null;
 }
 
 export const usdaProvider = {
@@ -182,6 +216,22 @@ export const usdaProvider = {
 
     const usable = rows.filter((r) => r.food && r.parsed.grams > 0);
     if (!usable.length) return null; // nothing resolved — honestly unknown
+
+    // COVERAGE GUARD (honesty). An unmatched line is dropped from the sum, so a
+    // recipe whose main ingredient doesn't resolve ships a total that is
+    // confidently understated — and the kcal plausibility guard below can't see
+    // it, because a rice-less chicken dinner still lands in human range. So
+    // weigh how much of the recipe's real MASS actually matched: if less than
+    // COVERAGE_MIN of the substantial (non-seasoning) grams resolved, the sum
+    // describes a different dish than the one written. Say we don't know and let
+    // the ~category estimate answer. Seasonings are excluded both sides — an
+    // unmatched pinch of salt is not missing calories.
+    const countable = rows.filter((r) => r.parsed.grams > 0 && !isNegligible(r));
+    const countableGrams = countable.reduce((a, r) => a + r.parsed.grams, 0);
+    const resolvedGrams = countable
+      .filter((r) => r.food)
+      .reduce((a, r) => a + r.parsed.grams, 0);
+    if (countableGrams > 0 && resolvedGrams / countableGrams < COVERAGE_MIN) return null;
 
     // Sum one nutrient across matched ingredients, scaling per-100g by grams.
     // Stays null when NO ingredient reported it: null/servings would become 0

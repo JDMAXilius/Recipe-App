@@ -660,15 +660,15 @@
     "sodium_mg": 482
   },
   "chicken thighs": {
-    "fdcId": 172855,
-    "usda": "Chicken, skin (drumsticks and thighs), raw",
-    "kcal": 440,
-    "protein_g": 9.58,
-    "fat_g": 44.2,
-    "carbs_g": 0.79,
+    "fdcId": 171077,
+    "usda": "Chicken, thigh, meat and skin, raw",
+    "kcal": 211,
+    "protein_g": 17.3,
+    "fat_g": 15.3,
+    "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 51
+    "sodium_mg": 86
   },
   "chickpeas": {
     "fdcId": 173756,
@@ -6435,15 +6435,15 @@
     "sodium_mg": 249
   },
   "chicken drumsticks": {
-    "fdcId": 172855,
-    "usda": "Chicken, skin (drumsticks and thighs), raw",
-    "kcal": 440,
-    "protein_g": 9.58,
-    "fat_g": 44.2,
-    "carbs_g": 0.79,
+    "fdcId": 171074,
+    "usda": "Chicken, drumstick, meat and skin, raw",
+    "kcal": 172,
+    "protein_g": 18.1,
+    "fat_g": 10.3,
+    "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 51
+    "sodium_mg": 88
   },
   "porridge oats": {
     "fdcId": 173904,
@@ -6699,15 +6699,15 @@
     "sodium_mg": 1070
   },
   "pork knuckle": {
-    "fdcId": 167811,
-    "usda": "Pork, fresh, backfat, raw",
-    "kcal": 812,
-    "protein_g": 2.92,
-    "fat_g": 88.7,
+    "fdcId": 167905,
+    "usda": "Pork, fresh, leg (ham), whole, raw",
+    "kcal": 245,
+    "protein_g": 16.9,
+    "fat_g": 19.3,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 11
+    "sodium_mg": 55
   },
   "whipping cream": {
     "fdcId": 170859,
@@ -9559,15 +9559,15 @@
     "sodium_mg": 1
   },
   "sour pork sausage": {
-    "fdcId": 167811,
-    "usda": "Pork, fresh, backfat, raw",
-    "kcal": 812,
-    "protein_g": 2.92,
-    "fat_g": 88.7,
-    "carbs_g": 0,
+    "fdcId": 167698,
+    "usda": "Sausage, fresh, pork, raw",
+    "kcal": 325,
+    "protein_g": 17,
+    "fat_g": 28,
+    "carbs_g": 1.4,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 11
+    "sodium_mg": 720
   },
   "pickled garlics": {
     "fdcId": 1104647,
@@ -9834,15 +9834,15 @@
     "sodium_mg": 58
   },
   "pork cheeks": {
-    "fdcId": 167811,
-    "usda": "Pork, fresh, backfat, raw",
-    "kcal": 812,
-    "protein_g": 2.92,
-    "fat_g": 88.7,
+    "fdcId": 167905,
+    "usda": "Pork, fresh, leg (ham), whole, raw",
+    "kcal": 245,
+    "protein_g": 16.9,
+    "fat_g": 19.3,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 11
+    "sodium_mg": 55
   },
   "pumpkin puree": {
     "fdcId": 168450,

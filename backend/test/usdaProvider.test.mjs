@@ -61,7 +61,25 @@ test("no ingredients → null", async () => {
   assert.equal(await usdaProvider.computeNutrition(null, 4), null);
 });
 
-test("an unmatched line is dropped from the sum and lowers confidence", async () => {
+test("a MINOR unmatched line is dropped from the sum and lowers confidence", async () => {
+  // 400g matched + 50g unmatched = 89% coverage — above the floor, so it still
+  // computes, and the dropped line counts against confidence.
+  const out = await usdaProvider.computeNutrition(
+    [
+      { measure: "200g", name: "Butter" },
+      { measure: "200g", name: "Sugar" },
+      { measure: "50g", name: "Definitely Not A Real Food xyzzy" },
+    ],
+    4
+  );
+  assert.ok(out && out.kcal > 0); // the unmatched 50g is absent, not counted as 0
+  assert.equal(out.confidence, "low"); // a line dropped — the total IS understated
+});
+
+test("a DOMINANT unmatched line returns null, not a confidently-understated total", async () => {
+  // 100g matched + 900g unmatched = 10% coverage. The old code shipped
+  // "717 kcal, low"; that reads plausible but describes butter alone, not the
+  // dish. The coverage guard now says honestly-unknown → category estimate.
   const out = await usdaProvider.computeNutrition(
     [
       { measure: "100g", name: "Butter" },
@@ -69,8 +87,32 @@ test("an unmatched line is dropped from the sum and lowers confidence", async ()
     ],
     1
   );
-  assert.equal(out.kcal, 717); // the unmatched 900g is absent, not counted as 0
-  assert.equal(out.confidence, "low"); // 1 of 2 dropped — the total IS understated
+  assert.equal(out, null);
+});
+
+test("qualifier-stripping resolves freeform names and keeps the total whole", async () => {
+  // "white rice" has no exact key but "rice" does — before the fallback this
+  // line dropped and the carbs collapsed. Now it resolves.
+  const out = await usdaProvider.computeNutrition(
+    [
+      { measure: "800 g", name: "chicken thighs" },
+      { measure: "300 g", name: "white rice" },
+    ],
+    4
+  );
+  assert.ok(out, "should compute, not null");
+  assert.ok(out.carbs_g > 40, `rice carbs must be present, got ${out.carbs_g}`);
+  assert.ok(out.protein_g > 25, `chicken protein must be present, got ${out.protein_g}`);
+});
+
+test("the corrupt chicken-skin rows are fixed to real thigh/drumstick meat", async () => {
+  // Regression: both were FDC 172855 "Chicken, skin (…), raw" = 440 kcal /
+  // 9.6g protein. Real dark meat is protein-dominant and far leaner.
+  for (const name of ["chicken thighs", "chicken drumsticks"]) {
+    const out = await usdaProvider.computeNutrition([{ measure: "100 g", name }], 1);
+    assert.ok(out.protein_g > 15, `${name} protein should be >15, got ${out.protein_g}`);
+    assert.ok(out.kcal < 280, `${name} kcal should be <280, got ${out.kcal}`);
+  }
 });
 
 test("all matched with exact weights → high confidence", async () => {
