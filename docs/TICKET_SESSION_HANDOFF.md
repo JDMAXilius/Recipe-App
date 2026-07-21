@@ -54,6 +54,14 @@
 
 ---
 
+> **Update 2026-07-20 (Mac session, `54e7535a`):** weight-first **Tasks 1 + 3 are done** — the real
+> TheMealDB corpus is cached in `backend/scripts/corpus/`, `backend/scripts/audit-foodscale.mjs`
+> audits it at line level, and four kilo-scale display bugs are fixed (piece words, pack weights,
+> `2 x 400g`, the `tbls` unit). 66.9% of lines print a real g/ml number; numbers + the density
+> cross-check verdict live in `TERMINAL_TICKET_WEIGHT_FIRST.md`. Still device-gated: Task 2.
+> Also re-checked live: **`anonymous_users` is still `false`** — the onboarding account wall in
+> `TERMINAL_TICKET_NEXT_SESSION.md §1` is unfixed and it is one dashboard toggle.
+
 ## ⚠️ Open — pick up here
 
 ### 1. Verify on a physical device (highest value, needs a human)
