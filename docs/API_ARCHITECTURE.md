@@ -190,3 +190,22 @@ the user's library via the storage bucket (SQL in
   households ask.
 - **Standing terminal work** (already ticketed): live-corpus line validation,
   density-table unification, device QA/TestFlight, activation checklist above.
+
+---
+
+## 5. "Do we need X?" — the classic checklist, answered (founder Q, 2026-07-21)
+
+| Item | Verdict | Why / trigger to revisit |
+|---|---|---|
+| Rate limits | **Have** | Six tiers live (§2); Supabase limits auth itself. Enough for launch scale. |
+| API contract | **Have (enforced, not ceremonial)** | zod at the edge + one error shape + services layer = the contract; API-4 additive-only rule governs evolution. |
+| OpenAPI spec / generated types | Skip | One first-party client. Trigger: a second client or external consumer — then generate from the zod schemas. |
+| Client API keys | Skip | JWT is the credential; a bundled key is extractable from the IPA by design. |
+| Pagination | Skip | Personal cookbooks are small. Trigger: analytics show cookbooks in the thousands. |
+| Idempotency keys | Skip | API-5 never retries writes — removes the double-fire problem instead of solving it. |
+| Timeouts | Have (server) / API-5 (client) | Every upstream call carries AbortSignal.timeout; authFetch gets one in Run A. |
+| CORS | **Have** | Allowlist + `WEB_ORIGINS` env for new fronts. |
+| Body/size limits | **Have** | 1 MB JSON cap + per-field zod clamps. |
+| Observability | Half | pino live; request ids (API-2) + Sentry DSN complete it. |
+| Webhooks | Skip | No external consumers of our events. |
+| Quota/SLA tiers | Skip | costlyLimiter is the quota. Paid tiers are a business decision, not infrastructure. |
