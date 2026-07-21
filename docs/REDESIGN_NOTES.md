@@ -905,3 +905,19 @@ curated facts + negative sentinel identical to the live API), keeping any previo
 enumeration missed (test-batch), with fallback to the cached id list if enumeration fails entirely.
 User recipes recomputed inline as before. Polite pacing (80–120ms), progress every 25. Ticket
 updated with expected output. Still terminal-run (prod credentials + open network required).
+
+### Phase 16 — Nutrition framework roadmap + terminal split (2026-07-21, cloud)
+
+Founder: "road map of what we still need on this new framework; what you can do here; terminal
+ticket for the rest. Push to main first." (All refs were already synced at cec0d80.) Wrote
+docs/NUTRITION_FRAMEWORK_ROADMAP.md: shipped recap + N1–N10. Cloud-owned: N1 raw-vs-cooked
+resolution via Claude reading the recipe's own steps (the "blunt guard's" long-promised real fix —
+next cloud task), N2 durable resolved_ingredients cache (kill repeat cost across deploys, auditable
+matches), N3 full 920-row table audit with per-class plausibility bounds, N4 cooked-record table
+expansion, N5 golden nutrition corpus (kcal-range regression fixtures), N6 confidence surfaced in
+the card copy. Terminal/founder-owned (docs/TERMINAL_TICKET_NUTRITION_FRAMEWORK.md): N7 activate +
+eager recalculation (gates everything reaching users; existing refresh runbook), N8 live-fire
+matcher validation (~30 adversarial names + identity-swap red flags; prompt bugs come back to
+cloud), N9 app rebuild for client-side pieces (drink estimates ship in the bundle), N10 first-week
+cost watch. Tracks are independent; refresh script idempotency means order between them doesn't
+matter.
