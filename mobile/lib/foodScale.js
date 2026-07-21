@@ -59,14 +59,14 @@ const CUP_ML = 240;
 // brands vary ~2× by crystal (Diamond vs Morton), so grams would be false
 // precision. Leaveners included: KA lists baking powder at 4 g/tsp.
 const SEASONING_RE =
-  /\b(salt|black pepper|white pepper|peppercorn|cayenne|paprika|cumin|coriander seed|ground coriander|cinnamon|nutmeg|clove(s)? \(ground\)|ground clove|allspice|turmeric|curry powder|garam masala|chin(?:ese)? five spice|five[- ]spice|chil(?:l)?i (powder|flakes)|red pepper flakes|oregano|thyme|rosemary|sage|dried (basil|parsley|dill|mint|herb)|italian seasoning|mixed spice|herbes? de provence|bay lea(f|ves)|mustard powder|onion powder|garlic powder|ginger \(ground\)|ground ginger|cardamom|star anise|saffron|sumac|za'?atar|fenugreek|caraway|celery salt|fennel seed|mustard seed|cumin seed|nigella|vanilla( extract| essence)?|almond extract|baking powder|baking soda|bicarbonate|cream of tartar|yeast|msg|stock cube|bouillon cube|zest|food colou?ring|liquid smoke|worcestershire|tabasco|hot sauce|fish sauce|sesame oil)\b/i;
+  /\b(salt|black pepper|white pepper|peppercorns?|cayenne|paprika|cumin|coriander seeds?|ground coriander|cinnamon|nutmeg|clove(s)? \(ground\)|ground clove|(?<!garlic\s)\bcloves\b(?!\s*(of\s)?garlic)|allspice|turmeric|curry powder|garam masala|masala|spice mix|seasoning|cajun|\bjerk\b|pul biber|panch poran|annatto|chin(?:ese)? five spice|five[- ]spice|chil(?:l)?i (powder|flakes)|red pepper flakes|oregano|thyme|rosemary|sage|dried (basil|parsley|dill|mint|herb)|italian seasoning|mixed spice|herbes? de provence|bay lea(f|ves)|mustard powder|onion powder|garlic powder|garlic granules|ginger \(ground\)|ground ginger|cardamom|cardomom|star anise|saffron|sumac|za'?atar|fenugreek|caraway|celery salt|fennel seeds?|mustard seeds?|cumin seeds?|achiote seeds?|nigella|khus khus|juniper berr|vanilla( extract| essence)?|almond (extract|essence)|baking powder|baking soda|bicarbonate|cream of tartar|yeast|msg|stock cube|bouillon cube|zest|food colou?ring|liquid smoke|worcestershire|tabasco|tobasco|hot ?sauce|sriracha|fish sauce|sesame( seed)? oil|egg wash)\b/i;
 
 // Phrases that are honestly unmeasurable — pass through verbatim.
 const AS_IS_RE = /to taste|to serve|for (frying|greasing|garnish|dusting|the)|garnish|as needed|optional|dash|pinch|drizzle|splash|handful|sprinkling/i;
 
 // Liquids display in ml (locked decision #1). Matched against the NAME.
 const LIQUID_RE =
-  /\b(water|milk(?!\s*powder)|buttermilk|cream(?!\s*cheese| of tartar)|double cream|single cream|half[- ]and[- ]half|stock|broth|wine|beer|cider|brandy|rum|sherry|marsala|vermouth|juice|vinegar|oil(?!ive)|olive oil|vegetable oil|sunflower oil|coconut milk|coconut cream|coconut water|passata|soy sauce|tamari|oyster sauce|hoisin|teriyaki|evaporated milk|kefir|espresso|coffee|tea\b)\b/i;
+  /\b(water|milk(?!\s*powder)|buttermilk|cream(?!\s*cheese| of tartar|ed)|double cream|single cream|half[- ]and[- ]half|stock|broth|wine(?!\s*leaves)|beer|stout|ale\b|cider|brandy|rum|sherry|marsala|vermouth|sake|mirin|liqueur|grand marnier|cointreau|kirsch|juice|vinegar|oil(?!ive)|olive oil|vegetable oil|sunflower oil|coconut milk|coconut cream|coconut water|passata|soy sauce|tamari|oyster sauce|hoisin|teriyaki|evaporated milk|millk|kefir|espresso|coffee|tea\b)\b/i;
 // Honey/syrups/molasses/condensed milk are NOT here — they're viscous, cling
 // to the spoon, and weigh cleanly, so they take the density path → grams
 // (matches Kitchen Stories). Thin pourables above stay ml.
@@ -80,8 +80,9 @@ const DENSITY = [
   [/whole ?wheat flour|wholemeal/i, 113],
   [/bread flour|strong flour/i, 120],
   [/self[- ]raising flour|self[- ]rising/i, 113],
-  [/cornflour|cornstarch|corn starch|potato starch|tapioca|arrowroot/i, 113],
-  [/cocoa/i, 85],
+  [/cornflour|cornstarch|corn starch|potato starch|tapioca|arrowroot|\bstarch\b/i, 113],
+  [/cocoa|cacao/i, 85],
+  [/masarepa|whole wheat\b|semolina flour/i, 120],
   [/flour/i, 120],
   // — sugars [KA] —
   [/icing sugar|powdered sugar|confectioner/i, 113],
@@ -94,15 +95,15 @@ const DENSITY = [
   [/molasses|treacle/i, 337],
   [/condensed milk/i, 306],
   // — fats [KA] —
-  [/butter|margarine|shortening|lard|ghee|suet/i, 227],
+  [/butter|margarine|shortening|lard|ghee|suet|goose fat|duck fat|dripping/i, 227],
   [/peanut butter|almond butter|tahini/i, 258],
   // — dairy solids & cheeses [KA/USDA] —
   [/cream cheese|mascarpone/i, 227],
   [/ricotta|cottage cheese|paneer|quark/i, 246],
-  [/cr[eè]me fra[iî]che|sour cream|greek yog(h)?urt|yog(h)?urt/i, 245],
-  [/parmesan|pecorino|grated cheese/i, 100],
+  [/cr[eè]me fra[iî]che|sour cream|greek yog(h)?urt|yog(h)?urt|fromage frais|strained yoghurt/i, 245],
+  [/parmesan|parmigiano|pecorino|grated cheese|v\u00e4sterbottensost/i, 100],
   [/feta|goat'?s? cheese|blue cheese|stilton|gorgonzola/i, 150],
-  [/cheese|cheddar|mozzarella|gruy[eè]re|monterey|colby|halloumi|emmental/i, 113],
+  [/cheese|cheddar|mozzarella|gruy[eè]re|monterey|colby|halloumi|emmental|brie\b|manchego|queso|bryndza|panquehue|camembert|tempeh/i, 113],
   [/chocolate chip|chocolate|cacao nib/i, 170],
   // — coconut before nut (coconut ≠ nut density) [USDA] —
   [/coconut (milk|cream|water)/i, 227],
@@ -112,65 +113,93 @@ const DENSITY = [
   [/panko/i, 50],
   [/breadcrumb|bread crumb/i, 113],
   [/flaked almond|sliced almond/i, 86],
-  [/almond|walnut|pecan|peanut|cashew|pistachio|hazelnut|macadamia|pine nut|\bnuts?\b/i, 142],
+  [/almond|walnut|pecan|peanut|cashew|pistachio|hazelnut|hazlenut|macadamia|pine nut|\bnuts?\b/i, 142],
   [/sesame|sunflower seed|pumpkin seed|chia|flax|poppy seed/i, 140],
   [/digestive biscuit|graham cracker|biscuit crumb|cookie crumb/i, 100],
   // — grains, legumes, pasta (dry) [KA/USDA] —
   [/rolled oats|oatmeal|porridge oats|\boats\b/i, 89],
   [/cornmeal|polenta|semolina|grits/i, 160],
-  [/buckwheat|millet|barley|farro|spelt|freekeh/i, 170],
+  [/buckwheat|millet|barley|farro|spelt|freekeh|mixed grain|\brye\b|grits\b/i, 170],
   [/quinoa|couscous|bulgur/i, 177],
   [/lentil/i, 192],
   [/split pea/i, 197],
   [/chickpea|garbanzo|cannellini|borlotti|kidney bean|black bean|butter bean|haricot|pinto|bean(?!\s*sprout)/i, 190],
   [/basmati|jasmine|arborio|risotto rice|long[- ]grain|rice(?!\s*(vinegar|wine|paper))/i, 185],
-  [/pasta|macaroni|spaghetti|penne|fusilli|farfalle|rigatoni|orzo|linguine|fettuc+ine|tagliatelle|noodle|vermicelli/i, 100],
+  [/pasta|macaroni|spaghetti|penne|fusilli|farfalle|rigatoni|orzo|linguine|fettuc+ine|tagliatelle|noodle|vermicelli|fideo|sevaiiya|paccheri|pappardelle/i, 100],
   // — dried fruit [KA] —
   [/raisin|sultana|\bcurrants?\b|dried cranberr|dried cherr|goji/i, 145],
   [/\bdates?\b|medjool|dried apricot|dried fig|dried mango|prune/i, 150],
   // — condiments & canned [USDA] —
   [/tomato (pur[eé]e|paste)/i, 262],
   [/passata|crushed tomato|chopped tomato|canned tomato|tinned tomato|diced tomato|plum tomato(es)? \(canned\)/i, 242],
-  [/ketchup|barbecue sauce|bbq sauce/i, 274],
+  [/ketchup|barbecue sauce|barbeque sauce|bbq sauce/i, 274],
   [/mayonnaise|mayo/i, 232],
   [/mustard(?!\s*(powder|seed))/i, 249],
   [/pesto/i, 232],
   [/hummus/i, 246],
-  [/salsa/i, 259],
-  [/jam|marmalade|preserves|curd/i, 320],
+  [/salsa|pico de gallo|enchilada sauce/i, 259],
+  [/jam|marmalade|preserves|curd|dulce de leche|stroop|sirop/i, 320],
+  // — flavor pastes: thick, spoon-measured, weigh cleanly [USDA] —
+  [/curry paste|madras paste|harissa|gochujang|prahok|shrimp paste|galangal paste|tamarind (paste|ball|pulp)|miso/i, 250],
+  [/horseradish|relish|vinaigrette|a[iï]oli|duck sauce|plum sauce|chilli sauce|caramel( sauce)?|custard(?!\s*powder)|creamed corn|malai|fruit pulp|passion fruit/i, 260],
+  [/custard powder/i, 128],
+  [/marzipan|almond paste|nougatine/i, 290],
+  [/marshmallow/i, 50],
+  [/pretzel|popcorn/i, 60],
+  [/ice cream|sorbet/i, 140],
+  [/sauerkraut|kimchi/i, 140],
+  [/dal\b|toor|split pea/i, 192],
   [/\bolives?\b/i, 135],
   [/capers?/i, 137],
-  [/sweetcorn|corn kernel|frozen corn|canned corn/i, 165],
+  [/sweetcorn|corn kernel|frozen corn|canned corn|dried (white )?corn/i, 165],
   [/frozen pea|garden pea|petits? pois|\bpeas\b/i, 145],
   // — produce, prepped (chopped/sliced unless noted) [USDA] —
-  [/spinach|kale|rocket|arugula|watercress|salad leaves|lettuce|greens/i, 30],
+  [/spinach|kale|rocket|arugula|watercress|salad leaves|lettuce|greens|bok cho[iy]|pak (choi|koi)|chinese leaf|morning glory|callaloo|mulukhiyah|vine leaves|grape leaves|chard/i, 30],
+  // — fresh herbs, chopped [USDA] — most lines are handful/bunch (pass through);
+  //   this covers the "1 cup basil" shape.
+  [/\b(basil|cilantro|coriander( leaves)?|parsley|mint|dill|chives?|tarragon|marjoram|savoury|sorrel)\b/i, 40],
+  [/bean ?sprout/i, 104],
   [/cabbage|slaw/i, 89],
+  [/brussels? sprout/i, 88],
+  [/rhubarb/i, 122],
+  [/radish/i, 116],
+  [/sauerkraut/i, 140],
+  [/asparagus/i, 134],
+  [/fennel/i, 87],
+  [/chestnut/i, 145],
+  [/currant|berry|berries/i, 145],
+  [/stir[- ]?fry vegetables|roasted vegetables|mixed vegetables|frozen vegetables|\bvegetables\b|seafood mix/i, 140],
+  [/dried fruit|fruit mix|mixed peel|candied peel/i, 145],
   [/broccoli/i, 91],
   [/cauliflower/i, 100],
   [/mushroom/i, 70],
   [/celery/i, 101],
   [/carrot/i, 128],
   [/courgette|zucchini/i, 124],
-  [/aubergine|eggplant/i, 82],
+  [/aubergine|egg ?plants?/i, 82],
   [/cucumber/i, 119],
   [/(bell |red |green |yellow )?pepper(?!corn)|capsicum/i, 149],
-  [/potato|swede|turnip|parsnip|celeriac|beetroot|squash|pumpkin(?!\s*seed)/i, 150],
+  [/potato|swede|turnip|parsnip|celeriac|beetroot|beets?\b|squash|pumpkin(?!\s*seed)|taro|cassava|\byam\b|yautia|artichoke|plantain|breadfruit|daikon/i, 150],
   [/onion|shallot|leek|spring onion|scallion/i, 160],
   [/tomato/i, 180],
   [/green bean|runner bean|mangetout|snow pea|sugar ?snap/i, 110],
-  [/avocado/i, 150],
+  [/avacado|avocado/i, 150],
   [/apple|pear/i, 125],
   [/banana/i, 150],
   [/strawberr|raspberr|blackberr|blueberr|cherr|berry|berries/i, 145],
   [/mango|pineapple|peach|nectarine|apricot|plum|melon|grape\b|grapes/i, 165],
-  [/ginger(?!\s*(ale|beer))/i, 96],
+  [/ginger(?!\s*(ale|beer))|galangal/i, 96],
   // — proteins by volume (diced/ground, for "1 cup cooked chicken") [USDA] —
-  [/chicken|beef|pork|lamb|turkey|mince|sausage meat/i, 225],
+  [/chicken|beef|pork|lamb|turkey|mince|sausage meat|veal|venison|goat|oxtail|tripe|doner|shredded meat|chuck|shank|ham\b|gammon|chorizo|kidney\b|liver\b|crab|conch|tuna|salmon|mackerel|monkfish|hake|snapper|herring|sardine|pilchard|barramundi|white fish|fish fillet|smoked haddock|haddock|duck\b|squid|lobster|frozen seafood/i, 225],
   [/prawn|shrimp/i, 145],
   [/tofu/i, 252],
   // — milk powder & misc dry [KA] —
   [/milk powder|powdered milk/i, 128],
   [/gelatin(e)?/i, 150],
+  // — corpus mop-up: rare single-recipe items [USDA approx] —
+  [/ackee|bamboo shoot|palm heart|longan|cassaba|\bfries\b/i, 150],
+  [/papelon|panela|piloncillo|jaggery/i, 218],
+  [/casabe/i, 60],
 ];
 
 // ---------------------------------------------------------------------------
@@ -200,7 +229,7 @@ const EACH_G = [
   [/pitt?a/i, 60],
   [/naan/i, 90],
   [/baguette/i, 250],
-  [/\b(bun|roll)\b/i, 50],
+  [/\b(buns?|rolls?)\b/i, 50],
   [/spring onions?|scallions?|green onions?/i, 15], // must precede plain onion
   [/red onion|white onion|onions?\b/i, 110],
   [/shallot|challot/i, 30],
@@ -244,6 +273,70 @@ const EACH_G = [
   [/tortilla|wrap/i, 45],
   [/bread slice|slice of bread|bread/i, 28], // per slice
   [/lasagn[ea] sheet/i, 18],
+  // — fish & seafood, per fillet/piece [USDA] —
+  [/mackerel|herring|sardine|pilchard/i, 90],
+  [/monkfish|hake|barramundi|red snapper|snapper|sea bream|halibut|tuna steak|swordfish/i, 170],
+  [/smoked salmon slice/i, 20],
+  [/baby squid/i, 40],
+  [/squid|calamari/i, 100],
+  [/mussel/i, 20], // in shell
+  [/clam/i, 15],
+  [/oyster/i, 45],
+  [/lobster/i, 500],
+  [/king prawn|tiger prawn|jumbo shrimp/i, 15],
+  [/prawn|shrimp(?!\s*paste)/i, 8],
+  [/crab (claw|stick)/i, 20],
+  [/scallop/i, 25],
+  // — cured & sausage-like, per piece/slice [USDA] —
+  [/kielbasa|kabanos|polish sausage|german sausage|bratwurst/i, 85],
+  [/morcilla|black pudding|chorizo ring/i, 200],
+  [/frankfurter|hot ?dog/i, 50],
+  [/parma ham|prosciutto|serrano ham|jam[oó]n/i, 15], // per slice
+  [/ham slice|slice of ham/i, 25],
+  [/duck leg/i, 200],
+  [/\bduck\b/i, 1800], // whole
+  [/lamb shank/i, 350],
+  [/pig'?s? trotter/i, 350],
+  [/frog'?s? leg/i, 25],
+  [/chicken liver/i, 30],
+  [/quail/i, 120],
+  // — breads, pastry, wrappers [USDA] —
+  [/english muffin|muffin/i, 60],
+  [/ciabatta/i, 270],
+  [/crusty bread|white bread|wholegrain bread|rye bread|stale bread|toast\b/i, 28], // per slice
+  [/taco shell/i, 13],
+  [/wonton (skin|wrapper)/i, 8],
+  [/rice paper/i, 10],
+  [/egg roll wrapper|spring roll wrapper/i, 12],
+  [/filo|phyllo/i, 20], // per sheet
+  [/puff pastry|shortcrust|pie crust|pastry (sheet|block)/i, 320], // rolled sheet/block
+  [/rice flour pancake|pancake/i, 40],
+  [/crumpet/i, 55],
+  [/croissant/i, 60],
+  [/falafel/i, 17],
+  // — produce & fruit, per item [USDA] —
+  [/asparagus( spear)?s?\b/i, 16],
+  [/brussels? sprout/i, 20],
+  [/radish/i, 5],
+  [/rhubarb (stalk|stick)|rhubarb/i, 50],
+  [/fig\b|figs\b/i, 50],
+  [/dill pickle|gherkin/i, 65],
+  [/grapefruit/i, 230],
+  [/pomegranate/i, 280],
+  [/plantain/i, 180],
+  [/passion fruit/i, 18],
+  [/kiwi/i, 75],
+  [/date\b|dates\b|medjool/i, 24],
+  [/apricot/i, 35],
+  [/plum\b/i, 66],
+  [/jerusalem artichoke/i, 60],
+  [/beets?\b/i, 82],
+  [/scotch bonnet|habanero/i, 10],
+  [/chestnut/i, 10],
+  [/fennel/i, 234], // bulb
+  [/marrow\b/i, 800],
+  [/artichoke/i, 128],
+  [/spring roll|egg roll/i, 60],
 ];
 
 // Per-unit gram weights for count-ish units the parser produces.
