@@ -5170,15 +5170,15 @@
     "sodium_mg": 7030
   },
   "ackee": {
-    "fdcId": 170387,
-    "usda": "Butterbur, canned",
-    "kcal": 3,
-    "protein_g": 0.11,
-    "fat_g": 0.13,
-    "carbs_g": 0.38,
-    "fiber_g": null,
+    "fdcId": 171705,
+    "usda": "Avocados, raw, all commercial varieties — PROXY for ackee: USDA has no ackee record in any dataset. Ackee is ~150 kcal/100g and 15g fat, a fatty fruit; avocado is the closest such record. The prior row (Butterbur, 3 kcal) made ackee nutritionally invisible in its own dish.",
+    "kcal": 160,
+    "protein_g": 2,
+    "fat_g": 14.66,
+    "carbs_g": 8.53,
+    "fiber_g": 6.7,
     "sugar_g": null,
-    "sodium_mg": 4
+    "sodium_mg": 7
   },
   "jerk": {
     "fdcId": 171315,
@@ -10558,5 +10558,27 @@
     "fiber_g": 1.4,
     "sugar_g": null,
     "sodium_mg": 15
+  },
+  "tinned ackee": {
+    "fdcId": 171705,
+    "usda": "Avocados, raw, all commercial varieties — PROXY for ackee: USDA has no ackee record in any dataset. Ackee is ~150 kcal/100g and 15g fat, a fatty fruit; avocado is the closest such record. The prior row (Butterbur, 3 kcal) made ackee nutritionally invisible in its own dish.",
+    "kcal": 160,
+    "protein_g": 2,
+    "fat_g": 14.66,
+    "carbs_g": 8.53,
+    "fiber_g": 6.7,
+    "sugar_g": null,
+    "sodium_mg": 7
+  },
+  "canned ackee": {
+    "fdcId": 171705,
+    "usda": "Avocados, raw, all commercial varieties — PROXY for ackee: USDA has no ackee record in any dataset. Ackee is ~150 kcal/100g and 15g fat, a fatty fruit; avocado is the closest such record. The prior row (Butterbur, 3 kcal) made ackee nutritionally invisible in its own dish.",
+    "kcal": 160,
+    "protein_g": 2,
+    "fat_g": 14.66,
+    "carbs_g": 8.53,
+    "fiber_g": 6.7,
+    "sugar_g": null,
+    "sodium_mg": 7
   }
 }
