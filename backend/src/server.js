@@ -1,5 +1,7 @@
 import express from "express";
 import { fileURLToPath } from "node:url";
+import { randomBytes } from "node:crypto";
+import { createRequire } from "node:module";
 import cors from "cors";
 import helmet from "helmet";
 import { ENV } from "./config/env.js";
@@ -86,6 +88,25 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
+// Request ids (API-2): every request gets a short random id, echoed as
+// X-Request-Id and stamped on the log lines. When a founder screenshot says
+// "it failed", the log line is findable. Only non-2xx completions are logged —
+// healthy traffic stays quiet.
+app.use((req, res, next) => {
+  req.id = randomBytes(6).toString("base64url");
+  res.set("X-Request-Id", req.id);
+  const started = Date.now();
+  res.on("finish", () => {
+    if (res.statusCode >= 400) {
+      logger.info(
+        { reqId: req.id, method: req.method, path: req.path, status: res.statusCode, ms: Date.now() - started },
+        "request failed"
+      );
+    }
+  });
+  next();
+});
+
 app.use(express.json({ limit: "1mb" }));
 app.use(apiLimiter);
 
@@ -96,8 +117,14 @@ const intId = (value) => {
   return Number.isInteger(n) && n > 0 ? n : null;
 };
 
+// Deploy-provable health (API-1): the answer names the running build, so
+// "is the deploy actually live" is one curl on this route — not probing a
+// feature route and reading 401-vs-404 tea leaves. The sha comes from
+// Railway's build env; locally it's null and that's honest too.
+const pkg = createRequire(import.meta.url)("../package.json");
+const BUILD_SHA = (process.env.RAILWAY_GIT_COMMIT_SHA || "").slice(0, 12) || null;
 app.get("/api/health", (req, res) => {
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, version: pkg.version, sha: BUILD_SHA });
 });
 
 // TheMealDB passthrough — the ONLY reason this exists is the supporter key.
@@ -120,6 +147,22 @@ const CONTENT_ENDPOINTS = new Set([
 // c=category, f=first letter. Anything else is dropped rather than forwarded.
 const CONTENT_PARAMS = ["s", "i", "a", "c", "f"];
 
+// In-memory TTL cache (API-3). TheMealDB content is static-ish: a recipe by
+// id or the category list changes rarely, searches a little more often, and
+// random.php must NEVER be cached (same URL, different meal each call — it's
+// deliberately absent from the table). Entries outlive their TTL so an
+// upstream outage coasts on the last good answer instead of 502ing Discover.
+// One Railway instance, so in-memory is the whole story.
+const CONTENT_TTL_MS = {
+  "lookup.php": 24 * 60 * 60 * 1000,
+  "categories.php": 24 * 60 * 60 * 1000,
+  "list.php": 24 * 60 * 60 * 1000,
+  "search.php": 60 * 60 * 1000,
+  "filter.php": 60 * 60 * 1000,
+};
+const CONTENT_CACHE_MAX = 500;
+const contentCache = new Map(); // key → { freshUntil, body }; Map order = LRU
+
 app.get("/api/content/:endpoint", contentLimiter, async (req, res) => {
   const { endpoint } = req.params;
   if (!CONTENT_ENDPOINTS.has(endpoint)) {
@@ -129,14 +172,33 @@ app.get("/api/content/:endpoint", contentLimiter, async (req, res) => {
   for (const p of CONTENT_PARAMS) {
     if (typeof req.query[p] === "string") query.set(p, req.query[p]);
   }
+  const ttl = CONTENT_TTL_MS[endpoint];
+  const key = `${endpoint}?${query}`;
+  const cached = ttl ? contentCache.get(key) : null;
+  if (cached && cached.freshUntil > Date.now()) {
+    contentCache.delete(key);
+    contentCache.set(key, cached); // re-insert = mark recently used
+    return res.json(cached.body);
+  }
   try {
     const upstream = await fetch(`${MEALDB_BASE_URL}/${endpoint}?${query}`, {
       signal: AbortSignal.timeout(10000),
     });
     if (!upstream.ok) throw new Error(`TheMealDB answered ${upstream.status}`);
-    res.json(await upstream.json());
+    const body = await upstream.json();
+    if (ttl) {
+      contentCache.delete(key);
+      contentCache.set(key, { freshUntil: Date.now() + ttl, body });
+      while (contentCache.size > CONTENT_CACHE_MAX) {
+        contentCache.delete(contentCache.keys().next().value);
+      }
+    }
+    res.json(body);
   } catch (error) {
-    reportError(error, { msg: "content passthrough failed", endpoint });
+    // Stale beats a spinner: an expired entry is yesterday's truth about a
+    // near-static catalogue, which is better than an error screen.
+    if (cached) return res.json(cached.body);
+    reportError(error, { msg: "content passthrough failed", endpoint, reqId: req.id });
     res.status(502).json({ error: "Couldn't reach the recipe library" });
   }
 });

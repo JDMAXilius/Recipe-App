@@ -8,6 +8,36 @@ import { API_URL } from "../constants/api";
 // parses data.meals / data.categories exactly as it did.
 const BASE_URL = `${API_URL}/content`;
 
+// Stale-while-revalidate memory cache for Discover reads (API-5). Content is
+// near-static, so a five-minute cache makes tab switches instant and lets a
+// flaky connection coast on the last good answer instead of emptying the
+// screen. random.php calls skip this by name — same URL, different meal each
+// time, caching it would freeze the "surprise me" row.
+const contentCache = new Map(); // url → { at, data }
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const CACHE_MAX = 150;
+
+async function getJSON(url) {
+  const cacheable = !url.includes("random.php");
+  const hit = cacheable ? contentCache.get(url) : null;
+  if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.data;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    if (cacheable) {
+      contentCache.delete(url);
+      contentCache.set(url, { at: Date.now(), data });
+      while (contentCache.size > CACHE_MAX) {
+        contentCache.delete(contentCache.keys().next().value);
+      }
+    }
+    return data;
+  } catch (error) {
+    if (hit) return hit.data; // stale beats a spinner
+    throw error;
+  }
+}
+
 // Some TheMealDB entries carry their own headers — "STEP 1" on its own line
 // above the actual instruction (52982 Carbonara is one). Kept as-is they become
 // steps with a number and no body, so cook mode shows a blank screen and the
@@ -19,8 +49,7 @@ export const MealAPI = {
   // search meal by name
   searchMealsByName: async (query) => {
     try {
-      const response = await fetch(`${BASE_URL}/search.php?s=${encodeURIComponent(query)}`);
-      const data = await response.json();
+      const data = await getJSON(`${BASE_URL}/search.php?s=${encodeURIComponent(query)}`);
       return data.meals || [];
     } catch (error) {
       console.error("Error searching meals by name:", error);
@@ -31,8 +60,7 @@ export const MealAPI = {
   // lookup full meal details by id
   getMealById: async (id) => {
     try {
-      const response = await fetch(`${BASE_URL}/lookup.php?i=${id}`);
-      const data = await response.json();
+      const data = await getJSON(`${BASE_URL}/lookup.php?i=${id}`);
       return data.meals ? data.meals[0] : null;
     } catch (error) {
       console.error("Error getting meal by id:", error);
@@ -43,8 +71,7 @@ export const MealAPI = {
   // lookup a single random meal
   getRandomMeal: async () => {
     try {
-      const response = await fetch(`${BASE_URL}/random.php`);
-      const data = await response.json();
+      const data = await getJSON(`${BASE_URL}/random.php`);
       return data.meals ? data.meals[0] : null;
     } catch (error) {
       console.error("Error getting random meal:", error);
@@ -69,8 +96,7 @@ export const MealAPI = {
   // list all meal categories
   getCategories: async () => {
     try {
-      const response = await fetch(`${BASE_URL}/categories.php`);
-      const data = await response.json();
+      const data = await getJSON(`${BASE_URL}/categories.php`);
       return data.categories || [];
     } catch (error) {
       console.error("Error getting categories:", error);
@@ -81,8 +107,7 @@ export const MealAPI = {
   // filter by main ingredient
   filterByIngredient: async (ingredient) => {
     try {
-      const response = await fetch(`${BASE_URL}/filter.php?i=${encodeURIComponent(ingredient)}`);
-      const data = await response.json();
+      const data = await getJSON(`${BASE_URL}/filter.php?i=${encodeURIComponent(ingredient)}`);
       return data.meals || [];
     } catch (error) {
       console.error("Error filtering by ingredient:", error);
@@ -93,8 +118,7 @@ export const MealAPI = {
   // list cuisines (areas)
   listAreas: async () => {
     try {
-      const response = await fetch(`${BASE_URL}/list.php?a=list`);
-      const data = await response.json();
+      const data = await getJSON(`${BASE_URL}/list.php?a=list`);
       return (data.meals || []).map((m) => m.strArea).filter(Boolean);
     } catch (error) {
       console.error("Error listing areas:", error);
@@ -105,8 +129,7 @@ export const MealAPI = {
   // filter by cuisine (area)
   filterByArea: async (area) => {
     try {
-      const response = await fetch(`${BASE_URL}/filter.php?a=${encodeURIComponent(area)}`);
-      const data = await response.json();
+      const data = await getJSON(`${BASE_URL}/filter.php?a=${encodeURIComponent(area)}`);
       return data.meals || [];
     } catch (error) {
       console.error("Error filtering by area:", error);
@@ -117,8 +140,7 @@ export const MealAPI = {
   // filter by category
   filterByCategory: async (category) => {
     try {
-      const response = await fetch(`${BASE_URL}/filter.php?c=${encodeURIComponent(category)}`);
-      const data = await response.json();
+      const data = await getJSON(`${BASE_URL}/filter.php?c=${encodeURIComponent(category)}`);
       return data.meals || [];
     } catch (error) {
       console.error("Error filtering by category:", error);

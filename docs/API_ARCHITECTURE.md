@@ -139,11 +139,12 @@ stale-while-revalidate module cache for Discover reads. Explicitly rejected:
 adopting react-query — a cross-cutting rewrite the app doesn't need at this
 size.
 
-### API-6 · Shared-list freshness (S now, M later)
-The collab list updates on focus/pull today. Now: 20 s foreground polling on
-the list screen (zero infra, honest for a household). Later, if real
-households feel the lag: Supabase Realtime on the collab tables — the schema
-already fits. Decided: polling first; Realtime is an upgrade, not a rewrite.
+### API-6 · Shared-list freshness — **already shipped** (verified 2026-07-21)
+`household.jsx` already refreshes on focus AND polls every 8 s while the
+screen is open — better than the 20 s this plan proposed. Nothing to build.
+Later, if real households feel any lag: Supabase Realtime on the collab
+tables — the schema already fits. Polling first; Realtime is an upgrade,
+not a rewrite.
 
 ### API-7 · Offline read cache (M, later phase)
 Cookbook/plan/detail keep last-good JSON in AsyncStorage and render read-only
@@ -182,9 +183,13 @@ the user's library via the storage bucket (SQL in
 
 ## 4. Execution order
 
-- **Run A — hardening sweep** (one session, all cloud): API-1 health sha →
-  API-2 request ids → API-3 content cache → API-5 client resilience →
-  API-6 polling. API-4 is adopted by this document.
+- **Run A — hardening sweep** — **DONE 2026-07-21**: API-1 health
+  `{version, sha}` (deploy check = one curl) · API-2 request ids
+  (`X-Request-Id` echoed, non-2xx completions logged with id) · API-3
+  content TTL cache with stale-on-outage fallback · API-5 client 15 s
+  timeout + GET-only single retry + Discover stale-while-revalidate cache ·
+  API-6 verified already shipped (8 s focus polling). API-4 adopted by this
+  document. **Live after the founder's next `railway up` deploy.**
 - **Run B — AI seam #1**: photo → recipe extraction, end-to-end dormant.
 - **Run C — comfort**: API-7 offline reads; Realtime upgrade only if
   households ask.

@@ -721,3 +721,19 @@ limiters, services layer and env, not memory. Summary of the calls (full rationa
 - **Execution order:** Run A = hardening sweep (API-1,2,3,5,6 — all cloud-doable), Run B =
   photo→recipe seam, Run C = offline reads. Terminal tickets unchanged and still authoritative
   for device/prod-only work.
+
+### Phase 13 addendum — Run A hardening sweep shipped (2026-07-21, cloud)
+
+Founder: "Ok lets plan on doing the roadmap" → executed Run A. API-1: /api/health now returns
+`{success, version, sha}` (sha from RAILWAY_GIT_COMMIT_SHA, null locally) — deploy verification
+is one curl. API-2: request-id middleware (X-Request-Id echoed; non-2xx completions logged with
+reqId/method/path/status/ms; healthy traffic stays quiet). API-3: /api/content in-memory TTL
+cache (lookup/categories/list 24h, search/filter 1h, random NEVER, LRU cap 500) with
+stale-on-outage fallback — an upstream outage coasts on the last good answer instead of 502ing
+Discover. API-5: authFetch 15s timeout + single retry for GETs only (writes never double-fire),
+network failures throw in Otto's voice; mealAPI gained a 5-min stale-while-revalidate cache
+(random.php excluded so "surprise me" stays random). API-6: discovered ALREADY SHIPPED —
+household.jsx polls at 8s under useFocusEffect; doc corrected rather than re-built (verify
+claims against the live code before repeating them). Smoke-verified: server boots, health shape
++ header confirmed, 404 logs the structured line. Backend 53/53, mobile 44/44, lint clean.
+NOT live until the founder's next `railway up` — push ≠ deploy.
