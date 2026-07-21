@@ -125,6 +125,45 @@ live-call on view. (Trivially fine under CC0; it was the sticking point under Ed
 - Nutrition returned **inline** on recipe GETs (cached) — no separate round-trip on view.
 - Seed nutrition served via the content adapter (§B) with the same cache.
 
+### A5. Confidence-to-high pipeline — shipped + next (2026-07-21)
+
+The confidence campaign (REDESIGN_NOTES 18–20) drove prod from **129→361 high / 216→56 low** of 761
+seed recipes. What made the difference and what remains, in build order:
+
+**Shipped:**
+- **USDA-verified piece weights** (`pieceWeights.json`, 50 rows) and **cup densities**
+  (`cupWeights.json`, 36 rows) derived mechanically from each food's own FDC `foodPortions` record —
+  each stored with fdcId + USDA's exact portion wording. A weight matching a USDA portion earns
+  *high*; anything USDA can't confirm stays a flagged estimate. Builders:
+  `scripts/build-piece-weights.mjs`, `build-item-weights.mjs`, `build-cup-weights.mjs`.
+- **Full 556-fdcId provenance audit** (`scripts/audit-table-provenance.mjs` → `repair-provenance.mjs`):
+  found + fixed 10 corrupt identities (green pepper→beet greens, chicken breast→ground, white wine
+  vinegar→peanut butter's id, …). An fdcId alone proves nothing — verify description AND numbers.
+- **King Arthur densities replaced with USDA CC0 data** (Phase 20) — a licence fix and an accuracy
+  fix in one.
+- Parser: mixed unicode fractions (`1 ½`, `1-⅓`), quart/pint, frying-oil (currently a flat 1 tbsp —
+  see below), plural/embedded-piece-noun matching.
+- Shared `scripts/usdaClient.mjs` — always filters Energy on `unitName` (KCAL-vs-KJ trap), survives
+  USDA HTML error pages.
+
+**Next — the public-domain dataset imports (detail + URLs in `NUTRITION_INDUSTRY_RESEARCH.md` §5).**
+These turn the one-at-a-time API queries into shipped tables and are the path for the ~327 still-medium
+recipes. All CC0 / US-Gov:
+1. **FNDDS Portions & Weights** (22,046 rows) — bulk count/volume→gram, replaces per-ingredient API
+   calls. Biggest single lever.
+2. **SR28 refuse %** (1,944 foods) — as-purchased→edible; FDC dropped this field, so SR28 is the only
+   source.
+3. **Bognár 2002 fat-uptake table** — replaces the flat 1-tbsp frying-oil estimate with sourced
+   g/100 g by food×method (breaded meat 6.0, fries 5.0, unbreaded 0.0). ⚠️ no explicit licence —
+   FAO-hosted; confirm before shipping the table verbatim vs deriving our own from it.
+4. **Cooking Yields R2 + Retention Factors R6** — the defensible raw→cooked path (raises cooked-dish
+   confidence). Apply in USDA's documented order (research doc §5).
+
+**Do not chase 100% high.** External evidence (Zestful 73%, FoodNER 73–79% concept-linking, Zhang
+2021) confirms the ceiling is ~77% and the residue is honestly-unmeasurable lines ("for frying",
+"to taste") and foods USDA has no portion for. The flag carries information *because* it isn't always
+high.
+
 ---
 
 ## B. Content / recipe data sources (more + correct data)
