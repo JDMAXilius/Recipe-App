@@ -154,7 +154,7 @@ const DENSITY = [
   [/sweetcorn|corn kernel|frozen corn|canned corn|dried (white )?corn/i, 165],
   [/frozen pea|garden pea|petits? pois|\bpeas\b/i, 145],
   // — produce, prepped (chopped/sliced unless noted) [USDA] —
-  [/spinach|kale|rocket|arugula|watercress|salad leaves|lettuce|greens|bok cho[iy]|pak (choi|koi)|chinese leaf|morning glory|callaloo|mulukhiyah|vine leaves|grape leaves|chard/i, 30],
+  [/spinach|kale|rocket|arugula|watercress|salad leaves|lettuce|greens|bok cho[iy]|pak (choi|koi)|chinese leaf|morning glory|callaloo|mulukhiyah|vine leaves|grape leaves|\bchard\b/i, 30],
   // — fresh herbs, chopped [USDA] — most lines are handful/bunch (pass through);
   //   this covers the "1 cup basil" shape.
   [/\b(basil|cilantro|coriander( leaves)?|parsley|mint|dill|chives?|tarragon|marjoram|savoury|sorrel)\b/i, 40],
