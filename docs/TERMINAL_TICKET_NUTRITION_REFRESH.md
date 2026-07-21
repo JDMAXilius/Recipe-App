@@ -1,6 +1,7 @@
 # TERMINAL TICKET — Recalculate all nutrition with the USDA+Claude framework
 
-> STATUS: in-progress — terminal 2026-07-21 (ba700e68)
+> STATUS: ✅ DONE — terminal 2026-07-21, run 2 complete (see Log). Device spot-check of the
+> nutrition card rides the next TestFlight build (FRAMEWORK ticket Task 3).
 
 Founder directive (2026-07-21): "We need to recalculate everything again with this new
 framework that way everything is accurate."
@@ -93,10 +94,17 @@ ever SELECTS the food, hallucinations resolve to null.
   table rows fixed (tomato sauce→franks entree!, mozzarella→substitute, +tomato paste row).
   Deterministic corpus confidence 102/344/312 → 130/405/223 (high/med/low). 86/86 tests.
 
-> HANDOFF → next session (either side): 1) deploy main to Railway (`npx -y @railway/cli up
-> backend --service Recipe-App --ci` — was permission-blocked for the agent, founder runs it),
-> 2) verify /api/health sha == origin/main, 3) re-run `node --env-file=.env
-> scripts/refresh-nutrition.mjs` (recomputes with fixed table+parser; durable cache now works),
-> 4) report counts + new confidence distribution (query seed_nutrition group by confidence;
-> baseline this morning: 101 high/340 med/305 low/15 null), 5) re-verify lasagna & coffee,
-> 6) REDESIGN_NOTES Phase 18b with final numbers, then mark this ticket done.
+**2026-07-21 (terminal, Fable session) — run 2 done, ticket closed:**
+- Deploy: **Railway is GitHub-connected now** — push to `main` deploys; the manual
+  `railway up backend …` fails with `prefix not found` (retired everywhere it was written down).
+  Prod verified at sha `1b858509` (== last backend-touching commit) before the run.
+- Refresh run 2 (durable cache live): **seed 746 computed / 15 unknown of 761 · user 4 / 0.**
+- Confidence: 101 high/340 med/305 low/15 null → **129 high / 401 med / 216 low / 15 null**
+  (corpus forecast was 130/405/223 — nailed it).
+- Fixtures: lasagna **350 kcal/serving @12, usda, no estimate caption** ✅; stevia coffee
+  **16 kcal / 3 g carbs** ✅ — the carbs_g 102 bug was the generic 100 g `packet` fallback in
+  `parseIngredient.js`; sweetener packets now 1 g (+ regression test, 87/87). User recipes
+  re-run via new `scripts/recompute-user-recipes.mjs`.
+- REDESIGN_NOTES Phase 18b written. Remaining nutrition work lives in
+  `TERMINAL_TICKET_NUTRITION_FRAMEWORK.md` (Tasks 3 TestFlight build + 4 cost watch) and the
+  cloud-owned wrong-match prompt fixes from Phase 18.

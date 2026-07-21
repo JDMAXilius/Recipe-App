@@ -159,9 +159,10 @@ eas submit --platform ios --profile production --latest
   entirely — full read/write on every user's data.
   🔗 https://supabase.com/dashboard/project/mepzfdefanfpnrvydyty/settings/api-keys
   Then update it in Railway → Recipe-App → Variables. **Don't paste the new value into a chat.**
-- **Connect GitHub in Railway** so the 3-day drift can't recur. Service → Settings → Source →
-  `JDMAXilius/Recipe-App`, branch `main`. Root Directory is now `backend`, so `railway.json`'s
-  `watchPatterns: ["backend/**"]` will finally apply — it has been inert this whole time.
+- ~~**Connect GitHub in Railway** so the 3-day drift can't recur.~~ ✅ **DONE (verified 2026-07-21)** —
+  `railway status` shows source `JDMAXilius/Recipe-App`; pushing `main` now auto-deploys and
+  `watchPatterns: ["backend/**"]` applies (docs-only commits correctly skip). Side effect: the manual
+  `railway up backend …` command now fails with `prefix not found` — don't use it; push instead.
 - **`SENTRY_DSN` is unset → no error alerting.** Missing tables 500'd in production for days with
   nobody notified. That is precisely how this went unseen.
 - **`SHARE_BASE_URL` is unset** (confirmed live). Invites currently carry the Railway hostname.
@@ -218,9 +219,8 @@ observed.**
   **401 JSON** when current, **404 HTML** when stale.
 - **Any new table in `schema.js` needs a matching script in `backend/scripts/` run against prod.**
   Three features have been broken by skipping this.
-- **Pushing to `main` does not deploy.** Until GitHub is connected, deploy manually and verify:
-  ```bash
-  cd /Users/juan/Recipe-App && npx -y @railway/cli up backend --service Recipe-App --ci
-  ```
-  (The `backend` PATH argument matters — the CLI link is keyed to the repo root, so `cd backend`
-  alone does not change what gets uploaded.)
+- ~~**Pushing to `main` does not deploy.**~~ **Stale since 2026-07-21:** GitHub is connected, pushing
+  `main` deploys (backend changes only, per `watchPatterns`). The old manual command
+  (`railway up backend …`) now fails with `prefix not found`. Still verify every deploy:
+  `curl -s https://recipe-app-production-6cf5.up.railway.app/api/health` must return the sha of the
+  latest `origin/main` commit that touched `backend/`.

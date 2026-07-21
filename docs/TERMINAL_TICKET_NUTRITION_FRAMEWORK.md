@@ -75,6 +75,8 @@ confidence-sweep deploy). Task 2 probe done (`scripts/probe-matcher.mjs`): 21/30
 gochujang→almond paste, green beans→beet greens, sweet potato→its leaves, pomegranate
 molasses→juice, paneer→cream cheese spread. Wins: coconut milk→coconut milk (not dairy),
 beef mince=minced beef, 9 honest nulls. Full table in REDESIGN_NOTES Phase 18.
-> HANDOFF → cloud: 6 wrong matches above are Stage-1/2 prompt bugs; also user-recipe qty
-> over-parse (stevia coffee carbs_g 102 on 16 kcal). Tasks 3 (TestFlight build) + 4 (cost
-> watch) still open, terminal-side.
+> HANDOFF → cloud: 6 wrong matches above are Stage-1/2 prompt bugs. ~~Also user-recipe qty
+> over-parse (stevia coffee carbs_g 102 on 16 kcal)~~ — **fixed terminal-side 2026-07-21**
+> (generic `packet`=100 g fallback; sweetener packets now 1 g, regression test added).
+> Task 1 fully done (run 2 complete, ticket REFRESH closed). Tasks 3 (TestFlight build) + 4
+> (cost watch) still open, terminal-side.

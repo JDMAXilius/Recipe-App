@@ -995,3 +995,25 @@ backfill), all ticketed.
   20g sugar, input said unsweetened). Also: stevia coffee shows carbs_g 102 on a 16-kcal drink
   (USDA stevia row is 100g carbs/0 kcal; quantity parse likely over-read) — macro sanity worth
   a look when prompts get fixed.
+
+### Phase 18b — Refresh run 2 on the fixed table + parser (2026-07-21, terminal)
+
+- Deploy story changed underneath us: **Railway is now GitHub-connected** (`railway status` →
+  repo JDMAXilius/Recipe-App), so pushing `main` deploys and the manual `railway up backend …`
+  fails with `prefix not found` — retired. Prod verified current before the run: `/api/health`
+  sha `1b858509` == last backend-touching commit on origin/main.
+- Run 2 of `refresh-nutrition.mjs` (confidence-sweep code, durable resolver cache live this
+  time): **seed 746 computed / 15 honestly unknown of 761 · user 4 recomputed / 0 unknown.**
+- Confidence distribution on `seed_nutrition` moved exactly as the corpus predicted:
+  **101 high / 340 med / 305 low / 15 null → 129 / 401 / 216 / 15** (corpus forecast 130/405/223).
+- Fixtures re-verified from prod rows: lasagna **350 kcal/serving @12, source usda** (no
+  estimate caption); stevia coffee **16 kcal**.
+- The Phase 18 "carbs_g 102 on a 16-kcal drink" mystery is closed: `parseIngredient.js`'s
+  generic `packet` fallback is 100 g, so "1 packet stevia" parsed as 100 g of a 100 g-carbs/100 g
+  food. One PACKET_G row (`stevia|sweetener|splenda|saccharin|erythritol|monk fruit` → 1 g) +
+  regression test (87/87 green). User recipes recomputed via new
+  `scripts/recompute-user-recipes.mjs` (the cheap tail of the refresh, reusable): coffee now
+  **16 kcal / 3 g carbs**.
+- Website `/privacy`, `/terms`, `/support` are LIVE on ottosapp.com (checked 200); profile.jsx
+  already carried the URLs, so §4a+4b of NEXT_SESSION are done. Anonymous sign-ins re-checked:
+  **still `false`** — the founder dashboard toggle remains the one-click fix.

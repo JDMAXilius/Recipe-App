@@ -85,3 +85,10 @@ test("confidence sweep 2026-07-21: juice-of, dual-unit, splash, bare counts", ()
   const cukes = parseIngredientLine({ measure: "1", name: "Cucumber" });
   assert.equal(cukes.grams, 300);
 });
+
+test("sweetener packet weighs ~1 g, not the 100 g generic packet", () => {
+  const stevia = parseIngredientLine({ measure: "1 packet", name: "stevia sweetener" });
+  assert.equal(stevia.grams, 1);
+  const yeast = parseIngredientLine({ measure: "1 packet", name: "dried yeast" });
+  assert.equal(yeast.grams, 7); // existing rows untouched
+});

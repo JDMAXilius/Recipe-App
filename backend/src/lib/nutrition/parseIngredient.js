@@ -111,6 +111,7 @@ const PIECE_G = [
   [/^fillet$/, /./, 170],
   [/^packet$/, /yeast/i, 7],
   [/^packet$/, /gelatin/i, 7],
+  [/^packet$/, /stevia|sweetener|splenda|saccharin|erythritol|monk fruit/i, 1],
   [/^packet$/, /./, 100],
   [/^jar$/, /./, 350],
   [/^piece$/, /./, 50],
