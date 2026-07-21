@@ -120,3 +120,17 @@ test("unquantified frying oil counts a conservative tbsp, flagged as an estimate
   // Non-fat lines are untouched — "To serve, Rice" is not a hidden tbsp of oil.
   assert.equal(parseIngredientLine({ measure: "To serve", name: "Rice" }).grams, null);
 });
+
+test("verified weights survive plurals, embedded piece nouns, and unit synonyms", () => {
+  // "potato" + "s" is not "potatoes" — the naive plural rule missed 36 corpus
+  // lines that had a verified weight sitting right there.
+  assert.equal(parseIngredientLine({ measure: "2", name: "Potatoes" }).confidence, "high");
+  assert.equal(parseIngredientLine({ measure: "3", name: "Tomatoes" }).confidence, "high");
+  // TheMealDB puts the piece noun in the NAME: "1 | Garlic Clove".
+  const gc = parseIngredientLine({ measure: "1", name: "Garlic Clove" });
+  assert.equal(gc.grams, 3);
+  assert.equal(gc.confidence, "high");
+  // British measure words for the same physical piece USDA names.
+  assert.equal(parseIngredientLine({ measure: "2 rashers", name: "Bacon" }).confidence, "high");
+  assert.equal(parseIngredientLine({ measure: "2 sticks", name: "Celery" }).grams, 80);
+});

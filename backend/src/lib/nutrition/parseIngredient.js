@@ -5,7 +5,7 @@
 import VERIFIED_PIECE from "./pieceWeights.json" with { type: "json" };
 
 export const UNIT_WORDS =
-  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|quarts?|qts?|pints?|pts?|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
+  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|quarts?|qts?|pints?|pts?|cloves?|cans?|tins?|slices?|rashers?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
 
 // canonical unit ids
 const UNIT_ALIASES = [
@@ -22,7 +22,7 @@ const UNIT_ALIASES = [
   [/^(pounds?|lbs?)$/i, "lb"],
   [/^cloves?$/i, "clove"],
   [/^(cans?|tins?)$/i, "can"],
-  [/^slices?$/i, "slice"],
+  [/^(slices?|rashers?)$/i, "slice"],
   [/^sticks?$/i, "stick"],
   [/^pinch(es)?$/i, "pinch"],
   [/^dash(es)?$/i, "dash"],
@@ -225,16 +225,49 @@ function densityFor(item) {
 // every row (fdcId + the USDA portion wording) is in pieceWeights.json; a weight
 // USDA could not confirm is deliberately NOT in that file and keeps its estimate
 // flag via the tables below.
+// English plurals the corpus actually writes: potatoes/tomatoes (not "potatos"),
+// berries→berry, plus the plain -s. Without this "2 Potatoes" missed its own
+// verified row and scored as a guess.
+function singulars(word) {
+  const out = [word];
+  if (/oes$/.test(word)) out.push(word.slice(0, -2));
+  if (/ies$/.test(word)) out.push(word.slice(0, -3) + "y");
+  if (/ves$/.test(word)) out.push(word.slice(0, -3) + "f");
+  if (/s$/.test(word) && !/ss$/.test(word)) out.push(word.slice(0, -1));
+  return out;
+}
+
+// Unit words that mean the same physical piece as a verified row's unit.
+// TheMealDB writes "2 rashers bacon" and "2 sticks celery" for what USDA calls
+// a slice and a stalk.
+const UNIT_SYNONYM = { rasher: "slice", stick: "stalk", stalk: "stalk", slice: "slice", clove: "clove" };
+
 function verifiedPiece(item, unit) {
-  const t = String(item || "").toLowerCase();
+  let t = String(item || "").toLowerCase().trim();
+  let effUnit = unit ? UNIT_SYNONYM[unit] || unit : null;
+  // The piece noun sometimes rides in the NAME, not the measure: TheMealDB's
+  // "Garlic Clove" with measure "1". Lift it into the unit so the verified
+  // per-clove row applies.
+  const embedded = t.match(/^(.*?)\s+(cloves?|stalks?|sticks?|slices?|rashers?)$/);
+  if (embedded && !effUnit) {
+    t = embedded[1].trim();
+    effUnit = UNIT_SYNONYM[embedded[2].replace(/s$/, "")] || null;
+  }
+  const forms = new Set();
+  for (const s of singulars(t)) forms.add(s);
+  // also try the last word ("baby new potatoes" → "potatoes" → "potato")
+  const last = t.split(/\s+/).pop();
+  if (last) for (const s of singulars(last)) forms.add(s);
+
   let best = null;
   for (const [name, row] of Object.entries(VERIFIED_PIECE)) {
     // A piece-noun row ("clove", "stalk") only applies when that noun is the unit.
-    if (row.unit && row.unit !== unit) continue;
-    if (!row.unit && unit) continue; // bare-count rows need a bare count
-    if (t === name || t.startsWith(name + " ") || t.endsWith(" " + name) || t === name + "s" || t.includes(" " + name + " ")) {
-      if (!best || name.length > best.name.length) best = { name, row }; // most specific wins
-    }
+    if (row.unit && row.unit !== effUnit) continue;
+    if (!row.unit && effUnit) continue; // bare-count rows need a bare count
+    const hit =
+      forms.has(name) ||
+      [...forms].some((f) => f === name || f.endsWith(" " + name) || f.startsWith(name + " "));
+    if (hit && (!best || name.length > best.name.length)) best = { name, row }; // most specific wins
   }
   return best?.row ?? null;
 }
