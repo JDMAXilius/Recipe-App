@@ -291,3 +291,26 @@ test("a normal-sized recipe is unaffected by the portion guard", async () => {
   );
   assert.ok(out, "200g/serving is plausible and must still compute");
 });
+
+test("deep-frying oil counts only what is absorbed, never the whole bath", async () => {
+  // "2 quarts oil" is the frying medium, not an ingredient. Counting it whole
+  // put 15,387 kcal into one recipe (84% of its calories) and tripped the
+  // plausibility guard, so the recipe returned "unknown" instead.
+  const fried = await usdaProvider.computeNutrition(
+    [
+      { measure: "1 whole", name: "Chicken" },
+      { measure: "1 1/2 cups", name: "Flour" },
+      { measure: "2 quarts", name: "Oil" },
+    ],
+    4
+  );
+  assert.ok(fried, "a deep-fried recipe should compute, not return unknown");
+  assert.ok(fried.kcal < 1500, `frying oil must not dominate, got ${fried.kcal}`);
+  // A normal cooking-fat amount is still counted in full — this must not
+  // quietly discount every recipe that uses oil.
+  const sauteed = await usdaProvider.computeNutrition(
+    [{ measure: "500 g", name: "Chicken" }, { measure: "2 tbsp", name: "Olive Oil" }],
+    2
+  );
+  assert.ok(sauteed.kcal > 200, `2 tbsp of oil is food, not a bath: ${sauteed.kcal}`);
+});

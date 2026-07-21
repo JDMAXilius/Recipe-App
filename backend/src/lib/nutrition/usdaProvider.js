@@ -107,6 +107,32 @@ function hasAmbiguousGrain(list) {
 // implausible per-serving weight as proof the assumption broke. ~700g of total
 // ingredients per serving is already a very large plate; beyond that we are
 // dividing by the wrong number and should say we don't know.
+// ── Frying medium ────────────────────────────────────────────────────────────
+// A fat line this large cannot be an eaten ingredient: no 4-serving dish
+// contains 250 g of oil as food. Above this we read it as the frying bath.
+const FRYING_MEDIUM_MIN_G = 250;
+const FAT_RE = /\b(oils?|ghee|lard|shortening|dripping|tallow)\b/i;
+// Grams of fat absorbed per 100 g of food fried. Bognár (2002), BFE-R-02-03 —
+// the table EuroFIR and FAO both cite: breaded meat/fish/vegetables 5–6,
+// unbreaded 0–1, doughnuts/fried dough ~10. We use one conservative middle
+// figure rather than pretending to know the breading state of every recipe;
+// under-counting is the honest direction on a health-adjacent number.
+const FAT_ABSORBED_PER_100G = 6;
+
+function applyFryingMedium(rows) {
+  const fats = rows.filter((r) => r.parsed.grams >= FRYING_MEDIUM_MIN_G && FAT_RE.test(r.name || ""));
+  if (!fats.length) return;
+  const friedFoodGrams = rows
+    .filter((r) => !fats.includes(r) && r.parsed.grams > 0)
+    .reduce((a, r) => a + r.parsed.grams, 0);
+  for (const r of fats) {
+    const absorbed = Math.round((friedFoodGrams * FAT_ABSORBED_PER_100G) / 100);
+    // Never claim MORE was absorbed than the cook put in the pan.
+    r.parsed = { ...r.parsed, grams: Math.min(absorbed, r.parsed.grams), confidence: "medium" };
+    r.fryingMedium = true; // an interpretation, so it scores as a guess
+  }
+}
+
 const MAX_PLAUSIBLE_SERVING_GRAMS = 700;
 
 // Human range for one serving of one dish. Anything outside it means the inputs
@@ -276,6 +302,17 @@ export const usdaProvider = {
         }
       }
     }
+
+    // FRYING MEDIUM (not an ingredient). "2 quarts oil" in a fried-chicken
+    // recipe is the bath, not something anyone eats — counting it whole put
+    // 15,387 kcal into one recipe and made 84% of its calories uneaten oil.
+    // 16 corpus recipes were affected: 6 were rejected outright by the
+    // plausibility guard, and 10 quietly shipped totals that were 48–99% frying
+    // oil. Every professional system does the same thing we now do — count only
+    // what the food ABSORBS and never the medium (USDA/FNDDS: "any increase or
+    // decrease in fat during cooking is incorporated into the ingredients";
+    // Edamam exposes it as `retainedWeight`).
+    applyFryingMedium(rows);
 
     const usable = rows.filter((r) => r.food && r.parsed.grams > 0);
     if (!usable.length) return null; // nothing resolved — honestly unknown
