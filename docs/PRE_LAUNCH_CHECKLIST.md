@@ -134,3 +134,63 @@ for sign-in only. No advertising or cross-app tracking SDKs.
 | Social sign-in | ⚙️ wired in code, needs Supabase provider config (OAuth ticket) |
 | TestFlight build config | ✅ `eas.json` + `app.json` ready (TestFlight ticket) |
 | Tracking / ATT | ✅ none — no prompt needed |
+
+---
+
+## D. Roadmap & activation items — launch verdicts (2026-07-21)
+
+> Founder asked: which of the remaining items are **absolutely necessary before launching**?
+> Verdict per item, with the reason. "Launch" = public App Store; internal TestFlight is looser.
+
+### ABSOLUTELY NECESSARY — launch is broken or non-compliant without these
+
+- [ ] **[You] `railway up` deploy of current `main`.** Everything shipped since the last deploy
+  (weight-first display fixes, AI seams, Run A hardening, photo import) exists only in git until
+  this runs. Push ≠ deploy — verify with `/api/health` now returning `{version, sha}`.
+- [ ] **[You] Anonymous sign-in toggle** (Supabase Auth settings). Guest browsing is the front
+  door of the product and it is broken in prod today. Nothing else matters if the first screen
+  can't be used.
+- [ ] **[You] Photo bucket SQL** (`TERMINAL_TICKET_FUNCTIONAL_FIXES.md` Task 3). The editor's
+  "Upload a photo of the dish" button is live UI; without the bucket it fails every time — a
+  dead-end button, which the honesty laws forbid shipping. Run the SQL **or** tell me to gate
+  the button off.
+- [ ] **[You] `SUPABASE_SERVICE_ROLE_KEY` on Railway** (+ rotation per the security ticket).
+  Already tier A above: without it, account deletion leaves the login alive → fails Apple
+  Guideline 5.1.1(v). Compliance, not polish.
+- [ ] **[Terminal/You] TestFlight build distributed + device QA pass.** A launch is a build in
+  users' hands; builds sitting in "processed" reach nobody (automatic distribution is OFF on
+  Otto Insiders — assign the build to the group).
+- [ ] **[You] Privacy policy URL** (tier B above — restated here because it is the one legal
+  hard-stop App Store review will actually enforce).
+- [ ] **[You] `THEMEALDB_KEY` supporter key** — **necessary for PUBLIC launch, not for internal
+  TestFlight.** TheMealDB's terms allow the test key for development only; a public app-store
+  release is expected to hold a supporter key. This is a terms-compliance gate, not a feature.
+
+### DECISION REQUIRED — one of two paths before public launch
+
+- [ ] **[You] `ANTHROPIC_API_KEY` on Railway — set it, or we hide the dormant cards.** The app
+  technically works without it (all four AI seams answer with honest "still being wired up"
+  copy). But the Add sheet now leads with three Otto features (cook it up, paste text, snap a
+  photo) that would all apologize on day one — survivable for internal TestFlight, not a
+  public first impression. One env var wakes all four seams at once; if you'd rather launch
+  without the spend, say so and I'll gate the dormant cards off so nothing on screen can fail.
+
+### NOT NECESSARY FOR LAUNCH — defined and deliberately deferred
+
+- **Run C offline read cache (API-7):** the app is online-only and *honest* about failures
+  (Otto-voice errors, stale-while-revalidate already cushions Discover). Post-launch comfort.
+- **Ask Otto / plan-my-week seams (API-8 #2–3):** new features, not gates. Ship after launch.
+- **Supabase Realtime for the shared list (API-6 later-branch):** 8-second polling is
+  indistinguishable from live for a household. Upgrade only if real users feel lag.
+- **Pagination, OpenAPI spec, idempotency keys, webhooks, quota tiers (§5 of
+  API_ARCHITECTURE):** each has a written trigger for when it stops being a skip; none fire at
+  launch scale.
+- **`SENTRY_DSN`:** recommended in week one (request-ids + pino already give correlation), but
+  logs alone are enough to launch.
+- **`SHARE_BASE_URL` / pretty domain:** share links already work on the Railway host. Polish.
+- **Density-table unification + live-corpus line validation (terminal ticket):** accuracy
+  polish on top of an engine that is already golden-tested against the full 920-name corpus;
+  the residual tail only softens calorie estimates that are honestly marked `~`.
+
+**The short version:** seven boxes in the first list + one decision = launch-ready. Nothing in
+the deferred list should delay a launch date.
