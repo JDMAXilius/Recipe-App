@@ -5489,7 +5489,7 @@
     "sodium_mg": 467
   },
   "white wine vinegar": {
-    "fdcId": 172470,
+    "fdcId": 172240,
     "usda": "Vinegar, red wine",
     "kcal": 19,
     "protein_g": 0.04,
@@ -6435,15 +6435,15 @@
     "sodium_mg": 249
   },
   "chicken drumsticks": {
-    "fdcId": 171074,
-    "usda": "Chicken, drumstick, meat and skin, raw",
-    "kcal": 172,
-    "protein_g": 18.1,
-    "fat_g": 10.3,
-    "carbs_g": 0,
+    "fdcId": 172373,
+    "usda": "Chicken, broilers or fryers, drumstick, meat and skin, raw",
+    "kcal": 161,
+    "protein_g": 18.08,
+    "fat_g": 9.2,
+    "carbs_g": 0.11,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 88
+    "sodium_mg": 106
   },
   "porridge oats": {
     "fdcId": 173904,
@@ -6699,15 +6699,15 @@
     "sodium_mg": 1070
   },
   "pork knuckle": {
-    "fdcId": 167905,
-    "usda": "Pork, fresh, leg (ham), whole, raw",
+    "fdcId": 168222,
+    "usda": "Pork, fresh, leg (ham), whole, separable lean and fat, raw",
     "kcal": 245,
-    "protein_g": 16.9,
-    "fat_g": 19.3,
+    "protein_g": 17.4,
+    "fat_g": 18.9,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 55
+    "sodium_mg": 47
   },
   "whipping cream": {
     "fdcId": 170859,
@@ -9559,15 +9559,15 @@
     "sodium_mg": 1
   },
   "sour pork sausage": {
-    "fdcId": 167698,
-    "usda": "Sausage, fresh, pork, raw",
-    "kcal": 325,
-    "protein_g": 17,
-    "fat_g": 28,
-    "carbs_g": 1.4,
+    "fdcId": 171631,
+    "usda": "Sausage, Italian, pork, mild, raw",
+    "kcal": 290,
+    "protein_g": 13.9,
+    "fat_g": 24.26,
+    "carbs_g": 2.97,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 720
+    "sodium_mg": 563
   },
   "pickled garlics": {
     "fdcId": 1104647,
@@ -9834,15 +9834,15 @@
     "sodium_mg": 58
   },
   "pork cheeks": {
-    "fdcId": 167905,
-    "usda": "Pork, fresh, leg (ham), whole, raw",
+    "fdcId": 168222,
+    "usda": "Pork, fresh, leg (ham), whole, separable lean and fat, raw",
     "kcal": 245,
-    "protein_g": 16.9,
-    "fat_g": 19.3,
+    "protein_g": 17.4,
+    "fat_g": 18.9,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 55
+    "sodium_mg": 47
   },
   "pumpkin puree": {
     "fdcId": 168450,
@@ -10254,7 +10254,7 @@
   "espresso": {
     "fdcId": 171891,
     "usda": "Beverages, coffee, brewed, espresso, restaurant-prepared",
-    "kcal": 36,
+    "kcal": 9,
     "protein_g": 0.12,
     "fat_g": 0.18,
     "carbs_g": 1.67,
@@ -10265,7 +10265,7 @@
   "espresso coffee": {
     "fdcId": 171891,
     "usda": "Beverages, coffee, brewed, espresso, restaurant-prepared",
-    "kcal": 36,
+    "kcal": 9,
     "protein_g": 0.12,
     "fat_g": 0.18,
     "carbs_g": 1.67,
@@ -10276,7 +10276,7 @@
   "tea": {
     "fdcId": 173227,
     "usda": "Beverages, tea, black, brewed, prepared with tap water",
-    "kcal": 4,
+    "kcal": 1,
     "protein_g": 0,
     "fat_g": 0,
     "carbs_g": 0.3,
@@ -10287,7 +10287,7 @@
   "black tea": {
     "fdcId": 173227,
     "usda": "Beverages, tea, black, brewed, prepared with tap water",
-    "kcal": 4,
+    "kcal": 1,
     "protein_g": 0,
     "fat_g": 0,
     "carbs_g": 0.3,
@@ -10298,7 +10298,7 @@
   "brewed tea": {
     "fdcId": 173227,
     "usda": "Beverages, tea, black, brewed, prepared with tap water",
-    "kcal": 4,
+    "kcal": 1,
     "protein_g": 0,
     "fat_g": 0,
     "carbs_g": 0.3,
@@ -10327,5 +10327,16 @@
     "fiber_g": 1.7,
     "sugar_g": null,
     "sodium_mg": 3
+  },
+  "chicken drumstick": {
+    "fdcId": 172373,
+    "usda": "Chicken, broilers or fryers, drumstick, meat and skin, raw",
+    "kcal": 161,
+    "protein_g": 18.08,
+    "fat_g": 9.2,
+    "carbs_g": 0.11,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 106
   }
 }
