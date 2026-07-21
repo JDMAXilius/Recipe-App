@@ -179,8 +179,18 @@ function lookup(name, parsedItem, cooked) {
   }
   const direct = table[key(name)] || table[key(parsedItem)];
   if (direct) return direct;
-  // Full name missed — retry with leading non-identity qualifiers stripped.
-  for (const cand of [...stripQualifiers(name), ...stripQualifiers(parsedItem)]) {
+  // Full name missed — try, in order: leading non-identity qualifiers stripped,
+  // then two aliases for the commonest regional/word-order gaps.
+  const candidates = [...stripQualifiers(name), ...stripQualifiers(parsedItem)];
+  for (const raw of [key(name), key(parsedItem), ...candidates]) {
+    // "beef mince" / "pork mince" → the table's "minced beef" (word order).
+    const mince = raw.match(/^(beef|pork|lamb|chicken|turkey)\s+mince$/);
+    if (mince) candidates.push(`minced ${mince[1]}`);
+    // Bare cheese name → "<x> cheese" (table keys are "cheddar cheese", etc.).
+    // "grated cheddar" already strips to "cheddar" above, then this appends.
+    if (raw && !/\bcheese\b/.test(raw)) candidates.push(`${raw} cheese`);
+  }
+  for (const cand of candidates) {
     const hit = table[key(cand)];
     if (hit) return hit;
   }

@@ -779,3 +779,15 @@ are wrong." Investigated both against live code.
     corrupt-row regression tests. Backend 59/59.
   - **DEPLOY-GATED**: prod backend last deployed 2026-07-19, so created-recipe nutrition is computed by
     the OLD code until `railway up` — this fix is not live until the founder redeploys.
+
+### Phase 14b — Nutrition coverage: regional/word-order aliases (2026-07-21, cloud)
+
+Founder sent TestFlight screenshots — weight-first display working everywhere (detail, cook mode,
+shopping w/ kg roll-up, share page), confirms earlier "no weights" was a stale build; the display
+they like is untouched by any recent change. But the "World's Best Lasagna" created recipe showed
+"900 EST KCAL" (category estimate). Traced: even after Phase 14, "Beef Mince" (table key is "minced
+beef" — reversed word order) and "Grated Cheddar" (strips to "cheddar"; key is "cheddar cheese")
+both missed, dropping coverage to 0.695 — just under the 0.70 floor → null → estimate. Added a
+conservative alias layer to lookup(): "<meat> mince" → "minced <meat>", and a bare food name →
+"<name> cheese" (covers cheddar/parmesan/etc.). Lasagna now computes 743 kcal/serving P42 C49 F39 at
+HIGH confidence instead of the estimate. 60/60. Deploy-gated like Phase 14.

@@ -105,6 +105,26 @@ test("qualifier-stripping resolves freeform names and keeps the total whole", as
   assert.ok(out.protein_g > 25, `chicken protein must be present, got ${out.protein_g}`);
 });
 
+test("regional/word-order aliases resolve so a normal recipe computes, not estimates", async () => {
+  // "World's Best Lasagna" as created in-app: "Beef Mince" (→ minced beef) and
+  // "Grated Cheddar" (→ cheddar cheese) used to miss, dropping coverage to 0.695
+  // and forcing the category estimate. Both now resolve → a real computed total.
+  const out = await usdaProvider.computeNutrition(
+    [
+      { measure: "500 g", name: "Beef Mince" },
+      { measure: "110 g", name: "Onion" },
+      { measure: "400 g", name: "Chopped Tomatoes" },
+      { measure: "480 ml", name: "Milk" },
+      { measure: "112.8 g", name: "Grated Cheddar" },
+      { measure: "144 g", name: "Lasagne Sheets" },
+    ],
+    4
+  );
+  assert.ok(out, "the lasagna should compute a real total, not fall back to estimate");
+  assert.equal(out.confidence, "high");
+  assert.ok(out.protein_g > 30, `beef+cheese protein should be present, got ${out.protein_g}`);
+});
+
 test("the corrupt chicken-skin rows are fixed to real thigh/drumstick meat", async () => {
   // Regression: both were FDC 172855 "Chicken, skin (…), raw" = 440 kcal /
   // 9.6g protein. Real dark meat is protein-dominant and far leaner.
