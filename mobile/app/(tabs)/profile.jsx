@@ -32,7 +32,7 @@ import {
 // OMITTED on purpose (fabricated-data trap): followers, streaks, XP, badges,
 // notification/appearance rows, subscription rows.
 
-const SUPPORT_EMAIL = "juandlugopro@gmail.com";
+const SUPPORT_EMAIL = "juandiego@ottosapp.com";
 // Founder: drop the App Store URL in here at launch — until then the share
 // message carries no link (a placeholder link would be a lie).
 const TELL_A_FRIEND_URL = null;
