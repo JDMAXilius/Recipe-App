@@ -119,8 +119,16 @@ const FAT_RE = /\b(oils?|ghee|lard|shortening|dripping|tallow)\b/i;
 // under-counting is the honest direction on a health-adjacent number.
 const FAT_ABSORBED_PER_100G = 6;
 
-function applyFryingMedium(rows) {
-  const fats = rows.filter((r) => r.parsed.grams >= FRYING_MEDIUM_MIN_G && FAT_RE.test(r.name || ""));
+// Per SERVING, not absolute. The flat 250 g was calibrated on "no 4-serving
+// dish contains that much oil as food", which silently exempted small recipes:
+// Chick-Fil-A is one serving whose "1 cup Olive Oil" (221 g) is explicitly a
+// shallow-fry bath ("1/2 inch deep… blot on paper") yet sat under the bar.
+// 60 g of fat in ONE portion is already extreme as an eaten ingredient.
+const FRYING_MEDIUM_MIN_G_PER_SERVING = 60;
+
+function applyFryingMedium(rows, perServing = 4) {
+  const threshold = Math.min(FRYING_MEDIUM_MIN_G, FRYING_MEDIUM_MIN_G_PER_SERVING * Math.max(1, perServing));
+  const fats = rows.filter((r) => r.parsed.grams >= threshold && FAT_RE.test(r.name || ""));
   if (!fats.length) return;
   const friedFoodGrams = rows
     .filter((r) => !fats.includes(r) && r.parsed.grams > 0)
@@ -137,6 +145,11 @@ const MAX_PLAUSIBLE_SERVING_GRAMS = 700;
 
 // Human range for one serving of one dish. Anything outside it means the inputs
 // were broken, not that the food is remarkable.
+// Ceiling on the share of substantial lines that may carry no weight at all.
+// Beyond this the mass-based coverage fraction is vouching for a minority of
+// the recipe (see the guard that uses it).
+const UNWEIGHED_LINE_MAX = 0.4;
+
 const MIN_PLAUSIBLE_KCAL = 40;
 const MAX_PLAUSIBLE_KCAL = 1500;
 
@@ -179,7 +192,20 @@ const NEGLIGIBLE_MAX_G = 15;
 const UNQUANTIFIED =
   /\b(to serve|to garnish|for (?:the )?garnish|to taste|for greasing|for brushing|for dusting|for drizzling|as needed|as required|optional|dusting|to glaze|for glazing|drizzle|to decorate|for decoration|to finish|beaten)\b/i;
 
+// NOT FOOD AT ALL.
+//
+// Num Ansom wraps its rice parcels in "8 Banana Leaves" — 944 g of leaf against
+// 882 g of actual cake. The leaf is a steamer, discarded at step 13 ("Unwrap the
+// banana leaves and slice"); nobody eats it. Left unmatched it sank coverage to
+// 48% and the recipe refused, and matching it to a food row would have invented
+// a meal out of foliage. Neither is true, so the line leaves the coverage
+// denominator at ANY mass — which is what separates this from NEGLIGIBLE, a real
+// food present in trace amounts and capped at 15 g.
+const INEDIBLE =
+  /\b(banana leaves?|bamboo leaves?|lotus leaves?|corn husks?|skewers?|toothpicks?|cocktail sticks?|kitchen twine|greaseproof paper|parchment paper|baking paper)\b/i;
+
 export function isNegligible(row) {
+  if (INEDIBLE.test(row.name || "") || INEDIBLE.test(row.parsed.item || "")) return true;
   if (row.parsed.grams == null && UNQUANTIFIED.test(row.parsed.raw || "")) return true;
   if (!NEGLIGIBLE.test(row.name || "") && !NEGLIGIBLE.test(row.parsed.item || "")) return false;
   return row.parsed.grams == null || row.parsed.grams <= NEGLIGIBLE_MAX_G;
@@ -317,7 +343,7 @@ export const usdaProvider = {
     // what the food ABSORBS and never the medium (USDA/FNDDS: "any increase or
     // decrease in fat during cooking is incorporated into the ingredients";
     // Edamam exposes it as `retainedWeight`).
-    applyFryingMedium(rows);
+    applyFryingMedium(rows, perServing);
 
     const usable = rows.filter((r) => r.food && r.parsed.grams > 0);
     if (!usable.length) return null; // nothing resolved — honestly unknown
@@ -337,6 +363,18 @@ export const usdaProvider = {
       .filter((r) => r.food)
       .reduce((a, r) => a + r.parsed.grams, 0);
     if (countableGrams > 0 && resolvedGrams / countableGrams < COVERAGE_MIN) return null;
+
+    // The coverage fraction above weighs MASS, so a line with no parseable
+    // weight is invisible to it — a recipe whose ingredients mostly failed to
+    // parse reads as 100% covered off the one line that did. Migas shipped
+    // 24 kcal/serving for fried bread that way: three of its four lines
+    // ("1 large Bread", "Half Garlic", "1 Handfull Pork") carry no grams, so
+    // coverage saw only the bread and the low-kcal floor relaxed to 1.
+    // If most substantial LINES are unweighed, the mass fraction is describing
+    // a minority of the dish and cannot vouch for it.
+    const unweighed = rows.filter((r) => !isNegligible(r) && !(r.parsed.grams > 0));
+    const substantialLines = rows.filter((r) => !isNegligible(r)).length;
+    if (substantialLines > 0 && unweighed.length / substantialLines > UNWEIGHED_LINE_MAX) return null;
 
     // Sum one nutrient across matched ingredients, scaling per-100g by grams.
     // Stays null when NO ingredient reported it: null/servings would become 0

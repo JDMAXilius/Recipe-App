@@ -484,15 +484,15 @@
     "sodium_mg": 2
   },
   "mung bean paste": {
-    "fdcId": 170079,
-    "usda": "Beans, mung, mature seeds, sprouted, canned, drained solids",
-    "kcal": 12,
-    "protein_g": 1.4,
-    "fat_g": 0.06,
-    "carbs_g": 2.14,
-    "fiber_g": 0.8,
+    "fdcId": 174257,
+    "usda": "Mung beans, mature seeds, cooked, boiled, without salt",
+    "kcal": 105,
+    "protein_g": 7.02,
+    "fat_g": 0.38,
+    "carbs_g": 19.15,
+    "fiber_g": 7.6,
     "sugar_g": null,
-    "sodium_mg": 42
+    "sodium_mg": 2
   },
   "naan bread": {
     "fdcId": 171845,
@@ -1065,5 +1065,16 @@
     "fiber_g": 10.5,
     "sugar_g": null,
     "sodium_mg": 0
+  },
+  "mincemeat": {
+    "fdcId": 174034,
+    "usda": "Beef, ground, 85% lean meat / 15% fat, crumbles, cooked, pan-browned",
+    "kcal": 256,
+    "protein_g": 27.73,
+    "fat_g": 15.3,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 89
   }
 }

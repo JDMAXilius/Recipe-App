@@ -30,4 +30,8 @@ test("veal is meat, not the trimmed-off fat; tortillas are not chips; vinegar is
   assert.ok(row("veal").protein_g > 15 && row("veal").kcal < 250, "lean-and-fat composite");
   assert.ok(row("tortillas").kcal < 350, "flour tortilla, not fried chips");
   assert.ok(row("white wine vinegar").kcal < 25, "vinegar's alcohol is gone");
+  // Same class, found 2026-07-21: "Sardines" had built onto "Fish oil, sardine"
+  // (902 kcal, 100 g fat, 0 protein) and put 4515 kcal into a 500 g fish supper.
+  assert.ok(row("sardines").protein_g > 15, "sardines are the fish, not its oil");
+  assert.ok(row("sardines").kcal < 300, `sardines kcal ${row("sardines").kcal}`);
 });
