@@ -64,3 +64,17 @@ cache saves repeat Claude spend across deploys.
 - [ ] Task 2 probe run; resolutions table + cost pasted; wrong-matches (if any) reported
 - [ ] Task 3 build distributed; device checks pass
 - [ ] Task 4 watch noted after ~1 week
+
+> STATUS: in-progress — terminal 2026-07-21
+
+## Log
+
+**2026-07-21 (terminal):** Task 1 executed (see NUTRITION_REFRESH Log — re-run pending after
+confidence-sweep deploy). Task 2 probe done (`scripts/probe-matcher.mjs`): 21/30 resolved,
+8.1s, one batch. WRONG MATCHES for the cloud prompt owner: coriander seeds→leaves,
+gochujang→almond paste, green beans→beet greens, sweet potato→its leaves, pomegranate
+molasses→juice, paneer→cream cheese spread. Wins: coconut milk→coconut milk (not dairy),
+beef mince=minced beef, 9 honest nulls. Full table in REDESIGN_NOTES Phase 18.
+> HANDOFF → cloud: 6 wrong matches above are Stage-1/2 prompt bugs; also user-recipe qty
+> over-parse (stevia coffee carbs_g 102 on 16 kcal). Tasks 3 (TestFlight build) + 4 (cost
+> watch) still open, terminal-side.

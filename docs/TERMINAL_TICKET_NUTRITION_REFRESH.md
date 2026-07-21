@@ -76,3 +76,27 @@ ever SELECTS the food, hallucinations resolve to null.
 - [ ] Script ran clean; counts reported back in the thread
 - [ ] Lasagna shows computed (no "estimate" caption); coffee shows a real small number
 - [ ] REDESIGN_NOTES updated with the run's counts (continue Phase 15 numbering)
+
+## Log
+
+**2026-07-21 (terminal, Fable session) — run 1 done, run 2 pending deploy:**
+- Keys verified on Railway + backend/.env (ANTHROPIC + USDA). Health sha matched, refresh ran:
+  **seed 746 computed / 15 unknown of 761 · user 4 recomputed / 0 unknown of 4.**
+- Spot-checks: lasagna COMPUTED 342 kcal/serving @12 servings (no estimate caption) ✅;
+  stevia coffee 16 kcal (was 420) ✅ but carbs_g 102 — USDA stevia row is 100g carbs/0 kcal,
+  qty over-parse, reported.
+- PROCESS MISS: N2 migration ran AFTER refresh (this ticket lacked the ordering note) → all
+  durable-cache writes failed open during run 1. `n2-resolved-cache.mjs` since run clean;
+  cache cleared of the probe's wrong picks (founder-approved full clear, 30 rows).
+- Confidence sweep landed on main (commit "confidence sweep: parser piece-weights…"):
+  parser piece-weights/juice-of/dual-unit/splash, serving-suggestion negligibles, 3 corrupt
+  table rows fixed (tomato sauce→franks entree!, mozzarella→substitute, +tomato paste row).
+  Deterministic corpus confidence 102/344/312 → 130/405/223 (high/med/low). 86/86 tests.
+
+> HANDOFF → next session (either side): 1) deploy main to Railway (`npx -y @railway/cli up
+> backend --service Recipe-App --ci` — was permission-blocked for the agent, founder runs it),
+> 2) verify /api/health sha == origin/main, 3) re-run `node --env-file=.env
+> scripts/refresh-nutrition.mjs` (recomputes with fixed table+parser; durable cache now works),
+> 4) report counts + new confidence distribution (query seed_nutrition group by confidence;
+> baseline this morning: 101 high/340 med/305 low/15 null), 5) re-verify lasagna & coffee,
+> 6) REDESIGN_NOTES Phase 18b with final numbers, then mark this ticket done.
