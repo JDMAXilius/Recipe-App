@@ -474,6 +474,14 @@ export function resolveAmount({ qty, unit, name, note = "", servingScale = 1, mo
 
   // Unitless count — weigh via per-item table (eggs, citrus, produce, all).
   if (!unit) {
+    // Imported lines often carry the pack weight in the NAME — the splitter
+    // turns "1 (400g) can chopped tomatoes" into qty 1 + name "(400g) can…".
+    // A stated weight beats any table guess.
+    if (/\(/.test(n)) {
+      const emb = embeddedGrams(n);
+      if (emb?.grams) return { kind: "weight", text: `${scaleNum(scaledQty * emb.grams)} g` };
+      if (emb?.ml) return { kind: "volume-ml", text: `${scaleNum(scaledQty * emb.ml)} ml` };
+    }
     const each = eachGramsFor(n);
     if (each) {
       const grams = scaledQty * each;
