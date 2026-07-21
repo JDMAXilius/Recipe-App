@@ -88,7 +88,7 @@ const recipes = await db.select().from(recipesTable);
 let userComputed = 0;
 let userUnknown = 0;
 for (const recipe of recipes) {
-  const nutrition = await computeNutrition(recipe.ingredients, recipe.servings || 1);
+  const nutrition = await computeNutrition(recipe.ingredients, recipe.servings || 1, null, recipe.steps);
   await db.update(recipesTable).set({ nutrition }).where(eq(recipesTable.id, recipe.id));
   if (nutrition) userComputed += 1;
   else userUnknown += 1;

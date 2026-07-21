@@ -35,8 +35,10 @@ export function activeNutritionProvider() {
 // recipeId is optional: it opts a SEED recipe into its curated facts
 // (servings + which lines are already cooked). User recipes pass none — they
 // carry their own real servings.
-export async function computeNutrition(ingredients, servings, recipeId) {
+// steps (optional): the recipe's method. Lets the provider resolve raw-vs-
+// cooked ambiguity by reading what the recipe actually does with the line.
+export async function computeNutrition(ingredients, servings, recipeId, steps) {
   const provider = activeNutritionProvider();
   if (!provider) return null;
-  return provider.computeNutrition(ingredients, servings, recipeId);
+  return provider.computeNutrition(ingredients, servings, recipeId, steps);
 }

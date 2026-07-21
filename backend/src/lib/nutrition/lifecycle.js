@@ -27,7 +27,7 @@ export function backfillUserRecipeNutrition(recipeId, userId) {
       .where(and(eq(recipesTable.id, recipeId), eq(recipesTable.userId, userId)));
     const recipe = rows[0];
     if (!recipe) return;
-    const nutrition = await computeNutrition(recipe.ingredients, recipe.servings || 1);
+    const nutrition = await computeNutrition(recipe.ingredients, recipe.servings || 1, null, recipe.steps);
     if (!nutrition) {
       logger.info({ recipeId }, "nutrition unavailable for recipe");
       return;
@@ -66,7 +66,9 @@ export async function seedNutritionFor(mealId) {
 
   const meal = await recipeSource.getById(mealId);
   const nutrition =
-    meal && meal.ingredients?.length ? await computeNutrition(meal.ingredients, 4, mealId) : null;
+    meal && meal.ingredients?.length
+      ? await computeNutrition(meal.ingredients, 4, mealId, meal.steps)
+      : null;
   // TheMealDB has no servings field; category-typical default of 4 — the
   // basis_grams on the result keeps the portion honest.
 

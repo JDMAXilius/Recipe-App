@@ -22,6 +22,7 @@
 // Otto surfaces this alongside its TheMealDB credit.
 import { parseIngredientLine } from "./parseIngredient.js";
 import { resolveIngredientNames, resolverActive } from "./resolveIngredient.js";
+import { classifyCookedState, cookedResolverActive } from "./resolveCooked.js";
 import table from "./usdaTable.json" with { type: "json" };
 import recipeFacts from "./recipeFacts.json" with { type: "json" };
 import cookedTable from "./usdaCookedTable.json" with { type: "json" };
@@ -84,14 +85,17 @@ const CANNED_MEASURE = /\b(cans?|tins?|tinned|canned)\b/i;
 // A grain measured by VOLUME is the high-risk shape: "3 cups rice" reads
 // naturally as either. Weight ("400g rice") almost always means raw in a
 // recipe, so it is left alone rather than nulling half the catalogue.
+function isAmbiguousLine(p) {
+  const name = String(p.name || "");
+  const measure = String(p.measure || "");
+  return (
+    (AMBIGUOUS_GRAIN.test(name) && VOLUME_MEASURE.test(measure)) ||
+    (LEGUME.test(name) && CANNED_MEASURE.test(measure))
+  );
+}
+
 function hasAmbiguousGrain(list) {
-  return list.some((p) => {
-    const name = String(p.name || "");
-    const measure = String(p.measure || "");
-    if (AMBIGUOUS_GRAIN.test(name) && VOLUME_MEASURE.test(measure)) return true;
-    if (LEGUME.test(name) && CANNED_MEASURE.test(measure)) return true;
-    return false;
-  });
+  return list.some(isAmbiguousLine);
 }
 
 // TheMealDB ships no servings field, so callers pass a flat default of 4. That
@@ -204,25 +208,46 @@ export const usdaProvider = {
   // async to satisfy the NutritionProvider contract; no I/O actually happens.
   // `recipeId` opts a seed recipe into its curated facts (servings + which
   // lines are cooked); user recipes pass none and use their own real servings.
-  async computeNutrition(ingredients, servings, recipeId) {
+  async computeNutrition(ingredients, servings, recipeId, steps) {
     const list = (ingredients || []).filter((p) => p && (p.name || p.measure));
     if (!list.length) return null;
 
     const facts = factsFor(recipeId);
-    // Facts RESOLVE the raw/cooked ambiguity, so the blunt guards are only for
-    // recipes we have no facts for (user recipes, or a seed id we missed).
-    if (!facts && hasAmbiguousGrain(list)) return null;
-
     // A curated serving count beats the caller's flat default of 4 — that
     // default is what turned "2kg Shredded Meat" into 1200 kcal/serving.
     const perServing = Math.max(1, Number(facts?.servings) || Number(servings) || 1);
     const cookedSet = new Set((facts?.cooked || []).map(key));
 
+    // Raw-vs-cooked (N1). Facts resolve the ambiguity for curated seed
+    // recipes; for everything else the blunt guard used to refuse the whole
+    // recipe. Now, when the METHOD is available and the key is live, Claude
+    // reads what the recipe actually does with each ambiguous line — "add the
+    // cooked rice" → the cooked USDA record; "simmer 18 minutes" → raw. Any
+    // line the steps don't settle stays "unknown" and the recipe honestly
+    // refuses, exactly as before. USDA still supplies every number.
+    const claudeSettled = new Set();
+    if (!facts && hasAmbiguousGrain(list)) {
+      const ambiguous = [...new Set(list.filter(isAmbiguousLine).map((p) => p.name))];
+      const states =
+        cookedResolverActive() && Array.isArray(steps) && steps.length
+          ? await classifyCookedState({ steps, names: ambiguous })
+          : null;
+      const settled = (n) => {
+        const s = states?.get(key(n));
+        return s === "raw" || s === "cooked";
+      };
+      if (!ambiguous.every(settled)) return null; // honest refusal, as always
+      for (const n of ambiguous) {
+        if (states.get(key(n)) === "cooked") cookedSet.add(key(n));
+        claudeSettled.add(key(n)); // either verdict is an interpretation — score it
+      }
+    }
+
     const rows = list.map((p) => {
       const line = [p.measure, p.name].filter(Boolean).join(" ").trim();
       const parsed = parseIngredientLine(line);
       const food = lookup(p.name, parsed.item, cookedSet.has(key(p.name)));
-      return { parsed, food, name: p.name, resolved: false };
+      return { parsed, food, name: p.name, resolved: claudeSettled.has(key(p.name)) };
     });
 
     // Claude-as-matcher (dormant without a key): the deterministic lookup above
