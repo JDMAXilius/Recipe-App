@@ -101,7 +101,7 @@ const RecipeDetailScreen = () => {
         // text-only fallback — the button never depends on the network
       }
     }
-    const { copied } = await sharePlainText(buildRecipeShareText(recipe), recipe.title, link);
+    const { copied } = await sharePlainText(buildRecipeShareText(recipe, unitSystem), recipe.title, link);
     // web without a share sheet lands on the clipboard — say so (no silent success)
     if (copied) show({ message: "Recipe copied — paste it anywhere." });
   };

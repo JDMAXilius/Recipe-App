@@ -374,7 +374,7 @@ const RecipeEditScreen = () => {
                 style={styles.measureInput}
                 value={row.measure}
                 onChangeText={(t) => setIngredient(index, "measure", t)}
-                placeholder="2 cups"
+                placeholder="500 g"
                 placeholderTextColor={colors.inkSoft}
                 accessibilityLabel={`Ingredient ${index + 1} amount`}
               />

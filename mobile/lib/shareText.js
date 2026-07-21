@@ -5,20 +5,25 @@
 // into Reminders/Notes. No Unicode checkbox glyphs (they render unevenly).
 // Honesty: attribution always travels; nothing is added that isn't on screen.
 import { Share, Platform } from "react-native";
+import { displayIngredient } from "./foodScale";
 
 // recipe: the app-wide transformed shape (title, ingredients[] or
 // ingredientPairs[], instructions[]/steps[], servings?, sourceName?,
 // sourceUrl?, originalData?.strSource for seed recipes).
-export function buildRecipeShareText(recipe) {
+// system: the reader's units preference — shares read like the screen did
+// ("weight" default; cups-choosers share cups).
+export function buildRecipeShareText(recipe, system = "weight") {
   const lines = [`*${recipe.title}*`];
 
   const servings = recipe.servings;
   if (servings) lines.push("", `For ${servings} servings`);
 
-  const ingredients =
-    recipe.ingredients && recipe.ingredients.length
-      ? recipe.ingredients
-      : (recipe.ingredientPairs || []).map((p) => `${p.measure} ${p.name}`.trim());
+  const ingredients = (recipe.ingredientPairs || []).length
+    ? recipe.ingredientPairs.map((p) => {
+        const s = displayIngredient(p, 1, system);
+        return `${s.display} ${s.name}`.trim();
+      })
+    : recipe.ingredients || [];
   if (ingredients.length) {
     lines.push("", "*Ingredients*");
     for (const item of ingredients) lines.push(`- ${item}`);
