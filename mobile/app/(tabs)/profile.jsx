@@ -336,15 +336,17 @@ const AccountScreen = () => {
             <View style={styles.row}>
               <Ionicons name="scale-outline" size={20} color={colors.inkSoft} />
               <Text style={styles.rowText}>Units</Text>
+              {/* Weight-first is the standard; cups is the alternative, and
+                  this is the ONLY place to switch (founder decision). */}
               <View style={styles.unitToggle}>
-                {["us", "metric"].map((system) => (
+                {["weight", "us"].map((system) => (
                   <TouchableOpacity
                     key={system}
                     style={[styles.unitOption, unitSystem === system && styles.unitOptionActive]}
                     onPress={() => pickUnits(system)}
                     accessibilityRole="button"
                     accessibilityState={{ selected: unitSystem === system }}
-                    accessibilityLabel={system === "us" ? "US units" : "Metric units"}
+                    accessibilityLabel={system === "weight" ? "Weight units" : "US cups"}
                   >
                     <Text
                       style={[
@@ -352,7 +354,7 @@ const AccountScreen = () => {
                         unitSystem === system && styles.unitOptionTextActive,
                       ]}
                     >
-                      {system === "us" ? "US" : "Metric"}
+                      {system === "weight" ? "Weight" : "US cups"}
                     </Text>
                   </TouchableOpacity>
                 ))}

@@ -1,7 +1,10 @@
 // Shopping list engine (roadmap Phase 4): ONE row per ingredient with summed
-// quantities + provenance. Deterministic — parseMeasure canonicalizes units,
-// same-unit amounts sum, mixed units list honestly side by side.
+// quantities + provenance. Deterministic — parseMeasure canonicalizes units.
+// Amounts are WEIGHT-FIRST (founder, 2026-07): entries that resolve to grams
+// sum in grams (kg roll-up above 1000), thin liquids sum in ml; anything that
+// doesn't fully resolve falls back to same-unit sums / honest raw listing.
 import { parseMeasure, formatQty } from "./ingredientParser";
+import { resolveAmount, formatShoppingWeight, formatShoppingVolume } from "./foodScale";
 
 export const AISLES = [
   "Produce",
@@ -92,23 +95,48 @@ export function buildShoppingList(recipes) {
         map.set(key, item);
       }
       const parsed = parseMeasure(pair.measure);
-      item.entries.push({ qty: parsed.qty, unit: parsed.unit, raw: (pair.measure || "").trim() });
+      item.entries.push({
+        qty: parsed.qty,
+        unit: parsed.unit,
+        note: parsed.note || "",
+        raw: (pair.measure || "").trim(),
+      });
       if (!item.sources.includes(recipe.title)) item.sources.push(recipe.title);
     }
   }
 
   const items = [];
   for (const item of map.values()) {
-    const units = new Set(item.entries.map((e) => e.unit ?? "(count)"));
-    const allQty = item.entries.every((e) => e.qty != null);
+    // Weight-first: if EVERY entry for this ingredient resolves to grams
+    // (or every one to ml), sum on the scale — "500 g + 750 g" → "1.3 kg".
+    // One unresolvable entry drops the whole row to the honest fallback;
+    // a partial sum would silently under-buy.
+    let grams = 0;
+    let ml = 0;
+    let unresolved = false;
+    for (const e of item.entries) {
+      const r = resolveAmount({ qty: e.qty, unit: e.unit, name: item.name, note: e.note });
+      const value = parseFloat(r.text);
+      if (r.kind === "weight" && Number.isFinite(value)) grams += value;
+      else if (r.kind === "volume-ml" && Number.isFinite(value)) ml += value;
+      else unresolved = true;
+    }
     let amount;
-    if (units.size === 1 && allQty) {
-      const total = item.entries.reduce((sum, e) => sum + e.qty, 0);
-      amount = displayAmount(total, item.entries[0].unit);
+    if (!unresolved && grams > 0 && ml === 0) {
+      amount = formatShoppingWeight(grams);
+    } else if (!unresolved && ml > 0 && grams === 0) {
+      amount = formatShoppingVolume(ml);
     } else {
-      // mixed units / unparseable — list honestly, never fake a sum
-      const raws = [...new Set(item.entries.map((e) => e.raw).filter(Boolean))];
-      amount = raws.join(" + ");
+      const units = new Set(item.entries.map((e) => e.unit ?? "(count)"));
+      const allQty = item.entries.every((e) => e.qty != null);
+      if (units.size === 1 && allQty) {
+        const total = item.entries.reduce((sum, e) => sum + e.qty, 0);
+        amount = displayAmount(total, item.entries[0].unit);
+      } else {
+        // mixed units / unparseable — list honestly, never fake a sum
+        const raws = [...new Set(item.entries.map((e) => e.raw).filter(Boolean))];
+        amount = raws.join(" + ");
+      }
     }
     items.push({
       key: item.key,

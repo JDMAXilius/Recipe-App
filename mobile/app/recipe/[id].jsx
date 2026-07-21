@@ -15,7 +15,7 @@ import { useToast } from "../../context/ToastContext";
 import { useTheme } from "../../context/ThemeContext";
 import { getNutritionEstimate } from "../../constants/nutritionEstimates";
 import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
-import { scaledIngredient, formatQty } from "../../lib/ingredientParser";
+import { displayIngredient, scaleNum } from "../../lib/foodScale";
 import { segmentStep } from "../../lib/stepEnrich";
 import { splitSteps, matchStepIngredients } from "../../lib/cookSession";
 import { buildRecipeShareText, sharePlainText } from "../../lib/shareText";
@@ -65,7 +65,7 @@ const RecipeDetailScreen = () => {
   const { width: winW } = useWindowDimensions();
   const [planOpen, setPlanOpen] = useState(false);
   const { show } = useToast();
-  const [unitSystem, setUnitSystem] = useUnitSystem();
+  const [unitSystem] = useUnitSystem();
 
   const baseServings = recipe?.servings || BASE_SERVINGS;
   const scaleFactor = servings / baseServings;
@@ -77,11 +77,6 @@ const RecipeDetailScreen = () => {
     setServings(next);
   };
 
-  const pickUnits = (next) => {
-    if (next === unitSystem) return;
-    Haptics.selectionAsync().catch(() => {});
-    setUnitSystem(next);
-  };
 
   const shareCardRef = useRef(null);
 
@@ -214,7 +209,7 @@ const RecipeDetailScreen = () => {
     : recipe.ingredients.map((s) => ({ measure: "", name: s }));
   const scaledRows = pairs.map((pair) => ({
     pair,
-    ...scaledIngredient(pair, scaleFactor, unitSystem),
+    ...displayIngredient(pair, scaleFactor, unitSystem),
   }));
   const scalableRows = scaledRows.filter((r) => r.scalable);
   const pantryRows = scaledRows.filter((r) => !r.scalable);
@@ -374,31 +369,10 @@ const RecipeDetailScreen = () => {
 
           {/* INGREDIENTS — live scaling + US/Metric (deep-dive blueprint) */}
           <View style={recipeDetailStyles.sectionContainer}>
+            {/* Units are weight-first everywhere; the cups alternative lives
+                in the account screen only (founder decision, 2026-07). */}
             <View style={recipeDetailStyles.sectionHeaderRow}>
               <Text style={recipeDetailStyles.sectionTitleInline}>Ingredients</Text>
-              <View style={recipeDetailStyles.unitToggleRow}>
-                <TouchableOpacity onPress={() => pickUnits("us")} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Show US units">
-                  <Text
-                    style={[
-                      recipeDetailStyles.unitToggleText,
-                      unitSystem === "us" && recipeDetailStyles.unitToggleActive,
-                    ]}
-                  >
-                    US
-                  </Text>
-                </TouchableOpacity>
-                <Text style={recipeDetailStyles.unitToggleSep}>/</Text>
-                <TouchableOpacity onPress={() => pickUnits("metric")} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} accessibilityRole="button" accessibilityLabel="Show metric units">
-                  <Text
-                    style={[
-                      recipeDetailStyles.unitToggleText,
-                      unitSystem === "metric" && recipeDetailStyles.unitToggleActive,
-                    ]}
-                  >
-                    Metric
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
 
             <View style={recipeDetailStyles.servesBand}>
@@ -418,7 +392,7 @@ const RecipeDetailScreen = () => {
                     accessibilityLabel="Reset servings"
                   >
                     <Text style={recipeDetailStyles.scaleChipText}>
-                      ×{formatQty(scaleFactor)} · Reset
+                      ×{scaleNum(scaleFactor)} · Reset
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -464,11 +438,6 @@ const RecipeDetailScreen = () => {
               </View>
             ))}
 
-            {unitSystem === "metric" && (
-              <Text style={recipeDetailStyles.metricNote}>
-                Converted automatically — Otto rounds to kitchen-friendly amounts.
-              </Text>
-            )}
           </View>
 
           {/* VIDEO — inline, tap to play, exactly where doubt starts */}
@@ -544,7 +513,7 @@ const RecipeDetailScreen = () => {
                             uses:{" "}
                             {uses
                               .map((p) => {
-                                const s = scaledIngredient(p, scaleFactor, unitSystem);
+                                const s = displayIngredient(p, scaleFactor, unitSystem);
                                 return `${s.display} ${s.name}`.trim();
                               })
                               .join(" · ")}

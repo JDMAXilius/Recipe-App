@@ -25,7 +25,7 @@
 // USDA FoodData Central household-measure conventions (produce, proteins,
 // canned goods). Each row is tagged with its source category in a comment.
 
-import { parseMeasure, convertMeasure, formatQty, snapQty } from "./ingredientParser.js";
+import { parseMeasure, convertMeasure, formatQty, snapQty, scaledIngredient } from "./ingredientParser.js";
 
 // ---------------------------------------------------------------------------
 // Number formatting — the "food scale" rule (locked decision #2).
@@ -494,6 +494,22 @@ function countText(qty, unit, kind) {
   const r = Math.round(qty * 10) / 10;
   const label = unit ? ` ${unit}${r !== 1 && PLURAL.has(unit) ? (unit === "pinch" ? "es" : "s") : ""}` : "";
   return { kind, text: `${scaleNum(r)}${label}`.trim() };
+}
+
+// ---------------------------------------------------------------------------
+// Screen-facing seam: same shape scaledIngredient returns, so the recipe
+// detail / cook screens swap one import and keep their render untouched.
+// system "weight" (the default) → food-scale amounts; "us"/"metric" → the
+// classic cups/fractions pipeline (the account-screen alternative).
+export function displayIngredient(pair, factor = 1, system = "weight") {
+  if (system !== "weight") return scaledIngredient(pair, factor, system);
+  const r = formatIngredientLine(pair.measure, pair.name, factor, "weight");
+  return {
+    display: r.display,
+    name: pair.name,
+    scalable: r.kind !== "asis",
+    weight: "", // grams ARE the display — no parenthetical hint needed
+  };
 }
 
 // ---------------------------------------------------------------------------

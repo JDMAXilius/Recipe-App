@@ -28,7 +28,7 @@ import { SPACING, RADIUS, TYPE } from "../../../constants/tokens";
 import { splitSteps, matchStepIngredients } from "../../../lib/cookSession";
 import { segmentStep } from "../../../lib/stepEnrich";
 import { detectStepAction, ACTION_ART } from "../../../lib/stepAction";
-import { scaledIngredient } from "../../../lib/ingredientParser";
+import { displayIngredient } from "../../../lib/foodScale";
 import { useUnitSystem } from "../../../hooks/useUnitSystem";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import OttoIdle from "../../../components/OttoIdle";
@@ -410,7 +410,7 @@ const CookModeScreen = () => {
           </View>
 
           {pairs.map((pair, i) => {
-            const s = scaledIngredient(pair, scaleFactor, unitSystem);
+            const s = displayIngredient(pair, scaleFactor, unitSystem);
             const checked = !!prepChecked[i];
             return (
               <TouchableOpacity
@@ -535,7 +535,7 @@ const CookModeScreen = () => {
           {stepIngredients.length > 0 && (
             <View style={styles.needStrip}>
               {stepIngredients.slice(0, 4).map((p, i) => {
-                const s = scaledIngredient(p, scaleFactor, unitSystem);
+                const s = displayIngredient(p, scaleFactor, unitSystem);
                 return (
                   <View key={i} style={styles.needChip}>
                     <Text style={styles.needChipText} numberOfLines={1}>
@@ -662,7 +662,7 @@ const CookModeScreen = () => {
           </View>
           <ScrollView style={{ maxHeight: 380 }}>
             {(sheetFilter === "step" ? stepIngredients : pairs).map((p, i) => {
-              const s = scaledIngredient(p, scaleFactor, unitSystem);
+              const s = displayIngredient(p, scaleFactor, unitSystem);
               return (
                 <View key={i} style={styles.sheetRow}>
                   <Text style={styles.sheetQty}>{s.display}</Text>
