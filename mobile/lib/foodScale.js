@@ -237,6 +237,8 @@ const EACH_G = [
   [/carrot/i, 61],
   [/celery (stalk|stick|rib)|stick of celery|celery/i, 40],
   [/sweet potato/i, 130],
+  [/jersey royal|new potato|baby potato|salad potato|charlotte potato/i, 40],
+  [/small potato|potato(es)?, small/i, 70],
   [/potato/i, 173],
   [/parsnip/i, 115],
   [/beetroot|beet\b/i, 82],
@@ -247,6 +249,7 @@ const EACH_G = [
   [/jalape[nñ]o/i, 14],
   [/(red |green |bird'?s eye )?chill?i(es)?\b|serrano/i, 14],
   [/courgette|zucchini/i, 196],
+  [/baby (aubergine|eggplant)/i, 60],
   [/aubergine|eggplant/i, 458],
   [/cucumber/i, 201],
   [/avocado/i, 136], // flesh only
@@ -264,7 +267,8 @@ const EACH_G = [
   [/(iceberg|romaine|little gem|lettuce)/i, 300], // head
   [/butternut( squash)?/i, 680], // flesh
   [/fennel bulb/i, 234],
-  [/lime/i, 44],
+  [/lime/i, 67], // USDA whole fruit, 2" dia
+
   [/lemon/i, 58],
   [/orange/i, 131],
   [/(?:beef|rump|sirloin|ribeye|fillet) steak|steak/i, 225],
@@ -364,13 +368,53 @@ function eachGramsFor(name) {
 
 // Embedded pack weight in the measure note: "1 can (400g)", "2 x 400g tins",
 // "1 (12 oz.) package". The recipe already told us the weight — believe it.
+// Two forms in the corpus, and they mean opposite things:
+//   "4 (650g) Chicken Thighs"  → parenthetical = the WHOLE line's weight
+//   "2 (400g) cans", "2 x 400g" → pack size / explicit multiplier = PER unit
+// Multiplying the first by the count printed 2.6 kg of chicken thighs. The
+// tell is a pack noun (or an "x"): you buy 2 × 400 g tins, but 4 thighs
+// weighing 650 g together.
+const PACK_NOUN_RE = /\b(cans?|tins?|jars?|packs?|packets?|bottles?|cartons?|boxes|punnets?|tubs?)\b/i;
 function embeddedGrams(note) {
-  const m = String(note || "").match(/(\d+(?:\.\d+)?)\s*(g|kg|oz|lb|ml|l)\b\.?/i);
+  const s = String(note || "");
+  const m = s.match(/(\d+(?:\.\d+)?)\s*(g|kg|oz|lb|ml|l)\b\.?/i);
   if (!m) return null;
   const value = parseFloat(m[1]);
   const u = m[2].toLowerCase();
-  if (u === "ml" || u === "l") return { ml: value * (u === "l" ? 1000 : 1) };
-  return { grams: value * MASS_G[u] };
+  const perUnit = /\bx\s*\d/i.test(s) || PACK_NOUN_RE.test(s);
+  if (u === "ml" || u === "l") return { ml: value * (u === "l" ? 1000 : 1), perUnit };
+  return { grams: value * MASS_G[u], perUnit };
+}
+
+// ---------------------------------------------------------------------------
+// Piece words — "4 leaves", "12 florets", "20 slices", "Cabbage Leaves".
+// The word names a PART of the item, so the whole-item table is the wrong
+// number by an order of magnitude (20 slices of baguette was printing 5 kg).
+// Matched against name + unit + note; rows are explicit on purpose, so
+// existing per-slice entries in EACH_G (bacon, parma ham, smoked salmon)
+// keep their own weights.
+const PIECE_G = [
+  [/leaf|leaves/i, /lime|makrut|kaffir|curry|bay\b/i, 0.5],
+  [/leaf|leaves/i, /cabbage|lettuce|chinese leaf/i, 30],
+  [/leaf|leaves/i, /vine|grape|banana/i, 3],
+  [/leaf|leaves/i, /lasagn/i, 18],
+  [/floret/i, /broccoli|cauliflower/i, 15],
+  [/slice/i, /baguette|loaf|bread|toast|brioche|ciabatta|challah/i, 28],
+  [/slice/i, /pastry|filo|phyllo/i, 60],
+  [/slice/i, /black pudding|haggis|salami|chorizo|pepperoni/i, 25],
+  [/slice/i, /lemon|lime|orange|pineapple|ginger/i, 10],
+  [/slice/i, /cheese/i, 20],
+  [/slice/i, /smoked salmon|salmon|ham\b|turkey|beef/i, 25],
+  [/stalk|stick|rib\b/i, /lemongrass/i, 20],
+  [/stalk|stick|rib\b/i, /rhubarb/i, 50],
+  [/knob/i, /butter|ginger/i, 15],
+];
+function pieceGramsFor(name, context) {
+  const hay = `${name || ""} ${context || ""}`;
+  for (const [pieceRe, nameRe, grams] of PIECE_G) {
+    if (pieceRe.test(hay) && nameRe.test(name)) return grams;
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -444,14 +488,23 @@ export function resolveAmount({ qty, unit, name, note = "", servingScale = 1, mo
   }
 
   // "1 can (400g)" — the label already printed the weight.
-  if (unit === "can" || (!unit && /\(/.test(rawNote))) {
+  if (unit === "can" || !unit) {
     const emb = embeddedGrams(rawNote);
-    if (emb?.grams) return { kind: "weight", text: `${scaleNum(scaledQty * emb.grams)} g` };
-    if (emb?.ml) return { kind: "volume-ml", text: `${scaleNum(scaledQty * emb.ml)} ml` };
+    const times = emb?.perUnit || unit === "can" ? scaledQty : servingScale;
+    if (emb?.grams) return { kind: "weight", text: `${scaleNum(times * emb.grams)} g` };
+    if (emb?.ml) return { kind: "volume-ml", text: `${scaleNum(times * emb.ml)} ml` };
     if (unit === "can") {
       if (liquid) return { kind: "volume-ml", text: `${scaleNum(scaledQty * 400)} ml` };
       return { kind: "weight", text: `${scaleNum(scaledQty * UNIT_EACH_G.can.default)} g` };
     }
+  }
+
+  // A piece word beats the whole-item table ("4 leaves", "20 slices").
+  const piece = pieceGramsFor(n, `${unit || ""} ${rawNote}`);
+  if (piece != null) {
+    const grams = scaledQty * piece;
+    if (grams < 5) return countText(scaledQty, unit, "seasoning");
+    return { kind: "weight", text: `${scaleNum(grams)} g` };
   }
 
   // Count units with a known per-unit weight. The NAME's own piece-weight
@@ -479,8 +532,9 @@ export function resolveAmount({ qty, unit, name, note = "", servingScale = 1, mo
     // A stated weight beats any table guess.
     if (/\(/.test(n)) {
       const emb = embeddedGrams(n);
-      if (emb?.grams) return { kind: "weight", text: `${scaleNum(scaledQty * emb.grams)} g` };
-      if (emb?.ml) return { kind: "volume-ml", text: `${scaleNum(scaledQty * emb.ml)} ml` };
+      const times = emb?.perUnit ? scaledQty : servingScale;
+      if (emb?.grams) return { kind: "weight", text: `${scaleNum(times * emb.grams)} g` };
+      if (emb?.ml) return { kind: "volume-ml", text: `${scaleNum(times * emb.ml)} ml` };
     }
     const each = eachGramsFor(n);
     if (each) {

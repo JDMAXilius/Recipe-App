@@ -25,7 +25,7 @@ const NICE_FRACTIONS = [
 
 const UNIT_ALIASES = {
   cup: ["cup", "cups", "c"],
-  tbsp: ["tbsp", "tbsps", "tablespoon", "tablespoons", "tbs", "tblsp"],
+  tbsp: ["tbsp", "tbsps", "tablespoon", "tablespoons", "tbs", "tbls", "tblsp"], // TheMealDB spells it every way
   tsp: ["tsp", "tsps", "teaspoon", "teaspoons"],
   oz: ["oz", "oz.", "ounce", "ounces"],
   lb: ["lb", "lbs", "lb.", "pound", "pounds"],

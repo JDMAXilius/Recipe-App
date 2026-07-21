@@ -43,10 +43,24 @@ test("food-scale numbers: decimals, never fractions", () => {
 test("everything weighable shows grams — no count exceptions", () => {
   assert.equal(formatIngredientLine("2", "Eggs").display, "100 g");
   assert.equal(formatIngredientLine("8", "Lasagne Sheets").display, "144 g");
-  assert.equal(formatIngredientLine("1", "Lime").display, "44 g");
+  assert.equal(formatIngredientLine("1", "Lime").display, "67 g");
   assert.equal(formatIngredientLine("2 cloves", "Garlic").display, "6 g");
   assert.equal(formatIngredientLine("2 tbsp", "Honey").display, "42 g");
   assert.equal(formatIngredientLine("1 can", "Chickpeas").display, "400 g");
+});
+
+// Corpus audit (backend/scripts/audit-foodscale.mjs) caught these printing
+// kilos: a piece word ("slices", "leaves", "florets") was being multiplied by
+// the WHOLE-item weight, and a parenthesized pack weight was multiplied by the
+// count when it is already the line's total.
+test("piece words and stated pack weights never multiply into kilos", () => {
+  assert.equal(formatIngredientLine("20 slices", "Baguette").display, "560 g");
+  assert.equal(formatIngredientLine("6 large", "Cabbage Leaves").display, "180 g");
+  assert.equal(formatIngredientLine("12 florets", "Broccoli").display, "180 g");
+  assert.equal(formatIngredientLine("8 slices", "Smoked Salmon").display, "200 g");
+  assert.equal(formatIngredientLine("4 (650g)", "Chicken Thighs").display, "650 g"); // total
+  assert.equal(formatIngredientLine("2 x 400g", "Plum Tomatoes").display, "800 g"); // per tin
+  assert.equal(formatIngredientLine("1 stick", "Butter").display, "113 g"); // not a celery stick
 });
 
 test("thin liquids stay ml; unmeasurables pass through", () => {

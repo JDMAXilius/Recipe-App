@@ -4,12 +4,12 @@
 // unresolved qty/unit/density is flagged via confidence — honesty first.
 
 export const UNIT_WORDS =
-  "cups?|cup|tablespoons?|tbsps?|tbsp|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?";
+  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|cloves?|cans?|tins?|slices?|sticks?|pinch(?:es)?|dash(?:es)?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?";
 
 // canonical unit ids
 const UNIT_ALIASES = [
   [/^cups?$/i, "cup"],
-  [/^(tablespoons?|tbsps?|tbs)$/i, "tbsp"],
+  [/^(tablespoons?|tbsps?|tbs|tbls|tblsp)$/i, "tbsp"], // TheMealDB spellings
   [/^(teaspoons?|tsps?)$/i, "tsp"],
   [/^(grams?|g)$/i, "g"],
   [/^(kgs?|kilograms?)$/i, "kg"],
