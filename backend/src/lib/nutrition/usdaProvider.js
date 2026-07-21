@@ -503,7 +503,23 @@ export const usdaProvider = {
     // "high" is not perfection. Garlic, onion and egg resolve through piece
     // weights and are rated "guessed" by design, so requiring doubt === 0 made
     // "high" unreachable for almost every real recipe rather than meaningful.
-    const confidence = doubt <= 0.1 ? "high" : doubt <= 0.3 ? "medium" : "low";
+    let confidence = doubt <= 0.1 ? "high" : doubt <= 0.3 ? "medium" : "low";
+
+    // Two failures were being scored as one, and they are not the same thing:
+    //
+    //   food not identified  → the line is DROPPED, so the total is INCOMPLETE.
+    //                          The number is wrong and understated.
+    //   amount estimated     → the food is known and in the sum; only the
+    //                          quantity is ours. The total is COMPLETE, just
+    //                          approximate.
+    //
+    // Collapsing both into "low" told a user that a fully-identified dish whose
+    // recipe merely never said "how much ketchup" was as untrustworthy as one
+    // where we lost the main ingredient. It isn't. So "low" now means what it
+    // should — something is MISSING from this number — and a recipe with every
+    // food identified floors at "medium" however many amounts we inferred.
+    const everyFoodIdentified = scored.every((r) => r.food);
+    if (confidence === "low" && everyFoodIdentified) confidence = "medium";
 
     return {
       kcal: kcalPerServing,

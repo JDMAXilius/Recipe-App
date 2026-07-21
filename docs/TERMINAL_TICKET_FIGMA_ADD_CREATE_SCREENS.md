@@ -1,5 +1,12 @@
 # TERMINAL TICKET — Build the Add/Create redesign screens in Figma
 
+> ✅ **DONE — 2026-07-21 (terminal session).** Script ran in one shot against
+> `mM0uWkHod9rL1Ff1VJ64Au`. Page **"2 · Screens — Add / Create"** = `195:17`,
+> section `195:18`, Chat frame `195:19`, Import frame `195:54`.
+> `mascotFound: true` — the in-file art (node `7:9`) applied, so the
+> `upload_assets` fallback was NOT needed. Both frames screenshot-verified:
+> mascot renders, no clipping, tiles even, Speak pill clear of the placeholder.
+
 The cloud session designed and web-verified the two Add/Create redesign screens, and wrote a
 complete Figma Plugin-API build script for them. It could READ the Figma file but is blocked
 from WRITING (the `use_figma` tool needs an interactive approval a headless cloud run can't
