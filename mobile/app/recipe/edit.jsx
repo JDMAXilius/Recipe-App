@@ -18,6 +18,7 @@ import { useToast } from "../../context/ToastContext";
 import { createAddStyles } from "../../assets/styles/add.styles";
 import { UserRecipeAPI, isUserRecipeId } from "../../services/userRecipes";
 import { uploadRecipePhoto } from "../../lib/uploadRecipePhoto";
+import { formatIngredientLine } from "../../lib/foodScale";
 import { takeDraft } from "../../lib/draftStore";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Bounceable from "../../components/Bounceable";
@@ -28,6 +29,23 @@ import Bounceable from "../../components/Bounceable";
 // edits away.
 
 const emptyIngredient = () => ({ measure: "", name: "" });
+
+// Live weight-first preview: the author sees what readers will see ("2 cups
+// flour" → "reads as 240 g") and a parse miss surfaces while typing, not on
+// the shelf. Only shown when the conversion actually changes the amount.
+const weightPreview = (row) => {
+  const measure = (row.measure || "").trim();
+  const name = (row.name || "").trim();
+  if (!measure || !name) return null;
+  try {
+    const r = formatIngredientLine(measure, name);
+    if (r.kind !== "weight" && r.kind !== "volume-ml") return null;
+    if (r.display.replace(/\s+/g, "") === measure.replace(/\s+/g, "")) return null;
+    return r.display;
+  } catch {
+    return null;
+  }
+};
 
 const RecipeEditScreen = () => {
   const router = useRouter();
@@ -369,7 +387,8 @@ const RecipeEditScreen = () => {
 
           <Text style={styles.fieldLabel}>INGREDIENTS</Text>
           {ingredients.map((row, index) => (
-            <View key={index} style={styles.ingRow}>
+            <View key={index}>
+            <View style={styles.ingRow}>
               <TextInput
                 style={styles.measureInput}
                 value={row.measure}
@@ -394,6 +413,10 @@ const RecipeEditScreen = () => {
               >
                 <Ionicons name="close-circle" size={20} color={colors.inkSoft} />
               </TouchableOpacity>
+            </View>
+            {weightPreview(row) ? (
+              <Text style={styles.ingPreview}>reads as {weightPreview(row)}</Text>
+            ) : null}
             </View>
           ))}
           <TouchableOpacity

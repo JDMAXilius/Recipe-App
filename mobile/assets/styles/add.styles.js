@@ -242,6 +242,13 @@ export const createAddStyles = (colors) =>
       fontWeight: "700",
       color: colors.accent,
     },
+    ingPreview: {
+      fontSize: 12,
+      color: colors.accent,
+      marginTop: -4,
+      marginBottom: SPACING.sm,
+      marginLeft: 2,
+    },
     photoHint: {
       fontSize: 12,
       color: colors.inkSoft,
