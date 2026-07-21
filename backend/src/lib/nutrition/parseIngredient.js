@@ -146,7 +146,7 @@ const EACH_G = [
   [/chill?i|jalape[nñ]o|habanero|serrano|scotch bonnet/i, 12],
   [/(bell )?pepper|capsicum/i, 120],
   [/zucchini|courgette/i, 200],
-  [/shallot/i, 30],
+  [/(sh|ch)allot/i, 30], // "Challots" is TheMealDB's own spelling of shallots
   [/tortilla|wrap/i, 45],
   [/bun|roll/i, 55],
   // 2026-07-21 confidence sweep (audit-doubt.mjs): the corpus' most frequent
@@ -237,6 +237,10 @@ function singulars(word) {
   return out;
 }
 
+const SIZE_QUALIFIER =
+  // "dried", not "dry" — "dry-cured bacon" is still an ordinary rasher.
+  /\b(cherry|baby|mini|miniature|dwarf|king|tiger|jumbo|plum|pearl|dried|frozen|canned|tinned|smoked|pickled)\b/i;
+
 function verifiedPiece(item, unit) {
   let t = String(item || "").toLowerCase().trim();
   // "stick" is the only piece word canonicalUnit doesn't already fold into the
@@ -250,15 +254,23 @@ function verifiedPiece(item, unit) {
     t = embedded[1].trim();
     effUnit = embedded[2];
   }
-  // Match on the full item and on its last word, so "baby new potatoes" finds
-  // the "potato" row.
-  const forms = [...singulars(t), ...singulars(t.split(/\s+/).pop() || "")];
+  // Match on the full item and on its last word, so "new potatoes" finds the
+  // "potato" row — UNLESS the name carries a qualifier that changes the size or
+  // state of the piece. A cherry tomato is not a 123 g tomato, a king prawn is
+  // not a medium shrimp, a dried fig is not a fresh one: those must fall through
+  // to their own estimate rather than inherit the generic weight AND its high
+  // confidence. Then only a key naming the whole thing counts.
+  const sized = SIZE_QUALIFIER.test(t);
+  const forms = sized ? singulars(t) : [...singulars(t), ...singulars(t.split(/\s+/).pop() || "")];
 
   let best = null;
   for (const [name, row] of Object.entries(VERIFIED_PIECE)) {
     // A piece-noun row ("clove", "stalk") only applies when that noun is the unit.
     if ((row.unit || null) !== (effUnit || null)) continue;
-    const hit = forms.some((f) => f === name || f.endsWith(" " + name) || f.startsWith(name + " "));
+    // Suffix only, never prefix: a key that PREFIXES the item names a different
+    // food — "lemon grass" is not a lemon (it was resolving to 84 g of one),
+    // "coconut milk" is not a coconut, "chicken stock" is not a chicken.
+    const hit = forms.some((f) => f === name || (!sized && f.endsWith(" " + name)));
     if (hit && (!best || name.length > best.name.length)) best = { name, row }; // most specific wins
   }
   return best?.row ?? null;

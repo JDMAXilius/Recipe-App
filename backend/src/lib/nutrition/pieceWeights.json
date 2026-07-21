@@ -398,5 +398,165 @@
     "usda": "Garlic, raw",
     "portion": "1 clove",
     "source": "usda-foodportion"
+  },
+  "apricot": {
+    "grams": 35,
+    "unit": null,
+    "fdcId": 171697,
+    "usda": "Apricots, raw",
+    "portion": "1 apricot",
+    "source": "usda-foodportion"
+  },
+  "filo pastry": {
+    "grams": 19,
+    "unit": null,
+    "fdcId": 172791,
+    "usda": "Phyllo dough",
+    "portion": "1 sheet dough",
+    "source": "usda-foodportion"
+  },
+  "sardines": {
+    "grams": 12,
+    "unit": null,
+    "fdcId": 175139,
+    "usda": "Fish, sardine, Atlantic, canned in oil, drained solids with bone",
+    "portion": "1 small (2-2/3\" x 1/2\" x 1/4\")",
+    "source": "usda-foodportion"
+  },
+  "chicken": {
+    "grams": 1046,
+    "unit": null,
+    "fdcId": 171047,
+    "usda": "Chicken, broilers or fryers, meat and skin and giblets and neck, raw",
+    "portion": "1 chicken",
+    "source": "usda-foodportion"
+  },
+  "pork chop": {
+    "grams": 199,
+    "unit": null,
+    "fdcId": 168238,
+    "usda": "Pork, fresh, loin, center loin (chops), bone-in, separable lean and fat, raw",
+    "portion": "1 chop without refuse (Yield from 1 raw chop, with refuse, weighing 259g)",
+    "source": "usda-foodportion"
+  },
+  "chicken drumstick": {
+    "grams": 130,
+    "unit": null,
+    "fdcId": 172373,
+    "usda": "Chicken, broilers or fryers, drumstick, meat and skin, raw",
+    "portion": "1 drumstick",
+    "source": "usda-foodportion"
+  },
+  "sweetcorn": {
+    "grams": 102,
+    "unit": null,
+    "fdcId": 169998,
+    "usda": "Corn, sweet, yellow, raw",
+    "portion": "1 ear, medium (6-3/4\" to 7-1/2\" long) yields",
+    "source": "usda-foodportion"
+  },
+  "dried apricot": {
+    "grams": 3.5,
+    "unit": null,
+    "fdcId": 173941,
+    "usda": "Apricots, dried, sulfured, uncooked",
+    "portion": "1 half",
+    "source": "usda-foodportion"
+  },
+  "phyllo dough": {
+    "grams": 19,
+    "unit": null,
+    "fdcId": 172791,
+    "usda": "Phyllo dough",
+    "portion": "1 sheet dough",
+    "source": "usda-foodportion"
+  },
+  "prawn": {
+    "grams": 6,
+    "unit": null,
+    "fdcId": 174210,
+    "usda": "Crustaceans, shrimp, mixed species, raw (may contain additives to retain moisture)",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "shrimp": {
+    "grams": 6,
+    "unit": null,
+    "fdcId": 174210,
+    "usda": "Crustaceans, shrimp, mixed species, raw (may contain additives to retain moisture)",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "oyster": {
+    "grams": 14,
+    "unit": null,
+    "fdcId": 171978,
+    "usda": "Mollusks, oyster, eastern, wild, raw",
+    "portion": "6 medium",
+    "source": "usda-foodportion"
+  },
+  "fig": {
+    "grams": 50,
+    "unit": null,
+    "fdcId": 173021,
+    "usda": "Figs, raw",
+    "portion": "1 medium (2-1/4\" dia)",
+    "source": "usda-foodportion"
+  },
+  "prune": {
+    "grams": 9.5,
+    "unit": null,
+    "fdcId": 168162,
+    "usda": "Plums, dried (prunes), uncooked",
+    "portion": "1 prune, pitted",
+    "source": "usda-foodportion"
+  },
+  "turnip": {
+    "grams": 122,
+    "unit": null,
+    "fdcId": 170465,
+    "usda": "Turnips, raw",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "black olive": {
+    "grams": 4.4,
+    "unit": null,
+    "fdcId": 169094,
+    "usda": "Olives, ripe, canned (small-extra large)",
+    "portion": "1 large",
+    "source": "usda-foodportion"
+  },
+  "english muffin": {
+    "grams": 57,
+    "unit": null,
+    "fdcId": 172828,
+    "usda": "English muffins, plain, unenriched, with calcium propionate (includes sourdough)",
+    "portion": "1 muffin",
+    "source": "usda-foodportion"
+  },
+  "taco shell": {
+    "grams": 12.9,
+    "unit": null,
+    "fdcId": 172800,
+    "usda": "Taco shells, baked",
+    "portion": "1 shell",
+    "source": "usda-foodportion"
+  },
+  "peaches": {
+    "grams": 161,
+    "unit": null,
+    "fdcId": 325415,
+    "usda": "Peaches, Raw, Pass 2, Region 1, AR1, NFY010CIG",
+    "portion": "1 medium (2-2/3\" dia)",
+    "source": "usda-foodportion"
+  },
+  "pear": {
+    "grams": 177,
+    "unit": null,
+    "fdcId": 167776,
+    "usda": "Pears, raw, bartlett (Includes foods for USDA's Food Distribution Program)",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
   }
 }

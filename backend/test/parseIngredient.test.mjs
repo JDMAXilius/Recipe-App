@@ -134,3 +134,57 @@ test("verified weights survive plurals, embedded piece nouns, and unit synonyms"
   assert.equal(parseIngredientLine({ measure: "2 rashers", name: "Bacon" }).confidence, "high");
   assert.equal(parseIngredientLine({ measure: "2 sticks", name: "Celery" }).grams, 80);
 });
+
+test("bare-count whole items resolve from USDA's own foodPortions (2026-07-21)", () => {
+  // Each of these was a corpus line with a known food and NO grams: dropped
+  // from the sum AND counted as doubt. Every weight below is the exact
+  // foodPortion USDA publishes for that record — see pieceWeights.json.
+  const cases = [
+    [{ measure: "1", name: "Chicken" }, 1046], // "1 chicken", whole bird
+    [{ measure: "4", name: "Pork Chops" }, 796], // 199 g "1 chop without refuse"
+    [{ measure: "8", name: "Chicken drumsticks" }, 1040], // 130 g "1 drumstick"
+    [{ measure: "2", name: "Sweetcorn" }, 204], // 102 g "1 ear, medium ... yields"
+    [{ measure: "10", name: "Dried Apricots" }, 35], // 3.5 g "1 half"
+    [{ measure: "12", name: "Filo Pastry" }, 228], // 19 g "1 sheet dough"
+    [{ measure: "8", name: "Prawns" }, 48], // 6 g "1 medium" shrimp
+    [{ measure: "8", name: "Oysters" }, 112], // "6 medium" = 84 g → 14 g each
+    [{ measure: "4", name: "Figs" }, 200], // 50 g "1 medium", not the 64 g large
+    [{ measure: "6", name: "Prunes" }, 57], // 9.5 g "1 prune, pitted"
+    [{ measure: "2", name: "turnips" }, 244], // 122 g "1 medium"
+    [{ measure: "16", name: "Black Olives" }, 70.4], // 4.4 g "1 large"
+    [{ measure: "2", name: "English Muffins" }, 114], // 57 g "1 muffin"
+    [{ measure: "12", name: "Hard Taco Shells" }, 154.8], // 12.9 g "1 shell"
+    [{ measure: "8", name: "Pears" }, 1416], // 177 g "1 medium"
+  ];
+  for (const [line, grams] of cases) {
+    const p = parseIngredientLine(line);
+    assert.equal(p.grams, grams, `${line.measure} ${line.name}`);
+    assert.equal(p.confidence, "high", `${line.measure} ${line.name}`);
+  }
+});
+
+test("a size or state qualifier blocks the generic verified weight", () => {
+  // The head-noun fallback ("baby new potatoes" → the potato row) was matching
+  // straight through size words, so "6 cherry tomatoes" came out as 738 g of
+  // beefsteak tomato at HIGH confidence. Now these fall back to their own
+  // estimate and say so.
+  const cherry = parseIngredientLine("6 cherry tomatoes");
+  assert.equal(cherry.grams, 102); // 17 g each, estimated
+  assert.equal(cherry.confidence, "medium");
+  // King/tiger prawns are a size ABOVE USDA's largest shrimp portion, so they
+  // must not inherit the 6 g medium — no weight beats a wrong one.
+  assert.equal(parseIngredientLine({ measure: "6", name: "King Prawns" }).grams, null);
+  // A key that PREFIXES the name is a different food entirely.
+  assert.equal(parseIngredientLine("1 chicken stock").grams, null);
+  assert.equal(parseIngredientLine("1 coconut milk").grams, null);
+  // ...but the plain and whole forms still resolve.
+  assert.equal(parseIngredientLine("2 potatoes").confidence, "high");
+  assert.equal(parseIngredientLine("1 whole chicken").grams, 1046);
+});
+
+test("Challots is TheMealDB's spelling of shallots (5 corpus lines)", () => {
+  const ch = parseIngredientLine({ measure: "5", name: "Challots" });
+  assert.equal(ch.grams, 150); // 30 g each
+  // Still an estimate: USDA publishes no whole-shallot portion, only a volume.
+  assert.equal(ch.confidence, "medium");
+});

@@ -151,6 +151,9 @@ const DENSITY = [
   [/custard powder/i, 128],
   [/marzipan|almond paste|nougatine/i, 290],
   [/marshmallow/i, 50],
+  // A dense starch-and-sugar gel, cut into cubes — nearer marzipan than
+  // marshmallow. Added when the nutrition table gained the ingredient.
+  [/turkish delight|lokum/i, 290],
   [/pretzel|popcorn/i, 60],
   [/ice cream|sorbet/i, 140],
   [/sauerkraut|kimchi/i, 140],
