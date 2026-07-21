@@ -341,15 +341,15 @@
     "sodium_mg": 732
   },
   "broccoli": {
-    "fdcId": 747447,
+    "fdcId": 170379,
     "usda": "Broccoli, raw",
-    "kcal": 31,
-    "protein_g": 2.57,
-    "fat_g": 0.34,
-    "carbs_g": 6.27,
-    "fiber_g": 2.4,
+    "kcal": 34,
+    "protein_g": 2.82,
+    "fat_g": 0.37,
+    "carbs_g": 6.64,
+    "fiber_g": 2.6,
     "sugar_g": null,
-    "sodium_mg": 36
+    "sodium_mg": 33
   },
   "brown lentils": {
     "fdcId": 172420,
@@ -7667,15 +7667,15 @@
     "sodium_mg": 12
   },
   "purple sprouting broccoli": {
-    "fdcId": 747447,
+    "fdcId": 170379,
     "usda": "Broccoli, raw",
-    "kcal": 31,
-    "protein_g": 2.57,
-    "fat_g": 0.34,
-    "carbs_g": 6.27,
-    "fiber_g": 2.4,
+    "kcal": 34,
+    "protein_g": 2.82,
+    "fat_g": 0.37,
+    "carbs_g": 6.64,
+    "fiber_g": 2.6,
     "sugar_g": null,
-    "sodium_mg": 36
+    "sodium_mg": 33
   },
   "lamb shanks": {
     "fdcId": 172481,
