@@ -964,3 +964,34 @@ Founder: "don't stop until the entire roadmap N1–N6 is done." All six shipped,
   the next app build (N9).
 Roadmap statuses marked DONE. Remaining nutrition work is entirely terminal-side (N7–N10 + fdcId
 backfill), all ticketed.
+
+### Phase 18 — N7+N8 executed: full prod recalculation + live matcher probe (2026-07-21, terminal)
+- N7 (refresh run): keys live on Railway + local .env (ANTHROPIC + USDA), main `4a25ccd3b081`
+  deployed and sha-verified via /api/health, then `scripts/refresh-nutrition.mjs` against prod:
+  **seed recipes: 746 computed, 15 honestly unknown, of 761 · user recipes: 4 recomputed, 0
+  honestly unknown, of 4.** Spot-checks: World's Best Lasagna now COMPUTED (342 kcal/serving at
+  12 servings, source usda — no more "Otto's estimate" caption); stevia coffee 16 kcal (was the
+  420 dinner default).
+- PROCESS MISS (logged for honesty): the N2 migration ran AFTER the refresh, not before — the
+  REFRESH ticket didn't carry the FRAMEWORK ticket's ordering note, so every durable-cache write
+  during the run failed open ("resolver cache write failed"). Recipe-level results all saved
+  (they cache on seed_nutrition/recipes rows); only resolver-cache writes were lost, and the
+  cache self-heals as names re-resolve. `n2-resolved-cache.mjs` has since run clean against prod.
+- N8 (matcher probe, `scripts/probe-matcher.mjs`, 30 adversarial names, one batch, 8.1s):
+  21/30 resolved, 9 honest nulls (courgette, doubanjiang, nutritional yeast, oat milk, almond
+  creamer, monk fruit, halloumi, orzo, farro). Wins: coconut milk → real coconut milk (NOT
+  dairy), beef mince = minced beef, aubergine → eggplant.
+- WRONG MATCHES for the cloud session (prompt/table bugs, per ticket the cloud owns these):
+  1. coriander seeds → coriander LEAVES (prompt names this exact case and it still happened)
+  2. gochujang → almond paste (Stage 2, different food entirely)
+  3. green beans → BEET greens (identity swap the prompt forbids, via a cousin food)
+  4. sweet potato → sweet potato LEAVES (wrong plant part, 42 vs ~86 kcal)
+  5. pomegranate molasses → pomegranate juice (54 vs ~270 kcal/100g)
+  6. paneer → cream cheese spread (wrong identity, coincidentally close kcal)
+  From the refresh run itself: canned tomato sauce → "Pasta with Sliced Franks in Tomato Sauce"
+  (in the founder's lasagna), tomato paste → crushed tomatoes (~2.5x density gap), mozzarella →
+  "Cheese substitute, mozzarella" (table-tier — smells like another corrupt table row, cf. N3),
+  raw yucca → "Abiyuch, raw", "unsweetened vanilla creamer" → SILK French Vanilla (branded,
+  20g sugar, input said unsweetened). Also: stevia coffee shows carbs_g 102 on a 16-kcal drink
+  (USDA stevia row is 100g carbs/0 kcal; quantity parse likely over-read) — macro sanity worth
+  a look when prompts get fixed.
