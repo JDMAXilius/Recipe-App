@@ -1056,3 +1056,48 @@ Refresh run 3 (post-pin, full catalogue re-run): **seed 746 computed / 15 unknow
 4 / 0**, confidence steady at **129 high / 401 med / 216 low / 15 null** — the drink pins are
 additive (no seed recipe is a plain coffee), so the distribution correctly did not move; the win
 is determinism on user-created drinks.
+
+### Phase 19 — Confidence campaign: prod high 129 → 296, low 216 → 76 (2026-07-21)
+
+Founder directive: "every single one should be high… double check each ingredient's weight and
+nutrition from USDA." Measured first (`scripts/audit-confidence.mjs`, which decomposes the doubt
+score and prints the counterfactual for each class of fix) rather than guessing where the cost was.
+
+**The finding that drove everything:** food MATCHING was already near-solved (only 42 corpus lines
+had no USDA food). The confidence ceiling was almost entirely **grams** — and the biggest single
+cost was that Otto scored its own piece weights as guesses. USDA publishes the same measurements:
+`1 medium onion = 110 g`, `1 clove garlic = 3 g`. A weight matching a USDA `foodPortions` record
+carries the same authority as the per-100g numbers already trusted from that record.
+
+- **`pieceWeights.json` (new, 50 rows)** — every weight verified against USDA foodPortions, stored
+  with fdcId + the USDA portion wording. `gramsFor()` resolves these at level `good` → high.
+  Weights USDA could NOT confirm are deliberately absent and keep their estimate flag — shallot
+  ("1 tbsp chopped" is a volume, not a shallot) is the pinned test proving this is provenance and
+  not a rubber stamp. Builders: `build-piece-weights.mjs`, `build-item-weights.mjs`. Both walk
+  CANDIDATE records until one actually carries the portion — USDA files garlic twice and only the
+  SR Legacy copy has "1 clove".
+- **Full provenance audit** (`audit-table-provenance.mjs`, 556 distinct fdcIds, resumable cache):
+  538 ok, 3 id-wrong, 3 data-stale, 12 transient. **An fdcId alone proves nothing** — `white wine
+  vinegar` carried PEANUT BUTTER's id; `sour pork sausage`'s id was rice links. This invalidates the
+  assumption behind the earlier null-fdcId backfill (descriptions were treated as authoritative).
+- **10 corrupt identities repaired** across this phase: green pepper → **beet greens**, sweet potato
+  → **its leaves**, chicken breast → ground chicken, tomato → grape tomato, zucchini → baby
+  zucchini, 2 tortilla rows, + the 3 provenance ones. Espresso 36 → 9 kcal and black tea 4 → 1 kcal
+  (search-result numbers disagreed with the detail endpoint; **detail wins**).
+- **Parser**: mixed unicode fractions (`1 ½ tbsp`, `1-⅓ cups` were silently reading as `1`),
+  quart/pint units, and unquantified frying oil now counts a conservative 1 tbsp flagged medium
+  (published absorption is 8–25% of food weight — real calories, but never "high").
+- **`scripts/usdaClient.mjs`** — shared client that always filters Energy on `unitName` (the
+  KCAL-vs-KJ 4.184x trap, hit again this session) and survives USDA's HTML error pages.
+
+| | high | medium | low | unknown |
+|---|---|---|---|---|
+| prod, start of day | 129 | 401 | 216 | 15 |
+| **prod, now** | **296** | 372 | **76** | 17 |
+| corpus (deterministic only) | 130 → 299 | 405 → 378 | 223 → 81 | — |
+
+**The honest ceiling is ~77%, not 100%**, and the counterfactual line in `audit-confidence.mjs`
+says so with numbers. ~100 corpus lines are `For frying | Vegetable Oil` / `Dusting | Plain Flour`
+where the recipe never states an amount. Driving those to "high" would mean inventing precision on
+health-adjacent numbers — the one thing the honesty law forbids. 76 low-confidence recipes are
+recipes that genuinely deserve the flag.
