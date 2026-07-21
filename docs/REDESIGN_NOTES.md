@@ -1154,3 +1154,43 @@ conversational brain:
   decline/clarify return 200 (they render in the thread), recipe carries source "otto" into the
   review editor. `UserRecipeAPI.chat()` on the client.
 - 92/92 backend; route verified mounted + auth-gated. UI (the screen + entry redesign) is next.
+
+### Phase 21 — Bulk portion import: attempted, measured, NOT shipped (2026-07-21)
+
+Next step from BACKEND_ROADMAP A5 was the bulk USDA portion import. Done, measured, and
+**deliberately not shipped** — recording it so nobody repeats the four rounds.
+
+**The idea was sound.** The SR Legacy bulk CSV (6 MB, CC0) carries portion rows for **524 of our
+554 fdcIds (94.6%)** — same data as the API, offline, one pass, no rate limit. And because our
+table already stores an fdcId per row it is a **direct join**: none of the 73–79% entity-linking
+error applies. `scripts/build-portions-from-bulk.mjs`.
+
+**Why it isn't shipped.** Four successive tightening rounds took the bad-row rate ~30% → ~8% and
+then plateaued. Each round's residue looked completely plausible in a diff:
+
+| round | guard added | what it still shipped |
+|---|---|---|
+| 1 | measure/state words | `green chilli` → a beet-green leaf; `almond flour` → "1 almond" (1.2 g) |
+| 2 | proxy guard (nutrition transfers, portions don't) | `king prawns` → **Alaska king crab** ("king" matched) |
+| 3 | head-noun must match | `cherry tomatoes` → generic tomato **182 g vs ~17 g**; `red cabbage` → one *leaf* 23 g as a whole cabbage |
+| 4 | closed whole-item vocabulary + size-variant guard + primary-food match | `habanero` → generic green chilli 45 g vs ~8 g; `chopped tomatoes` (a 400 g can in UK usage) → one tomato |
+
+**Measured trade: +20 recipes to high (48.2% → 50.8%) in exchange for ~8% silently-wrong weights.**
+That is the wrong side of the honesty law. A "high" badge is worth having *only* because it's
+earned; 8% wrong weights inside it would make the flag a decoration. Reverted to the 50
+hand-verified rows.
+
+**Root cause worth remembering:** many `usdaTable` keys are **nutritional proxies** — `almond flour`
+borrows almonds' per-100g values, `morning glory` borrows spinach's. That is correct for nutrition
+and *invalid for a portion*: "1 almond" is not "1 almond flour". **Nutrition transfers by proxy;
+piece weight does not.** Any future bulk-weight work must respect that asymmetry.
+
+**What it IS good for — a detector.** The mismatch list exposes corrupt table identities the
+provenance audit missed, because it compares the KEY's meaning against the RECORD's meaning rather
+than checking the id resolves. Found and fixed this round: **`oysters` → "Emu, oyster, raw"
+(141 kcal) → real oyster 171978 (51 kcal)** — a live nutrition bug, ~3× overstated. Also flagged
+for later: `cherry` → Pitanga (Surinam cherry), `green chilli` → beet greens.
+
+The script now writes `scripts/portion-candidates.json` (89 rows, review file, **not shipped**).
+Promoting a row into `pieceWeights.json` is a human decision — that is exactly what made the
+original 50 trustworthy.

@@ -4565,15 +4565,15 @@
     "sodium_mg": 1040
   },
   "oysters": {
-    "fdcId": 172838,
-    "usda": "Emu, oyster, raw",
-    "kcal": 141,
-    "protein_g": 22.8,
-    "fat_g": 4.86,
-    "carbs_g": 0,
+    "fdcId": 171978,
+    "usda": "Mollusks, oyster, eastern, wild, raw",
+    "kcal": 51,
+    "protein_g": 5.71,
+    "fat_g": 1.71,
+    "carbs_g": 2.72,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 150
+    "sodium_mg": 85
   },
   "stout": {
     "fdcId": 168746,
