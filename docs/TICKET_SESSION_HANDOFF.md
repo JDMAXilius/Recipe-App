@@ -95,7 +95,15 @@ Apple requires **live Privacy + Support URLs** before you can submit for review.
 - [ ] **Bundle id** is still `com.otto.recipes` (placeholder). Changing it later = new app record +
       testers reinstall. Decide before the tester base grows.
 
-### 5. Known-but-deferred (not blocking)
+### 5. Figma — Add/Create screens are built; four proposals await a founder call
+`FIGMA_ADD_CREATE_SCREENS` is **done** (terminal, 2026-07-21) — both approved frames are on
+page "2 · Screens — Add / Create" (`195:17`), mascot rendering, nothing left on the ticket.
+Built on top of it, **not yet approved and not in code**: `Comp/AskOtto` (`198:136`, DS page)
++ its Discover placement, `Section/AskOtto` on the "Bring in a recipe — v2" clone (`199:17`),
+and two chat states — in-use thread (`198:17`) and **Recent chats history (`200:24`), which is
+an invented feature with no model, storage, or screen behind it**. See that ticket's Log.
+
+### 6. Known-but-deferred (not blocking)
 - **Mobile `npm audit`**: 24 advisories, all transitive Expo build tooling, none in the app binary.
   Fix is an Expo SDK bump on its own schedule, not `npm audit fix`. Not security-relevant.
 - **CORS + local web dev**: running Otto on web locally can't reach the prod backend (the scoping is

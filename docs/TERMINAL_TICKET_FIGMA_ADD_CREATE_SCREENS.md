@@ -1,11 +1,6 @@
 # TERMINAL TICKET — Build the Add/Create redesign screens in Figma
 
-> ✅ **DONE — 2026-07-21 (terminal session).** Script ran in one shot against
-> `mM0uWkHod9rL1Ff1VJ64Au`. Page **"2 · Screens — Add / Create"** = `195:17`,
-> section `195:18`, Chat frame `195:19`, Import frame `195:54`.
-> `mascotFound: true` — the in-file art (node `7:9`) applied, so the
-> `upload_assets` fallback was NOT needed. Both frames screenshot-verified:
-> mascot renders, no clipping, tiles even, Speak pill clear of the placeholder.
+> STATUS: done — terminal 2026-07-21
 
 The cloud session designed and web-verified the two Add/Create redesign screens, and wrote a
 complete Figma Plugin-API build script for them. It could READ the Figma file but is blocked
@@ -74,3 +69,42 @@ The two screens need ONE bitmap: the Otto **happy-cut** mascot. Two sources, in 
 Both frames exist on page "2 · Screens — Add / Create", render correctly (mascot visible, no
 clipping), and a screenshot is posted back. Then mark this ticket done (`/tickets done
 FIGMA_ADD_CREATE_SCREENS`) so the cloud session knows not to re-hand it.
+
+## Log
+
+**2026-07-21 — terminal.** Ticket executed end to end; page **"2 · Screens — Add / Create"**
+= `195:17` (section `195:18`).
+
+- Read-only preflight first (fonts + mascot fill) — Lora Bold and Inter Regular/Medium/
+  Semi Bold/Bold all present, node `7:9` carries image hash `976b16ba…`. That's why the
+  build ran atomically on the first try with no error-recovery cycle.
+- Task 1: build script ran in ONE `use_figma` call. Chat frame `195:19`, Import frame
+  `195:54`, **`mascotFound: true`** → the `upload_assets` PNG fallback was NOT needed.
+- Task 2: both frames screenshot-verified against the shipped app. Mascot renders (no
+  blank warm square), no text clipping, tiles even, Speak pill clear of the placeholder.
+  Import row copy matches `mobile/app/add.jsx:414` verbatim. None of the listed nits hit.
+
+**Follow-on the same session (founder asked in-session; BEYOND the approved two-screen
+scope — these are proposals, not approved):**
+
+- `198:17` **Chat — in use (example thread)**: you bubble → Otto clarify bubble + chips →
+  you reply → recipe card (title/meta/6 ingredient lines/"+3 more"/Save to cookbook/Ask for
+  a change). Mirrors the real states in `mobile/app/(tabs)/create.jsx`. Adds a **history
+  icon in the header left slot** — that entry point does NOT exist in the app today.
+- `200:24` **Chat — history ("Recent chats")**: sheet with Today / Earlier groups, 5 rows.
+  **Invented feature — there is no chat-history model, storage, or screen in the app.**
+  Nothing was implemented in code; this is design only, pending founder call.
+- `199:17` **"Bring in a recipe — v2 (+ Ask Otto section)"**: clone of the approved sheet
+  plus `199:50` `Section/AskOtto` ("Nothing to bring in?" → Chat with Otto button). Per the
+  duplicate-don't-replace rule the approved `195:54` was left untouched.
+- `198:136` **`Comp/AskOtto`** — real component on the DS page, named to match the existing
+  `Comp/*` convention, description set, key `1b83bd78d1557c23ed66edef7013c424b46fd48e`.
+  Instanced at `199:67` inside `199:60` "Discover — Ask Otto placement (context sketch)".
+  The Discover frame is a SKETCH (featured/grid are labelled placeholders), not a rebuild
+  of the real Discover screen.
+- One defect found and fixed by screenshot: history rows used fixed y-offsets, so a
+  two-line title overlapped its subtitle. Rebuilt the rows as hugging auto-layout — fixed
+  at the row level, so any future title length is safe rather than just the one that broke.
+
+> HANDOFF → cloud: `Comp/AskOtto` + `Section/AskOtto` + the two chat states are unbuilt in
+> code. Chat history has no backing model at all — needs a founder call before any code.
