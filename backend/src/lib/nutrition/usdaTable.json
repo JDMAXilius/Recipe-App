@@ -1562,15 +1562,15 @@
     "sodium_mg": 13
   },
   "golden syrup": {
-    "fdcId": 168202,
-    "usda": "Apples, raw, golden delicious, with skin",
-    "kcal": 57,
-    "protein_g": 0.28,
-    "fat_g": 0.15,
-    "carbs_g": 13.6,
-    "fiber_g": 2.4,
+    "fdcId": null,
+    "usda": "Syrups, corn, light",
+    "kcal": 283,
+    "protein_g": 0,
+    "fat_g": 0.2,
+    "carbs_g": 76.8,
+    "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 2
+    "sodium_mg": 62
   },
   "gouda cheese": {
     "fdcId": 171241,
@@ -2409,15 +2409,15 @@
     "sodium_mg": 476
   },
   "peanut oil": {
-    "fdcId": 172431,
-    "usda": "Peanuts, spanish, oil-roasted, with salt",
-    "kcal": 579,
-    "protein_g": 28,
-    "fat_g": 49,
-    "carbs_g": 17.4,
-    "fiber_g": 8.9,
+    "fdcId": 171410,
+    "usda": "Oil, peanut, salad or cooking",
+    "kcal": 884,
+    "protein_g": 0,
+    "fat_g": 100,
+    "carbs_g": 0,
+    "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 433
+    "sodium_mg": 0
   },
   "peanuts": {
     "fdcId": 172430,
@@ -2530,15 +2530,15 @@
     "sodium_mg": 5
   },
   "potato starch": {
-    "fdcId": 170032,
-    "usda": "Potatoes, raw, skin",
-    "kcal": 58,
-    "protein_g": 2.57,
-    "fat_g": 0.1,
-    "carbs_g": 12.4,
-    "fiber_g": 2.5,
+    "fdcId": 169698,
+    "usda": "Cornstarch",
+    "kcal": 381,
+    "protein_g": 0.26,
+    "fat_g": 0.05,
+    "carbs_g": 91.3,
+    "fiber_g": 0.9,
     "sugar_g": null,
-    "sodium_mg": 10
+    "sodium_mg": 9
   },
   "potatoes": {
     "fdcId": 170026,
@@ -3256,15 +3256,15 @@
     "sodium_mg": 9
   },
   "veal": {
-    "fdcId": 175266,
-    "usda": "Veal, composite of trimmed retail cuts, separable fat, raw",
-    "kcal": 638,
-    "protein_g": 6.02,
-    "fat_g": 67.8,
+    "fdcId": null,
+    "usda": "Veal, composite of trimmed retail cuts, separable lean and fat, raw",
+    "kcal": 144,
+    "protein_g": 19.4,
+    "fat_g": 6.8,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 26
+    "sodium_mg": 82
   },
   "vegan butter": {
     "fdcId": 172348,
@@ -4444,15 +4444,15 @@
     "sodium_mg": 74
   },
   "tortillas": {
-    "fdcId": 168859,
-    "usda": "Tortilla chips, low fat, baked without fat",
-    "kcal": 448,
-    "protein_g": 11,
-    "fat_g": 5.7,
-    "carbs_g": 80.2,
-    "fiber_g": 5.3,
+    "fdcId": null,
+    "usda": "Tortillas, ready-to-bake or -fry, flour",
+    "kcal": 306,
+    "protein_g": 8.2,
+    "fat_g": 8,
+    "carbs_g": 49.4,
+    "fiber_g": 2.9,
     "sugar_g": null,
-    "sodium_mg": 517
+    "sodium_mg": 640
   },
   "udon noodles": {
     "fdcId": 168907,
@@ -4884,15 +4884,15 @@
     "sodium_mg": 6
   },
   "oats": {
-    "fdcId": 168872,
-    "usda": "Oat bran, raw",
-    "kcal": 246,
-    "protein_g": 17.3,
-    "fat_g": 7.03,
-    "carbs_g": 66.2,
-    "fiber_g": 15.4,
+    "fdcId": null,
+    "usda": "Cereals, oats, regular and quick, not fortified, dry",
+    "kcal": 379,
+    "protein_g": 13.2,
+    "fat_g": 6.5,
+    "carbs_g": 67.7,
+    "fiber_g": 10.1,
     "sugar_g": null,
-    "sodium_mg": 4
+    "sodium_mg": 6
   },
   "egg": {
     "fdcId": 171287,
@@ -5489,15 +5489,15 @@
     "sodium_mg": 467
   },
   "white wine vinegar": {
-    "fdcId": 174837,
-    "usda": "Alcoholic beverage, wine, table, white",
-    "kcal": 82,
-    "protein_g": 0.07,
+    "fdcId": 172470,
+    "usda": "Vinegar, red wine",
+    "kcal": 19,
+    "protein_g": 0.04,
     "fat_g": 0,
-    "carbs_g": 2.6,
+    "carbs_g": 0.27,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 5
+    "sodium_mg": 8
   },
   "smoked salmon": {
     "fdcId": 173687,
@@ -7326,15 +7326,15 @@
     "sodium_mg": 25
   },
   "ground nut oil": {
-    "fdcId": 169427,
-    "usda": "Nuts, mixed nuts, oil roasted, with peanuts, lightly salted",
-    "kcal": 607,
-    "protein_g": 20,
-    "fat_g": 54,
-    "carbs_g": 21,
-    "fiber_g": 7,
+    "fdcId": 171410,
+    "usda": "Oil, peanut, salad or cooking",
+    "kcal": 884,
+    "protein_g": 0,
+    "fat_g": 100,
+    "carbs_g": 0,
+    "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 161
+    "sodium_mg": 0
   },
   "runner beans": {
     "fdcId": 169961,
@@ -8437,15 +8437,15 @@
     "sodium_mg": 37
   },
   "bread flour": {
-    "fdcId": 167532,
-    "usda": "Bread, white wheat",
-    "kcal": 238,
-    "protein_g": 10.7,
-    "fat_g": 2.15,
-    "carbs_g": 43.9,
-    "fiber_g": 9.2,
+    "fdcId": null,
+    "usda": "Wheat flour, white, bread, enriched",
+    "kcal": 361,
+    "protein_g": 12,
+    "fat_g": 1.66,
+    "carbs_g": 72.5,
+    "fiber_g": 2.4,
     "sugar_g": null,
-    "sodium_mg": 478
+    "sodium_mg": 2
   },
   "unsweetened cocoa": {
     "fdcId": 169593,
