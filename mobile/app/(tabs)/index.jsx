@@ -26,6 +26,7 @@ import FilterSheet from "../../components/FilterSheet";
 import { OttoLoading, OttoError } from "../../components/OttoStates";
 import OttoIdle from "../../components/OttoIdle";
 import Bounceable from "../../components/Bounceable";
+import AskOtto from "../../components/AskOtto";
 
 // Discover — Home + Search merged (tab decision P2-1, MOBBIN_COMPARISON §2.1).
 // Scroll rhythm: greeting → search pill → featured → category tiles → grid.
@@ -378,6 +379,11 @@ const DiscoverScreen = () => {
                 <Ionicons name="chevron-forward" size={18} color={colors.accent} />
               </TouchableOpacity>
             )}
+
+            {/* Ask Otto — search looks through what exists, this writes what
+                doesn't. Sits under tonight (time-critical, conditional) and
+                above Otto's pick, per Figma 199:60. */}
+            <AskOtto onPress={() => router.navigate("/create")} />
 
             {featuredRecipe && (
               <View style={homeStyles.featuredSection}>

@@ -415,6 +415,29 @@ const AddScreen = () => {
               </Text>
               <Ionicons name="chevron-forward" size={13} color={colors.inkSoft} />
             </TouchableOpacity>
+
+            {/* Section/AskOtto (Figma 199:50) — the sheet is for recipes that
+                already exist somewhere. When there isn't one, the way out is
+                Otto writing it, not a dead end. */}
+            <View style={styles.orRow}>
+              <View style={styles.orLine} />
+              <Text style={styles.orText}>or</Text>
+              <View style={styles.orLine} />
+            </View>
+            <View style={styles.askOttoCard}>
+              <Text style={styles.askOttoTitle}>Nothing to bring in?</Text>
+              <Text style={styles.askOttoSub}>Otto can write you one from scratch.</Text>
+              <Bounceable
+                style={styles.primaryButton}
+                containerStyle={{ alignSelf: "stretch" }}
+                onPress={() => router.back()}
+                accessibilityRole="button"
+                accessibilityLabel="Chat with Otto to write a new recipe"
+              >
+                <Ionicons name="sparkles-outline" size={18} color={colors.white} />
+                <Text style={styles.primaryButtonText}>Chat with Otto</Text>
+              </Bounceable>
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       )}
