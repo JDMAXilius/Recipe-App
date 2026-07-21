@@ -30,6 +30,22 @@ If the script errors on code (not approval), fix incrementally per the figma-use
 (atomic — a failed script makes no changes) rather than rerunning blindly. Re-running the whole
 script creates ANOTHER page; delete the stale "2 · Screens — Add / Create" page first.
 
+## Assets — the Otto mascot (the only bitmap the screens need)
+
+Everything else (import/mic/tab/tile icons) is drawn as SVG inside the script — no assets.
+The two screens need ONE bitmap: the Otto **happy-cut** mascot. Two sources, in priority order:
+
+1. **Primary (automatic, zero setup):** the art is already in this Figma file at node `7:9`
+   (`Asset/Otto/Happy-cut`, DS Assets section). The script reads its image hash and reuses it —
+   this is why `mascotFound` should return `true`. Nothing to do.
+2. **Fallback (only if `mascotFound:false` or the mascot renders as a blank warm square):**
+   upload the committed PNG onto the two mascot frames. The repo asset is
+   **`mobile/assets/mascot/otto-happy-cut.png`** (859 KB, transparent cutout, < 10 MB limit).
+   The script returns `mascotNodeIds: [chatMascotId, importMascotId]`. For EACH id, call the
+   `upload_assets` tool with `fileKey` `mM0uWkHod9rL1Ff1VJ64Au`, `count: 1`, `nodeId: <that id>`,
+   `scaleMode: "FIT"`, then POST the PNG bytes to the returned upload URL with
+   `Content-Type: image/png`. (Two calls — `upload_assets` disallows `nodeId` when `count > 1`.)
+
 ## Task 2 — Verify + report
 
 - `get_screenshot` each frame (`chatId`, `importId`) and eyeball against the shipped app:

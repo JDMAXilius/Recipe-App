@@ -94,6 +94,7 @@ function icon(parent, d, o = {}) {
 }
 function mascot(parent, size) {
   const f = figma.createFrame();
+  f.name = "Otto mascot (happy-cut)";
   f.resize(size, size);
   f.cornerRadius = 0;
   f.fills = mascotHash ? [{ type: "IMAGE", imageHash: mascotHash, scaleMode: "FIT" }] : solid(C.surfaceWarm);
@@ -222,4 +223,7 @@ rrow.x = (393 - 300) / 2; rrow.y = rowY;
 const rchev = icon(imp, ICON.chevron, { size: 14, stroke: H.inkSoft });
 rchev.x = (393 + 300) / 2 - 6; rchev.y = rowY + rrow.height / 2 - 7;
 
-return { pageId: page.id, sectionId: section.id, chatId: chat.id, importId: imp.id, mascotFound: !!mascotHash };
+// mascotNodeIds → if the in-file art (node 7:9) didn't apply (mascotFound:false,
+// or a blank warm square), upload docs asset onto these two frames via the
+// upload_assets tool (nodeId each, scaleMode FIT). See the terminal ticket.
+return { pageId: page.id, sectionId: section.id, chatId: chat.id, importId: imp.id, mascotFound: !!mascotHash, mascotNodeIds: [cM.id, iM.id] };
