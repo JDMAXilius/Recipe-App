@@ -1242,3 +1242,30 @@ the import sheet section all render and round-trip. `node --test test/chatSummar
 7/7. **Not verified on the iOS simulator** — no device was booted and the changes are pure
 JS/layout with no native module surface; worth a sim pass before the next TestFlight build.
 The only console errors are the known local-web CORS ones (handoff §5), not from this work.
+
+## P25 — The in-use chat frame re-derived from the running build (2026-07-21, terminal)
+
+`198:17` had drifted from the shipped screen. Rather than eyeball it, the corrected frame was
+measured off the real thing: Chrome emulating 393×852 (the window itself won't go below 500pt,
+so device emulation was required), signed in, a realistic thread seeded into `otto.chats.v1`,
+then `getBoundingClientRect` on every element. Four mismatches came out of that comparison:
+
+1. **The recipe card had its own Otto avatar.** In the build a bubble and its card share ONE
+   avatar — they're both children of `styles.ottoCol` inside a single otto row. The frame drew
+   a second avatar the app never renders.
+2. **The meta and "+3 more" lines were sentence case.** `TYPE.caption` is `textTransform:
+   uppercase` with 0.5 tracking, so the build reads "4 SERVINGS · 9 INGREDIENTS · 6 STEPS".
+   The frame read softer than the screen it claimed to document.
+3. **The thread was drawn as a tidy, fully-visible column.** The real ScrollView auto-scrolls
+   to the end, so a thread this long is always seen scrolled with the first bubble clipped.
+   The corrected frame reproduces that with a clipping "thread (scrolled to end)" frame
+   between the header and the input bar — the state a user actually sees.
+4. **The top-right import button was missing.** The shipped header has it; `198:17` had only
+   the history clock. Restored on the copy.
+
+Per the duplicate-don't-replace rule the founder's WIP frame `198:17` was left exactly as-is
+(its two stub bubbles still overlap the input bar); the corrected frame is a copy,
+**`205:24` — "Chat with Otto — in use (matches shipped build)"**.
+
+Method note worth keeping: measuring the DOM beats reading the stylesheet. Points 1 and 3 are
+composition/behaviour facts that no amount of reading `otto.styles.js` would have surfaced.
