@@ -19,7 +19,8 @@ const sql = postgres(process.env.DATABASE_URL, { ssl: "require", prepare: false,
 const rows = await sql`
   select recipe_id, nutrition from seed_nutrition
   where nutrition->>'confidence' in ('low','medium')
-  order by nutrition->>'confidence', recipe_id`;
+     or nutrition->>'confidence' is null
+  order by nutrition->>'confidence' nulls last, recipe_id`;
 const dist = await sql`
   select coalesce(nutrition->>'confidence','unknown') c, count(*)
   from seed_nutrition group by 1 order by 2 desc`;
@@ -63,7 +64,7 @@ for (const r of rows) {
   const id = String(r.recipe_id);
   const n = r.nutrition || {};
   const m = byId.get(id);
-  o.push(`## ${i++}. ${m ? m.strMeal : `(recipe id ${id})`} — \`${n.confidence || "?"}\``);
+  o.push(`## ${i++}. ${m ? m.strMeal : `(recipe id ${id})`} — \`${n.confidence || "unknown"}\``);
   o.push("");
   if (!m) {
     o.push("_Added to TheMealDB after our cached corpus snapshot; ingredient lines not available offline._");
