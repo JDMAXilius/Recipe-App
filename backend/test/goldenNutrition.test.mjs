@@ -84,7 +84,12 @@ test("golden: beef stew (serves 4)", async () => {
     ],
     4
   );
-  within(out, 380, 560, "beef stew");
+  // Range lowered from [380, 560] in the Phase 22 identity sweep: "beef stock"
+  // pointed at "Soup, beef broth, CUBED, DRY" (170 kcal/100g), so 500 ml of
+  // stock contributed 850 kcal — 212 per serving — to a pot of stew. It now
+  // points at "Soup, stock, beef, home-prepared" (13 kcal/100g), matching the
+  // sibling keys "hot beef stock" and "unsalted beef stock".
+  within(out, 220, 330, "beef stew");
   assert.ok(out.protein_g > out.fat_g, "lean stew is protein-dominant");
 });
 

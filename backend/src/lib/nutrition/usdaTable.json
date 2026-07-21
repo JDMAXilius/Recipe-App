@@ -220,15 +220,15 @@
     "sodium_mg": 412
   },
   "beef stock": {
-    "fdcId": 171561,
-    "usda": "Soup, beef broth, cubed, dry",
-    "kcal": 170,
-    "protein_g": 17.3,
-    "fat_g": 4,
-    "carbs_g": 16.1,
+    "fdcId": 172883,
+    "usda": "Soup, stock, beef, home-prepared",
+    "kcal": 13,
+    "protein_g": 1.97,
+    "fat_g": 0.09,
+    "carbs_g": 1.2,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 24000
+    "sodium_mg": 198
   },
   "bicarbonate of soda": {
     "fdcId": 175040,
@@ -649,15 +649,15 @@
     "sodium_mg": 45
   },
   "chicken stock": {
-    "fdcId": 171110,
-    "usda": "Chicken, canned, no broth",
-    "kcal": 185,
-    "protein_g": 25.3,
-    "fat_g": 8.1,
-    "carbs_g": 0.9,
+    "fdcId": 174536,
+    "usda": "Soup, chicken broth, ready-to-serve",
+    "kcal": 6,
+    "protein_g": 0.64,
+    "fat_g": 0.21,
+    "carbs_g": 0.44,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 482
+    "sodium_mg": 371
   },
   "chicken thighs": {
     "fdcId": 171077,
@@ -1309,15 +1309,15 @@
     "sodium_mg": 1140
   },
   "fish sauce": {
-    "fdcId": 171949,
-    "usda": "Fish, bluefish, raw",
-    "kcal": 124,
-    "protein_g": 20,
-    "fat_g": 4.24,
-    "carbs_g": 0,
+    "fdcId": 174531,
+    "usda": "Sauce, fish, ready-to-serve",
+    "kcal": 35,
+    "protein_g": 5.06,
+    "fat_g": 0.01,
+    "carbs_g": 3.64,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 60
+    "sodium_mg": 7850
   },
   "flaked almonds": {
     "fdcId": 170567,
@@ -1441,15 +1441,15 @@
     "sodium_mg": 56
   },
   "fries": {
-    "fdcId": 167606,
-    "usda": "Sweet Potatoes, french fried, frozen as packaged, salt added in processing",
-    "kcal": 182,
-    "protein_g": 2.16,
-    "fat_g": 8.92,
-    "carbs_g": 35.6,
-    "fiber_g": 5.7,
+    "fdcId": 168442,
+    "usda": "Potatoes, french fried, all types, salt added in processing, frozen, unprepared",
+    "kcal": 147,
+    "protein_g": 2.24,
+    "fat_g": 4.66,
+    "carbs_g": 24.8,
+    "fiber_g": 1.9,
     "sugar_g": null,
-    "sodium_mg": 146
+    "sodium_mg": 332
   },
   "full fat yogurt": {
     "fdcId": 171284,
@@ -1738,15 +1738,15 @@
     "sodium_mg": 52
   },
   "heavy cream": {
-    "fdcId": 172331,
-    "usda": "Shortening frying (heavy duty), palm (hydrogenated)",
-    "kcal": 884,
-    "protein_g": 0,
-    "fat_g": 100,
-    "carbs_g": 0,
+    "fdcId": 170859,
+    "usda": "Cream, fluid, heavy whipping",
+    "kcal": 340,
+    "protein_g": 2.84,
+    "fat_g": 36.1,
+    "carbs_g": 2.84,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 0
+    "sodium_mg": 27
   },
   "honey": {
     "fdcId": 169640,
@@ -1881,15 +1881,15 @@
     "sodium_mg": 26
   },
   "king prawns": {
-    "fdcId": 175164,
-    "usda": "Crustaceans, crab, alaska king, raw",
-    "kcal": 84,
-    "protein_g": 18.3,
-    "fat_g": 0.6,
+    "fdcId": 175179,
+    "usda": "Crustaceans, shrimp, raw",
+    "kcal": 85,
+    "protein_g": 20.1,
+    "fat_g": 0.51,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 836
+    "sodium_mg": 119
   },
   "kosher salt": {
     "fdcId": 173468,
@@ -2068,15 +2068,15 @@
     "sodium_mg": 90
   },
   "madras paste": {
-    "fdcId": 170160,
-    "usda": "Nuts, almond paste",
-    "kcal": 458,
-    "protein_g": 9,
-    "fat_g": 27.7,
-    "carbs_g": 47.8,
-    "fiber_g": 4.8,
+    "fdcId": 171183,
+    "usda": "SMART SOUP, Thai Coconut Curry",
+    "kcal": 36,
+    "protein_g": 0.8,
+    "fat_g": 1.06,
+    "carbs_g": 6.5,
+    "fiber_g": 1,
     "sugar_g": null,
-    "sodium_mg": 9
+    "sodium_mg": 141
   },
   "marjoram": {
     "fdcId": 170928,
@@ -2090,15 +2090,15 @@
     "sodium_mg": 77
   },
   "massaman curry paste": {
-    "fdcId": 170160,
-    "usda": "Nuts, almond paste",
-    "kcal": 458,
-    "protein_g": 9,
-    "fat_g": 27.7,
-    "carbs_g": 47.8,
-    "fiber_g": 4.8,
+    "fdcId": 171183,
+    "usda": "SMART SOUP, Thai Coconut Curry",
+    "kcal": 36,
+    "protein_g": 0.8,
+    "fat_g": 1.06,
+    "carbs_g": 6.5,
+    "fiber_g": 1,
     "sugar_g": null,
-    "sodium_mg": 9
+    "sodium_mg": 141
   },
   "medjool dates": {
     "fdcId": 168191,
@@ -2343,15 +2343,15 @@
     "sodium_mg": 68
   },
   "parma ham": {
-    "fdcId": 167909,
-    "usda": "HORMEL, Cure 81 Ham",
-    "kcal": 106,
-    "protein_g": 18.4,
-    "fat_g": 3.59,
-    "carbs_g": 0.21,
-    "fiber_g": null,
+    "fdcId": 167875,
+    "usda": "Pork, cured, ham, whole, separable lean and fat, unheated",
+    "kcal": 246,
+    "protein_g": 18.5,
+    "fat_g": 18.5,
+    "carbs_g": 0.06,
+    "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 1040
+    "sodium_mg": 1280
   },
   "parmesan": {
     "fdcId": 172206,
@@ -2585,15 +2585,15 @@
     "sodium_mg": 15
   },
   "raw king prawns": {
-    "fdcId": 175164,
-    "usda": "Crustaceans, crab, alaska king, raw",
-    "kcal": 84,
-    "protein_g": 18.3,
-    "fat_g": 0.6,
+    "fdcId": 175179,
+    "usda": "Crustaceans, shrimp, raw",
+    "kcal": 85,
+    "protein_g": 20.1,
+    "fat_g": 0.51,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 836
+    "sodium_mg": 119
   },
   "red chilli flakes": {
     "fdcId": 170932,
@@ -2651,15 +2651,15 @@
     "sodium_mg": 4
   },
   "red pepper flakes": {
-    "fdcId": 170108,
-    "usda": "Peppers, sweet, red, raw",
-    "kcal": 26,
-    "protein_g": 0.99,
-    "fat_g": 0.3,
-    "carbs_g": 6.03,
-    "fiber_g": 2.1,
+    "fdcId": 170932,
+    "usda": "Spices, pepper, red or cayenne",
+    "kcal": 318,
+    "protein_g": 12,
+    "fat_g": 17.3,
+    "carbs_g": 56.6,
+    "fiber_g": 27.2,
     "sugar_g": null,
-    "sodium_mg": 4
+    "sodium_mg": 30
   },
   "red wine": {
     "fdcId": 173190,
@@ -2827,15 +2827,15 @@
     "sodium_mg": 643
   },
   "sausages": {
-    "fdcId": 174617,
-    "usda": "Sausage, turkey, fresh, raw",
-    "kcal": 155,
-    "protein_g": 18.8,
-    "fat_g": 8.08,
-    "carbs_g": 0.47,
+    "fdcId": 171631,
+    "usda": "Sausage, Italian, pork, mild, raw",
+    "kcal": 290,
+    "protein_g": 13.9,
+    "fat_g": 24.3,
+    "carbs_g": 2.97,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 593
+    "sodium_mg": 563
   },
   "sea salt": {
     "fdcId": 173468,
@@ -3487,15 +3487,15 @@
     "sodium_mg": 494
   },
   "cream cheese": {
-    "fdcId": 170857,
-    "usda": "Cream, fluid, light (coffee cream or table cream)",
-    "kcal": 195,
-    "protein_g": 2.96,
-    "fat_g": 19.1,
-    "carbs_g": 3.66,
+    "fdcId": 173418,
+    "usda": "Cheese, cream",
+    "kcal": 350,
+    "protein_g": 6.15,
+    "fat_g": 34.4,
+    "carbs_g": 5.52,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 72
+    "sodium_mg": 314
   },
   "icing sugar": {
     "fdcId": 169656,
@@ -3652,15 +3652,15 @@
     "sodium_mg": 44
   },
   "fish stock": {
-    "fdcId": 174195,
-    "usda": "Fish, fish sticks, frozen, prepared",
-    "kcal": 277,
-    "protein_g": 11,
-    "fat_g": 16.2,
-    "carbs_g": 21.7,
-    "fiber_g": 1.5,
+    "fdcId": 172885,
+    "usda": "Soup, stock, fish, home-prepared",
+    "kcal": 16,
+    "protein_g": 2.26,
+    "fat_g": 0.81,
+    "carbs_g": 0,
+    "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 402
+    "sodium_mg": 156
   },
   "pilchards": {
     "fdcId": 175139,
@@ -3674,15 +3674,15 @@
     "sodium_mg": 307
   },
   "black olives": {
-    "fdcId": 173947,
-    "usda": "Blackberry juice, canned",
-    "kcal": 38,
-    "protein_g": 0.3,
-    "fat_g": 0.6,
-    "carbs_g": 7.8,
-    "fiber_g": 0.1,
+    "fdcId": 169094,
+    "usda": "Olives, ripe, canned (small-extra large)",
+    "kcal": 116,
+    "protein_g": 0.84,
+    "fat_g": 10.9,
+    "carbs_g": 6.04,
+    "fiber_g": 1.6,
     "sugar_g": null,
-    "sodium_mg": 1
+    "sodium_mg": 735
   },
   "onion": {
     "fdcId": 170000,
@@ -3729,15 +3729,15 @@
     "sodium_mg": 63
   },
   "chicken stock cube": {
-    "fdcId": 171110,
-    "usda": "Chicken, canned, no broth",
-    "kcal": 185,
-    "protein_g": 25.3,
-    "fat_g": 8.1,
-    "carbs_g": 0.9,
+    "fdcId": 171562,
+    "usda": "Soup, chicken broth or bouillon, dry",
+    "kcal": 267,
+    "protein_g": 16.7,
+    "fat_g": 13.9,
+    "carbs_g": 18,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 482
+    "sodium_mg": 23900
   },
   "pappardelle pasta": {
     "fdcId": 169736,
@@ -4686,15 +4686,15 @@
     "sodium_mg": 172
   },
   "mixed peel": {
-    "fdcId": 167726,
-    "usda": "Babyfood, mixed fruit yogurt, strained",
-    "kcal": 75,
-    "protein_g": 0.8,
-    "fat_g": 0.8,
-    "carbs_g": 16.2,
-    "fiber_g": 0.4,
+    "fdcId": 167781,
+    "usda": "Candied fruit",
+    "kcal": 322,
+    "protein_g": 0.34,
+    "fat_g": 0.07,
+    "carbs_g": 82.7,
+    "fiber_g": 1.6,
     "sugar_g": null,
-    "sodium_mg": 16
+    "sodium_mg": 98
   },
   "redcurrants": {
     "fdcId": 173964,
@@ -4774,15 +4774,15 @@
     "sodium_mg": 1
   },
   "black pudding": {
-    "fdcId": 173946,
-    "usda": "Blackberries, raw",
-    "kcal": 43,
-    "protein_g": 1.39,
-    "fat_g": 0.49,
-    "carbs_g": 9.61,
-    "fiber_g": 5.3,
+    "fdcId": 171618,
+    "usda": "Blood sausage",
+    "kcal": 379,
+    "protein_g": 14.6,
+    "fat_g": 34.5,
+    "carbs_g": 1.29,
+    "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 1
+    "sodium_mg": 680
   },
   "baked beans": {
     "fdcId": 172667,
@@ -4807,15 +4807,15 @@
     "sodium_mg": 2
   },
   "yeast": {
-    "fdcId": 167717,
-    "usda": "Yeast extract spread",
-    "kcal": 185,
-    "protein_g": 23.9,
-    "fat_g": 0.9,
-    "carbs_g": 20.4,
-    "fiber_g": 6.5,
+    "fdcId": 175043,
+    "usda": "Leavening agents, yeast, baker's, active dry",
+    "kcal": 325,
+    "protein_g": 40.4,
+    "fat_g": 7.61,
+    "carbs_g": 41.2,
+    "fiber_g": 26.9,
     "sugar_g": null,
-    "sodium_mg": 3380
+    "sodium_mg": 51
   },
   "fruit mix": {
     "fdcId": 167726,
@@ -4950,15 +4950,15 @@
     "sodium_mg": 82
   },
   "prosciutto": {
-    "fdcId": 167873,
-    "usda": "Pork, cured, ham, patties, unheated",
-    "kcal": 315,
-    "protein_g": 12.8,
-    "fat_g": 28.2,
-    "carbs_g": 1.69,
+    "fdcId": 167875,
+    "usda": "Pork, cured, ham, whole, separable lean and fat, unheated",
+    "kcal": 246,
+    "protein_g": 18.5,
+    "fat_g": 18.5,
+    "carbs_g": 0.06,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 1090
+    "sodium_mg": 1280
   },
   "unsalted butter": {
     "fdcId": 173430,
@@ -5027,15 +5027,15 @@
     "sodium_mg": 90
   },
   "star anise": {
-    "fdcId": 170929,
-    "usda": "Spices, mustard seed, ground",
-    "kcal": 508,
-    "protein_g": 26.1,
-    "fat_g": 36.2,
-    "carbs_g": 28.1,
-    "fiber_g": 12.2,
+    "fdcId": 171316,
+    "usda": "Spices, anise seed",
+    "kcal": 337,
+    "protein_g": 17.6,
+    "fat_g": 15.9,
+    "carbs_g": 50,
+    "fiber_g": 14.6,
     "sugar_g": null,
-    "sodium_mg": 13
+    "sodium_mg": 16
   },
   "tiger prawns": {
     "fdcId": 175179,
@@ -5181,15 +5181,15 @@
     "sodium_mg": 4
   },
   "jerk": {
-    "fdcId": 172752,
-    "usda": "Croutons, seasoned",
-    "kcal": 465,
-    "protein_g": 10.8,
-    "fat_g": 18.3,
-    "carbs_g": 63.5,
-    "fiber_g": 5,
+    "fdcId": 171315,
+    "usda": "Spices, allspice, ground",
+    "kcal": 263,
+    "protein_g": 6.09,
+    "fat_g": 8.69,
+    "carbs_g": 72.1,
+    "fiber_g": 21.6,
     "sugar_g": null,
-    "sodium_mg": 1330
+    "sodium_mg": 77
   },
   "ground beef": {
     "fdcId": 168608,
@@ -5390,15 +5390,15 @@
     "sodium_mg": 712
   },
   "gochujang": {
-    "fdcId": 170160,
-    "usda": "Nuts, almond paste",
-    "kcal": 458,
-    "protein_g": 9,
-    "fat_g": 27.7,
-    "carbs_g": 47.8,
-    "fiber_g": 4.8,
+    "fdcId": 172442,
+    "usda": "Miso",
+    "kcal": 198,
+    "protein_g": 12.8,
+    "fat_g": 6.01,
+    "carbs_g": 25.4,
+    "fiber_g": 5.4,
     "sugar_g": null,
-    "sodium_mg": 9
+    "sodium_mg": 3730
   },
   "bean sprouts": {
     "fdcId": 169213,
@@ -5764,15 +5764,15 @@
     "sodium_mg": 24000
   },
   "chicken stock concentrate": {
-    "fdcId": 171110,
-    "usda": "Chicken, canned, no broth",
-    "kcal": 185,
-    "protein_g": 25.3,
-    "fat_g": 8.1,
-    "carbs_g": 0.9,
+    "fdcId": 171562,
+    "usda": "Soup, chicken broth or bouillon, dry",
+    "kcal": 267,
+    "protein_g": 16.7,
+    "fat_g": 13.9,
+    "carbs_g": 18,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 482
+    "sodium_mg": 23900
   },
   "persian cucumber": {
     "fdcId": 169225,
@@ -6083,15 +6083,15 @@
     "sodium_mg": 78
   },
   "sardines": {
-    "fdcId": 173578,
-    "usda": "Fish oil, sardine",
-    "kcal": 902,
-    "protein_g": 0,
-    "fat_g": 100,
+    "fdcId": 175139,
+    "usda": "Fish, sardine, Atlantic, canned in oil, drained solids with bone",
+    "kcal": 208,
+    "protein_g": 24.6,
+    "fat_g": 11.4,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 0
+    "sodium_mg": 307
   },
   "ciabatta": {
     "fdcId": 174913,
@@ -6127,15 +6127,15 @@
     "sodium_mg": 23
   },
   "grape leaves": {
-    "fdcId": 173040,
-    "usda": "Grapes, muscadine, raw",
-    "kcal": 57,
-    "protein_g": 0.81,
-    "fat_g": 0.47,
-    "carbs_g": 13.9,
-    "fiber_g": 3.9,
+    "fdcId": 168575,
+    "usda": "Grape leaves, raw",
+    "kcal": 93,
+    "protein_g": 5.6,
+    "fat_g": 2.12,
+    "carbs_g": 17.3,
+    "fiber_g": 11,
     "sugar_g": null,
-    "sodium_mg": 1
+    "sodium_mg": 9
   },
   "falafel": {
     "fdcId": 172455,
@@ -6336,15 +6336,15 @@
     "sodium_mg": 30
   },
   "streaky bacon": {
-    "fdcId": 168287,
-    "usda": "Pork, cured, salt pork, raw",
-    "kcal": 748,
-    "protein_g": 5.05,
-    "fat_g": 80.5,
+    "fdcId": 168277,
+    "usda": "Pork, cured, bacon, unprepared",
+    "kcal": 393,
+    "protein_g": 13.7,
+    "fat_g": 37.1,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 2680
+    "sodium_mg": 751
   },
   "clear honey": {
     "fdcId": 169640,
@@ -6809,15 +6809,15 @@
     "sodium_mg": 68
   },
   "manchego": {
-    "fdcId": 170882,
-    "usda": "Milk, sheep, fluid",
-    "kcal": 108,
-    "protein_g": 5.98,
-    "fat_g": 7,
-    "carbs_g": 5.36,
+    "fdcId": 171249,
+    "usda": "Cheese, romano",
+    "kcal": 387,
+    "protein_g": 31.8,
+    "fat_g": 26.9,
+    "carbs_g": 3.63,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 44
+    "sodium_mg": 1430
   },
   "wild garlic leaves": {
     "fdcId": 1104647,
@@ -6831,15 +6831,15 @@
     "sodium_mg": null
   },
   "jamón ibérico": {
-    "fdcId": 167909,
-    "usda": "HORMEL, Cure 81 Ham",
-    "kcal": 106,
-    "protein_g": 18.4,
-    "fat_g": 3.59,
-    "carbs_g": 0.21,
-    "fiber_g": null,
+    "fdcId": 167875,
+    "usda": "Pork, cured, ham, whole, separable lean and fat, unheated",
+    "kcal": 246,
+    "protein_g": 18.5,
+    "fat_g": 18.5,
+    "carbs_g": 0.06,
+    "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 1040
+    "sodium_mg": 1280
   },
   "strong white bread flour": {
     "fdcId": 168896,
@@ -7084,15 +7084,15 @@
     "sodium_mg": 0
   },
   "serrano ham": {
-    "fdcId": 167909,
-    "usda": "HORMEL, Cure 81 Ham",
-    "kcal": 106,
-    "protein_g": 18.4,
-    "fat_g": 3.59,
-    "carbs_g": 0.21,
-    "fiber_g": null,
+    "fdcId": 167875,
+    "usda": "Pork, cured, ham, whole, separable lean and fat, unheated",
+    "kcal": 246,
+    "protein_g": 18.5,
+    "fat_g": 18.5,
+    "carbs_g": 0.06,
+    "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 1040
+    "sodium_mg": 1280
   },
   "beef tomatoes": {
     "fdcId": 170457,
@@ -7128,15 +7128,15 @@
     "sodium_mg": 26
   },
   "bryndza cheese": {
-    "fdcId": 170882,
-    "usda": "Milk, sheep, fluid",
-    "kcal": 108,
-    "protein_g": 5.98,
-    "fat_g": 7,
-    "carbs_g": 5.36,
+    "fdcId": 173420,
+    "usda": "Cheese, feta",
+    "kcal": 265,
+    "protein_g": 14.2,
+    "fat_g": 21.5,
+    "carbs_g": 3.88,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 44
+    "sodium_mg": 1140
   },
   "panang curry paste": {
     "fdcId": 171183,
@@ -7282,13 +7282,13 @@
     "sodium_mg": 18
   },
   "lime juice": {
-    "fdcId": 168155,
-    "usda": "Limes, raw",
-    "kcal": 30,
-    "protein_g": 0.7,
-    "fat_g": 0.2,
-    "carbs_g": 10.5,
-    "fiber_g": 2.8,
+    "fdcId": 168156,
+    "usda": "Lime juice, raw",
+    "kcal": 25,
+    "protein_g": 0.42,
+    "fat_g": 0.07,
+    "carbs_g": 8.42,
+    "fiber_g": 0.4,
     "sugar_g": null,
     "sodium_mg": 2
   },
@@ -8525,15 +8525,15 @@
     "sodium_mg": 9
   },
   "yautia": {
-    "fdcId": 167782,
-    "usda": "Abiyuch, raw",
-    "kcal": 69,
-    "protein_g": 1.5,
-    "fat_g": 0.1,
-    "carbs_g": 17.6,
-    "fiber_g": 5.3,
+    "fdcId": 169401,
+    "usda": "Yautia (tannier), raw",
+    "kcal": 98,
+    "protein_g": 1.46,
+    "fat_g": 0.4,
+    "carbs_g": 23.6,
+    "fiber_g": 1.5,
     "sugar_g": null,
-    "sodium_mg": 20
+    "sodium_mg": 21
   },
   "white yam": {
     "fdcId": 170071,
@@ -8767,15 +8767,15 @@
     "sodium_mg": 659
   },
   "cream of tartar": {
-    "fdcId": 170857,
-    "usda": "Cream, fluid, light (coffee cream or table cream)",
-    "kcal": 195,
-    "protein_g": 2.96,
-    "fat_g": 19.1,
-    "carbs_g": 3.66,
-    "fiber_g": 0,
+    "fdcId": 175041,
+    "usda": "Leavening agents, cream of tartar",
+    "kcal": 258,
+    "protein_g": 0,
+    "fat_g": 0,
+    "carbs_g": 61.5,
+    "fiber_g": 0.2,
     "sugar_g": null,
-    "sodium_mg": 72
+    "sodium_mg": 52
   },
   "dried leaves of summer savoury": {
     "fdcId": 170936,
@@ -10338,5 +10338,38 @@
     "fiber_g": 0,
     "sugar_g": null,
     "sodium_mg": 106
+  },
+  "turkish delight": {
+    "fdcId": 167989,
+    "usda": "Candies, gumdrops, starch jelly pieces",
+    "kcal": 396,
+    "protein_g": 0,
+    "fat_g": 0,
+    "carbs_g": 98.9,
+    "fiber_g": 0.1,
+    "sugar_g": null,
+    "sodium_mg": 44
+  },
+  "orange blossom water": {
+    "fdcId": 174158,
+    "usda": "Water, bottled, generic",
+    "kcal": 0,
+    "protein_g": 0,
+    "fat_g": 0,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 2
+  },
+  "pickle juice": {
+    "fdcId": 169379,
+    "usda": "Pickles, cucumber, sour",
+    "kcal": 11,
+    "protein_g": 0.33,
+    "fat_g": 0.2,
+    "carbs_g": 2.26,
+    "fiber_g": 1.2,
+    "sugar_g": null,
+    "sodium_mg": 1208
   }
 }
