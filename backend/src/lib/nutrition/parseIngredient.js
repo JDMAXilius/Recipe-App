@@ -61,6 +61,8 @@ const DENSITY = [
   [/rice(?!\s*vinegar)/i, 0.85],
   [/oats|oatmeal/i, 0.4],
   [/parmesan|parmigiano|pecorino|grated cheese/i, 0.42],
+  [/tomato (pur[eé]e|paste)/i, 1.09],
+  [/cheddar|mozzarella|gruy[eè]re|monterey|colby|halloumi|emmental|feta|stilton/i, 0.47],
   [/cheese/i, 0.47],
   [/breadcrumbs|panko/i, 0.25],
   [/nuts?|almond|walnut|pecan|peanut|cashew/i, 0.55],
@@ -88,7 +90,7 @@ const DEFAULT_DENSITY = 1.0;
 
 // count-unit piece weights (grams per item). Rough — flagged lower confidence.
 const PIECE_G = [
-  [/^clove$/, /garlic/i, 5],
+  [/^clove$/, /garlic/i, 3],
   [/^can$/, /tomato|beans|chickpea|corn/i, 400],
   [/^can$/, /tuna|salmon|anchov/i, 150],
   [/^can$/, /coconut milk|evaporated|condensed/i, 400],
@@ -116,13 +118,14 @@ const PIECE_G = [
 // bare-count items ("2 eggs", "3 bananas") — grams per each
 const EACH_G = [
   [/shortcrust|puff pastry/i, 320],
+  [/lasagn[ea] sheet/i, 18],
   [/egg yolk/i, 17],
   [/egg white/i, 33],
   [/egg/i, 50],
   [/banana/i, 118],
   [/spring onion|scallion|green onion/i, 15],
   [/potatoe? buns?/i, 60],
-  [/onion/i, 150],
+  [/onion/i, 110],
   [/potato/i, 210],
   [/carrot/i, 60],
   [/cherry tomato/i, 17],

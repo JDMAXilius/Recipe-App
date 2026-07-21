@@ -44,7 +44,7 @@ test("volume converts via density (flour ≠ water)", () => {
 
 test("count units and bare counts are medium confidence", () => {
   const garlic = parseIngredientLine("3 cloves garlic");
-  assert.equal(garlic.grams, 15);
+  assert.equal(garlic.grams, 9); // 3 g/clove [USDA] — aligned with the app's table
   assert.equal(garlic.confidence, "medium");
   const eggs = parseIngredientLine("2 eggs");
   assert.equal(eggs.grams, 100);

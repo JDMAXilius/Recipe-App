@@ -4,6 +4,7 @@
 // human-readable rendering and an honest "made with Otto" footer.
 // Everything user-authored is HTML-escaped; attribution always travels.
 import crypto from "node:crypto";
+import { weightAmount } from "./weightDisplay.js";
 
 // ~72 bits of CSPRNG — unguessable, collision-safe at any realistic scale.
 export const makeShareToken = () => crypto.randomBytes(9).toString("base64url");
@@ -90,7 +91,7 @@ export function renderRecipePage(row, url) {
   const ingredientsHtml = pairs
     .map(
       (pair) =>
-        `<li>${pair.measure ? `<span class="qty">${escapeHtml(pair.measure)}</span> ` : ""}${escapeHtml(pair.name)}</li>`
+        `<li>${pair.measure ? `<span class="qty">${escapeHtml(weightAmount(pair.measure, pair.name))}</span> ` : ""}${escapeHtml(pair.name)}</li>`
     )
     .join("");
   const stepsHtml = steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("");

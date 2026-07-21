@@ -11,6 +11,7 @@ import {
   renderGonePage,
   renderNotFoundPage,
 } from "../src/lib/sharePages.js";
+import { weightAmount } from "../src/lib/weightDisplay.js";
 
 test("share tokens are url-safe, long enough, and non-repeating", () => {
   const seen = new Set();
@@ -116,4 +117,15 @@ test("list page groups by aisle and keeps provenance", () => {
 test("gone and not-found pages exist and say so honestly", () => {
   assert.match(renderGonePage(), /put away/i);
   assert.match(renderNotFoundPage(), /couldn&#39;t find that page|couldn't find that page/i);
+});
+
+// Weight-first amounts on the public page (founder rules, 2026-07): grams for
+// weighables, ml for thin liquids, decimal spoons for spices, raw fallback.
+test("share page amounts are weight-first with honest fallbacks", () => {
+  assert.equal(weightAmount("500g", "Beef Mince"), "500 g");
+  assert.match(weightAmount("1 cup", "Grated Cheddar"), /^\d+(\.\d)? g$/);
+  assert.equal(weightAmount("2 cups", "Milk"), "480 ml");
+  assert.equal(weightAmount("1/2 tsp", "Black Pepper"), "0.5 tsp");
+  assert.equal(weightAmount("Handful", "Fresh Basil"), "Handful");
+  assert.ok(!/[½⅓⅔¼¾]/.test(weightAmount("1/2 tsp", "Salt")), "no fraction glyphs");
 });
