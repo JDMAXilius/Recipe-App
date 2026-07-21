@@ -697,3 +697,27 @@ Cookbook is ONE tab with in-screen segments.
   (idempotent create + token index + RLS), handed to the terminal (ticket Task 4) to run against
   prod. Lesson logged in the ticket: any new schema.js table needs a matching idempotent script run
   on prod, since the repo has no live migration journal.
+
+## Phase 13 — API communication architecture adopted (2026-07-21, cloud)
+
+Founder: "Lets plan the rest and entire API communication Architecture." Wrote the
+authoritative map + forward plan as `docs/API_ARCHITECTURE.md` — grounded in the live routes,
+limiters, services layer and env, not memory. Summary of the calls (full rationale in the doc):
+
+- **P13. Four-plane model named and frozen.** Content (anonymous TheMealDB passthrough),
+  User (authFetch + Supabase JWT + RLS), AI (dormant-gated Claude seams — the four-part
+  pattern every new seam must copy), Public (server-rendered share pages, capability tokens).
+  Cross-cutting contracts codified: one error shape (`{ error }` in Otto's voice = the toast),
+  status vocabulary, limiter tiers, upstream timeouts, services-layer-only networking.
+- **API-1..API-10 decided** (see doc §3): deploy-provable `/api/health` `{version, sha}` first
+  (kills the merged≠live class of failure); request-id middleware; in-memory TTL cache on
+  /api/content; **no `/api/v1` prefix** — additive-only rule + new-route-name-on-break instead;
+  authFetch gets timeout + GET-only single retry (react-query rewrite explicitly rejected);
+  collab list = 20s foreground polling now, Supabase Realtime only if households feel the lag;
+  offline = read-only last-good cache later, no sync machinery; AI seam order = photo→recipe,
+  then Ask-Otto-on-a-recipe, then plan-my-week; **no AI food photography presented as real,
+  ever** — Otto placeholder art for imageless recipes; founder activation checklist consolidated
+  (keys, bucket SQL, anon toggle, rotation, railway deploy on every backend merge).
+- **Execution order:** Run A = hardening sweep (API-1,2,3,5,6 — all cloud-doable), Run B =
+  photo→recipe seam, Run C = offline reads. Terminal tickets unchanged and still authoritative
+  for device/prod-only work.
