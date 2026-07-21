@@ -20,6 +20,7 @@ import { UserRecipeAPI, isUserRecipeId } from "../../services/userRecipes";
 import { uploadRecipePhoto } from "../../lib/uploadRecipePhoto";
 import { formatIngredientLine } from "../../lib/foodScale";
 import { takeDraft } from "../../lib/draftStore";
+import { loadPrefs } from "../../lib/prefs";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Bounceable from "../../components/Bounceable";
 
@@ -181,6 +182,55 @@ const RecipeEditScreen = () => {
     }
   };
 
+  // Otto button section on the blank editor: describe the dish and the
+  // generated recipe fills the form right here — same review-first flow, the
+  // author just never left the page. Only offered while the page is truly
+  // blank-manual (imports and edits already have content worth protecting).
+  const [ottoOpen, setOttoOpen] = useState(false);
+  const [wish, setWish] = useState("");
+  const [dreaming, setDreaming] = useState(false);
+  const cookWithOtto = async () => {
+    const ask = wish.trim();
+    if (ask.length < 3) {
+      show({ message: "Tell Otto a little more — what kind of dish, for how many, any rules?" });
+      return;
+    }
+    if (dreaming) return;
+    setDreaming(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    try {
+      const prefs = await loadPrefs().catch(() => null);
+      const draft = await UserRecipeAPI.generate({
+        prompt: ask,
+        servings,
+        ...(prefs?.diet && prefs.diet !== "none" ? { diet: prefs.diet } : {}),
+        ...(prefs?.cuisines?.length ? { cuisines: prefs.cuisines } : {}),
+      });
+      setMode("import");
+      setSource("otto");
+      setSourceUrl(null);
+      setSourceName(null);
+      setTitle(draft.title || "");
+      setCategory(draft.category || "");
+      setArea(draft.area || "");
+      setServings(draft.servings || 4);
+      setIngredients(draft.ingredients?.length ? draft.ingredients : [emptyIngredient()]);
+      setSteps(draft.steps?.length ? draft.steps : [""]);
+      setOttoOpen(false);
+      setWish("");
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      show({ message: "Otto wrote it out — check his work, then save it." });
+    } catch (error) {
+      show({
+        message: error.message?.startsWith("Otto")
+          ? error.message
+          : error.message || "Otto couldn't finish that idea right now — try again in a moment.",
+      });
+    } finally {
+      setDreaming(false);
+    }
+  };
+
   const save = async () => {
     const cleanTitle = title.trim();
     if (!cleanTitle) {
@@ -260,6 +310,56 @@ const RecipeEditScreen = () => {
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          {mode === "manual" && (
+            <View style={[styles.modeCard, styles.ottoEditorCard]}>
+              <TouchableOpacity
+                style={styles.modeTitleRow}
+                onPress={() => setOttoOpen((open) => !open)}
+                accessibilityRole="button"
+                accessibilityLabel="Cook something up with Otto"
+                accessibilityState={{ expanded: ottoOpen }}
+              >
+                <Ionicons name="sparkles" size={18} color={colors.accent} />
+                <Text style={styles.modeTitle}>Cook something up with Otto</Text>
+                <Ionicons
+                  name={ottoOpen ? "chevron-up" : "chevron-down"}
+                  size={16}
+                  color={colors.inkSoft}
+                  style={styles.modeChevron}
+                />
+              </TouchableOpacity>
+              {ottoOpen ? (
+                <>
+                  <Text style={styles.modeHint}>
+                    Describe the dish — Otto writes the whole recipe into this form for you to
+                    tweak and save.
+                  </Text>
+                  <TextInput
+                    style={[styles.urlInput, styles.textArea]}
+                    value={wish}
+                    onChangeText={setWish}
+                    placeholder="What are you hungry for?"
+                    placeholderTextColor={colors.inkSoft}
+                    multiline
+                    autoFocus
+                    accessibilityLabel="Describe the recipe you want"
+                  />
+                  <Bounceable
+                    style={styles.primaryButton}
+                    onPress={dreaming ? undefined : cookWithOtto}
+                    accessibilityRole="button"
+                    accessibilityLabel="Have Otto write the recipe"
+                  >
+                    <Ionicons name="sparkles-outline" size={18} color={colors.white} />
+                    <Text style={styles.primaryButtonText}>
+                      {dreaming ? "Otto's cooking…" : "Cook it up"}
+                    </Text>
+                  </Bounceable>
+                </>
+              ) : null}
+            </View>
+          )}
+
           {mode === "import" && (
             <View style={styles.reviewBanner}>
               <Ionicons name={source === "otto" ? "sparkles" : "paw"} size={16} color={colors.accent} />

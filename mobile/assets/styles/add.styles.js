@@ -71,6 +71,12 @@ export const createAddStyles = (colors) =>
       fontSize: 18,
       color: colors.ink,
     },
+    modeChevron: {
+      marginLeft: "auto",
+    },
+    ottoEditorCard: {
+      marginBottom: SPACING.lg,
+    },
     modeHint: {
       ...TYPE.body,
       fontSize: 13,

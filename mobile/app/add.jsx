@@ -160,6 +160,9 @@ const AddScreen = () => {
   // "Cook something up with Otto" — describe the dinner, Claude writes the
   // recipe, and the draft lands on the SAME review editor as imports: AI
   // output is never trusted blindly, and it saves labeled source "otto".
+  // Presented as a button section: collapsed until tapped, so the sheet
+  // stays a row of clear choices.
+  const [ottoOpen, setOttoOpen] = useState(false);
   const [wish, setWish] = useState("");
   const startGenerate = async () => {
     const ask = wish.trim();
@@ -251,6 +254,19 @@ const AddScreen = () => {
             <Ionicons name="create-outline" size={18} color={colors.white} />
             <Text style={styles.primaryButtonText}>Write it myself instead</Text>
           </Bounceable>
+          <Bounceable
+            style={styles.secondaryButton}
+            containerStyle={{ alignSelf: "stretch" }}
+            onPress={() => {
+              setOttoOpen(true);
+              setPhase("pick");
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Have Otto cook one up instead"
+          >
+            <Ionicons name="sparkles-outline" size={18} color={colors.accent} />
+            <Text style={styles.secondaryButtonText}>Have Otto cook one up instead</Text>
+          </Bounceable>
           <TouchableOpacity
             onPress={() => setPhase("pick")}
             accessibilityRole="button"
@@ -277,32 +293,49 @@ const AddScreen = () => {
             </View>
 
             <View style={styles.modeCard}>
-              <View style={styles.modeTitleRow}>
+              <TouchableOpacity
+                style={styles.modeTitleRow}
+                onPress={() => setOttoOpen((open) => !open)}
+                accessibilityRole="button"
+                accessibilityLabel="Cook something up with Otto"
+                accessibilityState={{ expanded: ottoOpen }}
+              >
                 <Ionicons name="sparkles" size={18} color={colors.accent} />
                 <Text style={styles.modeTitle}>Cook something up with Otto</Text>
-              </View>
+                <Ionicons
+                  name={ottoOpen ? "chevron-up" : "chevron-down"}
+                  size={16}
+                  color={colors.inkSoft}
+                  style={styles.modeChevron}
+                />
+              </TouchableOpacity>
               <Text style={styles.modeHint}>
                 Tell Otto what you&apos;re after — &ldquo;a cozy 30-minute chicken dinner for 4,
                 no dairy&rdquo; — and he&apos;ll write a real recipe for you to check and keep.
               </Text>
-              <TextInput
-                style={[styles.urlInput, styles.textArea]}
-                value={wish}
-                onChangeText={setWish}
-                placeholder="What are you hungry for?"
-                placeholderTextColor={colors.inkSoft}
-                multiline
-                accessibilityLabel="Describe the recipe you want"
-              />
-              <Bounceable
-                style={styles.primaryButton}
-                onPress={startGenerate}
-                accessibilityRole="button"
-                accessibilityLabel="Have Otto write the recipe"
-              >
-                <Ionicons name="sparkles-outline" size={18} color={colors.white} />
-                <Text style={styles.primaryButtonText}>Cook it up</Text>
-              </Bounceable>
+              {ottoOpen ? (
+                <>
+                  <TextInput
+                    style={[styles.urlInput, styles.textArea]}
+                    value={wish}
+                    onChangeText={setWish}
+                    placeholder="What are you hungry for?"
+                    placeholderTextColor={colors.inkSoft}
+                    multiline
+                    autoFocus
+                    accessibilityLabel="Describe the recipe you want"
+                  />
+                  <Bounceable
+                    style={styles.primaryButton}
+                    onPress={startGenerate}
+                    accessibilityRole="button"
+                    accessibilityLabel="Have Otto write the recipe"
+                  >
+                    <Ionicons name="sparkles-outline" size={18} color={colors.white} />
+                    <Text style={styles.primaryButtonText}>Cook it up</Text>
+                  </Bounceable>
+                </>
+              ) : null}
             </View>
 
             <View style={styles.modeCard}>
