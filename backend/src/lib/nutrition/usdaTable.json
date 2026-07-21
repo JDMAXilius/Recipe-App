@@ -1947,15 +1947,15 @@
     "sodium_mg": 6
   },
   "lean minced beef": {
-    "fdcId": 168652,
-    "usda": "Beef, ground, 70% lean meat / 30% fat, raw",
-    "kcal": 332,
-    "protein_g": 14.4,
-    "fat_g": 30,
+    "fdcId": 168608,
+    "usda": "Beef, grass-fed, ground, raw",
+    "kcal": 198,
+    "protein_g": 19.4,
+    "fat_g": 12.7,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 66
+    "sodium_mg": 68
   },
   "leek": {
     "fdcId": 169246,
@@ -6215,15 +6215,15 @@
     "sodium_mg": 24000
   },
   "lean minced steak": {
-    "fdcId": 168652,
-    "usda": "Beef, ground, 70% lean meat / 30% fat, raw",
-    "kcal": 332,
-    "protein_g": 14.4,
-    "fat_g": 30,
+    "fdcId": 168608,
+    "usda": "Beef, grass-fed, ground, raw",
+    "kcal": 198,
+    "protein_g": 19.4,
+    "fat_g": 12.7,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 66
+    "sodium_mg": 68
   },
   "cooked beetroot": {
     "fdcId": 169146,

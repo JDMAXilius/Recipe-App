@@ -239,6 +239,31 @@ function stripQualifiers(name) {
   return seen; // progressively-shortened candidates, most-specific first
 }
 
+// TRAILING prep clauses — "chicken breast, sliced thin", "garlic, minced",
+// "fresh parsley, chopped". QUALIFIER above only strips LEADING words, so
+// these missed the table entirely; when the miss was the recipe's main
+// ingredient, coverage collapsed and the whole card fell back to the generic
+// category estimate — a fabricated macro split on an honest-looking number
+// (TestFlight QA 2026-07-21, garlic butter chicken: 20 g phantom carbs).
+// A clause is dropped only when EVERY word in it is a preparation word.
+// Identity words are deliberately absent — "beans, canned" and "tomatoes,
+// sun-dried" keep their clause and their own (or no) row, never the raw one.
+const TRAILING_PREP_WORD =
+  /^(?:sliced|diced|chopped|minced|shredded|grated|crushed|julienned|cubed|quartered|halved|peeled|seeded|deseeded|cored|trimmed|rinsed|drained|beaten|melted|softened|divided|optional|thin|thinly|thick|thickly|fine|finely|rough|roughly|coarse|coarsely|fresh|freshly|small|medium|large|extra|cut|into|pieces|strips|chunks|wedges|rings|lengthwise|crosswise|at|room|temperature|and|or|to|for|taste|serve|serving|garnish|plus|more)$/i;
+
+function stripTrailingPrep(name) {
+  const parts = String(name || "").split(",");
+  if (parts.length < 2) return null;
+  let end = parts.length;
+  while (end > 1) {
+    const words = parts[end - 1].trim().split(/\s+/).filter(Boolean);
+    if (!words.length || !words.every((w) => TRAILING_PREP_WORD.test(w))) break;
+    end--;
+  }
+  if (end === parts.length) return null; // nothing safe to strip
+  return parts.slice(0, end).join(",").trim();
+}
+
 export function lookup(name, parsedItem, cooked) {
   if (cooked) {
     const c = cookedTable[key(name)] || cookedTable[key(parsedItem)];
@@ -249,9 +274,21 @@ export function lookup(name, parsedItem, cooked) {
   }
   const direct = table[key(name)] || table[key(parsedItem)];
   if (direct) return direct;
+  // Trailing prep clause stripped ("chicken breast, sliced thin" → "chicken
+  // breast") — checked directly first, then fed through the same qualifier
+  // pipeline below ("fresh parsley, chopped" → "fresh parsley" → "parsley").
+  const bases = [stripTrailingPrep(name), stripTrailingPrep(parsedItem)].filter(Boolean);
+  for (const b of bases) {
+    const hit = table[key(b)];
+    if (hit) return hit;
+  }
   // Full name missed — try, in order: leading non-identity qualifiers stripped,
   // then two aliases for the commonest regional/word-order gaps.
-  const candidates = [...stripQualifiers(name), ...stripQualifiers(parsedItem)];
+  const candidates = [
+    ...stripQualifiers(name),
+    ...stripQualifiers(parsedItem),
+    ...bases.flatMap((b) => [b, ...stripQualifiers(b)]),
+  ];
   for (const raw of [key(name), key(parsedItem), ...candidates]) {
     // "beef mince" / "pork mince" → the table's "minced beef" (word order).
     const mince = raw.match(/^(beef|pork|lamb|chicken|turkey)\s+mince$/);

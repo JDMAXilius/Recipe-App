@@ -272,6 +272,20 @@ const REPAIRS = [
     not: ["crab", "canned", "cooked", "breaded", "imitation"],
     was: "Crustaceans, CRAB, alaska KING, raw (matched on 'king')",
   },
+
+  // --- TestFlight QA 2026-07-21 (steak & beetroot naan, fat 3x high): the
+  // "lean" keys pointed at 70/30 — the OPPOSITE of lean. UK lean mince is
+  // ≤10% fat, extra lean ≤5%; the recipe corpus writes "lean" meaning 5%.
+  // Interim: both keys remapped in-table to the verified grass-fed row
+  // (168652 → 168608, 12.7 g fat). This entry completes the repair to the
+  // true 95/5 record when a USDA key is available.
+  {
+    keys: ["lean minced beef", "lean minced steak"],
+    query: "Beef, ground, 95% lean meat / 5% fat, raw",
+    must: ["beef", "ground", "95%", "raw"],
+    not: ["cooked", "patty", "patties", "crumbles", "broiled", "pan"],
+    was: "Beef, ground, 70% LEAN / 30% FAT, raw (332 kcal — the opposite of lean)",
+  },
 ];
 
 const ok = (desc, r) => {

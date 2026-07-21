@@ -13,7 +13,7 @@ import { UserRecipeAPI, transformUserRecipe, isUserRecipeId, PlanAPI, NutritionA
 import { weekDays } from "../../lib/week";
 import { useToast } from "../../context/ToastContext";
 import { useTheme } from "../../context/ThemeContext";
-import { getNutritionEstimate } from "../../constants/nutritionEstimates";
+import { getNutritionEstimate, applyCarbCeiling } from "../../constants/nutritionEstimates";
 import { createRecipeDetailStyles } from "../../assets/styles/recipe-detail.styles";
 import { displayIngredient, scaleNum } from "../../lib/foodScale";
 import { segmentStep } from "../../lib/stepEnrich";
@@ -360,8 +360,14 @@ const RecipeDetailScreen = () => {
               per-serving is per-serving and correctly does not move. */}
           <View style={recipeDetailStyles.sectionContainer}>
             <Text style={recipeDetailStyles.sectionTitle}>Nutrition</Text>
+            {/* Fallback template only renders when `computed` is null; the
+                carb ceiling stops it claiming carbs this ingredient list
+                cannot supply (constants/nutritionEstimates.js). */}
             <NutritionCard
-              {...getNutritionEstimate(recipe.category)}
+              {...applyCarbCeiling(
+                getNutritionEstimate(recipe.category),
+                pairs.map((p) => p.name)
+              )}
               computed={computedNutrition}
               servings={servings}
             />

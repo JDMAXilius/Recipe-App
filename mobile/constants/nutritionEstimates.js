@@ -55,3 +55,31 @@ LOOKUP[norm("Milkshake")] = ESTIMATES.Smoothie;
 LOOKUP[norm("Mocktail")] = ESTIMATES.Juice;
 
 export const getNutritionEstimate = (category) => LOOKUP[norm(category)] || DEFAULT;
+
+// CARB CEILING (TestFlight QA 2026-07-21). The category template is a
+// typical-dish guess — and "typical chicken dish" carries 20 g of carbs from
+// the rice/tortilla/sauce most chicken dinners have. Garlic butter chicken
+// has none of those, yet the card showed those 20 g as if they were read off
+// the ingredients: a fabricated macro on an honest-looking number, the exact
+// class the honesty law forbids. When the ingredient list is known and
+// nothing in it can supply real carbs, cap the template's carbs at a trace.
+// Deliberately one-way (only ever lowers, never raises) and deliberately
+// conservative: one carb-bearing name anywhere keeps the template untouched.
+const CARB_SOURCES =
+  /\b(flour|bread(?:crumbs)?|naan|pita|tortillas?|wraps?|buns?|rolls?|toast|baguette|ciabatta|brioche|pasta|spaghetti|noodles?|macaroni|penne|couscous|rice|quinoa|barley|bulgur|farro|oats?|oatmeal|granola|cereal|corn|polenta|grits|potato(?:es)?|yams?|plantains?|cassava|yuca|beans?|chickpeas?|lentils?|peas|sugar|honey|syrup|molasses|treacle|jam|jelly|marmalade|chocolate|cocoa|biscuits?|cookies?|crackers?|cakes?|pastry|dough|batter|milk|yogurt|yoghurt|fruit|apples?|bananas?|mango(?:es)?|berr(?:y|ies)|raisins?|sultanas?|dates?|apricots?|oranges?|pineapple|grapes?|pears?|peach(?:es)?|beets?|beetroot|carrots?|parsnips?|squash|pumpkin|sweetcorn|ketchup|hoisin|teriyaki|bbq sauce|barbecue sauce|juice|beer|wine|cider|soda|cola)\b/i;
+
+// Names whose carb word is a red herring at recipe amounts — a squeeze of
+// citrus juice or a splash of vinegar is a trace, not a carb source.
+const CARB_TRACE_ONLY = /\b(?:lemon|lime) juice\b|\bvinegar\b|\bzest\b/i;
+
+const TRACE_CARBS_G = 3;
+
+export function applyCarbCeiling(estimate, ingredientNames) {
+  const names = (ingredientNames || []).map((n) => String(n || "")).filter(Boolean);
+  if (!names.length) return estimate; // no list to judge by — leave it alone
+  const carbBearing = names.some(
+    (n) => !CARB_TRACE_ONLY.test(n) && CARB_SOURCES.test(n)
+  );
+  if (carbBearing || estimate.carbs <= TRACE_CARBS_G) return estimate;
+  return { ...estimate, carbs: TRACE_CARBS_G };
+}
