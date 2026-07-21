@@ -885,3 +885,13 @@ launch checklist as part of the deploy step. Flow summary recorded: one engine, 
 seed = compute-once-on-first-view cached globally w/ curated facts; imported+created = async
 backfill on save/edit onto recipes.nutrition; Claude matcher benefits freeform user/import names
 most, seed vocabulary is already the table.
+
+### Phase 15f — Full-recalculation runbook ticketed (2026-07-21, cloud)
+
+Founder: "recalculate everything again with this new framework so everything is accurate."
+The tool (refresh-nutrition.mjs) shipped in 15e; execution needs prod credentials this cloud box
+doesn't hold (no DATABASE_URL; Railway unreachable by policy) — so per cadence it's a terminal
+ticket: docs/TERMINAL_TICKET_NUTRITION_REFRESH.md with the load-bearing ORDER (keys on Railway AND
+in local backend/.env FIRST, then deploy, then prove the sha via /api/health, then the script, then
+in-app spot-checks: lasagna computed-not-estimate, coffee single-digits, chicken-thigh seeds down).
+Checklist item updated to point at the runbook.

@@ -144,10 +144,10 @@ for sign-in only. No advertising or cross-app tracking SDKs.
 
 ### ABSOLUTELY NECESSARY — launch is broken or non-compliant without these
 
-- [ ] **[You] `railway up` deploy of current `main`** — then run
-  `node --env-file=.env scripts/refresh-nutrition.mjs` (from `backend/`, against prod) so both
-  nutrition caches recompute with the fixed engine; without it, old corrupt/understated cached
-  values and never-retry "unavailable" sentinels persist. Everything shipped since the last deploy
+- [ ] **[You] `railway up` deploy of current `main` + nutrition recalculation.** Full ordered
+  runbook: `docs/TERMINAL_TICKET_NUTRITION_REFRESH.md` (keys first → deploy → verify sha →
+  `scripts/refresh-nutrition.mjs` → in-app spot-checks). Without the script, old corrupt/
+  understated cached values and never-retry "unavailable" sentinels persist. Everything shipped since the last deploy
   (weight-first display fixes, AI seams, Run A hardening, photo import) exists only in git until
   this runs. Push ≠ deploy — verify with `/api/health` now returning `{version, sha}`.
 - [ ] **[You] Anonymous sign-in toggle** (Supabase Auth settings). Guest browsing is the front
