@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import { SPACING, RADIUS, TYPE } from "../../constants/tokens";
 
 // "Chat with Otto" conversational build screen. Warm, light, Lora display for
@@ -106,39 +106,63 @@ export const createOttoStyles = (colors) =>
     thinking: { flexDirection: "row", alignItems: "center", gap: SPACING.sm },
     thinkingText: { ...TYPE.body, fontSize: 13, color: colors.inkSoft },
 
-    // INPUT BAR
+    // HEADER — right-slot import action (no top X; the tab bar is the way out)
+    headerAction: {
+      width: 44,
+      height: 44,
+      borderRadius: RADIUS.pill,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.surfaceWarm,
+    },
+
+    // INPUT BAR — one rounded pill holding the field + a Speak/Send button,
+    // so you can talk to Otto or type (founder's reference).
     inputBar: {
-      flexDirection: "row",
-      alignItems: "flex-end",
-      gap: SPACING.sm,
       paddingHorizontal: SPACING.lg,
       paddingTop: SPACING.sm,
-      paddingBottom: SPACING.lg,
+      paddingBottom: SPACING.md,
       borderTopWidth: 1,
       borderTopColor: colors.border,
       backgroundColor: colors.bg,
     },
-    input: {
-      flex: 1,
-      minHeight: 44,
-      maxHeight: 120,
+    inputWrap: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      gap: SPACING.sm,
+      minHeight: 56,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: RADIUS.button,
+      borderRadius: 28,
       backgroundColor: colors.surface,
-      paddingHorizontal: SPACING.md,
-      paddingTop: SPACING.sm + 2,
+      paddingLeft: SPACING.md,
+      paddingRight: SPACING.xs + 2,
+      paddingVertical: SPACING.xs,
+    },
+    input: {
+      flex: 1,
+      maxHeight: 120,
+      paddingTop: Platform.OS === "ios" ? SPACING.sm + 2 : SPACING.sm,
       paddingBottom: SPACING.sm,
       ...TYPE.body,
       color: colors.ink,
     },
-    sendButton: {
-      width: 44,
-      height: 44,
+    speakPill: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.xs,
+      height: 40,
+      paddingHorizontal: SPACING.md,
+      borderRadius: RADIUS.pill,
+      backgroundColor: colors.ink,
+    },
+    speakText: { ...TYPE.body, fontSize: 14, fontWeight: "700", color: colors.white },
+    sendPill: {
+      width: 40,
+      height: 40,
       borderRadius: RADIUS.pill,
       backgroundColor: colors.accent,
       alignItems: "center",
       justifyContent: "center",
     },
-    sendDisabled: { opacity: 0.4 },
   });

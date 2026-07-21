@@ -12,9 +12,10 @@ const pawOutline = require("../../assets/mascot/paw-outline.png");
 const pawFilled = require("../../assets/mascot/paw-filled.png");
 
 // v2 tab bar (OTTO_V2_ROADMAP Phase 1+4): Discover · Cookbook · ＋ · Plan ·
-// Account. The raised terracotta ＋ is an ACTION, not a destination — it opens
-// the Add sheet and never claims a selected state (ReciMe-validated).
-// Cookbook wears the paw; labels always visible.
+// Account. The raised terracotta ＋ opens "Chat with Otto" (the create tab) —
+// the tab bar stays put, so the chat needs no top X. Bringing in an existing
+// recipe is a header action on the chat. Cookbook wears the paw; labels always
+// visible.
 // Auth guard: keep Tabs mounted while the session loads so cold-start deep
 // links keep their route; unauthed users are replaced out after load.
 
@@ -30,11 +31,11 @@ const AddButton = () => {
         ]}
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-          router.push("/add");
+          router.navigate("/create");
         }}
         activeOpacity={0.85}
         accessibilityRole="button"
-        accessibilityLabel="Add a recipe"
+        accessibilityLabel="Create a recipe with Otto"
       >
         <Ionicons name="add" size={30} color="#fff" />
       </TouchableOpacity>

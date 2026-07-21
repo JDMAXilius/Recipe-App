@@ -156,9 +156,10 @@ const AddScreen = () => {
     }
   };
 
-  // AI creation is now its own conversational screen ("Chat with Otto", /otto);
-  // the hero opens it. The imports below collapse into a tile grid — link and
-  // paste-text reveal a focused input inline; photo and write act immediately.
+  // AI creation lives in the ＋ tab ("Chat with Otto"); this sheet is opened
+  // from there to bring in an EXISTING recipe. The imports are a tile grid —
+  // link and paste-text reveal a focused input inline; photo and write act
+  // immediately.
   const [activeImport, setActiveImport] = useState(null); // "link" | "text" | null
   const importTiles = [
     { key: "link", icon: "link", label: "Paste a link", onPress: () => setActiveImport((a) => (a === "link" ? null : "link")) },
@@ -276,12 +277,9 @@ const AddScreen = () => {
           <Bounceable
             style={styles.secondaryButton}
             containerStyle={{ alignSelf: "stretch" }}
-            onPress={() => {
-              setPhase("pick");
-              router.push("/otto");
-            }}
+            onPress={() => router.back()}
             accessibilityRole="button"
-            accessibilityLabel="Have Otto cook one up instead"
+            accessibilityLabel="Go back to chat with Otto"
           >
             <Ionicons name="sparkles-outline" size={18} color={colors.accent} />
             <Text style={styles.secondaryButtonText}>Have Otto cook one up instead</Text>
@@ -305,33 +303,12 @@ const AddScreen = () => {
                 source={require("../assets/mascot/otto-happy-cut.png")}
                 style={styles.otto}
               />
-              <Text style={styles.sheetTitle}>Add to your cookbook</Text>
+              <Text style={styles.sheetTitle}>Bring in a recipe</Text>
               <Text style={styles.sheetSubtitle}>
                 Found something good? Otto will copy it down.
               </Text>
             </View>
 
-            {/* HERO — Create with Otto (the conversational build) */}
-            <Bounceable
-              style={styles.heroCard}
-              onPress={() => router.push("/otto")}
-              accessibilityRole="button"
-              accessibilityLabel="Create a recipe with Otto"
-            >
-              <View style={styles.heroIcon}>
-                <Ionicons name="sparkles" size={22} color={colors.white} />
-              </View>
-              <View style={styles.heroBody}>
-                <Text style={styles.heroTitle}>Create with Otto</Text>
-                <Text style={styles.heroHint}>
-                  Tell Otto what you&apos;re hungry for — he&apos;ll ask a couple of questions and
-                  write you a real recipe.
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.accent} />
-            </Bounceable>
-
-            <Text style={styles.sectionLabel}>ALREADY HAVE ONE? BRING IT IN</Text>
             <View style={styles.tileGrid}>
               {importTiles.map((t) => (
                 <TouchableOpacity
