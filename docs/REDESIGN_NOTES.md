@@ -1017,3 +1017,42 @@ backfill), all ticketed.
 - Website `/privacy`, `/terms`, `/support` are LIVE on ottosapp.com (checked 200); profile.jsx
   already carried the URLs, so §4a+4b of NEXT_SESSION are done. Anonymous sign-ins re-checked:
   **still `false`** — the founder dashboard toggle remains the one-click fix.
+
+### Phase 18c — Drinks pinned + FDA calorie rounding; the "negative calorie" rule REFUSED (2026-07-21)
+
+Founder asked for "exception rules like coffee is 0 calories, lemons even if they have calories
+the body does not use them" — **explicitly asking it be fact-checked against USDA/US government
+first**. Checked, and the two halves land on opposite sides:
+
+- ✅ **REAL and implemented.** FDA **21 CFR 101.9(c)(1)**: caloric content is "expressed to the
+  nearest 5-calorie increment up to and including 50 calories, and 10-calorie increment above 50
+  calories, **except that amounts less than 5 calories may be expressed as zero**." That is the
+  legitimate, citable basis for a black coffee reading **0** — it's how every packaged label the
+  user has ever seen is computed. Implemented in `mobile/lib/fdaCalories.js`, applied in
+  `NutritionCard`, pinned by `mobile/test/fdaCalories.test.mjs`.
+- ❌ **MYTH, deliberately NOT implemented.** "Negative calorie" foods (celery, lemon, grapefruit
+  costing more to digest than they carry). No USDA/FDA basis; no reputable study. The thermic
+  effect of food is ~10% of intake, so a 15 kcal stalk of celery still nets ~10 kcal. Zeroing a
+  lemon would be inventing a number the body does not agree with — the exact confidently-wrong
+  failure the honesty law forbids. `fdaCalories.test.mjs` pins celery 15→15 and lemon 29→30 so
+  nobody "optimises" this back in later.
+- Energy from fibre needs no rule: Otto reads USDA's own per-food Energy value, already computed
+  with specific Atwater factors, so non-digestible carbohydrate is handled at the source.
+
+**Root cause found while testing this:** *coffee, espresso and tea had NO table rows at all.* Every
+compute resolved them live through the matcher, so the same black coffee returned **2 kcal on one
+run and 5 on the next** — non-deterministic nutrition on the app's most-repeated drink. Pinned to
+their real SR records: coffee **171890** (1 kcal/100g), espresso **171891** (36), black tea
+**173227** (4), plus aliases (black/brewed/hot/filter coffee, americano).
+
+**Creamer** (the founder's actual query — "black coffee with almond creamer 2 tbsp and one
+stevia"): no *generic* USDA creamer record exists, only branded ones, so the matcher correctly
+refused it and dropped the line — the drink computed **2 kcal** with a real ingredient silently
+missing (confidence "low" was the system flagging exactly that). Pinned to Califia Farms
+**2102063** as a representative branded record, documented as such in the row's `usda` string.
+The founder's drink now computes **24 kcal** instead of 2.
+
+Refresh run 3 (post-pin, full catalogue re-run): **seed 746 computed / 15 unknown of 761 · user
+4 / 0**, confidence steady at **129 high / 401 med / 216 low / 15 null** — the drink pins are
+additive (no seed recipe is a plain coffee), so the distribution correctly did not move; the win
+is determinism on user-created drinks.
