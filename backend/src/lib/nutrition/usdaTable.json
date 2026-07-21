@@ -660,15 +660,15 @@
     "sodium_mg": 371
   },
   "chicken thighs": {
-    "fdcId": 171077,
-    "usda": "Chicken, thigh, meat and skin, raw",
-    "kcal": 211,
-    "protein_g": 17.3,
-    "fat_g": 15.3,
-    "carbs_g": 0,
+    "fdcId": 172385,
+    "usda": "Chicken, broilers or fryers, thigh, meat and skin, raw",
+    "kcal": 221,
+    "protein_g": 16.52,
+    "fat_g": 16.61,
+    "carbs_g": 0.25,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 86
+    "sodium_mg": 81
   },
   "chickpeas": {
     "fdcId": 173756,

@@ -5,7 +5,7 @@
 import VERIFIED_PIECE from "./pieceWeights.json" with { type: "json" };
 
 export const UNIT_WORDS =
-  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|quarts?|qts?|pints?|pts?|cloves?|cans?|tins?|slices?|rashers?|sticks?|pinch(?:es)?|dash(?:es)?|handfulls?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
+  "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|quarts?|qts?|pints?|pts?|cloves?|cans?|tins?|slices?|rashers?|sticks?|leaf|leaves|pinch(?:es)?|dash(?:es)?|handfulls?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
 
 // canonical unit ids
 const UNIT_ALIASES = [
@@ -34,6 +34,7 @@ const UNIT_ALIASES = [
   [/^jars?$/i, "jar"],
   [/^heads?$/i, "head"],
   [/^stalks?$/i, "stalk"],
+  [/^(leaf|leaves)$/i, "leaf"],
   [/^fillets?$/i, "fillet"],
   [/^knobs?$/i, "knob"],
   [/^drops?$/i, "drop"],
@@ -108,6 +109,12 @@ const PIECE_G = [
   [/^slice$/, /./, 25],
   [/^head$/, /garlic/i, 50],
   [/^head$/, /lettuce|cabbage|cauliflower|broccoli/i, 600],
+  // "4 leaves Cabbage" parsed as qty 4 + item "leaves Cabbage", whose last word
+  // is "cabbage" — so it took the 908 g WHOLE-HEAD weight, four times, and
+  // stamped it high. A leaf is a leaf.
+  [/^leaf$/, /cabbage/i, 23],
+  [/^leaf$/, /lettuce|basil|spinach|vine|grape|banana|kaffir|lime/i, 5],
+  [/^leaf$/, /./, 10],
   [/^stalk$/, /celery/i, 40],
   [/^stalk$/, /./, 40],
   [/^sprig$/, /./, 2],
@@ -294,6 +301,12 @@ const FRY_ABSORBED_G = 14; // 1 tbsp of oil
 const FRY_RE = /\bfor (?:deep[- ])?frying\b/i;
 const OIL_RE = /\boils?\b|\bghee\b|\blard\b|\bshortening\b|\bdripping\b|\bbutter\b|\bmargarine\b/i;
 
+// "6 small Baby Aubergine" was taking the 450 g full-size row. verifiedPiece
+// already guards this; EACH_G did not, so the guard existed on only one of the
+// two paths. USDA publishes no baby-aubergine record, so scale rather than
+// invent: a "baby"/"mini" item is roughly a third of its full-size parent.
+const SIZE_DOWN = /\b(baby|mini|miniature|petite|dwarf)\b/i;
+
 function gramsFor(qty, unit, item) {
   if (qty == null) return { grams: null, level: "none" };
   if (unit && MASS_G[unit]) return { grams: qty * MASS_G[unit], level: "exact" };
@@ -310,7 +323,9 @@ function gramsFor(qty, unit, item) {
     }
     return { grams: null, level: "none" };
   }
-  for (const [re, g] of EACH_G) if (re.test(item)) return { grams: qty * g, level: "approx" };
+  for (const [re, g] of EACH_G)
+    if (re.test(item))
+      return { grams: qty * (SIZE_DOWN.test(item) ? Math.round(g / 3) : g), level: "approx" };
   return { grams: null, level: "none" };
 }
 

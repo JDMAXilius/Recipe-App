@@ -209,3 +209,47 @@ test("a spice pepper does not inherit the vegetable-pepper weight", () => {
   assert.equal(parseIngredientLine({ measure: "1", name: "Red Pepper" }).grams, 119);
   assert.equal(parseIngredientLine({ measure: "1", name: "Green Pepper" }).grams, 119);
 });
+
+test("doubt-mass sweep: the biggest bare-count lines now carry USDA weights", () => {
+  // Ranked by the grams these lines contributed to the medium-confidence
+  // recipes. Each number is a USDA foodPortion, not an estimate — see
+  // pieceWeights.json for the fdcId and USDA's own wording.
+  const thighs = parseIngredientLine({ measure: "8", name: "Chicken Thighs" });
+  assert.equal(thighs.grams, 1544); // 193 g, "1 thigh with skin" (172385)
+  assert.equal(thighs.confidence, "high");
+  const pita = parseIngredientLine({ measure: "6", name: "Pita Bread" });
+  assert.equal(pita.grams, 360); // 60 g, "1 pita, large (6-1/2\" dia)" (174915)
+  assert.equal(pita.confidence, "high");
+  const sausages = parseIngredientLine({ measure: "2", name: "Sausages" });
+  assert.equal(sausages.grams, 202); // 101 g, "1 link" (171631)
+  assert.equal(sausages.confidence, "high");
+});
+
+test("a cabbage LEAF is not a cabbage HEAD", () => {
+  // "6 large Cabbage Leaves" resolved to 5400 g — 900 g per leaf — because the
+  // whole-head estimate matched on the word "cabbage". USDA weighs the leaf.
+  const leaves = parseIngredientLine({ measure: "6 large", name: "Cabbage Leaves" });
+  assert.equal(leaves.grams, 138); // 23 g, "1 leaf, medium" (169975)
+  assert.equal(leaves.confidence, "high");
+  // The head itself must keep its own weight.
+  assert.equal(parseIngredientLine({ measure: "1", name: "Cabbage" }).grams, 908);
+});
+
+test("USDA portions that name a different physical object stay out", () => {
+  // A USDA "breast" is BOTH halves ("1 piece" 272 g / "0.5 breast" 145 g); a
+  // recipe's chicken breast is one fillet. A USDA "leg" is a quarter with the
+  // back on (344 g). Both keep their estimates and their honest medium flag.
+  const breast = parseIngredientLine({ measure: "2", name: "Chicken Breasts" });
+  assert.equal(breast.grams, 340);
+  assert.equal(breast.confidence, "medium");
+  const legs = parseIngredientLine({ measure: "8", name: "Chicken Legs" });
+  assert.equal(legs.grams, 1200);
+  assert.equal(legs.confidence, "medium");
+});
+
+test("a bare 'chicken' key would hand boneless fillets a whole bird", () => {
+  // The verified whole-bird row is keyed "whole chicken" on purpose: keys match
+  // by SUFFIX, so a bare "chicken" made "5 boneless Chicken" 5230 g at HIGH.
+  assert.equal(parseIngredientLine({ measure: "5 boneless", name: "Chicken" }).grams, null);
+  assert.equal(parseIngredientLine({ measure: "1 whole", name: "Chicken" }).grams, 1046);
+});

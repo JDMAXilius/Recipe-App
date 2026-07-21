@@ -104,10 +104,6 @@ const TARGETS = [
   // in one case, provenance that does not match the record (see the report):
   // "chicken thighs" carries fdcId 171077, which is the boneless BREAST.
   { name: "chicken thigh", fdcId: 172385, portion: /^1 thigh with skin$/i },
-  { name: "chicken breast", fdcId: 171077, portion: /^1 piece$/i },
-  // "1 leg, with skin" is USDA's own whole leg quarter; the parenthetical only
-  // states what it is made of, it is not a preparation.
-  { name: "chicken leg", fdcId: 172378, portion: /^1 leg, with skin/i },
   { name: "pita bread", fdcId: 174915, portion: /^1 pita, large/i },
   { name: "sausage", fdcId: 171631, portion: /^1 link$/i },
   // "6 large Cabbage Leaves" was inheriting the whole-HEAD estimate (900 g per
@@ -142,6 +138,20 @@ const TARGETS = [
 //     only. A slice is not a loaf, and the corpus doubt is "1 Baguette".
 //   coconut milk — "1 tbsp" and "1 cup", both volumes. The 2800 g of doubt is
 //     "1 can Coconut Milk"; USDA does not publish a can.
+//   chicken leg — 172378's only whole-item portion is "1 leg, with skin (Sum of
+//     drumstick+thigh+back)" = 344 g: a leg QUARTER with the back still on, not
+//     the drumstick-and-thigh a cook buys. At 344 g, "8 Chicken Legs" is 2.75 kg
+//     and Creamy Mustard Chicken passes the 700 g/serving plausibility cap and
+//     REFUSES to answer — a verified-but-wrong object costs more than the
+//     honest 150 g estimate it would replace.
+//   chicken breast — USDA counts a BREAST as both halves. 171077 (skinless,
+//     boneless) publishes "1 piece" = 272 g, and 171474 (meat and skin) offers
+//     only "0.5 breast, bone removed" = 145 g. Both describe the whole double
+//     breast; a recipe's "2 Chicken Breasts" means two FILLETS, i.e. two of
+//     USDA's halves. Same food, different physical object — the same trap as
+//     "1 almond" vs "1 almond flour". Taking 272 g pushed 18 recipes to
+//     850–1200 kcal/serving and tipped Creamy Mustard Chicken past the
+//     plausibility cap into refusing outright. The 170 g estimate stays.
 //   shallot — unchanged: still only "1 tbsp chopped".
 //   potatoes — the remaining doubt is NOT a piece weight ("5 Cups Potatoes",
 //     "1/2 cup Potatoes" fall to the default 1.0 density); "1 medium" is

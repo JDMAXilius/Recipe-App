@@ -558,5 +558,37 @@
     "usda": "Chicken, broilers or fryers, meat and skin and giblets and neck, raw",
     "portion": "1 chicken",
     "source": "usda-foodportion"
+  },
+  "chicken thigh": {
+    "grams": 193,
+    "unit": null,
+    "fdcId": 172385,
+    "usda": "Chicken, broilers or fryers, thigh, meat and skin, raw",
+    "portion": "1 thigh with skin",
+    "source": "usda-foodportion"
+  },
+  "pita bread": {
+    "grams": 60,
+    "unit": null,
+    "fdcId": 174915,
+    "usda": "Bread, pita, white, enriched",
+    "portion": "1 pita, large (6-1/2\" dia)",
+    "source": "usda-foodportion"
+  },
+  "sausage": {
+    "grams": 101,
+    "unit": null,
+    "fdcId": 171631,
+    "usda": "Sausage, Italian, pork, mild, raw",
+    "portion": "1 link",
+    "source": "usda-foodportion"
+  },
+  "cabbage leaf": {
+    "grams": 23,
+    "unit": null,
+    "fdcId": 169975,
+    "usda": "Cabbage, raw",
+    "portion": "1 leaf, medium",
+    "source": "usda-foodportion"
   }
 }
