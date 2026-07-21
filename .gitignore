@@ -12,3 +12,6 @@ node_modules/
 
 # macOS
 .DS_Store
+
+# resumable scratch cache for scripts/audit-table-provenance.mjs
+backend/scripts/provenance-cache-*.json
