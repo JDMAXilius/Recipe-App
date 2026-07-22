@@ -7,9 +7,12 @@
 import { z } from "npm:zod@4";
 import { corsHeaders, json, preflight } from "../_shared/http.ts";
 
-const MEALDB_KEY = Deno.env.get("THEMEALDB_KEY") || "1";
-const MEALDB_VERSION = MEALDB_KEY === "1" ? "v1" : "v2"; // v2 is supporter-only
-const BASE_URL = `https://www.themealdb.com/api/json/${MEALDB_VERSION}/${MEALDB_KEY}`;
+// v2 (supporter) API ONLY — no free-tier fallback. THEMEALDB_KEY MUST be set as
+// a Supabase secret; the value never lives in this repo (it's a supporter key,
+// kept server-side, never the app bundle). Without it, content refuses (503)
+// rather than silently serving the limited free "1"/v1 catalog.
+const MEALDB_KEY = Deno.env.get("THEMEALDB_KEY");
+const BASE_URL = MEALDB_KEY ? `https://www.themealdb.com/api/json/v2/${MEALDB_KEY}` : null;
 
 const querySchema = z.object({
   endpoint: z.enum(["search.php", "lookup.php", "random.php", "categories.php", "filter.php", "list.php"]),
@@ -38,6 +41,8 @@ Deno.serve(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== "GET") return json(405, { error: "GET only" });
+  // No supporter key → refuse, don't degrade to the free catalog.
+  if (!BASE_URL) return json(503, { error: "The recipe library isn't configured yet." });
 
   const url = new URL(req.url);
   const parsed = querySchema.safeParse({
