@@ -1,34 +1,36 @@
-// ONE data copy (engine.md Laws §3): engine/data/*.json must be byte-
-// identical to the v1 backend copies until cutover — tools/ scripts are the
-// only writers. A drifted byte here means someone edited one copy.
+// ONE data copy (engine.md Laws §3): engine/data/ is now the SOLE home of the
+// nutrition tables — tools/ scripts are the only writers. Before the v1 cutover
+// this test compared byte-for-byte against backend/src/lib/nutrition; with v1
+// removed, it guards that the five tables are present, parseable, and non-empty
+// (a truncated/corrupted write is caught here). tools/ regeneration updates the
+// pinned counts below if the corpus legitimately changes.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(here, "../../../..");
-const v1Dir = path.join(repoRoot, "backend/src/lib/nutrition");
 const dataDir = path.join(here, "data");
 
-const FILES = [
-  "usdaTable.json",
-  "usdaCookedTable.json",
-  "pieceWeights.json",
-  "cupWeights.json",
-  "recipeFacts.json",
-];
+// Minimum entry counts — a truncated file (the failure this guards) drops well
+// below these; a legitimate corpus edit via tools/ only ever grows them.
+const FILES = {
+  "usdaTable.json": 900,
+  "usdaCookedTable.json": 1,
+  "pieceWeights.json": 1,
+  "cupWeights.json": 1,
+  "recipeFacts.json": 1,
+};
 
-const sha256 = (p) => createHash("sha256").update(readFileSync(p)).digest("hex");
-
-test("engine/data JSONs are byte-identical to the v1 backend copies", () => {
-  for (const f of FILES) {
-    assert.equal(
-      sha256(path.join(dataDir, f)),
-      sha256(path.join(v1Dir, f)),
-      `${f} differs from backend/src/lib/nutrition/${f} — the ONE-copy law`
+test("engine/data JSONs are present, parseable, and non-empty (the one copy)", () => {
+  for (const [f, minKeys] of Object.entries(FILES)) {
+    const raw = readFileSync(path.join(dataDir, f), "utf8");
+    const parsed = JSON.parse(raw); // throws on corruption
+    const count = Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
+    assert.ok(
+      count >= minKeys,
+      `${f} has ${count} entries, expected >= ${minKeys} — truncated or corrupted?`,
     );
   }
 });
