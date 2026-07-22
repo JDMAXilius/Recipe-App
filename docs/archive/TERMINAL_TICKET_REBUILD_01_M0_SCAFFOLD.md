@@ -74,10 +74,17 @@ Write to `docs/contracts/`, then a critic panel review, then **founder sign-off*
 ## Report-back (commit on `rebuild/v2`)
 
 ```
-scaffold:   builds? Y/N · CI green? Y/N
-crew:       7 definitions @ <sha> · panel notes
-contracts:  <list> · founder sign-off? Y/N
-open decisions resolved: 1__ 2__ 3__ 4__
+scaffold:   builds? Y (tsc/lint/test/web-export clean) · CI green? Y (81e5d6db)
+crew:       7 definitions @ 5ead2ce2 · panel: 24 findings, all folded @ 81e5d6db
+            (biggest: share-link enumeration via anon SELECT → SECURITY
+            DEFINER fns; engine API mismatch vs v1 → realigned flat shape)
+contracts:  database · engine · feature-module · ui-components · testing
+            + src/types/database.ts generated · founder sign-off? Y (2026-07-21)
+open decisions resolved: 1 YES (key committed) · 2 YES (terminal-only)
+            · 3 two waves · 4 YES (README done @ c54b1293)
+notes:      executed by terminal (founder-directed), not cloud. WORKFLOW §4.4
+            ownership addendum + §10 resolution and PACKETS §2 amendments
+            made at the M0 gate — manager should fold into next re-read.
 ```
 Flip M0 in `docs/REBUILD_STATE.md`; move this ticket to `docs/archive/`. On M0
 sign-off, request ticket 02 (M1 engine + M2 platform) from the manager.
