@@ -1,9 +1,12 @@
 # Contract — Nutrition Engine (`src/features/nutrition/engine/`)
 
 Status: M0 draft · Owner: engine-porter · Port target for M1.
-Behavior is pinned by the v1 suites: `backend/test/goldenNutrition.test.mjs`,
-`backend/test/macroBreakdown.test.mjs`, `backend/test/parseIngredient.test.mjs`,
-plus `mobile/test/foodScale.test.mjs` for display. Divergence = port bug.
+Behavior is pinned by ALL the v1 engine suites: `goldenNutrition`,
+`macroBreakdown`, `parseIngredient`, `resolveIngredient`, `resolveCooked`,
+`usdaProvider` (backend/test/), plus `mobile/test/carbCeiling.test.mjs`
+(the ceiling moves INTO the engine — see Laws §4). Divergence = port bug.
+(`foodScale` display formatting is feature-layer, NOT this folder — it pins
+the nutrition feature packet instead.)
 
 ## Shape
 
@@ -25,13 +28,24 @@ engine/
 └── engine.test.ts  golden + macro suites ported alongside
 ```
 
-## Public API (frozen — changes need a contract_gap)
+## Public API (frozen — mirrors the v1 signatures the suites call;
+## changes need a contract_gap)
 
 ```ts
-parseIngredients(lines: string[]): ParsedIngredient[]
-lookupFood(name: string, parsed: ParsedIngredient, cooked: CookedState): FoodRow | null
+// ports parseIngredient.js — SAME return shape (the confidence aggregate
+// feeds the coverage/honesty logic; do not drop it)
+parseIngredients(list: {measure: string, name: string}[]): {
+  lines: ParsedLine[]
+  totalGrams: number | null
+  confidence: number
+}
+
+// ports usdaProvider.lookup — name + parsed line + cooked state → food row
+lookup(name: string, parsedItem: ParsedLine, cooked: CookedState): FoodRow | null
+
+// ports NutritionProvider.computeNutrition — v1 positional args become one input
 computeNutrition(input: {
-  ingredients: string[] | ParsedIngredient[]
+  ingredients: {measure: string, name: string}[]   // v1 pair shape, verbatim
   servings: number
   recipeId?: SeedId | UserRecipeId
   steps?: string[]              // cooked-state classification input
@@ -40,14 +54,14 @@ computeNutrition(input: {
 
 ## Data shapes (zod schemas in engine/schemas.ts — runtime-shared with edge functions)
 
-```ts
-NutritionResult = {
-  perServing: { kcal: number; protein_g: number; carbs_g: number; fat_g: number }
-  coverage: number              // 0..1 matched-ingredient mass share
-  estimated: boolean            // true → UI must label it
-  breakdown: IngredientContribution[]
-}
-```
+`NutritionResult` is the v1 FLAT shape, verbatim — `seed_nutrition` rows and
+`recipes.nutrition` already cache it; a new shape would reject every cached
+row. Fields (per usdaProvider.js:593-607): `kcal, protein_g, carbs_g, fat_g,
+fiber_g, sugar_g, sodium_mg, basis_grams, per, source, confidence,
+estimated, breakdown[]`. The zod schema is written FROM the v1 output and
+must parse the existing 776 `seed_nutrition` rows unchanged (a test does
+exactly that against a fixture dump).
+
 `SeedId` (branded string, numeric content) and `UserRecipeId` (branded
 string, `u-` prefix) live in `src/types/ids.ts`; constructors validate.
 
@@ -58,8 +72,11 @@ string, `u-` prefix) live in `src/types/ids.ts`; constructors validate.
 2. **Macro rule:** every test asserts P/C/F, never kcal alone.
 3. **One data copy:** the 5 JSON files exist only in `engine/data/`;
    `tools/` scripts are their only writers. Checksums asserted in tests.
-4. **Guards carry over verbatim** — including the carb ceiling and the
-   mobile-side category-estimate fallback ranges (`nutritionEstimates.js`).
+4. **Guards carry over verbatim.** The carb ceiling lives in `guards.ts` —
+   INSIDE the engine, one copy (deviation from FRAMEWORK §3, which sketched
+   it in feature-layer estimates.ts; contract wins — pinned by
+   carbCeiling.test.mjs). Feature-layer `estimates.ts` keeps ONLY the
+   category fallback ranges; it never re-implements a guard.
 5. **Property tests** (new in v2): parse round-trips (scale by k → grams
    scale by k), compute monotonicity (more of an ingredient never lowers
    its contribution), guard idempotence.

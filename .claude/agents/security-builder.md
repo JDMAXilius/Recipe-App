@@ -25,8 +25,13 @@ there is no auth middleware behind you to catch what you miss.
   the AI-calling paths.
 - SECURITY DEFINER functions need explicit search_path. Storage buckets
   get policies like tables do.
-- After schema changes: regenerate `src/types/database.ts` per the packet
-  and run `get_advisors`-equivalent checks if available.
+- After schema changes: regenerate `src/types/database.ts` — it is part of
+  your migration packet's owner_path (database.md §Change control), so the
+  regenerated file ships in the same diff. Run `get_advisors`-equivalent
+  checks if available.
+- Share/collab reads: SECURITY DEFINER functions keyed on the exact
+  slug/token, NEVER anon table SELECT (database.md §RLS stance — anon
+  SELECT makes capability URLs enumerable).
 
 # I/O
 Builder I/O: packet in, one report-back JSON out. `tests_run` must include

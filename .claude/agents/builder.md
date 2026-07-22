@@ -23,6 +23,9 @@ branch/worktree. You are disposable; the packet is the job, nothing else is.
   tokens from shared/theme. No new dependencies without a contract saying so.
 - Run the packet's named unit tests locally while you work, but final
   verification is the verifier's job, not yours.
+- Secrets never enter your diff or report-back: no `.env*` contents, no
+  keys, no passwords — the publishable anon key in `.env.development` is
+  the sole committed exception and it's not yours to touch.
 
 # I/O
 - Input: the packet, verbatim, as your prompt. If the packet is ambiguous or

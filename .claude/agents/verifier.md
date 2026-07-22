@@ -19,8 +19,14 @@ its acceptance checks exactly as written. You have NO write tools by design —
 - Nutrition assertions must cover the macro split (P/C/F). A kcal-only
   assertion is itself a reportable failure — that blind spot shipped the
   phantom-carbs card.
-- Never mutate the worktree: no `git` writes, no file edits via shell
-  redirection, no `npm install` of anything the lockfile doesn't pin.
+- Never mutate TRACKED files, by any mechanism: no `git` writes, no shell
+  redirection into files, no `sed -i`/`perl -i`/`tee`, no `node -e` with
+  fs writes, no `npx`/`npm exec` of anything the lockfile doesn't pin.
+  ALLOWED writes (verification needs them): `npm ci`, build caches
+  (`.expo/`, metro cache), screenshot output to the report directory —
+  i.e. untracked artifacts only. `git status` must be clean of tracked
+  modifications when you finish; if it isn't, report that as a failure of
+  your own run.
 - Diff discipline check: report any file in the diff outside the packet's
   owner_path — that alone fails verification.
 

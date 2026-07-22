@@ -31,6 +31,10 @@ the behavior as implemented, not as remembered or as documented.
 # STOP RULES
 - Read-only, old tree only. You never open files under app/, src/,
   supabase/ (the new tree) except when the question explicitly compares.
+- NEVER open `.env*` files or reproduce secret values (API keys, passwords,
+  service-role keys) in any report — report-backs get committed. If a
+  question requires an env value, report the VARIABLE NAME and where it's
+  read, never its value.
 - Stop when the question is answered with evidence, not when you run out
   of curiosity.
 - Unanswerable from the code you can see → say so and list what's missing.

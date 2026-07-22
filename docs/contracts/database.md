@@ -31,8 +31,9 @@ for shapes; this doc is the contract for meaning and policy.
   at compile time.
 - Timestamps: new tables use `timestamptz`. Existing `timestamp` columns
   keep their type until cutover (no migration churn mid-rebuild).
-- `recipes.visibility`: `'private' | 'shared'` — text today; a CHECK
-  constraint lands with the v2 migrations.
+- `recipes.visibility`: `'private' | 'public'` (v1 values — schema.js:35;
+  live rows contain 'public'). A CHECK constraint with THESE values lands
+  with the v2 migrations; the v1 app keeps writing them until cutover.
 
 ## RLS stance (M2 packet acceptance)
 
@@ -41,15 +42,26 @@ for shapes; this doc is the contract for meaning and policy.
 - Default: owner-only CRUD (`auth.uid()::text = user_id`).
 - Named exceptions (policy must cite this contract):
   - `seed_nutrition`: anon SELECT (public seed data); writes service-role only.
-  - `recipe_shares` / `list_shares`: anon SELECT of non-revoked rows by
-    slug/token (that's what a share link is); writes owner-only.
-  - `collab_lists`/`collab_items`: member access via token possession model
-    (edge function mediated), owner can revoke.
+  - `recipe_shares` / `list_shares` / `collab_*`: **NO anon table SELECT** —
+    a table policy cannot express "must know the slug", so anon SELECT would
+    make capability URLs enumerable (`select *` dumps every active share).
+    Reads go through SECURITY DEFINER Postgres functions taking the exact
+    key (`get_recipe_share(slug)`, `get_list_share(token)`,
+    `get_collab_list(token)`, item CRUD equivalents) that return only the
+    matching non-revoked row(s). Explicit `search_path`, `REVOKE` default
+    EXECUTE where not needed. These are DB functions, NOT edge functions —
+    the 5-edge-function limit (FRAMEWORK §5) stands.
+  - Writes on shares/collab: owner-only via RLS; collab item writes via the
+    token-keyed SECURITY DEFINER functions (possession = membership,
+    owner can revoke).
   - `resolved_ingredients`: service-role write, anon read.
 - Every policy ships with its attack test: user B attempts CRUD on user A's
   rows and must fail (see testing.md §RLS attacks).
 
 ## Change control
 
-Schema changes only via `supabase/migrations/` packets owned by
-security-builder. Any other agent needing a column files a `contract_gap`.
+Schema changes only via migration packets owned by security-builder. A
+migration packet's `owner_path` is **`supabase/migrations/` PLUS
+`src/types/database.ts`** — the regenerated types travel in the same diff
+(otherwise the regenerate-on-migration rule and the diff-scope rule
+deadlock). Any other agent needing a column files a `contract_gap`.

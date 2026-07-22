@@ -30,12 +30,17 @@ ink = authored. Components enforce it via variants — callers pick meaning
 ```ts
 Button   { title, onPress, variant: 'primary'|'secondary'|'ghost'|'destructive',
            size?: 'md'|'lg', disabled?, loading? }
-Text     { children, role: 'display'|'title'|'body'|'caption'|'computed',
-           color?: keyof colors }          // 'computed' renders terracotta
+Text     { children, role: 'display'|'title'|'body'|'caption'|'computed' }
+         // 'computed' renders terracotta; NO color escape hatch — a color
+         // prop would let callers put terracotta on authored content and
+         // void the semantic-ink rule. Role IS the color decision.
 Sheet    { visible, onClose, title?, children }   // bottom sheet, web-safe
 Ring     { value: number|null, max, label }       // null → renders em-dash, never 0
-SegmentBar { segments: {label, value}[], selected, onSelect }
-Toast    { message, kind: 'info'|'success'|'error' }  // + useToast() imperative
+SegmentBar { segments: {label: string, value: string}[],
+             selected: string,                 // by VALUE, never by index
+             onSelect: (value: string) => void }
+Toast    // no JSX use — imperative only:
+         // useToast(): { show(message: string, kind: 'info'|'success'|'error'): void }
 PawMark  { saved: boolean, onToggle, size? }      // the save affordance, everywhere
 OttoArt  { name: OttoArtName, size? }             // typed catalog of painted assets
 ```

@@ -39,3 +39,7 @@ find what is WRONG; agreement is a finding of last resort, not a default.
   evidence, fixes are a builder's packet.
 - If the artifact under review is missing/unbuildable, report that as the
   finding and stop.
+- No self-review: if the packet asks you to validate or re-judge findings
+  a critic produced (including your own earlier round), return `blocked` —
+  independence is the point of the panel; the manager must vary the lens
+  or the reviewer.

@@ -167,6 +167,25 @@ One folder, one owner. The specialist/archetype that owns each:
 | `app/` + layout | builder (integration) | all features merged |
 | cross-cutting (read-only) | critic swarm | M3 passed |
 
+M0 addendum (critic panel finding — every folder a contract references
+needs an owner; amended at the M0 gate):
+
+| Folder | Owned by |
+|---|---|
+| root config (`package.json`, tsconfig, eslint, CI) | builder (integration) — via packet only |
+| `src/shared/supabase/` + `src/shared/lib/` | ui-systems (shared primitives fence) |
+| `src/types/ids.ts` (branded IDs; database.ts stays generated) | engine-porter (first consumer, M1 packet) |
+| `tools/` (USDA pipeline — sole writer of engine data JSONs) | engine-porter |
+| `assets/` | ui-systems |
+| `e2e/journeys/<feature>.ts` + `e2e/fixtures/<feature>.json` | that feature's packet (feature-module.md) |
+| `e2e/` shared (smoke.ts, harness) | builder (integration) |
+
+A packet's `owner_path` must equal a row of this table (or a boundary in
+feature-module.md §Owner-path boundaries). Broader paths (`src/`) are
+invalid — rejected before spawn. Nested-folder rule: a parent-folder packet
+NEVER implicitly owns a child with its own row (e.g. `features/nutrition/`
+excludes `engine/`).
+
 Ownership rules — enforced mechanically at merge, not by honor:
 
 1. Write scope = your folder. Read scope = contracts + `src/types/` + old code.
@@ -279,10 +298,8 @@ Exactly three, plus escalations: **M0** (read ~6 contract files), **M4**
 (device QA + final PR), and any `AskUserQuestion` an agent escalates through
 the manager. Everything between runs autonomously behind automatic gates.
 
-## 10. Open decisions (tracked in REBUILD_STATE.md)
+## 10. Open decisions — ALL RESOLVED by founder 2026-07-21 (REBUILD_STATE.md)
 
-- Commit the publishable Supabase anon key so cloud L3 runs autonomously?
-- Authed E2E terminal-only (lean: yes, until the rebuild stabilizes)?
-- SG4 in one wave of 6–8 or two waves of 4–5 (two waves = earlier integration
-  signal, slightly slower)?
-- `v1-legacy` carries a small README pointing at the docs snapshot?
+1. Anon key committed in `.env.development` — **YES**. 2. Authed E2E
+terminal-only — **YES**. 3. SG4 — **two waves of 4–5**. 4. `v1-legacy`
+README — **YES** (done).
