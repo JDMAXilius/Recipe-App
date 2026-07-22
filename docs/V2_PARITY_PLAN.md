@@ -196,13 +196,13 @@ report-back (the feel layer can't be judged on web alone).
 
 | Phase | Status |
 |---|---|
-| P0 Foundation | ☐ not started |
-| P1 Feel layer | ☐ blocked on P0 |
-| P2 Persistence & entry | ☐ persistence/session parallel to P1; onboarding+splash **blocked on P1** (need assets+fonts) |
-| P3 Reachability | ☐ blocked on P1 |
+| P0 Foundation | ☑ done — tokens/motion/haptics/assets/bus/storage/ErrorBoundary merged; tsc+lint+tests green; boots (web) |
+| P1 Feel layer | ☑ done (`c7ff2136`) + P1.1 cleanup (`f9ec3c5c`, one-home motion + caption/meta). Native device check still pending (needs dev build; Expo Go can't run reanimated 4) |
+| P2 Persistence & entry | ☑ done (`6e72486e`) — session persists (AsyncStorage), onboarding + first-run gate (pure `resolveRoute`, tested) + guest entry + splash. **Guest blocked on founder:** anonymous sign-ins return `anonymous_provider_disabled` on `mepzfdefanfpnrvydyty` despite the toggle appearing on — "Browse as guest" shows the friendly fallback until fixed |
+| P3 Reachability | ☐ next — cook entry+seed · FilterSheet · in-app video · share · tab bar icons+raised ＋ · calorie badges · wire P1 primitives into feature screens |
 | P4 Rich features | ☐ blocked on P2+P3 |
 | P5 Convergence | ☐ blocked on P4 |
 
-Contracts: ☐ ui-components (expand) · ☐ persistence — **awaiting founder P0 sign-off.**
+Contracts: ☑ ui-components (expanded) · ☑ persistence — signed at P0.
 Cutover PR (`rebuild/v2 → main`, `04aa4e28`-era) is **held** until parity — do
 not merge; `main` keeps shipping v1.
