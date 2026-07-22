@@ -183,22 +183,37 @@ async function attackAsB(A, B) {
   check("attack: B's bare SELECT on collab_items is empty", items.status === 200 && rows(items).length === 0, `got ${rows(items).length}`);
 }
 
-async function enumerationAsAnon() {
+async function enumerationAsAnon(B) {
+  const B_TOKEN = B.token;
   // shares/collab: NO anon table SELECT — a bare select must never dump tokens
   for (const table of ["recipe_shares", "list_shares", "collab_lists", "collab_items"]) {
     const r = await rest(`/rest/v1/${table}?select=*`);
     check(`enum: anon bare SELECT on ${table} yields nothing`, rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
   }
-  // named exceptions: public reads ARE allowed
+  // named exceptions: public reads ARE allowed. Assert ROWS come back, not just
+  // status 200 — RLS-enabled + no-anon-policy also returns 200 with [], so a
+  // deleted read policy would false-PASS a status-only check (prod has rows).
   let r = await rest("/rest/v1/seed_nutrition?select=recipe_id&limit=1");
-  check("enum: anon CAN read seed_nutrition", r.status === 200, `status ${r.status}`);
+  check("enum: anon CAN read seed_nutrition", r.status === 200 && rows(r).length >= 1, `status ${r.status}, ${rows(r).length} rows`);
   r = await rest("/rest/v1/resolved_ingredients?select=name&limit=1");
-  check("enum: anon CAN read resolved_ingredients", r.status === 200, `status ${r.status}`);
-  // but not write them
-  r = await rest("/rest/v1/seed_nutrition", { method: "POST", body: { recipe_id: "999999999", nutrition: {} }, headers: REP });
-  check("enum: anon cannot write seed_nutrition", r.status >= 400, `status ${r.status}`);
-  r = await rest("/rest/v1/resolved_ingredients", { method: "POST", body: { name: `x-${tok()}`, tier: "miss" }, headers: REP });
-  check("enum: anon cannot write resolved_ingredients", r.status >= 400, `status ${r.status}`);
+  check("enum: anon CAN read resolved_ingredients", r.status === 200 && rows(r).length >= 1, `status ${r.status}, ${rows(r).length} rows`);
+  // but neither anon NOR an authenticated user may write them (service-role only).
+  // A stray `to authenticated` INSERT policy would let any signed-in user poison
+  // the shared nutrition cache for everyone — attack both roles.
+  for (const [who, hdr] of [["anon", { headers: REP }], ["authed B", { token: B_TOKEN, headers: REP }]]) {
+    r = await rest("/rest/v1/seed_nutrition", { method: "POST", body: { recipe_id: "999999999", nutrition: {} }, ...hdr });
+    check(`enum: ${who} cannot write seed_nutrition`, r.status === 401 || r.status === 403, `status ${r.status}`);
+    r = await rest("/rest/v1/resolved_ingredients", { method: "POST", body: { name: `x-${tok()}`, tier: "miss" }, ...hdr });
+    check(`enum: ${who} cannot write resolved_ingredients`, r.status === 401 || r.status === 403, `status ${r.status}`);
+  }
+  // collab_items: RLS-on, zero policies → no direct REST write path at all.
+  // Bypassing the DEFINER functions must fail (contract: B attempts CRUD on every table).
+  for (const method of ["POST", "PATCH", "DELETE"]) {
+    r = await rest(`/rest/v1/collab_items${method === "POST" ? "" : "?id=eq.1"}`, {
+      method, token: B_TOKEN, body: method === "DELETE" ? undefined : { name: "x", token: "x", added_by_name: "x" }, headers: REP,
+    });
+    check(`enum: authed B cannot ${method} collab_items directly`, r.status === 401 || r.status === 403 || rows(r).length === 0, `status ${r.status}`);
+  }
 }
 
 async function definerFunctions(A, B) {
@@ -251,9 +266,15 @@ async function definerFunctions(A, B) {
   });
   check("fn: B cannot revoke A's collab list", r.status < 300 ? rows(r).length === 0 : true, JSON.stringify(r.data));
 
-  // admin function is service-role only
+  // admin function is service-role only — must be DENIED (403), not MISSING (404).
+  // A 404 would mean the account-deletion function was never created yet still
+  // "pass" a status>=400 check, so distinguish the two explicitly.
+  // Distinguish DENIED (403/401, intended) from MISSING (404) — a status>=400
+  // check alone would green-light a never-created function. Service-role can't
+  // be exercised here (the rest helper pins the anon apikey); positive-existence
+  // is covered at the terminal apply step, noted in the report-back.
   r = await rest("/rest/v1/rpc/admin_delete_user_data", { method: "POST", token: B.token, body: { p_user_id: A.id } });
-  check("fn: B cannot call admin_delete_user_data", r.status >= 400, `status ${r.status}`);
+  check("fn: B call of admin_delete_user_data is DENIED not missing", r.status === 403 || r.status === 401, `status ${r.status} (404 = function absent!)`);
 }
 
 const A = await signUp("a");
@@ -262,7 +283,7 @@ console.log(`Signed up throwaway users A=${A.email} B=${B.email} (disposable; cl
 
 await seedAsA(A);
 await attackAsB(A, B);
-await enumerationAsAnon();
+await enumerationAsAnon(B);
 await definerFunctions(A, B);
 
 console.log(`\nRLS attack run: ${pass} passed, ${fail} failed`);

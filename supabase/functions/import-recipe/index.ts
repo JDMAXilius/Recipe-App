@@ -28,21 +28,37 @@ function isPrivateV4(address: string): boolean {
   );
 }
 
+function hextetsToV4(hi: number, lo: number): string {
+  return `${(hi >> 8) & 255}.${hi & 255}.${(lo >> 8) & 255}.${lo & 255}`;
+}
+
 function isPrivateAddress(address: string): boolean {
-  if (address.includes(":")) {
-    const a = address.toLowerCase();
-    // IPv4-mapped (::ffff:1.2.3.4) → judge the embedded IPv4.
-    const mapped = a.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-    if (mapped) return isPrivateV4(mapped[1]);
-    return (
-      a === "::" ||
-      a === "::1" ||
-      a.startsWith("fe80") ||
-      a.startsWith("fc") ||
-      a.startsWith("fd")
-    );
-  }
-  return isPrivateV4(address);
+  if (!address.includes(":")) return isPrivateV4(address);
+  let a = address.toLowerCase();
+  const zone = a.indexOf("%"); // strip IPv6 zone id
+  if (zone >= 0) a = a.slice(0, zone);
+
+  // Embedded IPv4 in dotted form (::ffff:1.2.3.4, ::1.2.3.4) — judge the v4.
+  const dotted = a.match(/:(\d+\.\d+\.\d+\.\d+)$/);
+  if (dotted) return isPrivateV4(dotted[1]);
+
+  // WHATWG URL serializes IPv4-mapped/-compat addresses to HEX groups, NOT
+  // dotted — 169.254.169.254 becomes ::ffff:a9fe:a9fe. Decode the last 32
+  // bits back to a v4 and judge that (this is the bypass the dotted-only
+  // regex missed: [::ffff:169.254.169.254] → metadata, [::ffff:127.0.0.1] → loopback).
+  const mapped = a.match(/^::(?:ffff:)?([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+  if (mapped) return isPrivateV4(hextetsToV4(parseInt(mapped[1], 16), parseInt(mapped[2], 16)));
+  const nat64 = a.match(/^64:ff9b::([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+  if (nat64) return isPrivateV4(hextetsToV4(parseInt(nat64[1], 16), parseInt(nat64[2], 16)));
+
+  // Explicit reserved ranges.
+  if (a === "::" || a === "::1") return true;
+  if (/^fe[89ab]/.test(a)) return true; // fe80::/10 link-local (fe80–febf)
+  if (/^f[cd]/.test(a)) return true; // fc00::/7 unique-local
+  if (a.startsWith("64:ff9b")) return true; // NAT64 well-known prefix
+  // Fail closed on any remaining ::-prefixed compat/mapped form we didn't decode.
+  if (a.startsWith("::")) return true;
+  return false; // well-formed global-unicast IPv6 (2000::/3 etc.) → allow
 }
 
 async function assertPublicHost(target: URL): Promise<void> {
@@ -69,6 +85,13 @@ async function fetchPublicHtml(startUrl: URL): Promise<{ html: string; finalUrl:
   let target = startUrl;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     if (!/^https?:$/.test(target.protocol)) throw new Error("Only http(s) URLs");
+    // ponytail: residual DNS-rebinding TOCTOU. assertPublicHost resolves+validates,
+    // then fetch() re-resolves on its own — Deno's fetch can't pin the vetted IP to
+    // the socket while keeping TLS SNI/cert against the hostname, and hand-rolling
+    // HTTP/1.1+TLS to close it is not worth the fragility. Every redirect hop is
+    // re-validated (static-redirect SSRF is fully blocked); the only residual is an
+    // attacker-controlled sub-second-TTL rebind winning a race. Upgrade path: a
+    // platform egress allowlist / dedicated fetch proxy, an infra control, not code.
     await assertPublicHost(target);
     const response = await fetch(target.href, {
       redirect: "manual",

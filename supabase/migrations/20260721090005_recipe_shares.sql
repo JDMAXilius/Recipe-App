@@ -32,11 +32,22 @@ create policy "recipe_shares_insert_own" on public.recipe_shares
     )
   );
 
+-- UPDATE re-checks recipe ownership in WITH CHECK, not just user_id. Without
+-- it, an owner could PATCH recipe_id to point the share at ANOTHER user's
+-- recipe (user_id stays theirs, so a user_id-only check passes), and
+-- get_recipe_share would then serve that victim's private recipe to anon.
+-- The FK ownership invariant must hold at UPDATE exactly as at INSERT.
 drop policy if exists "recipe_shares_update_own" on public.recipe_shares;
 create policy "recipe_shares_update_own" on public.recipe_shares
   for update to authenticated
   using ((select auth.uid())::text = user_id)
-  with check ((select auth.uid())::text = user_id);
+  with check (
+    (select auth.uid())::text = user_id
+    and exists (
+      select 1 from public.recipes r
+      where r.id = recipe_id and r.user_id = (select auth.uid())::text
+    )
+  );
 
 drop policy if exists "recipe_shares_delete_own" on public.recipe_shares;
 create policy "recipe_shares_delete_own" on public.recipe_shares
