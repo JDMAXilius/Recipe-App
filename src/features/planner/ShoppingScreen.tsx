@@ -13,7 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Text, Button, OttoArt, OttoLoading, OttoError, Screen } from '@/shared/ui';
+import { Text, OttoArt, OttoLoading, OttoError, Screen } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { kv } from '@/shared/storage';
@@ -37,19 +37,33 @@ export function ShoppingScreen() {
   const userId = user?.id ?? null;
   const padRef = useRef<View>(null);
 
-  // Unique recipe ids still on the week — the list's source recipes.
+  // Unique recipe ids on the week + their titles — the list's source recipes,
+  // shown as removable chips so a dish can be dropped from the list.
   const recipeIds = useMemo(() => {
     const seen = new Set<string>();
     for (const e of entries) if (e.recipe_id) seen.add(e.recipe_id);
     return [...seen];
   }, [entries]);
+  const recipeTitles = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const e of entries) if (e.recipe_id && !m.has(e.recipe_id)) m.set(e.recipe_id, e.title);
+    return m;
+  }, [entries]);
+
+  // Source recipes the shopper dropped (chip ×). Persisted, and pruned to what's
+  // actually on the week so a removed-then-replanned dish comes back.
+  const [excluded, setExcluded] = useState<string[]>([]);
+  const activeRecipeIds = useMemo(
+    () => recipeIds.filter((id) => !excluded.includes(id)),
+    [recipeIds, excluded],
+  );
 
   const listQuery = useQuery({
-    queryKey: ['plan-list', userId, recipeIds],
+    queryKey: ['plan-list', userId, activeRecipeIds],
     // Seed recipes resolve without a user; only user recipes need userId — so
     // the list builds from a normal (seed) week regardless of auth timing.
-    enabled: recipeIds.length > 0,
-    queryFn: () => getListRecipes(recipeIds, userId),
+    enabled: activeRecipeIds.length > 0,
+    queryFn: () => getListRecipes(activeRecipeIds, userId),
     // Keep the current rows visible while a changed week refetches, so adding
     // or removing a dish updates the list without a blank flash.
     placeholderData: keepPreviousData,
@@ -59,8 +73,8 @@ export function ShoppingScreen() {
   // so the list must be forced empty here, or removing every dish would leave
   // the old ingredients on screen (the "doesn't update" bug).
   const items = useMemo(
-    () => (recipeIds.length === 0 ? [] : buildShoppingList(listQuery.data ?? [])),
-    [recipeIds.length, listQuery.data],
+    () => (activeRecipeIds.length === 0 ? [] : buildShoppingList(listQuery.data ?? [])),
+    [activeRecipeIds.length, listQuery.data],
   );
 
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -76,16 +90,27 @@ export function ShoppingScreen() {
       const saved = await kv.get<{
         checked: Record<string, boolean>;
         custom: { key: string; name: string }[];
-      }>('shoppingState', { checked: {}, custom: [] });
+        excluded?: string[];
+      }>('shoppingState', { checked: {}, custom: [], excluded: [] });
       setChecked(saved.checked ?? {});
       setCustom(saved.custom ?? []);
+      setExcluded(saved.excluded ?? []);
       hydrated.current = true;
     })();
   }, []);
   useEffect(() => {
     if (!hydrated.current) return;
-    kv.set('shoppingState', { checked, custom });
-  }, [checked, custom]);
+    kv.set('shoppingState', { checked, custom, excluded });
+  }, [checked, custom, excluded]);
+  // Prune exclusions to dishes still on the week (once it has loaded), so a
+  // dropped-then-replanned dish returns to the list instead of staying hidden.
+  useEffect(() => {
+    if (recipeIds.length === 0) return;
+    setExcluded((prev) => {
+      const next = prev.filter((id) => recipeIds.includes(id));
+      return next.length === prev.length ? prev : next;
+    });
+  }, [recipeIds]);
 
   const toggle = (key: string) => {
     haptics.select();
@@ -184,13 +209,13 @@ export function ShoppingScreen() {
       }
     >
       <ScrollView style={{ backgroundColor: colors.cream }} contentContainerStyle={styles.scroll}>
-        {/* The printed stationery pad — a warm sheet framed by a faint terracotta
-            double rule, headed by a SHOPPING LIST banner flag. The frame is drawn
-            with absolute Views so it tracks the pad's height at any list length. */}
+        {/* The printed stationery pad — a warm white sheet inset with a single
+            thin terracotta frame (Figma 277:779), headed by a SHOPPING LIST
+            banner. The frame is an absolute View so it tracks the pad's height
+            at any list length. */}
         <View ref={padRef} collapsable={false} style={styles.pad}>
           <View style={styles.padSheet} pointerEvents="none" />
-          <View style={styles.padFrameOuter} pointerEvents="none" />
-          <View style={styles.padFrameInner} pointerEvents="none" />
+          <View style={styles.padFrame} pointerEvents="none" />
 
           <View style={styles.padContent}>
             <View style={styles.bannerWrap} accessibilityRole="header">
@@ -202,6 +227,29 @@ export function ShoppingScreen() {
             {total > 0 && (
               <View style={styles.countHeader}>
                 <Text role="meta">{done} of {total} in the basket</Text>
+              </View>
+            )}
+
+            {/* Source-recipe chips — tap × to drop that dish from the list. */}
+            {activeRecipeIds.length > 0 && (
+              <View style={styles.chipsRow}>
+                {activeRecipeIds.map((id) => (
+                  <Pressable
+                    key={id}
+                    onPress={() => {
+                      haptics.select();
+                      setExcluded((prev) => [...prev, id]);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Remove ${recipeTitles.get(id) ?? 'this dish'} from the list`}
+                    style={styles.chip}
+                  >
+                    <RNText style={styles.chipText} numberOfLines={1}>
+                      {recipeTitles.get(id) ?? 'Recipe'}
+                    </RNText>
+                    <Ionicons name="close" size={13} color={colors.inkSoft} />
+                  </Pressable>
+                ))}
               </View>
             )}
 
@@ -233,10 +281,10 @@ export function ShoppingScreen() {
                         )}
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Text role="body">
-                          {item.amount ? `${item.amount} ` : ''}
-                          {item.name}
-                        </Text>
+                        <RNText>
+                          {item.amount ? <RNText style={styles.itemAmount}>{item.amount} </RNText> : null}
+                          <RNText style={styles.itemName}>{item.name}</RNText>
+                        </RNText>
                         {item.sources.length > 0 && (
                           <Text role="caption">for {item.sources.join(' · ')}</Text>
                         )}
@@ -293,7 +341,14 @@ export function ShoppingScreen() {
             returnKeyType="done"
             accessibilityLabel="Add your own item"
           />
-          <Button title="Add" variant="secondary" onPress={addCustom} />
+          <Pressable
+            onPress={addCustom}
+            accessibilityRole="button"
+            accessibilityLabel="Add item"
+            style={styles.addBtn}
+          >
+            <Ionicons name="add" size={24} color={colors.white} />
+          </Pressable>
         </View>
       </ScrollView>
     </Screen>
@@ -325,30 +380,44 @@ const styles: Record<string, ViewStyle & TextStyle> = {
     shadowOffset: { width: 0, height: 6 },
     elevation: 4,
   },
-  padFrameOuter: {
+  padFrame: {
     position: 'absolute',
     top: FRAME,
     left: FRAME,
     right: FRAME,
     bottom: FRAME,
     borderRadius: radii.button,
-    borderWidth: 1.5,
-    borderColor: colors.accentSoft,
-  },
-  padFrameInner: {
-    position: 'absolute',
-    top: FRAME + 5,
-    left: FRAME + 5,
-    right: FRAME + 5,
-    bottom: FRAME + 5,
-    borderRadius: radii.button - 3,
     borderWidth: 1,
-    borderColor: colors.accentSoft,
+    borderColor: colors.terracotta,
+    opacity: 0.5,
   },
   padContent: {
     paddingHorizontal: space[5],
     paddingTop: space[4],
     paddingBottom: space[5],
+  },
+  chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: space[2], marginBottom: space[4] },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[1],
+    maxWidth: '100%',
+    paddingLeft: space[3],
+    paddingRight: space[2],
+    paddingVertical: 5,
+    borderRadius: radii.pill,
+    backgroundColor: colors.creamDeep,
+  },
+  chipText: { flexShrink: 1, fontSize: 13, fontWeight: '600', color: colors.ink },
+  itemAmount: { fontSize: 15, fontWeight: '700', color: colors.terracotta },
+  itemName: { fontSize: 15, color: colors.ink },
+  addBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radii.pill,
+    backgroundColor: colors.terracotta,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   bannerWrap: { alignItems: 'center', marginTop: space[2], marginBottom: space[3] },
