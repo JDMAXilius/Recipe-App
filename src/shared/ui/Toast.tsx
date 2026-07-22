@@ -1,20 +1,30 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Text as RNText, View } from 'react-native';
-import { colors, radii, space } from '../theme/tokens';
+import { Pressable, Text as RNText, View } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { colors, radii, space, timing } from '../theme/tokens';
+import { OttoArt, type OttoArtName } from './OttoArt';
 
 export type ToastKind = 'info' | 'success' | 'error';
 
-type ToastEvent = { message: string; kind: ToastKind };
+export interface ToastOptions {
+  ottoImage?: OttoArtName; // small celebration mascot (e.g. 'excited' on first save)
+  actionLabel?: string; // e.g. "Undo"
+  onAction?: () => void;
+}
+
+type ToastEvent = { message: string; kind: ToastKind } & ToastOptions;
 
 // Module-level emitter — no context/provider needed; ToastHost subscribes,
 // useToast() emits. One host mounted at the app root shows every toast.
 const listeners = new Set<(t: ToastEvent) => void>();
 
-export function useToast(): { show: (message: string, kind: ToastKind) => void } {
+export function useToast(): {
+  show: (message: string, kind: ToastKind, opts?: ToastOptions) => void;
+} {
   return useMemo(
     () => ({
-      show(message: string, kind: ToastKind) {
-        listeners.forEach((l) => l({ message, kind }));
+      show(message: string, kind: ToastKind, opts?: ToastOptions) {
+        listeners.forEach((l) => l({ message, kind, ...opts }));
       },
     }),
     [],
@@ -40,14 +50,17 @@ export function ToastHost() {
 
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 3000);
+    // Toasts with an action linger longer (undo needs a beat), per v1.
+    const ms = toast.actionLabel ? 5000 : 3000;
+    const timer = setTimeout(() => setToast(null), ms);
     return () => clearTimeout(timer);
   }, [toast]);
 
   if (!toast) return null;
+  const interactive = !!(toast.actionLabel && toast.onAction);
   return (
     <View
-      pointerEvents="none"
+      pointerEvents="box-none"
       accessibilityLiveRegion="polite"
       style={{
         position: 'absolute',
@@ -57,9 +70,15 @@ export function ToastHost() {
         alignItems: 'center',
       }}
     >
-      <View
+      <Animated.View
+        key={toast.id}
+        entering={FadeIn.duration(timing.fade)}
+        exiting={FadeOut.duration(timing.fade)}
         accessibilityRole="alert"
         style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: space[3],
           backgroundColor: kindColor[toast.kind],
           borderRadius: radii.pill,
           paddingVertical: space[3],
@@ -67,10 +86,33 @@ export function ToastHost() {
           maxWidth: 480,
         }}
       >
-        <RNText style={{ color: colors.white, fontSize: 14, fontWeight: '500' }}>
+        {toast.ottoImage && <OttoArt name={toast.ottoImage} size={32} />}
+        <RNText style={{ color: colors.white, fontSize: 14, fontWeight: '500', flexShrink: 1 }}>
           {toast.message}
         </RNText>
-      </View>
+        {interactive && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={toast.actionLabel}
+            hitSlop={8}
+            onPress={() => {
+              toast.onAction?.();
+              setToast(null);
+            }}
+          >
+            <RNText
+              style={{
+                color: colors.white,
+                fontSize: 14,
+                fontWeight: '700',
+                textDecorationLine: 'underline',
+              }}
+            >
+              {toast.actionLabel}
+            </RNText>
+          </Pressable>
+        )}
+      </Animated.View>
     </View>
   );
 }

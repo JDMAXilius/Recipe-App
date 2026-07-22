@@ -2,6 +2,7 @@ import React from 'react';
 import { Text as RNText, View, type ViewStyle } from 'react-native';
 import { colors, fonts, space } from '../theme/tokens';
 import { formatCount } from '../lib/format';
+import { useCountUp } from '../motion';
 import { Text } from './Text';
 
 export interface RingProps {
@@ -30,6 +31,9 @@ const circle: ViewStyle = {
 
 export function Ring({ value, max, label }: RingProps) {
   const hasData = value != null && Number.isFinite(value);
+  // 0→value sweep on mount (ease-out cubic, reduced-motion → instant). a11y label
+  // always states the true target, never the mid-sweep number.
+  const display = useCountUp(value);
   const valueLabel = hasData ? (max != null ? `${value} of ${max}` : `${value}`) : 'no data';
   return (
     <View
@@ -48,7 +52,7 @@ export function Ring({ value, max, label }: RingProps) {
             color: hasData ? colors.terracotta : colors.inkSoft,
           }}
         >
-          {formatCount(value)}
+          {formatCount(display)}
         </RNText>
         {max != null && <RNText style={{ fontSize: 11, color: colors.inkSoft }}>/ {max}</RNText>}
       </View>

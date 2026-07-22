@@ -1,11 +1,17 @@
 import React from 'react';
-import { Text as RNText, View } from 'react-native';
-import { colors, radii } from '../theme/tokens';
+import { Image } from 'expo-image';
+import type { ImageSourcePropType } from 'react-native';
+import {
+  actionArt,
+  ottoArt,
+  sceneArt,
+  type ActionName,
+  type OttoName,
+  type SceneName,
+} from '../assets';
 
-// Catalog typed from v1 asset usage (mobile/assets/mascot + mobile/assets/actions,
-// read-only reference). Art assets don't exist in the v2 tree yet — this renders
-// a labeled placeholder so layouts can be built and screenshotted now, and the
-// name union stays the contract when the painted assets port in.
+// Name union is the contract for what art the app can ask for; assets.ts owns the
+// require()s. scene-*/action-* prefixes route to the scene/action registries.
 export type OttoArtName =
   // mascot expressions
   | 'happy'
@@ -39,30 +45,23 @@ export interface OttoArtProps {
   size?: number;
 }
 
+function resolve(name: OttoArtName): ImageSourcePropType {
+  if (name.startsWith('scene-')) return sceneArt[name.slice(6) as SceneName];
+  if (name.startsWith('action-')) return actionArt[name.slice(7) as ActionName];
+  return ottoArt[name as OttoName];
+}
+
+// Real painted art (contract §6). Static image — OttoIdle wraps this for the
+// living/breathing mascot; every other site renders it plain.
 export function OttoArt({ name, size = 96 }: OttoArtProps) {
   return (
-    <View
+    <Image
+      source={resolve(name)}
       accessible
       accessibilityLabel={`Otto illustration: ${name}`}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: radii.card,
-        backgroundColor: colors.creamDeep,
-        borderWidth: 1,
-        borderStyle: 'dashed',
-        borderColor: colors.inkSoft,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 4,
-      }}
-    >
-      <RNText
-        style={{ fontSize: 11, color: colors.inkSoft, textAlign: 'center' }}
-        numberOfLines={2}
-      >
-        otto:{name}
-      </RNText>
-    </View>
+      style={{ width: size, height: size }}
+      contentFit="contain"
+      transition={200}
+    />
   );
 }
