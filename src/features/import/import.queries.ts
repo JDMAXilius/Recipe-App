@@ -94,6 +94,67 @@ export async function importFromPhoto(image: string, mimeType: string): Promise<
   return toDraft(DraftResponseSchema.parse(data), 'imported');
 }
 
+// --- recipe-photo storage --------------------------------------------------
+
+// The public bucket (migration 20260721090010) — objects live at
+// `${userId}/${ts}.${ext}`; ownership is the first path segment (RLS INSERT).
+const PHOTO_BUCKET = 'recipe-photos';
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+// Decode base64 → bytes ourselves: supabase-js on React Native silently uploads
+// a 0-byte file when handed a Blob from fetch(uri) (a long-standing RN quirk),
+// and atob isn't guaranteed on every engine — so we go straight from the base64
+// expo-image-picker already hands us to a Uint8Array (ported from v1).
+function base64ToBytes(base64: string): Uint8Array {
+  const clean = base64.replace(/[^A-Za-z0-9+/]/g, '');
+  const len = clean.length;
+  const bytes = new Uint8Array(Math.floor((len * 3) / 4));
+  let p = 0;
+  for (let i = 0; i < len; i += 4) {
+    const a = B64.indexOf(clean[i]);
+    const b = B64.indexOf(clean[i + 1]);
+    const c = B64.indexOf(clean[i + 2]);
+    const d = B64.indexOf(clean[i + 3]);
+    bytes[p++] = (a << 2) | (b >> 4);
+    if (c !== -1) bytes[p++] = ((b & 15) << 4) | (c >> 2);
+    if (d !== -1) bytes[p++] = ((c & 3) << 6) | d;
+  }
+  return p === bytes.length ? bytes : bytes.subarray(0, p);
+}
+
+// Upload a picked photo (base64 from imagePicker) to Storage, return its public
+// URL — the string that goes into recipe.image, which the whole app renders.
+// Owner-scoped path; throws on failure (unsigned users hit the RLS wall) so the
+// caller can show an honest message.
+export async function uploadRecipePhoto(base64: string, mimeType?: string | null): Promise<string> {
+  const bytes = base64ToBytes(base64);
+  if (!bytes.length) throw new Error('That photo came through empty — try another.');
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Sign in to add a photo from your library.');
+
+  const ext = /png/i.test(mimeType ?? '')
+    ? 'png'
+    : /webp/i.test(mimeType ?? '')
+      ? 'webp'
+      : /heic/i.test(mimeType ?? '')
+        ? 'heic'
+        : 'jpg';
+  const contentType = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+  const path = `${user.id}/${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from(PHOTO_BUCKET)
+    .upload(path, bytes, { contentType, upsert: false });
+  if (error) throw error;
+
+  const { data } = supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path);
+  if (!data?.publicUrl) throw new Error("Uploaded, but couldn't get a link back.");
+  return data.publicUrl;
+}
+
 // --- recipes-table CRUD ---------------------------------------------------
 
 function rowToDraft(row: Tables<'recipes'>): Draft {
@@ -183,6 +244,13 @@ export function useImportFromPhoto() {
   return useMutation({
     mutationFn: ({ image, mimeType }: { image: string; mimeType: string }) =>
       importFromPhoto(image, mimeType),
+  });
+}
+
+export function useUploadRecipePhoto() {
+  return useMutation({
+    mutationFn: ({ base64, mimeType }: { base64: string; mimeType?: string | null }) =>
+      uploadRecipePhoto(base64, mimeType),
   });
 }
 

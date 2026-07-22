@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
-import { Linking, Platform, Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import {
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  Share,
+  TextInput,
+  View,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
+import * as WebBrowser from 'expo-web-browser';
 import type { User } from '@supabase/supabase-js';
-import { Text, SegmentBar, useToast } from '@/shared/ui';
-import { colors, radii, space } from '@/shared/theme/tokens';
+import { Text, SegmentBar, OttoArt, useToast } from '@/shared/ui';
+import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
-import { useAuth } from '@/features/auth';
+import { useAuth, displayNameFor, hasUsername, cleanUsername, MAX_USERNAME } from '@/features/auth';
 import { useSaved, useMyRecipes } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
 import { usePrefs } from './usePrefs';
@@ -21,11 +33,11 @@ import { deleteAccount } from './profile.queries';
 // right below it — never buried under Privacy.
 
 const SUPPORT_EMAIL = 'juandiego@ottosapp.com';
-
-function displayName(user: User | null): string {
-  const meta = user?.user_metadata as { name?: string; full_name?: string } | undefined;
-  return meta?.name || meta?.full_name || user?.email?.split('@')[0] || 'Chef';
-}
+const PRIVACY_URL = 'https://ottosapp.com/privacy';
+const TERMS_URL = 'https://ottosapp.com/terms';
+// ponytail: no App Store listing yet — Rate Otto toasts until this URL is set.
+const RATE_APP_URL: string | null = null;
+const APP_VERSION = Constants.expoConfig?.version ?? '1.0.0';
 
 function hasPasswordLogin(user: User | null): boolean {
   return (
@@ -37,7 +49,7 @@ function hasPasswordLogin(user: User | null): boolean {
 export function ProfileScreen() {
   const router = useRouter();
   const { show } = useToast();
-  const { user, signOut } = useAuth();
+  const { user, signOut, saveUsername } = useAuth();
   const { saved } = useSaved();
   const { entries } = usePlan();
   const { count: yoursCount } = useMyRecipes();
@@ -50,6 +62,54 @@ export function ProfileScreen() {
     saved: saved.length,
     yours: yoursCount,
   });
+
+  // Tap-to-edit display name. Optimistic: show the draft immediately, roll back
+  // on failure. saveUsername writes user_metadata.username, which displayNameFor
+  // reads once the session refreshes.
+  const [editingName, setEditingName] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [nameOverride, setNameOverride] = useState<string | null>(null);
+  const shownName = nameOverride ?? displayNameFor(user);
+
+  const startEditName = () => {
+    haptics.select();
+    setDraftName(hasUsername(user) ? displayNameFor(user) : '');
+    setEditingName(true);
+  };
+  const commitName = async () => {
+    setEditingName(false);
+    const next = cleanUsername(draftName);
+    if (!next || next === displayNameFor(user)) return;
+    setNameOverride(next);
+    try {
+      setNameOverride(await saveUsername(next));
+    } catch {
+      setNameOverride(null);
+      show("Couldn't save your name — try again.", 'error');
+    }
+  };
+
+  const tellAFriend = () => {
+    haptics.select();
+    void Share.share({
+      message:
+        "I've been cooking with Otto — the quieter kind of cookbook. Ask me to show you!",
+    }).catch(() => {});
+  };
+  const rateOtto = () => {
+    haptics.select();
+    if (RATE_APP_URL) {
+      void Linking.openURL(RATE_APP_URL).catch(() => {});
+      return;
+    }
+    show("Otto isn't in the store yet — thank you for wanting to!", 'info');
+  };
+  const reportBug = () => {
+    haptics.select();
+    const body = `What happened?\n\n\nWhat did you expect?\n\n\n—\nOtto v${APP_VERSION} · ${Platform.OS}`;
+    const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Otto bug report')}&body=${encodeURIComponent(body)}`;
+    void Linking.openURL(url).catch(() => {});
+  };
 
   const onSignOut = () => {
     // Alert buttons no-op on web; confirm() keeps web usable. Sign-out is
@@ -92,10 +152,41 @@ export function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
       <Text role="display">You</Text>
 
-      {/* IDENTITY — warm header, cold facts */}
+      {/* IDENTITY — Otto badge + tap-to-edit name */}
       <View style={styles.identityCard}>
-        <Text role="title">{displayName(user)}</Text>
-        {user?.email ? <Text role="caption">{user.email}</Text> : null}
+        <OttoArt name="badge" size={56} />
+        <View style={{ flex: 1 }}>
+          {editingName ? (
+            <TextInput
+              style={nameInput}
+              value={draftName}
+              onChangeText={setDraftName}
+              onSubmitEditing={commitName}
+              onBlur={commitName}
+              maxLength={MAX_USERNAME}
+              autoFocus
+              selectTextOnFocus
+              returnKeyType="done"
+              placeholder="What should Otto call you?"
+              placeholderTextColor={colors.inkSoft}
+              accessibilityLabel="Your name"
+            />
+          ) : (
+            <Pressable
+              onPress={startEditName}
+              accessibilityRole="button"
+              accessibilityLabel={`Your name, ${shownName}. Tap to change.`}
+            >
+              <View style={styles.nameRow}>
+                <Text role="title">{shownName}</Text>
+                <Ionicons name="pencil" size={14} color={colors.inkSoft} />
+              </View>
+              <Text role="caption">
+                {hasUsername(user) || nameOverride ? 'Tap to change your name' : 'Tap to add your name'}
+              </Text>
+            </Pressable>
+          )}
+        </View>
       </View>
 
       {/* MEMBERSHIP — honest free state + Otto Club door */}
@@ -191,6 +282,15 @@ export function ProfileScreen() {
         </View>
       </View>
 
+      {/* SPREAD THE WORD */}
+      <View style={styles.section}>
+        <Text role="caption">Spread the word</Text>
+        <View style={styles.card}>
+          <SettingsRow icon="gift-outline" label="Tell a friend" onPress={tellAFriend} />
+          <SettingsRow icon="heart-outline" label="Rate Otto" divided onPress={rateOtto} />
+        </View>
+      </View>
+
       {/* THE BORING-BUT-IMPORTANT BITS */}
       <View style={styles.section}>
         <Text role="caption">The boring-but-important bits</Text>
@@ -205,6 +305,25 @@ export function ProfileScreen() {
               void Linking.openURL(url).catch(() => {});
             }}
           />
+          <SettingsRow icon="bug-outline" label="Report a bug" divided onPress={reportBug} />
+          <SettingsRow
+            icon="shield-checkmark-outline"
+            label="Privacy policy"
+            divided
+            onPress={() => void WebBrowser.openBrowserAsync(PRIVACY_URL)}
+          />
+          <SettingsRow
+            icon="document-text-outline"
+            label="Terms"
+            divided
+            onPress={() => void WebBrowser.openBrowserAsync(TERMS_URL)}
+          />
+          <View style={[styles.row, styles.settingsRow, styles.rowDivider]}>
+            <Ionicons name="paw-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
+            <Text role="body">About Otto</Text>
+            <View style={{ flex: 1 }} />
+            <Text role="caption">v{APP_VERSION}</Text>
+          </View>
         </View>
       </View>
 
@@ -266,11 +385,14 @@ function SettingsRow({
 const styles: Record<string, ViewStyle> = {
   scroll: { padding: space[4], paddingBottom: space[7], gap: space[4] },
   identityCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[3],
     backgroundColor: colors.white,
     borderRadius: radii.card,
     padding: space[4],
-    gap: space[1],
   },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
   section: { gap: space[2] },
   card: { backgroundColor: colors.white, borderRadius: radii.card, paddingHorizontal: space[4] },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: space[3] },
@@ -295,4 +417,11 @@ const styles: Record<string, ViewStyle> = {
   statCell: { flex: 1, alignItems: 'center', gap: space[1] },
   statCellDivider: { borderLeftWidth: 1, borderLeftColor: colors.creamDeep },
   deleteRow: { alignItems: 'center', paddingVertical: space[4] },
+};
+
+// Inline name field — styled to sit where the title Text was, no bordered box.
+const nameInput: TextStyle = {
+  ...type.title,
+  color: colors.ink,
+  padding: 0,
 };

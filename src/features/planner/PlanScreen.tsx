@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, Text as RNText, View, type ViewStyle } from 'react-native';
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  Text as RNText,
+  View,
+  type ImageStyle,
+  type ViewStyle,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -134,16 +142,23 @@ export function PlanScreen() {
                           accessibilityLabel={`Open ${entry.title}`}
                           onPress={() => entry.recipe_id && router.push(`/recipe/${entry.recipe_id}`)}
                         >
-                          <RNText
-                            style={{
-                              ...type.body,
-                              color: colors.ink,
-                              textDecorationLine: entry.cooked ? 'line-through' : 'none',
-                            }}
-                          >
-                            {entry.title}
-                          </RNText>
-                          {entry.note === 'leftovers' && <Text role="caption">Leftovers</Text>}
+                          {entry.image ? (
+                            <Image source={{ uri: entry.image }} style={styles.thumb as ImageStyle} />
+                          ) : (
+                            <View style={styles.thumb} />
+                          )}
+                          <View style={{ flex: 1 }}>
+                            <RNText
+                              style={{
+                                ...type.body,
+                                color: colors.ink,
+                                textDecorationLine: entry.cooked ? 'line-through' : 'none',
+                              }}
+                            >
+                              {entry.title}
+                            </RNText>
+                            {entry.note === 'leftovers' && <Text role="caption">Leftovers</Text>}
+                          </View>
                         </Pressable>
 
                         <Pressable
@@ -267,7 +282,8 @@ const styles: Record<string, ViewStyle> = {
     gap: space[3],
     paddingVertical: space[2],
   },
-  entryMain: { flex: 1 },
+  entryMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space[3] },
+  thumb: { width: 40, height: 40, borderRadius: radii.button, backgroundColor: colors.creamDeep },
   entryActions: {
     flexDirection: 'row',
     gap: space[4],

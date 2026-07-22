@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { Image, Pressable, ScrollView, View, type ImageStyle, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Sheet, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -45,6 +45,11 @@ export function RecipePickerSheet({ visible, title, onPick, onClose }: RecipePic
                 onClose();
               }}
             >
+              {item.image ? (
+                <Image source={{ uri: item.image }} style={styles.thumb as ImageStyle} />
+              ) : (
+                <View style={styles.thumb} />
+              )}
               <View style={{ flex: 1 }}>
                 <Text role="body">{item.title}</Text>
                 {item.category != null && <Text role="caption">{item.category}</Text>}
@@ -71,4 +76,5 @@ const styles: Record<string, ViewStyle> = {
     backgroundColor: colors.white,
     marginBottom: space[2],
   },
+  thumb: { width: 40, height: 40, borderRadius: radii.button, backgroundColor: colors.creamDeep },
 };

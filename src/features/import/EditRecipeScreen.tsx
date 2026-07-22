@@ -8,11 +8,13 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
+import { pickFromLibrary } from '@/shared/imagePicker';
 import { RecipeInput } from './components/RecipeInput';
 import {
   cloneDraft,
@@ -28,6 +30,7 @@ import {
   useGenerateRecipe,
   useRecipeDraft,
   useSaveRecipe,
+  useUploadRecipePhoto,
 } from './import.queries';
 
 // ONE editor, two fill states (Crouton pattern): import-review arrives
@@ -59,6 +62,16 @@ const panel: ViewStyle = {
   gap: space[3],
   marginBottom: space[4],
 };
+const photoDrop: ViewStyle = {
+  backgroundColor: colors.accentSoft,
+  borderRadius: radii.card,
+  borderWidth: 1.5,
+  borderStyle: 'dashed',
+  borderColor: colors.terracotta,
+  paddingVertical: space[6],
+  alignItems: 'center',
+  gap: space[1],
+};
 
 export function EditRecipeScreen() {
   const router = useRouter();
@@ -71,6 +84,7 @@ export function EditRecipeScreen() {
   const saveMut = useSaveRecipe();
   const deleteMut = useDeleteRecipe();
   const generateMut = useGenerateRecipe();
+  const uploadMut = useUploadRecipePhoto();
 
   // Non-edit: take the hand-off slot exactly once (or start blank). Edit mode
   // seeds from the query below.
@@ -128,6 +142,26 @@ export function EditRecipeScreen() {
       show("Otto wrote it out — check his work, then save it.", 'success');
     } catch (err) {
       show(err instanceof Error ? err.message : "Otto couldn't finish that idea.", 'error');
+    }
+  };
+
+  // Pick a photo of the dish from the library → upload to the recipe-photos
+  // bucket → set the public URL into the photo field (which the whole app already
+  // renders). Library-only, matching the "choose from your library" copy; the
+  // PHOTO LINK field below stays for pasting a picture URL instead.
+  const addPhoto = async () => {
+    const picked = await pickFromLibrary({ base64: true });
+    if (!picked) return; // cancelled or permission denied — no error to throw
+    if (!picked.base64) {
+      show("Couldn't read that photo — try another.", 'error');
+      return;
+    }
+    try {
+      const url = await uploadMut.mutateAsync({ base64: picked.base64, mimeType: picked.mimeType });
+      patch({ image: url });
+      show('Photo added.', 'success');
+    } catch (err) {
+      show(err instanceof Error ? err.message : "Couldn't upload the photo. Try again.", 'error');
     }
   };
 
@@ -229,11 +263,49 @@ export function EditRecipeScreen() {
           accessibilityLabel="Recipe title"
         />
 
+        <View style={{ marginTop: space[4], marginBottom: space[2] }}>
+          <Text role="caption">PHOTO</Text>
+        </View>
+        {form.image.trim() ? (
+          <Pressable
+            onPress={addPhoto}
+            disabled={uploadMut.isPending}
+            accessibilityRole="button"
+            accessibilityLabel="Change the recipe photo"
+          >
+            <Image
+              source={{ uri: form.image }}
+              style={{ width: '100%', height: 180, borderRadius: radii.card }}
+              contentFit="cover"
+            />
+          </Pressable>
+        ) : (
+          <Pressable
+            style={photoDrop}
+            onPress={addPhoto}
+            disabled={uploadMut.isPending}
+            accessibilityRole="button"
+            accessibilityLabel="Upload a photo of the dish"
+          >
+            <Ionicons
+              name={uploadMut.isPending ? 'cloud-upload-outline' : 'camera-outline'}
+              size={26}
+              color={colors.terracotta}
+            />
+            <Text role="computed">
+              {uploadMut.isPending ? 'Uploading…' : 'Upload a photo of the dish'}
+            </Text>
+            <Text role="caption">Tap to choose from your library</Text>
+          </Pressable>
+        )}
+
+        <View style={{ marginTop: space[3], marginBottom: space[2] }}>
+          <Text role="caption">Or paste a link to a picture</Text>
+        </View>
         <RecipeInput
           value={form.image}
           onChangeText={(t) => patch({ image: t })}
           placeholder="https://… a picture of the dish"
-          label="PHOTO LINK"
           accessibilityLabel="Photo link"
           keyboardType="url"
         />

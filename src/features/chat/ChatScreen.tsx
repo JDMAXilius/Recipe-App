@@ -4,21 +4,59 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Text as RNText,
+  TextInput,
   View,
   type ViewStyle,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Button, Input, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
-import { colors, radii, space } from '@/shared/theme/tokens';
+import { Ionicons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Button, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
+import { colors, fonts, radii, space } from '@/shared/theme/tokens';
+import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
 import { useSaveRecipe, type SaveInput } from '@/features/import';
 import { useChat } from './useChat';
 import type { ChatRecipe, StoredMessage } from './chat.types';
 
-// Ask-Otto: a warm short chat that builds ONE recipe the user saves. Transcript
+// Chat with Otto — the ＋ (create) tab AND app/ask.tsx. The primary way to make
+// a recipe: describe a dish, Otto writes it inline, you save. Header doors reach
+// Recent chats (clock → /chats) and Bring-in-a-recipe (import → /add). Transcript
 // (you right / Otto left), clarify chips, an inline recipe preview with
 // Save-to-cookbook, and Otto's living presence. Every server state
 // (loading/error/clarify/recipe/decline) renders inline — never a crash.
+
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
+
+// Header door: a soft circular icon button (Figma create/chats headers).
+function HeaderButton({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: IconName;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: radii.pill,
+        backgroundColor: colors.creamDeep,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Ionicons name={icon} size={20} color={colors.ink} />
+    </Pressable>
+  );
+}
 
 const bubbleBase: ViewStyle = {
   maxWidth: '82%',
@@ -123,9 +161,12 @@ function RecipePreview({
 
 export function ChatScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { show } = useToast();
   const { user, isSignedIn } = useAuth();
-  const chat = useChat();
+  // ?chat=<id> — arriving from Recent chats reopens that thread.
+  const { chat: chatParam } = useLocalSearchParams<{ chat?: string }>();
+  const chat = useChat({ threadId: chatParam });
   const saveMut = useSaveRecipe();
   const [draft, setDraft] = useState('');
   const scrollRef = useRef<ScrollView>(null);
@@ -137,9 +178,17 @@ export function ChatScreen() {
   const onSend = () => {
     const text = draft.trim();
     if (!text) return;
+    haptics.select();
     setDraft('');
     chat.send(text);
     toBottom();
+  };
+
+  // Voice rides the dev build only (on-device speech module); say so warmly
+  // instead of a dead tap — matches v1's "coming soon".
+  const onSpeak = () => {
+    haptics.impact();
+    show('Talking to Otto is coming soon — type it to him for now.', 'info');
   };
 
   const onSave = async (recipe: ChatRecipe) => {
@@ -150,6 +199,7 @@ export function ChatScreen() {
     const input: SaveInput = { id: null, userId: user.id, recipe };
     try {
       const id = await saveMut.mutateAsync(input);
+      haptics.notify('success');
       show("On the shelf — it's in your cookbook.", 'success');
       router.replace(`/recipe/u-${id}`);
     } catch (err) {
@@ -171,9 +221,28 @@ export function ChatScreen() {
   }
 
   const empty = chat.messages.length === 0 && !chat.isSending;
+  const hasText = draft.trim().length > 0;
 
   return (
-    <Screen title="Ask Otto" onBack={() => router.back()}>
+    <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: insets.top }}>
+      <View
+        style={{
+          height: 44,
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: space[3],
+        }}
+      >
+        <HeaderButton icon="time-outline" label="Recent chats" onPress={() => router.push('/chats')} />
+        <View accessibilityRole="header" style={{ flex: 1, alignItems: 'center' }}>
+          <Text role="title">Chat with Otto</Text>
+        </View>
+        <HeaderButton
+          icon="download-outline"
+          label="Bring in a recipe"
+          onPress={() => router.push('/add')}
+        />
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={90}
@@ -229,35 +298,81 @@ export function ChatScreen() {
           )}
         </ScrollView>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'flex-end',
-            gap: space[2],
-            padding: space[3],
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            backgroundColor: colors.cream,
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <Input
+        <View style={{ padding: space[3] }}>
+          {/* One rounded field with a trailing pill (Figma): Speak when empty,
+              send arrow once there's text. */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'flex-end',
+              gap: space[2],
+              backgroundColor: colors.white,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: radii.card,
+              paddingLeft: space[4],
+              paddingRight: space[2],
+              paddingVertical: space[2],
+            }}
+          >
+            <TextInput
               value={draft}
               onChangeText={setDraft}
               placeholder="Tell Otto what you’re after…"
+              placeholderTextColor={colors.inkSoft}
               accessibilityLabel="Message Otto"
               multiline
+              onSubmitEditing={onSend}
+              style={{
+                flex: 1,
+                fontFamily: fonts.body,
+                fontSize: 16,
+                color: colors.ink,
+                paddingVertical: space[2],
+                maxHeight: 120,
+              }}
             />
+            {hasText ? (
+              <Pressable
+                onPress={onSend}
+                disabled={chat.isSending}
+                accessibilityRole="button"
+                accessibilityLabel="Send"
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: radii.pill,
+                  backgroundColor: colors.terracotta,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Ionicons name="arrow-up" size={20} color={colors.white} />
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={onSpeak}
+                accessibilityRole="button"
+                accessibilityLabel="Speak to Otto"
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: space[1],
+                  height: 40,
+                  paddingHorizontal: space[4],
+                  borderRadius: radii.pill,
+                  backgroundColor: colors.ink,
+                }}
+              >
+                <Ionicons name="mic" size={16} color={colors.white} />
+                {/* Pill label is white-on-dark — no ink Text role fits (like
+                    Button's own label), so it's a raw token-colored string. */}
+                <RNText style={{ fontSize: 13, fontWeight: '600', color: colors.white }}>Speak</RNText>
+              </Pressable>
+            )}
           </View>
-          <Button
-            title="Send"
-            onPress={onSend}
-            variant="primary"
-            loading={chat.isSending}
-            disabled={chat.isSending || draft.trim().length === 0}
-          />
         </View>
       </KeyboardAvoidingView>
-    </Screen>
+    </View>
   );
 }

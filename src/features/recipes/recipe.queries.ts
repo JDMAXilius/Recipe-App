@@ -77,16 +77,50 @@ export function useFeatured() {
   });
 }
 
-// Browse grid for a category. filter.php omits strCategory, so stamp back the
-// one we filtered by (keeps the grid honest, same fix as v1 Discover).
-export function useDiscover(category: string | null) {
+// Browse grid, intersected across Category × Cuisine/area (FilterSheet). TheMealDB
+// can't combine filters server-side, so both/either resolve here: category+area
+// fetches each and intersects by id; single dimension is a straight filter.php.
+// filter.php omits strCategory, so stamp back the one we filtered by (keeps the
+// grid honest, same fix as v1 Discover).
+export function useDiscover(category: string | null, area: string | null = null) {
   return useQuery<RecipeSummary[]>({
-    queryKey: ['discover', category],
-    enabled: !!category,
+    queryKey: ['discover', category, area],
+    enabled: !!category || !!area,
     queryFn: async () => {
+      if (category && area) {
+        const [catJson, areaJson] = await Promise.all([
+          content('filter.php', { c: category }),
+          content('filter.php', { a: area }),
+        ]);
+        const ids = new Set(parseMeals(areaJson).map((m) => m.idMeal));
+        return parseMeals(catJson)
+          .filter((m) => ids.has(m.idMeal))
+          .map((m) => mealToSummary(m, category));
+      }
+      if (area) {
+        const meals = parseMeals(await content('filter.php', { a: area }));
+        return meals.map((m) => mealToSummary(m));
+      }
       const meals = parseMeals(await content('filter.php', { c: category as string }));
       return meals.map((m) => mealToSummary(m, category));
     },
+  });
+}
+
+// Cuisine list for the FilterSheet — list.php?a=list returns lean { strArea }
+// rows (no meals), so parse them here rather than through parseMeals. Alphabetical
+// as TheMealDB returns them; that already matches the Figma chip order.
+const AreaListEnvelope = z.object({
+  meals: z.array(z.object({ strArea: z.string() })).nullish(),
+});
+export function useAreas() {
+  return useQuery<string[]>({
+    queryKey: ['areas'],
+    queryFn: async () =>
+      (AreaListEnvelope.parse(await content('list.php', { a: 'list' })).meals ?? []).map(
+        (r) => r.strArea,
+      ),
+    staleTime: 24 * 60 * 60 * 1000, // near-static
   });
 }
 

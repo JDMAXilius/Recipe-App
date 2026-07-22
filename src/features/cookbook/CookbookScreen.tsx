@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { FlatList, Pressable, Text as RNText, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, type Href } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { OttoLoading, SegmentBar, Text } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
-import { useAuth } from '@/features/auth';
 import { useCookedState } from '@/features/cook';
 import { useSaved } from './useSaved';
 import { useMyRecipes } from './useMyRecipes';
@@ -32,14 +31,18 @@ const SEGMENTS = [
 
 export function CookbookScreen() {
   const router = useRouter();
-  const { user } = useAuth();
-  const userId = user?.id ?? null;
   const { saved, isSaved, toggle } = useSaved();
 
   const mineQuery = useMyRecipes();
 
-  const [segment, setSegment] = useState<Segment>('all');
-  const [cookedOnly, setCookedOnly] = useState(false);
+  // Deep-link entry (v1 parity): Account's "cooked / saved / yours" stat tiles
+  // open this screen pre-filtered via ?segment=&cooked=1. Read once for the
+  // initial state; the user can still switch segments after.
+  const params = useLocalSearchParams<{ segment?: string; cooked?: string }>();
+  const initialSegment: Segment =
+    params.segment === 'saved' || params.segment === 'mine' ? params.segment : 'all';
+  const [segment, setSegment] = useState<Segment>(initialSegment);
+  const [cookedOnly, setCookedOnly] = useState(params.cooked === '1');
 
   const { isCooked } = useCookedState();
   const savedItems = useMemo(

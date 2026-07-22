@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FlatList, Image, Pressable, TextInput, View } from 'react-native';
+import { FlatList, Image, Pressable, Text as RNText, TextInput, View, type TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { OttoArt, OttoError, OttoIdle, OttoLoading, Text } from '@/shared/ui';
-import { colors, radii, space } from '@/shared/theme/tokens';
+import { colors, overlay, radii, space, type } from '@/shared/theme/tokens';
+import { haptics } from '@/shared/haptics';
 import { usePlan, tonightEntry } from '@/features/planner';
 import { CategoryTiles } from './components/CategoryTiles';
-import { FilterSheet, filterByCategories } from './components/FilterSheet';
+import { FilterSheet } from './components/FilterSheet';
 import { RecipeCard } from './RecipeCard';
-import { useCategories, useDiscover, useFeatured, useSearch } from './recipe.queries';
+import { useAreas, useCategories, useDiscover, useFeatured, useSearch } from './recipe.queries';
 
 // Discover — Home + Search merged (v1 tab decision). Scroll rhythm:
 // greeting → search pill → Otto's pick hero → painted category tiles → grid.
@@ -20,12 +22,18 @@ function greeting(): string {
   return 'Good evening, chef';
 }
 
+// White-on-photo overlay text (the hero). No Text role is white, so these carry
+// the tokens with color forced; the typed annotation relaxes type.meta's
+// readonly fontVariant tuple the same way the Text primitive does.
+const heroEyebrow: TextStyle = { ...type.meta, fontVariant: ['tabular-nums'], color: colors.white };
+const heroTitle: TextStyle = { ...type.title, color: colors.white };
+
 export function DiscoverScreen() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [filterCats, setFilterCats] = useState<Set<string>>(new Set());
+  const [activeArea, setActiveArea] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => {
@@ -33,18 +41,13 @@ export function DiscoverScreen() {
     return () => clearTimeout(t);
   }, [query]);
 
-  // The grid's category pool changes when you switch category or search, and
-  // stale chips would silently empty the grid — reset the filter on either.
-  useEffect(() => {
-    setFilterCats(new Set());
-  }, [selectedCategory, debounced]);
-
   const categoriesQuery = useCategories();
+  const areasQuery = useAreas();
   const featuredQuery = useFeatured();
   // Tonight band: today's planned dish, if any (planner → recipes allowlist).
   const { entries, days } = usePlan();
   const tonight = tonightEntry(entries, days[0].key);
-  const discoverQuery = useDiscover(selectedCategory);
+  const discoverQuery = useDiscover(selectedCategory, activeArea);
   const searchQuery = useSearch(debounced);
   const isSearching = debounced.length > 0;
 
@@ -55,21 +58,28 @@ export function DiscoverScreen() {
     }
   }, [categoriesQuery.data, selectedCategory]);
 
-  const rawGrid = useMemo(
+  const grid = useMemo(
     () => (isSearching ? searchQuery.data ?? [] : discoverQuery.data ?? []),
     [isSearching, searchQuery.data, discoverQuery.data],
   );
-  // Distinct categories present in the loaded grid. Browse mode is one category
-  // (filter would be degenerate), so the filter affordance only shows when the
-  // grid genuinely spans categories — i.e. search results.
-  const availableCats = useMemo(
-    () => [...new Set(rawGrid.map((r) => r.category).filter((c): c is string => !!c))],
-    [rawGrid],
-  );
-  const canFilter = availableCats.length > 1;
-  const grid = filterByCategories(rawGrid, filterCats);
-  const gridTitle = isSearching ? `Results for “${debounced}”` : selectedCategory ?? 'Recipes';
+  const browseTitle = [selectedCategory, activeArea].filter(Boolean).join(' · ') || 'Recipes';
+  const gridTitle = isSearching ? `Results for “${debounced}”` : browseTitle;
   const featured = featuredQuery.data;
+
+  // A category tile tap is the quick path — it clears any cuisine filter (v1).
+  const selectCategory = (name: string) => {
+    setActiveArea(null);
+    setSelectedCategory(name);
+  };
+
+  // FilterSheet apply: filtering is a browse action, so exit search. Clearing
+  // both (null/null) falls back to the first category so the grid never empties.
+  const applyFilters = (category: string | null, area: string | null) => {
+    setFilterOpen(false);
+    setQuery('');
+    setActiveArea(area);
+    setSelectedCategory(category ?? (area ? null : categoriesQuery.data?.[0]?.name ?? null));
+  };
 
   // Grid loading/error tracks whichever query feeds it (search vs browse); browse
   // also waits on the category catalogue that seeds selectedCategory.
@@ -80,14 +90,6 @@ export function DiscoverScreen() {
   const gridError = isSearching
     ? searchQuery.isError
     : discoverQuery.isError || categoriesQuery.isError;
-
-  const toggleFilter = (cat: string) =>
-    setFilterCats((prev) => {
-      const next = new Set(prev);
-      if (next.has(cat)) next.delete(cat);
-      else next.add(cat);
-      return next;
-    });
 
   const header = useMemo(() => greeting(), []);
 
@@ -106,25 +108,59 @@ export function DiscoverScreen() {
         <OttoIdle name="happy" reactTo="save" size={64} />
       </View>
 
-      {/* Search pill */}
-      <View
-        style={{
-          backgroundColor: colors.creamDeep,
-          borderRadius: radii.pill,
-          paddingHorizontal: space[4],
-          minHeight: 48,
-          justifyContent: 'center',
-        }}
-      >
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="What are we cooking today?"
-          placeholderTextColor={colors.inkSoft}
-          returnKeyType="search"
-          accessibilityLabel="Search recipes"
-          style={{ fontSize: 16, color: colors.ink }}
-        />
+      {/* Filter button + search pill */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Open filters"
+          onPress={() => {
+            haptics.select();
+            setFilterOpen(true);
+          }}
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: radii.pill,
+            backgroundColor: colors.creamDeep,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Ionicons name="options-outline" size={20} color={colors.ink} />
+          {activeArea ? (
+            <View
+              style={{
+                position: 'absolute',
+                top: 11,
+                right: 11,
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: colors.terracotta,
+              }}
+            />
+          ) : null}
+        </Pressable>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: colors.creamDeep,
+            borderRadius: radii.pill,
+            paddingHorizontal: space[4],
+            minHeight: 48,
+            justifyContent: 'center',
+          }}
+        >
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="What are we cooking today?"
+            placeholderTextColor={colors.inkSoft}
+            returnKeyType="search"
+            accessibilityLabel="Search recipes"
+            style={{ fontSize: 16, color: colors.ink }}
+          />
+        </View>
       </View>
 
       {!isSearching && (
@@ -159,7 +195,51 @@ export function DiscoverScreen() {
             </Pressable>
           ) : null}
 
-          {/* Otto's pick — the featured hero */}
+          {/* Ask Otto — search looks through what exists, this writes what
+              doesn't. Sits under Tonight (time-critical, conditional) and above
+              Otto's pick, so on the common no-plan day it's directly below the
+              search row (Figma 213:45). */}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ask Otto for a recipe"
+            onPress={() => {
+              haptics.select();
+              router.push('/ask');
+            }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: space[3],
+              backgroundColor: colors.creamDeep,
+              borderRadius: radii.card,
+              padding: space[3],
+              paddingRight: space[4],
+            }}
+          >
+            <OttoArt name="happy" size={48} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text role="body">Ask Otto</Text>
+              <Text role="caption">
+                Tell him what you&apos;re hungry for — he&apos;ll write the recipe.
+              </Text>
+            </View>
+            <View
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: radii.pill,
+                backgroundColor: colors.terracotta,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ionicons name="arrow-forward" size={18} color={colors.white} />
+            </View>
+          </Pressable>
+
+          {/* Otto's pick — featured hero with the eyebrow/title/meta overlaid
+              bottom-left on the image over a dark scrim (Figma 213:45). White
+              text on photo has no Text role, so raw RNText carries it. */}
           {featured && featured.image ? (
             <Pressable
               accessibilityRole="button"
@@ -172,13 +252,22 @@ export function DiscoverScreen() {
                 style={{ width: '100%', aspectRatio: 16 / 9 }}
                 resizeMode="cover"
               />
-              <View style={{ padding: space[4], gap: space[1] }}>
-                <Text role="caption">Otto’s pick</Text>
-                <Text role="title">{featured.title}</Text>
+              {/* Two stacked scrims fake a bottom→transparent gradient (no lib). */}
+              <View
+                pointerEvents="none"
+                style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '60%', backgroundColor: overlay.scrim }}
+              />
+              <View
+                pointerEvents="none"
+                style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '32%', backgroundColor: overlay.scrimStrong }}
+              />
+              <View style={{ position: 'absolute', left: space[4], right: space[4], bottom: space[4], gap: space[1] }}>
+                <RNText style={heroEyebrow}>Otto’s pick</RNText>
+                <RNText style={heroTitle}>{featured.title}</RNText>
                 {[featured.area, featured.category].filter(Boolean).length ? (
-                  <Text role="caption">
+                  <RNText style={heroEyebrow}>
                     {[featured.area, featured.category].filter(Boolean).join('  ·  ')}
-                  </Text>
+                  </RNText>
                 ) : null}
               </View>
             </Pressable>
@@ -188,33 +277,16 @@ export function DiscoverScreen() {
             <CategoryTiles
               categories={categoriesQuery.data}
               selected={selectedCategory}
-              onSelect={setSelectedCategory}
+              onSelect={selectCategory}
             />
           ) : null}
         </>
       )}
 
-      {/* Grid title + filter affordance (only when the grid spans categories) */}
+      {/* Grid title + live count (Figma: "Beef" · "95 RECIPES") */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <Text role="title">{gridTitle}</Text>
-        {canFilter ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Filter recipes"
-            onPress={() => setFilterOpen(true)}
-            hitSlop={8}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: space[1] }}
-          >
-            <Text role={filterCats.size ? 'computed' : 'label'}>Filter</Text>
-            {filterCats.size ? (
-              <View
-                style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.terracotta }}
-              />
-            ) : null}
-          </Pressable>
-        ) : grid.length > 0 ? (
-          <Text role="caption">{grid.length} recipes</Text>
-        ) : null}
+        {grid.length > 0 ? <Text role="meta">{grid.length} recipes</Text> : null}
       </View>
     </View>
   );
@@ -264,11 +336,11 @@ export function DiscoverScreen() {
       <FilterSheet
         visible={filterOpen}
         onClose={() => setFilterOpen(false)}
-        categories={availableCats}
-        selected={filterCats}
-        onToggle={toggleFilter}
-        onClear={() => setFilterCats(new Set())}
-        resultCount={grid.length}
+        categories={(categoriesQuery.data ?? []).map((c) => c.name)}
+        areas={areasQuery.data ?? []}
+        initialCategory={selectedCategory}
+        initialArea={activeArea}
+        onApply={applyFilters}
       />
     </SafeAreaView>
   );
