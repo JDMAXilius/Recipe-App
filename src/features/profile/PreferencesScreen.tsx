@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable, View, type ViewStyle } from 'react-native';
 import { Text, Button, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { Screen } from './components/Frame';
 import { DIETS, CUISINES } from './profile.prefs';
+import { usePrefs } from './usePrefs';
 
-// Food preferences — diet (single choice) + cuisines (any number). These
-// re-rank Discover and where the grid starts; search, filters and your own
-// recipes stay fully yours. ponytail: session-local state — no persistence
-// until AsyncStorage lands (packet gap), so "Save" just confirms the intent.
+// Food preferences — diet (single choice) + cuisines (any number). These bias
+// Otto's pick and where Discover starts; search, filters and your own recipes
+// stay fully yours. Persisted through usePrefs on every tap (best-effort, never
+// blocks the UI); "Save" just confirms the intent already committed.
 export function PreferencesScreen() {
   const { show } = useToast();
-  const [diet, setDiet] = useState<string>('none');
-  const [cuisines, setCuisines] = useState<string[]>([]);
-
-  const toggleCuisine = (area: string) =>
-    setCuisines((prev) => (prev.includes(area) ? prev.filter((c) => c !== area) : [...prev, area]));
+  const { diet, cuisines, setDiet, toggleCuisine } = usePrefs();
 
   return (
     <Screen title="Food preferences">

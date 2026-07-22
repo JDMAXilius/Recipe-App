@@ -31,6 +31,18 @@ export function mineToPick(m: {
   return { recipeId: `u-${m.id}`, title: m.title, image: m.image, category: m.category };
 }
 
+// Discover's "Tonight" band: today's planned dish (if any). Prefer the first
+// UNCOOKED entry for today — a dish already ticked off isn't "what's cooking
+// tonight" — falling back to the first planned entry. Only entries with a
+// recipe to tap through count. Returns null → the band renders nothing.
+export function tonightEntry(
+  entries: readonly PlanEntry[],
+  todayKey: string,
+): PlanEntry | null {
+  const today = entries.filter((e) => e.day === todayKey && e.recipe_id);
+  return today.find((e) => !e.cooked) ?? today[0] ?? null;
+}
+
 // A pick dropped onto a day → the add payload. note stays null: a fresh pick
 // (or a swap's replacement) is a first-class meal, not leftovers.
 export function pickToAddInput(pick: PickItem, day: string): AddPlanInput {

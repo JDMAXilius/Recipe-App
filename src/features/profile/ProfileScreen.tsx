@@ -8,7 +8,7 @@ import { colors, radii, space } from '@/shared/theme/tokens';
 import { useAuth } from '@/features/auth';
 import { useSaved, useMyRecipes } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
-import { useUnitSystem } from './profile.prefs';
+import { usePrefs } from './usePrefs';
 import { UNIT_SEGMENTS, cookedCount, earnedStats, statText } from './profile.logic';
 import { deleteAccount } from './profile.queries';
 
@@ -39,7 +39,7 @@ export function ProfileScreen() {
   const { saved } = useSaved();
   const { entries } = usePlan();
   const { count: yoursCount } = useMyRecipes();
-  const [unitSystem, setUnitSystem] = useUnitSystem();
+  const { unitSystem, setUnitSystem } = usePrefs();
 
   // cooked from usePlan(), saved from useSaved(), yours from useMyRecipes()
   // (allowlisted — one source shared with cookbook's My-recipes segment).

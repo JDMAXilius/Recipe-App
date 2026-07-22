@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { OttoIdle, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
+import { usePlan, tonightEntry } from '@/features/planner';
 import { CategoryTiles } from './components/CategoryTiles';
 import { FilterSheet, filterByCategories } from './components/FilterSheet';
 import { RecipeCard } from './RecipeCard';
@@ -40,6 +41,9 @@ export function DiscoverScreen() {
 
   const categoriesQuery = useCategories();
   const featuredQuery = useFeatured();
+  // Tonight band: today's planned dish, if any (planner → recipes allowlist).
+  const { entries, days } = usePlan();
+  const tonight = tonightEntry(entries, days[0].key);
   const discoverQuery = useDiscover(selectedCategory);
   const searchQuery = useSearch(debounced);
   const isSearching = debounced.length > 0;
@@ -115,6 +119,36 @@ export function DiscoverScreen() {
 
       {!isSearching && (
         <>
+          {/* Tonight band — today's planned dish, only when one exists. */}
+          {tonight ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Tonight: ${tonight.title}`}
+              onPress={() => router.push(`/recipe/${tonight.recipe_id}`)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: space[3],
+                backgroundColor: colors.creamDeep,
+                borderRadius: radii.card,
+                padding: space[3],
+              }}
+            >
+              {tonight.image ? (
+                <Image
+                  source={{ uri: tonight.image }}
+                  style={{ width: 44, height: 44, borderRadius: radii.pill }}
+                  resizeMode="cover"
+                />
+              ) : null}
+              <View style={{ flex: 1 }}>
+                <Text role="caption">WHAT&apos;S COOKING TONIGHT?</Text>
+                <Text role="body">{tonight.title}</Text>
+              </View>
+              <Text role="caption">›</Text>
+            </Pressable>
+          ) : null}
+
           {/* Otto's pick — the featured hero */}
           {featured && featured.image ? (
             <Pressable

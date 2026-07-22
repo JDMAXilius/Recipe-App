@@ -7,6 +7,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 import { supabase } from '@/shared/supabase/client';
+import { usePrefs } from '@/features/profile';
 import type { Tables } from '@/types/database';
 import { toUserRecipeId } from '@/types/ids';
 import {
@@ -15,6 +16,7 @@ import {
   parseCategories,
   parseMeals,
 } from './mealdb.transform';
+import { choosePickSource } from './recipe.pick';
 import type { Recipe, RecipeCategory, RecipeSummary } from './recipe.types';
 
 // One call into the content passthrough. supabase.functions.invoke attaches the
@@ -43,14 +45,34 @@ export function useCategories() {
   });
 }
 
-// Otto's pick — one full random meal for the hero. random.php is never cached
-// (same URL, different meal), so this is the one "surprise me" seam.
+// Otto's pick — pref-aware hero. A liked cuisine biases the pool and diet wins
+// (choosePickSource owns that lean); with no prefs it's the original random
+// surprise. Keyed by prefs so it refetches when taste changes. random.php is
+// never cached (same URL, different meal) → still a fresh "surprise me".
+async function randomPick(): Promise<Recipe | null> {
+  const meals = parseMeals(await content('random.php'));
+  return meals[0] ? mealToRecipe(meals[0]) : null;
+}
+
 export function useFeatured() {
+  const { diet, cuisines } = usePrefs();
   return useQuery<Recipe | null>({
-    queryKey: ['featured'],
+    // sorted cuisine key so [Thai,Italian] and [Italian,Thai] share one cache.
+    queryKey: ['featured', diet, [...cuisines].sort().join(',')],
     queryFn: async () => {
-      const meals = parseMeals(await content('random.php'));
-      return meals[0] ? mealToRecipe(meals[0]) : null;
+      const source = choosePickSource({ diet, cuisines });
+      if (source.kind === 'random') return randomPick();
+
+      // filter.php returns lean id/name/thumb rows — pick one, then lookup the
+      // full meal so the hero card has area/category/ingredients. Empty pool or
+      // a lookup miss falls back to the honest random surprise.
+      const param: Record<string, string> =
+        source.kind === 'area' ? { a: source.value } : { c: source.value };
+      const pool = parseMeals(await content('filter.php', param));
+      const chosen = pool[Math.floor(Math.random() * pool.length)];
+      if (!chosen) return randomPick();
+      const meals = parseMeals(await content('lookup.php', { i: chosen.idMeal }));
+      return meals[0] ? mealToRecipe(meals[0]) : randomPick();
     },
   });
 }

@@ -4,4 +4,5 @@
 export { PlanScreen } from './PlanScreen';
 export { ShoppingScreen } from './ShoppingScreen';
 export { usePlan, type UsePlan } from './usePlan';
+export { tonightEntry } from './plan.pick';
 export type { AddPlanInput, PlanEntry } from './plan.types';

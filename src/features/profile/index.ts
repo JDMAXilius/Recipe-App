@@ -3,6 +3,9 @@
 // (useAuth/useSaved/usePlan) but exports none of its own — nothing else leaks.
 export { ProfileScreen } from './ProfileScreen';
 export { PreferencesScreen } from './PreferencesScreen';
+// Cross-feature read surface (allowlist: profile → recipes/nutrition). One
+// writer (profile), many readers — see usePrefs.ts.
+export { usePrefs, type UsePrefs, type PrefsState } from './usePrefs';
 export { HouseholdScreen } from './HouseholdScreen';
 export { NotificationsScreen } from './NotificationsScreen';
 export { OttoClubScreen } from './OttoClubScreen';

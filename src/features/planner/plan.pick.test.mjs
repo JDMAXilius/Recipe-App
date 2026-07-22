@@ -9,6 +9,7 @@ import {
   pickToAddInput,
   leftoversCarry,
   nextInWeek,
+  tonightEntry,
 } from './plan.pick.ts';
 
 const days = [
@@ -58,4 +59,29 @@ test('nextInWeek: next day within the window, null on the last day', () => {
   assert.equal(nextInWeek('2026-07-21', days), '2026-07-22');
   assert.equal(nextInWeek('2026-07-27', days), null); // last day
   assert.equal(nextInWeek('1999-01-01', days), null); // not in window
+});
+
+const entry = (over) => ({
+  id: 1, user_id: 'u', day: '2026-07-21', recipe_id: '52772', title: 'Teriyaki',
+  image: null, category: null, note: null, cooked: false, created_at: '', ...over,
+});
+
+test('tonightEntry: today only, prefers the first uncooked dish', () => {
+  const entries = [
+    entry({ id: 1, day: '2026-07-22', title: 'Tomorrow' }), // not today
+    entry({ id: 2, cooked: true, title: 'Already cooked' }),
+    entry({ id: 3, title: 'Tonight' }),
+  ];
+  assert.equal(tonightEntry(entries, '2026-07-21')?.title, 'Tonight');
+});
+
+test('tonightEntry: falls back to first today entry when all cooked', () => {
+  const entries = [entry({ id: 2, cooked: true, title: 'Cooked' })];
+  assert.equal(tonightEntry(entries, '2026-07-21')?.title, 'Cooked');
+});
+
+test('tonightEntry: null when nothing planned today or entry has no recipe', () => {
+  assert.equal(tonightEntry([entry({ day: '2026-07-22' })], '2026-07-21'), null);
+  assert.equal(tonightEntry([entry({ recipe_id: null })], '2026-07-21'), null);
+  assert.equal(tonightEntry([], '2026-07-21'), null);
 });
