@@ -7,13 +7,10 @@ import { fdaCalories } from "@/shared/lib/fdaCalories";
 // package label. null kcal → Ring renders an em-dash, never a fabricated 0
 // (honesty law / ui-components rule 4).
 //
-// ponytail: max = 2000 is the FDA reference daily intake, the only non-personal
-// denominator available — but Ring always prints "/ max", which reads as the
-// daily-goal framing nutrition's design forbids. Raised as a contract_gap
-// (Ring needs a denominator-less mode); this is the honest interim.
-const FDA_REFERENCE_KCAL = 2000;
-
+// No `max`: nutrition's design forbids daily-goal framing, and Ring's max-less
+// variant renders the value + label with no "/ denominator" (the contract_gap
+// is resolved — Ring now supports a denominator-less display).
 export function CalorieRing({ kcal }: { kcal: number | null }) {
   const value = kcal == null ? null : fdaCalories(kcal);
-  return <Ring value={value} max={FDA_REFERENCE_KCAL} label="kcal" />;
+  return <Ring value={value} label="kcal" />;
 }

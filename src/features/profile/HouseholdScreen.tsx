@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, TextInput, View, type TextStyle, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text, Button, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { Screen } from './components/Frame';
@@ -121,7 +121,7 @@ export function HouseholdScreen() {
   );
 }
 
-const styles: Record<string, ViewStyle | TextStyle> = {
+const styles = StyleSheet.create({
   card: { backgroundColor: colors.white, borderRadius: radii.card, padding: space[4], gap: space[2] },
   input: {
     backgroundColor: colors.white,
@@ -142,4 +142,4 @@ const styles: Record<string, ViewStyle | TextStyle> = {
   },
   checkOn: { backgroundColor: colors.creamDeep },
   addRow: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
-};
+});

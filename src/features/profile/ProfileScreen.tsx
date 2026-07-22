@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, View, type ViewStyle } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import type { User } from '@supabase/supabase-js';
 import { Text, Button, SegmentBar, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -120,7 +120,7 @@ export function ProfileScreen() {
             <Pressable
               key={stat.label}
               style={[styles.statCell, i > 0 && styles.statCellDivider]}
-              onPress={() => router.push(stat.to)}
+              onPress={() => router.push(stat.to as Href)}
               accessibilityRole="button"
               accessibilityLabel={`${statText(stat.value)} ${stat.label} — open`}
             >
