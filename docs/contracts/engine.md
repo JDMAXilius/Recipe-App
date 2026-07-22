@@ -56,11 +56,15 @@ computeNutrition(input: {
 
 `NutritionResult` is the v1 FLAT shape, verbatim — `seed_nutrition` rows and
 `recipes.nutrition` already cache it; a new shape would reject every cached
-row. Fields (per usdaProvider.js:593-607): `kcal, protein_g, carbs_g, fat_g,
-fiber_g, sugar_g, sodium_mg, basis_grams, per, source, confidence,
-estimated, breakdown[]`. The zod schema is written FROM the v1 output and
-must parse the existing 776 `seed_nutrition` rows unchanged (a test does
-exactly that against a fixture dump).
+row. Fields (verified by RUNNING v1, usdaProvider.js:593-611): `kcal,
+protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg, basis_grams, per,
+source, confidence` + `basis, doubt, computed_at` (the last three added
+2026-07-21, so `.optional()` — pre-that-date cached rows lack them). The v1
+output does NOT emit `estimated` or a `breakdown[]` array (an earlier draft
+of this contract named them in error; the code is the truth). The zod schema
+is written FROM the recorded v1 output and parses cached `seed_nutrition`
+rows unchanged — a test asserts exactly that against a 3-row recorded
+fixture.
 
 `SeedId` (branded string, numeric content) and `UserRecipeId` (branded
 string, `u-` prefix) live in `src/types/ids.ts`; constructors validate.

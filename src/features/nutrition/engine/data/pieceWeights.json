@@ -1,0 +1,634 @@
+{
+  "onion": {
+    "grams": 110,
+    "unit": null,
+    "fdcId": 170000,
+    "usda": "Onions, raw",
+    "portion": "1 medium (2-1/2\" dia)",
+    "source": "usda-foodportion"
+  },
+  "red onion": {
+    "grams": 110,
+    "unit": null,
+    "fdcId": 170000,
+    "usda": "Onions, raw",
+    "portion": "1 medium (2-1/2\" dia)",
+    "source": "usda-foodportion"
+  },
+  "egg": {
+    "grams": 50,
+    "unit": null,
+    "fdcId": 171287,
+    "usda": "Egg, whole, raw, fresh",
+    "portion": "1 large",
+    "source": "usda-foodportion"
+  },
+  "egg white": {
+    "grams": 33,
+    "unit": null,
+    "fdcId": 172183,
+    "usda": "Egg, white, raw, fresh",
+    "portion": "1 large",
+    "source": "usda-foodportion"
+  },
+  "lemon": {
+    "grams": 84,
+    "unit": null,
+    "fdcId": 167746,
+    "usda": "Lemons, raw, without peel",
+    "portion": "1 fruit (2-3/8\" dia)",
+    "source": "usda-foodportion"
+  },
+  "lime": {
+    "grams": 67,
+    "unit": null,
+    "fdcId": 168155,
+    "usda": "Limes, raw",
+    "portion": "1 fruit (2\" dia)",
+    "source": "usda-foodportion"
+  },
+  "orange": {
+    "grams": 151,
+    "unit": null,
+    "fdcId": 169918,
+    "usda": "Oranges, raw, Florida",
+    "portion": "1 fruit (2-11/16\" dia)",
+    "source": "usda-foodportion"
+  },
+  "banana": {
+    "grams": 118,
+    "unit": null,
+    "fdcId": 173944,
+    "usda": "Bananas, raw",
+    "portion": "1 medium (7\" to 7-7/8\" long)",
+    "source": "usda-foodportion"
+  },
+  "cucumber": {
+    "grams": 280,
+    "unit": null,
+    "fdcId": 169225,
+    "usda": "Cucumber, peeled, raw",
+    "portion": "1 large (8-1/4\" long)",
+    "source": "usda-foodportion"
+  },
+  "celery": {
+    "grams": 40,
+    "unit": "stalk",
+    "fdcId": 169988,
+    "usda": "Celery, raw",
+    "portion": "1 stalk, medium (7-1/2\" - 8\" long)",
+    "source": "usda-foodportion"
+  },
+  "red pepper": {
+    "grams": 119,
+    "unit": null,
+    "fdcId": 170108,
+    "usda": "Peppers, sweet, red, raw",
+    "portion": "1 medium (approx 2-3/4\" long, 2-1/2 dia.)",
+    "source": "usda-foodportion"
+  },
+  "chilli": {
+    "grams": 45,
+    "unit": null,
+    "fdcId": 170106,
+    "usda": "Peppers, hot chili, red, raw",
+    "portion": "1 pepper",
+    "source": "usda-foodportion"
+  },
+  "jalapeno": {
+    "grams": 14,
+    "unit": null,
+    "fdcId": 168576,
+    "usda": "Peppers, jalapeno, raw",
+    "portion": "1 pepper",
+    "source": "usda-foodportion"
+  },
+  "leek": {
+    "grams": 89,
+    "unit": null,
+    "fdcId": 169246,
+    "usda": "Leeks, (bulb and lower leaf-portion), raw",
+    "portion": "1 leek",
+    "source": "usda-foodportion"
+  },
+  "cabbage": {
+    "grams": 908,
+    "unit": null,
+    "fdcId": 169975,
+    "usda": "Cabbage, raw",
+    "portion": "1 head, medium (about 5-3/4\" dia)",
+    "source": "usda-foodportion"
+  },
+  "lettuce": {
+    "grams": 626,
+    "unit": null,
+    "fdcId": 169247,
+    "usda": "Lettuce, cos or romaine, raw",
+    "portion": "1 head",
+    "source": "usda-foodportion"
+  },
+  "beetroot": {
+    "grams": 82,
+    "unit": null,
+    "fdcId": 169145,
+    "usda": "Beets, raw",
+    "portion": "1 beet (2\" dia)",
+    "source": "usda-foodportion"
+  },
+  "bacon": {
+    "grams": 28,
+    "unit": "slice",
+    "fdcId": 168277,
+    "usda": "Pork, cured, bacon, unprepared",
+    "portion": "1 slice raw",
+    "source": "usda-foodportion"
+  },
+  "bread": {
+    "grams": 29,
+    "unit": "slice",
+    "fdcId": 174924,
+    "usda": "Bread, white, commercially prepared (includes soft bread crumbs)",
+    "portion": "1 slice",
+    "source": "usda-foodportion"
+  },
+  "corn on the cob": {
+    "grams": 102,
+    "unit": null,
+    "fdcId": 169998,
+    "usda": "Corn, sweet, yellow, raw",
+    "portion": "1 ear, medium (6-3/4\" to 7-1/2\" long) yields",
+    "source": "usda-foodportion"
+  },
+  "cod": {
+    "grams": 231,
+    "unit": null,
+    "fdcId": 171955,
+    "usda": "Fish, cod, Atlantic, raw",
+    "portion": "1 fillet",
+    "source": "usda-foodportion"
+  },
+  "mackerel": {
+    "grams": 112,
+    "unit": null,
+    "fdcId": 175119,
+    "usda": "Fish, mackerel, Atlantic, raw",
+    "portion": "1 fillet",
+    "source": "usda-foodportion"
+  },
+  "herring": {
+    "grams": 184,
+    "unit": null,
+    "fdcId": 175116,
+    "usda": "Fish, herring, Atlantic, raw",
+    "portion": "1 fillet",
+    "source": "usda-foodportion"
+  },
+  "trout": {
+    "grams": 79,
+    "unit": null,
+    "fdcId": 175153,
+    "usda": "Fish, trout, mixed species, raw",
+    "portion": "1 fillet",
+    "source": "usda-foodportion"
+  },
+  "lobster": {
+    "grams": 150,
+    "unit": null,
+    "fdcId": 174208,
+    "usda": "Crustaceans, lobster, northern, raw",
+    "portion": "1 lobster",
+    "source": "usda-foodportion"
+  },
+  "radish": {
+    "grams": 4.5,
+    "unit": null,
+    "fdcId": 169276,
+    "usda": "Radishes, raw",
+    "portion": "1 medium (3/4\" to 1\" dia)",
+    "source": "usda-foodportion"
+  },
+  "mango": {
+    "grams": 336,
+    "unit": null,
+    "fdcId": 169910,
+    "usda": "Mangos, raw",
+    "portion": "1 fruit without refuse",
+    "source": "usda-foodportion"
+  },
+  "strawberries": {
+    "grams": 18,
+    "unit": null,
+    "fdcId": 167762,
+    "usda": "Strawberries, raw",
+    "portion": "1 large (1-3/8\" dia)",
+    "source": "usda-foodportion"
+  },
+  "almonds": {
+    "grams": 1.2,
+    "unit": null,
+    "fdcId": 170567,
+    "usda": "Nuts, almonds",
+    "portion": "1 almond",
+    "source": "usda-foodportion"
+  },
+  "swede": {
+    "grams": 772,
+    "unit": null,
+    "fdcId": 168454,
+    "usda": "Rutabagas, raw",
+    "portion": "1 large",
+    "source": "usda-foodportion"
+  },
+  "chicken wings": {
+    "grams": 107,
+    "unit": null,
+    "fdcId": 172390,
+    "usda": "Chicken, broilers or fryers, wing, meat and skin, raw",
+    "portion": "1 piece",
+    "source": "usda-foodportion"
+  },
+  "coconut": {
+    "grams": 397,
+    "unit": null,
+    "fdcId": 170169,
+    "usda": "Nuts, coconut meat, raw",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "pomegranate": {
+    "grams": 282,
+    "unit": null,
+    "fdcId": 169134,
+    "usda": "Pomegranates, raw",
+    "portion": "1 pomegranate (4\" dia)",
+    "source": "usda-foodportion"
+  },
+  "spring onion": {
+    "grams": 5,
+    "unit": null,
+    "fdcId": 170005,
+    "usda": "Onions, spring or scallions (includes tops and bulb), raw",
+    "portion": "1 small (3\" long)",
+    "source": "usda-foodportion"
+  },
+  "scallion": {
+    "grams": 5,
+    "unit": null,
+    "fdcId": 170005,
+    "usda": "Onions, spring or scallions (includes tops and bulb), raw",
+    "portion": "1 small (3\" long)",
+    "source": "usda-foodportion"
+  },
+  "egg yolk": {
+    "grams": 17,
+    "unit": null,
+    "fdcId": 172184,
+    "usda": "Egg, yolk, raw, fresh",
+    "portion": "1 large",
+    "source": "usda-foodportion"
+  },
+  "carrot": {
+    "grams": 61,
+    "unit": null,
+    "fdcId": 170393,
+    "usda": "Carrots, raw",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "tomato": {
+    "grams": 123,
+    "unit": null,
+    "fdcId": 170457,
+    "usda": "Tomatoes, red, ripe, raw, year round average",
+    "portion": "1 medium whole (2-3/5\" dia)",
+    "source": "usda-foodportion"
+  },
+  "green pepper": {
+    "grams": 119,
+    "unit": null,
+    "fdcId": 170427,
+    "usda": "Peppers, sweet, green, raw",
+    "portion": "1 medium (approx 2-3/4\" long, 2-1/2\" dia)",
+    "source": "usda-foodportion"
+  },
+  "parsley": {
+    "grams": 1,
+    "unit": null,
+    "fdcId": 170416,
+    "usda": "Parsley, fresh",
+    "portion": "10 sprigs",
+    "source": "usda-foodportion"
+  },
+  "apple": {
+    "grams": 161,
+    "unit": null,
+    "fdcId": 171689,
+    "usda": "Apples, raw, without skin",
+    "portion": "1 medium (3\" dia)",
+    "source": "usda-foodportion"
+  },
+  "mushroom": {
+    "grams": 18,
+    "unit": null,
+    "fdcId": 169251,
+    "usda": "Mushrooms, white, raw",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "scotch bonnet": {
+    "grams": 45,
+    "unit": null,
+    "fdcId": 170106,
+    "usda": "Peppers, hot chili, red, raw",
+    "portion": "1 pepper",
+    "source": "usda-foodportion"
+  },
+  "zucchini": {
+    "grams": 323,
+    "unit": null,
+    "fdcId": 169291,
+    "usda": "Squash, summer, zucchini, includes skin, raw",
+    "portion": "1 large",
+    "source": "usda-foodportion"
+  },
+  "courgette": {
+    "grams": 323,
+    "unit": null,
+    "fdcId": 169291,
+    "usda": "Squash, summer, zucchini, includes skin, raw",
+    "portion": "1 large",
+    "source": "usda-foodportion"
+  },
+  "aubergine": {
+    "grams": 548,
+    "unit": null,
+    "fdcId": 169228,
+    "usda": "Eggplant, raw",
+    "portion": "1 eggplant, unpeeled (approx 1-1/4 lb)",
+    "source": "usda-foodportion"
+  },
+  "sweet potato": {
+    "grams": 130,
+    "unit": null,
+    "fdcId": 168482,
+    "usda": "Sweet potato, raw, unprepared (Includes foods for USDA's Food Distribution Program)",
+    "portion": "1 sweetpotato, 5\" long",
+    "source": "usda-foodportion"
+  },
+  "potato": {
+    "grams": 213,
+    "unit": null,
+    "fdcId": 170026,
+    "usda": "Potatoes, flesh and skin, raw",
+    "portion": "1 Potato medium (2-1/4\" to 3-1/4\" dia)",
+    "source": "usda-foodportion"
+  },
+  "coriander": {
+    "grams": 2.2,
+    "unit": null,
+    "fdcId": 169997,
+    "usda": "Coriander (cilantro) leaves, raw",
+    "portion": "9 sprigs",
+    "source": "usda-foodportion"
+  },
+  "garlic": {
+    "grams": 3,
+    "unit": "clove",
+    "fdcId": 169230,
+    "usda": "Garlic, raw",
+    "portion": "1 clove",
+    "source": "usda-foodportion"
+  },
+  "apricot": {
+    "grams": 35,
+    "unit": null,
+    "fdcId": 171697,
+    "usda": "Apricots, raw",
+    "portion": "1 apricot",
+    "source": "usda-foodportion"
+  },
+  "filo pastry": {
+    "grams": 19,
+    "unit": null,
+    "fdcId": 172791,
+    "usda": "Phyllo dough",
+    "portion": "1 sheet dough",
+    "source": "usda-foodportion"
+  },
+  "sardines": {
+    "grams": 12,
+    "unit": null,
+    "fdcId": 175139,
+    "usda": "Fish, sardine, Atlantic, canned in oil, drained solids with bone",
+    "portion": "1 small (2-2/3\" x 1/2\" x 1/4\")",
+    "source": "usda-foodportion"
+  },
+  "pork chop": {
+    "grams": 199,
+    "unit": null,
+    "fdcId": 168238,
+    "usda": "Pork, fresh, loin, center loin (chops), bone-in, separable lean and fat, raw",
+    "portion": "1 chop without refuse (Yield from 1 raw chop, with refuse, weighing 259g)",
+    "source": "usda-foodportion"
+  },
+  "chicken drumstick": {
+    "grams": 130,
+    "unit": null,
+    "fdcId": 172373,
+    "usda": "Chicken, broilers or fryers, drumstick, meat and skin, raw",
+    "portion": "1 drumstick",
+    "source": "usda-foodportion"
+  },
+  "sweetcorn": {
+    "grams": 102,
+    "unit": null,
+    "fdcId": 169998,
+    "usda": "Corn, sweet, yellow, raw",
+    "portion": "1 ear, medium (6-3/4\" to 7-1/2\" long) yields",
+    "source": "usda-foodportion"
+  },
+  "dried apricot": {
+    "grams": 3.5,
+    "unit": null,
+    "fdcId": 173941,
+    "usda": "Apricots, dried, sulfured, uncooked",
+    "portion": "1 half",
+    "source": "usda-foodportion"
+  },
+  "phyllo dough": {
+    "grams": 19,
+    "unit": null,
+    "fdcId": 172791,
+    "usda": "Phyllo dough",
+    "portion": "1 sheet dough",
+    "source": "usda-foodportion"
+  },
+  "prawn": {
+    "grams": 6,
+    "unit": null,
+    "fdcId": 174210,
+    "usda": "Crustaceans, shrimp, mixed species, raw (may contain additives to retain moisture)",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "shrimp": {
+    "grams": 6,
+    "unit": null,
+    "fdcId": 174210,
+    "usda": "Crustaceans, shrimp, mixed species, raw (may contain additives to retain moisture)",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "oyster": {
+    "grams": 14,
+    "unit": null,
+    "fdcId": 171978,
+    "usda": "Mollusks, oyster, eastern, wild, raw",
+    "portion": "6 medium",
+    "source": "usda-foodportion"
+  },
+  "fig": {
+    "grams": 50,
+    "unit": null,
+    "fdcId": 173021,
+    "usda": "Figs, raw",
+    "portion": "1 medium (2-1/4\" dia)",
+    "source": "usda-foodportion"
+  },
+  "prune": {
+    "grams": 9.5,
+    "unit": null,
+    "fdcId": 168162,
+    "usda": "Plums, dried (prunes), uncooked",
+    "portion": "1 prune, pitted",
+    "source": "usda-foodportion"
+  },
+  "turnip": {
+    "grams": 122,
+    "unit": null,
+    "fdcId": 170465,
+    "usda": "Turnips, raw",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "black olive": {
+    "grams": 4.4,
+    "unit": null,
+    "fdcId": 169094,
+    "usda": "Olives, ripe, canned (small-extra large)",
+    "portion": "1 large",
+    "source": "usda-foodportion"
+  },
+  "english muffin": {
+    "grams": 57,
+    "unit": null,
+    "fdcId": 172828,
+    "usda": "English muffins, plain, unenriched, with calcium propionate (includes sourdough)",
+    "portion": "1 muffin",
+    "source": "usda-foodportion"
+  },
+  "taco shell": {
+    "grams": 12.9,
+    "unit": null,
+    "fdcId": 172800,
+    "usda": "Taco shells, baked",
+    "portion": "1 shell",
+    "source": "usda-foodportion"
+  },
+  "peaches": {
+    "grams": 161,
+    "unit": null,
+    "fdcId": 325415,
+    "usda": "Peaches, Raw, Pass 2, Region 1, AR1, NFY010CIG",
+    "portion": "1 medium (2-2/3\" dia)",
+    "source": "usda-foodportion"
+  },
+  "pear": {
+    "grams": 177,
+    "unit": null,
+    "fdcId": 167776,
+    "usda": "Pears, raw, bartlett (Includes foods for USDA's Food Distribution Program)",
+    "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "whole chicken": {
+    "grams": 1046,
+    "unit": null,
+    "fdcId": 171047,
+    "usda": "Chicken, broilers or fryers, meat and skin and giblets and neck, raw",
+    "portion": "1 chicken",
+    "source": "usda-foodportion"
+  },
+  "chicken thigh": {
+    "grams": 193,
+    "unit": null,
+    "fdcId": 172385,
+    "usda": "Chicken, broilers or fryers, thigh, meat and skin, raw",
+    "portion": "1 thigh with skin",
+    "source": "usda-foodportion"
+  },
+  "pita bread": {
+    "grams": 60,
+    "unit": null,
+    "fdcId": 174915,
+    "usda": "Bread, pita, white, enriched",
+    "portion": "1 pita, large (6-1/2\" dia)",
+    "source": "usda-foodportion"
+  },
+  "sausage": {
+    "grams": 101,
+    "unit": null,
+    "fdcId": 171631,
+    "usda": "Sausage, Italian, pork, mild, raw",
+    "portion": "1 link",
+    "source": "usda-foodportion"
+  },
+  "cabbage leaf": {
+    "grams": 23,
+    "unit": null,
+    "fdcId": 169975,
+    "usda": "Cabbage, raw",
+    "portion": "1 leaf, medium",
+    "source": "usda-foodportion"
+  },
+  "avocado": {
+    "grams": 201,
+    "unit": null,
+    "fdcId": 171705,
+    "usda": "Avocados, raw, all commercial varieties",
+    "portion": "1 avocado, NS as to Florida or California",
+    "source": "usda-foodportion"
+  },
+  "fennel": {
+    "grams": 234,
+    "unit": null,
+    "fdcId": 169385,
+    "usda": "Fennel, bulb, raw",
+    "portion": "1 bulb",
+    "source": "usda-foodportion"
+  },
+  "fennel bulb": {
+    "grams": 234,
+    "unit": null,
+    "fdcId": 169385,
+    "usda": "Fennel, bulb, raw",
+    "portion": "1 bulb",
+    "source": "usda-foodportion"
+  },
+  "plum tomato": {
+    "grams": 62,
+    "unit": null,
+    "fdcId": 170457,
+    "usda": "Tomatoes, red, ripe, raw, year round average",
+    "portion": "1 plum tomato",
+    "source": "usda-foodportion"
+  },
+  "sun-dried tomato": {
+    "grams": 2,
+    "unit": null,
+    "fdcId": 168567,
+    "usda": "Tomatoes, sun-dried",
+    "portion": "1 piece",
+    "source": "usda-foodportion"
+  }
+}

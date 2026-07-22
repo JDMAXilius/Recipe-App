@@ -7,7 +7,7 @@
     "web": "expo start --web",
     "lint": "eslint app src test --no-error-on-unmatched-pattern",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test --experimental-strip-types --import ./src/features/nutrition/engine/ts-ext-resolve.mjs \"test/*.test.mjs\" \"src/**/*.test.mjs\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.3",
