@@ -199,8 +199,8 @@ report-back (the feel layer can't be judged on web alone).
 | P0 Foundation | ☑ done — tokens/motion/haptics/assets/bus/storage/ErrorBoundary merged; tsc+lint+tests green; boots (web) |
 | P1 Feel layer | ☑ done (`c7ff2136`) + P1.1 cleanup (`f9ec3c5c`, one-home motion + caption/meta). Native device check still pending (needs dev build; Expo Go can't run reanimated 4) |
 | P2 Persistence & entry | ☑ done (`6e72486e`) — session persists (AsyncStorage), onboarding + first-run gate (pure `resolveRoute`, tested) + guest entry + splash. **Guest blocked on founder:** anonymous sign-ins return `anonymous_provider_disabled` on `mepzfdefanfpnrvydyty` despite the toggle appearing on — "Browse as guest" shows the friendly fallback until fixed |
-| P3 Reachability | ☐ next — cook entry+seed · FilterSheet · in-app video · share · tab bar icons+raised ＋ · calorie badges · wire P1 primitives into feature screens |
-| P4 Rich features | ☐ blocked on P2+P3 |
+| P3 Reachability | ☑ done (`88478a9d`) — cook now reachable (+ fixed seeds never loading in cook) · painted Discover (OttoIdle mascot, foodIcon tiles, calorie badges) · category FilterSheet · tab bar icons+raised ＋ · in-app WebView video · image share wired. Native runtime (WebView/view-shot/＋ haptic) unverified until iOS dev build |
+| P4 Rich features | ☐ next — chat (Ask-Otto) · import text/photo/upload · notifications engine · household sync · planner picker/swap/leftovers · journal photos · native OAuth |
 | P5 Convergence | ☐ blocked on P4 |
 
 Contracts: ☑ ui-components (expanded) · ☑ persistence — signed at P0.
