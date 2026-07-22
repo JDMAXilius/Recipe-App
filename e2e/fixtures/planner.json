@@ -1,0 +1,45 @@
+{
+  "_source": "RECORDED, not invented: expected amounts are the exact output of buildShoppingList() over the engine-parsed ingredients below, run 2026-07-22 via src/features/planner/shoppingList.ts + @/features/nutrition/engine parse. Regenerate with scratchpad/record.mjs if the engine tables change.",
+  "week": {
+    "from": "2026-07-21",
+    "expectedLabels": ["Today", "Tomorrow"],
+    "expectedFirstKey": "2026-07-21",
+    "expectedLastKey": "2026-07-27",
+    "dayCount": 7
+  },
+  "planEntries": [
+    { "day": "2026-07-21", "recipe_id": "9001", "title": "Garlic Butter Chicken", "cooked": false },
+    { "day": "2026-07-22", "recipe_id": "9002", "title": "Chicken & Rice", "cooked": false }
+  ],
+  "recipes": [
+    {
+      "id": 9001,
+      "title": "Garlic Butter Chicken",
+      "ingredients": [
+        { "measure": "500g", "name": "Chicken Breast" },
+        { "measure": "3 cloves", "name": "Garlic" },
+        { "measure": "2 tbsp", "name": "Butter" },
+        { "measure": "1 tsp", "name": "Salt" }
+      ]
+    },
+    {
+      "id": 9002,
+      "title": "Chicken & Rice",
+      "ingredients": [
+        { "measure": "400g", "name": "Chicken Breast" },
+        { "measure": "2 cloves", "name": "Garlic" },
+        { "measure": "1 cup", "name": "Rice" },
+        { "measure": "1", "name": "Onion" }
+      ]
+    }
+  ],
+  "expectedShoppingList": [
+    { "name": "Garlic", "aisle": "Produce", "amount": "15 g", "sources": ["Garlic Butter Chicken", "Chicken & Rice"] },
+    { "name": "Onion", "aisle": "Produce", "amount": "110 g", "sources": ["Chicken & Rice"] },
+    { "name": "Chicken Breast", "aisle": "Meat & fish", "amount": "900 g", "sources": ["Garlic Butter Chicken", "Chicken & Rice"] },
+    { "name": "Butter", "aisle": "Dairy & eggs", "amount": "28.4 g", "sources": ["Garlic Butter Chicken"] },
+    { "name": "Rice", "aisle": "Pantry", "amount": "195 g", "sources": ["Chicken & Rice"] },
+    { "name": "Salt", "aisle": "Spices", "amount": "6 g", "sources": ["Garlic Butter Chicken"] }
+  ],
+  "expectedAisleOrder": ["Produce", "Meat & fish", "Dairy & eggs", "Pantry", "Spices"]
+}
