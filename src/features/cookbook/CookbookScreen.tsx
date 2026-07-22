@@ -3,7 +3,7 @@ import { FlatList, Pressable, Text as RNText, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { OttoLoading, SegmentBar, Text } from '@/shared/ui';
+import { OttoLoading, Text } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useCookedState } from '@/features/cook';
@@ -63,50 +63,95 @@ export function CookbookScreen() {
   // and eager-rendered every card (VirtualizedLists-nested warning on native).
   const ListHeader = (
     <View>
-      <View style={{ marginBottom: space[4] }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: space[4],
+        }}
+      >
         <Text role="display">Cookbook</Text>
         {items.length > 0 ? (
-          <Text role="caption">
+          <Text role="meta">
             {items.length} {items.length === 1 ? 'recipe' : 'recipes'}
           </Text>
         ) : null}
       </View>
 
-      <SegmentBar
-        segments={SEGMENTS}
-        selected={segment}
-        onSelect={(v) => {
-          haptics.select();
-          setSegment(v as Segment);
+      {/* Segment row — quiet text tabs + terracotta painted-daub underline
+          (Kitchen Stories, no switch chrome). The Cooked filter chip rides the
+          same row, right-aligned (outlined terracotta, fills when active). */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: space[4],
+          marginBottom: space[4],
         }}
-      />
+      >
+        {SEGMENTS.map((s) => {
+          const active = segment === s.value;
+          return (
+            <Pressable
+              key={s.value}
+              onPress={() => {
+                if (active) return;
+                haptics.select();
+                setSegment(s.value as Segment);
+              }}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+            >
+              <RNText
+                style={{
+                  fontSize: 15,
+                  fontWeight: '600',
+                  color: active ? colors.ink : colors.inkSoft,
+                  opacity: active ? 1 : 0.6,
+                }}
+              >
+                {s.label}
+              </RNText>
+              <View
+                style={{
+                  height: 3,
+                  borderRadius: 2,
+                  marginTop: 3,
+                  backgroundColor: active ? colors.terracotta : 'transparent',
+                }}
+              />
+            </Pressable>
+          );
+        })}
 
-      <View style={{ flexDirection: 'row', marginTop: space[3], marginBottom: space[4] }}>
         <View style={{ flex: 1 }} />
+
         <Pressable
-          onPress={() => setCookedOnly((v) => !v)}
+          onPress={() => {
+            haptics.select();
+            setCookedOnly((v) => !v);
+          }}
           accessibilityRole="button"
           accessibilityLabel="Show only recipes you have cooked"
           accessibilityState={{ selected: cookedOnly }}
           hitSlop={10}
           style={{
-            minHeight: 44,
             flexDirection: 'row',
             alignItems: 'center',
             gap: space[1],
-            justifyContent: 'center',
-            paddingHorizontal: space[4],
+            paddingHorizontal: space[3],
+            paddingVertical: 5,
             borderRadius: radii.pill,
-            backgroundColor: cookedOnly ? colors.terracotta : colors.creamDeep,
+            borderWidth: 1,
+            borderColor: colors.terracotta,
+            backgroundColor: cookedOnly ? colors.terracotta : 'transparent',
           }}
         >
-          <Ionicons
-            name={cookedOnly ? 'flame' : 'flame-outline'}
-            size={15}
-            color={cookedOnly ? colors.white : colors.inkSoft}
-          />
+          <Ionicons name="flame" size={12} color={cookedOnly ? colors.white : colors.terracotta} />
           <RNText
-            style={{ fontSize: 13, fontWeight: '600', color: cookedOnly ? colors.white : colors.inkSoft }}
+            style={{ fontSize: 12, fontWeight: '600', color: cookedOnly ? colors.white : colors.terracotta }}
           >
             Cooked
           </RNText>

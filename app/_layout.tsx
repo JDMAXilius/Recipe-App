@@ -33,7 +33,7 @@ export default function RootLayout() {
               <Stack screenOptions={{ headerShown: false, fullScreenGestureEnabled: true }}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="(auth)" />
-                <Stack.Screen name="add" options={{ presentation: 'modal' }} />
+                <Stack.Screen name="add" />
                 <Stack.Screen name="ask" />
                 <Stack.Screen name="recipe/cook/[id]" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
               </Stack>

@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, Button, OttoArt, OttoLoading, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
-import { colors, radii, space, type } from '@/shared/theme/tokens';
+import { colors, radii, shadow, space, type } from '@/shared/theme/tokens';
 import { usePlan } from './usePlan';
 import { RecipePickerSheet } from './components/RecipePickerSheet';
 import { pickToAddInput, leftoversCarry, nextInWeek, type PickItem } from './plan.pick';
@@ -121,9 +121,26 @@ export function PlanScreen() {
           return (
             <View key={day.key} style={[styles.dayCard, index === 0 && styles.dayCardToday]}>
               <View style={styles.dayHeader}>
-                <Text role="title">{day.label}</Text>
-                <View style={{ flex: 1 }} />
-                <Text role="caption">{day.sub}</Text>
+                <View style={styles.dayHeaderText}>
+                  {index === 0 ? (
+                    <RNText style={{ ...type.title, color: colors.terracotta }}>{day.label}</RNText>
+                  ) : (
+                    <Text role="title">{day.label}</Text>
+                  )}
+                  <Text role="meta">{day.sub}</Text>
+                </View>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Add a dish to ${day.label}`}
+                  hitSlop={6}
+                  style={styles.addBtn}
+                  onPress={() => {
+                    haptics.select();
+                    setPicker({ day: day.key });
+                  }}
+                >
+                  <Ionicons name="add" size={20} color={colors.terracotta} />
+                </Pressable>
               </View>
 
               {dayEntries.length === 0 ? (
@@ -224,22 +241,6 @@ export function PlanScreen() {
                   );
                 })
               )}
-
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Add a dish to ${day.label}`}
-                hitSlop={6}
-                style={styles.addRow}
-                onPress={() => {
-                  haptics.select();
-                  setPicker({ day: day.key });
-                }}
-              >
-                <View style={styles.iconLabel}>
-                  <Ionicons name="add" size={18} color={colors.terracotta} />
-                  <Text role="computed">Add a dish</Text>
-                </View>
-              </Pressable>
             </View>
           );
         })
@@ -273,9 +274,19 @@ const styles: Record<string, ViewStyle> = {
     borderRadius: radii.card,
     padding: space[4],
     marginBottom: space[3],
+    ...shadow.card,
   },
-  dayCardToday: { backgroundColor: colors.creamDeep },
+  dayCardToday: { borderWidth: 1.5, borderColor: colors.terracotta },
   dayHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: space[2] },
+  dayHeaderText: { flex: 1, flexDirection: 'row', alignItems: 'baseline', gap: space[2] },
+  addBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: radii.pill,
+    backgroundColor: colors.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   entryRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -290,7 +301,6 @@ const styles: Record<string, ViewStyle> = {
     paddingBottom: space[2],
     paddingLeft: space[1],
   },
-  addRow: { paddingTop: space[2] },
   iconLabel: { flexDirection: 'row', alignItems: 'center', gap: space[1] },
   cookedMark: {
     paddingHorizontal: space[3],

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Text, Button, OttoArt, OttoLoading, OttoError, Screen } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -46,13 +46,21 @@ export function ShoppingScreen() {
 
   const listQuery = useQuery({
     queryKey: ['plan-list', userId, recipeIds],
-    enabled: recipeIds.length > 0 && !!userId,
+    // Seed recipes resolve without a user; only user recipes need userId — so
+    // the list builds from a normal (seed) week regardless of auth timing.
+    enabled: recipeIds.length > 0,
     queryFn: () => getListRecipes(recipeIds, userId),
+    // Keep the current rows visible while a changed week refetches, so adding
+    // or removing a dish updates the list without a blank flash.
+    placeholderData: keepPreviousData,
   });
 
+  // When the week is empty the query is disabled and RETAINS its last data —
+  // so the list must be forced empty here, or removing every dish would leave
+  // the old ingredients on screen (the "doesn't update" bug).
   const items = useMemo(
-    () => buildShoppingList(listQuery.data ?? []),
-    [listQuery.data],
+    () => (recipeIds.length === 0 ? [] : buildShoppingList(listQuery.data ?? [])),
+    [recipeIds.length, listQuery.data],
   );
 
   const [checked, setChecked] = useState<Record<string, boolean>>({});

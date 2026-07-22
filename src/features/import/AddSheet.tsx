@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { Pressable, View, type ViewStyle } from 'react-native';
+import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, OttoArt, Sheet, Text } from '@/shared/ui';
+import { Button, OttoArt, Screen, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { RecipeInput } from './components/RecipeInput';
 import { useGenerateRecipe, useImportFromUrl, useImportFromPhoto } from './import.queries';
 import { emptyDraft, setDraft } from './draft';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
 
-// The ＋ sheet (feature-module.md allowlist: a shared component, mounted by the
-// app add route — NOT a screen). Matches the Figma master (213:1667): a 2×2 tile
-// grid — paste a link, paste text, snap a photo, write it myself — over an "Ask
-// Otto" chat entry. Every path ALWAYS lands the user in the editor (or chat): an
-// import failure carries its URL into manual entry, so the ＋ never dead-ends.
+// "Bring in a recipe" — a pushed full SCREEN with a back button (founder call:
+// no longer a bottom modal). Matches the Figma master (213:1667): a 2×2 tile
+// grid — paste a link, paste text, snap a photo, write it myself — over a
+// Chat-with-Otto entry. Every path ALWAYS lands the user in the editor (or the
+// chat tab): an import failure carries its URL into manual entry, so it never
+// dead-ends.
 export interface AddSheetProps {
-  visible: boolean;
   onClose: () => void;
 }
 
@@ -40,7 +40,7 @@ const tileActive: ViewStyle = {
   borderColor: colors.terracotta,
 };
 
-export function AddSheet({ visible, onClose }: AddSheetProps) {
+export function AddSheet({ onClose }: AddSheetProps) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(null);
   const [url, setUrl] = useState('');
@@ -149,7 +149,8 @@ export function AddSheet({ visible, onClose }: AddSheetProps) {
   );
 
   return (
-    <Sheet visible={visible} onClose={onClose}>
+    <Screen onBack={onClose}>
+      <ScrollView contentContainerStyle={{ padding: space[4], paddingBottom: space[7], gap: space[4] }}>
       {busy ? (
         <View style={{ paddingVertical: space[5], gap: space[3], alignItems: 'center' }}>
           <OttoArt name="thinking" size={96} />
@@ -240,16 +241,14 @@ export function AddSheet({ visible, onClose }: AddSheetProps) {
             <Text role="caption">Otto can write you one from scratch.</Text>
             <Button
               title="Chat with Otto"
-              onPress={() => {
-                onClose();
-                router.push('/ask');
-              }}
+              onPress={() => router.replace('/create')}
               variant="primary"
               size="lg"
             />
           </View>
         </View>
       )}
-    </Sheet>
+      </ScrollView>
+    </Screen>
   );
 }

@@ -5,6 +5,7 @@ import {
   Pressable,
   ScrollView,
   Share,
+  Text as RNText,
   TextInput,
   View,
   type TextStyle,
@@ -206,9 +207,16 @@ export function ProfileScreen() {
           accessibilityRole="button"
           accessibilityLabel="Otto Club — see how it works"
         >
-          <Text role="title">Otto Club</Text>
-          <Text role="body">Everything Otto can do, one simple membership. Opening soon.</Text>
-          <Text role="computed">See how it works ›</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+            <View style={{ flex: 1, gap: space[1] }}>
+              <RNText style={clubTitle}>Otto Club</RNText>
+              <Text role="body">Everything Otto can do, one simple membership. Opening soon.</Text>
+            </View>
+            <OttoArt name="floating" size={72} />
+          </View>
+          <View style={styles.clubButton}>
+            <RNText style={clubButtonText}>See how it works</RNText>
+          </View>
         </Pressable>
       </View>
 
@@ -252,11 +260,17 @@ export function ProfileScreen() {
         </Pressable>
       </View>
 
-      {/* PREFERENCES — one inline units toggle, no settings dungeon */}
+      {/* PREFERENCES — settings list, the inline units toggle sits last (Figma) */}
       <View style={styles.section}>
         <Text role="caption">Preferences</Text>
         <View style={styles.card}>
-          <View style={styles.unitRow}>
+          {hasPasswordLogin(user) && (
+            <SettingsRow icon="lock-closed-outline" label="Change password" onPress={() => router.push('/change-password')} />
+          )}
+          <SettingsRow icon="restaurant-outline" label="Food preferences" onPress={() => router.push('/preferences')} divided={hasPasswordLogin(user)} />
+          <SettingsRow icon="notifications-outline" label="Reminders" onPress={() => router.push('/notifications')} divided />
+          <SettingsRow icon="people-outline" label="Our shared list" onPress={() => router.push('/household')} divided />
+          <View style={[styles.unitRow, styles.rowDivider]}>
             <Ionicons name="scale-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
             <Text role="body">Units</Text>
             <View style={{ flex: 1 }} />
@@ -271,14 +285,6 @@ export function ProfileScreen() {
               />
             </View>
           </View>
-        </View>
-        <View style={styles.card}>
-          {hasPasswordLogin(user) && (
-            <SettingsRow icon="lock-closed-outline" label="Change password" onPress={() => router.push('/change-password')} />
-          )}
-          <SettingsRow icon="restaurant-outline" label="Food preferences" onPress={() => router.push('/preferences')} divided={hasPasswordLogin(user)} />
-          <SettingsRow icon="notifications-outline" label="Reminders" onPress={() => router.push('/notifications')} divided />
-          <SettingsRow icon="people-outline" label="Our shared list" onPress={() => router.push('/household')} divided />
         </View>
       </View>
 
@@ -334,8 +340,8 @@ export function ProfileScreen() {
         accessibilityRole="button"
         accessibilityLabel="Sign out"
       >
-        <Ionicons name="log-out-outline" size={20} color={colors.danger} style={{ marginRight: space[3] }} />
-        <Text role="body">Sign out</Text>
+        <Ionicons name="log-out-outline" size={20} color={colors.terracotta} />
+        <Text role="computed">Sign out</Text>
       </Pressable>
       <Pressable
         onPress={onDelete}
@@ -400,14 +406,33 @@ const styles: Record<string, ViewStyle> = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: space[2],
     marginTop: space[4],
-    paddingVertical: space[3],
+    height: 52,
+    borderRadius: radii.button,
+    borderWidth: 1.5,
+    borderColor: colors.terracotta,
   },
   settingsRow: { minHeight: 44 },
   rowDivider: { borderTopWidth: 1, borderTopColor: colors.creamDeep },
   unitRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: space[3] },
   unitToggle: { width: 160 },
-  clubCard: { backgroundColor: colors.creamDeep, borderRadius: radii.card, padding: space[4], gap: space[2] },
+  clubCard: {
+    backgroundColor: colors.white,
+    borderRadius: radii.card,
+    borderWidth: 1.5,
+    borderColor: colors.terracotta,
+    padding: space[4],
+    gap: space[3],
+    overflow: 'hidden',
+  },
+  clubButton: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.terracotta,
+    borderRadius: radii.pill,
+    paddingHorizontal: space[4],
+    paddingVertical: space[2],
+  },
   statsCard: {
     flexDirection: 'row',
     backgroundColor: colors.white,
@@ -425,3 +450,9 @@ const nameInput: TextStyle = {
   color: colors.ink,
   padding: 0,
 };
+
+// Otto Club card: terracotta serif title + filled pill button (Figma). Styled
+// directly because the shared Text is role-only (terracotta title + white
+// on-terracotta button label are both outside the role palette).
+const clubTitle: TextStyle = { ...type.title, color: colors.terracotta };
+const clubButtonText: TextStyle = { ...type.label, color: colors.white, fontWeight: '700' };
