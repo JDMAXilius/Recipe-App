@@ -11,7 +11,7 @@
 
 | | |
 |---|---|
-| Current milestone | **M1+M2 DONE → M3 feature fan-out next** (ticket 03) |
+| Current milestone | **M3 DONE (9 features, 163/163) → M4 integration next** (ticket 04) |
 | Integration branch | `rebuild/v2` @ 81e5d6db — scaffold + crew + contracts, CI green |
 | Legacy snapshot | `v1-legacy` @ c54b1293 · tag `v1.0-legacy` |
 | Old-code archive | **pending founder** — classifier blocks mirror push from terminal |
@@ -25,8 +25,8 @@
 | M0 Contracts signed | ☑ **founder sign-off 2026-07-21** (critic panel: 24 findings folded) |
 | M1 Engine green | ☑ **91/91, byte-identical to v1** (@12502ac6) |
 | M2 Platform ready | ☑ **applied live + 75/75 RLS attack test** (@ff0dd011); advisors clean of ERROR; 3 fns via MCP + 3 via CLI, secrets set |
-| M3 Features merged | ☐ blocked on M1+M2 |
-| M4 Converged + device QA | ☐ blocked on M3 |
+| M3 Features merged | ☑ **9/9 features, two waves, repo-wide 163/163** (@21c9e20a) |
+| M4 Converged + device QA | ▶ next (ticket 04: integration + review swarm + device QA) |
 
 ## Open packets / tickets
 
@@ -34,8 +34,19 @@
 |---|---|
 | REBUILD_00 source control | **done** (archive mirror still pending founder) |
 | REBUILD_01 M0 scaffold/crew/contracts | **done** (report-back in docs/archive/) |
-| REBUILD_02 M1 engine + M2 platform | **issued — in progress, terminal** |
-| REBUILD_03–04 | issued after their gate (see INDEX) |
+| REBUILD_02 M1 engine + M2 platform | **done** (@ff0dd011) |
+| REBUILD_03 M3 feature fan-out | **done** — 9 features, 2 waves (@21c9e20a) |
+| REBUILD_04 M4 integration + QA | next |
+
+## M3 carry-over gaps (fold into ticket 04 integration)
+
+- `@/shared/ui` needs an **Input** primitive (auth + import both filed it)
+- `Ring` needs a **max-less variant** (nutrition; CalorieRing on FDA interim)
+- **expo-crypto** + native social deps (expo-web-browser/apple-auth) at device wiring
+- **UserId** brand in `@/types/ids` (auth)
+- cookbook **Cooked filter** wire to `useCookedState()` (now allowlisted)
+- cookbook export a **my-recipes count** so profile's "yours" door shows a number
+- session-local prefs/journal/household → real persistence (AsyncStorage) at device stage
 
 ## Blockers
 
