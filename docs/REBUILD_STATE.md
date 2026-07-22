@@ -23,8 +23,8 @@
 | Gate | Status |
 |---|---|
 | M0 Contracts signed | ☑ **founder sign-off 2026-07-21** (critic panel: 24 findings folded) |
-| M1 Engine green | ▶ in progress (ticket 02) |
-| M2 Platform ready | ▶ in progress (ticket 02) |
+| M1 Engine green | ☑ **91/91, byte-identical to v1** (@12502ac6) |
+| M2 Platform ready | ◐ code done + refuters passed (3 HIGH fixed @03972655); **needs terminal: apply migrations + deploy fns + run attack test live** |
 | M3 Features merged | ☐ blocked on M1+M2 |
 | M4 Converged + device QA | ☐ blocked on M3 |
 
@@ -39,8 +39,13 @@
 
 ## Blockers
 
-- Old-code archive: founder must run `git clone --mirror` + `git push --mirror`
-  to Old-recipe-app.git (terminal permission classifier blocks both).
+- Old-code archive: founder must run the two mirror commands to Old-recipe-app.git
+  (clone done in /tmp; push --mirror pending).
+- M2 apply step (terminal, needs live project + service-role): apply the 10
+  migrations to mepzfdefanfpnrvydyty, create the 2 storage policies via
+  dashboard (SQL step fails soft), deploy the 5 edge functions with their env
+  secrets, regenerate src/types/database.ts from the applied schema, then run
+  supabase/migrations/tests/rls-attacks.test.mjs live to confirm green.
 
 ## Open decisions (founder) — ALL RESOLVED 2026-07-21
 
