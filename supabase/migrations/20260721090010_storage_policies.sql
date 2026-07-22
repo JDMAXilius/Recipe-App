@@ -1,9 +1,12 @@
 -- recipe-photos storage bucket — policies like tables get policies
 -- (security-builder doctrine). Photos live at `${userId}/${timestamp}.${ext}`,
 -- so ownership is the first path segment.
--- Public bucket (recipe images render in shares and cards); INSERT only into
--- your own folder; NO user-facing UPDATE/DELETE — cleanup is service-role
--- only, via the delete-account edge function (v1 decision, kept).
+-- Public bucket (recipe images render in shares and cards) — a public bucket
+-- serves objects by direct URL with NO select policy, so we DON'T add one: a
+-- broad SELECT only enables listing/enumeration of every user's photos (Supabase
+-- advisor public_bucket_allows_listing; v1 dropped it in 20260720030119).
+-- INSERT only into your own folder; NO user-facing UPDATE/DELETE — cleanup is
+-- service-role only, via the delete-account edge function (v1 decision, kept).
 --
 -- FAIL-SOFT: on hosted projects `storage.objects` is owned by
 -- supabase_storage_admin, so the migration-runner role (postgres) cannot
@@ -19,10 +22,9 @@ on conflict (id) do nothing;
 
 do $$
 begin
+  -- Belt-and-suspenders: ensure no listing policy lingers (public bucket
+  -- doesn't need one; it only exposes enumeration).
   drop policy if exists "recipe_photos_public_read" on storage.objects;
-  create policy "recipe_photos_public_read" on storage.objects
-    for select to anon, authenticated
-    using (bucket_id = 'recipe-photos');
 
   drop policy if exists "recipe_photos_insert_own_folder" on storage.objects;
   create policy "recipe_photos_insert_own_folder" on storage.objects
@@ -33,5 +35,5 @@ begin
     );
 exception
   when insufficient_privilege then
-    raise notice 'storage.objects policies skipped (owned by supabase_storage_admin) — create them via the dashboard: recipe_photos_public_read (SELECT anon+authenticated), recipe_photos_insert_own_folder (INSERT authenticated, first path segment = auth.uid())';
+    raise notice 'storage.objects policies skipped (owned by supabase_storage_admin) — create recipe_photos_insert_own_folder via the dashboard (INSERT authenticated, first path segment = auth.uid()); no public-read policy needed on a public bucket';
 end $$;
