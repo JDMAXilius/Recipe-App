@@ -61,3 +61,19 @@ export function selectSegment(
 export function applyCookedFilter(items: CookbookItem[], cookedOnly: boolean): CookbookItem[] {
   return cookedOnly ? items.filter((i) => i.cooked) : items;
 }
+
+// A cooked item's plan-entry id follows the id convention (database.md):
+// seed recipes are bare numeric ids ("52772"), user recipes are "u-"-prefixed
+// ("u-12"). plan_entries.recipe_id — which useCookedState reads — stores that.
+export function planRecipeId(item: CookbookItem): string {
+  return item.variant === 'saved' ? String(item.recipeId) : `u-${item.recipeId}`;
+}
+
+// Fill each item's cooked flag from the cook feature's cooked set (via
+// useCookedState). Without this the Cooked filter had nothing to filter on.
+export function markCooked(
+  items: CookbookItem[],
+  isCooked: (id: string) => boolean,
+): CookbookItem[] {
+  return items.map((i) => ({ ...i, cooked: isCooked(planRecipeId(i)) }));
+}

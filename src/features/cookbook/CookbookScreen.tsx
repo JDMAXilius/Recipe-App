@@ -1,16 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, Text as RNText, View } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { SegmentBar, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useAuth } from '@/features/auth';
+import { useCookedState } from '@/features/cook';
 import { useSaved } from './useSaved';
-import { fetchMyRecipes } from './mine.queries';
+import { useMyRecipes } from './useMyRecipes';
 import { RecipeCard } from './components/RecipeCard';
 import { EmptyState } from './components/EmptyState';
 import {
   applyCookedFilter,
+  markCooked,
   mineToItem,
   savedToItem,
   selectSegment,
@@ -31,17 +32,20 @@ export function CookbookScreen() {
   const userId = user?.id ?? null;
   const { saved, isSaved, toggle } = useSaved();
 
-  const mineQuery = useQuery({
-    queryKey: ['myRecipes', userId],
-    queryFn: () => fetchMyRecipes(userId as string),
-    enabled: !!userId,
-  });
+  const mineQuery = useMyRecipes();
 
   const [segment, setSegment] = useState<Segment>('all');
   const [cookedOnly, setCookedOnly] = useState(false);
 
-  const savedItems = useMemo(() => saved.map(savedToItem), [saved]);
-  const mineItems = useMemo(() => (mineQuery.data ?? []).map(mineToItem), [mineQuery.data]);
+  const { isCooked } = useCookedState();
+  const savedItems = useMemo(
+    () => markCooked(saved.map(savedToItem), isCooked),
+    [saved, isCooked],
+  );
+  const mineItems = useMemo(
+    () => markCooked(mineQuery.recipes.map(mineToItem), isCooked),
+    [mineQuery.recipes, isCooked],
+  );
   const items = useMemo(
     () => applyCookedFilter(selectSegment(segment, savedItems, mineItems), cookedOnly),
     [segment, savedItems, mineItems, cookedOnly],

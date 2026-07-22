@@ -5,7 +5,7 @@ import type { User } from '@supabase/supabase-js';
 import { Text, Button, SegmentBar, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useAuth } from '@/features/auth';
-import { useSaved } from '@/features/cookbook';
+import { useSaved, useMyRecipes } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
 import { useUnitSystem } from './profile.prefs';
 import { UNIT_SEGMENTS, cookedCount, earnedStats, statText } from './profile.logic';
@@ -37,14 +37,15 @@ export function ProfileScreen() {
   const { user, signOut } = useAuth();
   const { saved } = useSaved();
   const { entries } = usePlan();
+  const { count: yoursCount } = useMyRecipes();
   const [unitSystem, setUnitSystem] = useUnitSystem();
 
-  // cooked from usePlan(), saved from useSaved(). `yours` (own-recipe count)
-  // has no allowlisted source — see packet contract_gap; renders "—" for now.
+  // cooked from usePlan(), saved from useSaved(), yours from useMyRecipes()
+  // (allowlisted — one source shared with cookbook's My-recipes segment).
   const { stats, nothingYet } = earnedStats({
     cooked: cookedCount(entries),
     saved: saved.length,
-    yours: null,
+    yours: yoursCount,
   });
 
   const onSignOut = () => {
