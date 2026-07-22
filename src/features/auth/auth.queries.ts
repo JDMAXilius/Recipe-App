@@ -18,34 +18,15 @@ export async function signInWithPassword(email: string, password: string): Promi
 }
 
 export async function signUpWithPassword(email: string, password: string): Promise<void> {
-  // Anonymous session → UPGRADE in place (updateUser) so everything the guest
-  // already made (imports, plans, saves) keeps its owner. A fresh signUp here
-  // would mint a second user and orphan that data.
-  const { data: current } = await supabase.auth.getUser();
-  const { error } = current?.user?.is_anonymous
-    ? await supabase.auth.updateUser({ email, password })
-    : await supabase.auth.signUp({ email, password });
+  // Auth is required — no anonymous/guest sessions to upgrade (founder decision
+  // 2026-07-22), so this is a plain sign-up.
+  const { error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;
 }
 
 export async function signOut(): Promise<void> {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
-}
-
-// ---- Guest / anonymous entry --------------------------------------------
-
-export async function enterAsGuest(): Promise<void> {
-  // Mints a real anonymous user id (is_anonymous=true) so a guest can save/plan
-  // immediately; first sign-up UPGRADES this row in place (see signUpWithPassword).
-  // REQUIRES "Anonymous sign-ins" enabled in the Supabase project's Auth settings
-  // (Dashboard → Authentication → Sign In / Providers → Anonymous) — a
-  // founder-side toggle the client can't flip. If it's off, Supabase returns
-  // "Anonymous sign-ins are disabled"; surface a friendly nudge instead.
-  const { error } = await supabase.auth.signInAnonymously();
-  if (error) {
-    throw new Error("Guest mode isn't available right now — try creating an account.");
-  }
 }
 
 // ---- Password recovery / change -----------------------------------------
@@ -115,12 +96,10 @@ export async function sessionFromUrl(url: string | null | undefined): Promise<bo
 
 // ---- Social OAuth --------------------------------------------------------
 
-async function isAnonymousSession(): Promise<boolean> {
-  const { data } = await supabase.auth.getSession();
-  return Boolean(data.session?.user?.is_anonymous);
-}
-
-export async function signInWithProvider(provider: SocialProvider, mode: AuthMode): Promise<void> {
+// mode (sign-in vs sign-up) is one operation for OAuth — kept in the signature
+// so the auth screens can pass it, but there's no anonymous session to link
+// anymore (auth is required), so both just start the provider redirect.
+export async function signInWithProvider(provider: SocialProvider, _mode: AuthMode): Promise<void> {
   if (Platform.OS !== 'web') {
     // ponytail: native OAuth needs expo-web-browser (+ expo-apple-authentication
     // /expo-crypto for the Apple sheet) — not installed in the v2 tree. Wire the
@@ -128,11 +107,6 @@ export async function signInWithProvider(provider: SocialProvider, mode: AuthMod
     throw new Error("Social sign-in isn't available in this build yet.");
   }
   const options = { redirectTo: Linking.createURL('/') };
-  // Anonymous guest on SIGN-UP links the identity (keeps their data's owner);
-  // SIGN-IN switches accounts like the email path does.
-  const link = mode === 'sign-up' && (await isAnonymousSession());
-  const { error } = link
-    ? await supabase.auth.linkIdentity({ provider: provider as Provider, options })
-    : await supabase.auth.signInWithOAuth({ provider: provider as Provider, options });
+  const { error } = await supabase.auth.signInWithOAuth({ provider: provider as Provider, options });
   if (error) throw error;
 }

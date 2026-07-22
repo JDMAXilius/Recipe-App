@@ -6,13 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, OttoIdle, Text } from '@/shared/ui';
 import { colors, space } from '@/shared/theme/tokens';
 import { onboardingArt } from '@/shared/assets';
-import { useAuth } from '@/features/auth';
 import { useOnboarded } from './useOnboarded';
 
-// First-run welcome (spec §4 "onboarding absent"). Living Otto + brand, then the
-// three value scenes, then the entry fork. OttoIdle carries the "alive" (breathe
-// + entrance pop, both reduced-motion aware in motion.ts); the scenes stay still
-// and let the serif do the talking — less-is-more. Either CTA marks onboarded.
+// First-run welcome. Living Otto + brand, the three value scenes, then into auth.
+// Auth is REQUIRED (founder decision 2026-07-22 — no anonymous/guest browsing):
+// onboarding funnels straight to create-account or sign-in. OttoIdle carries the
+// "alive" (breathe + entrance pop, reduced-motion aware in motion.ts). Either CTA
+// marks onboarded so the gate won't show this again.
 const SCENES = [
   { key: 'collect', headline: 'Collect every recipe', caption: 'Import from anywhere — Otto keeps them tidy.' },
   { key: 'cook', headline: 'Cook hands-free', caption: 'Step-by-step with timers, no scrubbing back.' },
@@ -22,28 +22,13 @@ const SCENES = [
 export function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { enterAsGuest } = useAuth();
   const { markOnboarded } = useOnboarded();
-  const [busy, setBusy] = useState<'account' | 'guest' | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState<'account' | 'signin' | null>(null);
 
-  const createAccount = async () => {
-    setBusy('account');
+  const go = (which: 'account' | 'signin') => async () => {
+    setBusy(which);
     await markOnboarded();
-    router.replace('/(auth)/sign-up');
-  };
-
-  const browseAsGuest = async () => {
-    setBusy('guest');
-    setError(null);
-    try {
-      await enterAsGuest();
-      await markOnboarded();
-      router.replace('/(tabs)');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Guest mode isn't available right now.");
-      setBusy(null);
-    }
+    router.replace(which === 'account' ? '/(auth)/sign-up' : '/(auth)/sign-in');
   };
 
   return (
@@ -79,25 +64,20 @@ export function OnboardingScreen() {
       </ScrollView>
 
       <View style={{ paddingHorizontal: space[5], paddingBottom: insets.bottom + space[4], gap: space[2] }}>
-        {error != null && (
-          <View style={{ alignItems: 'center', marginBottom: space[1] }}>
-            <Text role="caption">{error}</Text>
-          </View>
-        )}
         <Button
           title="Create account"
-          onPress={createAccount}
+          onPress={go('account')}
           variant="primary"
           size="lg"
           loading={busy === 'account'}
-          disabled={busy === 'guest'}
+          disabled={busy === 'signin'}
         />
         <Button
-          title="Browse as guest"
-          onPress={browseAsGuest}
+          title="I already have an account"
+          onPress={go('signin')}
           variant="ghost"
           size="lg"
-          loading={busy === 'guest'}
+          loading={busy === 'signin'}
           disabled={busy === 'account'}
         />
       </View>
