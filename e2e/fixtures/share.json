@@ -1,0 +1,34 @@
+{
+  "_note": "Share journey fixtures. The share rows below are seeded by journey setup (disposable e2e rows, reset each run) — a shared recipe, a revoked share, and an unknown slug — so the anon capability-URL read paths (get_recipe_share / get_list_share) can be asserted in cloud. Expected recipe values are RECORDED at seed time from the golden recipe, never invented.",
+  "recipeShare": {
+    "ok": {
+      "slug": "e2e-share-ok",
+      "expected": {
+        "title": "Garlic Butter Chicken",
+        "ingredientCount": 8,
+        "stepCount": 5
+      }
+    },
+    "revoked": {
+      "slug": "e2e-share-revoked",
+      "expectedStatus": "revoked"
+    },
+    "missing": {
+      "slug": "e2e-share-does-not-exist",
+      "expectedStatus": "missing"
+    }
+  },
+  "listShare": {
+    "ok": {
+      "token": "e2e-list-ok",
+      "expected": {
+        "aisles": ["Produce", "Dairy"],
+        "openCount": 3
+      }
+    },
+    "missing": {
+      "token": "e2e-list-does-not-exist",
+      "expectedStatus": "missing"
+    }
+  }
+}
