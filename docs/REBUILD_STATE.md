@@ -11,7 +11,7 @@
 
 | | |
 |---|---|
-| Current milestone | **M0 DONE → M1+M2 open** (ticket 02, parallel tracks) |
+| Current milestone | **M1+M2 DONE → M3 feature fan-out next** (ticket 03) |
 | Integration branch | `rebuild/v2` @ 81e5d6db — scaffold + crew + contracts, CI green |
 | Legacy snapshot | `v1-legacy` @ c54b1293 · tag `v1.0-legacy` |
 | Old-code archive | **pending founder** — classifier blocks mirror push from terminal |
@@ -24,7 +24,7 @@
 |---|---|
 | M0 Contracts signed | ☑ **founder sign-off 2026-07-21** (critic panel: 24 findings folded) |
 | M1 Engine green | ☑ **91/91, byte-identical to v1** (@12502ac6) |
-| M2 Platform ready | ◐ code done + refuters passed (3 HIGH fixed @03972655); **needs terminal: apply migrations + deploy fns + run attack test live** |
+| M2 Platform ready | ☑ **applied live + 75/75 RLS attack test** (@ff0dd011); advisors clean of ERROR; 3 fns via MCP + 3 via CLI, secrets set |
 | M3 Features merged | ☐ blocked on M1+M2 |
 | M4 Converged + device QA | ☐ blocked on M3 |
 
@@ -41,11 +41,8 @@
 
 - Old-code archive: founder must run the two mirror commands to Old-recipe-app.git
   (clone done in /tmp; push --mirror pending).
-- M2 apply step (terminal, needs live project + service-role): apply the 10
-  migrations to mepzfdefanfpnrvydyty, create the 2 storage policies via
-  dashboard (SQL step fails soft), deploy the 5 edge functions with their env
-  secrets, regenerate src/types/database.ts from the applied schema, then run
-  supabase/migrations/tests/rls-attacks.test.mjs live to confirm green.
+- ~~M2 apply step~~ **DONE** (@ff0dd011): 11 migrations live, 5 fns deployed +
+  secrets set, types regenerated, RLS attack test 75/75.
 
 ## Open decisions (founder) — ALL RESOLVED 2026-07-21
 
