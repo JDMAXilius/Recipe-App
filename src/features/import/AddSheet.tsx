@@ -90,6 +90,18 @@ export function AddSheet({ visible, onClose }: AddSheetProps) {
             variant="secondary"
             size="lg"
           />
+          <View style={{ marginTop: space[2] }}>
+            <Text role="caption">Not sure yet? Chat it through with Otto.</Text>
+          </View>
+          <Button
+            title="Ask Otto"
+            onPress={() => {
+              onClose();
+              router.push('/ask');
+            }}
+            variant="secondary"
+            size="lg"
+          />
         </View>
       )}
     </Sheet>
