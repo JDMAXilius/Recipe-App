@@ -26,7 +26,7 @@
 | M1 Engine green | ☑ **91/91, byte-identical to v1** (@12502ac6) |
 | M2 Platform ready | ☑ **applied live + 75/75 RLS attack test** (@ff0dd011); advisors clean of ERROR; 3 fns via MCP + 3 via CLI, secrets set |
 | M3 Features merged | ☑ **9/9 features, two waves, repo-wide 163/163** (@21c9e20a) |
-| M4 Converged + device QA | ▶ next (ticket 04: integration + review swarm + device QA) |
+| M4 Converged + device QA | ◐ integration A–C done (app boots on web @34998984); D live journeys · E review swarm · F device QA+cutover remain |
 
 ## Open packets / tickets
 
