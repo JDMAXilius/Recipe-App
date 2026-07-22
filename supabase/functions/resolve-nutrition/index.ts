@@ -1,23 +1,23 @@
-// resolve-nutrition — Claude-as-matcher tail for ingredients the deterministic
-// lookup misses. Port of backend/src/lib/nutrition/resolveIngredient.js +
-// usdaSearch.js. Claude only ever SELECTS which real USDA food a freeform name
-// refers to — it never invents a calorie.
-//   Stage 1 — Claude picks from the bundled 920-row table.
-//   Stage 2 — live USDA FoodData Central search supplies real candidates and
-//             Claude picks among them (needs USDA_API_KEY).
-// Honesty guard: a Stage-1 name counts only if it is an exact table key; a
-// Stage-2 fdcId only if USDA actually returned it. Anything else → null.
-// Writes resolved_ingredients with the SERVICE ROLE (anon/authenticated have
-// read-only access by policy). Keys come ONLY from Deno.env; never logged.
+// resolve-nutrition — live-USDA tail for ingredients the client's deterministic
+// lookup misses. The client already matches against the bundled 962-row table
+// (exact + qualifier-strip in engine/lookup.ts); the freeform names it CAN'T
+// resolve are POSTed here, where a live USDA FoodData Central search supplies
+// real candidates and Claude picks the fdcId that matches the ingredient a home
+// cook means. Claude only ever SELECTS a real USDA record — it never invents a
+// calorie. Honesty guard: an fdcId counts only if USDA actually returned it in
+// that ingredient's candidate list; anything else → null. Resolved rows are
+// cached durably in resolved_ingredients (service-role write; clients read-only
+// by policy). Keys come ONLY from Deno.env; never logged.
+//
+// ponytail: dropped the old Stage-1 "Claude vs the bundled table" match — it
+// required shipping the 962-row table into the function, and the client already
+// does the table match. If British-synonym coverage (aubergine→eggplant) ever
+// matters beyond what USDA search + the client's qualifier-strip catch, re-add
+// Stage 1 as a DB-backed canonical-name lookup, not a bundled JSON.
 import { z } from "npm:zod@4";
 import { getUserId, json, preflight, rateLimited, serviceClient } from "../_shared/http.ts";
-import tableJson from "./usdaTable.json" with { type: "json" };
 
-const table = tableJson as Record<string, Record<string, unknown>>;
-const TABLE_KEYS = Object.keys(table).sort(); // sorted = stable prompt prefix (cacheable)
-const KEY_SET = new Set(TABLE_KEYS);
-
-const MODEL = "claude-haiku-4-5"; // classify job, not generation
+const MODEL = "claude-haiku-4-5"; // a pick-the-match job, not generation
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MAX_BATCH = 40;
 const MAX_NAME_CHARS = 120;
@@ -25,26 +25,6 @@ const MAX_NAME_CHARS = 120;
 const bodySchema = z.object({
   names: z.array(z.string().trim().min(1).max(MAX_NAME_CHARS)).min(1).max(MAX_BATCH),
 });
-
-const TABLE_SCHEMA = {
-  type: "object",
-  additionalProperties: false,
-  required: ["matches"],
-  properties: {
-    matches: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        required: ["input", "canonical"],
-        properties: {
-          input: { type: "string" },
-          canonical: { anyOf: [{ type: "string" }, { type: "null" }] },
-        },
-      },
-    },
-  },
-};
 
 const SEARCH_SCHEMA = {
   type: "object",
@@ -65,16 +45,6 @@ const SEARCH_SCHEMA = {
     },
   },
 };
-
-const TABLE_SYSTEM = `You match freeform cooking-ingredient names to a fixed list of canonical USDA food names.
-
-For each input, return the ONE canonical name from the allowed list that refers to the SAME food, or null if none does.
-
-Rules — non-negotiable:
-- Match the FOOD IDENTITY, not just the words. "beef mince" = "minced beef"; "grated cheddar" = "cheddar cheese"; "aubergine" = "eggplant"; "courgette" = "zucchini"; "spring onion" = "scallions"; "coriander" (the leaf) ≠ "coriander seeds".
-- NEVER map to a different food. "green beans" is not "beans"; "sweet potato" is not "potato"; "coconut milk" is not "milk". When the list has no genuine match, return null — a wrong match is worse than none.
-- Ignore preparation words that don't change identity (chopped, diced, fresh, large). Respect words that DO (smoked, dried, canned) only when a matching canonical form exists; otherwise null.
-- Return canonical values EXACTLY as they appear in the allowed list, or null. Do not invent names.`;
 
 const SEARCH_SYSTEM = `You are given cooking ingredients and, for each, a numbered list of USDA food records (with their fdcId). Pick the fdcId of the record that best matches the ingredient as a home cook would mean it, or null if none is a genuine match.
 
@@ -119,7 +89,6 @@ const DATA_TYPES = ["Foundation", "SR Legacy"]; // whole-food, per-100g records
 const PAGE_SIZE = 6;
 const SEARCH_URL = "https://api.nal.usda.gov/fdc/v1/foods/search";
 const NUTRIENT_BY_NUMBER: Record<string, string> = {
-  "208": "kcal",
   "203": "protein_g",
   "204": "fat_g",
   "205": "carbs_g",
@@ -134,12 +103,24 @@ function extractPer100g(foodNutrients: any[]): Record<string, number | null> {
     kcal: null, protein_g: null, fat_g: null, carbs_g: null,
     fiber_g: null, sugar_g: null, sodium_mg: null,
   };
+  // Energy is reported under DIFFERENT nutrient numbers by dataset: SR Legacy
+  // uses 208 (Energy, kcal); modern Foundation foods OMIT 208 and report only
+  // Atwater 957 (General) / 958 (Specific), both kcal. Only mapping 208 dropped
+  // every Foundation food (kcal null → candidate filtered → resolve returned
+  // null for common ingredients like boneless chicken thighs). Prefer 208, then
+  // Atwater General, then Specific.
+  let e208: number | null = null, e957: number | null = null, e958: number | null = null;
   for (const n of foodNutrients || []) {
     const number = String(n?.nutrientNumber ?? n?.nutrient?.number ?? "");
     const value = n?.value ?? n?.amount;
+    if (!Number.isFinite(value)) continue;
     const field = NUTRIENT_BY_NUMBER[number];
-    if (field && Number.isFinite(value)) out[field] = value;
+    if (field) out[field] = value;
+    else if (number === "208") e208 = value;
+    else if (number === "957") e957 = value;
+    else if (number === "958") e958 = value;
   }
+  out.kcal = e208 ?? e957 ?? e958;
   return out;
 }
 
@@ -173,33 +154,7 @@ function candidateToFoodRow(candidate: Candidate | undefined) {
   return { fdcId: candidate.fdcId, usda: candidate.description, ...candidate.per100g };
 }
 
-// ---- the two stages ---------------------------------------------------------
 type FoodRow = Record<string, unknown>;
-
-async function resolveViaTable(names: string[], into: Map<string, FoodRow>) {
-  const batch = names.slice(0, MAX_BATCH).map((n) => n.slice(0, MAX_NAME_CHARS));
-  const data = await askClaude(
-    [
-      { type: "text", text: TABLE_SYSTEM },
-      {
-        type: "text",
-        text: `Allowed canonical names (choose only from these):\n${TABLE_KEYS.join("\n")}`,
-        cache_control: { type: "ephemeral" }, // large but stable → cache the prefix
-      },
-    ],
-    TABLE_SCHEMA,
-    `Match these ingredients:\n${batch.join("\n")}`,
-  );
-  if (!data) return;
-  // deno-lint-ignore no-explicit-any
-  const byInput = new Map((data.matches || []).map((m: any) => [norm(m.input), m.canonical]));
-  for (const n of names) {
-    const picked = byInput.get(n);
-    // HONESTY GUARD: only an exact table key counts.
-    const canonicalKey = picked && KEY_SET.has(norm(picked)) ? norm(picked) : null;
-    if (canonicalKey) into.set(n, table[canonicalKey]);
-  }
-}
 
 async function resolveViaUsdaSearch(names: string[], into: Map<string, FoodRow>) {
   const searched = await Promise.all(
@@ -264,17 +219,10 @@ Deno.serve(async (req) => {
     // fail open — memory-only for this request
   }
 
-  if (ask.length && resolverActive()) {
+  if (ask.length && resolverActive() && usdaSearchActive()) {
     const resolved = new Map<string, FoodRow>();
-    const tiers = new Map<string, string>();
     try {
-      await resolveViaTable(ask, resolved);
-      for (const n of resolved.keys()) tiers.set(n, "table");
-      const stillMissing = ask.filter((n) => !resolved.has(n));
-      if (stillMissing.length && usdaSearchActive()) {
-        await resolveViaUsdaSearch(stillMissing, resolved);
-        for (const n of stillMissing) if (resolved.has(n)) tiers.set(n, "usda-search");
-      }
+      await resolveViaUsdaSearch(ask, resolved);
     } catch (error) {
       console.warn("ingredient resolution failed", (error as Error).message); // fail closed
     }
@@ -283,11 +231,9 @@ Deno.serve(async (req) => {
     for (const n of ask) {
       const row = resolved.get(n) ?? null;
       out.set(n, row);
-      // Cache a hit always; cache a miss only when the FULL pipeline ran, so a
-      // name asked while USDA was dormant retries once the key lands.
-      if (row || usdaSearchActive()) {
-        durable.push({ name: n, food: row, tier: row ? tiers.get(n)! : "miss" });
-      }
+      // The full pipeline ran (both keys present), so cache the miss too — it
+      // won't silently retry forever, and a real hit is cached always.
+      durable.push({ name: n, food: row, tier: row ? "usda-search" : "miss" });
     }
     if (durable.length) {
       const { error } = await db
