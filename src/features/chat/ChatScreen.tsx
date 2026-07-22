@@ -20,7 +20,7 @@ import { useSaveRecipe, type SaveInput } from '@/features/import';
 import { useChat } from './useChat';
 import type { ChatRecipe, StoredMessage } from './chat.types';
 
-// Chat with Otto — the ＋ (create) tab AND app/ask.tsx. The primary way to make
+// Chat with Otto — the ＋ (create) tab. The primary way to make
 // a recipe: describe a dish, Otto writes it inline, you save. Header doors reach
 // Recent chats (clock → /chats) and Bring-in-a-recipe (import → /add). Transcript
 // (you right / Otto left), clarify chips, an inline recipe preview with
