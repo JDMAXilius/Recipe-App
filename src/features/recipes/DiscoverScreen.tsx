@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { OttoIdle, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -175,7 +176,7 @@ export function DiscoverScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.cream }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.cream }}>
       <FlatList
         data={grid}
         renderItem={({ item }) => <RecipeCard recipe={item} />}
@@ -203,6 +204,6 @@ export function DiscoverScreen() {
         onClear={() => setFilterCats(new Set())}
         resultCount={grid.length}
       />
-    </View>
+    </SafeAreaView>
   );
 }

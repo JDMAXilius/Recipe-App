@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import type { User } from '@supabase/supabase-js';
 import { Text, Button, SegmentBar, useToast } from '@/shared/ui';
@@ -81,7 +82,8 @@ export function ProfileScreen() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: colors.cream }} contentContainerStyle={styles.scroll}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.cream }}>
+      <ScrollView contentContainerStyle={styles.scroll}>
       <Text role="display">You</Text>
 
       {/* IDENTITY — warm header, cold facts */}
@@ -205,7 +207,8 @@ export function ProfileScreen() {
           {armDelete ? 'Tap again — this is forever' : 'Delete my account'}
         </Text>
       </Pressable>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

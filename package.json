@@ -7,7 +7,9 @@
     "web": "expo start --web",
     "lint": "eslint app src test --no-error-on-unmatched-pattern",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types --import ./src/features/nutrition/engine/ts-ext-resolve.mjs \"test/*.test.mjs\" \"src/**/*.test.mjs\""
+    "test": "node --test --experimental-strip-types --import ./src/features/nutrition/engine/ts-ext-resolve.mjs \"test/*.test.mjs\" \"src/**/*.test.mjs\"",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@expo-google-fonts/lora": "^0.4.2",
@@ -18,6 +20,7 @@
     "babel-preset-expo": "~54.0.10",
     "expo": "^54.0.36",
     "expo-constants": "~18.0.13",
+    "expo-dev-client": "~6.0.21",
     "expo-font": "~14.0.12",
     "expo-haptics": "~15.0.8",
     "expo-image": "~3.0.11",

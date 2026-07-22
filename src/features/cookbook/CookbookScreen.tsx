@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { FlatList, Pressable, Text as RNText, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { SegmentBar, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -95,7 +96,7 @@ export function CookbookScreen() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.cream }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.cream }}>
       <FlatList
         data={items}
         numColumns={2}
@@ -123,6 +124,6 @@ export function CookbookScreen() {
           />
         }
       />
-    </View>
+    </SafeAreaView>
   );
 }

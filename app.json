@@ -7,6 +7,10 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.otto.recipes",
+      "supportsTablet": true
+    },
     "web": {
       "bundler": "metro",
       "output": "single"

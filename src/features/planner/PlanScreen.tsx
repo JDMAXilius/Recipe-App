@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Text, Button, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -41,7 +42,8 @@ export function PlanScreen() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: colors.cream }} contentContainerStyle={styles.scroll}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.cream }}>
+      <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.header}>
         <Text role="display">Otto&apos;s week</Text>
         {planned > 0 && (
@@ -128,7 +130,8 @@ export function PlanScreen() {
           </Text>
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

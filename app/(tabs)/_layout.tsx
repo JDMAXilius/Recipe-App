@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/shared/theme/tokens';
-import { TabBarCreateButton } from './TabBarCreateButton';
+import { TabBarCreateButton } from '@/shared/ui/TabBarCreateButton';
 
 // 5 tabs (FRAMEWORK §2 / spec §Bottom tab bar): Discover · Cookbook · raised ＋ ·
 // Plan · Account. Ionicons filled when focused, outline otherwise; the center
