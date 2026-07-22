@@ -113,6 +113,8 @@ EXPO_PUBLIC_API_URL=http://localhost:5001/api   # LAN IP for devices
 
 Two Claude sessions collaborate on `main`: a **cloud co-pilot** (research, specs, tickets) and a **terminal lead** (code, assets, Figma writes, verification on Chrome + iOS simulator). Always `git pull --rebase` before pushing. The terminal's operating mode lives in `.claude/skills/otto-lead/` — invoke `/otto-lead`.
 
+For the **v2 rebuild** the roles shift (cloud = manager + agent fleet, terminal = secrets/device/final eyes): see `docs/REBUILD_WORKFLOW.md`, with `docs/REBUILD_STATE.md` as the shared dashboard.
+
 ## Status & founder inputs
 
 Shipped through tickets **P10** (onboarding, splash still+video, social seed) and **B0** in progress (RLS ✅, validation ✅, logging ✅). Waiting on founder to unlock:

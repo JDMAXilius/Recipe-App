@@ -3,7 +3,8 @@
 Status: **agreed direction, not yet applied** (founder session 2026-07-21).
 Companion to `docs/ARCHITECTURE.md`, which documents the codebase as it is
 today. This file is the blueprint both sessions build against when the
-rebuild starts. Guiding rule: **less is more — just the necessary files.**
+rebuild starts. **Execution plan:** `docs/REBUILD_WORKFLOW.md` (with
+`REBUILD_PACKETS.md`, `REBUILD_STATE.md`, `TESTING.md`). Guiding rule: **less is more — just the necessary files.**
 
 Founder decisions locked in:
 
