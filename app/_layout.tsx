@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Lora_400Regular, Lora_600SemiBold, Lora_700Bold } from '@expo-google-fonts/lora';
 import { AuthProvider } from '@/features/auth';
+import { Splash } from '@/features/onboarding';
 import { ErrorBoundary, ToastHost } from '@/shared/ui';
 
 // The provider stack: gesture root → error boundary → server state (TanStack
@@ -16,7 +17,7 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Lora_400Regular, Lora_600SemiBold, Lora_700Bold });
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded) return <Splash />;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

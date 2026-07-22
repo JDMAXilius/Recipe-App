@@ -10,6 +10,7 @@ import { supabase } from '@/shared/supabase/client';
 import type { AuthMode, SocialProvider } from './social';
 import {
   changePassword as changePasswordQuery,
+  enterAsGuest as enterAsGuestQuery,
   saveUsername as saveUsernameQuery,
   sendPasswordReset as sendPasswordResetQuery,
   signInWithPassword,
@@ -24,6 +25,8 @@ export interface AuthValue {
   user: User | null;
   isLoaded: boolean;
   isSignedIn: boolean;
+  isGuest: boolean;
+  enterAsGuest: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -60,6 +63,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isLoaded,
       isSignedIn: !!session,
+      isGuest: session?.user?.is_anonymous === true,
+      enterAsGuest: enterAsGuestQuery,
       signIn: signInWithPassword,
       signUp: signUpWithPassword,
       signOut: signOutQuery,

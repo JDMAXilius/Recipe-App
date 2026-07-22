@@ -33,6 +33,21 @@ export async function signOut(): Promise<void> {
   if (error) throw error;
 }
 
+// ---- Guest / anonymous entry --------------------------------------------
+
+export async function enterAsGuest(): Promise<void> {
+  // Mints a real anonymous user id (is_anonymous=true) so a guest can save/plan
+  // immediately; first sign-up UPGRADES this row in place (see signUpWithPassword).
+  // REQUIRES "Anonymous sign-ins" enabled in the Supabase project's Auth settings
+  // (Dashboard → Authentication → Sign In / Providers → Anonymous) — a
+  // founder-side toggle the client can't flip. If it's off, Supabase returns
+  // "Anonymous sign-ins are disabled"; surface a friendly nudge instead.
+  const { error } = await supabase.auth.signInAnonymously();
+  if (error) {
+    throw new Error("Guest mode isn't available right now — try creating an account.");
+  }
+}
+
 // ---- Password recovery / change -----------------------------------------
 
 export async function sendPasswordReset(email: string): Promise<void> {
