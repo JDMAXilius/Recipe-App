@@ -15,11 +15,17 @@ export const UNIT_SEGMENTS = [
   { label: 'US', value: 'us' },
 ] as const;
 
-// A planned dish counts once its `cooked` flag is set. usePlan() spans only
-// the rolling week, so this is "cooked this week" — not the lifetime tally v1
-// kept in AsyncStorage (see packet gaps).
-export function cookedCount(entries: readonly { cooked?: boolean | null }[]): number {
-  return entries.reduce((n, e) => (e.cooked ? n + 1 : n), 0);
+// Distinct cooked RECIPES this week (usePlan() spans only the rolling week —
+// not v1's lifetime AsyncStorage tally). Review fix: the old version counted
+// cooked plan ENTRIES, so a dish cooked Mon + Wed read "2", but the door it
+// links to (/cookbook?cooked=1, backed by useCookedState's distinct set) showed
+// 1 recipe. Count distinct recipe ids so the number and its destination agree.
+export function cookedCount(
+  entries: readonly { cooked?: boolean | null; recipe_id?: string | null }[],
+): number {
+  const ids = new Set<string>();
+  for (const e of entries) if (e.cooked && e.recipe_id) ids.add(String(e.recipe_id));
+  return ids.size;
 }
 
 export interface Stat {

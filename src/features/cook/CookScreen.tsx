@@ -9,11 +9,11 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Button, OttoArt, Ring, Sheet, Text } from '@/shared/ui';
+import { Button, OttoArt, Sheet, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
-import { toSeedId } from '@/types/ids';
+import { toUserRecipeId } from '@/types/ids';
 import { usePlan } from '@/features/planner';
-import { useNutrition, type NutritionRecipe } from '@/features/nutrition';
+import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
 import { fetchCookRecipe } from './cook.queries';
 import { splitSteps, matchStepIngredients, mmss } from './session';
 import { segmentStep } from './stepEnrich';
@@ -209,8 +209,12 @@ export function CookScreen() {
 
   // ---------------------------------------------------------------- FINISH
   if (phase === 'done') {
+    // cook loads user recipes from the `recipes` table, so the id is a user
+    // recipe ref ("u-<id>") — NOT a seed id. Using toSeedId here would key the
+    // nutrition cache into seed_nutrition's TheMealDB namespace and could serve
+    // an unrelated seed's macros (review finding). u- keeps the id spaces apart.
     const nutritionRecipe: NutritionRecipe = {
-      id: toSeedId(recipe.id),
+      id: toUserRecipeId(`u-${recipe.id}`),
       ingredients: recipe.ingredientPairs,
       servings: recipe.servings,
       category: recipe.category,
@@ -221,7 +225,12 @@ export function CookScreen() {
         <OttoArt name="proud" size={200} />
         <Text role="display">Dinner, done.</Text>
         <Text role="body">Otto&apos;s proud of you.</Text>
-        <FinishNutrition recipe={nutritionRecipe} />
+        {/* The shared honest card — labelled estimate, no daily-goal denominator,
+            FDA-rounded kcal. Replaces hand-rolled Rings that showed "415 / 2000"
+            unlabelled (review: honesty-law violation). */}
+        <View style={{ alignSelf: 'stretch', marginTop: space[4] }}>
+          <NutritionCard recipe={nutritionRecipe} />
+        </View>
         <View style={{ marginTop: space[5], alignSelf: 'stretch' }}>
           <Button title="Back to the recipe" variant="primary" size="lg" onPress={leave} />
         </View>
@@ -465,19 +474,6 @@ export function CookScreen() {
           </View>
         </View>
       </CenterModal>
-    </View>
-  );
-}
-
-// --- finish nutrition (child so useNutrition mounts only on the done screen) --
-function FinishNutrition({ recipe }: { recipe: NutritionRecipe }) {
-  const { data } = useNutrition(recipe);
-  return (
-    <View style={{ flexDirection: 'row', gap: space[4], marginTop: space[4] }}>
-      <Ring value={data ? data.kcal : null} max={2000} label="kcal" />
-      <Ring value={data ? data.protein_g : null} max={100} label="Protein g" />
-      <Ring value={data ? data.carbs_g : null} max={100} label="Carbs g" />
-      <Ring value={data ? data.fat_g : null} max={100} label="Fat g" />
     </View>
   );
 }

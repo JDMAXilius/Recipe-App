@@ -24,7 +24,10 @@ function toSteps(steps: Json): string[] {
 // resolve (user-created + stored seeds). A TheMealDB-only seed not persisted
 // there returns null — same reach limit the planner packet documents.
 export async function fetchCookRecipe(id: string): Promise<CookRecipe | null> {
-  const numericId = Number(id);
+  // Accept the "u-<id>" user-recipe convention (review: bare Number("u-12")=NaN
+  // dropped every user recipe). Seed ids find no row here — cook loading a
+  // TheMealDB-only seed via the content function is a documented follow-up.
+  const numericId = /^u-/.test(id) ? Number(id.slice(2)) : Number(id);
   if (!Number.isInteger(numericId)) return null;
 
   const { data, error } = await supabase

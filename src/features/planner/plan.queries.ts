@@ -71,19 +71,29 @@ function toParsed(pair: StoredPair): ParsedIngredient {
 }
 
 // Fetch the recipes behind a set of plan entries and parse their ingredients
-// for buildShoppingList(). Only recipes that live in the `recipes` table
-// resolve here; seed/TheMealDB recipes are fetched by the recipes feature and
-// are out of the planner's reach (see the packet gaps).
-export async function getListRecipes(recipeIds: string[]): Promise<RecipeForList[]> {
-  const numericIds = recipeIds
-    .map((id) => Number(id))
+// for buildShoppingList(). Only USER recipes (plan_entries.recipe_id = "u-<id>")
+// live in the `recipes` table and resolve here; seed/TheMealDB entries carry a
+// bare numeric id and are out of the planner's reach (packet gaps).
+// Review fix: the old code kept the numeric SEED ids and dropped the "u-" user
+// recipes — exactly backwards, so the shopping list lost the only rows it could
+// resolve. It also lacked a user_id filter (a kept seed id could collide with a
+// stranger's recipes.id). Now: keep u- ids, strip the prefix, scope to userId.
+export async function getListRecipes(
+  recipeIds: string[],
+  userId: string | null,
+): Promise<RecipeForList[]> {
+  if (!userId) return [];
+  const userRecipeIds = recipeIds
+    .filter((id) => /^u-/.test(id))
+    .map((id) => Number(id.slice(2)))
     .filter((n) => Number.isInteger(n));
-  if (numericIds.length === 0) return [];
+  if (userRecipeIds.length === 0) return [];
 
   const { data, error } = await supabase
     .from('recipes')
     .select('id, title, ingredients')
-    .in('id', numericIds);
+    .eq('user_id', userId)
+    .in('id', userRecipeIds);
   if (error) throw error;
 
   return (data ?? []).map((row) => {

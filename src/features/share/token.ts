@@ -3,18 +3,24 @@
 // come from a CSPRNG, never Math.random. 9 random bytes → 12 base64url chars
 // (no padding), which lands inside the /hl/<token> [A-Za-z0-9_-]{8,24} shape.
 //
-// ponytail: uses Web Crypto (globalThis.crypto.getRandomValues) — native
-// platform feature, present on Expo web + the Node test runner. React Native
-// (Hermes) has no global crypto until expo-crypto polyfills it; see the
-// expo-crypto contract_gap in this packet's report-back. Swap the source line
-// for expo-crypto's getRandomValues once that dep lands — signature-identical.
-
+// CSPRNG token via globalThis.crypto.getRandomValues — present on web and the
+// Node test runner. React Native (Hermes) has no global crypto until a polyfill
+// installs it; the app entry (app/_layout) imports 'react-native-get-random-
+// values' at the native-deps wiring stage so this works on device too. Until
+// then we throw a CLEAR error rather than the cryptic TypeError the review
+// flagged as a native share crash.
 const ALPHABET =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
 export function mintToken(bytes = 9): string {
+  const source = globalThis.crypto;
+  if (!source?.getRandomValues) {
+    throw new Error(
+      'Secure token generation needs crypto.getRandomValues — install the native polyfill (react-native-get-random-values) before creating share links on device.',
+    );
+  }
   const buf = new Uint8Array(bytes);
-  globalThis.crypto.getRandomValues(buf);
+  source.getRandomValues(buf);
 
   let out = '';
   for (let i = 0; i < buf.length; i += 3) {

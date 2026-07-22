@@ -186,6 +186,19 @@ export interface SaveInput {
   recipe: CleanRecipe;
 }
 
+// Invalidate every cache a written user recipe feeds, so no stale card/detail
+// survives a save or delete (review: card-vs-detail drift after a write). The
+// recipe is referenced as "u-<id>" on the detail/nutrition keys, and by the
+// user's own-recipes list + the shopping list.
+function invalidateUserRecipe(qc: ReturnType<typeof useQueryClient>, id: number, userId: string) {
+  const ref = `u-${id}`;
+  qc.invalidateQueries({ queryKey: ['recipe', 'edit', id] });
+  qc.invalidateQueries({ queryKey: ['recipe', ref] });
+  qc.invalidateQueries({ queryKey: ['nutrition', ref] });
+  qc.invalidateQueries({ queryKey: ['myRecipes', userId] });
+  qc.invalidateQueries({ queryKey: ['plan-list'] }); // ingredients may have changed
+}
+
 // Save returns the row id so the editor can route to the saved recipe.
 export function useSaveRecipe() {
   const qc = useQueryClient();
@@ -197,12 +210,19 @@ export function useSaveRecipe() {
       }
       return createUserRecipe(userId, recipe);
     },
-    onSuccess: (id) => {
-      qc.invalidateQueries({ queryKey: ['recipe', 'edit', id] });
-    },
+    onSuccess: (id, { userId }) => invalidateUserRecipe(qc, id, userId),
   });
 }
 
+export interface DeleteInput {
+  id: number;
+  userId: string;
+}
+
 export function useDeleteRecipe() {
-  return useMutation({ mutationFn: (id: number) => deleteUserRecipe(id) });
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: DeleteInput) => deleteUserRecipe(id),
+    onSuccess: (_r, { id, userId }) => invalidateUserRecipe(qc, id, userId),
+  });
 }

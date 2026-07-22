@@ -145,8 +145,9 @@ export function EditRecipeScreen() {
       setTimeout(() => setArmDelete(false), 4000);
       return;
     }
+    if (!user) return;
     try {
-      await deleteMut.mutateAsync(editId);
+      await deleteMut.mutateAsync({ id: editId, userId: user.id });
       show('Gone — Otto tore out the page.', 'success');
       router.replace('/cookbook');
     } catch (err) {

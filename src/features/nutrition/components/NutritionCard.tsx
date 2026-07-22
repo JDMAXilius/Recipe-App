@@ -72,12 +72,21 @@ export function NutritionCard({ recipe }: { recipe: NutritionRecipe }) {
   }
 
   return (
-    <View style={{ gap: space[3] }} accessible accessibilityLabel="Nutrition estimate">
+    // NOT `accessible` on the container — that collapses children into one node,
+    // so a screen reader would announce only a label and never the ring's
+    // "kcal: 420" or the macro values (review a11y finding). Each macro is its
+    // own accessible group; the "Nutrition" heading is rendered by the caller.
+    <View style={{ gap: space[3] }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: space[4] }}>
         <CalorieRing kcal={macros?.kcal ?? null} />
         <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
           {MACRO_LABELS.map(({ key, label }) => (
-            <View key={key} style={{ alignItems: "center", gap: space[1] }}>
+            <View
+              key={key}
+              accessible
+              accessibilityLabel={`${label} ${formatCount(macros?.[key] ?? null)} grams`}
+              style={{ alignItems: "center", gap: space[1] }}
+            >
               {/* 'computed' role = terracotta (semantic ink): these are Otto's
                   numbers, not authored text. null → em-dash via formatCount. */}
               <Text role="computed">{`${formatCount(macros?.[key] ?? null)}g`}</Text>

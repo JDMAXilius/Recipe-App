@@ -3,6 +3,7 @@ import { Pressable, ScrollView, TextInput, View, type TextStyle, type ViewStyle 
 import { useQuery } from '@tanstack/react-query';
 import { Text, Button, OttoArt } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
+import { useAuth } from '@/features/auth';
 import { usePlan } from './usePlan';
 import { getListRecipes } from './plan.queries';
 import { buildShoppingList, AISLES } from './shoppingList';
@@ -16,6 +17,8 @@ import { buildShoppingList, AISLES } from './shoppingList';
 
 export function ShoppingScreen() {
   const { entries, isLoading: planLoading } = usePlan();
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
 
   // Unique recipe ids still on the week — the list's source recipes.
   const recipeIds = useMemo(() => {
@@ -25,9 +28,9 @@ export function ShoppingScreen() {
   }, [entries]);
 
   const listQuery = useQuery({
-    queryKey: ['plan-list', recipeIds],
-    enabled: recipeIds.length > 0,
-    queryFn: () => getListRecipes(recipeIds),
+    queryKey: ['plan-list', userId, recipeIds],
+    enabled: recipeIds.length > 0 && !!userId,
+    queryFn: () => getListRecipes(recipeIds, userId),
   });
 
   const items = useMemo(

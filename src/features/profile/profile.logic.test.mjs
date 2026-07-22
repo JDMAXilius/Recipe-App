@@ -18,9 +18,25 @@ test('deriveUnitSystem: only explicit "us" opts out; legacy + junk → metric', 
   assert.equal(deriveUnitSystem('nonsense'), 'metric');
 });
 
-test('cookedCount: counts only cooked entries, tolerates null/undefined flags', () => {
+test('cookedCount: distinct cooked recipes, tolerates null/undefined flags', () => {
   assert.equal(cookedCount([]), 0);
-  assert.equal(cookedCount([{ cooked: true }, { cooked: false }, { cooked: true }]), 2);
+  // distinct recipe ids — matches the cookbook Cooked door (useCookedState set)
+  assert.equal(
+    cookedCount([
+      { cooked: true, recipe_id: '52772' },
+      { cooked: false, recipe_id: '111' },
+      { cooked: true, recipe_id: 'u-3' },
+    ]),
+    2,
+  );
+  // same recipe cooked twice counts once (Mon + Wed = 1 distinct recipe)
+  assert.equal(
+    cookedCount([
+      { cooked: true, recipe_id: '52772' },
+      { cooked: true, recipe_id: '52772' },
+    ]),
+    1,
+  );
   assert.equal(cookedCount([{ cooked: null }, {}, { cooked: undefined }]), 0);
 });
 

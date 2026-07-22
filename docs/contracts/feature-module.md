@@ -51,10 +51,10 @@ features/<name>/
 | `useAuth()` | hook | auth | all |
 | `useSaved()` | hook | cookbook | recipes, profile |
 | `useNutrition(recipe)` | hook | nutrition | recipes (detail), cook |
-| `usePlan()` | hook | planner | recipes (add-to-week), profile |
+| `usePlan()` | hook | planner | recipes (add-to-week), profile, cook (cooked-state), planner shopping |
 | `useCookedState()` | hook | cook | cookbook (Cooked filter) |
 | `useMyRecipes()` | hook | cookbook | profile ("yours" stat) |
-| `NutritionCard` | component | nutrition | recipes (detail) |
+| `NutritionCard` | component | nutrition | recipes (detail), cook (finish screen) |
 | `ShareCard` | component | share | recipes (detail) |
 | `AddSheet` | component | import | app add route |
 | `PawMark` wiring: use `useSaved()` + `@/shared/ui` PawMark | — | — | — |
