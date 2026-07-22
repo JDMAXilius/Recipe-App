@@ -4,11 +4,11 @@
 // (no padding), which lands inside the /hl/<token> [A-Za-z0-9_-]{8,24} shape.
 //
 // CSPRNG token via globalThis.crypto.getRandomValues — present on web and the
-// Node test runner. React Native (Hermes) has no global crypto until a polyfill
-// installs it; the app entry (app/_layout) imports 'react-native-get-random-
-// values' at the native-deps wiring stage so this works on device too. Until
-// then we throw a CLEAR error rather than the cryptic TypeError the review
-// flagged as a native share crash.
+// Node test runner. React Native (Hermes) has NO global crypto, and no polyfill
+// is wired yet (deferred to the native-deps stage alongside expo-web-browser /
+// apple-auth — the app entry will import 'react-native-get-random-values'
+// there). Until then, on device this throws the CLEAR error below rather than
+// the cryptic TypeError the review flagged as a native share crash.
 const ALPHABET =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 

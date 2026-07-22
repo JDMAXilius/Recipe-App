@@ -21,7 +21,12 @@ export function RecipeCard({
 }) {
   const router = useRouter();
   const { isSaved, toggle } = useSaved();
+  // favorites.recipe_id is INTEGER (seed ids only). A user-recipe summary
+  // ("u-12") would Number() to NaN and poison the favorites row, so the paw is
+  // rendered only for genuine seed ids — the save affordance is seed-only by
+  // design. Today only seed summaries reach this card; this guards the drift.
   const recipeId = Number(recipe.id);
+  const isSeed = Number.isInteger(recipeId);
 
   // The card Pressable and the paw Pressable are SIBLINGS, not nested — on web
   // react-native-web renders each accessibilityRole="button" as a real <button>,
@@ -49,22 +54,24 @@ export function RecipeCard({
           <Text role="body">{recipe.title}</Text>
         </View>
       </Pressable>
-      <View style={{ position: 'absolute', top: space[2], right: space[2] }}>
-        <PawMark
-          saved={isSaved(recipeId)}
-          onToggle={() =>
-            toggle({
-              recipeId,
-              title: recipe.title,
-              image: recipe.image,
-              category: recipe.category,
-              cookTime: null,
-              servings: null,
-            })
-          }
-          size={26}
-        />
-      </View>
+      {isSeed ? (
+        <View style={{ position: 'absolute', top: space[2], right: space[2] }}>
+          <PawMark
+            saved={isSaved(recipeId)}
+            onToggle={() =>
+              toggle({
+                recipeId,
+                title: recipe.title,
+                image: recipe.image,
+                category: recipe.category,
+                cookTime: null,
+                servings: null,
+              })
+            }
+            size={26}
+          />
+        </View>
+      ) : null}
     </View>
   );
 }
