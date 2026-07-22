@@ -129,9 +129,16 @@ export const ottoArt:   Record<OttoName, ImageSource>    // '-cut' matted varian
 export const sceneArt:  Record<SceneName, ImageSource>
 export const actionArt: Record<ActionName, ImageSource>
 export const foodIcon:  (category: string) => ImageSource // 14 cat-*.webp, misc fallback
+export const onboardingArt: Record<'collect'|'cook'|'plan', ImageSource> // 3 panels
+export const splashArt: ImageSource                       // otto-splash.webp (animated via reanimated, NOT a video)
+export const brandMark: Record<'google', ImageSource>     // Apple + Facebook are glyphs, not assets
 export const paw = { filled, outline }
 export const alarmSound: AudioSource                       // timer-alarm.wav
 ```
+
+EVERY named asset the app renders has a registry entry here — including
+onboarding, splash, and the Google mark. A raw `require()` at a call site is a
+review failure (§7.2), so nothing is left out of the registry.
 
 Fonts: load Lora (400/400i/600/700) at the app shell via `@expo-google-fonts/
 lora` + `expo-font`; render gates on `fontsLoaded` (v1 pattern) — the serif
@@ -158,8 +165,15 @@ those numbers.
 // existing (upgraded)
 Text     { children, role: 'display'|'title'|'body'|'label'|'caption'|'computed'|'step' } // full scale
 Ring     { value: number|null, max?, label }   // count-up on mount; null → em-dash, never 0
-PawMark  { recipe, size? }   // OWNS the flow: art + pop + haptics + bus.emit('save') +
-             // first-save celebration + anon→sign-up wall + undo toast + offline rollback
+PawMark  { saved: boolean, onToggle: () => void, size? }
+             // PRESENTATIONAL ONLY — real paw art + pop (usePressSpring/pop) + a
+             // save haptic on toggle. It does NOT own the save flow: shared/ui
+             // must never import a feature. The FLOW (anon→sign-up wall, first-
+             // save celebration, undo toast, offline rollback, bus.emit('save'))
+             // lives in `features/cookbook/useSaveToggle(recipe)` — a hook that
+             // legally imports shared (bus/haptics/storage/auth) and returns
+             // { saved, toggle }; callers pass those to PawMark. This keeps the
+             // dependency arrow features → shared, never the reverse.
 OttoArt  { name: OttoName|SceneName, size? }   // real art via assets.ts
 Toast    // useToast().show(message, kind, { ottoImage?, actionLabel?, onAction? }) — fade + Otto card
 Sheet    { visible, onClose, title?, children } // spring.sheet present + gesture-to-dismiss

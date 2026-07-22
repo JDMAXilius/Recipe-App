@@ -75,7 +75,7 @@ scope** (YAGNI — v1 never did it); revisit only if offline-first is requested.
 |---|---|---|
 | onboarded | onboarding | app shell (first-run gate) |
 | unitSystem / prefs | profile (Preferences) | recipes (pref-aware pick/diet), detail/cook (unit display) |
-| notifPrefs | profile (Notifications) | `shared/notifications.ts` engine |
+| notifPrefs | profile (Notifications screen) | `features/notifications` engine |
 | shoppingState | planner (Shopping) | planner (Shopping) |
 | household* | planner (Household) | planner (Household) |
 | journal | cook (plate capture) | profile (Journal grid) |

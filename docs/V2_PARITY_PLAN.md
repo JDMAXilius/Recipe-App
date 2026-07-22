@@ -58,10 +58,9 @@ src/shared/
 │                      spacing; radii; motion spring/timing constants)
 ├── motion.ts        + reanimated hooks (usePressSpring/useBreathe/useCountUp), reduced-motion aware
 ├── haptics.ts       + one typed wrapper (selection/impact/notify)
-├── assets.ts        + typed registry: mascot + food + actions → require()
+├── assets.ts        + typed registry: mascot + food + actions + onboarding + splash + brand
 ├── bus.ts           + OttoBus event bus
 ├── storage.ts       + typed AsyncStorage keyspace (replaces scattered otto.*.v1)
-├── notifications.ts + reminder engine (wired by profile's existing screen)
 └── ui/
     ├── ErrorBoundary.tsx  + top-level recoverable Otto-error (resilience)
     ├── Bounceable.tsx     + press-spring wrapper
@@ -78,6 +77,8 @@ src/shared/
 src/features/
 ├── onboarding/     + 3 panels + first-run gate + guest entry
 ├── chat/           + Ask-Otto conversational create + history (its OWN feature)
+├── notifications/  + reminder engine (needs plan data → a feature, NOT shared) +
+│                     the screen moves here from profile; consumes usePlan()
 ├── recipes/        ~ FilterSheet · calorie badge · macro dots · Otto's-pick overlay ·
 │                     mascot loading/error/empty · pull-to-refresh · in-app native video
 ├── cook/           ~ entry from detail · seed-recipe loading · timer sound+haptics+keep-awake ·
@@ -87,10 +88,13 @@ src/features/
 ├── planner/        ~ recipe picker · swap · leftovers · household live-sync (existing collab RPCs)
 ├── import/         ~ text + photo import · photo upload (reuse generate-recipe modes)
 ├── cookbook/       ~ card calorie badges · stat-door deep links (?segment/?cooked)
-├── profile/        ~ journal photo grid · name editing · notifications wiring · persistence
+├── profile/        ~ journal photo grid · name editing · persistence (Notifications screen → notifications/)
 └── auth/           ~ native OAuth (Apple sheet, Google/FB) · session persistence · route guards
 
-supabase/           ~ reuse generate-recipe (text/photo/chat modes) + existing collab RPCs — NO new fns
+supabase/functions/generate-recipe/  ~ EXTEND with two modes (no NEW function file, but real work):
+                     `parse-text` (transcribe pasted recipe, raise the 600-char cap, faithful-not-
+                     inventive prompt) and `photo` (Claude vision on a base64 image). Chat mode
+                     ({messages}) + household collab RPCs already exist and are reused as-is.
 
 docs/contracts/
 ├── ui-components.md ~ + motion + mascot + haptics + assets doctrine + reconciled tokens
@@ -113,9 +117,17 @@ requires. These are all v1's own deps (Expo-managed):
 `expo-haptics` · `expo-image` · `@expo-google-fonts/lora` + `expo-font` ·
 `@react-native-async-storage/async-storage` · `react-native-get-random-values` ·
 `expo-image-picker` · `expo-audio` · `expo-keep-awake` · `expo-notifications` ·
-`react-native-view-shot` · `react-native-youtube-iframe` · `expo-web-browser` +
-`expo-apple-authentication` · `expo-share-intent`. Each is justified in the
-phase that introduces it — no dep lands without a consumer.
+`react-native-view-shot` · `react-native-youtube-iframe` **+ `react-native-webview`**
+(its required peer; native-only — the web video path keeps v1's raw `<iframe>`
+fork, so web boots clean) · `expo-web-browser` + `expo-apple-authentication` ·
+`expo-share-intent`. Each is justified in the phase that introduces it — no dep
+lands without a consumer.
+
+**Install discipline (Expo 54 / RN 0.81 / New Arch):** every dep via
+`npx expo install <pkg>` (SDK-pinned versions), NOT raw `npm install`; add the
+`react-native-reanimated/plugin` to `babel.config.js` (P0, or the feel layer
+silently no-ops). Splash is an **animated still** (`otto-splash.webp` +
+reanimated), not a video — no video player dep.
 
 ---
 
@@ -186,7 +198,7 @@ report-back (the feel layer can't be judged on web alone).
 |---|---|
 | P0 Foundation | ☐ not started |
 | P1 Feel layer | ☐ blocked on P0 |
-| P2 Persistence & entry | ☐ blocked on P0 |
+| P2 Persistence & entry | ☐ persistence/session parallel to P1; onboarding+splash **blocked on P1** (need assets+fonts) |
 | P3 Reachability | ☐ blocked on P1 |
 | P4 Rich features | ☐ blocked on P2+P3 |
 | P5 Convergence | ☐ blocked on P4 |
