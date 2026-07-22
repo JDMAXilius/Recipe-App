@@ -151,64 +151,35 @@ export function PlanScreen() {
                 dayEntries.map((entry) => {
                   const canCarry = Boolean(entry.recipe_id) && nextInWeek(day.key, days) != null;
                   return (
-                    <View key={entry.id}>
-                      <View style={styles.entryRow}>
-                        <Pressable
-                          style={styles.entryMain}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Open ${entry.title}`}
-                          onPress={() => entry.recipe_id && router.push(`/recipe/${entry.recipe_id}`)}
-                        >
-                          {entry.image ? (
-                            <Image source={{ uri: entry.image }} style={styles.thumb as ImageStyle} />
-                          ) : (
-                            <View style={styles.thumb} />
-                          )}
-                          <View style={{ flex: 1 }}>
-                            <RNText
-                              style={{
-                                ...type.body,
-                                color: colors.ink,
-                                textDecorationLine: entry.cooked ? 'line-through' : 'none',
-                              }}
-                            >
-                              {entry.title}
-                            </RNText>
-                            {entry.note === 'leftovers' && <Text role="caption">Leftovers</Text>}
-                          </View>
-                        </Pressable>
+                    <View key={entry.id} style={styles.entryRow}>
+                      <Pressable
+                        style={styles.entryMain}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Open ${entry.title}`}
+                        onPress={() => entry.recipe_id && router.push(`/recipe/${entry.recipe_id}`)}
+                      >
+                        {entry.image ? (
+                          <Image source={{ uri: entry.image }} style={styles.thumb as ImageStyle} />
+                        ) : (
+                          <View style={styles.thumb} />
+                        )}
+                        <View style={{ flex: 1 }}>
+                          <RNText
+                            style={{
+                              ...type.body,
+                              color: colors.ink,
+                              textDecorationLine: entry.cooked ? 'line-through' : 'none',
+                            }}
+                          >
+                            {entry.title}
+                          </RNText>
+                          {entry.note === 'leftovers' && <Text role="caption">Leftovers</Text>}
+                        </View>
+                      </Pressable>
 
-                        <Pressable
-                          accessibilityRole="checkbox"
-                          accessibilityState={{ checked: Boolean(entry.cooked) }}
-                          accessibilityLabel={entry.cooked ? 'Cooked — tap to unmark' : 'Mark as cooked'}
-                          hitSlop={8}
-                          onPress={() => toggleCooked(entry)}
-                          style={[styles.cookedMark, entry.cooked && styles.cookedMarkOn]}
-                        >
-                          <View style={styles.iconLabel}>
-                            <Ionicons
-                              name={entry.cooked ? 'flame' : 'flame-outline'}
-                              size={14}
-                              color={entry.cooked ? colors.terracotta : colors.inkSoft}
-                            />
-                            <Text role={entry.cooked ? 'computed' : 'caption'}>
-                              {entry.cooked ? 'Cooked' : 'Cooked?'}
-                            </Text>
-                          </View>
-                        </Pressable>
-
-                        <Pressable
-                          accessibilityRole="button"
-                          accessibilityLabel={`Remove ${entry.title} from ${day.label}`}
-                          hitSlop={8}
-                          onPress={() => removeEntry(entry)}
-                        >
-                          <Ionicons name="close" size={18} color={colors.inkSoft} />
-                        </Pressable>
-                      </View>
-
-                      <View style={styles.entryActions}>
+                      {/* Inline icon-only actions (Figma 276:716): swap · cooked ·
+                          leftovers-tomorrow · remove. No text labels. */}
+                      <View style={styles.entryIcons}>
                         <Pressable
                           accessibilityRole="button"
                           accessibilityLabel={`Swap ${entry.title}`}
@@ -218,10 +189,20 @@ export function PlanScreen() {
                             setPicker({ day: day.key, entryId: entry.id });
                           }}
                         >
-                          <View style={styles.iconLabel}>
-                            <Ionicons name="shuffle" size={14} color={colors.terracotta} />
-                            <Text role="computed">Swap</Text>
-                          </View>
+                          <Ionicons name="shuffle" size={18} color={colors.inkSoft} />
+                        </Pressable>
+                        <Pressable
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked: Boolean(entry.cooked) }}
+                          accessibilityLabel={entry.cooked ? 'Cooked — tap to unmark' : 'Mark as cooked'}
+                          hitSlop={6}
+                          onPress={() => toggleCooked(entry)}
+                        >
+                          <Ionicons
+                            name={entry.cooked ? 'flame' : 'flame-outline'}
+                            size={18}
+                            color={entry.cooked ? colors.terracotta : colors.inkSoft}
+                          />
                         </Pressable>
                         {canCarry && entry.note !== 'leftovers' && (
                           <Pressable
@@ -230,12 +211,17 @@ export function PlanScreen() {
                             hitSlop={6}
                             onPress={() => carryLeftovers(entry, day.key)}
                           >
-                            <View style={styles.iconLabel}>
-                              <Ionicons name="refresh" size={14} color={colors.terracotta} />
-                              <Text role="computed">Leftovers tomorrow</Text>
-                            </View>
+                            <Ionicons name="repeat" size={18} color={colors.inkSoft} />
                           </Pressable>
                         )}
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={`Remove ${entry.title} from ${day.label}`}
+                          hitSlop={6}
+                          onPress={() => removeEntry(entry)}
+                        >
+                          <Ionicons name="close" size={18} color={colors.inkSoft} />
+                        </Pressable>
                       </View>
                     </View>
                   );
@@ -295,19 +281,6 @@ const styles: Record<string, ViewStyle> = {
   },
   entryMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space[3] },
   thumb: { width: 40, height: 40, borderRadius: radii.button, backgroundColor: colors.creamDeep },
-  entryActions: {
-    flexDirection: 'row',
-    gap: space[4],
-    paddingBottom: space[2],
-    paddingLeft: space[1],
-  },
-  iconLabel: { flexDirection: 'row', alignItems: 'center', gap: space[1] },
-  cookedMark: {
-    paddingHorizontal: space[3],
-    paddingVertical: space[1],
-    borderRadius: radii.pill,
-    backgroundColor: colors.cream,
-  },
-  cookedMarkOn: { backgroundColor: colors.creamDeep },
+  entryIcons: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   emptyWeek: { alignItems: 'center', gap: space[3], marginTop: space[5] },
 };
