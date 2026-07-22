@@ -16,12 +16,31 @@ export interface UsePlan {
   isLoading: boolean;
   add: (input: AddPlanInput) => Promise<PlanEntry>;
   remove: (id: number) => Promise<void>;
+  swap: (oldId: number, input: AddPlanInput) => Promise<void>;
   setCooked: (id: number, cooked: boolean) => Promise<void>;
+}
+
+// An optimistic placeholder row so a picked/swapped dish appears instantly.
+// Negative id (never collides with a serial) is replaced on the settle refetch.
+function tempEntry(userId: string, input: AddPlanInput): PlanEntry {
+  return {
+    id: -Date.now(),
+    user_id: userId,
+    day: input.day,
+    recipe_id: input.recipeId,
+    title: input.title,
+    image: input.image ?? null,
+    category: input.category ?? null,
+    note: input.note ?? null,
+    cooked: false,
+    created_at: new Date().toISOString(),
+  };
 }
 
 // Cross-feature hook (feature-module.md allowlist): recipes' add-to-week and
 // profile consume this. Server state is TanStack Query only, keyed
-// ['plan', userId] — no contexts, no module caches.
+// ['plan', userId] — no contexts, no module caches. Writes are optimistic with
+// rollback (the useSaved pattern): the week reacts to a tap before the round-trip.
 export function usePlan(): UsePlan {
   const { user } = useAuth();
   const userId = user?.id ?? null;
@@ -39,15 +58,55 @@ export function usePlan(): UsePlan {
   });
 
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
+  const snapshot = async () => {
+    await qc.cancelQueries({ queryKey: key });
+    return { prev: qc.getQueryData<PlanEntry[]>(key) ?? [] };
+  };
+  const rollback = (ctx?: { prev: PlanEntry[] }) => {
+    if (ctx) qc.setQueryData(key, ctx.prev);
+  };
 
   const addMut = useMutation({
     mutationFn: (input: AddPlanInput) => addPlanEntry(userId as string, input),
-    onSuccess: invalidate,
+    onMutate: async (input: AddPlanInput) => {
+      const ctx = await snapshot();
+      qc.setQueryData<PlanEntry[]>(key, [...ctx.prev, tempEntry(userId as string, input)]);
+      return ctx;
+    },
+    onError: (_e, _v, ctx) => rollback(ctx),
+    onSettled: invalidate,
   });
+
   const removeMut = useMutation({
     mutationFn: (id: number) => removePlanEntry(id),
-    onSuccess: invalidate,
+    onMutate: async (id: number) => {
+      const ctx = await snapshot();
+      qc.setQueryData<PlanEntry[]>(key, ctx.prev.filter((e) => e.id !== id));
+      return ctx;
+    },
+    onError: (_e, _v, ctx) => rollback(ctx),
+    onSettled: invalidate,
   });
+
+  // Swap = remove the old entry + add the replacement, one gesture. Optimistic:
+  // the slot's dish changes on tap; a failed round-trip rolls the whole swap back.
+  const swapMut = useMutation({
+    mutationFn: async ({ oldId, input }: { oldId: number; input: AddPlanInput }) => {
+      await removePlanEntry(oldId);
+      await addPlanEntry(userId as string, input);
+    },
+    onMutate: async ({ oldId, input }: { oldId: number; input: AddPlanInput }) => {
+      const ctx = await snapshot();
+      qc.setQueryData<PlanEntry[]>(key, [
+        ...ctx.prev.filter((e) => e.id !== oldId),
+        tempEntry(userId as string, input),
+      ]);
+      return ctx;
+    },
+    onError: (_e, _v, ctx) => rollback(ctx),
+    onSettled: invalidate,
+  });
+
   const cookedMut = useMutation({
     mutationFn: ({ id, cooked }: { id: number; cooked: boolean }) =>
       setPlanEntryCooked(id, cooked),
@@ -60,6 +119,7 @@ export function usePlan(): UsePlan {
     isLoading: query.isLoading,
     add: (input) => addMut.mutateAsync(input),
     remove: (id) => removeMut.mutateAsync(id),
+    swap: (oldId, input) => swapMut.mutateAsync({ oldId, input }).then(() => undefined),
     setCooked: (id, cooked) => cookedMut.mutateAsync({ id, cooked }),
   };
 }

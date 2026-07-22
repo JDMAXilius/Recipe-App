@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Text, Button, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { usePlan } from './usePlan';
+import { RecipePickerSheet } from './components/RecipePickerSheet';
+import { pickToAddInput, leftoversCarry, nextInWeek, type PickItem } from './plan.pick';
 import type { PlanEntry } from './plan.types';
+
+// A picker target: which day the pick lands on, and (for a swap) the entry it
+// replaces. entryId absent = plain add; present = swap that slot.
+interface PickerTarget {
+  day: string;
+  entryId?: number;
+}
 
 // Otto's week (roadmap Phase 4): vertical day cards, LOOSE buckets — no meal
 // slots, no gray guilt. Empty days are painted invitations. Light "Cooked it"
@@ -16,7 +25,8 @@ import type { PlanEntry } from './plan.types';
 export function PlanScreen() {
   const router = useRouter();
   const { show } = useToast();
-  const { entries, days, isLoading, remove, setCooked } = usePlan();
+  const { entries, days, isLoading, add, remove, swap, setCooked } = usePlan();
+  const [picker, setPicker] = useState<PickerTarget | null>(null);
 
   const byDay: Record<string, PlanEntry[]> = {};
   for (const e of entries) {
@@ -38,6 +48,33 @@ export function PlanScreen() {
       await remove(entry.id);
     } catch {
       show("Couldn't remove that — try again.", 'error');
+    }
+  };
+
+  // Picker resolves to an add (new dish on a day) or a swap (replace a slot).
+  const onPick = async (pick: PickItem) => {
+    const target = picker;
+    setPicker(null);
+    if (!target) return;
+    try {
+      const input = pickToAddInput(pick, target.day);
+      if (target.entryId != null) await swap(target.entryId, input);
+      else await add(input);
+    } catch {
+      show("Couldn't update Otto's week — try again.", 'error');
+    }
+  };
+
+  // Cook once, eat twice: carry a dish to tomorrow tagged as leftovers.
+  const carryLeftovers = async (entry: PlanEntry, entryDay: string) => {
+    const nextDay = nextInWeek(entryDay, days);
+    if (!nextDay) return;
+    const input = leftoversCarry(entry, nextDay);
+    if (!input) return;
+    try {
+      await add(input);
+    } catch {
+      show("Couldn't add leftovers — try again.", 'error');
     }
   };
 
@@ -81,42 +118,78 @@ export function PlanScreen() {
                   {index === 0 ? "Nothing yet — Otto's happy to improvise." : 'Open — no plans, no guilt.'}
                 </Text>
               ) : (
-                dayEntries.map((entry) => (
-                  <View key={entry.id} style={styles.entryRow}>
-                    <Pressable
-                      style={styles.entryMain}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Open ${entry.title}`}
-                      onPress={() => entry.recipe_id && router.push(`/recipe/${entry.recipe_id}`)}
-                    >
-                      <Text role="body">{entry.title}</Text>
-                      {entry.note === 'leftovers' && <Text role="caption">Leftovers</Text>}
-                    </Pressable>
+                dayEntries.map((entry) => {
+                  const canCarry = Boolean(entry.recipe_id) && nextInWeek(day.key, days) != null;
+                  return (
+                    <View key={entry.id}>
+                      <View style={styles.entryRow}>
+                        <Pressable
+                          style={styles.entryMain}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Open ${entry.title}`}
+                          onPress={() => entry.recipe_id && router.push(`/recipe/${entry.recipe_id}`)}
+                        >
+                          <Text role="body">{entry.title}</Text>
+                          {entry.note === 'leftovers' && <Text role="caption">Leftovers</Text>}
+                        </Pressable>
 
-                    <Pressable
-                      accessibilityRole="checkbox"
-                      accessibilityState={{ checked: Boolean(entry.cooked) }}
-                      accessibilityLabel={entry.cooked ? 'Cooked — tap to unmark' : 'Mark as cooked'}
-                      hitSlop={8}
-                      onPress={() => toggleCooked(entry)}
-                      style={[styles.cookedMark, entry.cooked && styles.cookedMarkOn]}
-                    >
-                      <Text role={entry.cooked ? 'computed' : 'caption'}>
-                        {entry.cooked ? '✓ Cooked' : 'Cooked?'}
-                      </Text>
-                    </Pressable>
+                        <Pressable
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked: Boolean(entry.cooked) }}
+                          accessibilityLabel={entry.cooked ? 'Cooked — tap to unmark' : 'Mark as cooked'}
+                          hitSlop={8}
+                          onPress={() => toggleCooked(entry)}
+                          style={[styles.cookedMark, entry.cooked && styles.cookedMarkOn]}
+                        >
+                          <Text role={entry.cooked ? 'computed' : 'caption'}>
+                            {entry.cooked ? '✓ Cooked' : 'Cooked?'}
+                          </Text>
+                        </Pressable>
 
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`Remove ${entry.title} from ${day.label}`}
-                      hitSlop={8}
-                      onPress={() => removeEntry(entry)}
-                    >
-                      <Text role="caption">✕</Text>
-                    </Pressable>
-                  </View>
-                ))
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={`Remove ${entry.title} from ${day.label}`}
+                          hitSlop={8}
+                          onPress={() => removeEntry(entry)}
+                        >
+                          <Text role="caption">✕</Text>
+                        </Pressable>
+                      </View>
+
+                      <View style={styles.entryActions}>
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={`Swap ${entry.title}`}
+                          hitSlop={6}
+                          onPress={() => setPicker({ day: day.key, entryId: entry.id })}
+                        >
+                          <Text role="computed">Swap</Text>
+                        </Pressable>
+                        {canCarry && entry.note !== 'leftovers' && (
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Add ${entry.title} as leftovers tomorrow`}
+                            hitSlop={6}
+                            onPress={() => carryLeftovers(entry, day.key)}
+                          >
+                            <Text role="computed">+ leftovers tomorrow</Text>
+                          </Pressable>
+                        )}
+                      </View>
+                    </View>
+                  );
+                })
               )}
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Add a dish to ${day.label}`}
+                hitSlop={6}
+                style={styles.addRow}
+                onPress={() => setPicker({ day: day.key })}
+              >
+                <Text role="computed">＋ Add a dish</Text>
+              </Pressable>
             </View>
           );
         })
@@ -131,6 +204,13 @@ export function PlanScreen() {
         </View>
       )}
       </ScrollView>
+
+      <RecipePickerSheet
+        visible={picker != null}
+        title={picker?.entryId != null ? 'Swap in a dish' : "What's cooking?"}
+        onPick={onPick}
+        onClose={() => setPicker(null)}
+      />
     </SafeAreaView>
   );
 }
@@ -153,6 +233,13 @@ const styles: Record<string, ViewStyle> = {
     paddingVertical: space[2],
   },
   entryMain: { flex: 1 },
+  entryActions: {
+    flexDirection: 'row',
+    gap: space[4],
+    paddingBottom: space[2],
+    paddingLeft: space[1],
+  },
+  addRow: { paddingTop: space[2] },
   cookedMark: {
     paddingHorizontal: space[3],
     paddingVertical: space[1],
