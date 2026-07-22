@@ -1,3 +1,7 @@
+> **⚠️ FROZEN BRANCH — `v1-legacy`.** This is the v1 app snapshot taken
+> immediately before the v2 rebuild (tag `v1.0-legacy`). Do not commit here.
+> Live v1 code: `main` · rebuild work: `rebuild/v2`.
+
 <h1 align="center">🦦 Otto — the quieter kind of cookbook</h1>
 
 <p align="center">
