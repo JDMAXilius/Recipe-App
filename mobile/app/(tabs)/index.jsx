@@ -371,7 +371,7 @@ const DiscoverScreen = () => {
                   <Image source={{ uri: tonight.image }} style={homeStyles.tonightThumb} contentFit="cover" />
                 ) : null}
                 <View style={{ flex: 1 }}>
-                  <Text style={homeStyles.tonightLabel}>WHAT'S COOKING TONIGHT?</Text>
+                  <Text style={homeStyles.tonightLabel}>WHAT&apos;S COOKING TONIGHT?</Text>
                   <Text style={homeStyles.tonightTitle} numberOfLines={1}>
                     {tonight.title}
                   </Text>
@@ -402,7 +402,7 @@ const DiscoverScreen = () => {
                     />
                     <View style={homeStyles.featuredOverlay}>
                       <View style={homeStyles.featuredBadge}>
-                        <Text style={homeStyles.featuredBadgeText}>Otto's pick</Text>
+                        <Text style={homeStyles.featuredBadgeText}>Otto&apos;s pick</Text>
                       </View>
                       <View style={homeStyles.featuredContent}>
                         <Text style={homeStyles.featuredTitle} numberOfLines={2}>
@@ -469,13 +469,19 @@ const DiscoverScreen = () => {
               />
               <Text style={homeStyles.emptyTitle}>Nothing for “{debouncedQuery.trim()}” yet</Text>
               <Text style={homeStyles.emptyDescription}>
-                Otto's still thinking. Try another dish or ingredient.
+                Otto&apos;s still thinking. Try another dish or ingredient.
               </Text>
             </View>
           ) : (
             <View style={homeStyles.emptyState}>
-              <Text style={homeStyles.emptyTitle}>No recipes found</Text>
-              <Text style={homeStyles.emptyDescription}>Try a different category.</Text>
+              <OttoIdle
+                source={require("../../assets/mascot/otto-sad-cut.png")}
+                style={homeStyles.emptyOtto}
+              />
+              <Text style={homeStyles.emptyTitle}>Nothing on this shelf yet</Text>
+              <Text style={homeStyles.emptyDescription}>
+                Otto came up empty here — try another category, or pull to refresh.
+              </Text>
             </View>
           )}
         </View>
