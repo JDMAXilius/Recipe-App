@@ -72,7 +72,7 @@ const AS_IS_RE = /to taste|to serve|for (frying|greasing|garnish|dusting|the)|ga
 
 // Liquids display in ml (locked decision #1). Matched against the NAME.
 const LIQUID_RE =
-  /\b(water|milk(?!\s*powder)|buttermilk|cream(?!\s*cheese| of tartar|ed)|double cream|single cream|half[- ]and[- ]half|stock|broth|wine(?!\s*leaves)|beer|stout|ale\b|cider|brandy|rum|sherry|marsala|vermouth|sake|mirin|liqueur|grand marnier|cointreau|kirsch|juice|vinegar|oil(?!ive)|olive oil|vegetable oil|sunflower oil|coconut milk|coconut cream|coconut water|passata|soy sauce|tamari|oyster sauce|hoisin|teriyaki|evaporated milk|millk|kefir|espresso|coffee|creamer|americano|tea\b)\b/i;
+  /\b(water|milk(?!\s*powder)|buttermilk|cream(?!\s*cheese| of tartar|ed)|double cream|single cream|half[- ]and[- ]half|stock|broth|wine(?!\s*leaves)|beer|stout|ale\b|cider|brandy|rum|sherry|marsala|vermouth|sake|mirin|liqueur|grand marnier|cointreau|kirsch|juice|vinegar|oil(?!ive)|olive oil|vegetable oil|sunflower oil|coconut milk|coconut cream|coconut water|passata|soy sauce|tamari|oyster sauce|hoisin|teriyaki|evaporated milk|millk|kefir|espresso|coffee|caf[eé] la llave|creamer|americano|tea\b)\b/i;
 // Honey/syrups/molasses/condensed milk are NOT here — they're viscous, cling
 // to the spoon, and weigh cleanly, so they take the density path → grams
 // (matches Kitchen Stories). Thin pourables above stay ml.
@@ -147,7 +147,7 @@ const DENSITY = [
   [/jam|marmalade|preserves|curd|dulce de leche|stroop|sirop/i, 320],
   // — flavor pastes: thick, spoon-measured, weigh cleanly [USDA] —
   [/curry paste|madras paste|harissa|gochujang|prahok|shrimp paste|galangal paste|tamarind (paste|ball|pulp)|miso/i, 250],
-  [/horseradish|relish|vinaigrette|a[iï]oli|duck sauce|plum sauce|chilli sauce|caramel( sauce)?|custard(?!\s*powder)|creamed corn|malai|fruit pulp|passion fruit/i, 260],
+  [/horseradish|relish|vinaigrette|a[iï]oli|duck sauce|plum sauce|chilli sauce|alinos? sauce|caramel( sauce)?|custard(?!\s*powder)|creamed corn|malai|fruit pulp|passion fruit/i, 260],
   [/custard powder/i, 128],
   [/marzipan|almond paste|nougatine/i, 290],
   [/marshmallow/i, 50],
@@ -188,7 +188,7 @@ const DENSITY = [
   [/aubergine|egg ?plants?/i, 82],
   [/cucumber/i, 119],
   [/(bell |red |green |yellow )?pepper(?!corn)|capsicum/i, 149],
-  [/potato|swede|turnip|parsnip|celeriac|beetroot|beets?\b|squash|pumpkin(?!\s*seed)|taro|cassava|\byam\b|yautia|artichoke|plantain|breadfruit|daikon/i, 150],
+  [/potato|swede|turnip|parsnip|celeriac|beetroot|beets?\b|squash|pumpkin(?!\s*seed)|taro|cassava|yucc?a|\byuca\b|\byam\b|yautia|artichoke|plantain|breadfruit|daikon/i, 150],
   [/onion|shallot|leek|spring onion|scallion/i, 160],
   [/tomato/i, 180],
   [/green bean|runner bean|mangetout|snow pea|sugar ?snap/i, 110],
@@ -327,6 +327,11 @@ const EACH_G = [
   [/crumpet/i, 55],
   [/croissant/i, 60],
   [/falafel/i, 17],
+  // — novelty/composite sweets, per item [EST label weights] —
+  [/mars bar/i, 51], // standard single bar
+  [/maria cookies?/i, 7], // per cookie (Goya/Gamesa label)
+  [/meringue nests?/i, 13], // supermarket nest
+  [/knafeh/i, 150], // per serving piece
   // — produce & fruit, per item [USDA] —
   [/asparagus( spear)?s?\b/i, 16],
   [/brussels? sprout/i, 20],
