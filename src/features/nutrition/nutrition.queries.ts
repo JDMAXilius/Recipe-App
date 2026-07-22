@@ -9,7 +9,9 @@
 // then falls back to a labelled category estimate.
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/shared/supabase/client";
-import { computeNutrition } from "./engine/compute";
+import { computeNutrition, unmatchedNames } from "./engine/compute";
+import type { ComputeNutritionInput } from "./engine/compute";
+import { resolveIngredients } from "./resolve.queries";
 import { NutritionResultSchema } from "./engine/schemas";
 import type { NutritionRecipe } from "./nutrition.types";
 
@@ -33,12 +35,27 @@ async function fetchNutrition(recipe: NutritionRecipe): Promise<NutritionValue |
 
   // 2. compute locally from the ingredient list. A flat default of 4 is the
   //    caller's fallback; curated seed recipes override it inside the engine.
-  return computeNutrition({
+  const input: ComputeNutritionInput = {
     ingredients: recipe.ingredients,
     servings: recipe.servings ?? 4,
     recipeId: recipe.id,
     steps: recipe.steps,
-  });
+  };
+  const local = computeNutrition(input);
+
+  // 3. resolver tail — the 962-row bundled table covers most ingredients, but
+  //    AI-generated and URL-imported recipes carry names it lacks. Ask the
+  //    edge resolver for JUST those missing names, then recompute with the rows
+  //    it found handed in as an override. The engine does no I/O itself; it only
+  //    consumes the FoodRows. A resolver miss (null) stays a miss, and any
+  //    resolver failure degrades to `local` — the card never blocks on it.
+  const missing = unmatchedNames(input);
+  if (!missing.length) return local;
+  const resolved = await resolveIngredients(missing);
+  if (!resolved.size) return local;
+  // Prefer the improved figure; if the richer match set somehow trips a
+  // plausibility guard (→ null), keep the coverage-vetted local result.
+  return computeNutrition(input, resolved) ?? local;
 }
 
 export function useNutrition(recipe: NutritionRecipe) {

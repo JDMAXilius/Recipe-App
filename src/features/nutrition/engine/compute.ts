@@ -9,6 +9,7 @@
 // input object per docs/contracts/engine.md — same shapes, same semantics.
 import { parseIngredientLine } from "./parse";
 import { lookup, key } from "./lookup";
+import type { FoodRow } from "./lookup";
 import type { Row } from "./guards";
 import {
   hasAmbiguousGrain,
@@ -57,16 +58,69 @@ export interface ComputeNutritionInput {
   // exactly the v1 dormant behavior the suites pin.
 }
 
-export function computeNutrition(input: ComputeNutritionInput): NutritionResult | null {
+// The FoodRows the edge resolver found for names the bundled table missed,
+// keyed by LOWERCASED ingredient name. Passing them in is NOT engine I/O — the
+// fetch happens in the query layer (nutrition.queries.ts); the engine only ever
+// consumes rows it is handed, exactly as it consumes the bundled table. A miss
+// the resolver reports (null) stays a miss: the override only ever ADDS a match
+// the local table lacked, never invents one.
+export type ResolvedOverride = Map<string, FoodRow | null>;
+
+// Parse + look up every line, applying the resolver override ONLY where the
+// bundled table missed. Shared by computeNutrition and unmatchedNames so both
+// see the identical match set. `resolved: true` marks a resolver-supplied hit —
+// the confidence pass already scores those as "guessed" (half doubt), the honest
+// weight the compute comment anticipated for a resolver-picked food.
+function buildContext(input: ComputeNutritionInput, override?: ResolvedOverride) {
   const { ingredients, servings, recipeId } = input;
   const list = (ingredients || []).filter((p) => p && (p.name || p.measure));
-  if (!list.length) return null;
-
   const facts = factsFor(recipeId);
   // A curated serving count beats the caller's flat default of 4 — that
   // default is what turned "2kg Shredded Meat" into 1200 kcal/serving.
   const perServing = Math.max(1, Number(facts?.servings) || Number(servings) || 1);
   const cookedSet = new Set((facts?.cooked || []).map(key));
+
+  const rows: Row[] = list.map((p) => {
+    const line = [p.measure, p.name].filter(Boolean).join(" ").trim();
+    const parsed = parseIngredientLine(line);
+    const cooked = cookedSet.has(key(p.name));
+    let food = lookup(p.name, parsed.item, cooked);
+    let fromResolver = false;
+    // Only fill from the resolver when the bundled table missed AND the line is
+    // NOT flagged cooked: the resolver returns raw whole-food per-100g, so a raw
+    // row on a cooked line reintroduces the ~3x error the cooked guard prevents.
+    if (!food && !cooked && override) {
+      const hit = override.get(key(p.name)) ?? override.get(key(parsed.item));
+      if (hit) {
+        food = hit;
+        fromResolver = true;
+      }
+    }
+    return { parsed, food, name: p.name, resolved: fromResolver };
+  });
+
+  return { list, facts, perServing, rows };
+}
+
+// Names the LOCAL table could not match — the exact list the query layer sends
+// to the resolver. Negligible/inedible lines are excluded: they carry ~no
+// calories, so resolving them wastes the resolver's ≤40-name budget. Returns []
+// when the recipe honestly refuses on ambiguous grain (the resolver can't settle
+// a raw-vs-cooked question, so there is nothing to ask). Pass `resolved` to see
+// what is STILL unmatched after a resolve (used by tests / re-checks).
+export function unmatchedNames(input: ComputeNutritionInput, override?: ResolvedOverride): string[] {
+  const { list, facts, rows } = buildContext(input, override);
+  if (!list.length) return [];
+  if (!facts && hasAmbiguousGrain(list)) return [];
+  return rows.filter((r) => !r.food && !isNegligible(r)).map((r) => r.name);
+}
+
+export function computeNutrition(
+  input: ComputeNutritionInput,
+  override?: ResolvedOverride,
+): NutritionResult | null {
+  const { list, facts, perServing, rows } = buildContext(input, override);
+  if (!list.length) return null;
 
   // Raw-vs-cooked (N1). Facts resolve the ambiguity for curated seed recipes;
   // for everything else the blunt guard refuses the whole recipe — in v1 the
@@ -74,13 +128,6 @@ export function computeNutrition(input: ComputeNutritionInput): NutritionResult 
   // deterministic by contract, so every ambiguous line is "unknown" here and
   // the recipe honestly refuses, exactly like v1 with resolvers dormant.
   if (!facts && hasAmbiguousGrain(list)) return null;
-
-  const rows: Row[] = list.map((p) => {
-    const line = [p.measure, p.name].filter(Boolean).join(" ").trim();
-    const parsed = parseIngredientLine(line);
-    const food = lookup(p.name, parsed.item, cookedSet.has(key(p.name)));
-    return { parsed, food, name: p.name, resolved: false };
-  });
 
   // FRYING MEDIUM (not an ingredient). "2 quarts oil" in a fried-chicken
   // recipe is the bath, not something anyone eats — counting it whole put
