@@ -1,0 +1,20 @@
+{
+  "route": "/cookbook",
+  "header": "Cookbook",
+  "segments": ["All", "Saved", "My recipes"],
+  "cookedChip": "Cooked",
+  "anon": {
+    "comment": "Anon-observable copy — authored in EmptyState.tsx, asserted verbatim. Runs in cloud + CI.",
+    "savedEmptyTitle": "Nothing saved… yet",
+    "savedEmptyBody": "Tap the paw on any recipe and Otto will keep it here for later.",
+    "mineEmptyTitle": "Nothing of yours yet",
+    "cookedEmptyTitle": "Nothing cooked yet"
+  },
+  "authed": {
+    "comment": "Terminal-only (docs/contracts/testing.md — authed save/unsave). Values RECORDED at SG5 against the otto-e2e user, never invented; null until then. Journey skips this block while values are null.",
+    "savedCount": null,
+    "savedTitles": null,
+    "unsaveRecipeId": null,
+    "afterUnsaveCount": null
+  }
+}
