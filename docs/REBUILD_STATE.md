@@ -26,7 +26,7 @@
 | M1 Engine green | ☑ **91/91, byte-identical to v1** (@12502ac6) |
 | M2 Platform ready | ☑ **applied live + 75/75 RLS attack test** (@ff0dd011); advisors clean of ERROR; 3 fns via MCP + 3 via CLI, secrets set |
 | M3 Features merged | ☑ **9/9 features, two waves, repo-wide 163/163** (@21c9e20a) |
-| M4 Converged + device QA | ◐ A–D done — **app boots + live web L3 clean** (@5dc1cf10, real data, honest nutrition, 0 console errors); E review swarm · F device QA+cutover remain |
+| M4 Converged + device QA | ◐ A–E done — **review loop converged, 2 dry rounds** (@5b9bebb8); app boots + live web L3 clean; **F device QA + cutover PR (founder) remains** |
 
 ## Open packets / tickets
 
@@ -38,15 +38,25 @@
 | REBUILD_03 M3 feature fan-out | **done** — 9 features, 2 waves (@21c9e20a) |
 | REBUILD_04 M4 integration + QA | next |
 
-## M3 carry-over gaps (fold into ticket 04 integration)
+## Deferred backlog (post-review; fold into Phase F / follow-ups)
 
-- `@/shared/ui` needs an **Input** primitive (auth + import both filed it)
-- `Ring` needs a **max-less variant** (nutrition; CalorieRing on FDA interim)
-- **expo-crypto** + native social deps (expo-web-browser/apple-auth) at device wiring
-- **UserId** brand in `@/types/ids` (auth)
-- cookbook **Cooked filter** wire to `useCookedState()` (now allowlisted)
-- cookbook export a **my-recipes count** so profile's "yours" door shows a number
-- session-local prefs/journal/household → real persistence (AsyncStorage) at device stage
+M3 carry-overs — DONE in M4 A–C: Input primitive ✓, max-less Ring ✓, UserId
+brand ✓, Cooked filter wired ✓, my-recipes count ✓.
+
+Still open (documented, not silent):
+- **Cook journey reachability**: no "Cook" button on RecipeDetail, and
+  fetchCookRecipe loads only user recipes from the DB — cooking a TheMealDB
+  **seed** needs its steps via the content edge fn. Wire button + seed-loading.
+- **Share actions**: ShareCard renders, but useCreateRecipeShare/shareText are
+  not wired to the detail "Share this recipe" (dead until wired).
+- **Native deps** (device stage): react-native-get-random-values (share tokens),
+  expo-web-browser + apple-auth (native OAuth), AsyncStorage (auth session +
+  prefs/journal/household persistence — currently session-local).
+- **One-copy cleanups**: `parseIngredientLine` used by 3 features via engine
+  internals → move to `@/shared/lib`; canonical `IngredientPair` in `@/types`
+  (redefined 4×).
+- LOWs: US measure-prose fidelity, setTimeout cleanup on delete-arm, finish
+  multi-timer, scrim/badge tokens.
 
 ## Blockers
 
