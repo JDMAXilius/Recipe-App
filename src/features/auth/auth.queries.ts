@@ -7,6 +7,10 @@ import { Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 import type { Provider } from '@supabase/supabase-js';
 import { supabase } from '@/shared/supabase/client';
+// Metro resolves oauth.native.ts on ios/android and oauth.ts on web; the native
+// module imports (expo-apple-authentication et al.) live only in the .native
+// file, so the web bundle never evaluates them.
+import { nativeAppleSignIn, nativeBrowserSignIn } from './oauth';
 import type { AuthMode, SocialProvider } from './social';
 import { cleanUsername } from './username';
 
@@ -101,10 +105,14 @@ export async function sessionFromUrl(url: string | null | undefined): Promise<bo
 // anymore (auth is required), so both just start the provider redirect.
 export async function signInWithProvider(provider: SocialProvider, _mode: AuthMode): Promise<void> {
   if (Platform.OS !== 'web') {
-    // ponytail: native OAuth needs expo-web-browser (+ expo-apple-authentication
-    // /expo-crypto for the Apple sheet) — not installed in the v2 tree. Wire the
-    // native flow when those deps land; the web redirect path works today.
-    throw new Error("Social sign-in isn't available in this build yet.");
+    // Native: Apple via the system sheet (signInWithIdToken); Google/Facebook via
+    // an in-app browser session that redirects back to otto://auth/callback.
+    if (provider === 'apple') {
+      await nativeAppleSignIn();
+    } else {
+      await nativeBrowserSignIn(provider, sessionFromUrl);
+    }
+    return;
   }
   const options = { redirectTo: Linking.createURL('/') };
   const { error } = await supabase.auth.signInWithOAuth({ provider: provider as Provider, options });
