@@ -22,12 +22,19 @@ export function getYouTubeId(url: string | null | undefined): string | null {
 function NativeVideo({ videoId }: { videoId: string }) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { WebView } = require('react-native-webview') as typeof import('react-native-webview');
+  // A bare iframe to youtube.com/embed fails in WKWebView (error 153/152 — the
+  // player's referrer/origin check rejects loadHTMLString's null origin). The
+  // YouTube IFrame Player API builds the player itself and handles the origin,
+  // which is the reliable in-app path. baseUrl=youtube.com sets the document
+  // origin the API expects.
+  const html = `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><style>*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;background:#000;overflow:hidden}#player{width:100%;height:100%}</style></head><body><div id="player"></div><script>var t=document.createElement('script');t.src="https://www.youtube.com/iframe_api";document.body.appendChild(t);function onYouTubeIframeAPIReady(){new YT.Player('player',{videoId:'${videoId}',width:'100%',height:'100%',playerVars:{autoplay:1,playsinline:1,rel:0,modestbranding:1,origin:'https://www.youtube.com'}});}</script></body></html>`;
   return (
     <WebView
-      source={{ uri: `https://www.youtube.com/embed/${videoId}?autoplay=1` }}
+      source={{ html, baseUrl: 'https://www.youtube.com' }}
       style={{ width: '100%', aspectRatio: 16 / 9, borderRadius: radii.card }}
       allowsInlineMediaPlayback
       mediaPlaybackRequiresUserAction={false}
+      originWhitelist={['*']}
     />
   );
 }
