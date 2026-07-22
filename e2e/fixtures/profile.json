@@ -1,0 +1,16 @@
+{
+  "_source": "AUTHORED copy + logic-derived labels, not recorded numbers: profile has no summed computed values like planner's shopping list. The stat DOORS are asserted by label (cooked/saved/yours); the yours count renders '—' until the cookbook exposes an own-recipe count (packet contract_gap). Unit segments + FAQ/club copy are the authored strings the screens render verbatim.",
+  "statDoors": ["cooked", "saved", "yours"],
+  "unitSegments": ["Metric", "US"],
+  "sections": ["Membership", "Your kitchen so far", "Preferences", "The boring-but-important bits"],
+  "exits": ["Sign out", "Delete my account"],
+  "deleteArmed": "Tap again — this is forever",
+  "subScreens": {
+    "preferences": { "path": "/preferences", "title": "Food preferences", "expect": "None — I eat everything" },
+    "notifications": { "path": "/notifications", "title": "Reminders", "expect": "Tonight's dinner" },
+    "household": { "path": "/household", "title": "One list, shared", "expect": "Start a shared list" },
+    "ottoClub": { "path": "/otto-club", "title": "Otto Club", "expect": "Otto Club opens soon" },
+    "faq": { "path": "/faq", "title": "Little questions", "expect": "Where do Otto’s recipes come from?" },
+    "journal": { "path": "/journal", "title": "Cooking journal", "expect": "No plates yet" }
+  }
+}
