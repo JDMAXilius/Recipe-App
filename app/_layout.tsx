@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Lora_400Regular, Lora_600SemiBold, Lora_700Bold } from '@expo-google-fonts/lora';
 import { AuthProvider } from '@/features/auth';
 import { Splash } from '@/features/onboarding';
+import { NotifSync } from '@/features/notifications';
 import { ErrorBoundary, ToastHost } from '@/shared/ui';
 
 // The provider stack: gesture root → error boundary → server state (TanStack
@@ -32,6 +33,8 @@ export default function RootLayout() {
                 <Stack.Screen name="ask" />
               </Stack>
               <ToastHost />
+              {/* Keeps OS reminders in step with the week + prefs from anywhere. */}
+              <NotifSync />
             </AuthProvider>
           </QueryClientProvider>
         </SafeAreaProvider>

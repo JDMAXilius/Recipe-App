@@ -1,2 +1,2 @@
-import { NotificationsScreen } from '@/features/profile';
+import { NotificationsScreen } from '@/features/notifications';
 export default NotificationsScreen;

@@ -9,10 +9,12 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Button, OttoArt, Sheet, Text } from '@/shared/ui';
+import { Button, OttoArt, Sheet, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { toUserRecipeId } from '@/types/ids';
+import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
 import { usePlan } from '@/features/planner';
+import { useJournal } from '@/features/journal';
 import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
 import { fetchCookRecipe } from './cook.queries';
 import { splitSteps, matchStepIngredients, mmss } from './session';
@@ -38,6 +40,23 @@ export function CookScreen() {
   const recipeId = String(id);
   const router = useRouter();
   const { entries, setCooked } = usePlan();
+  const { addEntry: addJournalEntry } = useJournal();
+  const { show: showToast } = useToast();
+  const [snapped, setSnapped] = useState(false);
+
+  // Snap-your-plate (P4): optional, never blocks finishing. Try the camera,
+  // fall back to the library; a null means cancel OR a denied permission —
+  // imagePicker doesn't distinguish, so we just nudge, never crash.
+  const snapPlate = async () => {
+    const image = (await takePhoto()) ?? (await pickFromLibrary());
+    if (!image) {
+      showToast('No worries — snap your plate any time.', 'info');
+      return;
+    }
+    addJournalEntry({ recipeId, title: recipe?.title ?? 'A dish', image });
+    setSnapped(true);
+    showToast('Saved to your journal', 'success', { ottoImage: 'excited' });
+  };
 
   const recipeQuery = useQuery({
     queryKey: ['cookRecipe', recipeId],
@@ -231,7 +250,16 @@ export function CookScreen() {
         <View style={{ alignSelf: 'stretch', marginTop: space[4] }}>
           <NutritionCard recipe={nutritionRecipe} />
         </View>
-        <View style={{ marginTop: space[5], alignSelf: 'stretch' }}>
+        <View style={{ marginTop: space[4], alignSelf: 'stretch' }}>
+          {snapped ? (
+            <View style={{ alignItems: 'center' }}>
+              <Text role="caption">Plate saved to your journal.</Text>
+            </View>
+          ) : (
+            <Button title="Snap your plate" variant="secondary" size="lg" onPress={snapPlate} />
+          )}
+        </View>
+        <View style={{ marginTop: space[3], alignSelf: 'stretch' }}>
           <Button title="Back to the recipe" variant="primary" size="lg" onPress={leave} />
         </View>
       </View>

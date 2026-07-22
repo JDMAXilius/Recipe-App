@@ -5,6 +5,7 @@
 // never logged or echoed. Per-user rate limit: this is the most expensive path.
 import { z } from "npm:zod@4";
 import { getUserId, json, preflight, rateLimited } from "../_shared/http.ts";
+import { checkImage, VISION_INSTRUCTION } from "./imageMode.ts";
 
 const MODEL = "claude-opus-4-8";
 const MAX_PROMPT_CHARS = 600;
@@ -139,9 +140,16 @@ function shapeGeneratedRecipe(data: any) {
 }
 
 type Turn = { role: "user" | "assistant"; content: string };
+// Vision turns carry a content-block array (image + text) instead of a string;
+// the string Turn (chat/one-shot) is still assignable to Message[].
+type VisionContent = Array<
+  | { type: "image"; source: { type: "base64"; media_type: string; data: string } }
+  | { type: "text"; text: string }
+>;
+type Message = Turn | { role: "user"; content: VisionContent };
 
 // deno-lint-ignore no-explicit-any
-async function askClaude(system: string, schema: unknown, messages: Turn[]): Promise<any> {
+async function askClaude(system: string, schema: unknown, messages: Message[]): Promise<any> {
   const response = await fetch(ANTHROPIC_URL, {
     method: "POST",
     headers: {
@@ -231,6 +239,33 @@ Deno.serve(async (req) => {
         message: message || "Here's your recipe.",
         recipe: { ...recipe, image: null, source: "otto", sourceUrl: null, sourceName: null },
       });
+    }
+
+    // -------- vision mode (photo → transcribed recipe) --------
+    if (raw && typeof raw === "object" && "image" in raw) {
+      // deno-lint-ignore no-explicit-any
+      const check = checkImage((raw as any).image, (raw as any).mimeType);
+      if (!check.ok) {
+        return check.status === 413
+          ? json(413, { error: "That photo's a bit big for Otto — try a smaller, clearer shot." })
+          : json(400, { error: "Invalid body" });
+      }
+      const data = await askClaude(SYSTEM, SCHEMA, [{
+        role: "user",
+        content: [
+          { type: "image", source: { type: "base64", media_type: check.mimeType, data: check.image } },
+          { type: "text", text: VISION_INSTRUCTION },
+        ],
+      }]);
+      if (!data) return json(502, { error: "Otto's idea burner wouldn't light — try again in a moment." });
+      if (data.is_possible !== true) {
+        return json(422, {
+          error: String(data.decline_reason || "Otto couldn't read that photo — try a clearer shot.").slice(0, 300),
+        });
+      }
+      const recipe = shapeGeneratedRecipe(data);
+      if (!recipe) return json(502, { error: "Otto couldn't read that photo — try a clearer shot." });
+      return json(200, { ...recipe, image: null, source: "otto", sourceUrl: null, sourceName: null });
     }
 
     // -------- one-shot mode --------

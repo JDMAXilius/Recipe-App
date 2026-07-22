@@ -7,7 +7,7 @@ export { PreferencesScreen } from './PreferencesScreen';
 // writer (profile), many readers — see usePrefs.ts.
 export { usePrefs, type UsePrefs, type PrefsState } from './usePrefs';
 export { HouseholdScreen } from './HouseholdScreen';
-export { NotificationsScreen } from './NotificationsScreen';
 export { OttoClubScreen } from './OttoClubScreen';
 export { FaqScreen } from './FaqScreen';
-export { JournalScreen } from './JournalScreen';
+// Journal + Notifications now live in their own features (src/features/journal,
+// src/features/notifications); the old profile stubs were removed.

@@ -1,2 +1,2 @@
-import { JournalScreen } from '@/features/profile';
+import { JournalScreen } from '@/features/journal';
 export default JournalScreen;

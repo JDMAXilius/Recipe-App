@@ -85,6 +85,15 @@ export async function generateRecipe(input: GenerateInput): Promise<Draft> {
   return toDraft(DraftResponseSchema.parse(data), 'otto');
 }
 
+// Photo → review-ready draft. Claude reads the shot (cookbook page, card,
+// screenshot) via generate-recipe's vision mode; the user reviews the
+// transcription in the editor before any save. 'imported' (not 'otto') — Otto
+// copied down someone else's recipe, he didn't dream it up.
+export async function importFromPhoto(image: string, mimeType: string): Promise<Draft> {
+  const data = await invokeEdge('generate-recipe', { image, mimeType });
+  return toDraft(DraftResponseSchema.parse(data), 'imported');
+}
+
 // --- recipes-table CRUD ---------------------------------------------------
 
 function rowToDraft(row: Tables<'recipes'>): Draft {
@@ -168,6 +177,13 @@ export function useImportFromUrl() {
 
 export function useGenerateRecipe() {
   return useMutation({ mutationFn: (input: GenerateInput) => generateRecipe(input) });
+}
+
+export function useImportFromPhoto() {
+  return useMutation({
+    mutationFn: ({ image, mimeType }: { image: string; mimeType: string }) =>
+      importFromPhoto(image, mimeType),
+  });
 }
 
 // Loads an existing user recipe into the editor. Namespaced key so it never
