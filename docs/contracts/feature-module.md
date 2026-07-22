@@ -52,6 +52,7 @@ features/<name>/
 | `useSaved()` | hook | cookbook | recipes, profile |
 | `useNutrition(recipe)` | hook | nutrition | recipes (detail), cook |
 | `usePlan()` | hook | planner | recipes (add-to-week), profile |
+| `useCookedState()` | hook | cook | cookbook (Cooked filter) |
 | `NutritionCard` | component | nutrition | recipes (detail) |
 | `ShareCard` | component | share | recipes (detail) |
 | `AddSheet` | component | import | app add route |

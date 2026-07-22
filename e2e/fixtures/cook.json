@@ -1,0 +1,49 @@
+{
+  "_source": "RECORDED from the cook pure logic (splitSteps / segmentStep / detectStepAction / matchStepIngredients), run 2026-07-22 — NOT invented. Garlic-butter-chicken instructions (same golden recipe as nutrition.json). Values are the exact function outputs the CookScreen renders; the journey asserts the on-screen text equals them.",
+  "garlic-butter-chicken": {
+    "input": {
+      "rawSteps": [
+        "Season the chicken breast on both sides with salt, pepper and paprika.",
+        "Heat the olive oil in a large skillet over medium-high heat. Add the chicken and sear undisturbed for 4-5 minutes per side until golden brown and cooked through, then lower the heat.",
+        "Add the butter and minced garlic to the pan and cook 1 minute until fragrant.",
+        "Finish with lemon juice and chopped fresh parsley, then serve."
+      ],
+      "ingredientPairs": [
+        { "measure": "200 g", "name": "chicken breast, sliced thin" },
+        { "measure": "14.2 g", "name": "butter" },
+        { "measure": "0.5 tbsp", "name": "olive oil" },
+        { "measure": "1.5 cloves", "name": "garlic, minced" },
+        { "measure": "0.3 tsp", "name": "paprika" },
+        { "measure": "0.3 tsp", "name": "salt" },
+        { "measure": "0.1 tsp", "name": "black pepper" },
+        { "measure": "0.5 tbsp", "name": "fresh parsley, chopped" },
+        { "measure": "0.5 tbsp", "name": "lemon juice" }
+      ]
+    },
+    "expected": {
+      "stepCount": 4,
+      "steps": [
+        "Season the chicken breast on both sides with salt, pepper and paprika.",
+        "Heat the olive oil in a large skillet over medium-high heat. Add the chicken and sear undisturbed for 4-5 minutes per side until golden brown and cooked through, then lower the heat.",
+        "Add the butter and minced garlic to the pan and cook 1 minute until fragrant.",
+        "Finish with lemon juice and chopped fresh parsley, then serve."
+      ],
+      "durations": [
+        { "step": 1, "text": "4-5 minutes", "minutes": 5 },
+        { "step": 2, "text": "1 minute", "minutes": 1 }
+      ],
+      "actions": [
+        { "step": 0, "action": "season", "art": "action-season" },
+        { "step": 1, "action": "saute", "art": "action-saute" },
+        { "step": 2, "action": "chop", "art": "action-chop" },
+        { "step": 3, "action": "chop", "art": "action-chop" }
+      ],
+      "stepIngredients": [
+        { "step": 0, "names": ["paprika", "salt"] },
+        { "step": 1, "names": ["olive oil"] },
+        { "step": 2, "names": ["butter", "garlic, minced"] },
+        { "step": 3, "names": ["fresh parsley, chopped", "lemon juice"] }
+      ]
+    }
+  }
+}
