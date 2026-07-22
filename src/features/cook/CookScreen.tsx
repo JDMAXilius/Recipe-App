@@ -18,9 +18,11 @@ import { toUserRecipeId } from '@/types/ids';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
 import { usePlan } from '@/features/planner';
 import { useJournal } from '@/features/journal';
+import { usePrefs } from '@/features/profile';
+import { scaleIngredient } from '@/features/recipes/recipe.scale';
 import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
 import { fetchCookRecipe } from './cook.queries';
-import { splitSteps, matchStepIngredients, mmss } from './session';
+import { splitSteps, matchStepIngredients, mmss, type IngredientPair } from './session';
 import { segmentStep } from './stepEnrich';
 import { StepCard } from './components/StepCard';
 import { TimerHub, type AvailableTimer } from './components/TimerHub';
@@ -46,6 +48,7 @@ export function CookScreen() {
   const { entries, setCooked } = usePlan();
   const { addEntry: addJournalEntry } = useJournal();
   const { show: showToast } = useToast();
+  const { unitSystem } = usePrefs();
   const [snapped, setSnapped] = useState(false);
   // "Would you cook it again?" — a light thumbs rating on the finish screen
   // (v1 parity), persisted to kv so a re-cook remembers your call.
@@ -244,7 +247,18 @@ export function CookScreen() {
   }
   if (mustLeave || !recipe) return null;
 
-  const stepIngredients = matchStepIngredients(steps[step] || '', pairs);
+  // Live scaling: rescale every measured quantity by the current servings vs the
+  // recipe's true yield, through the global unit pref (weight-first metric / US).
+  // So changing servings in prep rescales the prep list, the step "you'll need"
+  // chips, and the ingredients sheet — the Units pref is honoured throughout.
+  const baseServings = recipe.servings ?? 1;
+  const factor = servings > 0 ? servings / baseServings : 1;
+  const scaledPair = (p: IngredientPair): IngredientPair => ({
+    name: p.name,
+    measure: scaleIngredient(p, factor, unitSystem).display,
+  });
+
+  const stepIngredients = matchStepIngredients(steps[step] || '', pairs).map(scaledPair);
   const isLast = step === steps.length - 1;
 
   // ---------------------------------------------------------------- FINISH
@@ -386,7 +400,7 @@ export function CookScreen() {
                   color={checked ? colors.terracotta : colors.inkSoft}
                 />
                 <RNText style={{ fontWeight: '700', color: colors.terracotta, minWidth: 76, fontVariant: ['tabular-nums'] }}>
-                  {pair.measure}
+                  {scaledPair(pair).measure}
                 </RNText>
                 <RNText style={{ flex: 1, color: colors.ink, textDecorationLine: checked ? 'line-through' : 'none' }}>
                   {pair.name}
@@ -505,7 +519,7 @@ export function CookScreen() {
           ))}
         </View>
         <ScrollView style={{ maxHeight: 360 }}>
-          {(sheetFilter === 'step' ? stepIngredients : pairs).map((p, i) => (
+          {(sheetFilter === 'step' ? stepIngredients : pairs.map(scaledPair)).map((p, i) => (
             <View key={`${p.name}-${i}`} style={{ flexDirection: 'row', gap: space[3], paddingVertical: space[2], borderBottomWidth: 1, borderBottomColor: colors.creamDeep }}>
               <RNText style={{ fontWeight: '700', color: colors.terracotta, minWidth: 84, fontVariant: ['tabular-nums'] }}>{p.measure}</RNText>
               <RNText style={{ color: colors.ink, flexShrink: 1 }}>{p.name}</RNText>
