@@ -1,36 +1,38 @@
 import React, { useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, Text as RNText, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Button, PawMark, SegmentBar, Sheet, Text, useToast } from '@/shared/ui';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Bounceable, Button, PawMark, Sheet, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
 import { ShareCard, shareRecipeCard, type ShareRecipe } from '@/features/share';
 import { useSaved } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
+import { usePrefs } from '@/features/profile';
 import { RecipeCard } from './RecipeCard';
 import { VideoEmbed } from './components/VideoEmbed';
-import { scaleIngredients, scaledIngredientLines, type UnitSystem } from './recipe.scale';
+import { scaleIngredients, scaledIngredientLines } from './recipe.scale';
 import { isUserRecipeRef, useRecipe, useRelated } from './recipe.queries';
 
-const UNIT_SEGMENTS = [
-  { label: 'Metric', value: 'metric' },
-  { label: 'US', value: 'us' },
-];
-
 // Recipe Detail v3: photo hero (title never on the art) → eyebrow → serif title
-// → attribution → computed meta → NutritionCard → live-scaling ingredients with
-// US/Metric → inline video → semantic-ink method → related. Save (paw) + share
-// live in the hero cluster; add-to-week is the quiet pinned companion.
+// → attribution → computed meta → NutritionCard → live-scaling ingredients
+// (unit system from the global Account pref, never a per-screen toggle) →
+// inline video → semantic-ink method → related. Save (paw) + share live in the
+// hero cluster; a floating back sits top-left; add-to-week is the quiet pinned
+// companion to Start cooking.
 export function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const recipeId = String(id ?? '');
 
   const { data: recipe, isLoading } = useRecipe(recipeId);
   const { data: related = [] } = useRelated(recipe);
   const { isSaved, toggle } = useSaved();
   const { days, add } = usePlan();
+  const { unitSystem } = usePrefs();
   const { show } = useToast();
   const shareCardRef = useRef<View>(null); // captured to a PNG by shareRecipeCard
 
@@ -38,8 +40,8 @@ export function RecipeDetailScreen() {
   // and scales the list down to a single portion. The true yield stays in
   // baseServings so the scale factor keeps an honest denominator.
   const [servings, setServings] = useState(1);
-  const [system, setSystem] = useState<UnitSystem>('metric');
   const [planOpen, setPlanOpen] = useState(false);
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace('/(tabs)'));
 
   if (isLoading) {
     return (
@@ -78,7 +80,7 @@ export function RecipeDetailScreen() {
     setServings(next);
   };
 
-  const { scalable, pantry } = scaleIngredients(recipe.ingredients, scaleFactor, system);
+  const { scalable, pantry } = scaleIngredients(recipe.ingredients, scaleFactor, unitSystem);
   const hasSteps = recipe.steps.length > 0;
 
   const nutritionRecipe: NutritionRecipe = {
@@ -92,7 +94,7 @@ export function RecipeDetailScreen() {
   const shareRecipe: ShareRecipe = {
     title: recipe.title,
     image: recipe.image,
-    ingredients: scaledIngredientLines(recipe.ingredients, scaleFactor, system),
+    ingredients: scaledIngredientLines(recipe.ingredients, scaleFactor, unitSystem),
     steps: recipe.steps,
     servings,
     sourceName: recipe.sourceName,
@@ -129,10 +131,34 @@ export function RecipeDetailScreen() {
           ) : (
             <View style={{ width: '100%', height: 160, backgroundColor: colors.creamDeep }} />
           )}
+          {/* Floating back — v1 parity; the drag-anywhere gesture also works. */}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            onPress={goBack}
+            style={{
+              position: 'absolute',
+              top: insets.top + space[2],
+              left: space[4],
+              width: 44,
+              height: 44,
+              borderRadius: radii.pill,
+              backgroundColor: colors.white,
+              alignItems: 'center',
+              justifyContent: 'center',
+              shadowColor: '#000',
+              shadowOpacity: 0.15,
+              shadowRadius: 6,
+              shadowOffset: { width: 0, height: 2 },
+              elevation: 3,
+            }}
+          >
+            <Ionicons name="arrow-back" size={22} color={colors.ink} />
+          </Pressable>
           <View
             style={{
               position: 'absolute',
-              top: space[4],
+              top: insets.top + space[2],
               right: space[4],
               flexDirection: 'row',
               gap: space[2],
@@ -183,17 +209,13 @@ export function RecipeDetailScreen() {
           {/* NUTRITION — the merged card, per serving */}
           <View style={{ gap: space[2] }}>
             <Text role="title">Nutrition</Text>
-            <NutritionCard recipe={nutritionRecipe} />
+            <NutritionCard recipe={nutritionRecipe} servings={servings} />
           </View>
 
-          {/* INGREDIENTS — live scaling + US/Metric */}
+          {/* INGREDIENTS — live scaling. Unit system follows the global Account
+              preference (weight-first); no per-screen US/Metric toggle (v1). */}
           <View style={{ gap: space[3] }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text role="title">Ingredients</Text>
-              <View style={{ width: 160 }}>
-                <SegmentBar segments={UNIT_SEGMENTS} selected={system} onSelect={(v) => setSystem(v as UnitSystem)} />
-              </View>
-            </View>
+            <Text role="title">Ingredients</Text>
 
             {/* Servings stepper */}
             <View
@@ -309,35 +331,69 @@ export function RecipeDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* PINNED — add-to-week */}
+      {/* PINNED BOTTOM BAR (v1 parity) — Start cooking is the primary flame
+          Bounceable; Add-to-week is its quiet 54×54 calendar companion. Save +
+          share live in the hero cluster, so they're not repeated here. When a
+          recipe has no steps we offer the fix (add steps) instead of a fake
+          cook entrance. */}
       <View
         style={{
           flexDirection: 'row',
+          alignItems: 'center',
           gap: space[3],
-          padding: space[4],
+          paddingHorizontal: space[4],
+          paddingTop: space[3],
+          paddingBottom: insets.bottom + space[3],
           borderTopWidth: 1,
-          borderTopColor: colors.creamDeep,
+          borderTopColor: colors.border,
           backgroundColor: colors.cream,
         }}
       >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Add to Otto’s week"
+          onPress={() => {
+            haptics.select();
+            setPlanOpen(true);
+          }}
+          style={{
+            width: 54,
+            height: 54,
+            borderRadius: radii.button,
+            borderWidth: 1.5,
+            borderColor: colors.terracotta,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Ionicons name="calendar-outline" size={22} color={colors.terracotta} />
+        </Pressable>
         <View style={{ flex: 1 }}>
-          <Button
-            title="Add to Otto’s week"
-            variant={hasSteps ? 'secondary' : 'primary'}
-            size="lg"
-            onPress={() => setPlanOpen(true)}
-          />
+          <Bounceable
+            accessibilityLabel={hasSteps ? 'Start cooking step by step' : 'Add steps to cook this'}
+            onPress={() => {
+              haptics.impact('medium');
+              router.push(hasSteps ? `/recipe/cook/${recipeId}` : `/recipe/edit?id=${recipeId}`);
+            }}
+          >
+            <View
+              style={{
+                height: 54,
+                borderRadius: radii.button,
+                backgroundColor: colors.terracotta,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: space[2],
+              }}
+            >
+              <Ionicons name={hasSteps ? 'flame-outline' : 'create-outline'} size={20} color={colors.white} />
+              <RNText style={{ color: colors.white, fontWeight: '700', fontSize: 16 }}>
+                {hasSteps ? 'Start cooking' : 'Add steps to cook this'}
+              </RNText>
+            </View>
+          </Bounceable>
         </View>
-        {hasSteps ? (
-          <View style={{ flex: 1 }}>
-            <Button
-              title="Start cooking"
-              variant="primary"
-              size="lg"
-              onPress={() => router.push(`/recipe/cook/${recipeId}`)}
-            />
-          </View>
-        ) : null}
       </View>
 
       <Sheet visible={planOpen} onClose={() => setPlanOpen(false)} title="Add to Otto’s week">

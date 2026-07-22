@@ -8,8 +8,10 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
+import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
 import { RecipeInput } from './components/RecipeInput';
 import {
@@ -35,7 +37,21 @@ import {
 // hand-off draft slot (import / write-it-myself from AddSheet) → blank manual.
 
 const rowStyle: ViewStyle = { flexDirection: 'row', alignItems: 'center', gap: space[2] };
-const addRow: ViewStyle = { marginTop: space[3], alignSelf: 'flex-start' };
+const addRow: ViewStyle = {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: space[1],
+  marginTop: space[3],
+  alignSelf: 'flex-start',
+  paddingVertical: space[2],
+};
+const deleteRow: ViewStyle = {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: space[2],
+  paddingVertical: space[3],
+};
 const panel: ViewStyle = {
   backgroundColor: colors.creamDeep,
   borderRadius: radii.card,
@@ -127,6 +143,7 @@ export function EditRecipeScreen() {
     }
     try {
       const id = await saveMut.mutateAsync({ id: editId, userId: user.id, recipe: result.recipe });
+      haptics.notify('success');
       show(editId != null ? 'Changes saved.' : "On the shelf — it's in your cookbook.", 'success');
       if (editId != null) router.back();
       else router.replace(`/recipe/u-${id}`);
@@ -148,6 +165,7 @@ export function EditRecipeScreen() {
     if (!user) return;
     try {
       await deleteMut.mutateAsync({ id: editId, userId: user.id });
+      haptics.notify('warning');
       show('Gone — Otto tore out the page.', 'success');
       router.replace('/cookbook');
     } catch (err) {
@@ -275,23 +293,31 @@ export function EditRecipeScreen() {
               />
             </View>
             <Pressable
-              onPress={() => removeIngredient(index)}
+              onPress={() => {
+                haptics.select();
+                removeIngredient(index);
+              }}
               hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel={`Remove ingredient ${index + 1}`}
               style={{ padding: space[2] }}
             >
-              <Text role="computed">✕</Text>
+              <Ionicons name="close-circle" size={20} color={colors.inkSoft} />
             </Pressable>
           </View>
         ))}
-        <View style={addRow}>
-          <Button
-            title="+ Add ingredient"
-            onPress={() => patch({ ingredients: [...form.ingredients, emptyIngredient()] })}
-            variant="ghost"
-          />
-        </View>
+        <Pressable
+          style={addRow}
+          onPress={() => {
+            haptics.select();
+            patch({ ingredients: [...form.ingredients, emptyIngredient()] });
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Add an ingredient"
+        >
+          <Ionicons name="add" size={18} color={colors.terracotta} />
+          <Text role="computed">Add ingredient</Text>
+        </Pressable>
 
         <View style={{ marginTop: space[5], marginBottom: space[2] }}>
           <Text role="caption">STEPS (OPTIONAL)</Text>
@@ -311,23 +337,31 @@ export function EditRecipeScreen() {
               />
             </View>
             <Pressable
-              onPress={() => removeStep(index)}
+              onPress={() => {
+                haptics.select();
+                removeStep(index);
+              }}
               hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel={`Remove step ${index + 1}`}
               style={{ padding: space[2], paddingTop: space[3] }}
             >
-              <Text role="computed">✕</Text>
+              <Ionicons name="close-circle" size={20} color={colors.inkSoft} />
             </Pressable>
           </View>
         ))}
-        <View style={addRow}>
-          <Button
-            title="+ Add step"
-            onPress={() => patch({ steps: [...form.steps, ''] })}
-            variant="ghost"
-          />
-        </View>
+        <Pressable
+          style={addRow}
+          onPress={() => {
+            haptics.select();
+            patch({ steps: [...form.steps, ''] });
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Add a step"
+        >
+          <Ionicons name="add" size={18} color={colors.terracotta} />
+          <Text role="computed">Add step</Text>
+        </Pressable>
 
         {form.sourceUrl != null ? (
           <View style={{ marginTop: space[5] }}>
@@ -357,11 +391,19 @@ export function EditRecipeScreen() {
             disabled={editId != null && !dirty}
           />
           {editId != null && (
-            <Button
-              title={armDelete ? 'Tap again to delete' : 'Delete recipe'}
+            <Pressable
+              style={deleteRow}
               onPress={confirmDelete}
-              variant="destructive"
-            />
+              accessibilityRole="button"
+              accessibilityLabel="Delete recipe"
+            >
+              <Ionicons
+                name={armDelete ? 'trash' : 'trash-outline'}
+                size={20}
+                color={colors.danger}
+              />
+              <Text role="body">{armDelete ? 'Tap again to delete' : 'Delete recipe'}</Text>
+            </Pressable>
           )}
         </View>
       </ScrollView>

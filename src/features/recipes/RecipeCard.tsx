@@ -2,8 +2,9 @@ import React from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { PawMark, Text } from '@/shared/ui';
-import { colors, radii, shadow, space } from '@/shared/theme/tokens';
+import { colors, macro, radii, shadow, space } from '@/shared/theme/tokens';
 import { useSaved } from '@/features/cookbook';
+import { useSeedCalories } from '@/features/nutrition';
 import { getNutritionEstimate } from '@/features/nutrition/estimates';
 import type { RecipeSummary } from './recipe.types';
 
@@ -11,11 +12,13 @@ import type { RecipeSummary } from './recipe.types';
 // through useSaved() (allowlisted: cookbook → recipes) so any grid of summaries
 // is saveable without the parent threading state.
 //
-// Calorie badge: a summary has NO ingredients, so the card can only ESTIMATE
-// from its category (getNutritionEstimate) — it must therefore ALWAYS be
-// tilde-framed ("~400 cal"), never a bare number. The detail screen's computed
-// USDA figure is the source of truth; the "~" is the honest signal that these
-// two can legitimately differ (v1's "numbers never disagree" fix).
+// Calorie badge: prefer the server-computed seed_nutrition figure (batched +
+// session-cached via useSeedCalories) so the tile AGREES with what the recipe
+// opens to — every Beef tile used to read an identical "~450" category estimate
+// that also disagreed with the detail's computed number. Computed → a bare
+// figure; only when a recipe has no computed value do we fall back to the
+// category estimate, tilde-framed ("~400 cal") as the honest "this is soft"
+// signal (v1's "numbers never disagree" rule).
 export function RecipeCard({
   recipe,
   onPress,
@@ -31,7 +34,10 @@ export function RecipeCard({
   // design. Today only seed summaries reach this card; this guards the drift.
   const recipeId = Number(recipe.id);
   const isSeed = Number.isInteger(recipeId);
-  const estCalories = getNutritionEstimate(recipe.category).calories;
+  const { data: seedCalories } = useSeedCalories();
+  const computedKcal = seedCalories?.get(String(recipe.id));
+  const isComputed = typeof computedKcal === 'number' && Number.isFinite(computedKcal);
+  const kcal = isComputed ? computedKcal : getNutritionEstimate(recipe.category).calories;
 
   // The card Pressable and the paw Pressable are SIBLINGS, not nested — on web
   // react-native-web renders each accessibilityRole="button" as a real <button>,
@@ -55,11 +61,13 @@ export function RecipeCard({
             <View style={{ width: '100%', aspectRatio: 5 / 4 }} />
           )}
         </View>
-        <View style={{ paddingTop: space[2] }}>
+        <View style={{ paddingTop: space[2], gap: space[1] }}>
           <Text role="body">{recipe.title}</Text>
+          <MacroDots />
         </View>
       </Pressable>
-      {/* Estimate-only calorie pill (top-left, opposite the paw). Always "~". */}
+      {/* Calorie pill (top-left, opposite the paw): computed figure when known,
+          category estimate ("~") otherwise. */}
       <View
         pointerEvents="none"
         style={{
@@ -77,7 +85,7 @@ export function RecipeCard({
         }}
       >
         <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.terracotta }} />
-        <Text role="caption">{`~${estCalories} cal`}</Text>
+        <Text role="caption">{`${isComputed ? '' : '~'}${kcal} cal`}</Text>
       </View>
       {isSeed ? (
         <View style={{ position: 'absolute', top: space[2], right: space[2] }}>
@@ -97,6 +105,19 @@ export function RecipeCard({
           />
         </View>
       ) : null}
+    </View>
+  );
+}
+
+// The 3 macro dots under the title (protein · carbs · fat) — a fixed decorative
+// brand motif from the Figma card, NOT a per-recipe claim (a summary carries no
+// macros). The colours are the FIXED nutrition palette (never re-skinned).
+export function MacroDots() {
+  return (
+    <View style={{ flexDirection: 'row', gap: space[1] }}>
+      {[macro.protein, macro.carbs, macro.fat].map((c) => (
+        <View key={c} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: c }} />
+      ))}
     </View>
   );
 }

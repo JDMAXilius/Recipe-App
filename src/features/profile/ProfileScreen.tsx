@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, View, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import type { User } from '@supabase/supabase-js';
-import { Text, Button, SegmentBar, useToast } from '@/shared/ui';
+import { Text, SegmentBar, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
+import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
 import { useSaved, useMyRecipes } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
@@ -53,9 +55,13 @@ export function ProfileScreen() {
     // Alert buttons no-op on web; confirm() keeps web usable. Sign-out is
     // reversible, so one honest tap is enough on native.
     if (Platform.OS === 'web') {
-      if (window.confirm('Sign out of Otto?')) void signOut();
+      if (window.confirm('Sign out of Otto?')) {
+        haptics.notify('warning');
+        void signOut();
+      }
       return;
     }
+    haptics.notify('warning');
     void signOut();
   };
 
@@ -97,6 +103,7 @@ export function ProfileScreen() {
         <Text role="caption">Membership</Text>
         <View style={styles.card}>
           <View style={styles.row}>
+            <Ionicons name="ribbon-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
             <Text role="body">Current plan</Text>
             <View style={{ flex: 1 }} />
             <Text role="computed">Free</Text>
@@ -138,14 +145,18 @@ export function ProfileScreen() {
       <View style={styles.section}>
         <Pressable
           style={styles.card}
-          onPress={() => router.push('/journal')}
+          onPress={() => {
+            haptics.select();
+            router.push('/journal');
+          }}
           accessibilityRole="button"
           accessibilityLabel="Cooking journal"
         >
           <View style={styles.row}>
+            <Ionicons name="camera-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
             <Text role="body">Cooking journal</Text>
             <View style={{ flex: 1 }} />
-            <Text role="caption">›</Text>
+            <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
           </View>
         </Pressable>
       </View>
@@ -155,24 +166,28 @@ export function ProfileScreen() {
         <Text role="caption">Preferences</Text>
         <View style={styles.card}>
           <View style={styles.unitRow}>
+            <Ionicons name="scale-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
             <Text role="body">Units</Text>
             <View style={{ flex: 1 }} />
             <View style={styles.unitToggle}>
               <SegmentBar
                 segments={UNIT_SEGMENTS.map((s) => ({ label: s.label, value: s.value }))}
                 selected={unitSystem}
-                onSelect={setUnitSystem}
+                onSelect={(v) => {
+                  haptics.select();
+                  setUnitSystem(v);
+                }}
               />
             </View>
           </View>
         </View>
         <View style={styles.card}>
           {hasPasswordLogin(user) && (
-            <SettingsRow label="Change password" onPress={() => router.push('/change-password')} />
+            <SettingsRow icon="lock-closed-outline" label="Change password" onPress={() => router.push('/change-password')} />
           )}
-          <SettingsRow label="Food preferences" onPress={() => router.push('/preferences')} divided={hasPasswordLogin(user)} />
-          <SettingsRow label="Reminders" onPress={() => router.push('/notifications')} divided />
-          <SettingsRow label="Our shared list" onPress={() => router.push('/household')} divided />
+          <SettingsRow icon="restaurant-outline" label="Food preferences" onPress={() => router.push('/preferences')} divided={hasPasswordLogin(user)} />
+          <SettingsRow icon="notifications-outline" label="Reminders" onPress={() => router.push('/notifications')} divided />
+          <SettingsRow icon="people-outline" label="Our shared list" onPress={() => router.push('/household')} divided />
         </View>
       </View>
 
@@ -180,8 +195,9 @@ export function ProfileScreen() {
       <View style={styles.section}>
         <Text role="caption">The boring-but-important bits</Text>
         <View style={styles.card}>
-          <SettingsRow label="Little questions" onPress={() => router.push('/faq')} />
+          <SettingsRow icon="help-buoy-outline" label="Little questions" onPress={() => router.push('/faq')} />
           <SettingsRow
+            icon="chatbubble-ellipses-outline"
             label="Send a thought"
             divided
             onPress={() => {
@@ -193,9 +209,15 @@ export function ProfileScreen() {
       </View>
 
       {/* EXITS — quiet, honest, never buried */}
-      <View style={{ marginTop: space[4] }}>
-        <Button title="Sign out" variant="secondary" onPress={onSignOut} />
-      </View>
+      <Pressable
+        style={styles.signOutRow}
+        onPress={onSignOut}
+        accessibilityRole="button"
+        accessibilityLabel="Sign out"
+      >
+        <Ionicons name="log-out-outline" size={20} color={colors.danger} style={{ marginRight: space[3] }} />
+        <Text role="body">Sign out</Text>
+      </Pressable>
       <Pressable
         onPress={onDelete}
         disabled={deleting}
@@ -212,17 +234,31 @@ export function ProfileScreen() {
   );
 }
 
-function SettingsRow({ label, onPress, divided }: { label: string; onPress: () => void; divided?: boolean }) {
+function SettingsRow({
+  icon,
+  label,
+  onPress,
+  divided,
+}: {
+  icon: React.ComponentProps<typeof Ionicons>['name'];
+  label: string;
+  onPress: () => void;
+  divided?: boolean;
+}) {
   return (
     <Pressable
       style={[styles.row, styles.settingsRow, divided && styles.rowDivider]}
-      onPress={onPress}
+      onPress={() => {
+        haptics.select();
+        onPress();
+      }}
       accessibilityRole="button"
       accessibilityLabel={label}
     >
+      <Ionicons name={icon} size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
       <Text role="body">{label}</Text>
       <View style={{ flex: 1 }} />
-      <Text role="caption">›</Text>
+      <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
     </Pressable>
   );
 }
@@ -238,6 +274,13 @@ const styles: Record<string, ViewStyle> = {
   section: { gap: space[2] },
   card: { backgroundColor: colors.white, borderRadius: radii.card, paddingHorizontal: space[4] },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: space[3] },
+  signOutRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: space[4],
+    paddingVertical: space[3],
+  },
   settingsRow: { minHeight: 44 },
   rowDivider: { borderTopWidth: 1, borderTopColor: colors.creamDeep },
   unitRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: space[3] },

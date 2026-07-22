@@ -1,31 +1,35 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Pressable, Text as RNText, View, type ViewStyle } from 'react-native';
+import { ActivityIndicator, Image, Pressable, Text as RNText, View, type ViewStyle } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, radii, space } from '@/shared/theme/tokens';
+import { brandMark } from '@/shared/assets';
+import { haptics } from '@/shared/haptics';
 import { useAuth } from '../AuthProvider';
 import { SOCIAL_PROVIDERS, providerLabel, type AuthMode, type SocialProvider } from '../social';
 
-// Social sign-in (ported from mobile/components/SocialAuthButtons.jsx) — a
-// centered row of provider buttons, Apple first (App Store 4.8). All three
-// always render (product decision: the row matches the design regardless of
-// Supabase config); a provider that can't complete surfaces a friendly error
-// on tap. Same component on sign-in and sign-up. No brand-icon assets in the
-// v2 tree yet, so buttons show the provider name until OttoArt/brand marks land.
+// Social sign-in (ported from mobile/components/SocialAuthButtons.jsx, matched to
+// the Figma master board): a compact CENTERED ROW of icon-only brand buttons —
+// Apple glyph · Google's multicolour G · Facebook f — the Thrive/eBay pattern,
+// NOT three stacked "Continue with…" bars. All three always render (product
+// decision); a provider that can't complete surfaces a friendly error on tap.
+// Same component on sign-in and sign-up. An "or" divider closes the row.
 export interface SocialAuthButtonsProps {
   mode?: AuthMode;
   onError?: (message: string) => void;
 }
 
 const button: ViewStyle = {
-  borderRadius: radii.pill,
+  width: 76,
+  height: 50,
+  borderRadius: radii.button,
   borderWidth: 1,
-  borderColor: colors.creamDeep,
+  borderColor: colors.border,
   backgroundColor: colors.white,
-  minHeight: 50,
-  paddingHorizontal: space[4],
   alignItems: 'center',
   justifyContent: 'center',
-  marginBottom: space[3],
 };
+
+const FACEBOOK_BLUE = '#1877F2';
 
 export function SocialAuthButtons({ mode = 'sign-in', onError }: SocialAuthButtonsProps) {
   const { signInWithProvider } = useAuth();
@@ -33,6 +37,7 @@ export function SocialAuthButtons({ mode = 'sign-in', onError }: SocialAuthButto
 
   const start = async (provider: SocialProvider) => {
     if (busy) return;
+    haptics.select();
     setBusy(provider);
     try {
       await signInWithProvider(provider, mode);
@@ -44,30 +49,33 @@ export function SocialAuthButtons({ mode = 'sign-in', onError }: SocialAuthButto
     }
   };
 
+  const icon = (p: SocialProvider) => {
+    if (p === 'google')
+      return <Image source={brandMark.google} style={{ width: 22, height: 22 }} resizeMode="contain" />;
+    if (p === 'facebook') return <Ionicons name="logo-facebook" size={22} color={FACEBOOK_BLUE} />;
+    return <Ionicons name="logo-apple" size={22} color={colors.ink} />;
+  };
+
   return (
     <View style={{ marginBottom: space[4] }}>
-      {SOCIAL_PROVIDERS.map((p) => (
-        <Pressable
-          key={p}
-          onPress={() => start(p)}
-          disabled={!!busy}
-          accessibilityRole="button"
-          accessibilityLabel={providerLabel(p)}
-          style={[button, !!busy && busy !== p && { opacity: 0.5 }]}
-        >
-          {busy === p ? (
-            <ActivityIndicator color={colors.inkSoft} />
-          ) : (
-            <RNText style={{ color: colors.ink, fontSize: 16, fontWeight: '600' }}>
-              {providerLabel(p)}
-            </RNText>
-          )}
-        </Pressable>
-      ))}
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: space[2] }}>
-        <View style={{ flex: 1, height: 1, backgroundColor: colors.creamDeep }} />
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: space[3] }}>
+        {SOCIAL_PROVIDERS.map((p) => (
+          <Pressable
+            key={p}
+            onPress={() => start(p)}
+            disabled={!!busy}
+            accessibilityRole="button"
+            accessibilityLabel={providerLabel(p)}
+            style={[button, !!busy && busy !== p && { opacity: 0.5 }]}
+          >
+            {busy === p ? <ActivityIndicator color={colors.inkSoft} /> : icon(p)}
+          </Pressable>
+        ))}
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: space[5] }}>
+        <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
         <RNText style={{ marginHorizontal: space[3], color: colors.inkSoft, fontSize: 13 }}>or</RNText>
-        <View style={{ flex: 1, height: 1, backgroundColor: colors.creamDeep }} />
+        <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
       </View>
     </View>
   );

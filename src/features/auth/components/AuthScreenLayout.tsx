@@ -6,8 +6,8 @@ import {
   Text as RNText,
   View,
 } from 'react-native';
-import { OttoArt, Text } from '@/shared/ui';
-import { colors, space } from '@/shared/theme/tokens';
+import { OttoArt } from '@/shared/ui';
+import { colors, space, type } from '@/shared/theme/tokens';
 
 // Shared chrome for all five auth screens: safe keyboard behaviour, a centered
 // scroll column, the Otto hero, headline + subhead, and an inline error line.
@@ -49,16 +49,19 @@ export function AuthScreenLayout({
         >
           {hero && (
             <View style={{ alignItems: 'center', marginBottom: space[5] }}>
-              <OttoArt name="hero" size={140} />
+              <OttoArt name="hero" size={168} />
             </View>
           )}
-          <View style={{ marginBottom: space[2] }}>
-            <Text role="display">{title}</Text>
-          </View>
+          {/* Centered hero title + subtitle (Figma master board). The shared
+              Text is role-only (no align), so the auth chrome styles these two
+              lines directly with the type tokens — a contained exception. */}
+          <RNText style={{ ...type.display, color: colors.ink, textAlign: 'center', marginBottom: space[2] }}>
+            {title}
+          </RNText>
           {subtitle != null && (
-            <View style={{ marginBottom: space[5] }}>
-              <Text role="body">{subtitle}</Text>
-            </View>
+            <RNText style={{ ...type.body, color: colors.inkSoft, textAlign: 'center', marginBottom: space[5] }}>
+              {subtitle}
+            </RNText>
           )}
           {error != null && error !== '' && (
             <RNText

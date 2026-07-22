@@ -1,7 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View, type TextStyle, type ViewStyle } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { Text, Button, OttoArt } from '@/shared/ui';
+import { Text, Button, OttoArt, OttoLoading, OttoError, Screen } from '@/shared/ui';
+import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useAuth } from '@/features/auth';
 import { usePlan } from './usePlan';
@@ -16,6 +19,7 @@ import { buildShoppingList, AISLES } from './shoppingList';
 // (collab_* RPCs, see packet gaps).
 
 export function ShoppingScreen() {
+  const router = useRouter();
   const { entries, isLoading: planLoading } = usePlan();
   const { user } = useAuth();
   const userId = user?.id ?? null;
@@ -42,8 +46,10 @@ export function ShoppingScreen() {
   const [custom, setCustom] = useState<{ key: string; name: string }[]>([]);
   const [newItem, setNewItem] = useState('');
 
-  const toggle = (key: string) =>
+  const toggle = (key: string) => {
+    haptics.select();
     setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const addCustom = () => {
     const name = newItem.trim();
@@ -68,20 +74,34 @@ export function ShoppingScreen() {
 
   const loading = planLoading || listQuery.isLoading;
 
+  if (loading) {
+    return (
+      <Screen title="Shopping list" onBack={() => router.back()}>
+        <OttoLoading message="Counting the pantry…" />
+      </Screen>
+    );
+  }
+
+  if (listQuery.isError) {
+    return (
+      <Screen title="Shopping list" onBack={() => router.back()}>
+        <OttoError onRetry={() => listQuery.refetch()} />
+      </Screen>
+    );
+  }
+
   return (
+    <Screen title="Shopping list" onBack={() => router.back()}>
     <ScrollView style={{ backgroundColor: colors.cream }} contentContainerStyle={styles.scroll}>
-      <View style={styles.header}>
-        <Text role="display">Shopping list</Text>
-        {total > 0 && (
+      {total > 0 && (
+        <View style={styles.header}>
           <Text role="caption">
             {done} of {total} in the basket
           </Text>
-        )}
-      </View>
+        </View>
+      )}
 
-      {loading ? (
-        <Text role="caption">Counting the pantry…</Text>
-      ) : total === 0 ? (
+      {total === 0 ? (
         <View style={styles.empty}>
           <OttoArt name="thinking" size={120} />
           <Text role="body">
@@ -104,7 +124,9 @@ export function ShoppingScreen() {
                 onPress={() => toggle(item.key)}
               >
                 <View style={[styles.check, checked[item.key] && styles.checkOn]}>
-                  {checked[item.key] && <Text role="computed">✓</Text>}
+                  {checked[item.key] && (
+                    <Ionicons name="checkmark" size={16} color={colors.terracotta} />
+                  )}
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text role="body">
@@ -134,7 +156,9 @@ export function ShoppingScreen() {
                 accessibilityLabel={item.name}
                 onPress={() => toggle(item.key)}
               >
-                {checked[item.key] && <Text role="computed">✓</Text>}
+                {checked[item.key] && (
+                  <Ionicons name="checkmark" size={16} color={colors.terracotta} />
+                )}
               </Pressable>
               <View style={{ flex: 1 }}>
                 <Text role="body">{item.name}</Text>
@@ -145,7 +169,7 @@ export function ShoppingScreen() {
                 hitSlop={8}
                 onPress={() => removeCustom(item.key)}
               >
-                <Text role="caption">✕</Text>
+                <Ionicons name="close" size={16} color={colors.inkSoft} />
               </Pressable>
             </View>
           ))}
@@ -166,6 +190,7 @@ export function ShoppingScreen() {
         <Button title="Add" variant="secondary" onPress={addCustom} />
       </View>
     </ScrollView>
+    </Screen>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Pressable, ScrollView, type ViewStyle } from 'react-native';
+import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Sheet, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useSaved, useMyRecipes } from '@/features/cookbook';
@@ -44,8 +45,11 @@ export function RecipePickerSheet({ visible, title, onPick, onClose }: RecipePic
                 onClose();
               }}
             >
-              <Text role="body">{item.title}</Text>
-              {item.category != null && <Text role="caption">{item.category}</Text>}
+              <View style={{ flex: 1 }}>
+                <Text role="body">{item.title}</Text>
+                {item.category != null && <Text role="caption">{item.category}</Text>}
+              </View>
+              <Ionicons name="add-circle" size={22} color={colors.terracotta} />
             </Pressable>
           ))}
         </ScrollView>
@@ -58,6 +62,9 @@ const styles: Record<string, ViewStyle> = {
   // Cap the list so a big cookbook doesn't push the sheet off-screen.
   list: { maxHeight: 380 },
   row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[3],
     paddingVertical: space[3],
     paddingHorizontal: space[3],
     borderRadius: radii.button,

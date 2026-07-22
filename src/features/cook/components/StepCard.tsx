@@ -1,5 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ScrollView, Text as RNText, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { OttoArt, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { segmentStep } from '../stepEnrich';
@@ -21,12 +28,30 @@ export function StepCard({ stepIndex, text, ingredients, onStartTimer }: Props) 
   const segments = segmentStep(text);
   const hasDuration = segments.some((s) => s.type === 'duration');
 
+  // Step-advance transition (v1 ~186-195): fade + a small slide, re-run on each
+  // step change (keyed on stepIndex). Reduced motion → static, no animation.
+  const reduced = useReducedMotion();
+  const enter = useSharedValue(reduced ? 1 : 0);
+  useEffect(() => {
+    if (reduced) {
+      enter.value = 1;
+      return;
+    }
+    enter.value = 0;
+    enter.value = withTiming(1, { duration: 220, easing: Easing.out(Easing.quad) });
+  }, [stepIndex, reduced, enter]);
+  const enterStyle = useAnimatedStyle(() => ({
+    opacity: enter.value,
+    transform: [{ translateX: (1 - enter.value) * 12 }],
+  }));
+
   return (
     <ScrollView
       style={{ flex: 1 }}
       contentContainerStyle={{ padding: space[5] }}
       showsVerticalScrollIndicator={false}
     >
+      <Animated.View style={enterStyle}>
       {ingredients.length > 0 && (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2], marginBottom: space[4] }}>
           {ingredients.slice(0, 4).map((p, i) => (
@@ -85,6 +110,7 @@ export function StepCard({ stepIndex, text, ingredients, onStartTimer }: Props) 
       <View style={{ alignItems: 'center', marginTop: space[6] }}>
         <OttoArt name={stepActionArt(text)} size={220} />
       </View>
+      </Animated.View>
     </ScrollView>
   );
 }

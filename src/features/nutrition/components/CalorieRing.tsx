@@ -10,7 +10,7 @@ import { fdaCalories } from "@/shared/lib/fdaCalories";
 // No `max`: nutrition's design forbids daily-goal framing, and Ring's max-less
 // variant renders the value + label with no "/ denominator" (the contract_gap
 // is resolved — Ring now supports a denominator-less display).
-export function CalorieRing({ kcal }: { kcal: number | null }) {
+export function CalorieRing({ kcal, label = "kcal" }: { kcal: number | null; label?: string }) {
   const value = kcal == null ? null : fdaCalories(kcal);
-  return <Ring value={value} label="kcal" />;
+  return <Ring value={value} label={label} />;
 }

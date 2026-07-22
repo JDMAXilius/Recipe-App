@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
 import { Text } from '@/shared/ui';
+import { haptics } from '@/shared/haptics';
 import { foodIcon } from '@/shared/assets';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import type { RecipeCategory } from '../recipe.types';
@@ -35,7 +36,10 @@ export function CategoryTiles({
             accessibilityRole="button"
             accessibilityLabel={`Browse ${cat.name}`}
             accessibilityState={{ selected: active }}
-            onPress={() => onSelect(cat.name)}
+            onPress={() => {
+              haptics.select();
+              onSelect(cat.name);
+            }}
             style={{ width: 96, alignItems: 'center', gap: space[1] }}
           >
             <View

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Pressable, Text as RNText, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, space } from '../theme/tokens';
 import { Text } from './Text';
@@ -33,7 +34,7 @@ export function Screen({ title, onBack, right, children }: ScreenProps) {
             onPress={onBack}
             style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
           >
-            <RNText style={{ fontSize: 30, lineHeight: 34, color: colors.ink }}>‹</RNText>
+            <Ionicons name="arrow-back" size={24} color={colors.ink} />
           </Pressable>
         ) : (
           <View style={{ width: 44, height: 44 }} />

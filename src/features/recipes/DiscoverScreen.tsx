@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { OttoIdle, Text } from '@/shared/ui';
+import { OttoArt, OttoError, OttoIdle, OttoLoading, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { usePlan, tonightEntry } from '@/features/planner';
 import { CategoryTiles } from './components/CategoryTiles';
@@ -70,6 +70,16 @@ export function DiscoverScreen() {
   const grid = filterByCategories(rawGrid, filterCats);
   const gridTitle = isSearching ? `Results for “${debounced}”` : selectedCategory ?? 'Recipes';
   const featured = featuredQuery.data;
+
+  // Grid loading/error tracks whichever query feeds it (search vs browse); browse
+  // also waits on the category catalogue that seeds selectedCategory.
+  const gridQuery = isSearching ? searchQuery : discoverQuery;
+  const gridLoading = isSearching
+    ? searchQuery.isLoading
+    : categoriesQuery.isLoading || discoverQuery.isLoading;
+  const gridError = isSearching
+    ? searchQuery.isError
+    : discoverQuery.isError || categoriesQuery.isError;
 
   const toggleFilter = (cat: string) =>
     setFilterCats((prev) => {
@@ -222,11 +232,33 @@ export function DiscoverScreen() {
         contentContainerStyle={{ padding: space[4], gap: space[3] }}
         ListHeaderComponent={ListHeader}
         ListEmptyComponent={
-          <Text role="caption">
-            {isSearching
-              ? `Otto came up empty for “${debounced}” — try another dish or ingredient.`
-              : 'Nothing on this shelf yet — try another category.'}
-          </Text>
+          gridLoading ? (
+            <OttoLoading message={isSearching ? 'Otto’s looking…' : undefined} />
+          ) : gridError ? (
+            <OttoError
+              onRetry={() => {
+                categoriesQuery.refetch();
+                gridQuery.refetch();
+              }}
+            />
+          ) : (
+            <View
+              style={{
+                alignItems: 'center',
+                paddingVertical: space[7],
+                paddingHorizontal: space[5],
+                gap: space[3],
+              }}
+            >
+              <OttoArt name={isSearching ? 'thinking' : 'sleepy'} size={120} />
+              <Text role="title">{isSearching ? 'Nothing found' : 'This shelf is empty'}</Text>
+              <Text role="caption">
+                {isSearching
+                  ? `Otto came up empty for “${debounced}” — try another dish or ingredient.`
+                  : 'Nothing on this shelf yet — try another category.'}
+              </Text>
+            </View>
+          )
         }
       />
       <FilterSheet

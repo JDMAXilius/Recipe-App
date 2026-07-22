@@ -26,11 +26,16 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
-              <Stack screenOptions={{ headerShown: false }}>
+              {/* fullScreenGestureEnabled: v1 parity — drag from anywhere to go
+                  back on every pushed card (not just the thin left edge, and it
+                  gives Android a back gesture too). Cook opts out below because
+                  its step pager owns horizontal pans. */}
+              <Stack screenOptions={{ headerShown: false, fullScreenGestureEnabled: true }}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="(auth)" />
                 <Stack.Screen name="add" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="ask" />
+                <Stack.Screen name="recipe/cook/[id]" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
               </Stack>
               <ToastHost />
               {/* Keeps OS reminders in step with the week + prefs from anywhere. */}

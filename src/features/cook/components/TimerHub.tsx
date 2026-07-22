@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, Text as RNText, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Sheet, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { mmss } from '../session';
@@ -77,7 +78,7 @@ export function TimerHub({ visible, onClose, timers, available, onStart, onExten
               hitSlop={8}
               style={{ minHeight: 40, minWidth: 40, alignItems: 'center', justifyContent: 'center' }}
             >
-              <RNText style={{ fontSize: 20, color: colors.inkSoft }}>×</RNText>
+              <Ionicons name="close" size={18} color={colors.inkSoft} />
             </Pressable>
           </View>
         ))}
@@ -98,7 +99,7 @@ export function TimerHub({ visible, onClose, timers, available, onStart, onExten
               borderBottomColor: colors.creamDeep,
             }}
           >
-            <RNText style={{ fontSize: 18, color: colors.terracotta }}>▷</RNText>
+            <Ionicons name="play-circle-outline" size={20} color={colors.terracotta} />
             <RNText style={{ fontSize: 15, color: colors.ink, flex: 1 }}>{a.label}</RNText>
           </Pressable>
         ))}

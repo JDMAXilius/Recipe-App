@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { Pressable, ScrollView, Text as RNText, View, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Text, Button, OttoArt, useToast } from '@/shared/ui';
-import { colors, radii, space } from '@/shared/theme/tokens';
+import { Ionicons } from '@expo/vector-icons';
+import { Text, Button, OttoArt, OttoLoading, useToast } from '@/shared/ui';
+import { haptics } from '@/shared/haptics';
+import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { usePlan } from './usePlan';
 import { RecipePickerSheet } from './components/RecipePickerSheet';
 import { pickToAddInput, leftoversCarry, nextInWeek, type PickItem } from './plan.pick';
@@ -36,6 +38,7 @@ export function PlanScreen() {
   const planned = entries.length;
 
   const toggleCooked = async (entry: PlanEntry) => {
+    haptics.select();
     try {
       await setCooked(entry.id, !entry.cooked);
     } catch {
@@ -60,6 +63,7 @@ export function PlanScreen() {
       const input = pickToAddInput(pick, target.day);
       if (target.entryId != null) await swap(target.entryId, input);
       else await add(input);
+      haptics.notify('success');
     } catch {
       show("Couldn't update Otto's week — try again.", 'error');
     }
@@ -73,6 +77,7 @@ export function PlanScreen() {
     if (!input) return;
     try {
       await add(input);
+      haptics.notify('success');
     } catch {
       show("Couldn't add leftovers — try again.", 'error');
     }
@@ -101,7 +106,7 @@ export function PlanScreen() {
       )}
 
       {isLoading ? (
-        <Text role="caption">Checking Otto&apos;s week…</Text>
+        <OttoLoading message="Checking Otto's week…" />
       ) : (
         days.map((day, index) => {
           const dayEntries = byDay[day.key] || [];
@@ -129,7 +134,15 @@ export function PlanScreen() {
                           accessibilityLabel={`Open ${entry.title}`}
                           onPress={() => entry.recipe_id && router.push(`/recipe/${entry.recipe_id}`)}
                         >
-                          <Text role="body">{entry.title}</Text>
+                          <RNText
+                            style={{
+                              ...type.body,
+                              color: colors.ink,
+                              textDecorationLine: entry.cooked ? 'line-through' : 'none',
+                            }}
+                          >
+                            {entry.title}
+                          </RNText>
                           {entry.note === 'leftovers' && <Text role="caption">Leftovers</Text>}
                         </Pressable>
 
@@ -141,9 +154,16 @@ export function PlanScreen() {
                           onPress={() => toggleCooked(entry)}
                           style={[styles.cookedMark, entry.cooked && styles.cookedMarkOn]}
                         >
-                          <Text role={entry.cooked ? 'computed' : 'caption'}>
-                            {entry.cooked ? '✓ Cooked' : 'Cooked?'}
-                          </Text>
+                          <View style={styles.iconLabel}>
+                            <Ionicons
+                              name={entry.cooked ? 'flame' : 'flame-outline'}
+                              size={14}
+                              color={entry.cooked ? colors.terracotta : colors.inkSoft}
+                            />
+                            <Text role={entry.cooked ? 'computed' : 'caption'}>
+                              {entry.cooked ? 'Cooked' : 'Cooked?'}
+                            </Text>
+                          </View>
                         </Pressable>
 
                         <Pressable
@@ -152,7 +172,7 @@ export function PlanScreen() {
                           hitSlop={8}
                           onPress={() => removeEntry(entry)}
                         >
-                          <Text role="caption">✕</Text>
+                          <Ionicons name="close" size={18} color={colors.inkSoft} />
                         </Pressable>
                       </View>
 
@@ -161,9 +181,15 @@ export function PlanScreen() {
                           accessibilityRole="button"
                           accessibilityLabel={`Swap ${entry.title}`}
                           hitSlop={6}
-                          onPress={() => setPicker({ day: day.key, entryId: entry.id })}
+                          onPress={() => {
+                            haptics.select();
+                            setPicker({ day: day.key, entryId: entry.id });
+                          }}
                         >
-                          <Text role="computed">Swap</Text>
+                          <View style={styles.iconLabel}>
+                            <Ionicons name="shuffle" size={14} color={colors.terracotta} />
+                            <Text role="computed">Swap</Text>
+                          </View>
                         </Pressable>
                         {canCarry && entry.note !== 'leftovers' && (
                           <Pressable
@@ -172,7 +198,10 @@ export function PlanScreen() {
                             hitSlop={6}
                             onPress={() => carryLeftovers(entry, day.key)}
                           >
-                            <Text role="computed">+ leftovers tomorrow</Text>
+                            <View style={styles.iconLabel}>
+                              <Ionicons name="refresh" size={14} color={colors.terracotta} />
+                              <Text role="computed">Leftovers tomorrow</Text>
+                            </View>
                           </Pressable>
                         )}
                       </View>
@@ -186,9 +215,15 @@ export function PlanScreen() {
                 accessibilityLabel={`Add a dish to ${day.label}`}
                 hitSlop={6}
                 style={styles.addRow}
-                onPress={() => setPicker({ day: day.key })}
+                onPress={() => {
+                  haptics.select();
+                  setPicker({ day: day.key });
+                }}
               >
-                <Text role="computed">＋ Add a dish</Text>
+                <View style={styles.iconLabel}>
+                  <Ionicons name="add" size={18} color={colors.terracotta} />
+                  <Text role="computed">Add a dish</Text>
+                </View>
               </Pressable>
             </View>
           );
@@ -240,6 +275,7 @@ const styles: Record<string, ViewStyle> = {
     paddingLeft: space[1],
   },
   addRow: { paddingTop: space[2] },
+  iconLabel: { flexDirection: 'row', alignItems: 'center', gap: space[1] },
   cookedMark: {
     paddingHorizontal: space[3],
     paddingVertical: space[1],

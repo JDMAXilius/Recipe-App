@@ -9,7 +9,9 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, OttoArt, Sheet, Text, useToast } from '@/shared/ui';
+import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { toUserRecipeId } from '@/types/ids';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
@@ -29,8 +31,9 @@ type OpenSheet = null | 'ingredients' | 'timers' | 'jump';
 // Cook mode: mise-en-place → big-type step screens (tap a duration = named
 // timer) → multi-timer hub → swipe/Next nav → exit protection → Proud-Otto
 // finish. Ported from mobile/app/recipe/cook/[id].jsx onto @/shared/ui + tokens.
-// Deliberately NOT ported (no v2 deps): sound/haptics/keep-awake, camera plate
-// snap, live ingredient rescaling. Noted in the packet gaps.
+// Deliberately NOT ported (no v2 deps): timer sound/vibration/keep-awake, camera
+// plate snap, live ingredient rescaling. Noted in the packet gaps. (Haptics +
+// step-advance animation restored in Wave F1.)
 export function CookScreen() {
   const { id, step: stepParam, servings: servingsParam } = useLocalSearchParams<{
     id: string;
@@ -109,6 +112,7 @@ export function CookScreen() {
       setTimers(next);
       if (finished.length) {
         const t = finished[0];
+        haptics.notify('success');
         setDoneTimer(t);
       }
     }, 1000);
@@ -116,6 +120,7 @@ export function CookScreen() {
   }, []);
 
   const startTimer = (label: string, minutes: number) => {
+    haptics.select();
     setTimers((prev) => {
       if (prev.some((t) => t.label === label && (t.running || t.done))) return prev;
       return [
@@ -132,7 +137,8 @@ export function CookScreen() {
     });
   };
 
-  const extendTimer = (timerId: string, minutes: number) =>
+  const extendTimer = (timerId: string, minutes: number) => {
+    haptics.select();
     setTimers((prev) =>
       prev.map((t) =>
         t.id === timerId
@@ -140,6 +146,7 @@ export function CookScreen() {
           : t,
       ),
     );
+  };
 
   const dismissTimer = (timerId: string) =>
     setTimers((prev) => prev.filter((t) => t.id !== timerId));
@@ -163,6 +170,7 @@ export function CookScreen() {
   // ---- navigation --------------------------------------------------------
   const goTo = (nextStep: number) => {
     if (nextStep < 0 || nextStep >= steps.length) return;
+    haptics.impact('medium');
     setStep(nextStep);
   };
 
@@ -172,6 +180,7 @@ export function CookScreen() {
   };
 
   const finish = () => {
+    haptics.notify('success');
     setPhase('done');
     // Cook-completion (planner allowlist): mark every plan entry for this recipe
     // cooked. usePlan invalidates ['plan', userId] → useCookedState updates.
@@ -186,6 +195,7 @@ export function CookScreen() {
   const goBackStep = () => goTo(step - 1);
 
   const requestExit = () => {
+    haptics.impact('light');
     const hasProgress = step > 0 || timers.some((t) => t.running);
     if (phase === 'steps' && hasProgress) setExitConfirm(true);
     else leave();
@@ -297,7 +307,7 @@ export function CookScreen() {
             return (
               <Pressable
                 key={`${pair.name}-${i}`}
-                onPress={() => setPrepChecked((prev) => ({ ...prev, [i]: !prev[i] }))}
+                onPress={() => { haptics.select(); setPrepChecked((prev) => ({ ...prev, [i]: !prev[i] })); }}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked }}
                 style={{
@@ -311,9 +321,11 @@ export function CookScreen() {
                   opacity: checked ? 0.45 : 1,
                 }}
               >
-                <RNText style={{ fontSize: 20, color: checked ? colors.terracotta : colors.inkSoft }}>
-                  {checked ? '◉' : '○'}
-                </RNText>
+                <Ionicons
+                  name={checked ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={22}
+                  color={checked ? colors.terracotta : colors.inkSoft}
+                />
                 <RNText style={{ fontWeight: '700', color: colors.terracotta, minWidth: 76, fontVariant: ['tabular-nums'] }}>
                   {pair.measure}
                 </RNText>
@@ -340,12 +352,12 @@ export function CookScreen() {
         title={`Step ${step + 1} of ${steps.length}`}
         right={
           <Pressable
-            onPress={() => setOpenSheet('timers')}
+            onPress={() => { haptics.select(); setOpenSheet('timers'); }}
             accessibilityRole="button"
             accessibilityLabel="Timers"
             style={{ width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.creamDeep, alignItems: 'center', justifyContent: 'center' }}
           >
-            <RNText style={{ fontSize: 18 }}>◷</RNText>
+            <Ionicons name="stopwatch-outline" size={24} color={colors.ink} />
             {runningTimers.length > 0 && (
               <View style={{ position: 'absolute', top: 4, right: 2, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: colors.terracotta, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}>
                 <RNText style={{ color: colors.white, fontSize: 10, fontWeight: '700' }}>{runningTimers.length}</RNText>
@@ -379,8 +391,11 @@ export function CookScreen() {
           <Pressable onPress={() => extendTimer(floatingTimer.id, 1)} accessibilityRole="button" accessibilityLabel="Add a minute" hitSlop={8} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: space[3], backgroundColor: colors.creamDeep, borderRadius: radii.pill }}>
             <RNText style={{ fontWeight: '600', color: colors.ink }}>+1 min</RNText>
           </Pressable>
+          <Pressable onPress={() => extendTimer(floatingTimer.id, 5)} accessibilityRole="button" accessibilityLabel="Add five minutes" hitSlop={8} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: space[3], backgroundColor: colors.creamDeep, borderRadius: radii.pill }}>
+            <RNText style={{ fontWeight: '600', color: colors.ink }}>+5</RNText>
+          </Pressable>
           <Pressable onPress={() => dismissTimer(floatingTimer.id)} accessibilityRole="button" accessibilityLabel="Dismiss timer" hitSlop={8} style={{ minHeight: 40, minWidth: 40, alignItems: 'center', justifyContent: 'center' }}>
-            <RNText style={{ fontSize: 18, color: colors.inkSoft }}>×</RNText>
+            <Ionicons name="close" size={18} color={colors.inkSoft} />
           </Pressable>
         </View>
       )}
@@ -398,7 +413,7 @@ export function CookScreen() {
           accessibilityLabel="Show ingredients"
           style={{ width: 52, height: 52, borderRadius: radii.card, backgroundColor: colors.creamDeep, alignItems: 'center', justifyContent: 'center' }}
         >
-          <RNText style={{ fontSize: 20 }}>☰</RNText>
+          <Ionicons name="list-outline" size={22} color={colors.ink} />
         </Pressable>
         {step > 0 && (
           <Pressable
@@ -407,7 +422,7 @@ export function CookScreen() {
             accessibilityLabel="Previous step"
             style={{ width: 52, height: 52, borderRadius: radii.card, backgroundColor: colors.creamDeep, alignItems: 'center', justifyContent: 'center' }}
           >
-            <RNText style={{ fontSize: 20 }}>‹</RNText>
+            <Ionicons name="arrow-back" size={22} color={colors.ink} />
           </Pressable>
         )}
         <View style={{ flex: 1 }}>
@@ -421,7 +436,7 @@ export function CookScreen() {
           {([['step', 'This step'], ['all', 'Everything']] as const).map(([key, label]) => (
             <Pressable
               key={key}
-              onPress={() => setSheetFilter(key)}
+              onPress={() => { haptics.select(); setSheetFilter(key); }}
               accessibilityRole="button"
               accessibilityState={{ selected: sheetFilter === key }}
               style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: space[4], borderRadius: radii.pill, backgroundColor: sheetFilter === key ? colors.terracotta : colors.creamDeep }}
@@ -520,7 +535,7 @@ function Header({ left, title, right }: { left?: React.ReactNode; title: string;
 function CloseButton({ onPress, label }: { onPress: () => void; label: string }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} style={{ width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.creamDeep, alignItems: 'center', justifyContent: 'center' }}>
-      <RNText style={{ fontSize: 20, color: colors.ink }}>×</RNText>
+      <Ionicons name="close" size={24} color={colors.ink} />
     </Pressable>
   );
 }

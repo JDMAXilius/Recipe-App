@@ -64,3 +64,28 @@ export function useNutrition(recipe: NutritionRecipe) {
     queryFn: () => fetchNutrition(recipe),
   });
 }
+
+// Batched per-serving calories for the grid tiles. The card badge must AGREE
+// with what the recipe opens to (v1's "numbers never disagree" rule), so it
+// reads the same server-computed seed_nutrition figure the detail screen uses —
+// NOT a flat per-category estimate (which made every Beef tile read an
+// identical "~450"). One request for the whole static seed table, cached for
+// the session; each card does an O(1) Map lookup and falls back to the category
+// estimate (tilde-framed) only when a recipe has no computed figure.
+export function useSeedCalories() {
+  return useQuery({
+    queryKey: ["seed-calories"],
+    staleTime: Infinity,
+    queryFn: async (): Promise<Map<string, number>> => {
+      const { data } = await supabase.from("seed_nutrition").select("recipe_id, nutrition");
+      const map = new Map<string, number>();
+      for (const row of data ?? []) {
+        const kcal = (row.nutrition as { kcal?: unknown } | null)?.kcal;
+        if (typeof kcal === "number" && Number.isFinite(kcal)) {
+          map.set(String(row.recipe_id), Math.round(kcal));
+        }
+      }
+      return map;
+    },
+  });
+}

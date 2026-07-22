@@ -1,6 +1,7 @@
 import { Redirect, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/shared/theme/tokens';
+import { haptics } from '@/shared/haptics';
 import { TabBarCreateButton } from '@/shared/ui/TabBarCreateButton';
 import { useAuth } from '@/features/auth';
 
@@ -31,6 +32,7 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      screenListeners={{ tabPress: () => haptics.select() }}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.terracotta,

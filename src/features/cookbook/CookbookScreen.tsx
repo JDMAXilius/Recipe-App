@@ -2,7 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { FlatList, Pressable, Text as RNText, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
-import { SegmentBar, Text } from '@/shared/ui';
+import { Ionicons } from '@expo/vector-icons';
+import { OttoLoading, SegmentBar, Text } from '@/shared/ui';
+import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useAuth } from '@/features/auth';
 import { useCookedState } from '@/features/cook';
@@ -67,7 +69,14 @@ export function CookbookScreen() {
         ) : null}
       </View>
 
-      <SegmentBar segments={SEGMENTS} selected={segment} onSelect={(v) => setSegment(v as Segment)} />
+      <SegmentBar
+        segments={SEGMENTS}
+        selected={segment}
+        onSelect={(v) => {
+          haptics.select();
+          setSegment(v as Segment);
+        }}
+      />
 
       <View style={{ flexDirection: 'row', marginTop: space[3], marginBottom: space[4] }}>
         <View style={{ flex: 1 }} />
@@ -79,12 +88,20 @@ export function CookbookScreen() {
           hitSlop={10}
           style={{
             minHeight: 44,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: space[1],
             justifyContent: 'center',
             paddingHorizontal: space[4],
             borderRadius: radii.pill,
             backgroundColor: cookedOnly ? colors.terracotta : colors.creamDeep,
           }}
         >
+          <Ionicons
+            name={cookedOnly ? 'flame' : 'flame-outline'}
+            size={15}
+            color={cookedOnly ? colors.white : colors.inkSoft}
+          />
           <RNText
             style={{ fontSize: 13, fontWeight: '600', color: cookedOnly ? colors.white : colors.inkSoft }}
           >
@@ -116,12 +133,19 @@ export function CookbookScreen() {
           />
         )}
         ListEmptyComponent={
-          <EmptyState
-            segment={segment}
-            cookedOnly={cookedOnly}
-            onExplore={() => router.push('/')}
-            onAdd={() => router.push('/add')}
-          />
+          // useMyRecipes is the one network fetch here (saved is cache-optimistic
+          // and exposes no loading signal) — show Otto while it's in flight for
+          // the segments it feeds; every other empty is a per-segment mascot.
+          mineQuery.isLoading && segment !== 'saved' ? (
+            <OttoLoading />
+          ) : (
+            <EmptyState
+              segment={segment}
+              cookedOnly={cookedOnly}
+              onExplore={() => router.push('/')}
+              onAdd={() => router.push('/add')}
+            />
+          )
         }
       />
     </SafeAreaView>
