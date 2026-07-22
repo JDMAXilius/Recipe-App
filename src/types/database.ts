@@ -134,6 +134,24 @@ export type Database = {
         }
         Relationships: []
       }
+      households: {
+        Row: { created_at: string; created_by: string; id: string; invite_code: string; name: string }
+        Insert: { created_at?: string; created_by: string; id?: string; invite_code: string; name?: string }
+        Update: { created_at?: string; created_by?: string; id?: string; invite_code?: string; name?: string }
+        Relationships: []
+      }
+      household_members: {
+        Row: { display_name: string | null; household_id: string; joined_at: string; user_id: string }
+        Insert: { display_name?: string | null; household_id: string; joined_at?: string; user_id: string }
+        Update: { display_name?: string | null; household_id?: string; joined_at?: string; user_id?: string }
+        Relationships: []
+      }
+      household_list_state: {
+        Row: { checked: boolean; custom_name: string | null; household_id: string; item_key: string; updated_at: string; updated_by: string | null }
+        Insert: { checked?: boolean; custom_name?: string | null; household_id: string; item_key: string; updated_at?: string; updated_by?: string | null }
+        Update: { checked?: boolean; custom_name?: string | null; household_id?: string; item_key?: string; updated_at?: string; updated_by?: string | null }
+        Relationships: []
+      }
       plan_entries: {
         Row: {
           category: string | null
@@ -304,6 +322,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_household_member: { Args: { hid: string }; Returns: boolean }
+      join_household: { Args: { code: string }; Returns: string }
       add_collab_item: {
         Args: {
           p_amount: string

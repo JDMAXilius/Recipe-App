@@ -19,6 +19,7 @@ import { colors, radii, space } from '@/shared/theme/tokens';
 import { kv } from '@/shared/storage';
 import { buildShoppingListShareText } from '@/features/share';
 import { useAuth } from '@/features/auth';
+import { useHousehold, useSharedList, getHouseholdWeekDishes } from '@/features/household';
 import { usePlan } from './usePlan';
 import { getListRecipes } from './plan.queries';
 import { buildShoppingList, AISLES } from './shoppingList';
@@ -32,23 +33,39 @@ import { buildShoppingList, AISLES } from './shoppingList';
 
 export function ShoppingScreen() {
   const router = useRouter();
-  const { entries, isLoading: planLoading } = usePlan();
+  const { entries, days, isLoading: planLoading } = usePlan();
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const padRef = useRef<View>(null);
 
-  // Unique recipe ids on the week + their titles — the list's source recipes,
-  // shown as removable chips so a dish can be dropped from the list.
-  const recipeIds = useMemo(() => {
-    const seen = new Set<string>();
-    for (const e of entries) if (e.recipe_id) seen.add(e.recipe_id);
-    return [...seen];
+  // Shared kitchen: when the user is in a household the list aggregates EVERY
+  // member's week and the check-offs + custom items are shared in realtime
+  // (household_list_state). Otherwise it's the personal week with local state.
+  const { household, memberIds } = useHousehold();
+  const shared = useSharedList(household?.id ?? null);
+  const isShared = !!household;
+
+  // Source dishes (id + title): everyone's week when shared, else mine.
+  const myDishes = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const e of entries) if (e.recipe_id && !seen.has(e.recipe_id)) seen.set(e.recipe_id, e.title);
+    return [...seen].map(([recipeId, title]) => ({ recipeId, title }));
   }, [entries]);
-  const recipeTitles = useMemo(() => {
-    const m = new Map<string, string>();
-    for (const e of entries) if (e.recipe_id && !m.has(e.recipe_id)) m.set(e.recipe_id, e.title);
-    return m;
-  }, [entries]);
+  const householdQuery = useQuery({
+    queryKey: ['household-week', household?.id, memberIds, days[0]?.key, days[6]?.key],
+    enabled: isShared && memberIds.length > 0,
+    queryFn: () => getHouseholdWeekDishes(memberIds, days[0].key, days[6].key),
+    placeholderData: keepPreviousData,
+  });
+  const dishes = useMemo(
+    () => (isShared ? (householdQuery.data ?? []) : myDishes),
+    [isShared, householdQuery.data, myDishes],
+  );
+  const recipeIds = useMemo(() => dishes.map((d) => d.recipeId), [dishes]);
+  const recipeTitles = useMemo(
+    () => new Map(dishes.map((d) => [d.recipeId, d.title])),
+    [dishes],
+  );
 
   // Source recipes the shopper dropped (chip ×). Persisted, and pruned to what's
   // actually on the week so a removed-then-replanned dish comes back.
@@ -59,9 +76,7 @@ export function ShoppingScreen() {
   );
 
   const listQuery = useQuery({
-    queryKey: ['plan-list', userId, activeRecipeIds],
-    // Seed recipes resolve without a user; only user recipes need userId — so
-    // the list builds from a normal (seed) week regardless of auth timing.
+    queryKey: ['plan-list', activeRecipeIds],
     enabled: activeRecipeIds.length > 0,
     queryFn: () => getListRecipes(activeRecipeIds, userId),
     // Keep the current rows visible while a changed week refetches, so adding
@@ -80,6 +95,16 @@ export function ShoppingScreen() {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [custom, setCustom] = useState<{ key: string; name: string }[]>([]);
   const [newItem, setNewItem] = useState('');
+
+  // Unified check/custom access — the household's realtime state when shared,
+  // local state otherwise. The rest of the screen reads only these.
+  const checkedMap: Record<string, boolean> = isShared
+    ? Object.fromEntries(shared.rows.map((r) => [r.item_key, r.checked]))
+    : checked;
+  const isChecked = (key: string) => !!checkedMap[key];
+  const customList = isShared
+    ? shared.rows.filter((r) => r.custom_name).map((r) => ({ key: r.item_key, name: r.custom_name as string }))
+    : custom;
 
   // Persistence (contract: persistence.md). Hydrate once on mount, then mirror
   // every change back to kv. The `hydrated` guard stops the mount save from
@@ -114,29 +139,33 @@ export function ShoppingScreen() {
 
   const toggle = (key: string) => {
     haptics.select();
-    setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+    if (isShared) shared.toggle(key, !isChecked(key));
+    else setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const addCustom = () => {
     const name = newItem.trim();
     if (!name) return;
     setNewItem('');
+    if (isShared) shared.addCustom(name);
     // Date.now() key — a re-used index would collide checkboxes after removals.
-    setCustom((prev) => [...prev, { key: `custom-${Date.now()}`, name }]);
+    else setCustom((prev) => [...prev, { key: `custom-${Date.now()}`, name }]);
   };
 
-  const removeCustom = (key: string) =>
-    setCustom((prev) => prev.filter((c) => c.key !== key));
+  const removeCustom = (key: string) => {
+    if (isShared) shared.removeCustom(key);
+    else setCustom((prev) => prev.filter((c) => c.key !== key));
+  };
 
   const grouped = AISLES.map((aisle) => ({
     aisle,
     items: items.filter((i) => i.aisle === aisle),
   })).filter((g) => g.items.length > 0);
 
-  const total = items.length + custom.length;
+  const total = items.length + customList.length;
   const done =
-    items.filter((i) => checked[i.key]).length +
-    custom.filter((c) => checked[c.key]).length;
+    items.filter((i) => isChecked(i.key)).length +
+    customList.filter((c) => isChecked(c.key)).length;
 
   // Share: on native snapshot the painted pad to a PNG (react-native-view-shot)
   // and hand it to the OS share sheet (expo-sharing); on web use navigator.share
@@ -144,7 +173,7 @@ export function ShoppingScreen() {
   // branch so the web bundle never executes them (mirrors src/features/share).
   const shareList = async () => {
     haptics.select();
-    const text = buildShoppingListShareText({ items, custom, checked });
+    const text = buildShoppingListShareText({ items, custom: customList, checked: checkedMap });
     if (Platform.OS !== 'web' && padRef.current) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports -- native-only; keeps view-shot out of the web runtime
@@ -285,12 +314,12 @@ export function ShoppingScreen() {
                       key={item.key}
                       style={styles.itemRow}
                       accessibilityRole="checkbox"
-                      accessibilityState={{ checked: Boolean(checked[item.key]) }}
+                      accessibilityState={{ checked: Boolean(isChecked(item.key)) }}
                       accessibilityLabel={`${item.amount} ${item.name}`.trim()}
                       onPress={() => toggle(item.key)}
                     >
-                      <View style={[styles.check, checked[item.key] && styles.checkOn]}>
-                        {checked[item.key] && (
+                      <View style={[styles.check, isChecked(item.key) && styles.checkOn]}>
+                        {isChecked(item.key) && (
                           <Ionicons name="checkmark" size={16} color={colors.white} />
                         )}
                       </View>
@@ -309,20 +338,20 @@ export function ShoppingScreen() {
               ))
             )}
 
-            {custom.length > 0 && (
+            {customList.length > 0 && (
               <View style={{ marginBottom: space[4] }}>
                 <Text role="meta">Your extras</Text>
                 <View style={styles.rule} />
-                {custom.map((item) => (
+                {customList.map((item) => (
                   <View key={item.key} style={styles.itemRow}>
                     <Pressable
-                      style={[styles.check, checked[item.key] && styles.checkOn]}
+                      style={[styles.check, isChecked(item.key) && styles.checkOn]}
                       accessibilityRole="checkbox"
-                      accessibilityState={{ checked: Boolean(checked[item.key]) }}
+                      accessibilityState={{ checked: Boolean(isChecked(item.key)) }}
                       accessibilityLabel={item.name}
                       onPress={() => toggle(item.key)}
                     >
-                      {checked[item.key] && (
+                      {isChecked(item.key) && (
                         <Ionicons name="checkmark" size={16} color={colors.white} />
                       )}
                     </Pressable>
