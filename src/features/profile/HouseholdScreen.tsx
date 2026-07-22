@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { Text, Button, useToast } from '@/shared/ui';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { OttoArt, OttoIdle, Screen, Text, Button, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
-import { Screen } from './components/Frame';
 
 // Our shared list — one list a household adds to and checks off together.
 // ponytail: the live sync layer (unguessable invite links, the CollabAPI
@@ -17,6 +18,7 @@ interface Item {
 }
 
 export function HouseholdScreen() {
+  const router = useRouter();
   const { show } = useToast();
   const [started, setStarted] = useState(false);
   const [name, setName] = useState('');
@@ -37,17 +39,18 @@ export function HouseholdScreen() {
 
   if (!started) {
     return (
-      <Screen title="Our shared list">
-        <View style={{ gap: space[4] }}>
+      <Screen title="Our list" onBack={() => router.back()}>
+        <ScrollView contentContainerStyle={styles.setupScroll} keyboardShouldPersistTaps="handled">
+          <OttoIdle name="happy" size={140} />
           <Text role="title">One list, shared</Text>
           <Text role="caption">
             Everyone in the house adds and checks off the same list. Start yours here, then send the
             invite link so others can join.
           </Text>
-          <View style={styles.card}>
+          <View style={styles.nameLine}>
             <Text role="caption">You&apos;ll show up as</Text>
             <TextInput
-              style={styles.input}
+              style={styles.nameInput}
               value={name}
               onChangeText={setName}
               placeholder="your name"
@@ -56,26 +59,33 @@ export function HouseholdScreen() {
               accessibilityLabel="Your display name"
             />
           </View>
-          <Button
-            title="Start a shared list"
-            variant="primary"
-            onPress={() => {
-              setStarted(true);
-              show('List started — invite links open with the shopping list.', 'info');
-            }}
-          />
-        </View>
+          <View style={{ alignSelf: 'stretch' }}>
+            <Button
+              title="Start a shared list"
+              variant="primary"
+              onPress={() => {
+                setStarted(true);
+                show('List started — invite links open with the shopping list.', 'info');
+              }}
+            />
+          </View>
+        </ScrollView>
       </Screen>
     );
   }
 
   return (
-    <Screen title="Our list">
-      <View style={{ gap: space[3] }}>
+    <Screen title="Our list" onBack={() => router.back()}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <Text role="caption">{open === 0 ? 'ALL DONE' : `${open} STILL TO PICK UP`}</Text>
 
         {items.length === 0 && (
-          <Text role="caption">Nothing on the list yet — add the first thing below.</Text>
+          <View style={styles.emptyList}>
+            <OttoArt name="thinking" size={120} />
+            <Text role="caption">
+              Nothing on the list yet — add the first thing below.
+            </Text>
+          </View>
         )}
 
         {items.map((item) => (
@@ -87,7 +97,7 @@ export function HouseholdScreen() {
               accessibilityState={{ checked: item.checked }}
               accessibilityLabel={item.name}
             >
-              <Text role={item.checked ? 'computed' : 'caption'}>{item.checked ? '✓' : ''}</Text>
+              {item.checked && <Ionicons name="checkmark" size={16} color={colors.terracotta} />}
             </Pressable>
             <View style={{ flex: 1 }}>
               <Text role="body">{item.name}</Text>
@@ -98,7 +108,7 @@ export function HouseholdScreen() {
               accessibilityRole="button"
               accessibilityLabel={`Remove ${item.name}`}
             >
-              <Text role="caption">✕</Text>
+              <Ionicons name="close" size={18} color={colors.inkSoft} />
             </Pressable>
           </View>
         ))}
@@ -116,13 +126,24 @@ export function HouseholdScreen() {
           />
           <Button title="Add" variant="secondary" onPress={add} />
         </View>
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: colors.white, borderRadius: radii.card, padding: space[4], gap: space[2] },
+  setupScroll: { padding: space[4], paddingTop: space[6], alignItems: 'center', gap: space[4] },
+  scroll: { padding: space[4], paddingBottom: space[7], gap: space[3] },
+  nameLine: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
+  nameInput: {
+    minWidth: 120,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingVertical: space[1],
+    color: colors.terracotta,
+    fontWeight: '600',
+  },
+  emptyList: { alignItems: 'center', gap: space[2], paddingVertical: space[5] },
   input: {
     backgroundColor: colors.white,
     borderRadius: radii.card,
@@ -140,6 +161,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkOn: { backgroundColor: colors.creamDeep },
+  checkOn: { backgroundColor: colors.accentSoft },
   addRow: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
 });

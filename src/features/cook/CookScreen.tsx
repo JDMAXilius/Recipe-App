@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, OttoArt, Sheet, Text, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
+import { kv } from '@/shared/storage';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { toUserRecipeId } from '@/types/ids';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
@@ -46,6 +47,16 @@ export function CookScreen() {
   const { addEntry: addJournalEntry } = useJournal();
   const { show: showToast } = useToast();
   const [snapped, setSnapped] = useState(false);
+  // "Would you cook it again?" — a light thumbs rating on the finish screen
+  // (v1 parity), persisted to kv so a re-cook remembers your call.
+  const [rating, setRating] = useState<'up' | 'down' | null>(null);
+  const rate = (value: 'up' | 'down') => {
+    haptics.select();
+    setRating(value);
+    void kv.get<Record<string, 'up' | 'down'>>('cookRatings', {}).then((all) =>
+      kv.set('cookRatings', { ...all, [recipeId]: value }),
+    );
+  };
 
   // Snap-your-plate (P4): optional, never blocks finishing. Try the camera,
   // fall back to the library; a null means cancel OR a denied permission —
@@ -259,6 +270,54 @@ export function CookScreen() {
             unlabelled (review: honesty-law violation). */}
         <View style={{ alignSelf: 'stretch', marginTop: space[4] }}>
           <NutritionCard recipe={nutritionRecipe} />
+        </View>
+        {/* Would you cook it again? — a quiet thumbs rating (v1 parity). */}
+        <View style={{ marginTop: space[4], alignItems: 'center', gap: space[3] }}>
+          {rating ? (
+            <Text role="caption">
+              {rating === 'up' ? 'Otto will keep this one close.' : 'Noted — Otto won’t push it again.'}
+            </Text>
+          ) : (
+            <>
+              <Text role="body">Would you cook it again?</Text>
+              <View style={{ flexDirection: 'row', gap: space[5] }}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Yes, I'd cook this again"
+                  hitSlop={8}
+                  onPress={() => rate('up')}
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: radii.pill,
+                    borderWidth: 1.5,
+                    borderColor: colors.border,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Ionicons name="thumbs-up-outline" size={24} color={colors.terracotta} />
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="No, I wouldn't cook this again"
+                  hitSlop={8}
+                  onPress={() => rate('down')}
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: radii.pill,
+                    borderWidth: 1.5,
+                    borderColor: colors.border,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Ionicons name="thumbs-down-outline" size={24} color={colors.inkSoft} />
+                </Pressable>
+              </View>
+            </>
+          )}
         </View>
         <View style={{ marginTop: space[4], alignSelf: 'stretch' }}>
           {snapped ? (

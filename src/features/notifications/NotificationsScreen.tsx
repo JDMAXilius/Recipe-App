@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, Switch, View, type ViewStyle } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Screen, Text, Button } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -63,6 +64,7 @@ export function NotificationsScreen() {
 
           <View style={styles.card}>
             <View style={styles.row}>
+              <Ionicons name="moon-outline" size={20} color={colors.inkSoft} />
               <View style={styles.rowBody}>
                 <Text role="body">Tonight&apos;s dinner</Text>
                 <Text role="caption">On days you planned something — one nudge, with the dish name.</Text>
@@ -98,6 +100,7 @@ export function NotificationsScreen() {
 
           <View style={styles.card}>
             <View style={styles.row}>
+              <Ionicons name="calendar-outline" size={20} color={colors.inkSoft} />
               <View style={styles.rowBody}>
                 <Text role="body">Sunday planning nudge</Text>
                 <Text role="caption">Sunday, 9am — a fresh week, a gentle poke.</Text>

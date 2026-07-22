@@ -1,8 +1,8 @@
 import React from 'react';
-import { Pressable, View, type ViewStyle } from 'react-native';
-import { Text, Button, useToast } from '@/shared/ui';
+import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Screen, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
-import { Screen } from './components/Frame';
 import { DIETS, CUISINES } from './profile.prefs';
 import { usePrefs } from './usePrefs';
 
@@ -11,12 +11,30 @@ import { usePrefs } from './usePrefs';
 // stay fully yours. Persisted through usePrefs on every tap (best-effort, never
 // blocks the UI); "Save" just confirms the intent already committed.
 export function PreferencesScreen() {
+  const router = useRouter();
   const { show } = useToast();
   const { diet, cuisines, setDiet, toggleCuisine } = usePrefs();
 
+  // Prefs persist on every tap (usePrefs), so Save just confirms the intent
+  // already committed and dismisses — matching Figma's header Save.
+  const onBack = () => (router.canGoBack() ? router.back() : router.replace('/profile'));
+  const onSave = () => {
+    show('Noted — Discover follows your taste now.', 'success');
+    onBack();
+  };
+
   return (
-    <Screen title="Food preferences">
-      <View style={{ gap: space[4] }}>
+    <Screen
+      title="Food preferences"
+      onBack={onBack}
+      right={
+        <Pressable onPress={onSave} hitSlop={8} accessibilityRole="button" accessibilityLabel="Save preferences">
+          <Text role="computed">Save</Text>
+        </Pressable>
+      }
+    >
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <View style={{ gap: space[4] }}>
         <Text role="caption">
           These shape Otto&apos;s pick and where Discover starts. Search and the filters stay fully
           yours, and your own recipes are never filtered.
@@ -69,18 +87,14 @@ export function PreferencesScreen() {
             })}
           </View>
         </View>
-
-        <Button
-          title="Save"
-          variant="primary"
-          onPress={() => show('Noted — Discover follows your taste now.', 'success')}
-        />
       </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles: Record<string, ViewStyle> = {
+  scroll: { padding: space[4], paddingBottom: space[7] },
   card: { backgroundColor: colors.white, borderRadius: radii.card, paddingHorizontal: space[4] },
   row: { flexDirection: 'row', alignItems: 'center', minHeight: 44, paddingVertical: space[3] },
   rowDivider: { borderTopWidth: 1, borderTopColor: colors.creamDeep },

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FlatList, Image, Pressable, useWindowDimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
-import { OttoArt, Screen, Text } from '@/shared/ui';
+import { OttoArt, OttoIdle, Screen, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useJournal } from './useJournal';
 import type { JournalEntry } from './journal.logic';
@@ -21,10 +21,10 @@ export function JournalScreen() {
     return (
       <Screen title="Cooking journal" onBack={() => router.back()}>
         <View style={{ alignItems: 'center', gap: space[3], marginTop: space[6], paddingHorizontal: space[5] }}>
-          <OttoArt name="scene-empty" size={140} />
+          <OttoIdle name="happy" size={140} />
           <Text role="title">No plates yet</Text>
           <Text role="caption">
-            Cook something and snap it — this is where the good memories live.
+            Finish a cook and snap your plate — this is where the good memories live.
           </Text>
         </View>
       </Screen>

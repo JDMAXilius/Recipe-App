@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Pressable, View, type ViewStyle } from 'react-native';
-import { Text } from '@/shared/ui';
+import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { Screen, Text } from '@/shared/ui';
+import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
-import { Screen } from './components/Frame';
 
 // Little questions — an accordion of what people actually wonder. Every answer
 // states what Otto does TODAY; when a capability is still on its way, the
@@ -47,17 +49,22 @@ const FAQS = [
 ];
 
 export function FaqScreen() {
+  const router = useRouter();
   const [open, setOpen] = useState<number | null>(null);
+  const toggle = (index: number) => {
+    haptics.select();
+    setOpen((prev) => (prev === index ? null : index));
+  };
   return (
-    <Screen title="Little questions">
-      <View style={{ gap: space[2] }}>
+    <Screen title="Little questions" onBack={() => router.back()}>
+      <ScrollView contentContainerStyle={styles.scroll}>
         {FAQS.map((item, index) => {
           const isOpen = open === index;
           return (
             <View key={item.q} style={styles.card}>
               <Pressable
                 style={styles.questionRow}
-                onPress={() => setOpen(isOpen ? null : index)}
+                onPress={() => toggle(index)}
                 accessibilityRole="button"
                 accessibilityState={{ expanded: isOpen }}
                 accessibilityLabel={item.q}
@@ -65,7 +72,11 @@ export function FaqScreen() {
                 <View style={{ flex: 1 }}>
                   <Text role="body">{item.q}</Text>
                 </View>
-                <Text role="caption">{isOpen ? '–' : '+'}</Text>
+                <Ionicons
+                  name={isOpen ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={colors.inkSoft}
+                />
               </Pressable>
               {isOpen && <Text role="caption">{item.a}</Text>}
             </View>
@@ -74,12 +85,13 @@ export function FaqScreen() {
         <Text role="caption">
           Something else on your mind? Send a thought from your profile — a human reads every one.
         </Text>
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles: Record<string, ViewStyle> = {
+  scroll: { padding: space[4], paddingBottom: space[7], gap: space[2] },
   card: { backgroundColor: colors.white, borderRadius: radii.card, padding: space[4], gap: space[2] },
   questionRow: { flexDirection: 'row', alignItems: 'center', gap: space[2], minHeight: 44 },
 };

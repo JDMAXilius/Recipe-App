@@ -3,9 +3,13 @@ import { Image, Pressable, ScrollView, Text as RNText, View } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as WebBrowser from 'expo-web-browser';
 import { Bounceable, Button, PawMark, Sheet, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
+// Pure text enricher — tints detected temps/durations (semantic-ink: computed).
+// Deep import mirrors RecipeCard → nutrition/estimates; no barrel for leaf utils.
+import { segmentStep } from '@/features/cook/stepEnrich';
 import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
 import { ShareCard, shareRecipeCard, type ShareRecipe } from '@/features/share';
 import { useSaved } from '@/features/cookbook';
@@ -178,7 +182,30 @@ export function RecipeDetailScreen() {
                   })
                 }
               />
-            ) : null}
+            ) : (
+              // User's own recipe (id "u-…") — edit affordance in the hero (v1
+              // parity). Seed recipes get the paw instead; never both.
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Edit recipe"
+                onPress={() => router.push(`/recipe/edit?id=${recipeId}`)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: radii.pill,
+                  backgroundColor: colors.white,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  shadowColor: '#000',
+                  shadowOpacity: 0.15,
+                  shadowRadius: 6,
+                  shadowOffset: { width: 0, height: 2 },
+                  elevation: 3,
+                }}
+              >
+                <Ionicons name="pencil" size={20} color={colors.ink} />
+              </Pressable>
+            )}
           </View>
         </View>
 
@@ -186,10 +213,28 @@ export function RecipeDetailScreen() {
           {/* TITLE BLOCK */}
           <View style={{ gap: space[2] }}>
             {[recipe.category, recipe.area].filter(Boolean).length ? (
-              <Text role="caption">{[recipe.category, recipe.area].filter(Boolean).join('  ·  ')}</Text>
+              // Uppercase eyebrow (v1 parity). `meta` is the uppercase micro-label
+              // role; terracotta stays reserved for computed values (semantic ink).
+              <Text role="meta">{[recipe.category, recipe.area].filter(Boolean).join('  ·  ')}</Text>
             ) : null}
             <Text role="display">{recipe.title}</Text>
-            {recipe.sourceName ? <Text role="caption">From {recipe.sourceName}</Text> : null}
+            {recipe.sourceName ? (
+              recipe.sourceUrl ? (
+                // Attribution is a link when the import carried its source URL —
+                // opens the original in the in-app browser (v1 parity).
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel={`Open the original recipe on ${recipe.sourceName}`}
+                  onPress={() => void WebBrowser.openBrowserAsync(recipe.sourceUrl as string)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: space[1] }}
+                >
+                  <Text role="caption">From {recipe.sourceName}</Text>
+                  <Ionicons name="open-outline" size={13} color={colors.terracotta} />
+                </Pressable>
+              ) : (
+                <Text role="caption">From {recipe.sourceName}</Text>
+              )
+            ) : null}
 
             {/* Computed meta */}
             <View style={{ flexDirection: 'row', gap: space[5], marginTop: space[2] }}>
@@ -271,7 +316,7 @@ export function RecipeDetailScreen() {
             <View style={{ gap: space[3] }}>
               <Text role="title">Method</Text>
               {recipe.steps.map((step, i) => (
-                <View key={i} style={{ flexDirection: 'row', gap: space[3] }}>
+                <View key={i} style={{ flexDirection: 'row', gap: space[3], alignItems: 'flex-start' }}>
                   <View
                     style={{
                       width: 28,
@@ -284,9 +329,42 @@ export function RecipeDetailScreen() {
                   >
                     <Text role="computed">{String(i + 1)}</Text>
                   </View>
+                  {/* Enriched prose: detected temps/durations tint terracotta
+                      (computed), the rest stays authored ink. */}
                   <View style={{ flex: 1 }}>
-                    <Text role="body">{step}</Text>
+                    <Text role="body">
+                      {segmentStep(step).map((seg, s) =>
+                        seg.type === 'text' ? (
+                          <Text key={s} role="body">{seg.text}</Text>
+                        ) : (
+                          <Text key={s} role="computed">
+                            {seg.type === 'duration' ? `◷ ${seg.text}` : seg.text}
+                          </Text>
+                        ),
+                      )}
+                    </Text>
                   </View>
+                  {/* Start cooking from this step (v1 parity). */}
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Start cooking from step ${i + 1}`}
+                    hitSlop={8}
+                    onPress={() => {
+                      haptics.select();
+                      router.push(`/recipe/cook/${recipeId}?step=${i}&servings=${servings}`);
+                    }}
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 14,
+                      borderWidth: 1.5,
+                      borderColor: colors.terracotta,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Ionicons name="play" size={13} color={colors.terracotta} />
+                  </Pressable>
                 </View>
               ))}
             </View>
