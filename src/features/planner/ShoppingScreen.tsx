@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Text, OttoArt, OttoLoading, OttoError, Screen } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
-import { colors, radii, space } from '@/shared/theme/tokens';
+import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { kv } from '@/shared/storage';
 import { buildShoppingListShareText } from '@/features/share';
 import { useAuth } from '@/features/auth';
@@ -323,10 +323,16 @@ export function ShoppingScreen() {
                           <Ionicons name="checkmark" size={16} color={colors.white} />
                         )}
                       </View>
-                      <View style={{ flex: 1 }}>
-                        <RNText>
-                          {item.amount ? <RNText style={styles.itemAmount}>{item.amount} </RNText> : null}
-                          <RNText style={styles.itemName}>{item.name}</RNText>
+                      <View style={{ flex: 1, opacity: isChecked(item.key) ? 0.5 : 1 }}>
+                        <RNText style={isChecked(item.key) ? styles.struck : undefined}>
+                          {item.amount ? (
+                            <RNText style={[styles.itemAmount, isChecked(item.key) && styles.struckAmount]}>
+                              {item.amount}{' '}
+                            </RNText>
+                          ) : null}
+                          <RNText style={[styles.itemName, isChecked(item.key) && styles.struckAmount]}>
+                            {item.name}
+                          </RNText>
                         </RNText>
                         {item.sources.length > 0 && (
                           <Text role="caption">for {item.sources.join(' · ')}</Text>
@@ -355,8 +361,15 @@ export function ShoppingScreen() {
                         <Ionicons name="checkmark" size={16} color={colors.white} />
                       )}
                     </Pressable>
-                    <View style={{ flex: 1 }}>
-                      <Text role="body">{item.name}</Text>
+                    <View style={{ flex: 1, opacity: isChecked(item.key) ? 0.5 : 1 }}>
+                      <RNText
+                        style={[
+                          { ...type.body, color: colors.ink },
+                          isChecked(item.key) && styles.struck,
+                        ]}
+                      >
+                        {item.name}
+                      </RNText>
                     </View>
                     <Pressable
                       accessibilityRole="button"
@@ -454,6 +467,10 @@ const styles: Record<string, ViewStyle & TextStyle> = {
   chipText: { flexShrink: 1, fontSize: 13, fontWeight: '600', color: colors.ink },
   itemAmount: { fontSize: 15, fontWeight: '700', color: colors.terracotta },
   itemName: { fontSize: 15, color: colors.ink },
+  // Crossed-off: strike the line + mute the terracotta amount to grey so a
+  // ticked row reads as "got it" at a glance.
+  struck: { textDecorationLine: 'line-through', color: colors.inkSoft },
+  struckAmount: { color: colors.inkSoft },
   addBtn: {
     width: 44,
     height: 44,
