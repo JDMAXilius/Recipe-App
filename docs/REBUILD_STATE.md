@@ -26,7 +26,7 @@
 | M1 Engine green | ☑ **91/91, byte-identical to v1** (@12502ac6) |
 | M2 Platform ready | ☑ **applied live + 75/75 RLS attack test** (@ff0dd011); advisors clean of ERROR; 3 fns via MCP + 3 via CLI, secrets set |
 | M3 Features merged | ☑ **9/9 features, two waves, repo-wide 163/163** (@21c9e20a) |
-| M4 Converged + device QA | ◐ A–E done — **review loop converged, 2 dry rounds** (@5b9bebb8); app boots + live web L3 clean; **F device QA + cutover PR (founder) remains** |
+| M4 Converged + device QA | ◐ A–E done + **cutover commit staged** (@ce6b34e5 removes v1, v2 green standalone); PR `rebuild/v2 → main` ready to open; **founder: device QA + open/approve/merge** |
 
 ## Open packets / tickets
 
