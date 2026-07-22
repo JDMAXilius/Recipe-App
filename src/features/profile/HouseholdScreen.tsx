@@ -14,6 +14,10 @@ import { useHousehold } from '@/features/household';
 // join/create/invite/members; the list itself lives in ShoppingScreen.
 export function HouseholdScreen() {
   const router = useRouter();
+  // Robust back: when this screen is the first in the stack (e.g. opened via a
+  // deep link or after a redirect) router.back() is a no-op, which reads as a
+  // dead button — fall back to Account, where "Our shared list" lives.
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace('/(tabs)/profile'));
   const { show } = useToast();
   const { user } = useAuth();
   const { household, members, isLoading, create, join, leave } = useHousehold();
@@ -70,7 +74,7 @@ export function HouseholdScreen() {
 
   if (isLoading) {
     return (
-      <Screen title="Our shared list" onBack={() => router.back()}>
+      <Screen title="Our shared list" onBack={goBack}>
         <OttoLoading message="Finding your kitchen…" />
       </Screen>
     );
@@ -79,7 +83,7 @@ export function HouseholdScreen() {
   // ───────────────────────────────── in a household
   if (household) {
     return (
-      <Screen title="Our shared list" onBack={() => router.back()}>
+      <Screen title="Our shared list" onBack={goBack}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={{ alignItems: 'center', gap: space[2] }}>
             <OttoIdle name="happy" size={120} />
@@ -128,7 +132,7 @@ export function HouseholdScreen() {
 
   // ───────────────────────────────── not in a household: create or join
   return (
-    <Screen title="Our shared list" onBack={() => router.back()}>
+    <Screen title="Our shared list" onBack={goBack}>
       <ScrollView contentContainerStyle={styles.setupScroll} keyboardShouldPersistTaps="handled">
         <OttoIdle name="happy" size={140} />
         <Text role="title">One list, shared</Text>

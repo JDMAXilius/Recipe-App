@@ -204,7 +204,7 @@ export function DiscoverScreen() {
             accessibilityLabel="Ask Otto for a recipe"
             onPress={() => {
               haptics.select();
-              router.push('/ask');
+              router.push('/create');
             }}
             style={{
               flexDirection: 'row',
