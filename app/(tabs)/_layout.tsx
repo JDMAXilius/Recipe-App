@@ -1,7 +1,8 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/shared/theme/tokens';
 import { TabBarCreateButton } from '@/shared/ui/TabBarCreateButton';
+import { useAuth } from '@/features/auth';
 
 // 5 tabs (FRAMEWORK §2 / spec §Bottom tab bar): Discover · Cookbook · raised ＋ ·
 // Plan · Account. Ionicons filled when focused, outline otherwise; the center
@@ -22,6 +23,12 @@ function tabIcon(base: string) {
 }
 
 export default function TabsLayout() {
+  const { isLoaded, session } = useAuth();
+  // Auth required: the initial route into (tabs) is gated by app/index, but if
+  // the session clears while inside (e.g. Sign out from the Account tab), leave
+  // for sign-in instead of showing empty screens.
+  if (isLoaded && !session) return <Redirect href="/(auth)/sign-in" />;
+
   return (
     <Tabs
       screenOptions={{
