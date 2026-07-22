@@ -69,3 +69,10 @@ end; $$;
 
 alter publication supabase_realtime add table public.household_list_state;
 alter publication supabase_realtime add table public.household_members;
+
+-- Hardening (applied 2026-07-22): functions default to EXECUTE for PUBLIC
+-- (anon inherits). Lock the household helpers to authenticated only.
+revoke execute on function public.is_household_member(uuid) from public;
+revoke execute on function public.join_household(text) from public;
+grant execute on function public.is_household_member(uuid) to authenticated;
+grant execute on function public.join_household(text) to authenticated;
