@@ -18,7 +18,6 @@ import { haptics } from '@/shared/haptics';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { kv } from '@/shared/storage';
 import { buildShoppingListShareText } from '@/features/share';
-import { useAuth } from '@/features/auth';
 import { useHousehold, useSharedList, getHouseholdWeekDishes } from '@/features/household';
 import { usePlan } from './usePlan';
 import { getListRecipes } from './plan.queries';
@@ -34,8 +33,6 @@ import { buildShoppingList, AISLES } from './shoppingList';
 export function ShoppingScreen() {
   const router = useRouter();
   const { entries, days, isLoading: planLoading } = usePlan();
-  const { user } = useAuth();
-  const userId = user?.id ?? null;
   const padRef = useRef<View>(null);
 
   // Shared kitchen: when the user is in a household the list aggregates EVERY
@@ -78,7 +75,7 @@ export function ShoppingScreen() {
   const listQuery = useQuery({
     queryKey: ['plan-list', activeRecipeIds],
     enabled: activeRecipeIds.length > 0,
-    queryFn: () => getListRecipes(activeRecipeIds, userId),
+    queryFn: () => getListRecipes(activeRecipeIds),
     // Keep the current rows visible while a changed week refetches, so adding
     // or removing a dish updates the list without a blank flash.
     placeholderData: keepPreviousData,
@@ -149,7 +146,7 @@ export function ShoppingScreen() {
     setNewItem('');
     if (isShared) shared.addCustom(name);
     // Date.now() key — a re-used index would collide checkboxes after removals.
-    else setCustom((prev) => [...prev, { key: `custom-${Date.now()}`, name }]);
+    else setCustom((prev) => [...prev, { key: `custom-${Date.now()}-${Math.floor(Math.random() * 1e6)}`, name }]);
   };
 
   const removeCustom = (key: string) => {

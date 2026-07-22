@@ -38,6 +38,7 @@ export async function getMyHousehold(userId: string): Promise<Household | null> 
     .from('household_members')
     .select('household_id')
     .eq('user_id', userId)
+    .order('joined_at')
     .limit(1)
     .maybeSingle();
   if (!mem) return null;

@@ -55,6 +55,12 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="create"
+        listeners={({ navigation }) => ({
+          // The ＋ button must always open a FRESH chat. Reopening a recent
+          // thread pushes /create?chat=<id>; without this the sticky param
+          // makes a later ＋ tap reload that old thread instead of a blank chat.
+          tabPress: () => navigation.setParams({ chat: undefined }),
+        })}
         options={{
           title: 'Create',
           tabBarLabel: () => null,

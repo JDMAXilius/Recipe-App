@@ -103,10 +103,7 @@ async function getSeedRecipeForList(id: string): Promise<RecipeForList | null> {
 // `recipes` table and returned nothing for a normal week of seed dishes (the
 // "shopping list stays empty" bug). User recipes need the signed-in user (RLS);
 // seed recipes resolve for anyone via the content function.
-export async function getListRecipes(
-  recipeIds: string[],
-  userId: string | null,
-): Promise<RecipeForList[]> {
+export async function getListRecipes(recipeIds: string[]): Promise<RecipeForList[]> {
   const userRecipeIds = recipeIds
     .filter((id) => /^u-/.test(id))
     .map((id) => Number(id.slice(2)))
@@ -115,11 +112,13 @@ export async function getListRecipes(
 
   const [userRecipes, seedRecipes] = await Promise.all([
     (async (): Promise<RecipeForList[]> => {
-      if (!userId || userRecipeIds.length === 0) return [];
+      if (userRecipeIds.length === 0) return [];
+      // Fetch by id only — RLS decides access (own recipes, plus a co-member's
+      // when in a shared household). Filtering by the caller's user_id would
+      // drop another member's user recipe from the shared list (review finding).
       const { data, error } = await supabase
         .from('recipes')
         .select('id, title, ingredients')
-        .eq('user_id', userId)
         .in('id', userRecipeIds);
       if (error) throw error;
       return (data ?? []).map((row) => {

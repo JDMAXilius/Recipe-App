@@ -74,7 +74,7 @@ export function RecipeDetailScreen() {
     );
   }
 
-  const baseServings = recipe.servings ?? 4;
+  const baseServings = recipe.servings || 4;
   const scaleFactor = servings / baseServings;
   const isSeed = !isUserRecipeRef(recipeId);
   const recipeIdNum = Number(recipe.id);

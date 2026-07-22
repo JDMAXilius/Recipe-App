@@ -77,7 +77,7 @@ export function useSeedCalories() {
     queryKey: ["seed-calories"],
     staleTime: Infinity,
     queryFn: async (): Promise<Map<string, number>> => {
-      const { data } = await supabase.from("seed_nutrition").select("recipe_id, nutrition");
+      const { data } = await supabase.from("seed_nutrition").select("recipe_id, nutrition").range(0, 99999);
       const map = new Map<string, number>();
       for (const row of data ?? []) {
         const kcal = (row.nutrition as { kcal?: unknown } | null)?.kcal;

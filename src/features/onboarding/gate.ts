@@ -11,7 +11,10 @@ export interface GateInput {
 
 export function resolveRoute({ onboarded, isLoaded, hasSession }: GateInput): GateRoute | null {
   if (!isLoaded || onboarded === null) return null; // splash
+  // A live session wins over the onboarding flag: an already-signed-in user
+  // whose local onboarded flag was cleared (app-data reset) should go straight
+  // home, not be force-marched through onboarding → sign-up and bounced back.
+  if (hasSession) return '/(tabs)';
   if (!onboarded) return '/onboarding';
-  if (!hasSession) return '/(auth)/sign-in'; // onboarded but signed out
-  return '/(tabs)'; // onboarded + a session (guest or real)
+  return '/(auth)/sign-in'; // onboarded but signed out
 }

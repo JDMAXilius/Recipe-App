@@ -119,7 +119,7 @@ export function CookScreen() {
 
   // Default servings once the recipe lands (recipe.servings, else 1).
   useEffect(() => {
-    if (recipe && servings === 0) setServings(recipe.servings ?? 1);
+    if (recipe && servings === 0) setServings(recipe.servings || 1);
   }, [recipe, servings]);
 
   // Clamp a deep-linked out-of-range ?step= once steps exist.
@@ -277,7 +277,7 @@ export function CookScreen() {
   // recipe's true yield, through the global unit pref (weight-first metric / US).
   // So changing servings in prep rescales the prep list, the step "you'll need"
   // chips, and the ingredients sheet — the Units pref is honoured throughout.
-  const baseServings = recipe.servings ?? 1;
+  const baseServings = recipe.servings || 1;
   const factor = servings > 0 ? servings / baseServings : 1;
   const scaledPair = (p: IngredientPair): IngredientPair => ({
     name: p.name,

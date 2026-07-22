@@ -28,9 +28,13 @@ function fmt(n: number): string {
 
 export function scaleIngredient(
   pair: IngredientPair,
-  factor: number,
+  rawFactor: number,
   system: UnitSystem,
 ): ScaledRow {
+  // Guard a non-finite or non-positive factor (a recipe with servings 0 or a
+  // parsed-NaN yield): scaling by Infinity/NaN would render "Infinity g". Fall
+  // back to 1× so the amounts stay the recipe's own, never garbage.
+  const factor = Number.isFinite(rawFactor) && rawFactor > 0 ? rawFactor : 1;
   const parsed = parseIngredientLine(pair);
   const name = (pair.name ?? parsed.item ?? '').trim();
 

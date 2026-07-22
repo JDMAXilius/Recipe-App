@@ -7,9 +7,14 @@ test('gate: splash while either signal is still resolving', () => {
   assert.equal(resolveRoute({ onboarded: null, isLoaded: true, hasSession: false }), null);
 });
 
-test('gate: not onboarded → onboarding (even with a session)', () => {
+test('gate: not onboarded + signed out → onboarding', () => {
   assert.equal(resolveRoute({ onboarded: false, isLoaded: true, hasSession: false }), '/onboarding');
-  assert.equal(resolveRoute({ onboarded: false, isLoaded: true, hasSession: true }), '/onboarding');
+});
+
+test('gate: a live session goes straight home (session wins over onboarding)', () => {
+  // An already-signed-in user with a cleared onboarded flag must not be
+  // force-marched through onboarding → sign-up and bounced back.
+  assert.equal(resolveRoute({ onboarded: false, isLoaded: true, hasSession: true }), '/(tabs)');
 });
 
 test('gate: onboarded + signed out → sign-in', () => {
