@@ -1,0 +1,13 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/features/*": ["./src/features/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/types/*": ["./src/types/*"]
+    }
+  },
+  "include": ["app/**/*", "src/**/*", "expo-env.d.ts", ".expo/types/**/*.ts"],
+  "exclude": ["node_modules", "mobile", "backend"]
+}

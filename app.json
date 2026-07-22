@@ -1,3 +1,19 @@
 {
-  "expo": {}
+  "expo": {
+    "name": "Otto",
+    "slug": "otto",
+    "version": "2.0.0",
+    "scheme": "otto",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
 }
