@@ -35,7 +35,8 @@ Non-negotiable guardrails:
 ```
 MAIN GOAL
 ├── SG1  Contracts signed off              ← everything blocks on this
-│    T1.1 schema+types · T1.2 engine API · T1.3 feature/ui contracts · T1.4 judge review
+│    T0.5 crew packet (7 agent definitions + critic panel review)
+│    T1.1 schema+types · T1.2 engine API · T1.3 feature/ui contracts · T1.4 critic review
 ├── SG2  Engine ported, behavior-identical
 │    T2.1 parse · T2.2 lookup · T2.3 compute+guards · T2.4 one data copy · T2.5 suites green
 ├── SG3  Platform track (parallel with SG2)
@@ -59,7 +60,7 @@ flowchart LR
     M0[M0 Contracts<br/>FOUNDER signs off] --> E[SG2 Engine port]
     M0 --> P[SG3 Platform:<br/>RLS · functions · ui]
     E -->|golden + macro green| J{join}
-    P -->|refuters pass| J
+    P -->|critics pass| J
     J --> F[SG4 Feature fan-out ×9<br/>worktrees, 6–8 concurrent]
     F --> I[SG5 Integration + L3 smoke]
     I --> R[SG6 Review loop<br/>until 2 dry rounds]
@@ -74,44 +75,97 @@ exist on `rebuild/v2`, named checks pass). No artifact, no agent.
 |---|---|---|
 | M0 Contracts | founder approves ~6 contract files | human |
 | M1 Engine | golden + macro suites green on the TS port | automatic |
-| M2 Platform | RLS survives 3 refuters; functions deploy; ui renders | automatic + judges |
+| M2 Platform | RLS survives 3 critics; functions deploy; ui renders | automatic + critics |
 | M3 Features | every packet accepted (schema → verify → merge) | automatic |
 | M4 Converged | review loop dry ×2 → terminal device QA → founder review | human |
 
 ## 4. Agent model
 
-```mermaid
-flowchart TD
-    O[MANAGER — cloud session<br/>owns goal tree · only merger · never writes feature code]
-    O --> W1[Phase workflows<br/>deterministic scripts]
-    W1 --> B[builders<br/>write in worktrees]
-    W1 --> V[verifiers<br/>tsc · tests · L3 journeys]
-    W1 --> Jd[judges/refuters<br/>score & attack]
-    W1 --> S[scouts<br/>read-only research]
+### 4.1 The three layers
+
+An agent is a **file**, so the crew is code — versioned on `rebuild/v2`,
+reviewed and diffed like anything else.
+
+```
+DEFINITIONS  .claude/agents/*.md — durable "classes": identity, doctrine,
+             tool permissions, model/effort. 7 of them (§4.2).
+     │  spawned by
+WORKFLOW SCRIPTS  the phase orchestrations — pick a definition, inject a packet
+     │  producing
+INSTANCES  ephemeral — one per packet, in its own worktree; returns one
+           structured report-back, then disappears.
 ```
 
-Assignment is by rule, not by hand:
+Instances are disposable; **definitions accumulate wisdom**. A failure pattern
+becomes a one-line doctrine commit that every future instance inherits.
 
-| Task smells like… | Specialist | Effort | Paired with |
+### 4.2 The crew — 7 definitions (4 archetypes + 3 specialists)
+
+```mermaid
+flowchart TD
+    O[MANAGER — cloud session<br/>owns goal tree · only merger · scouts inline · never writes feature code]
+    O --> W1[Phase workflows<br/>deterministic scripts]
+    W1 --> B[builder + 3 specialist builders<br/>write in worktrees]
+    W1 --> V[verifier<br/>tsc · tests · L3 journeys · NO write]
+    W1 --> C[critic<br/>judge + refuter · NO write]
+    W1 --> S[scout<br/>read-only research]
+```
+
+| Definition | Role | Tools | Model / effort |
 |---|---|---|---|
-| Mechanical port with pinning tests | builder | low | verifier running the suite |
-| New interface / design decision | builder | high | 3-judge panel |
-| Security-shaped (RLS, SSRF) | builder | high | 3 adversarial refuters |
-| "Is this actually done?" | verifier | low | — |
-| Research old code for a packet | scout | low | feeds manager |
+| **builder** | writes one packet in its worktree | Read · Edit · Write · Bash · Grep · Glob | default / low–med |
+| **verifier** | runs tsc, tests, L3 journeys; reports only | Read · Bash — **no Write** | cheap / low |
+| **critic** | adversarial — scores competing designs AND refutes findings (mode set by packet) | Read · Bash — **no Write** | default / high |
+| **scout** | reads old code, feeds packets | Read · Grep · Glob | cheap / low |
+| **engine-porter** | specialist builder: nutrition-engine doctrine | builder tools | default / med |
+| **security-builder** | specialist builder: RLS / SSRF / auth | builder tools | default / high |
+| **ui-systems** | specialist builder: `shared/ui` + tokens | builder tools | default / med |
 
-**Folder ownership = write scope.** One folder, one agent:
+**Tools ARE the org chart.** The rules in REBUILD_PACKETS.md — builders never
+verify, verifiers never fix, critics never touch code — are enforced by
+*capability*, not by asking: a verifier physically has no Write tool, so
+"quietly patched the test to pass" is impossible, not discouraged. Same move
+as RLS replacing auth middleware — push the rule from prompt-space into
+permission-space.
 
-| Folder | Agent | Kick-off inputs |
+### 4.3 Decisions on the record (do not re-litigate)
+
+- **critic = judge + refuter merged.** Same shape (read-only, adversarial,
+  high-effort); they differ only in mode. A port-driven rebuild has little to
+  "judge" and much to "refute" — one definition covers both, one fewer file.
+- **Specialists are definitions, not packet-doctrine.** Their doctrine (engine
+  honesty law + no runtime LLM; RLS attack patterns; semantic-ink tokens) is
+  where a mistake is *silent and confident* — so it lives behind a reviewed
+  fence (a definition inherited forever), never a sticky note (doctrine retyped
+  per packet, which decays).
+- **REJECTED: splitting agents by discipline** (backend / frontend / UI-UX /
+  API). That axis cuts every feature across contexts that cannot talk, forcing
+  4 agents to agree on one feature's contract mid-flight — which recreates the
+  card-vs-detail drift bug this rebuild exists to kill. The correct axis is
+  ownership by **folder** (§4.4): API = owned edge-function folders,
+  UI/UX = the owned `shared/ui` folder, DB = the owned migrations folder —
+  concerns as owned folders with doctrine, never as disciplines.
+- **scout runs inline in the manager** for now (~30 packets). Promoted to its
+  own running definition only if old-code reading gets heavy — cheap to add,
+  wasteful to build early.
+- **NOT in the crew:** the manager (that's this cloud session, not a file); any
+  standing "fixer" (fixing is a builder with a bug-shaped packet); any
+  free-roaming "improver" (nothing runs without a packet).
+
+### 4.4 Folder ownership = write scope
+
+One folder, one owner. The specialist/archetype that owns each:
+
+| Folder | Owned by | Kick-off inputs |
 |---|---|---|
-| `supabase/migrations/` | schema agent | FRAMEWORK.md (M0 start) |
+| `supabase/migrations/` | security-builder | FRAMEWORK.md (M0 start) |
 | `src/types/` | generated — no agent | schema merged |
-| `features/nutrition/engine/` | engine agent | engine API contract |
-| `src/shared/ui/` + `theme/` | ui agent | token contract |
-| `supabase/functions/*` | 5 function agents | schema + zod contracts |
-| `features/*` (9) | 9 feature agents | types + engine + ui green |
-| `app/` + layout | integration agent | all features merged |
-| cross-cutting (read-only) | review swarm | M3 passed |
+| `features/nutrition/engine/` | engine-porter | engine API contract |
+| `src/shared/ui/` + `theme/` | ui-systems | token contract |
+| `supabase/functions/*` | security-builder (+ builder) | schema + zod contracts |
+| `features/*` (9) | builder (one per folder) | types + engine + ui green |
+| `app/` + layout | builder (integration) | all features merged |
+| cross-cutting (read-only) | critic swarm | M3 passed |
 
 Ownership rules — enforced mechanically at merge, not by honor:
 
@@ -121,12 +175,21 @@ Ownership rules — enforced mechanically at merge, not by honor:
    `contract_gap` (see REBUILD_PACKETS.md), never edit it yourself.
 3. The manager is the only merger. Agents never merge.
 
+### 4.5 Crew bootstrap
+
+The crew is built by the same machinery it will run. Added to SG1 as **T0.5
+"crew packet"**: write the 7 definitions → a critic panel tries to find the
+prompt-hole in each ("what packet makes this builder write outside its
+owner_path?") → survivors merge to `rebuild/v2`. Thereafter crew changes are
+ordinary reviewed commits, so cloud and terminal always spawn the identical
+crew at the same commit.
+
 ## 5. Concurrency
 
 - Engine hard cap: `min(16, cores−2)` per workflow; excess queues.
 - **Writers: max 6–8 concurrent** — binding constraint is merge-conflict
   surface, not compute. One writer per directory, each in its own worktree.
-- Readers/verifiers/refuters: up to 10–16.
+- Readers/verifiers/critics: up to 10–16.
 - **Minimum pairing: never a builder without its verifier.** An unverified
   green checkmark is how confidently-wrong code lands.
 - Granularity floor: the feature folder. Never agent-per-file.
