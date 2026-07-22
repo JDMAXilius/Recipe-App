@@ -5,17 +5,18 @@
 > report-backs land in ticket files and get folded in here. Keep this under
 > ~60 lines — history belongs in git, details belong in tickets.
 
-**Last updated:** 2026-07-21 · by cloud session (docs created, execution not started)
+**Last updated:** 2026-07-21 · by cloud session (tickets issued, handed to terminal)
 
 ## Where we are
 
 | | |
 |---|---|
-| Current milestone | **pre-M0** — blueprint + docs approved, execution NOT started |
-| Integration branch | not yet created (`rebuild/v2` pending kickoff) |
-| Legacy snapshot | not yet created (`v1-legacy` + tag pending kickoff) |
-| Last verified commit | — |
-| v1 app status | untouched, shippable from `main` |
+| Current milestone | **M0 kickoff** — tickets 00 + 01 issued; terminal executes ticket 00 next |
+| Integration branch | pending (created by ticket 00) |
+| Legacy snapshot | pending (`v1-legacy` + tag, by ticket 00) |
+| Old-code archive | pending (mirror → Old-recipe-app.git, by ticket 00) |
+| Last verified commit | cloud merge of branch → main |
+| v1 app status | shippable from `main`; **one known-red test** (10 orphan foods — ticket 00 step 2) |
 
 ## Gates
 
@@ -29,7 +30,11 @@
 
 ## Open packets / tickets
 
-_None issued yet._
+| Ticket | Status |
+|---|---|
+| REBUILD_00 source control | **issued — READY, terminal starts here** |
+| REBUILD_01 M0 scaffold/crew/contracts | issued — blocked on 00 |
+| REBUILD_02–04 | issued after their gate (see INDEX) |
 
 ## Blockers
 
