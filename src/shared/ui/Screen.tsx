@@ -45,7 +45,7 @@ export function Screen({ title, onBack, right, children }: ScreenProps) {
         >
           {title != null && <Text role="title">{title}</Text>}
         </View>
-        <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ minWidth: 44, height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
           {right}
         </View>
       </View>

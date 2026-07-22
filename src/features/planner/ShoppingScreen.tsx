@@ -195,17 +195,31 @@ export function ShoppingScreen() {
       title="Shopping list"
       onBack={() => router.back()}
       right={
-        total > 0 ? (
+        <>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Share the shopping list"
+            accessibilityLabel="Our shared list"
             hitSlop={8}
-            onPress={shareList}
+            onPress={() => {
+              haptics.select();
+              router.push('/household');
+            }}
             style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Ionicons name="share-outline" size={22} color={colors.ink} />
+            <Ionicons name="people-outline" size={22} color={colors.ink} />
           </Pressable>
-        ) : undefined
+          {total > 0 && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Share the shopping list"
+              hitSlop={8}
+              onPress={shareList}
+              style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Ionicons name="share-outline" size={22} color={colors.ink} />
+            </Pressable>
+          )}
+        </>
       }
     >
       <ScrollView style={{ backgroundColor: colors.cream }} contentContainerStyle={styles.scroll}>
