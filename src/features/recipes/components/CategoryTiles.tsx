@@ -1,11 +1,17 @@
 import React from 'react';
-import { Image, Pressable, ScrollView, Text as RNText, View } from 'react-native';
+import { Image, Pressable, ScrollView, View } from 'react-native';
+import { Text } from '@/shared/ui';
+import { foodIcon } from '@/shared/assets';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import type { RecipeCategory } from '../recipe.types';
 
-// Painted category tiles — the horizontal browse row (Discover). Each tile is
-// the category's own thumb with its name; the selected tile carries a terracotta
-// ring (interactive → terracotta, semantic ink).
+// Painted category tiles — the horizontal browse row (Discover, spec §Discover
+// item 6). Each tile shows the hand-painted `foodIcon` webp (not the MealDB
+// photo thumb) so the row reads as v1's painted look; the selected tile carries
+// a terracotta ring, and its label goes terracotta (role="computed", the
+// interactive/selected ink) while the rest stay ink (role="body").
+const SHORT: Record<string, string> = { Miscellaneous: 'Misc' };
+
 export function CategoryTiles({
   categories,
   selected,
@@ -43,20 +49,13 @@ export function CategoryTiles({
                 borderColor: colors.terracotta,
               }}
             >
-              {cat.thumb ? (
-                <Image source={{ uri: cat.thumb }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-              ) : null}
+              <Image
+                source={foodIcon(cat.name)}
+                style={{ width: '100%', height: '100%' }}
+                resizeMode="cover"
+              />
             </View>
-            <RNText
-              numberOfLines={1}
-              style={{
-                fontSize: 13,
-                fontWeight: active ? '600' : '400',
-                color: active ? colors.terracotta : colors.ink,
-              }}
-            >
-              {cat.name}
-            </RNText>
+            <Text role={active ? 'computed' : 'body'}>{SHORT[cat.name] ?? cat.name}</Text>
           </Pressable>
         );
       })}

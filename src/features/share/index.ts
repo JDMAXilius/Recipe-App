@@ -10,6 +10,7 @@ export {
   useCreateListShare,
 } from './share.queries';
 export { buildRecipeShareText, buildShoppingListShareText } from './shareText';
+export { shareRecipeCard } from './shareImage';
 export type {
   ShareRecipe,
   ShoppingItem,

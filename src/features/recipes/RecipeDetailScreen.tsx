@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, Text as RNText, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Button, PawMark, SegmentBar, Sheet, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
+import { haptics } from '@/shared/haptics';
 import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
-import { ShareCard, type ShareRecipe } from '@/features/share';
+import { ShareCard, shareRecipeCard, type ShareRecipe } from '@/features/share';
 import { useSaved } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
 import { RecipeCard } from './RecipeCard';
@@ -31,6 +32,7 @@ export function RecipeDetailScreen() {
   const { isSaved, toggle } = useSaved();
   const { days, add } = usePlan();
   const { show } = useToast();
+  const shareCardRef = useRef<View>(null); // captured to a PNG by shareRecipeCard
 
   // Every recipe opens at one serving (founder call): the stepper starts at 1
   // and scales the list down to a single portion. The true yield stays in
@@ -77,6 +79,7 @@ export function RecipeDetailScreen() {
   };
 
   const { scalable, pantry } = scaleIngredients(recipe.ingredients, scaleFactor, system);
+  const hasSteps = recipe.steps.length > 0;
 
   const nutritionRecipe: NutritionRecipe = {
     id: recipe.id,
@@ -267,10 +270,29 @@ export function RecipeDetailScreen() {
             </View>
           ) : null}
 
-          {/* SHARE — the painted, shareable card */}
+          {/* SHARE — the painted, shareable card. Tap Share (or long-press the
+              card) captures it to a PNG and opens the OS share sheet; web/no-
+              capture falls back to text share inside shareRecipeCard. */}
           <View style={{ gap: space[2] }}>
             <Text role="title">Share this recipe</Text>
-            <ShareCard recipe={shareRecipe} />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Share this recipe"
+              onLongPress={() => {
+                haptics.impact('medium');
+                shareRecipeCard(shareCardRef, shareRecipe);
+              }}
+            >
+              <ShareCard ref={shareCardRef} recipe={shareRecipe} />
+            </Pressable>
+            <Button
+              title="Share"
+              variant="secondary"
+              onPress={() => {
+                haptics.impact('medium');
+                shareRecipeCard(shareCardRef, shareRecipe);
+              }}
+            />
           </View>
 
           {/* EXIT — related recipes */}
@@ -299,8 +321,23 @@ export function RecipeDetailScreen() {
         }}
       >
         <View style={{ flex: 1 }}>
-          <Button title="Add to Otto’s week" variant="primary" size="lg" onPress={() => setPlanOpen(true)} />
+          <Button
+            title="Add to Otto’s week"
+            variant={hasSteps ? 'secondary' : 'primary'}
+            size="lg"
+            onPress={() => setPlanOpen(true)}
+          />
         </View>
+        {hasSteps ? (
+          <View style={{ flex: 1 }}>
+            <Button
+              title="Start cooking"
+              variant="primary"
+              size="lg"
+              onPress={() => router.push(`/recipe/cook/${recipeId}`)}
+            />
+          </View>
+        ) : null}
       </View>
 
       <Sheet visible={planOpen} onClose={() => setPlanOpen(false)} title="Add to Otto’s week">

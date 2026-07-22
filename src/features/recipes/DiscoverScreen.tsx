@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Text } from '@/shared/ui';
+import { OttoIdle, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { CategoryTiles } from './components/CategoryTiles';
+import { FilterSheet, filterByCategories } from './components/FilterSheet';
 import { RecipeCard } from './RecipeCard';
 import { useCategories, useDiscover, useFeatured, useSearch } from './recipe.queries';
 
@@ -22,11 +23,19 @@ export function DiscoverScreen() {
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [filterCats, setFilterCats] = useState<Set<string>>(new Set());
+  const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(query.trim()), 300);
     return () => clearTimeout(t);
   }, [query]);
+
+  // The grid's category pool changes when you switch category or search, and
+  // stale chips would silently empty the grid — reset the filter on either.
+  useEffect(() => {
+    setFilterCats(new Set());
+  }, [selectedCategory, debounced]);
 
   const categoriesQuery = useCategories();
   const featuredQuery = useFeatured();
@@ -41,9 +50,29 @@ export function DiscoverScreen() {
     }
   }, [categoriesQuery.data, selectedCategory]);
 
-  const grid = isSearching ? searchQuery.data ?? [] : discoverQuery.data ?? [];
+  const rawGrid = useMemo(
+    () => (isSearching ? searchQuery.data ?? [] : discoverQuery.data ?? []),
+    [isSearching, searchQuery.data, discoverQuery.data],
+  );
+  // Distinct categories present in the loaded grid. Browse mode is one category
+  // (filter would be degenerate), so the filter affordance only shows when the
+  // grid genuinely spans categories — i.e. search results.
+  const availableCats = useMemo(
+    () => [...new Set(rawGrid.map((r) => r.category).filter((c): c is string => !!c))],
+    [rawGrid],
+  );
+  const canFilter = availableCats.length > 1;
+  const grid = filterByCategories(rawGrid, filterCats);
   const gridTitle = isSearching ? `Results for “${debounced}”` : selectedCategory ?? 'Recipes';
   const featured = featuredQuery.data;
+
+  const toggleFilter = (cat: string) =>
+    setFilterCats((prev) => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      return next;
+    });
 
   const header = useMemo(() => greeting(), []);
 
@@ -53,7 +82,14 @@ export function DiscoverScreen() {
   // calling useSaved) — and warns "VirtualizedLists nested" on native.
   const ListHeader = (
     <View style={{ gap: space[4] }}>
-      <Text role="display">{header}</Text>
+      {/* Greeting + living Otto — he hops to 'excited' when a recipe is saved
+          (bus wired by PawMark); reduced-motion falls back to a static mascot. */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
+        <View style={{ flex: 1 }}>
+          <Text role="display">{header}</Text>
+        </View>
+        <OttoIdle name="happy" reactTo="save" size={64} />
+      </View>
 
       {/* Search pill */}
       <View
@@ -113,10 +149,27 @@ export function DiscoverScreen() {
         </>
       )}
 
-      {/* Grid title */}
+      {/* Grid title + filter affordance (only when the grid spans categories) */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <Text role="title">{gridTitle}</Text>
-        {grid.length > 0 ? <Text role="caption">{grid.length} recipes</Text> : null}
+        {canFilter ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Filter recipes"
+            onPress={() => setFilterOpen(true)}
+            hitSlop={8}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: space[1] }}
+          >
+            <Text role={filterCats.size ? 'computed' : 'label'}>Filter</Text>
+            {filterCats.size ? (
+              <View
+                style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.terracotta }}
+              />
+            ) : null}
+          </Pressable>
+        ) : grid.length > 0 ? (
+          <Text role="caption">{grid.length} recipes</Text>
+        ) : null}
       </View>
     </View>
   );
@@ -140,6 +193,15 @@ export function DiscoverScreen() {
               : 'Nothing on this shelf yet — try another category.'}
           </Text>
         }
+      />
+      <FilterSheet
+        visible={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        categories={availableCats}
+        selected={filterCats}
+        onToggle={toggleFilter}
+        onClear={() => setFilterCats(new Set())}
+        resultCount={grid.length}
       />
     </View>
   );

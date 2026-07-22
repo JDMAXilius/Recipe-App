@@ -2,16 +2,20 @@ import React from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { PawMark, Text } from '@/shared/ui';
-import { colors, radii, space } from '@/shared/theme/tokens';
+import { colors, radii, shadow, space } from '@/shared/theme/tokens';
 import { useSaved } from '@/features/cookbook';
+import { getNutritionEstimate } from '@/features/nutrition/estimates';
 import type { RecipeSummary } from './recipe.types';
 
 // The Discover / related-grid tile. Self-contained: it wires its own save paw
 // through useSaved() (allowlisted: cookbook → recipes) so any grid of summaries
 // is saveable without the parent threading state.
-// ponytail: no calorie badge — a summary carries no ingredients, so an honest
-// figure needs a per-card lookup (12+ network calls on Discover). Add it when a
-// batched discover-nutrition source lands; the macro dots stay decorative.
+//
+// Calorie badge: a summary has NO ingredients, so the card can only ESTIMATE
+// from its category (getNutritionEstimate) — it must therefore ALWAYS be
+// tilde-framed ("~400 cal"), never a bare number. The detail screen's computed
+// USDA figure is the source of truth; the "~" is the honest signal that these
+// two can legitimately differ (v1's "numbers never disagree" fix).
 export function RecipeCard({
   recipe,
   onPress,
@@ -27,6 +31,7 @@ export function RecipeCard({
   // design. Today only seed summaries reach this card; this guards the drift.
   const recipeId = Number(recipe.id);
   const isSeed = Number.isInteger(recipeId);
+  const estCalories = getNutritionEstimate(recipe.category).calories;
 
   // The card Pressable and the paw Pressable are SIBLINGS, not nested — on web
   // react-native-web renders each accessibilityRole="button" as a real <button>,
@@ -54,6 +59,26 @@ export function RecipeCard({
           <Text role="body">{recipe.title}</Text>
         </View>
       </Pressable>
+      {/* Estimate-only calorie pill (top-left, opposite the paw). Always "~". */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: space[2],
+          left: space[2],
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: space[1],
+          backgroundColor: colors.white,
+          borderRadius: radii.pill,
+          paddingHorizontal: space[3],
+          paddingVertical: space[1],
+          ...shadow.card,
+        }}
+      >
+        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.terracotta }} />
+        <Text role="caption">{`~${estCalories} cal`}</Text>
+      </View>
       {isSeed ? (
         <View style={{ position: 'absolute', top: space[2], right: space[2] }}>
           <PawMark
