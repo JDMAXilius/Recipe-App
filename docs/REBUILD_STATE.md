@@ -5,18 +5,18 @@
 > report-backs land in ticket files and get folded in here. Keep this under
 > ~60 lines — history belongs in git, details belong in tickets.
 
-**Last updated:** 2026-07-21 · by cloud session (tickets issued, handed to terminal)
+**Last updated:** 2026-07-21 · by terminal (ticket 00 executed)
 
 ## Where we are
 
 | | |
 |---|---|
-| Current milestone | **M0 kickoff** — tickets 00 + 01 issued; terminal executes ticket 00 next |
-| Integration branch | pending (created by ticket 00) |
-| Legacy snapshot | pending (`v1-legacy` + tag, by ticket 00) |
-| Old-code archive | pending (mirror → Old-recipe-app.git, by ticket 00) |
-| Last verified commit | cloud merge of branch → main |
-| v1 app status | shippable from `main`; **one known-red test** (10 orphan foods — ticket 00 step 2) |
+| Current milestone | **M0** — ticket 00 done (archive pending founder); ticket 01 next |
+| Integration branch | `rebuild/v2` @ 213ece47 |
+| Legacy snapshot | `v1-legacy` @ 213ece47 · tag `v1.0-legacy` |
+| Old-code archive | **pending founder** — classifier blocks mirror push from terminal |
+| Last verified commit | 213ece47 (main, backend 115/115 · mobile 60/60) |
+| v1 app status | shippable from `main`; both suites green |
 
 ## Gates
 
@@ -32,13 +32,14 @@
 
 | Ticket | Status |
 |---|---|
-| REBUILD_00 source control | **issued — READY, terminal starts here** |
-| REBUILD_01 M0 scaffold/crew/contracts | issued — blocked on 00 |
+| REBUILD_00 source control | **done** (report-back in docs/archive/; archive mirror pending founder) |
+| REBUILD_01 M0 scaffold/crew/contracts | **in progress — terminal** |
 | REBUILD_02–04 | issued after their gate (see INDEX) |
 
 ## Blockers
 
-_None._
+- Old-code archive: founder must run `git clone --mirror` + `git push --mirror`
+  to Old-recipe-app.git (terminal permission classifier blocks both).
 
 ## Open decisions (founder)
 

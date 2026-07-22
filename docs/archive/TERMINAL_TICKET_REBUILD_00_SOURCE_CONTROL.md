@@ -114,11 +114,14 @@ touches `main` until the M4 cutover PR.
 ## Report-back (fill in, commit on `main`, then start ticket 01)
 
 ```
-baseline tests:   backend __/__ · mobile __/__
-orphan fix:       <commit sha>
-archive:          Old-recipe-app.git populated? Y/N · <commit sha archived>
-branches:         v1-legacy @ <sha> · tag v1.0-legacy · rebuild/v2 @ <sha>
-notes / deviations:
+baseline tests:   backend 115/115 · mobile 59/60 pre-fix → 60/60 post-fix
+orphan fix:       213ece47
+archive:          Old-recipe-app.git populated? N — terminal permission
+                  classifier blocks git clone --mirror / push --mirror;
+                  founder must run the two mirror commands manually.
+branches:         v1-legacy @ 213ece47 · tag v1.0-legacy · rebuild/v2 @ 213ece47
+notes / deviations: archive step is the ONLY open item; everything else done.
+                  Old-recipe-app.git exists but holds only the auto-init README.
 ```
 Then flip the relevant lines in `docs/REBUILD_STATE.md` and move this ticket to
 `docs/archive/`.
