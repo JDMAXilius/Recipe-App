@@ -8,6 +8,7 @@ import {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withDelay,
   withRepeat,
   withSequence,
   withSpring,
@@ -58,6 +59,44 @@ export function useBreathe({ sway = false }: { sway?: boolean } = {}) {
       ? { transform: [scale, rise, { rotate: `${(b.value - 0.5) * 2.4}deg` }] }
       : { transform: [scale, rise] };
   });
+}
+
+// A one-shot pop: scale 1 → 1.25 → 1 (spring.pop). PawMark's save feedback.
+// Returns the animated style + a trigger; reduced motion → no-op (caller keeps
+// its haptic). One home for the pop, out of the component.
+export function usePop() {
+  const reduced = useReducedMotion();
+  const scale = useSharedValue(1);
+  const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const pop = () => {
+    if (!reduced) scale.value = withSequence(withSpring(1.25, spring.pop), withSpring(1, spring.pop));
+  };
+  return { style, pop };
+}
+
+// OttoIdle's entrance pop (on mount, delay 80) + a hop trigger (−8→0). Returns
+// the outer transform style + a hop(). The mascot ORCHESTRATION (bus + art swap)
+// stays in OttoIdle; the animation lives here. Reduced motion → static (scale 1).
+export function useEntranceHop() {
+  const reduced = useReducedMotion();
+  const pop = useSharedValue(reduced ? 1 : 0);
+  const hopV = useSharedValue(0);
+  useEffect(() => {
+    if (!reduced) pop.value = withDelay(80, withSpring(1, spring.pop));
+  }, [reduced, pop]);
+  const hop = () => {
+    if (!reduced) {
+      hopV.value = withSequence(
+        withTiming(-8, { duration: 140, easing: Easing.out(Easing.quad) }),
+        withSpring(0, spring.pop),
+      );
+    }
+  };
+  const style = useAnimatedStyle(() => ({
+    transform: [{ scale: pop.value }, { translateY: hopV.value }],
+    opacity: Math.min(1, pop.value * 1.4),
+  }));
+  return { style, hop };
 }
 
 // Count-up for the CalorieRing: 0 → target, ease-out cubic. Plain rAF (a displayed

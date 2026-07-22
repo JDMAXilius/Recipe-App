@@ -41,7 +41,9 @@ export const type = {
   title: { fontFamily: 'Lora_600SemiBold', fontSize: 22, lineHeight: 26 },
   body: { fontSize: 15, lineHeight: 22 },
   label: { fontSize: 13, fontWeight: '600' as const },
-  caption: {
+  caption: { fontSize: 13, lineHeight: 18 }, // lowercase secondary — the app's role="caption"
+  meta: {
+    // uppercase tabular micro-label (v1 TYPE.caption): section eyebrows, macro units
     fontSize: 12,
     fontWeight: '500' as const,
     letterSpacing: 0.5,

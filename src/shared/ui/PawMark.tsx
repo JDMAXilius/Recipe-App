@@ -1,15 +1,9 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Image } from 'expo-image';
-import Animated, {
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withSequence,
-  withSpring,
-} from 'react-native-reanimated';
-import { colors, radii, shadow, spring } from '../theme/tokens';
-import { usePressSpring } from '../motion';
+import Animated from 'react-native-reanimated';
+import { colors, radii, shadow } from '../theme/tokens';
+import { usePressSpring, usePop } from '../motion';
 import { haptics } from '../haptics';
 import { paw } from '../assets';
 
@@ -22,20 +16,16 @@ export interface PawMarkProps {
 // PRESENTATIONAL ONLY (contract §6). Real paw art in a circle; press feedback +
 // a pop on save + a success haptic on false→true. It does NOT own the save flow
 // (no useSaved import) — the anon-wall / first-save / undo live in the feature
-// hook that hands `saved`/`onToggle` down.
-// ponytail: the 1.25→1 save-pop is inlined because motion.ts has no pop hook —
-// see contract_gap. Press dip goes through usePressSpring (one home).
+// hook that hands `saved`/`onToggle` down. Both motions come from motion.ts.
 export function PawMark({ saved, onToggle, size = 36 }: PawMarkProps) {
-  const reduced = useReducedMotion();
   const press = usePressSpring();
-  const pop = useSharedValue(1);
-  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+  const { style: popStyle, pop } = usePop();
   const pad = Math.max(0, (44 - size) / 2); // hit target ≥ 44pt
 
   const handle = () => {
     if (!saved) {
-      haptics.notify('success'); // a save (false→true); stays under reduced motion
-      if (!reduced) pop.value = withSequence(withSpring(1.25, spring.pop), withSpring(1, spring.pop));
+      haptics.notify('success'); // a save (false→true); haptic stays under reduced motion
+      pop(); // no-op under reduced motion
     }
     onToggle();
   };
