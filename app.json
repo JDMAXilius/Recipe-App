@@ -28,7 +28,8 @@
           "cameraPermission": "Otto uses your camera to snap a recipe or your finished plate."
         }
       ],
-      "expo-notifications"
+      "expo-notifications",
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true

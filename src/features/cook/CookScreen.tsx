@@ -2,11 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Modal,
   PanResponder,
+  Platform,
   Pressable,
   ScrollView,
   Text as RNText,
+  Vibration,
   View,
 } from 'react-native';
+import { useKeepAwake } from 'expo-keep-awake';
+import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
@@ -34,9 +38,9 @@ type OpenSheet = null | 'ingredients' | 'timers' | 'jump';
 // Cook mode: mise-en-place → big-type step screens (tap a duration = named
 // timer) → multi-timer hub → swipe/Next nav → exit protection → Proud-Otto
 // finish. Ported from mobile/app/recipe/cook/[id].jsx onto @/shared/ui + tokens.
-// Deliberately NOT ported (no v2 deps): timer sound/vibration/keep-awake, camera
-// plate snap, live ingredient rescaling. Noted in the packet gaps. (Haptics +
-// step-advance animation restored in Wave F1.)
+// Full parity: haptics + step-advance animation (F1), live ingredient scaling,
+// the cook-again rating, snap-your-plate, and the timer alarm (sound + vibration
+// + keep-awake via expo-audio/expo-keep-awake — native; web no-ops).
 export function CookScreen() {
   const { id, step: stepParam, servings: servingsParam } = useLocalSearchParams<{
     id: string;
@@ -49,6 +53,27 @@ export function CookScreen() {
   const { addEntry: addJournalEntry } = useJournal();
   const { show: showToast } = useToast();
   const { unitSystem } = usePrefs();
+
+  // Keep the screen awake while cooking (no black screen mid-recipe), and load
+  // the two-tone alarm chime — set to play even on the silent switch, because a
+  // cooking timer you can't hear is a burnt dinner. Native only (web no-ops).
+  useKeepAwake();
+  const alarm = useAudioPlayer(require('../../../assets/sounds/timer-alarm.wav'));
+  const alarmRef = useRef(alarm);
+  alarmRef.current = alarm;
+  useEffect(() => {
+    if (Platform.OS !== 'web') void setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
+  }, []);
+  const soundAlarm = () => {
+    if (Platform.OS === 'web') return;
+    try {
+      alarmRef.current?.seekTo(0);
+      alarmRef.current?.play();
+    } catch {
+      // audio unavailable — the vibration + modal still fire
+    }
+    Vibration.vibrate([0, 500, 350, 500, 350, 500, 350, 500, 350, 500]);
+  };
   const [snapped, setSnapped] = useState(false);
   // "Would you cook it again?" — a light thumbs rating on the finish screen
   // (v1 parity), persisted to kv so a re-cook remembers your call.
@@ -127,6 +152,7 @@ export function CookScreen() {
       if (finished.length) {
         const t = finished[0];
         haptics.notify('success');
+        soundAlarm();
         setDoneTimer(t);
       }
     }, 1000);
