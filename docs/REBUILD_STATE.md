@@ -41,12 +41,12 @@
 - Old-code archive: founder must run `git clone --mirror` + `git push --mirror`
   to Old-recipe-app.git (terminal permission classifier blocks both).
 
-## Open decisions (founder)
+## Open decisions (founder) — ALL RESOLVED 2026-07-21
 
-1. Commit publishable Supabase anon key (`.env.development`) so cloud L3 runs autonomously? — **pending**
-2. Authed E2E terminal-only until stabilization? — **lean yes, unconfirmed**
-3. SG4 feature fan-out: one wave (6–8) vs two waves (4–5)? — **pending**
-4. Add pointer README on `v1-legacy` branch? — **pending**
+1. Commit publishable Supabase anon key (`.env.development`)? — **YES**
+2. Authed E2E terminal-only until stabilization? — **YES, terminal-only**
+3. SG4 feature fan-out? — **two waves of 4–5**
+4. Pointer README on `v1-legacy`? — **YES**
 
 ## How to update this file
 
