@@ -213,6 +213,42 @@ export const createAddStyles = (colors) =>
       flexShrink: 1,
     },
 
+    // ASK OTTO SECTION (Figma 199:50) — the "no recipe to bring in" way out
+    orRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: SPACING.md,
+      marginTop: SPACING.xl,
+    },
+    orLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    orText: {
+      ...TYPE.body,
+      fontSize: 13,
+      color: colors.inkSoft,
+    },
+    askOttoCard: {
+      backgroundColor: colors.surfaceWarm,
+      borderRadius: RADIUS.card,
+      padding: SPACING.lg,
+      gap: SPACING.sm,
+      marginTop: SPACING.lg,
+    },
+    askOttoTitle: {
+      ...TYPE.display,
+      fontSize: 20,
+      lineHeight: 26,
+      color: colors.ink,
+    },
+    askOttoSub: {
+      ...TYPE.body,
+      color: colors.inkSoft,
+      marginBottom: SPACING.xs,
+    },
+
     // PARSING STATE
     parsingWrap: {
       alignItems: "center",

@@ -37,6 +37,20 @@ const REJECT = /sifted|whipped|melted|packed|pureed|mashed|cooked|drained|liquid
 // cheddar" is not cheddar. Both slipped through on the first run and would have
 // shipped a 23 g/cup brown sugar.
 const REJECT_FOOD = /substitute|imitation|artificial|reduced|low[- ]fat|fat[- ]free|nonfat|dietetic/i;
+// A search result must be the food we ASKED for. USDA's search is fuzzy enough
+// to answer "Capers, canned" with "Butterbur, canned" — same packaging, a wholly
+// different plant — and that row shipped a capers weight taken from butterbur.
+// It also answered "grits" with plain white cornmeal. So require one real word
+// in common between the record's description and either the key or the query,
+// ignoring the packaging/state vocabulary every USDA description shares.
+const STOP =
+  /^(canned|raw|cooked|boiled|dried|fresh|frozen|mature|immature|seeds?|with|without|salt|salted|unsalted|added|solids|liquids|whole|grain|regular|quick|plain|unenriched|enriched|includes|foods?|program|distribution|style|prepared|commercial|varieties|year|round|average|types|drained|sweetened|unsweetened|generic|bottled|pieces|chopped|sliced|cubes)$/;
+const words = (s) =>
+  new Set((String(s).toLowerCase().match(/[a-z]{3,}/g) || []).filter((w) => !STOP.test(w)));
+function relatesTo(description, ...targets) {
+  const d = words(description);
+  return targets.some((t) => [...words(t)].some((w) => d.has(w)));
+}
 
 // The vocabulary foodScale.js actually prices, mapped to the usdaTable key that
 // names the same food. `query` is a direct USDA search for rows the table lacks.
@@ -81,6 +95,80 @@ const TARGETS = [
   ["lentils", "lentils", "Lentils, raw"],
   ["chickpeas", "chickpeas", "Chickpeas (garbanzo beans, bengal gram), mature seeds, raw"],
   ["water", "water", "Water, tap, drinking"],
+
+  // ── 2026-07-21: the nutrition parser now reads this file too (GAP 2). ──────
+  // Everything below is a food the CORPUS measures in cups and that neither
+  // this table nor parseIngredient's DENSITY list covered — so the line fell to
+  // the 1.0 g/ml water default. A cup of diced potato is 150 g, not 240; a cup
+  // of chocolate chips is 168 g, not 240. Ranked by the doubt-mass each name
+  // contributed across scripts/corpus (see report), biggest first.
+  //
+  // Keys are matched by FULL NAME or LAST WORD (same rule as pieceWeights), so
+  // "cannellini beans" needs its own key while "white cornmeal" rides on
+  // "cornmeal". Nothing here is hand-typed: the guards above still reject a
+  // "1 cup sifted"-style portion and any substitute/imitation record.
+  ["potato", "potatoes", "Potatoes, flesh and skin, raw"],
+  ["sweet potato", "sweet potatoes", "Sweet potato, raw, unprepared"],
+  // NOT chocolate chips, deliberately. usdaTable.json keys "chocolate chips" to
+  // fdcId 173770 "SILK Chocolate, soymilk" — a chocolate soy DRINK, 58 kcal/100g
+  // against real chips at ~490 — so the builder took that record's "1 cup" and
+  // shipped 243 g/cup of soy milk as the weight of chocolate chips. Blocked here
+  // until the table's identity is fixed; see the report. Candies, semisweet
+  // chocolate (169592) publishes only bar/block portions, so USDA cannot answer
+  // this one directly either, and a cup of chips stays honestly unsourced.
+  ["chocolate", "dark chocolate", "Candies, dark chocolate"],
+  ["bean sprouts", "bean sprouts", "Mung beans, mature seeds, sprouted, raw"],
+  ["broad beans", "broad beans", "Broad beans (fava beans), mature seeds, raw"],
+  ["green beans", "green beans", "Beans, snap, green, raw"],
+  ["kidney beans", "kidney beans", "Beans, kidney, red, mature seeds, raw"],
+  ["cannellini beans", "cannellini beans", "Beans, white, mature seeds, raw"],
+  ["navy beans", "navy beans", "Beans, navy, mature seeds, raw"],
+  ["black beans", "black beans", "Beans, black, mature seeds, raw"],
+  ["lima beans", "lima beans", "Lima beans, large, mature seeds, raw"],
+  ["cornmeal", "cornmeal", "Cornmeal, whole-grain, yellow"],
+  ["jam", "jam", "Jams and preserves"],
+  ["banana", "banana", "Bananas, raw"],
+  ["mango", "mango", "Mangos, raw"],
+  ["avocado", "avocado", "Avocados, raw, all commercial varieties"],
+  ["pumpkin puree", "pumpkin puree", "Pumpkin, canned, without salt"],
+  ["sauerkraut", "sauerkraut", "Sauerkraut, canned, solids and liquids"],
+  ["olives", "black olives", "Olives, ripe, canned (small-extra large)"],
+  ["capers", "capers", "Capers, canned"],
+  ["tofu", "tofu", "Tofu, raw, firm, prepared with calcium sulfate"],
+  ["quinoa", "quinoa", "Quinoa, uncooked"],
+  ["buckwheat", "buckwheat", "Buckwheat"],
+  ["shrimp", "prawns", "Crustaceans, shrimp, mixed species, raw"],
+  ["cucumber", "cucumber", "Cucumber, with peel, raw"],
+  ["scallions", "spring onions", "Onions, spring or scallions (includes tops and bulb), raw"],
+  ["prunes", "prunes", "Plums, dried (prunes), uncooked"],
+  ["tahini", "tahini", "Seeds, sesame butter, tahini"],
+  ["mustard", "mustard", "Mustard, prepared, yellow"],
+  ["sun-dried tomatoes", "sun-dried tomatoes", "Tomatoes, sun-dried"],
+  ["yucca", "cassava", "Cassava, raw"],
+  ["celeriac", "celeriac", "Celeriac, raw"],
+  ["swede", "swede", "Rutabagas, raw"],
+  ["radish", "radish", "Radishes, oriental, raw"],
+  ["grits", "grits", "Cereals, corn grits, yellow, regular and quick, unenriched, dry"],
+  ["tapioca", "tapioca", "Tapioca, pearl, dry"],
+  ["queso fresco", "queso fresco", "Cheese, queso fresco"],
+  ["beer", "beer", "Alcoholic beverage, beer, regular, all"],
+
+  // Names the nutrition parser matches by SUFFIX, which the existing keys did
+  // not cover — each was caught by diffing every corpus line old-vs-new, and
+  // each was landing on a wrong-but-plausible row:
+  //   "powdered sugar"  → "sugar" (188 g/cup granulated) instead of 120
+  //   "condensed milk"  → "milk"  (244 g/cup) instead of 306
+  //   "coconut milk"    → "milk"  (244 g/cup) instead of 226
+  //   "peanut butter"   → "butter" (227 g/cup) instead of 258
+  // Same USDA records as their synonyms above where one already existed; a key
+  // is an alias, never a second opinion.
+  ["powdered sugar", "icing sugar", "Sugars, powdered", /^1 cup unsifted$/i],
+  ["confectioners sugar", "icing sugar", "Sugars, powdered", /^1 cup unsifted$/i],
+  ["condensed milk", "condensed milk", "Milk, canned, condensed, sweetened"],
+  ["evaporated milk", "evaporated milk", "Milk, canned, evaporated"],
+  ["coconut milk", "coconut milk", "Nuts, coconut milk, canned (liquid expressed from grated meat and water)"],
+  ["coconut cream", "coconut cream", "Nuts, coconut cream, canned, sweetened"],
+  ["peanut butter", "peanut butter", "Peanut butter, smooth style, with salt"],
 ];
 
 const misses = [];
@@ -115,6 +203,10 @@ for (const [name, tableKey, query, portionOverride] of TARGETS) {
     await sleep(1100);
     if (REJECT_FOOD.test(info.description || "")) {
       seen.push(`${cand.fdcId} rejected: ${info.description}`);
+      continue;
+    }
+    if (!relatesTo(info.description, name, query || "")) {
+      seen.push(`${cand.fdcId} unrelated: ${info.description}`);
       continue;
     }
     const hit = portionOverride

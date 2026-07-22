@@ -423,14 +423,6 @@
     "portion": "1 small (2-2/3\" x 1/2\" x 1/4\")",
     "source": "usda-foodportion"
   },
-  "chicken": {
-    "grams": 1046,
-    "unit": null,
-    "fdcId": 171047,
-    "usda": "Chicken, broilers or fryers, meat and skin and giblets and neck, raw",
-    "portion": "1 chicken",
-    "source": "usda-foodportion"
-  },
   "pork chop": {
     "grams": 199,
     "unit": null,
@@ -557,6 +549,86 @@
     "fdcId": 167776,
     "usda": "Pears, raw, bartlett (Includes foods for USDA's Food Distribution Program)",
     "portion": "1 medium",
+    "source": "usda-foodportion"
+  },
+  "whole chicken": {
+    "grams": 1046,
+    "unit": null,
+    "fdcId": 171047,
+    "usda": "Chicken, broilers or fryers, meat and skin and giblets and neck, raw",
+    "portion": "1 chicken",
+    "source": "usda-foodportion"
+  },
+  "chicken thigh": {
+    "grams": 193,
+    "unit": null,
+    "fdcId": 172385,
+    "usda": "Chicken, broilers or fryers, thigh, meat and skin, raw",
+    "portion": "1 thigh with skin",
+    "source": "usda-foodportion"
+  },
+  "pita bread": {
+    "grams": 60,
+    "unit": null,
+    "fdcId": 174915,
+    "usda": "Bread, pita, white, enriched",
+    "portion": "1 pita, large (6-1/2\" dia)",
+    "source": "usda-foodportion"
+  },
+  "sausage": {
+    "grams": 101,
+    "unit": null,
+    "fdcId": 171631,
+    "usda": "Sausage, Italian, pork, mild, raw",
+    "portion": "1 link",
+    "source": "usda-foodportion"
+  },
+  "cabbage leaf": {
+    "grams": 23,
+    "unit": null,
+    "fdcId": 169975,
+    "usda": "Cabbage, raw",
+    "portion": "1 leaf, medium",
+    "source": "usda-foodportion"
+  },
+  "avocado": {
+    "grams": 201,
+    "unit": null,
+    "fdcId": 171705,
+    "usda": "Avocados, raw, all commercial varieties",
+    "portion": "1 avocado, NS as to Florida or California",
+    "source": "usda-foodportion"
+  },
+  "fennel": {
+    "grams": 234,
+    "unit": null,
+    "fdcId": 169385,
+    "usda": "Fennel, bulb, raw",
+    "portion": "1 bulb",
+    "source": "usda-foodportion"
+  },
+  "fennel bulb": {
+    "grams": 234,
+    "unit": null,
+    "fdcId": 169385,
+    "usda": "Fennel, bulb, raw",
+    "portion": "1 bulb",
+    "source": "usda-foodportion"
+  },
+  "plum tomato": {
+    "grams": 62,
+    "unit": null,
+    "fdcId": 170457,
+    "usda": "Tomatoes, red, ripe, raw, year round average",
+    "portion": "1 plum tomato",
+    "source": "usda-foodportion"
+  },
+  "sun-dried tomato": {
+    "grams": 2,
+    "unit": null,
+    "fdcId": 168567,
+    "usda": "Tomatoes, sun-dried",
+    "portion": "1 piece",
     "source": "usda-foodportion"
   }
 }

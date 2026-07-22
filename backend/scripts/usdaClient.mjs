@@ -17,9 +17,16 @@ export async function fetchJson(url, tries = 5) {
       const r = await fetch(url);
       const text = await r.text();
       if (text.trim().startsWith("<")) throw new Error(`HTML error page (HTTP ${r.status})`);
+      // An empty body slipped past the HTML guard and reached JSON.parse(""),
+      // which reports "Unexpected end of JSON input" — a message that names the
+      // parser rather than the cause, and only after all the retries. A dead
+      // fdcId (404, zero bytes) cost ~37s of retries to say nothing useful.
+      if (!text.trim()) throw new Error(`empty body (HTTP ${r.status})`);
       return JSON.parse(text);
     } catch (e) {
       last = e;
+      // A 404 is an answer, not a hiccup — retrying it just burns the clock.
+      if (/HTTP 404/.test(e.message)) throw e;
       await sleep(2500 * (i + 1));
     }
   }

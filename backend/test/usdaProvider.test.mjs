@@ -73,7 +73,12 @@ test("a MINOR unmatched line is dropped from the sum and lowers confidence", asy
     4
   );
   assert.ok(out && out.kcal > 0); // the unmatched 50g is absent, not counted as 0
-  assert.equal(out.confidence, "low"); // a line dropped — the total IS understated
+  // Was "low" when confidence counted LINES. Now it is weighted by MASS: the
+  // dropped line is 50 g of 450 g, so the total is ~11% understated — an
+  // approximation, not a broken number. A genuinely incomplete recipe is caught
+  // by the coverage guard, which refuses it outright rather than grading it.
+  assert.equal(out.confidence, "medium");
+  assert.notEqual(out.confidence, "high"); // but a dropped line must still cost
 });
 
 test("a DOMINANT unmatched line returns null, not a confidently-understated total", async () => {
@@ -313,4 +318,26 @@ test("deep-frying oil counts only what is absorbed, never the whole bath", async
     2
   );
   assert.ok(sauteed.kcal > 200, `2 tbsp of oil is food, not a bath: ${sauteed.kcal}`);
+});
+
+test("a batch condiment counts a serving's worth, not the mixing bowl", async () => {
+  // Big Mac: "1 cup Mayonnaise" is the special-sauce batch, "a little" of which
+  // goes on two burgers. Counted whole it was 1496 of 3056 kcal.
+  const burger = await usdaProvider.computeNutrition(
+    [
+      { measure: "400g", name: "Minced Beef" },
+      { measure: "2", name: "Sesame Seed Burger Buns" },
+      { measure: "1 cup", name: "Mayonnaise" },
+    ],
+    2
+  );
+  assert.ok(burger, "should compute rather than blow the plausibility cap");
+  assert.ok(burger.kcal < 1500, `sauce batch must not dominate, got ${burger.kcal}`);
+  // A potato salad really does fold a cup of mayo through eight portions —
+  // ~27 g each is a normal amount and must be left alone.
+  const salad = await usdaProvider.computeNutrition(
+    [{ measure: "1 kg", name: "Potatoes" }, { measure: "1 cup", name: "Mayonnaise" }],
+    8
+  );
+  assert.ok(salad.fat_g > 15, `a real mayo salad keeps its fat, got ${salad.fat_g}`);
 });

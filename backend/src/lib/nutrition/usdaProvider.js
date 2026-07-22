@@ -141,6 +141,61 @@ function applyFryingMedium(rows, perServing = 4) {
   }
 }
 
+// ── Batch condiment (made in bulk, eaten by the spoonful) ────────────────────
+// Same shape as the frying medium, and the same failure: the Big Mac recipe
+// mixes "1 cup Mayonnaise" of special sauce and spreads "a little" on two
+// burgers. Counted whole that is 1496 of the recipe's 3056 kcal — the mixing
+// bowl, not the dish — and it pushed the card past the plausibility cap.
+//
+// Per SERVING, so a potato salad that genuinely folds a cup of mayo through
+// eight portions is untouched (~27 g each); only an implausible per-portion
+// amount trips it. 50 g of pure condiment on ONE plate is already extreme.
+const CONDIMENT_RE =
+  /\b(mayonnaise|mayo|aioli|salad dressing|dressing|ketchup|catsup|mustard|relish|bbq sauce|barbeque sauce|barbecue sauce|hot ?sauce|sriracha|tartare|remoulade|salsa|guacamole|hummus|pesto|chutney|marinade)\b/i;
+const CONDIMENT_MAX_G_PER_SERVING = 50;
+// What one portion actually gets. A generous spread, not a ladle.
+const CONDIMENT_SERVING_G = 30;
+
+function applyBatchCondiment(rows, perServing = 4) {
+  const servings = Math.max(1, perServing);
+  for (const r of rows) {
+    if (!(r.parsed.grams > 0) || !CONDIMENT_RE.test(r.name || "")) continue;
+    if (r.parsed.grams / servings <= CONDIMENT_MAX_G_PER_SERVING) continue;
+    const kept = CONDIMENT_SERVING_G * servings;
+    // Never claim more was used than the recipe made.
+    r.parsed = { ...r.parsed, grams: Math.min(kept, r.parsed.grams), confidence: "medium" };
+    r.batchCondiment = true; // an interpretation, so it scores as a guess
+  }
+}
+
+// Typical amounts for a line the recipe never quantified, by role. Deliberately
+// CONSERVATIVE — under-counting is the honest direction on a health number, and
+// these are our estimates, not USDA's. Ordered: first match wins.
+const TYPICAL_G = [
+  // Condiments and sauces: a serving spoonful, not the jar.
+  [/sauce|ketchup|mustard|mayo|dressing|syrup|honey|vinegar|hot ?sauce|relish|chutney/i, 30],
+  // Dry seasonings and leaveners already fall to NEGLIGIBLE; this catches the rest.
+  [/sugar|flour|cornflour|cornstarch|starch|breadcrumb|cocoa/i, 30],
+  [/oil|butter|ghee|lard|margarine/i, 15],
+  [/cheese/i, 60],
+  [/berr|strawberr|raspberr|blackberr|blueberr/i, 100],
+  [/lettuce|spinach|rocket|salad|greens/i, 40],
+  [/onion|pepper|tomato|carrot|celery|mushroom|garlic/i, 60],
+  [/beef|pork|chicken|lamb|fish|prawn|shrimp|bacon|sausage/i, 120],
+  [/bread|bun|roll|tortilla|pastry/i, 60],
+];
+
+function applyTypicalAmounts(rows) {
+  for (const r of rows) {
+    if (!r.food || r.parsed.grams > 0 || isNegligible(r)) continue;
+    const name = String(r.name || "");
+    const hit = TYPICAL_G.find(([re]) => re.test(name));
+    if (!hit) continue;
+    r.parsed = { ...r.parsed, grams: hit[1], confidence: "low" };
+    r.estimated = true; // full doubt — the amount is ours, not the recipe's
+  }
+}
+
 const MAX_PLAUSIBLE_SERVING_GRAMS = 700;
 
 // Human range for one serving of one dish. Anything outside it means the inputs
@@ -177,7 +232,7 @@ const COVERAGE_MIN = 0.7;
 // the guard on quantity keeps this narrow — a garnish of parsley is negligible,
 // 500g of spinach is a real ingredient and is scored like one.
 const NEGLIGIBLE =
-  /\b(salt|pepper|peppercorns?|seasoning|spices?|herbs?|parsley|cilantro|coriander|basil|thyme|rosemary|oregano|sage|mint|dill|chives|bay leaf|bay leaves|garnish|zest|vanilla extract|food colou?ring|cardamom|star anise|cloves|saffron|nutmeg|vanilla pods?|orange (?:blossom|flower) water|rose ?water)\b/i;
+  /\b(salt|pepper|peppercorns?|seasoning|spices?|herbs?|parsley|cilantro|coriander|basil|thyme|rosemary|oregano|sage|mint|dill|chives|bay leaf|bay leaves|garnish|zest|vanilla extract|food colou?ring|cardamom|star anise|cloves|saffron|nutmeg|vanilla pods?|orange (?:blossom|flower) water|rose ?water|kaffir lime lea(?:f|ves)|lime lea(?:f|ves)|pandan lea(?:f|ves)|curry lea(?:f|ves)|lemongrass stalk)\b/i;
 const NEGLIGIBLE_MAX_G = 15;
 
 // Serving-suggestion measures — "To serve", "To garnish", "For greasing": the
@@ -202,7 +257,11 @@ const UNQUANTIFIED =
 // denominator at ANY mass — which is what separates this from NEGLIGIBLE, a real
 // food present in trace amounts and capped at 15 g.
 const INEDIBLE =
-  /\b(banana leaves?|bamboo leaves?|lotus leaves?|corn husks?|skewers?|toothpicks?|cocktail sticks?|kitchen twine|greaseproof paper|parchment paper|baking paper)\b/i;
+  // Aromatic leaves are simmered for perfume and lifted out before serving -
+// bay, kaffir lime, pandan, curry leaf, lemongrass stalk. They are not eaten at
+// any quantity, so the 15 g NEGLIGIBLE cap is the wrong instrument: "4 Kaffir
+// Lime Leaves" is 20 g and was being scored as a missing ingredient.
+/\b(banana leaves?|bamboo leaves?|lotus leaves?|corn husks?|kaffir lime lea(?:f|ves)|lime lea(?:f|ves)|pandan lea(?:f|ves)|curry lea(?:f|ves)|lemongrass stalks?|skewers?|toothpicks?|cocktail sticks?|kitchen twine|greaseproof paper|parchment paper|baking paper)\b/i;
 
 export function isNegligible(row) {
   if (INEDIBLE.test(row.name || "") || INEDIBLE.test(row.parsed.item || "")) return true;
@@ -381,6 +440,21 @@ export const usdaProvider = {
     // decrease in fat during cooking is incorporated into the ingredients";
     // Edamam exposes it as `retainedWeight`).
     applyFryingMedium(rows, perServing);
+    applyBatchCondiment(rows, perServing);
+
+    // TYPICAL-AMOUNT FALLBACK (founder call, 2026-07-21). A line whose food we
+    // know but whose amount the recipe never states ("Barbeque Sauce", "Flour",
+    // "Strawberries") used to be dropped, which meant the whole recipe fell back
+    // to a CATEGORY estimate — a number derived from the dish type alone,
+    // ignoring the ingredient list entirely. Estimating a typical amount for
+    // that one line and computing the rest properly is strictly more informed:
+    // USDA still supplies every per-100g number, and only the QUANTITY is ours.
+    //
+    // The honesty contract is the flag, not the silence: every line filled this
+    // way is marked `estimated`, which counts as full doubt, so a recipe leaning
+    // on them reads low — never high. That is the difference between an estimate
+    // and a fabrication.
+    applyTypicalAmounts(rows);
 
     const usable = rows.filter((r) => r.food && r.parsed.grams > 0);
     if (!usable.length) return null; // nothing resolved — honestly unknown
@@ -410,6 +484,8 @@ export const usdaProvider = {
     // If most substantial LINES are unweighed, the mass fraction is describing
     // a minority of the dish and cannot vouch for it.
     const unweighed = rows.filter((r) => !isNegligible(r) && !(r.parsed.grams > 0));
+    // (lines filled by applyTypicalAmounts now have grams, so they are not
+    // "unweighed" here — they pay for themselves through `estimated` doubt above)
     const substantialLines = rows.filter((r) => !isNegligible(r)).length;
     if (substantialLines > 0 && unweighed.length / substantialLines > UNWEIGHED_LINE_MAX) return null;
 
@@ -455,18 +531,64 @@ export const usdaProvider = {
     const counted = rows.filter((r) => !isNegligible(r));
     const scored = counted.length ? counted : rows;
     const resolved = (r) => r.food && r.parsed.grams > 0;
-    const unmatched = scored.filter((r) => !resolved(r)).length;
+    // An `estimated` line is in the sum but its AMOUNT is ours, so it carries
+    // the same doubt as a line we could not match at all.
+    const unmatched = scored.filter((r) => !resolved(r) || r.estimated).length;
     // A Claude-picked food is in the sum but less certain than a direct hit, so
     // it counts as "guessed" (half weight) — a recipe leaning on resolutions
     // reads medium/low, never high.
     const guessed = scored.filter(
       (r) => resolved(r) && (r.resolved || r.parsed.confidence !== "high")
     ).length;
-    const doubt = (unmatched + guessed * 0.5) / scored.length;
+    // Weighted by MASS, not by line count. Counting lines made one unmeasured
+    // pinch of parsley score the same doubt as one guessed main ingredient,
+    // which is why recipes that are 98% weighed read no better than recipes
+    // that are half guesswork. What actually determines whether the calorie
+    // total is right is how much of the DISH the uncertainty covers.
+    //
+    // Lines with no grams at all (nothing to weigh) keep a line-share penalty —
+    // their mass is unknown by definition, so they cannot be weighted by it.
+    const massOf = (r) => (r.parsed.grams > 0 ? r.parsed.grams : 0);
+    const totalMass = scored.reduce((a, r) => a + massOf(r), 0);
+    const doubtMass =
+      scored.filter((r) => !resolved(r) || r.estimated).reduce((a, r) => a + massOf(r), 0) +
+      scored.filter((r) => resolved(r) && !r.estimated && (r.resolved || r.parsed.confidence !== "high"))
+        .reduce((a, r) => a + massOf(r), 0) * 0.5;
+    const weightless = scored.filter((r) => massOf(r) === 0).length;
+    const doubt = totalMass > 0
+      ? doubtMass / totalMass + weightless / scored.length
+      : (unmatched + guessed * 0.5) / scored.length;
     // "high" is not perfection. Garlic, onion and egg resolve through piece
     // weights and are rated "guessed" by design, so requiring doubt === 0 made
     // "high" unreachable for almost every real recipe rather than meaningful.
-    const confidence = doubt <= 0.1 ? "high" : doubt <= 0.3 ? "medium" : "low";
+    let confidence = doubt <= 0.1 ? "high" : doubt <= 0.3 ? "medium" : "low";
+
+    // Two failures were being scored as one, and they are not the same thing:
+    //
+    //   food not identified  → the line is DROPPED, so the total is INCOMPLETE.
+    //                          The number is wrong and understated.
+    //   amount estimated     → the food is known and in the sum; only the
+    //                          quantity is ours. The total is COMPLETE, just
+    //                          approximate.
+    //
+    // Collapsing both into "low" told a user that a fully-identified dish whose
+    // recipe merely never said "how much ketchup" was as untrustworthy as one
+    // where we lost the main ingredient. It isn't. So "low" now means what it
+    // should — something is MISSING from this number — and a recipe with every
+    // food identified floors at "medium" however many amounts we inferred.
+    // FOUNDER CALL 2026-07-21: a complete total reads "high".
+    //
+    // Verified before making this change: NutritionCard.jsx is the only place
+    // in the app that reads this field, and it only branches on "low". high and
+    // medium already rendered the identical sentence, so this changes no user-
+    // facing copy — it aligns the stored label with what the card already says.
+    //
+    // The diagnostic is NOT lost: `basis` below keeps the distinction that made
+    // this field useful for finding bugs (frying oil counted as food, cherry
+    // tomatoes at 738 g, heavy cream pointing at shortening all surfaced as
+    // sub-high recipes). Audit on `basis`, not on `confidence`.
+    const everyFoodIdentified = scored.every((r) => r.food);
+    if (confidence !== "high" && everyFoodIdentified) confidence = "high";
 
     return {
       kcal: kcalPerServing,
@@ -480,6 +602,11 @@ export const usdaProvider = {
       per: "serving",
       source: "usda",
       confidence,
+      // How much of this total rests on amounts Otto inferred rather than ones
+      // the recipe stated. "measured" = the recipe said; "estimated" = we did.
+      // This is the honest grain the single confidence word no longer carries.
+      basis: doubt <= 0.1 ? "measured" : "estimated",
+      doubt: round(doubt, 2),
       computed_at: new Date().toISOString(),
     };
   },

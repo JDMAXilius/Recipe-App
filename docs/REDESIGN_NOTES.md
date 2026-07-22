@@ -1194,3 +1194,78 @@ for later: `cherry` → Pitanga (Surinam cherry), `green chilli` → beet greens
 The script now writes `scripts/portion-candidates.json` (89 rows, review file, **not shipped**).
 Promoting a row into `pieceWeights.json` is a human decision — that is exactly what made the
 original 50 trustworthy.
+
+## P24 — Ask Otto ships to code; chat history lands on-device (2026-07-21, terminal)
+
+The Figma proposals from the Add/Create batch (ticket FIGMA_ADD_CREATE_SCREENS) are now real
+UI. Decisions worth keeping:
+
+1. **`Comp/AskOtto` → `mobile/components/AskOtto.jsx`, placed BELOW the tonight band, above
+   Otto's pick.** The Figma sketch had no tonight band to reason about. Tonight is
+   time-critical and conditional (it only exists at 5pm on a planned day); Ask Otto is
+   evergreen. Pushing a conditional, time-boxed row under an evergreen one would waste the
+   only moment tonight matters. Search looks through what exists; this card writes what
+   doesn't — that's why it's a card and not a second search pill.
+
+2. **The import sheet's Ask Otto section reuses `router.back()`**, matching the existing
+   "Have Otto cook one up instead" button on the failed-import state. Same intent, same exit;
+   a second navigation idiom for the same destination would be the drift the DS exists to stop.
+
+3. **Chat history is on-device (`otto.chats.v1`), not Supabase** — founder call this session.
+   Matches the precedent set by prefs and the shopping list: no account needed, nothing leaves
+   the phone, no table/RLS/deploy surface. The screen doesn't care where the rows come from,
+   so a synced backend later is a lib swap, not a redesign.
+
+4. **The 79px tightening the founder made to the Figma import frame was NOT ported.** That
+   shift existed to fit a fixed 852pt artboard; the real sheet is a ScrollView with no such
+   budget, so copying the number would have tightened a layout that isn't crowded. The intent
+   (the section shouldn't feel jammed against the bottom edge) is satisfied by the scroll.
+
+5. **`lib/chatSummary.js` split from `lib/chatHistory.js`.** The storage half imports
+   AsyncStorage, which `node --test` cannot load — so the derivation half (row copy, time
+   labels, day grouping) lives in a sibling with no RN imports and is covered by
+   `test/chatSummary.test.mjs` (7 tests). The alternative was an untested honesty rule.
+
+6. **History reuses `ScreenHeader`'s left slot** (`leftIcon="time-outline"`) rather than
+   growing the component a third slot. `onBack` is a misnomer for "left action" but the
+   contract fits, and one screen's need doesn't justify a shared-component change.
+
+**Honesty:** a history row says "Saved · X" only when the recipe actually reached the
+cookbook; a thread where Otto wrote a recipe the user walked away from reads "X · not saved".
+Loading PRUNES anything older than 30 days, so "Otto keeps the last 30 days" is a fact rather
+than a promise the store doesn't keep — verified in Chrome with a seeded 45-day-old chat,
+which did not appear.
+
+**Verified:** Chrome at localhost:8081, mobile viewport, signed in as the e2e user — Discover
+card, chat header clock, Recent chats (grouping/copy/pruning), reopening a stored thread, and
+the import sheet section all render and round-trip. `node --test test/chatSummary.test.mjs`
+7/7. **Not verified on the iOS simulator** — no device was booted and the changes are pure
+JS/layout with no native module surface; worth a sim pass before the next TestFlight build.
+The only console errors are the known local-web CORS ones (handoff §5), not from this work.
+
+## P25 — The in-use chat frame re-derived from the running build (2026-07-21, terminal)
+
+`198:17` had drifted from the shipped screen. Rather than eyeball it, the corrected frame was
+measured off the real thing: Chrome emulating 393×852 (the window itself won't go below 500pt,
+so device emulation was required), signed in, a realistic thread seeded into `otto.chats.v1`,
+then `getBoundingClientRect` on every element. Four mismatches came out of that comparison:
+
+1. **The recipe card had its own Otto avatar.** In the build a bubble and its card share ONE
+   avatar — they're both children of `styles.ottoCol` inside a single otto row. The frame drew
+   a second avatar the app never renders.
+2. **The meta and "+3 more" lines were sentence case.** `TYPE.caption` is `textTransform:
+   uppercase` with 0.5 tracking, so the build reads "4 SERVINGS · 9 INGREDIENTS · 6 STEPS".
+   The frame read softer than the screen it claimed to document.
+3. **The thread was drawn as a tidy, fully-visible column.** The real ScrollView auto-scrolls
+   to the end, so a thread this long is always seen scrolled with the first bubble clipped.
+   The corrected frame reproduces that with a clipping "thread (scrolled to end)" frame
+   between the header and the input bar — the state a user actually sees.
+4. **The top-right import button was missing.** The shipped header has it; `198:17` had only
+   the history clock. Restored on the copy.
+
+Per the duplicate-don't-replace rule the founder's WIP frame `198:17` was left exactly as-is
+(its two stub bubbles still overlap the input bar); the corrected frame is a copy,
+**`205:24` — "Chat with Otto — in use (matches shipped build)"**.
+
+Method note worth keeping: measuring the DOM beats reading the stylesheet. Points 1 and 3 are
+composition/behaviour facts that no amount of reading `otto.styles.js` would have surfaced.

@@ -9,7 +9,7 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../../context/ThemeContext";
@@ -18,6 +18,7 @@ import { createOttoStyles } from "../../assets/styles/otto.styles";
 import { UserRecipeAPI } from "../../services/userRecipes";
 import { setDraft } from "../../lib/draftStore";
 import { loadPrefs } from "../../lib/prefs";
+import { getChat, saveChat } from "../../lib/chatHistory";
 import OttoIdle from "../../components/OttoIdle";
 import Bounceable from "../../components/Bounceable";
 import ScreenHeader from "../../components/ScreenHeader";
@@ -34,6 +35,8 @@ const OttoChatScreen = () => {
   const { colors } = useTheme();
   const { show } = useToast();
   const styles = useMemo(() => createOttoStyles(colors), [colors]);
+  // ?chat=<id> — arriving from Recent chats reopens that thread
+  const { chat: chatParam } = useLocalSearchParams();
 
   // thread: [{ from: "otto"|"you", text, options?, recipe? }] — starts empty;
   // an empty thread shows the minimal centered prompt, not a greeting bubble.
@@ -42,10 +45,36 @@ const OttoChatScreen = () => {
   const [sending, setSending] = useState(false);
   const [prefs, setPrefs] = useState(null);
   const scrollRef = useRef(null);
+  // which stored chat this thread writes back to (null until the first turn)
+  const chatIdRef = useRef(null);
 
   useEffect(() => {
     loadPrefs().then(setPrefs).catch(() => {});
   }, []);
+
+  // Reopen a stored chat when Recent chats hands us an id.
+  useEffect(() => {
+    const id = Array.isArray(chatParam) ? chatParam[0] : chatParam;
+    if (!id || chatIdRef.current === id) return;
+    getChat(id)
+      .then((stored) => {
+        if (!stored) return;
+        chatIdRef.current = stored.id;
+        setThread(stored.thread || []);
+      })
+      .catch(() => {});
+  }, [chatParam]);
+
+  // Persist after every settled turn. Storing mid-flight would leave a chat
+  // whose last line is a question Otto never got to answer.
+  useEffect(() => {
+    if (sending || thread.length === 0) return;
+    saveChat({ id: chatIdRef.current, thread })
+      .then((id) => {
+        if (id) chatIdRef.current = id;
+      })
+      .catch(() => {});
+  }, [thread, sending]);
   useEffect(() => {
     const t = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
     return () => clearTimeout(t);
@@ -100,6 +129,8 @@ const OttoChatScreen = () => {
 
   const saveRecipe = (recipe) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    // Mark the stored chat as saved so its history row can say so honestly.
+    saveChat({ id: chatIdRef.current, thread, savedTitle: recipe.title }).catch(() => {});
     setDraft({
       mode: "import",
       source: "otto",
@@ -122,6 +153,9 @@ const OttoChatScreen = () => {
     <View style={styles.container}>
       <ScreenHeader
         title="Chat with Otto"
+        leftIcon="time-outline"
+        leftLabel="Recent chats"
+        onBack={() => router.push("/chats")}
         right={
           <TouchableOpacity
             style={styles.headerAction}
