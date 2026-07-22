@@ -6,7 +6,9 @@ import { Text } from './Text';
 
 export interface RingProps {
   value: number | null;
-  max: number;
+  // Omit for a max-less display (value + label only, no "/ max"). Nutrition
+  // forbids daily-goal framing, so CalorieRing passes no max (contract).
+  max?: number;
   label: string;
 }
 
@@ -28,10 +30,11 @@ const circle: ViewStyle = {
 
 export function Ring({ value, max, label }: RingProps) {
   const hasData = value != null && Number.isFinite(value);
+  const valueLabel = hasData ? (max != null ? `${value} of ${max}` : `${value}`) : 'no data';
   return (
     <View
       accessible
-      accessibilityLabel={`${label}: ${hasData ? `${value} of ${max}` : 'no data'}`}
+      accessibilityLabel={`${label}: ${valueLabel}`}
       style={{ alignItems: 'center' }}
     >
       <View
@@ -47,7 +50,7 @@ export function Ring({ value, max, label }: RingProps) {
         >
           {formatCount(value)}
         </RNText>
-        <RNText style={{ fontSize: 11, color: colors.inkSoft }}>/ {max}</RNText>
+        {max != null && <RNText style={{ fontSize: 11, color: colors.inkSoft }}>/ {max}</RNText>}
       </View>
       <View style={{ marginTop: space[2] }}>
         <Text role="caption">{label}</Text>
