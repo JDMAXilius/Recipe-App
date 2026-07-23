@@ -8,8 +8,8 @@ The live cloud↔terminal handoff docs. A ticket moves to `history/` when its wo
   gate → Phase 1 snapshot → Phase 2 ten-recipe pilot
 - **OWN_RECIPE_DB.md** — the otto-recipes data-ownership migration: verdict, research,
   medallion architecture, agent-crew map, phased roadmap, Phase 7 data-asset vision
-- **NUTRITION_ACCURACY.md** — nutrition-accuracy tickets (T6 ✅, T1 mechanism ✅; the rest
-  absorbed by OWN_RECIPE_DB — see its supersession note)
+- **NUTRITION_ACCURACY.md** — nutrition-accuracy tickets (T6 ✅, T1 mechanism ✅; most of the
+  rest absorbed by OWN_RECIPE_DB — T3 + T2's weight-layer half stay live for user imports)
 
 ## `reference/` — the current v2 app
 Read these to understand or work on Otto today.

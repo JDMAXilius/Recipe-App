@@ -1,8 +1,10 @@
 # Nutrition accuracy — discussion + tickets (2026-07-23 handoff)
 
-> **2026-07-23 (later): see `OWN_RECIPE_DB.md`** — a proposed data-ownership migration (snapshot +
-> canonicalize the seed recipes into Otto's own DB) that, if approved, **absorbs** T1-data-curation,
-> T2's per-recipe half, T4, T5-remainder, and T7. T6 and the T1 mechanism stay regardless.
+> **2026-07-23 (later): see `OWN_RECIPE_DB.md` — APPROVED** data-ownership migration (snapshot +
+> canonicalize the seed recipes into Otto's own DB) that **absorbs** T1-data-curation,
+> T2's per-recipe half, T4, T5-remainder, and T7 (closed-by-supersession; next step =
+> `TERMINAL_TICKET_OTTO_RECIPES_KICKOFF.md`). Still live here: **T3** and **T2's weight-layer
+> consolidation** (they guard user imports). T6 and the T1 mechanism are shipped and stay.
 
 **Purpose:** capture a live design discussion so any Claude Code session (or Juan via phone)
 can continue the work. Nothing below is *done* except the context + the one small fix noted.
@@ -17,7 +19,7 @@ Otto computes recipe nutrition **deterministically, on-device, from USDA data** 
 LLM in the arithmetic (the LLM only matches *unknown ingredient names*, via the `resolve-nutrition`
 edge function). Three layers:
 
-1. **`src/features/nutrition/engine/data/usdaTable.json`** — **962 ingredients, per-100g** USDA
+1. **`src/features/nutrition/engine/data/usdaTable.json`** — **964 ingredients, per-100g** USDA
    values (`{fdcId, usda, kcal, protein_g, fat_g, carbs_g, fiber_g, sugar_g, sodium_mg}`). The
    compute is `value × grams / 100` (see `compute.ts:195`). ✅ ~95% of TheMealDB's 985 ingredients
    covered; curated. **⚠️ It is per-100g, NOT per-serving. Do NOT convert it to "per serving" — the

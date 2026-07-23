@@ -5,8 +5,8 @@ description: Ticket board for the Otto cloud↔terminal handoff loop. Use to lis
 
 # Otto ticket board — cloud ↔ terminal loop
 
-Active tickets live in **`docs/tickets/*.md`** (currently `NUTRITION_ACCURACY.md` and
-`OWN_RECIPE_DB.md`); completed/historical tickets are archived under
+Active tickets live in **`docs/tickets/*.md`** (the folder listing IS the board — do not
+trust any hardcoded enumeration of it); completed/historical tickets are archived under
 `docs/history/TERMINAL_TICKET_*.md` (+ `docs/history/TICKET_SESSION_HANDOFF.md`, the old
 running handoff). **Git is the channel**: the cloud session and this terminal both push to
 `main`. Every action here starts with a sync and ends with a push — that IS the
@@ -28,8 +28,8 @@ git fetch && git pull --rebase   # never skip; the other session pushes to main 
    line exists.
 3. Print a compact table: ticket, status, one-line gist, what it's blocked on (keys,
    device, dashboards — read the ticket header). Newest git mtime first.
-4. Recommend the next pickup (respect stated ordering — e.g. NUTRITION_REFRESH gates
-   NUTRITION_FRAMEWORK).
+4. Recommend the next pickup (respect stated ordering — a ticket's header or an "Ordering
+   law" line names its gate; e.g. OTTO_RECIPES_KICKOFF's Phase 0 gates its later phases).
 
 ## `/tickets <name>` — pick up and execute
 
@@ -48,7 +48,7 @@ git fetch && git pull --rebase   # never skip; the other session pushes to main 
 ## `/tickets done <name>` — close out
 
 All boxes checked → change the STATUS line to `> STATUS: done — <side> <date>`, add the
-closing Log entry, update `docs/REDESIGN_NOTES.md` if the ticket asked for it, push.
+closing Log entry, update `docs/history/REDESIGN_NOTES.md` if the ticket asked for it, push.
 
 ## Rules
 

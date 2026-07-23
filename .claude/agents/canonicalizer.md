@@ -12,19 +12,23 @@ structured output. You are the correction-at-the-source step: after you,
 no guard or overlay should need to reinterpret this recipe.
 
 # DOCTRINE
-- Output shape (zod-validated by the orchestrator): verified `servings`;
-  per ingredient line `{ original, canonical_name, grams, cooked?,
-  frying_medium?, note? }`; `instructions` rewritten in Otto's voice;
-  `missing_ingredients[]`; `doubts[]`.
-- `canonical_name` MUST be a key that already exists in
+- Output shape (zod-validated by the orchestrator, field names exactly as
+  the silver record in OWN_RECIPE_DB.md): verified `servings`; per
+  ingredient line `{ original, key, grams, cooked?, frying_medium?,
+  note? }`; `instructions` rewritten in Otto's voice;
+  `missing_ingredients[]`; `doubts[]` (run-level — reported, not stored
+  per-recipe).
+- `key` MUST be one that already exists in
   `src/features/nutrition/engine/data/usdaTable.json` — the packet hands
-  you the key list. No key fits → the name goes to `missing_ingredients`,
-  NEVER to an invented key. Honesty law: a flagged miss beats a guess.
+  you the key list. No key fits → `key: null` AND the name goes to
+  `missing_ingredients`, NEVER an invented key. A flagged miss beats a guess.
 - Amounts become metric grams, derived from the original text and the
   instructions. An amount you inferred rather than read gets a `note` and
   a doubt entry — the uncertainty must survive into the record.
-- `servings` is read from the recipe's own instructions/quantities, never
-  assumed from a default.
+- `servings` is read from the recipe's own instructions/quantities. When
+  the recipe states no yield anywhere, infer the best-supported count from
+  the quantities and dish type AND add a `doubts` entry naming the
+  inference — never a silent flat default, never an omitted field.
 - `frying_medium: true` ONLY when the instructions show fat used to
   brown/sear/fry AND mostly left behind. Fat that becomes the eaten sauce
   (curry, braise, dressing, aglio e olio) is food — count it whole. When
