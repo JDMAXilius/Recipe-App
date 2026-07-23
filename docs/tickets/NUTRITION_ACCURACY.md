@@ -72,12 +72,27 @@ kcal contribution + matched USDA record**, sorted, flagging outliers (huge grams
 parse, oil counted whole). Run it across all seed recipes to surface the worst over-counts → this
 feeds T1/T2/T5. (Run via `node --experimental-strip-types --import src/features/nutrition/engine/ts-ext-resolve.mjs`.)
 
-### T1 — Cooking-oil / medium detection  ·  HIGH impact  ·  [terminal]
-Extend `applyFryingMedium` (`guards.ts`) so a **large** oil/butter quantity in a **savory main dish**
-with **sear/brown/fry** steps counts only the absorbed fraction (`FRY_ABSORBED_G ≈ 14 g`), not the
-whole pour. Small oil, or a dressing/sauce/baking context → count fully. Grounded in USDA FNDDS +
-the existing absorbed-only model. **Must:** keep the golden suite green; add a golden pinning the fix
-(Irish stew ~700→ realistic). **Risk:** don't under-count dishes where the oil IS eaten.
+### T1 — Cooking-oil / medium detection  ·  HIGH impact  ·  ✅ DONE (crew, 2 revisions + critic ladder)
+Shipped in `applyFryingMedium` (`guards.ts`). The fix is **detection**, not arithmetic: a moderate
+oil pour counts as a browning *film* (flat `FRY_ABSORBED_G = 14 g`) only when there's real meat to brown
+(`MEAT_RE`, ≥100 g parsed) AND the dish isn't a `dressedContext` (salad-veg / vinegar-dressing token,
+or a `STARCH_RE` line is the single largest food). `LIQUID_RE` excludes water/stock/wine/milk from the
+absorption denominator. **Butter was dropped from the browning path entirely** — it's a finishing/mounting
+fat (mash/risotto/sauce) far more often than a medium, and was the source of every worst false-positive;
+Irish stew (the motivating case) uses oil, so the core win survived. Irish stew 1135→1028. The residual
+1028 is the fatty-lamb-cut match → that's **T5**.
+- *Critic ladder:* v1 broke (butter slashed off eaten mash/risotto/salad — a broad class); v2 killed the
+  class (782-recipe sweep clean). Final verdict SHIP-WITH-CAVEAT.
+
+### T1-followup — starch-dominant browning asymmetry  ·  LOW  ·  [terminal]
+`dressedContext` suppresses the browning discount whenever a starch line outweighs the browned meat.
+That wrongly spares genuine browning oil in **starch-dominant meat mains**: **Pastel de Papas (53517)**
+(454 g beef browned in 109 g oil, but 756 g potato dominates → oil counted whole, ~140 kcal/serving /
+29% over), and the class it generalizes to (cottage/shepherd's pie, moussaka, rice-dominant biryani).
+Rare here (1 material case of 782). Fix idea: don't let a dominant *starch* alone set `dressedContext` when
+substantial browning meat is present — require a salad/dressing token for the suppression, or compare
+oil-vs-meat rather than oil-vs-largest-food. Known honest-direction under-counts left as-is: Greek Chicken
+Quinoa Salad (53011, −29), Squid/chickpea/chorizo salad (53102, −15, arguably correct — it's seared).
 
 ### T2 — Weight-layer audit + expand (the "MFP model")  ·  HIGH  ·  [terminal]
 Grow `pieceWeights.json` (79) and promote common `EACH_G`/`PIECE_G` estimates in `parse.ts` to

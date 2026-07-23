@@ -102,6 +102,86 @@ test("golden: banana smoothie (serves 1)", () => {
   assert.ok(out.carbs_g > 40, `fruit+honey carbs, got ${out.carbs_g}`);
 });
 
+// T1 (2026-07-23): browning oil is not eaten. Irish stew's "120ml olive oil"
+// (110 g) is a moderate pour used to brown 2 kg of lamb — 976 uneaten kcal read
+// whole. At 8 servings it is 13.75 g/serving, under any bath threshold, so the
+// fix keys on the browning MEAT being present, not the oil's size. Pinned below
+// the old buggy 1135: the oil now counts only its ~14 g absorbed film. (The lamb
+// cut + raw-fat match keep the total high — that is T5, a separate ticket.)
+test("golden: Irish stew (52781) — browning oil counted absorbed, not whole", () => {
+  // recipeId → curated servings=8. Old value 1135 (oil whole) must now fail high.
+  const out8 = computeNutrition({
+    ingredients: [
+      { measure: "300g soaked overnight in water", name: "whole wheat" },
+      { measure: "2kg cut into 3cm cubes", name: "lamb loin chops" },
+      { measure: "120ml", name: "olive oil" }, { measure: "24 Skinned", name: "shallots" },
+      { measure: "4 large", name: "Carrots" }, { measure: "2", name: "turnips" },
+      { measure: "1", name: "celeriac" }, { measure: "350g", name: "charlotte potatoes" },
+      { measure: "150ml", name: "white wine" }, { measure: "1 tsp", name: "caster sugar" },
+      { measure: "4 sprigs", name: "fresh thyme" }, { measure: "4 sprigs", name: "oregano" },
+      { measure: "450ml", name: "chicken stock" },
+    ],
+    servings: 8, recipeId: "52781",
+  });
+  within(out8, 960, 1080, "irish stew");
+  assert.ok(out8.kcal < 1135, `oil must be discounted below the whole-oil ${out8.kcal}`);
+});
+
+// The other half of T1: oil that is genuinely EATEN must NOT be discounted. A
+// green-beans-in-olive-oil braise carries no browning meat, so the guard leaves
+// its oil whole. If the browning rule ever over-reached, this dish would collapse
+// (~54 g oil → 14 g would drop it under 130 kcal/serving).
+test("golden: olive-oil braise (no meat) keeps its oil — eaten, not a medium", () => {
+  const out = compute(
+    [
+      { measure: "1/4 cup", name: "Olive Oil" }, { measure: "16 ounces", name: "Green Beans" },
+      { measure: "1 clove", name: "Garlic" }, { measure: "1/4 cup", name: "Cilantro" },
+    ],
+    4
+  );
+  within(out, 140, 190, "olive-oil braise");
+  assert.ok(out.fat_g > 11, `braising oil is eaten, must stay in fat, got ${out.fat_g}`);
+});
+
+// T1 REVISION (2026-07-23): the browning rule must NOT slash EATEN fat. Butter is
+// a finishing/mounting fat, not a browning medium — Salmon Prawn Risotto's 50 g is
+// stirred in at the end (mantecatura) and fully eaten. Pinned near its whole-fat
+// value; the earlier buggy revision cut it to a 14 g film (~763) and is now caught.
+test("golden: risotto butter (52823) is eaten (mantecatura), not a browning medium", () => {
+  const out = computeNutrition({
+    ingredients: [
+      { measure: "50g/2oz", name: "butter" }, { measure: "1 finely chopped", name: "onion" },
+      { measure: "150g", name: "rice" }, { measure: "125ml", name: "white wine" },
+      { measure: "1 litre hot", name: "vegetable stock" },
+      { measure: "The juice and zest of one", name: "lemon" },
+      { measure: "240g large", name: "King Prawns" }, { measure: "150g", name: "salmon" },
+      { measure: "100g tips blanched briefly in boiling water", name: "asparagus" },
+      { measure: "ground", name: "black pepper" }, { measure: "50g shavings", name: "Parmesan" },
+    ],
+    servings: 2, recipeId: "52823",
+  });
+  within(out, 850, 950, "risotto");
+  assert.ok(out.kcal > 830, `butter must stay whole, not slashed to a film ${out.kcal}`);
+});
+
+// The other half: oil that is EATEN as a vinaigrette must NOT be discounted. Tuna
+// Niçoise dresses a cold potato/tuna salad with its oil (vinegar + a potato base
+// mark the non-browning context); the buggy revision slashed it to ~343.
+test("golden: Niçoise oil (52852) is eaten vinaigrette, not a browning medium", () => {
+  const out = computeNutrition({
+    ingredients: [
+      { measure: "450g", name: "Potatoes" }, { measure: "2 tblsp", name: "Olive Oil" },
+      { measure: "4", name: "Eggs" }, { measure: "1 tbls", name: "Red Wine Vinegar" },
+      { measure: "2 tblsp", name: "Capers" }, { measure: "50g", name: "Sunflower Oil" },
+      { measure: "½", name: "Red Onions" }, { measure: "100g", name: "Spinach" },
+      { measure: "400g", name: "Tuna" },
+    ],
+    servings: 4, recipeId: "52852",
+  });
+  within(out, 420, 490, "niçoise");
+  assert.ok(out.kcal > 400, `dressing oil must stay whole, not slashed to a film ${out.kcal}`);
+});
+
 test("golden: volume-measured rice still honestly refuses when unresolvable", () => {
   const out = compute(
     [{ measure: "3 cups", name: "rice" }, { measure: "200 g", name: "chicken breast" }],
