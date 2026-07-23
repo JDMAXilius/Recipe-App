@@ -88,4 +88,25 @@ files, before the terms answers are written down.
 
 ## Log
 
-(append findings here, dated, per the tickets skill)
+### 2026-07-23 — Phase 0 legal read (terms fetched successfully; the cloud 403 did not recur)
+Read https://www.themealdb.com/terms_of_use.php directly. Answers to the three gate questions:
+- **(a) May recipe DATA be stored in our own DB?** ✅ **YES.** Verbatim: *"You can scrape, copy and
+  modify any content returned from the API, as long as you use the official end points."* Ingredient
+  lists / measures / instructions may be snapshotted + canonicalized. (Instructions get rewritten in
+  Otto's voice anyway; ingredient lists are facts, non-copyrightable.)
+- **(b) May IMAGE FILES be re-hosted?** ⚠️ **NOT cleared.** No explicit permission; artwork is
+  user-created custom work — *"you must not pass it off as your own"* — and per-image licensing is
+  signalled by the `strCreativeCommons` tag. → **Default per the roadmap fallback: keep HOTLINKING
+  the CDN image + attribution (never replace/regenerate — founder law).** Re-hosting the bytes needs
+  either a per-image CC-clear check or an email to TheMealDB for blanket permission. FOUNDER call.
+- **(c) Attribution required?** ✅ Yes — link back; for paid use, credit as the data source. Otto
+  already credits (README/credits + "source credited forever" law). No change needed.
+- **Compliance flag:** *"cannot publish apps to an appstore unless you are a paid subscriber."* Otto
+  ships to TestFlight/App Store → the supporter/Patreon key MUST be the PAID tier. Pre-existing
+  requirement; verify the account is active (the `content` fn's `THEMEALDB_KEY` secret is a v2 key —
+  confirm it's the paid one). FOUNDER to confirm.
+
+**Gate resolution:** DATA snapshot is CLEARED → Phase 1 (migration + bronze snapshot) may proceed.
+IMAGE-copy sub-step (Phase 1 step 7) is DEFERRED (hotlink + attribution) pending the founder image
+call / a permission email. Supporter-key confirmation is a founder item (app-store compliance),
+independent of snapshotting.
