@@ -18,15 +18,16 @@
 //
 // MODES:
 //   --demo                     run the Irish Stew reference case from the ticket
+//   --demo-corpus              batch-scan a small built-in sample corpus (format template)
 //   --file  <recipe.json>      one recipe:  { name?, recipeId?, servings, ingredients:[{measure,name}] }
 //   --corpus <recipes.json>    array of the above — batch scan, ranked worst-first
 //   (no args)                  same as --demo
 //
 // A seed corpus (all 750+ TheMealDB recipes) can be generated in a session WITH
 // network by calling the `content` edge function per recipe and writing an array
-// of { name, recipeId, servings, ingredients } — then `--corpus that.json`. USDA
-// is blocked in cloud sessions, but the engine + table ship locally, so the
-// breakdown itself runs fully offline.
+// of { name, recipeId, servings, ingredients } — then `--corpus that.json` (see
+// --demo-corpus for the exact shape). USDA is blocked in cloud sessions, but the
+// engine + table ship locally, so the breakdown itself runs fully offline.
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -264,6 +265,44 @@ const IRISH_STEW = {
   ],
 };
 
+// A tiny built-in corpus for `--demo-corpus`: the reference case plus three
+// dishes with a known shape (a dominant main, a dressing-vs-browning oil). It
+// doubles as the format template for the real seed corpus — an array of
+// { name, servings, ingredients:[{measure,name}] } — that a networked session
+// generates from TheMealDB and passes via `--corpus <file>`.
+const SAMPLE_CORPUS = [
+  IRISH_STEW,
+  {
+    name: "Founder's Lasagna",
+    servings: 4,
+    ingredients: [
+      { measure: "500 g", name: "Beef Mince" }, { measure: "110 g", name: "Onion" },
+      { measure: "6 g", name: "Garlic" }, { measure: "400 g", name: "Chopped Tomatoes" },
+      { measure: "150 ml", name: "Red Wine" }, { measure: "41 g", name: "Butter" },
+      { measure: "480 ml", name: "Milk" }, { measure: "112.8 g", name: "Grated Cheddar" },
+      { measure: "144 g", name: "Lasagne Sheets" }, { measure: "2 tsp", name: "Dried Oregano" },
+    ],
+  },
+  {
+    name: "Chicken & Rice Dinner",
+    servings: 4,
+    ingredients: [
+      { measure: "800 g", name: "chicken thighs" }, { measure: "300 g", name: "white rice" },
+      { measure: "2 tbsp", name: "olive oil" }, { measure: "1", name: "onion" },
+      { measure: "3 cloves", name: "garlic" }, { measure: "400 g", name: "chopped tomatoes" },
+      { measure: "1 tsp", name: "salt" },
+    ],
+  },
+  {
+    name: "Tomato Spaghetti",
+    servings: 2,
+    ingredients: [
+      { measure: "200 g", name: "spaghetti" }, { measure: "400 g", name: "chopped tomatoes" },
+      { measure: "2 tbsp", name: "olive oil" }, { measure: "2 cloves", name: "garlic" },
+    ],
+  },
+];
+
 // ── main ──────────────────────────────────────────────────────────────────────
 const argv = process.argv.slice(2);
 const flag = (name) => {
@@ -274,6 +313,8 @@ const loadJson = (p) => JSON.parse(readFileSync(resolvePath(process.cwd(), p), "
 
 if (argv.includes("--corpus")) {
   printCorpus(loadJson(flag("--corpus")));
+} else if (argv.includes("--demo-corpus")) {
+  printCorpus(SAMPLE_CORPUS);
 } else if (argv.includes("--file")) {
   printOne(breakdown(loadJson(flag("--file"))));
 } else {

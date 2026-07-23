@@ -78,8 +78,8 @@ Run:
 node --experimental-strip-types --import ./src/features/nutrition/engine/ts-ext-resolve.mjs \
      tools/nutrition-breakdown.mjs [--demo | --file <recipe.json> | --corpus <recipes.json>]
 ```
-`--demo` reproduces the Irish Stew trace (surfaces all three culprits the ticket named).
-`tools/nutrition-breakdown.sample.json` is a 4-recipe example / corpus template.
+`--demo` reproduces the Irish Stew trace (surfaces all three culprits the ticket named);
+`--demo-corpus` batch-scans a built-in 4-recipe sample that also documents the `--corpus` format.
 
 **Remaining networked step (terminal w/ network):** generate the full seed corpus — call the `content`
 edge function per TheMealDB recipe, write `[{ name, recipeId, servings, ingredients }]`, then
