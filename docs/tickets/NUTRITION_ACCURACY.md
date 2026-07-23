@@ -1,5 +1,9 @@
 # Nutrition accuracy — discussion + tickets (2026-07-23 handoff)
 
+> **2026-07-23 (later): see `OWN_RECIPE_DB.md`** — a proposed data-ownership migration (snapshot +
+> canonicalize the seed recipes into Otto's own DB) that, if approved, **absorbs** T1-data-curation,
+> T2's per-recipe half, T4, T5-remainder, and T7. T6 and the T1 mechanism stay regardless.
+
 **Purpose:** capture a live design discussion so any Claude Code session (or Juan via phone)
 can continue the work. Nothing below is *done* except the context + the one small fix noted.
 Most execution is **terminal-only (Claude Code)** — flagged per item. Discussion/decisions can
