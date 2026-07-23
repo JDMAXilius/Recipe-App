@@ -186,9 +186,24 @@ The gap to the ticket's ~230 target is in the honest (under-count) direction; a 
 **Remaining (needs USDA):** add a generic "lamb, composite of trimmed retail cuts" record (~230) if the
 foreshank proxy proves too lean once T7 recompute lands; re-audit any other proteins T6 flags.
 
-### T3 — USDA FNDDS cooked-yield factors  ·  MED  ·  [terminal]
-Otto has `usdaCookedTable.json` + a raw-vs-cooked guard; extend the yield/retention coverage so more
-"add the cooked X" lines resolve to the cooked record (a cooked-vs-raw mismatch is a ~3× error).
+### T3 — USDA FNDDS cooked-yield factors  ·  MED  ·  🟡 auto-detection DONE (crew); poison-row cleanup NEXT
+**Shipped (crew ladder):** the `cooked` flag was set ONLY from curated `recipeFacts.cooked`, so an
+UNCURATED user-import line "200g cooked rice" resolved to RAW rice (~3× over). Added AUTO-detection: a
+literal cooked-state word in the line (`COOKED_WORD = /\b(cooked|boiled|steamed|par-?boiled|pre-?cooked)\b/i`,
+excludes roasted/grilled/fried/baked) flips to the cooked record — but **gated by `hasCookedRecord` so it
+only ever improves, never drops** (no cooked record → stays raw). Reading the literal word in the *line* is
+not the instruction-inference the curated-frying design forbids. Curated path byte-unchanged (still drops to
+null honestly). Added real boiled-potato record (fdcId 170438). `cooked rice` 720→260, `cooked chickpeas`
+756→278, `boiled potatoes` null→174.
+- *Critic ladder (BLOCK + revision):* v1 exposed a poisoned data row — `steamed rice` → "Sesbania flower"
+  (21 kcal, 6× under-count) — now that ALL uncurated lines route through `usdaCookedTable`. Fixed by deleting
+  the 2 flower rows (fall through to cooked rice 130) + a denylist for product-descriptor words (`boiled ham`,
+  `boiled eggs` no longer flip to worse records). Final SHIP-WITH-CAVEAT.
+- **T3-followup (NEXT):** the critic showed ~10 OTHER wrong-food cooked rows (bbq sauce→guava, marzipan→
+  Almond Joy, christmas pudding→cereal, tortillas→chips, mincemeat→beef, egg rolls→fried egg, conchs→abalone,
+  hotsauce/pico→pizza sauce, refried beans→beans-w-beef, mashed potatoes→sweet potato) are reachable on the
+  auto path via *unnatural* phrasing only (LOW-MED). They contribute nothing correct → delete/repoint them.
+  These are `tools/`-pipeline output data bugs; the OWN_RECIPE_DB migration would also resolve them.
 
 ### T4 — Coverage top-up  ·  LOW  ·  [terminal]
 Add the ~5–10 **real** missing ingredients (nutella, doubanjiang, fermented black beans, a few more)

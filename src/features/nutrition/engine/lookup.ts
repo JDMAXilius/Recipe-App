@@ -29,6 +29,70 @@ const COOKED_TABLE = cookedTable as Record<string, FoodRow>;
 
 export const key = (s: unknown): string => String(s || "").trim().toLowerCase();
 
+// A literal cooked-state word IN the ingredient line/name — a deterministic read
+// of explicit text, NOT an inference from instructions (the frying-medium design
+// correctly forbids that; here the cook wrote "cooked"/"boiled" on the line
+// itself). CONSERVATIVE by design: roasted/grilled/fried/baked are excluded
+// because they usually NAME the ingredient (roasted peppers, roasted sesame oil,
+// baked beans product) rather than mark a raw→cooked yield change.
+export const COOKED_WORD = /\b(cooked|boiled|steamed|par-?boiled|pre-?cooked)\b/i;
+const stripCookedWord = (s: unknown): string =>
+  key(s).replace(COOKED_WORD, "").replace(/\s+/g, " ").trim();
+
+// Does a cooked USDA record exist for this food? Gates the AUTO cooked path in
+// compute so it can only ever IMPROVE (swap raw→cooked when we have the cooked
+// record) and never regress (no record → the line stays raw, never dropped).
+// Checks the exact name/item AND the cooked-word-stripped base ("cooked rice" →
+// "rice", "boiled potatoes" → "potatoes"), since the cooked table is keyed by
+// base food. Curated recipeFacts.cooked does NOT use this gate — a human said
+// cooked, so its honest drop-to-null on a missing record is preserved.
+export function hasCookedRecord(name: unknown, parsedItem: unknown): boolean {
+  for (const b of [key(name), key(parsedItem), stripCookedWord(name), stripCookedWord(parsedItem)]) {
+    if (b && COOKED_TABLE[b]) return true;
+  }
+  return false;
+}
+
+// AUTO-COOK DENYLIST: a handful of foods take "boiled"/"cooked" as part of a
+// PRODUCT NAME, not a raw→cooked yield change, and the cooked-table record for
+// them is a WORSE match than the raw/product row — so the AUTO path must NOT
+// flip them. The CURATED path is unaffected (a human can still mark them
+// cooked). Matched at the END of the food name so it's the head noun, not a
+// modifier ("egg noodles" ends in "noodles" → not denied). Evidence, each:
+//   ham          — "boiled ham" is a deli product (~120-145). The cooked row is
+//                  "Pork, cured, ham, ... cooked" (172, +62%); raw "Cure 81
+//                  Ham" (106) is closer.
+//   egg / eggs   — the only cooked-egg record is FRIED (196). "boiled eggs" is
+//                  not fried; raw whole egg (143) is closer than the +37% fry.
+//   corned beef  — cooked row (453) is +129% over the raw cured product (198).
+const COOK_AUTO_DENY = /\b(corned beef|ham|eggs?)\s*$/i;
+
+// Which denylisted food does this line name (→ its raw table key), or null.
+// Only consulted by compute AFTER it confirms an auto-cook would otherwise
+// fire, so it never resolves lines that were staying null on their own.
+export function cookAutoDenied(name: unknown, parsedItem: unknown): string | null {
+  for (const b of [key(name), key(parsedItem)]) {
+    const m = b.match(COOK_AUTO_DENY);
+    if (m) return m[1].toLowerCase();
+  }
+  return null;
+}
+
+// Auto cooked lookup (the gated path above already confirmed a record exists):
+// try the full name first so a specific key like "boiled potatoes" wins over the
+// generic "potatoes", then fall back to the cooked-word-stripped base. Kept
+// SEPARATE from lookup()'s cooked branch, which stays exact-match-only so curated
+// recipes ("Boiled Rice" with no "boiled rice" record) keep dropping to null.
+export function lookupCookedAuto(name: string | null, parsedItem: string | null): FoodRow | null {
+  return (
+    COOKED_TABLE[key(name)] ||
+    COOKED_TABLE[key(parsedItem)] ||
+    COOKED_TABLE[stripCookedWord(name)] ||
+    COOKED_TABLE[stripCookedWord(parsedItem)] ||
+    null
+  );
+}
+
 // Leading qualifiers that DON'T change a food's identity — safe to strip when
 // the full name misses. "white rice" → "rice", "boneless chicken thighs" →
 // "chicken thighs", "fresh basil" → "basil". Deliberately excludes words that

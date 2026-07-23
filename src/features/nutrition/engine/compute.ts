@@ -8,7 +8,7 @@
 // v1 positional args (ingredients, servings, recipeId, steps) become one
 // input object per docs/contracts/engine.md — same shapes, same semantics.
 import { parseIngredientLine } from "./parse";
-import { lookup, key } from "./lookup";
+import { lookup, lookupCookedAuto, hasCookedRecord, cookAutoDenied, foodForKey, COOKED_WORD, key } from "./lookup";
 import type { FoodRow } from "./lookup";
 import type { Row } from "./guards";
 import {
@@ -86,8 +86,31 @@ function buildContext(input: ComputeNutritionInput, override?: ResolvedOverride)
   const rows: Row[] = list.map((p) => {
     const line = [p.measure, p.name].filter(Boolean).join(" ").trim();
     const parsed = parseIngredientLine(line);
-    const cooked = cookedSet.has(key(p.name));
-    let food = lookup(p.name, parsed.item, cooked);
+    const curatedCooked = cookedSet.has(key(p.name));
+    // AUTO cooked detection for UNCURATED lines (the T3 fix): a user-imported
+    // "200g cooked rice" has no recipeFacts, so it used to resolve to RAW rice
+    // (~3x over). A literal cooked-state word in the line is explicit text, not
+    // an inference — flip to cooked, but ONLY when a cooked record exists
+    // (hasCookedRecord gate). So the auto path can only improve (raw→cooked
+    // where we have the record) and never regress (no record → stays raw, never
+    // the honest-drop-to-null the curated path uses). Curated cooked is
+    // UNCHANGED — it keeps its exact-match lookup and its honest null.
+    const wouldAutoCook = COOKED_WORD.test(line) && hasCookedRecord(p.name, parsed.item);
+    // AUTO-COOK DENYLIST: for a few foods "boiled"/"cooked" is a product name,
+    // not a yield change, and the cooked record is a worse match than the raw/
+    // product row — so suppress the flip and keep the raw one. Only consulted
+    // when an auto-cook WOULD have fired, so it never resolves lines that were
+    // staying null. Curated cooked (below) is untouched.
+    const deniedKey =
+      COOKED_WORD.test(line) && !curatedCooked ? cookAutoDenied(p.name, parsed.item) : null;
+    const autoCooked = !curatedCooked && !deniedKey && wouldAutoCook;
+    const cooked = curatedCooked || autoCooked;
+    let food = autoCooked
+      ? lookupCookedAuto(p.name, parsed.item)
+      : lookup(p.name, parsed.item, cooked);
+    // The cooked word in the line ("boiled ham") makes the raw lookup miss, so
+    // fall back to the denylisted food's base product record.
+    if (!food && deniedKey) food = foodForKey(deniedKey);
     let fromResolver = false;
     // Only fill from the resolver when the bundled table missed AND the line is
     // NOT flagged cooked: the resolver returns raw whole-food per-100g, so a raw

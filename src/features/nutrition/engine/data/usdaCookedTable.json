@@ -560,6 +560,28 @@
     "sugar_g": null,
     "sodium_mg": 8
   },
+  "boiled potatoes": {
+    "fdcId": 170438,
+    "usda": "Potatoes, boiled, cooked in skin, flesh, without salt",
+    "kcal": 87,
+    "protein_g": 1.87,
+    "fat_g": 0.1,
+    "carbs_g": 20.13,
+    "fiber_g": 1.8,
+    "sugar_g": null,
+    "sodium_mg": 4
+  },
+  "boiled potato": {
+    "fdcId": 170438,
+    "usda": "Potatoes, boiled, cooked in skin, flesh, without salt",
+    "kcal": 87,
+    "protein_g": 1.87,
+    "fat_g": 0.1,
+    "carbs_g": 20.13,
+    "fiber_g": 1.8,
+    "sugar_g": null,
+    "sodium_mg": 4
+  },
   "prawns": {
     "fdcId": 175180,
     "usda": "Crustaceans, shrimp, cooked",
@@ -669,28 +691,6 @@
     "fiber_g": 0.8,
     "sugar_g": null,
     "sodium_mg": 10
-  },
-  "steamed jasmine rice": {
-    "fdcId": 169368,
-    "usda": "Sesbania flower, cooked, steamed, with salt",
-    "kcal": 21,
-    "protein_g": 1.14,
-    "fat_g": 0.05,
-    "carbs_g": 5.1,
-    "fiber_g": null,
-    "sugar_g": null,
-    "sodium_mg": 247
-  },
-  "steamed rice": {
-    "fdcId": 169368,
-    "usda": "Sesbania flower, cooked, steamed, with salt",
-    "kcal": 21,
-    "protein_g": 1.14,
-    "fat_g": 0.05,
-    "carbs_g": 5.1,
-    "fiber_g": null,
-    "sugar_g": null,
-    "sodium_mg": 247
   },
   "sushi rice": {
     "fdcId": 168932,

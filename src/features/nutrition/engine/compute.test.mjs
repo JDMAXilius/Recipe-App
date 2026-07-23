@@ -6,6 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { computeNutrition } from "./compute";
+import { COOKED_WORD } from "./lookup";
 
 const require = createRequire(import.meta.url);
 const table = require("./data/usdaTable.json");
@@ -302,4 +303,107 @@ test("a volume-measured grain still refuses the whole recipe, steps or no steps"
     ["Add the cooked rice.", "Serve."]
   );
   assert.equal(out, null);
+});
+
+// ── T3: cooked-yield detection for UNCURATED lines ──────────────────────────
+// A user-imported line that literally says "cooked rice" has no recipeFacts, so
+// it used to resolve to RAW rice (~3x over). A literal cooked-state word in the
+// line is explicit text (not an instruction inference), and it flips to the
+// cooked record ONLY when one exists — so it can only improve, never regress.
+// Every assertion checks the P/C/F split, not kcal alone.
+test("T3: uncurated 'cooked rice' uses the cooked record (~130/100g), not raw 360", () => {
+  const out = compute([{ measure: "200g", name: "cooked rice" }], 1);
+  // cooked white rice: 130 kcal, 2.69 P, 28.2 C, 0.28 F per 100g × 2
+  assert.equal(out.kcal, 260);
+  assert.ok(out.carbs_g > 55 && out.carbs_g < 58, `cooked-rice carbs ~56.4, got ${out.carbs_g}`);
+  assert.ok(out.protein_g > 5 && out.protein_g < 6, `cooked-rice protein ~5.4, got ${out.protein_g}`);
+  assert.ok(out.fat_g < 1, `cooked-rice fat ~0.6, got ${out.fat_g}`);
+});
+
+test("T3: uncurated 'cooked chickpeas' uses the cooked record (~139/100g), not raw 378", () => {
+  const out = compute([{ measure: "200g", name: "cooked chickpeas" }], 1);
+  // canned chickpeas: 139 kcal, 7.05 P, 22.5 C, 2.77 F per 100g × 2
+  assert.equal(out.kcal, 278);
+  assert.ok(out.carbs_g > 44 && out.carbs_g < 46, `cooked-chickpea carbs ~45, got ${out.carbs_g}`);
+  assert.ok(out.protein_g > 13 && out.protein_g < 15, `cooked-chickpea protein ~14.1, got ${out.protein_g}`);
+  assert.ok(out.fat_g > 5 && out.fat_g < 6, `cooked-chickpea fat ~5.5, got ${out.fat_g}`);
+});
+
+test("T3: uncurated 'boiled potatoes' uses the new boiled-potato record (~87/100g)", () => {
+  const out = compute([{ measure: "200g", name: "boiled potatoes" }], 1);
+  // Potatoes, boiled, cooked in skin, flesh: 87 kcal, 1.87 P, 20.13 C, 0.1 F × 2
+  assert.equal(out.kcal, 174);
+  assert.ok(out.carbs_g > 39 && out.carbs_g < 41, `boiled-potato carbs ~40.3, got ${out.carbs_g}`);
+  assert.ok(out.protein_g > 3 && out.protein_g < 4.5, `boiled-potato protein ~3.7, got ${out.protein_g}`);
+  assert.ok(out.fat_g < 0.5, `boiled-potato fat ~0.2, got ${out.fat_g}`);
+});
+
+test("T3: no-regression — a cooked-word line with NO cooked record stays RAW, never null", () => {
+  // broccoli has a raw record but no cooked record: the auto path must NOT fire,
+  // so the line keeps its raw value and is not honest-dropped to null.
+  const cookedLine = compute([{ measure: "200g", name: "cooked broccoli" }], 1);
+  const plain = compute([{ measure: "200g", name: "broccoli" }], 1);
+  assert.ok(cookedLine, "cooked broccoli must not drop to null (no cooked record → stay raw)");
+  assert.equal(cookedLine.kcal, plain.kcal);
+  assert.equal(cookedLine.carbs_g, plain.carbs_g);
+  assert.equal(cookedLine.protein_g, plain.protein_g);
+  assert.equal(cookedLine.fat_g, plain.fat_g);
+});
+
+test("T3: false positives — the cooked-word regex excludes roasted/grilled/fried/baked", () => {
+  // Those words usually NAME the ingredient (roasted peppers, roasted sesame oil,
+  // baked beans product), so they must NOT trigger a raw→cooked flip.
+  for (const w of ["roasted", "grilled", "fried", "baked", "roasted red peppers", "baked beans"]) {
+    assert.equal(COOKED_WORD.test(w), false, `"${w}" must not read as a cooked-state word`);
+  }
+  for (const w of ["cooked", "boiled", "steamed", "par-boiled", "parboiled", "pre-cooked"]) {
+    assert.ok(COOKED_WORD.test(w), `"${w}" must read as a cooked-state word`);
+  }
+});
+
+test("T3: 'baked beans' stays on its RAW record, not flipped to the cooked one", () => {
+  // baked beans has BOTH a raw (338/100g) and cooked (94/100g) record, so a
+  // wrongful flip would be visible: 200g → 676 raw vs 188 cooked. "baked" is
+  // excluded, so it must land on 676 (raw).
+  const out = compute([{ measure: "200g", name: "baked beans" }], 1);
+  assert.equal(out.kcal, 676);
+  assert.ok(out.carbs_g > 100, `raw baked-beans carbs ~107.8, got ${out.carbs_g}`);
+});
+
+// ── T3 rev: poisoned steamed-rice rows + auto-cook denylist ─────────────────
+test("T3: uncurated 'steamed rice' uses cooked rice (~130/100g), NOT the poisoned 21-kcal flower row", () => {
+  // The steamed-rice/steamed-jasmine-rice keys pointed at "Sesbania flower"
+  // (21 kcal) — a 6x under-count. Removed, so they fall through to the rice base.
+  for (const name of ["steamed rice", "steamed jasmine rice"]) {
+    const out = compute([{ measure: "200g", name }], 1);
+    assert.equal(out.kcal, 260, `${name} → 260 (cooked rice x2), not 42 (flower)`);
+    assert.ok(out.carbs_g > 55 && out.carbs_g < 58, `${name} carbs ~56.4, got ${out.carbs_g}`);
+    assert.ok(out.protein_g > 5 && out.protein_g < 6, `${name} protein ~5.4, got ${out.protein_g}`);
+    assert.ok(out.fat_g < 1, `${name} fat ~0.6, got ${out.fat_g}`);
+  }
+});
+
+test("T3: auto-cook denylist — 'boiled ham' stays on raw product (106), not the +62% cooked row (172)", () => {
+  const out = compute([{ measure: "200g", name: "boiled ham" }], 1);
+  // HORMEL Cure 81 Ham raw: 106 kcal, 18.4 P, 3.59 F, 0.21 C per 100g × 2.
+  assert.equal(out.kcal, 212, `boiled ham → 212 (raw 106 x2), not 344 (cooked 172)`);
+  assert.ok(out.protein_g > 36 && out.protein_g < 38, `boiled-ham protein ~36.8, got ${out.protein_g}`);
+  assert.ok(out.fat_g > 6 && out.fat_g < 8, `boiled-ham fat ~7.2, got ${out.fat_g}`);
+});
+
+test("T3: auto-cook denylist — 'boiled eggs' stays on raw egg (143), not the FRIED cooked row (196)", () => {
+  for (const name of ["boiled eggs", "hard boiled eggs"]) {
+    const out = compute([{ measure: "200g", name }], 1);
+    // Egg, whole, raw, fresh: 143 kcal, 12.6 P, 9.51 F, 0.72 C per 100g × 2.
+    assert.equal(out.kcal, 286, `${name} → 286 (raw egg 143 x2), not 392 (fried 196)`);
+    assert.ok(out.protein_g > 24 && out.protein_g < 27, `${name} protein ~25.2, got ${out.protein_g}`);
+    assert.ok(out.fat_g > 18 && out.fat_g < 20, `${name} fat ~19, got ${out.fat_g}`);
+  }
+});
+
+test("T3: denylist does NOT catch 'egg noodles' — head noun is noodles, so it still auto-cooks", () => {
+  // "cooked egg noodles" must still flip to the cooked egg-noodle record (138),
+  // proving the denylist matches the food name's END, not any 'egg' substring.
+  const out = compute([{ measure: "200g", name: "cooked egg noodles" }], 1);
+  assert.equal(out.kcal, 276, `cooked egg noodles → 276 (cooked 138 x2)`);
 });

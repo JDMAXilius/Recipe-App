@@ -8,7 +8,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { foodForKey, lookup, shapeCookedDecisions } from "./lookup";
+import { foodForKey, lookup, shapeCookedDecisions, hasCookedRecord, lookupCookedAuto } from "./lookup";
 
 const require = createRequire(import.meta.url);
 const cookedTable = require("./data/usdaCookedTable.json");
@@ -112,4 +112,41 @@ test("N4: cooked pasta/white-rice records exist for the classifier to land on", 
     assert.ok(cookedTable[k], `cooked record for "${k}" should exist`);
     assert.ok(cookedTable[k].kcal < 200, `"${k}" cooked kcal should be cooked-range, got ${cookedTable[k].kcal}`);
   }
+});
+
+// ── T3: the AUTO cooked-detection gate (hasCookedRecord / lookupCookedAuto) ──
+test("T3: hasCookedRecord gates on a real cooked record (base or exact)", () => {
+  // has a cooked record via the stripped base
+  assert.ok(hasCookedRecord("cooked rice", "cooked rice"));
+  assert.ok(hasCookedRecord("cooked chickpeas", "cooked chickpeas"));
+  assert.ok(hasCookedRecord("boiled potatoes", "boiled potatoes"));
+  // broccoli/okra have no cooked record → gate stays shut (auto path won't fire)
+  assert.equal(hasCookedRecord("cooked broccoli", "cooked broccoli"), false);
+  assert.equal(hasCookedRecord("cooked okra", "cooked okra"), false);
+});
+
+test("T3: lookupCookedAuto strips the cooked word to the base, exact key wins", () => {
+  assert.equal(lookupCookedAuto("cooked rice", "cooked rice")?.kcal, 130);
+  assert.equal(lookupCookedAuto("cooked chickpeas", "cooked chickpeas")?.kcal, 139);
+  // exact "boiled potatoes" key (87) beats the generic microwaved "potatoes" (105)
+  assert.equal(lookupCookedAuto("boiled potatoes", "boiled potatoes")?.fdcId, 170438);
+  assert.equal(lookupCookedAuto("boiled potatoes", "boiled potatoes")?.kcal, 87);
+});
+
+test("T3: curated cooked path is UNCHANGED — exact match only, honest null on miss", () => {
+  // lookup()'s cooked branch (the curated path) never strips: a curated "Boiled
+  // Rice"/"cooked broccoli" with no exact record still drops to null, exactly as
+  // before this change — a human said cooked, so honor the honest drop.
+  assert.equal(lookup("cooked broccoli", "cooked broccoli", true), null);
+  assert.equal(lookup("boiled rice", "boiled rice", true), null);
+  // an exact curated key still resolves as before
+  assert.ok(lookup("white rice", "white rice", true)?.kcal < 200);
+});
+
+test("T3: the new boiled-potato record is a real USDA SR row", () => {
+  const r = cookedTable["boiled potatoes"];
+  assert.equal(r.fdcId, 170438);
+  assert.equal(r.usda, "Potatoes, boiled, cooked in skin, flesh, without salt");
+  assert.equal(r.kcal, 87);
+  assert.equal(r.carbs_g, 20.13);
 });
