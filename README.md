@@ -102,12 +102,13 @@ Recipe-App/
 │   └── migrations/         Postgres schema + RLS as timestamped SQL (source of truth)
 │
 ├── assets/                 mascot art, Otto action paintings, food-category icons, app icons, sounds
-├── docs/                   design system, decision log, roadmaps, tickets, contracts, these breakdowns
+├── docs/                   reference/ (living docs) · history/ (build record + captures) · legal/
+│                           see docs/README.md for the index
 ├── e2e/                    Playwright journeys (auth · cook · plan · share · …)
 ├── test/                   node --test unit suites (co-located *.test.mjs run here too)
 ├── eas.json                EAS Build profiles (production = native, no OTA channel)
 ├── app.json                Expo config (bundle id com.otto.recipes, plugins, scheme otto://)
-└── reusable-app/ · reusable-website-branding/ · altavida/ · references/   (separate scaffolds/projects)
+└── references/             non-app material: the Altavida brand project + reusable app/website scaffolds
 ```
 
 ## Architecture & data flow
@@ -194,13 +195,12 @@ CI (`.github/workflows/ci.yml`) runs all three on every push to `main` and PRs i
 
 ## Status
 
-**v2 is live on `main`** (feature-first rebuild; the old RN-JS app + Express backend are archived in
-the `v1-legacy` branch). Backend runs on Supabase — all Edge Functions active, Claude generation and
-nutrition resolution working. Security advisors cleaned up.
+**Shipped to TestFlight — v1.0.14 (build 30).** The feature-first v2 rebuild is live on `main` (the old
+RN-JS app + Express backend are archived on the `v1-legacy` branch). Backend runs entirely on Supabase —
+all Edge Functions active, Claude generation + nutrition resolution working, security advisors cleaned up.
 
-**Remaining to ship:** a device smoke-test of the OS-level paths (Apple/Google/Facebook login, timer
-audio, camera, push permission), then a **native EAS build** → TestFlight → App Store. Otto Club IAP
-lands when gating should go live.
+**Next:** a device pass on the OS-level paths (Apple/Google/Facebook login, timer audio, camera, push),
+then App Store submission. Otto Club IAP lands when gating should go live.
 
 ## Credits
 
