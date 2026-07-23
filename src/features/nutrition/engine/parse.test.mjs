@@ -23,6 +23,33 @@ test("parseQty resolves ranges to the midpoint (C20)", () => {
   assert.equal(parseQty("2–3"), 2.5); // en dash
 });
 
+test("hyphenated mixed number 'N-N/N' = N + N/N, same as the space form", () => {
+  assert.equal(parseQty("2-1/2"), 2.5);
+  assert.equal(parseQty("1-1/2"), 1.5);
+  assert.equal(parseQty("2-1/2"), parseQty("2 1/2")); // identical to space form
+  // must NOT swallow the adjacent forms:
+  assert.equal(parseQty("2-3"), 2.5); // range, not 2+3/(missing)
+  assert.equal(parseQty("1/2-3/4"), 0.625); // fraction range, midpoint
+});
+
+test("hyphenated mixed number resolves grams; ranges/compounds unchanged (BUG A)", () => {
+  const hy = parseIngredientLine("2-1/2 cups flour");
+  assert.equal(hy.grams, 312.5);
+  assert.equal(hy.confidence, "high");
+  assert.equal(hy.item, "flour");
+  // exactly the space form
+  const sp = parseIngredientLine("2 1/2 cups flour");
+  assert.equal(hy.grams, sp.grams);
+  assert.equal(parseIngredientLine("1-1/2 cups milk").grams, 366);
+  assert.equal(parseIngredientLine("2-1/2 cups water").grams, 592.5);
+  // GUARD — hyphen between whole numbers is a range (midpoint), unchanged:
+  assert.equal(parseIngredientLine("2-3 cups sugar").grams, 470);
+  assert.equal(parseIngredientLine("2-3 tbsp oil").grams, 34.1);
+  // GUARD — hyphen before a unit/word is a compound, not a mixed number:
+  assert.equal(parseIngredientLine("1-inch piece ginger").grams, null);
+  assert.equal(parseIngredientLine("9-inch pastry").grams, null);
+});
+
 test("mass units convert exactly, high confidence", () => {
   const lb = parseIngredientLine("1 lb ground beef");
   assert.equal(lb.grams, 453.6);

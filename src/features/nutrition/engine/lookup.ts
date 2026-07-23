@@ -113,6 +113,26 @@ export function lookup(name: string | null, parsedItem: string | null, cooked: C
     const hit = TABLE[key(cand)];
     if (hit) return hit;
   }
+  // Singular/plural fold, last resort: a staple written singular ("carrot")
+  // when the table keys it plural ("carrots"), or vice-versa. Trailing -s ONLY
+  // — never f/ves, which would collapse distinct foods (leaf/leaves). Because it
+  // runs only after every exact and qualifier-stripped form has missed, it can
+  // only ADD a hit to a line that was already null; it can never redirect a food
+  // that already resolved.
+  const foldS = (k: string): string => (k.endsWith("s") ? k.slice(0, -1) : k + "s");
+  // Fold-unsafe stems: the folded key collides with a DIFFERENT food. "peppers"
+  // (the vegetable, freeform "2 peppers") folds to "pepper" = the black-pepper
+  // SPICE row (251 kcal/100g) — a ~10x-wrong confident hit where honest-null is
+  // correct. "pepper" is the only calorie-bearing homograph in the table, so
+  // this denylist stays a single entry rather than a general stemmer.
+  const FOLD_UNSAFE = new Set(["pepper"]);
+  for (const base of [key(name), key(parsedItem), ...candidates]) {
+    if (!base) continue;
+    const folded = foldS(base);
+    if (FOLD_UNSAFE.has(folded)) continue; // keep the honest null
+    const hit = TABLE[folded];
+    if (hit) return hit;
+  }
   return null;
 }
 

@@ -326,6 +326,13 @@ export function parseQty(raw: unknown): number | null {
     s = s.replace(new RegExp(`(\\d+)\\s*[-–—]?\\s*${ch}`), (_, n) => String(Number(n) + val));
     s = s.replace(new RegExp(ch), String(val));
   }
+  // Hyphenated mixed number "2-1/2" = 2 + 1/2, the commonest written form in
+  // recipe text. Must be tested BEFORE the range branch below, which would
+  // otherwise read it as "2 to 1/2" and average to 1.25. A hyphen between two
+  // WHOLE numbers ("2-3") has no slash, so it falls through to the range branch
+  // unchanged.
+  const hyphenMixed = s.match(/^(\d+)\s*[-–—]\s*(\d+)\/(\d+)$/);
+  if (hyphenMixed) return Number(hyphenMixed[1]) + Number(hyphenMixed[2]) / Number(hyphenMixed[3]);
   const range = s.match(/^([\d./\s]+?)\s*(?:[-–—]|to)\s*([\d./\s]+)$/i);
   if (range) {
     const lo = parseQty(range[1]);
@@ -558,7 +565,12 @@ export function parseIngredientLine(input: string | IngredientPair): ParsedLine 
       // The mixed-unicode form ("1 ½ tbsp", "1-⅓ cups") must come FIRST or the
       // bare-integer branch matches "1" and strips the fraction silently — the
       // line then reads 1 tbsp instead of 1.5, or drops out entirely.
-      `^((?:\\d+\\s*[-–—]?\\s*[¼½¾⅓⅔⅛⅜⅝⅞]|\\d+\\s+\\d+[\\/⁄]\\d+|\\d+[\\/⁄]\\d+|\\d+(?:[.,]\\d+)?|[¼½¾⅓⅔⅛⅜⅝⅞])(?:\\s*(?:[-–—]|to)\\s*\\d+(?:[.,]\\d+)?)?)\\s*(${UNIT_WORDS})?\\.?\\s+(?:of\\s+)?(.+)$`,
+      // Hyphenated mixed number "2-1/2" leads, so the whole "N-N/N" is captured
+      // as one quantity instead of the bare-integer branch taking "2" and the
+      // range tail grabbing "-1". A hyphen before a UNIT/word ("1-inch",
+      // "9-inch") has no trailing "/N" and is left to fall through unmatched,
+      // and "N-N" (no slash) stays a range via the trailing group below.
+      `^((?:\\d+\\s*[-–—]\\s*\\d+[\\/⁄]\\d+|\\d+\\s*[-–—]?\\s*[¼½¾⅓⅔⅛⅜⅝⅞]|\\d+\\s+\\d+[\\/⁄]\\d+|\\d+[\\/⁄]\\d+|\\d+(?:[.,]\\d+)?|[¼½¾⅓⅔⅛⅜⅝⅞])(?:\\s*(?:[-–—]|to)\\s*\\d+(?:[.,]\\d+)?)?)\\s*(${UNIT_WORDS})?\\.?\\s+(?:of\\s+)?(.+)$`,
       "i"
     )
   );

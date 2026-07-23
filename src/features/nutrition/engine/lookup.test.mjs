@@ -8,7 +8,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { foodForKey, shapeCookedDecisions } from "./lookup";
+import { foodForKey, lookup, shapeCookedDecisions } from "./lookup";
 
 const require = createRequire(import.meta.url);
 const cookedTable = require("./data/usdaCookedTable.json");
@@ -20,6 +20,44 @@ test("foodForKey returns real USDA rows and null for non-keys", () => {
   assert.equal(foodForKey(""), null);
   // case-insensitive, like the compute path
   assert.ok(foodForKey("Cheddar Cheese"));
+});
+
+test("singular resolves to the same record as its plural, and vice-versa (BUG B)", () => {
+  const plural = lookup("carrots", "carrots", false);
+  assert.ok(plural && plural.usda === "Carrots, raw");
+  // the singular staple now folds to the plural row it used to miss
+  const singular = lookup("carrot", "carrot", false);
+  assert.ok(singular && singular.usda === plural.usda, "carrot must resolve to Carrots, raw");
+  // "200g carrot" carries item "carrot" — same fold on the parsed item
+  assert.ok(lookup(null, "carrot", false)?.usda === "Carrots, raw");
+});
+
+test("the -s fold never fabricates the pepper homograph (F1 honesty guard)", () => {
+  // "2 peppers" (the vegetable) must NOT fold to "pepper" = the black-pepper
+  // SPICE row (~10x wrong). Honest null beats confident-wrong.
+  assert.equal(lookup("peppers", "peppers", false), null);
+  assert.equal(lookup(null, "peppers", false), null);
+  // the direct EXACT hit on the spice name itself is untouched — legit.
+  assert.ok(lookup("pepper", "pepper", false)?.usda);
+});
+
+test("the -s fold does not collapse distinct foods (BUG B guard pairs)", () => {
+  // trailing -s only, never f/ves, and only when the raw form already missed —
+  // so none of these produce a WRONG cross-food hit.
+  const L = (n) => lookup(n, n, false)?.usda ?? null;
+  // oat/oats are the SAME food: both correctly land on the oats row (the fold
+  // working as intended, exactly like carrot/carrots).
+  assert.equal(L("oat"), L("oats"));
+  assert.ok(L("oats") && /oats/i.test(L("oats")));
+  // the rest have no standalone row either way — must stay null, NOT grab a
+  // multi-word key ("green beans", "green chilli", "medjool dates", "bay leaf").
+  for (const [s, p] of [
+    ["green", "greens"], ["bean", "beans"], ["date", "dates"],
+    ["leaf", "leaves"], ["chili", "chilis"],
+  ]) {
+    assert.equal(L(s), null, `${s} must stay null`);
+    assert.equal(L(p), null, `${p} must stay null`);
+  }
 });
 
 test("shapeCookedDecisions clamps to the enum and answers every asked name", () => {
