@@ -32,3 +32,7 @@ backend/scripts/provenance-cache-*.json
 
 expo-env.d.ts
 # @end expo-cli
+# Signing secrets — never track (untracked 2026-07-22; rotate the dist cert in Apple Developer)
+mobile/credentials.json
+mobile/credentials/ios/*.p12
+mobile/credentials/ios/*.mobileprovision
