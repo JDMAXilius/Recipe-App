@@ -30,22 +30,23 @@ export function useSaved() {
   const isSaved = useCallback((recipeId: number) => savedIds.has(recipeId), [savedIds]);
 
   const mutation = useMutation({
-    mutationFn: async (recipe: SavedRecipe) => {
+    mutationFn: async ({ recipe, wasSaved }: { recipe: SavedRecipe; wasSaved: boolean }) => {
       if (!userId) throw new Error('Sign in to save recipes');
-      // Read current truth from cache so the toast Undo (a long-lived closure)
-      // always toggles against the latest state, not a captured snapshot.
-      const current = deriveSavedIds(qc.getQueryData<SavedRecipe[]>(savedKey(userId)) ?? []);
-      if (current.has(recipe.recipeId)) await deleteFavorite(userId, recipe.recipeId);
+      // Decide from the pre-toggle truth captured in toggle() — NOT from the
+      // cache: React Query runs onMutate (which optimistically flips the cache)
+      // BEFORE mutationFn, so reading the cache here inverts the DB op (a Save
+      // would delete, an Unsave would insert a duplicate).
+      if (wasSaved) await deleteFavorite(userId, recipe.recipeId);
       else await insertFavorite(userId, recipe);
     },
-    onMutate: async (recipe: SavedRecipe) => {
+    onMutate: async ({ recipe }: { recipe: SavedRecipe; wasSaved: boolean }) => {
       const key = savedKey(userId);
       await qc.cancelQueries({ queryKey: key });
       const prev = qc.getQueryData<SavedRecipe[]>(key) ?? [];
       qc.setQueryData<SavedRecipe[]>(key, applyOptimisticToggle(prev, recipe));
       return { prev };
     },
-    onError: (_err, _recipe, ctx) => {
+    onError: (_err, _vars, ctx) => {
       if (ctx) qc.setQueryData(savedKey(userId), ctx.prev); // roll back to server truth
     },
     onSettled: () => {
@@ -54,8 +55,16 @@ export function useSaved() {
   });
 
   const toggle = useCallback(
-    (recipe: SavedRecipe) => mutation.mutate(recipe),
-    [mutation],
+    (recipe: SavedRecipe) => {
+      // Read current truth from the cache at click time (fresh — works for the
+      // toast Undo, a long-lived closure, too) and pass it so mutationFn doesn't
+      // depend on the cache onMutate has already flipped.
+      const wasSaved = deriveSavedIds(
+        qc.getQueryData<SavedRecipe[]>(savedKey(userId)) ?? [],
+      ).has(recipe.recipeId);
+      mutation.mutate({ recipe, wasSaved });
+    },
+    [mutation, qc, userId],
   );
 
   return {

@@ -39,8 +39,11 @@ export async function insertFavorite(userId: string, recipe: SavedRecipe): Promi
     cook_time: recipe.cookTime,
     servings: recipe.servings,
   };
-  // recipe_id is unique per user under RLS; a re-save is a no-op we tolerate.
-  const { error } = await supabase.from('favorites').insert(row);
+  // Idempotent: (user_id, recipe_id) is unique, so a re-save is a genuine no-op
+  // (ignoreDuplicates) rather than a duplicate row or a thrown conflict.
+  const { error } = await supabase
+    .from('favorites')
+    .upsert(row, { onConflict: 'user_id,recipe_id', ignoreDuplicates: true });
   if (error) throw error;
 }
 
