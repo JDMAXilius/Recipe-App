@@ -1,5 +1,60 @@
 {
   "chicken": {
+    "fdcId": 171052,
+    "usda": "Chicken, broilers or fryers, meat only, raw",
+    "kcal": 119,
+    "protein_g": 21.39,
+    "fat_g": 3.08,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 77
+  },
+  "chicken, minced": {
+    "fdcId": 171116,
+    "usda": "Chicken, ground, raw",
+    "kcal": 143,
+    "protein_g": 17.4,
+    "fat_g": 8.1,
+    "carbs_g": 0.04,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 60
+  },
+  "chicken, ground": {
+    "fdcId": 171116,
+    "usda": "Chicken, ground, raw",
+    "kcal": 143,
+    "protein_g": 17.4,
+    "fat_g": 8.1,
+    "carbs_g": 0.04,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 60
+  },
+  "ground chicken": {
+    "fdcId": 171116,
+    "usda": "Chicken, ground, raw",
+    "kcal": 143,
+    "protein_g": 17.4,
+    "fat_g": 8.1,
+    "carbs_g": 0.04,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 60
+  },
+  "minced chicken": {
+    "fdcId": 171116,
+    "usda": "Chicken, ground, raw",
+    "kcal": 143,
+    "protein_g": 17.4,
+    "fat_g": 8.1,
+    "carbs_g": 0.04,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 60
+  },
+  "chicken mince": {
     "fdcId": 171116,
     "usda": "Chicken, ground, raw",
     "kcal": 143,

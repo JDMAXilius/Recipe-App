@@ -149,7 +149,19 @@ user imports; remote doc keeps this "weight-layer consolidation" live).
 > *heuristic* T1 was retired at merge in favor of this curated design — inference produced false
 > positives, e.g. Pastel de Papas, exactly as the mechanism's rationale predicts.)
 
-### T5 — Better default protein matches  ·  MED  ·  🟡 lamb DONE (offline); beef/pork audited-clean
+### T5 — Better default protein matches  ·  MED  ·  🟡 lamb + chicken DONE (crew); beef/pork audited-clean
+**Chicken fixed (2026-07-23, crew ladder):** a full-corpus protein audit found bare `chicken` (21 seeds)
+wrongly resolved to **"Chicken, ground, raw"** (143/8.1) — the same wrong-cut class as lamb. First
+re-pointed to skinless breast, but the critic showed that's the *leanest single cut* and breaks the
+lamb/beef/pork "whole cut with its fat" convention (under-counts thigh/braise dishes). Final: added the
+real whole-bird composite **"Chicken, broilers or fryers, meat only, raw" (fdcId 171052, 119/3.08)** and
+pointed bare `chicken` there — sibling-consistent, semantically a composite not white-meat-only. Added
+guard keys `ground/minced chicken`, `chicken mince`, **and the comma forms `chicken, minced`/`chicken,
+ground`** → ground 171116 (the critic caught that `stripTrailingPrep` drags the comma spelling to the
+lean default before mince-aliasing). `sirloin steak` (→ a DENNY'S branded row) left as a **T4** coverage
+item (no generic raw sirloin in the table). Beef/pork re-confirmed clean.
+
+**Lamb (prior session):** 
 **Lamb fixed (2026-07-23, no network needed — re-pointed within the bundled table):** the bare `lamb`
 key AND `lamb leg` both wrongly resolved to **"Lamb, ground, raw"** (282 kcal, 23.4 g fat) — a fatty
 ground-meat default for what is usually a stew/roast cut. Both now point to the leanest realistic whole

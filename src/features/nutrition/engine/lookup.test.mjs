@@ -22,6 +22,36 @@ test("foodForKey returns real USDA rows and null for non-keys", () => {
   assert.ok(foodForKey("Cheddar Cheese"));
 });
 
+test("bare 'chicken' is the whole-bird composite, but ground/minced keys stay ground (lamb trap)", () => {
+  // T5 (rev): bare "chicken" is the honest generic for UNSPECIFIED chicken — the
+  // real USDA light+dark meat-only composite (171052, 119 kcal / 3.08 g fat), a
+  // composite not a single cut, matching the lamb→foreshank / beef→chuck / pork→
+  // tenderloin sibling convention (whole cut with its fat, not the leanest row).
+  const bare = lookup("chicken", null, false);
+  assert.equal(bare?.fdcId, 171052, "bare chicken → whole-bird meat-only composite");
+  assert.equal(bare?.usda, "Chicken, broilers or fryers, meat only, raw");
+  assert.equal(bare?.kcal, 119);
+  assert.equal(bare?.fat_g, 3.08);
+  // "chicken, diced" is the same composite (trailing prep stripped, no mince).
+  assert.equal(lookup("chicken, diced", null, false)?.usda, bare.usda);
+  // Lamb trap: qualifier-strip / trailing-prep-strip would drag every ground
+  // spelling to the composite without explicit keys — each must stay ground
+  // (143 kcal, 8.1 g fat). Comma forms (FIX B) close the word-order guard hole.
+  for (const k of ["ground chicken", "minced chicken", "chicken mince", "chicken, minced", "chicken, ground"]) {
+    const r = lookup(k, null, false);
+    assert.equal(r?.usda, "Chicken, ground, raw", `${k} must stay ground`);
+    assert.equal(r?.fdcId, 171116);
+  }
+});
+
+test("chicken breast keeps its own breast row, not the composite", () => {
+  for (const k of ["chicken breast", "chicken breasts"]) {
+    const r = lookup(k, null, false);
+    assert.equal(r?.fdcId, 171077, `${k} → breast row`);
+    assert.ok(/breast, skinless/.test(r?.usda), `${k} → breast, meat only`);
+  }
+});
+
 test("singular resolves to the same record as its plural, and vice-versa (BUG B)", () => {
   const plural = lookup("carrots", "carrots", false);
   assert.ok(plural && plural.usda === "Carrots, raw");
