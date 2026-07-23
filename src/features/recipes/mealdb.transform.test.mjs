@@ -44,6 +44,15 @@ test('mealSteps splits lines and drops standalone step-number labels', () => {
   assert.deepEqual(mealSteps(null), []);
 });
 
+test('mealSteps splits a single no-newline paragraph into sentences', () => {
+  // TheMealDB recipes with the whole method in one paragraph (no line breaks)
+  // must not collapse into one giant step (52779 Cream Cheese Tart, 52780 Gratin).
+  assert.deepEqual(
+    mealSteps('Preheat the oven to 350. Whisk the sauce. Bake for 30 min.'),
+    ['Preheat the oven to 350.', 'Whisk the sauce.', 'Bake for 30 min.'],
+  );
+});
+
 test('mealToRecipe brands the seed id and carries source url, servings stays null', () => {
   const r = mealToRecipe(meal);
   assert.equal(r.id, '52772');

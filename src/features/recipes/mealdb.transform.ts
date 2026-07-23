@@ -67,10 +67,20 @@ const isStepLabel = (line: string) => /^\s*(step\s*)?\d+\s*[:.)\-]?\s*$/i.test(l
 
 export function mealSteps(instructions: string | null | undefined): string[] {
   if (!instructions) return [];
-  return instructions
+  const lines = instructions
     .split(/\r?\n/)
     .map((s) => s.trim())
     .filter((s) => s && !isStepLabel(s));
+  // Many TheMealDB recipes (e.g. 52779 Cream Cheese Tart, 52780 Potato Gratin)
+  // put the whole method in ONE paragraph with no line breaks — newline-splitting
+  // leaves a single giant unreadable step. Only in that case, fall back to
+  // sentence boundaries. The lookahead (whitespace/end after the terminator)
+  // keeps decimals like "350.5" from splitting mid-number.
+  if (lines.length <= 1) {
+    const sentences = (lines[0] ?? '').match(/[^.!?]+[.!?]+(?=\s|$)/g);
+    if (sentences && sentences.length > 1) return sentences.map((s) => s.trim());
+  }
+  return lines;
 }
 
 export function mealIngredients(meal: Meal): { measure: string; name: string }[] {
