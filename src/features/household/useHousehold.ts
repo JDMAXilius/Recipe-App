@@ -2,7 +2,7 @@
 // (profile's Household screen + the shopping list read it); useSharedList()
 // owns the realtime shared check/custom state for the list. Server state is
 // TanStack Query; realtime pushes just invalidate the relevant key.
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/supabase/client';
 import { useAuth } from '@/features/auth';
@@ -21,6 +21,19 @@ import {
   type ListStateRow,
 } from './household.queries';
 
+// A process-unique suffix per hook instance. Two mounts of the same hook (e.g.
+// the Household screen + the Shopping screen both reading useHousehold) must NOT
+// share a realtime channel name — supabase.channel(name) returns the EXISTING,
+// already-subscribed channel, and calling .on() on it throws "cannot add
+// postgres_changes callbacks after subscribe()". A per-instance id keeps names
+// distinct so each mount owns its own channel.
+let channelSeq = 0;
+function useChannelId(): number {
+  const ref = useRef<number>(-1);
+  if (ref.current < 0) ref.current = channelSeq++;
+  return ref.current;
+}
+
 export interface UseHousehold {
   household: Household | null;
   members: HouseholdMember[];
@@ -35,6 +48,7 @@ export function useHousehold(): UseHousehold {
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const qc = useQueryClient();
+  const cid = useChannelId();
   const key = ['household', userId] as const;
 
   const query = useQuery({
@@ -54,7 +68,7 @@ export function useHousehold(): UseHousehold {
   useEffect(() => {
     if (!household) return;
     const ch = supabase
-      .channel(`household-members-${household.id}`)
+      .channel(`household-members-${household.id}-${cid}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'household_members', filter: `household_id=eq.${household.id}` },
@@ -107,6 +121,7 @@ export function useSharedList(householdId: string | null): UseSharedList {
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const qc = useQueryClient();
+  const cid = useChannelId();
   const key = ['household-list', householdId] as const;
 
   const query = useQuery({
@@ -118,7 +133,7 @@ export function useSharedList(householdId: string | null): UseSharedList {
   useEffect(() => {
     if (!householdId) return;
     const ch = supabase
-      .channel(`household-list-${householdId}`)
+      .channel(`household-list-${householdId}-${cid}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'household_list_state', filter: `household_id=eq.${householdId}` },
