@@ -118,6 +118,25 @@ the catalogue only ever contains verified data. Over time the TheMealDB origin b
 golden suite + T6 corpus scan are the regression net. **Not over-engineering:** it *removes* a
 moving part (live API + patch overlays) and replaces it with data that is simply correct.
 
+## Agent crew — reuse map (decided 2026-07-23)
+
+The existing `.claude/agents/` crew covers this roadmap almost entirely; **one new agent** is
+needed. Per-phase owners:
+
+| Phase | Owner(s) | Notes |
+|---|---|---|
+| 1 — Snapshot | **security-builder** (migration + RLS + Storage bucket) + **builder** (snapshot script in `tools/`) | Both as-is; exactly their doctrine |
+| 2 — Canonicalize | **canonicalizer** *(NEW — `.claude/agents/canonicalizer.md`)* fanned out per-recipe via the Workflow pipeline; **critic** (REFUTER) verifies each batch before landing | No existing agent owns "recipe text in → canonical structured data out"; builder writes code not data, engine-porter's doctrine forbids editing data content, critic can't write |
+| 3 — Ingredient top-up | **engine-porter** | One-line doctrine nuance: its charter says data JSONs are written by the `tools/` pipeline — so top-ups land via a tools script it runs, keeping "one writer" true |
+| 4 — Cutover | **builder** (recipes.queries) → **verifier** (V1 ladder) → **critic** (V2) | The standard validation ladder, unchanged |
+| 5 — Recompute | **security-builder** (DB writes) + **verifier** | Old T7 |
+| 6 — Ongoing gate | **canonicalizer** + **critic** | Every new recipe enters through the same pair |
+
+**ui-systems** sits this one out (no UI change — recipes render identically). The canonicalizer
+is deliberately **read-only** (like critic): it *returns* validated structured output; a builder
+lands the data. That preserves the crew discipline — producers propose, critics refute,
+builders write, verifier proves.
+
 ## Relationship to NUTRITION_ACCURACY.md
 
 T6 stays (the auditor). T1-mechanism stays (guards user imports). T1-data-curation, T2's
