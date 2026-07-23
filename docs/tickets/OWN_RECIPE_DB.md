@@ -72,6 +72,17 @@ table (migration + RLS public-read, mirroring `seed_nutrition`) storing the **or
 verbatim** (provenance: `themealdb`, source id, fetched_at) + a versioned JSON export in the
 repo for audit. Never destroy source data — canonical corrections live alongside it.
 
+*Media fields — all three are captured (they're what `mealdb.transform.ts` already consumes),
+but they differ:*
+- **YouTube link** (`strYoutube`): just a URL; YouTube hosts the video. Snapshot and embed as
+  today — no dependency, no legal question.
+- **Source URL** (`strSource`): the attribution trail — keep forever ("source credited
+  forever" is already Otto law).
+- **Image** (`strMealThumb`): points at TheMealDB's CDN — snapshotting only the URL keeps a
+  runtime dependency on their image host. Plan: copy the files into Supabase Storage **iff the
+  terms allow re-hosting** (the Phase 0 check); fallback = keep hotlinking + attribution;
+  long-term = replace with Otto's own art/photography via the asset pipeline (real IP).
+
 **Phase 2 — Canonicalization (the one-time fix)** `[terminal + Claude API]`
 Batch pass, one recipe at a time, zod-validated structured output:
 - each ingredient line → `{ canonical_name (an existing usdaTable key — Claude must pick from
