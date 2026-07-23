@@ -325,12 +325,13 @@ if (argv.includes("--corpus")) {
   console.log("(recipeId omitted, so no curated facts apply)");
   printOne(breakdown(IRISH_STEW));
   console.log(
-    "\nReading it: engine REFUSES (uncapped Σ ~1870 > 1500 cap) — correct, but the\n" +
-      "breakdown shows WHY. OIL_WHOLE on the 120 ml olive oil is the T1 target: a\n" +
-      "browning medium counted as if eaten (110 g, ~28 g/serving). UNMATCHED on the\n" +
-      "'soaked overnight…' line is the mis-parse the ticket names (almost certainly\n" +
-      "barley). HUGE_GRAMS / BIG_SHARE on the 2 kg lamb → 'Lamb, ground, raw' is the\n" +
-      "fatty-cut + raw match (T5) — a leaner, cooked record would drop it sharply."
+    "\nReading it: the engine REFUSES this uncurated demo on per-serving grams (2 kg\n" +
+      "lamb for 4), but the breakdown shows the culprits. OIL_WHOLE on the 120 ml\n" +
+      "olive oil is the T1 target — a browning medium; curate its `frying` flag and\n" +
+      "it drops to a film. UNMATCHED on the 'soaked overnight…' line is the mis-parse\n" +
+      "the ticket names (almost certainly barley). The 2 kg lamb now matches a leaner\n" +
+      "foreshank cut (T5 done — was 'ground, raw' 1410 → 1005 kcal/srv); it is still\n" +
+      "counted RAW, so a cooked record (T3) would drop it further."
   );
 }
 void HERE;

@@ -132,9 +132,21 @@ Grow `pieceWeights.json` (79) and promote common `EACH_G`/`PIECE_G` estimates in
 USDA-verified per-piece/per-cup weights. Use T6 to find ingredients resolving to wrong/zero grams.
 This is where Otto is genuinely behind Edamam/MFP and where accuracy gains actually are.
 
-### T5 — Better default protein matches  ·  MED  ·  [terminal]
-`lamb` → a leaner stewing cut (not loin chop); audit beef/pork/lamb defaults for "separable lean AND
-fat" over-fatting. Verify against USDA (FoodData Central API, DEMO_KEY works for a few queries).
+### T5 — Better default protein matches  ·  MED  ·  🟡 lamb DONE (offline); beef/pork audited-clean
+**Lamb fixed (2026-07-23, no network needed — re-pointed within the bundled table):** the bare `lamb`
+key AND `lamb leg` both wrongly resolved to **"Lamb, ground, raw"** (282 kcal, 23.4 g fat) — a fatty
+ground-meat default for what is usually a stew/roast cut. Both now point to the leanest realistic whole
+cut already in the table, **"Lamb, foreshank, separable lean and fat, trimmed to 1/4″ fat" (fdcId
+172481, 201 kcal, 13.4 g fat, 18.9 g protein)** — a real record, so provenance holds. `lamb mince` is
+deliberately LEFT as ground (koftas/burgers need it). Irish stew's lamb line: 1410 → **1005 kcal/srv**.
+The gap to the ticket's ~230 target is in the honest (under-count) direction; a truly generic
+"trimmed retail cuts" record (~230) isn't in the bundled table and would need a USDA lookup to add.
+
+**beef / pork audited — already correct, no change:** `beef` → "Beef, chuck for stew" (124 kcal),
+`pork` → "Pork, tenderloin" (120 kcal); their `minced …` keys correctly stay ground. Only lamb was wrong.
+
+**Remaining (needs USDA):** add a generic "lamb, composite of trimmed retail cuts" record (~230) if the
+foreshank proxy proves too lean once T7 recompute lands; re-audit any other proteins T6 flags.
 
 ### T3 — USDA FNDDS cooked-yield factors  ·  MED  ·  [terminal]
 Otto has `usdaCookedTable.json` + a raw-vs-cooked guard; extend the yield/retention coverage so more
