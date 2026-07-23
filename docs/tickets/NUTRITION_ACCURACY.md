@@ -86,12 +86,24 @@ edge function per TheMealDB recipe, write `[{ name, recipeId, servings, ingredie
 `--corpus` it to rank all 750+ worst-first. (USDA is blocked in cloud sessions, but the breakdown
 itself runs fully offline — the table + engine ship locally.)
 
-### T1 — Cooking-oil / medium detection  ·  HIGH impact  ·  [terminal]
-Extend `applyFryingMedium` (`guards.ts`) so a **large** oil/butter quantity in a **savory main dish**
-with **sear/brown/fry** steps counts only the absorbed fraction (`FRY_ABSORBED_G ≈ 14 g`), not the
-whole pour. Small oil, or a dressing/sauce/baking context → count fully. Grounded in USDA FNDDS +
-the existing absorbed-only model. **Must:** keep the golden suite green; add a golden pinning the fix
-(Irish stew ~700→ realistic). **Risk:** don't under-count dishes where the oil IS eaten.
+### T1 — Cooking-oil / medium detection  ·  HIGH impact  ·  ✅ DONE (2026-07-23)
+`applyFryingMedium` (`guards.ts`) now has a second, lower **browning-medium** tier below the deep-fry
+bath. It fires only when the ingredient list shows a real searing context — a substantial **searable
+main** (meat/fish/tofu/aubergine ≥ 150 g, *excluding* stocks/broths that merely name an animal) is
+present — and the oil pour is large (≥ 50 g total AND ≥ 20 g/serving). Then the oil counts only the
+film absorbed by the **seared food** (Bognár unbreaded ≈ 1 g/100 g, floored at 10 g), not the whole
+pour. This deliberately does NOT read cooking steps — the engine never does (contract) — it infers the
+context from the list. Butter is intentionally left out of this tier (its own analysis pending).
+
+**Why the gate matters (the risk the ticket names):** oil with no seared main — a dressing, aglio e
+olio, a drizzle — is still counted whole, so genuinely-eaten oil is never under-counted. A 1–2 tbsp
+sauté stays whole too (below both floors). Deep-fry baths are unchanged (still ~6 %-of-submerged-food).
+
+**Result:** Irish stew's 120 ml browning oil drops from 244 → ~44 kcal/serving (110 g → 20 g absorbed).
+(The full stew still reads high until T5/T3 fix the raw ground-lamb match — T1 only owns the oil.)
+**Goldens added** (`golden.test.mjs`): "a browning pour is a medium, not eaten oil" and the inverse,
+"the SAME oil with no seared main is eaten in full (dressing)". Whole golden + laws suites stay green.
+Verify with the T6 tool: `--demo` shows the oil line flagged `frying-absorbed`.
 
 ### T2 — Weight-layer audit + expand (the "MFP model")  ·  HIGH  ·  [terminal]
 Grow `pieceWeights.json` (79) and promote common `EACH_G`/`PIECE_G` estimates in `parse.ts` to

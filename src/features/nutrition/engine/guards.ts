@@ -68,17 +68,74 @@ const FAT_ABSORBED_PER_100G = 6;
 // 60 g of fat in ONE portion is already extreme as an eaten ingredient.
 const FRYING_MEDIUM_MIN_G_PER_SERVING = 60;
 
+// ── Browning / searing medium (a lower bar than the deep-fry bath) ───────────
+// The bath thresholds above only catch a submerged fry. But a stew or curry that
+// browns 2 kg of meat in "120 ml oil" never puts that oil on the plate — most
+// stays in the pan (USDA/FNDDS: fat change during cooking is folded into the
+// food; you eat the film, not the pour). That pour sits FAR below the bath bar,
+// so it was counted whole — 976 kcal of uneaten oil in one Irish stew.
+//
+// So a second, lower trigger fires ONLY when the list shows a real browning
+// context: a substantial SEARABLE MAIN is present. That gate is what keeps this
+// off oil that IS the dish — a dressing, aglio e olio, a drizzle — where no main
+// is seared and the oil is eaten in full. Both a per-serving AND an absolute
+// floor keep an honest 1–2 tbsp sauté (which a person does eat) counted whole.
+const BROWNING_MIN_G_PER_SERVING = 20; // more than a plate's worth of oil
+const BROWNING_MIN_G_TOTAL = 50; // and a real pour, so tiny recipes are spared
+// Bognár (2002) unbreaded pan-frying absorbs 0–1 g per 100 g of food — a film,
+// not the ~6 % a submerged breaded item takes. Keyed to the SEARED food only
+// (the meat/fish that touches the pan), at the high, conservative end of the
+// range, with a floor so a genuine pour never reads as near-zero.
+const BROWNING_ABSORBED_PER_100G = 1;
+const BROWNING_ABSORBED_FLOOR_G = 10;
+const SEARABLE_MAIN_MIN_G = 150;
+const SEARABLE_MAIN_RE =
+  /\b(beef|steak|minced?|mince|lamb|mutton|pork|bacon|gammon|ham|sausages?|chorizo|veal|chicken|turkey|duck|goose|meat|ribs?|chops?|brisket|shank|thighs?|breasts?|drumsticks?|fillets?|escalopes?|liver|kidney|fish|salmon|cod|haddock|tuna|trout|mackerel|prawns?|shrimps?|scallops?|squid|tofu|paneer|aubergines?|eggplants?)\b/i;
+// A "beef stock" / "chicken broth" is a liquid, not a seared main — it just
+// happens to name the animal. Excluding it keeps a brothy dish (stock + a big
+// oil pour, no actual meat) from tripping the browning reduction and dropping
+// oil that IS eaten in the broth.
+const NON_SEARABLE_RE = /\b(stock|broth|bouillon|consomm[eé]|soup|gravy|jus)\b/i;
+const isSearedMain = (name: string): boolean =>
+  SEARABLE_MAIN_RE.test(name) && !NON_SEARABLE_RE.test(name);
+
 export function applyFryingMedium(rows: Row[], perServing = 4): void {
-  const threshold = Math.min(FRYING_MEDIUM_MIN_G, FRYING_MEDIUM_MIN_G_PER_SERVING * Math.max(1, perServing));
-  const fats = rows.filter((r) => (r.parsed.grams ?? 0) >= threshold && FAT_RE.test(r.name || ""));
+  const servings = Math.max(1, perServing);
+  const bathThreshold = Math.min(FRYING_MEDIUM_MIN_G, FRYING_MEDIUM_MIN_G_PER_SERVING * servings);
+  const fats = rows.filter((r) => (r.parsed.grams ?? 0) > 0 && FAT_RE.test(r.name || ""));
   if (!fats.length) return;
+
+  // Everything that isn't the fat — what a submerged fry cooks in the bath.
   const friedFoodGrams = rows
     .filter((r) => !fats.includes(r) && (r.parsed.grams ?? 0) > 0)
     .reduce((a, r) => a + (r.parsed.grams as number), 0);
+  // The seared mains only — what a browning film clings to.
+  const searedGrams = rows
+    .filter((r) => (r.parsed.grams ?? 0) >= SEARABLE_MAIN_MIN_G && isSearedMain(r.name || ""))
+    .reduce((a, r) => a + (r.parsed.grams as number), 0);
+
   for (const r of fats) {
-    const absorbed = Math.round((friedFoodGrams * FAT_ABSORBED_PER_100G) / 100);
+    if (r.fryingMedium) continue; // already interpreted — keep the guard idempotent
+    const grams = r.parsed.grams as number;
+    let absorbed: number | null = null;
+    if (grams >= bathThreshold) {
+      // Deep-fry bath: the food is submerged, ~6 % of its weight absorbed.
+      absorbed = Math.round((friedFoodGrams * FAT_ABSORBED_PER_100G) / 100);
+    } else if (
+      searedGrams > 0 &&
+      grams >= BROWNING_MIN_G_TOTAL &&
+      grams / servings >= BROWNING_MIN_G_PER_SERVING
+    ) {
+      // Browning medium: only the film on the seared main is eaten.
+      absorbed = Math.max(
+        BROWNING_ABSORBED_FLOOR_G,
+        Math.round((searedGrams * BROWNING_ABSORBED_PER_100G) / 100)
+      );
+    }
+    // Small oil in a non-browning context is a real ingredient — count it whole.
+    if (absorbed == null) continue;
     // Never claim MORE was absorbed than the cook put in the pan.
-    r.parsed = { ...r.parsed, grams: Math.min(absorbed, r.parsed.grams as number), confidence: "medium" };
+    r.parsed = { ...r.parsed, grams: Math.min(absorbed, grams), confidence: "medium" };
     r.fryingMedium = true; // an interpretation, so it scores as a guess
   }
 }
