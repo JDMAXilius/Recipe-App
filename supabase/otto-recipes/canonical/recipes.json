@@ -454,33 +454,35 @@
     "title": "Jerk chicken with rice & peas",
     "category": "Chicken",
     "area": "Jamaican",
-    "servings": 4,
+    "servings": 6,
     "instructions": [
-      "Make the jerk marinade: blend the spring onions, ginger, garlic, onion, red chillies, thyme, lime juice, soy sauce, vegetable oil, brown sugar and allspice with 1 tsp salt to a thick puree. Don't add water — if it won't blend, stop, stir and restart.",
-      "Taste and balance: it should be pleasantly salty. Add more chilli for heat, or a little more brown sugar if it's too salty or sour.",
-      "Slash the chicken thighs, rub the marinade into every crevice, cover and marinate overnight in the fridge.",
-      "Roast the chicken: heat oven to 180C/160C fan/gas 4. Put the thighs in a roasting tin with the lime halves and cook 45 mins until tender and cooked through. (For authentic jerk, barbecue over slow indirect heat with wood chips for about 30 mins instead.)",
-      "Meanwhile make the rice & peas: rinse the basmati rice, then tip into a large saucepan with the coconut milk, spring onions, thyme, garlic and allspice — everything except the beans. Season with salt, add 300ml cold water and bring to the boil.",
-      "Once boiling, turn down to medium, cover and cook 10 mins.",
-      "Stir in the kidney beans, cover, take off the heat and rest 5 mins until the liquid is absorbed.",
-      "Squeeze the roasted lime over the chicken and serve with the rice & peas, plus hot sauce if you like it fiery."
+      "Blitz the ginger, garlic, onion, spring onions, chilli, thyme, lime juice, soy sauce, oil, brown sugar, allspice and a teaspoon of salt in a food processor until it forms a thick, smooth jerk paste — pause to scrape down the sides if it stalls, but don't add water.",
+      "Taste the paste and balance it: it should read pleasantly salty rather than sharp, so add more chilli for heat or a touch more brown sugar if it's too salty or sour.",
+      "Slash the chicken thighs a few times, then rub the jerk paste all over and into the cuts.",
+      "Cover and marinate the chicken in the fridge overnight.",
+      "For a barbecue: light the coals an hour ahead, add wood chips for smoke, and cook the chicken over slow, indirect heat for 30 minutes.",
+      "For the oven: heat to 180C/160C fan/gas 4, put the chicken in a roasting tin with the lime halves, and roast for 45 minutes until cooked through.",
+      "While the chicken cooks, rinse the rice thoroughly, then tip it into a saucepan with the coconut milk, spring onions, thyme and garlic, keeping the kidney beans aside for later.",
+      "Season with salt, add 300ml cold water, bring to the boil, then reduce to medium, cover and simmer for 10 minutes.",
+      "Stir in the kidney beans, cover and leave off the heat for 5 minutes until the liquid is absorbed.",
+      "Squeeze the roasted lime over the chicken and serve with the rice and peas, plus hot sauce on the side if you like it fiery."
     ],
     "ingredients": [
       {
         "original": "12 Chicken Thighs",
         "key": "chicken thighs",
-        "grams": 1800,
+        "grams": 1440,
         "cooked": false,
         "frying_medium": false,
-        "note": "12 thighs; per-thigh weight inferred at ~150g bone-in"
+        "note": "no per-piece weight given; assumed ~120g per thigh x12"
       },
       {
         "original": "1/2 Lime",
         "key": "lime",
-        "grams": 33,
+        "grams": 35,
         "cooked": false,
         "frying_medium": false,
-        "note": "half a lime inferred from ~66g whole lime; roasted alongside chicken"
+        "note": "half a lime roasted alongside chicken then squeezed over; weight inferred from average lime"
       },
       {
         "original": "1  bunch Spring Onions",
@@ -488,23 +490,23 @@
         "grams": 100,
         "cooked": false,
         "frying_medium": false,
-        "note": "bunch weight inferred at ~100g"
+        "note": "'1 bunch' weight inferred at ~100g"
       },
       {
         "original": "1 tbs chopped Ginger",
         "key": "ginger",
-        "grams": 15,
+        "grams": 6,
         "cooked": false,
         "frying_medium": false,
         "note": null
       },
       {
         "original": "3 cloves Garlic",
-        "key": "garlic",
+        "key": "garlic clove",
         "grams": 9,
         "cooked": false,
         "frying_medium": false,
-        "note": "3 cloves at ~3g each"
+        "note": null
       },
       {
         "original": "1/2 Onion",
@@ -512,15 +514,15 @@
         "grams": 75,
         "cooked": false,
         "frying_medium": false,
-        "note": "half an onion inferred at ~75g"
+        "note": "half a medium onion, weight inferred"
       },
       {
         "original": "3 chopped Red Chilli",
         "key": "red chilli",
-        "grams": 45,
+        "grams": 30,
         "cooked": false,
         "frying_medium": false,
-        "note": "3 chillies inferred at ~15g each"
+        "note": "3 chillies, weight inferred at ~10g each"
       },
       {
         "original": "1/2 teaspoon Thyme",
@@ -536,12 +538,12 @@
         "grams": 30,
         "cooked": false,
         "frying_medium": false,
-        "note": "juice of 1 lime inferred at ~30g"
+        "note": "juice of one lime, weight inferred"
       },
       {
         "original": "2 tbs Soy Sauce",
         "key": "soy sauce",
-        "grams": 32,
+        "grams": 30,
         "cooked": false,
         "frying_medium": false,
         "note": null
@@ -552,7 +554,7 @@
         "grams": 28,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "oil is part of the marinade and stays on the meat as served, not a frying medium"
       },
       {
         "original": "3 tbs Brown Sugar",
@@ -592,23 +594,23 @@
         "grams": 100,
         "cooked": false,
         "frying_medium": false,
-        "note": "bunch weight inferred at ~100g"
+        "note": "'1 bunch' weight inferred at ~100g"
       },
       {
         "original": "2 sprigs Thyme",
-        "key": "fresh thyme",
+        "key": "thyme",
         "grams": 2,
         "cooked": false,
         "frying_medium": false,
-        "note": "2 sprigs inferred at ~1g each"
+        "note": "2 sprigs, weight inferred"
       },
       {
         "original": "2 cloves chopped Garlic",
-        "key": "garlic",
+        "key": "garlic clove",
         "grams": 6,
         "cooked": false,
         "frying_medium": false,
-        "note": "2 cloves at ~3g each"
+        "note": null
       },
       {
         "original": "1 tbs Allspice",
@@ -624,7 +626,7 @@
         "grams": 800,
         "cooked": true,
         "frying_medium": false,
-        "note": "800g is canned/drained weight (2x400g cans), added already cooked near the end"
+        "note": "assumed pre-cooked/canned beans stirred in near the end and only warmed through"
       }
     ],
     "media": {
@@ -635,8 +637,8 @@
     "provenance": {
       "source": "themealdb",
       "fetched_at": "2026-07-23T21:03:26.140Z",
-      "canonicalized_at": "2026-07-23T21:30:43.880Z",
-      "model": "claude-opus-4"
+      "canonicalized_at": "2026-07-23T21:57:53.380Z",
+      "model": "claude-sonnet-5"
     }
   },
   {
@@ -784,13 +786,21 @@
     "title": "Spanish-style slow-cooked lamb shoulder & beans",
     "category": "Lamb",
     "area": "Spanish",
-    "servings": 6,
+    "servings": 8,
     "instructions": [
-      "Make the spice mix: combine the crushed garlic, hot smoked paprika, olive oil and rosemary with a large pinch of salt. Slash the lamb shoulder all over and rub the mix in. Marinate up to 24 hrs if you have time — optional.",
-      "Heat oven to 150C/130C fan/gas 2. Heat the olive oil in a large flameproof casserole over medium-high heat. Add the onions, carrots and garlic bulb and sizzle 5 mins until softened. Pour in the chicken stock and bring to the boil.",
-      "Nestle the lamb in the pan, cover, and roast 2 hrs.",
-      "Uncover and lift the lamb onto a plate. Stir the butter beans, roasted peppers and black olives through the stock, sit the lamb back on top, and return uncovered for 1 hr 30 mins until cooked through.",
-      "Transfer the lamb to a board and shred with two forks. Stir the parsley through the braised beans and serve."
+      "Mix all the spice ingredients together with a generous pinch of salt to make a rub.",
+      "Score the lamb shoulder deeply all over and massage the spice rub into the cuts.",
+      "Marinate for up to 24 hours if you have time, though it's fine to cook straight away.",
+      "Preheat the oven to 150°C fan 130°C gas 2.",
+      "Heat the olive oil in a large flameproof casserole over medium-high heat.",
+      "Add the onions, carrots and garlic bulb and sizzle for 5 minutes until softened.",
+      "Pour in the chicken stock and bring to the boil.",
+      "Nestle the lamb into the pan, cover, and roast in the oven for 2 hours.",
+      "Uncover and lift the lamb onto a plate.",
+      "Stir the butter beans, roasted peppers and olives through the braising liquid.",
+      "Sit the lamb back on top, return uncovered to the oven, and roast for a further 1 hour 30 minutes until cooked through.",
+      "Transfer the lamb to a board and shred with two forks.",
+      "Stir the parsley through the beans before serving."
     ],
     "ingredients": [
       {
@@ -799,7 +809,7 @@
         "grams": 2500,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "No yield stated in recipe; servings inferred as 8 based on total food mass (~5.6kg) at roughly 700g per serving."
       },
       {
         "original": "1 tblsp Olive Oil",
@@ -807,23 +817,23 @@
         "grams": 14,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "1 tbsp olive oil ≈14g, inferred conversion; oil stays in the braise, not a frying medium."
       },
       {
         "original": "2 chopped Onion",
-        "key": "chopped onion",
+        "key": "onion",
         "grams": 300,
         "cooked": false,
         "frying_medium": false,
-        "note": "weight inferred from 2 medium onions (~150g each)"
+        "note": "2 onions ≈150g each, inferred weight."
       },
       {
         "original": "4 Chopped Carrots",
         "key": "carrots",
-        "grams": 280,
+        "grams": 400,
         "cooked": false,
         "frying_medium": false,
-        "note": "weight inferred from 4 medium carrots (~70g each)"
+        "note": "4 carrots ≈100g each, inferred weight."
       },
       {
         "original": "1 Garlic Bulb",
@@ -831,7 +841,7 @@
         "grams": 50,
         "cooked": false,
         "frying_medium": false,
-        "note": "weight inferred for 1 whole bulb (~50g)"
+        "note": "1 whole garlic bulb ≈50g, inferred weight."
       },
       {
         "original": "500ml Chicken Stock",
@@ -845,9 +855,9 @@
         "original": "1200g Butter Beans",
         "key": "butter beans",
         "grams": 1200,
-        "cooked": true,
+        "cooked": false,
         "frying_medium": false,
-        "note": "canned/cooked beans stirred in ready to eat"
+        "note": null
       },
       {
         "original": "450g Roasted pepper",
@@ -868,18 +878,18 @@
       {
         "original": "4 tablespoons Parsley",
         "key": "parsley",
-        "grams": 15,
+        "grams": 16,
         "cooked": false,
         "frying_medium": false,
-        "note": "weight inferred from 4 tbsp chopped (~4g/tbsp)"
+        "note": "4 tbsp chopped parsley ≈4g each, inferred weight."
       },
       {
         "original": "4 Cloves Crushed Garlic",
-        "key": "garlic",
+        "key": "garlic clove",
         "grams": 12,
         "cooked": false,
         "frying_medium": false,
-        "note": "weight inferred from 4 cloves (~3g each)"
+        "note": "4 cloves ≈3g each, inferred weight; part of spice rub, stays on lamb."
       },
       {
         "original": "1 tablespoon Hot smoked paprika",
@@ -887,15 +897,15 @@
         "grams": 7,
         "cooked": false,
         "frying_medium": false,
-        "note": "weight inferred from 1 tbsp ground paprika (~7g)"
+        "note": "1 tbsp ground spice ≈7g, inferred weight."
       },
       {
         "original": "4 tablespoons Olive Oil",
         "key": "olive oil",
-        "grams": 54,
+        "grams": 56,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "4 tbsp olive oil ≈14g each, inferred weight; part of spice rub, remains on lamb, not a frying medium."
       },
       {
         "original": "1/2 teaspoon Rosemary",
@@ -903,7 +913,7 @@
         "grams": 1,
         "cooked": false,
         "frying_medium": false,
-        "note": "weight inferred from 1/2 tsp dried (~1g)"
+        "note": "1/2 tsp dried rosemary ≈1g, inferred weight."
       }
     ],
     "media": {
@@ -914,8 +924,8 @@
     "provenance": {
       "source": "themealdb",
       "fetched_at": "2026-07-23T21:03:26.140Z",
-      "canonicalized_at": "2026-07-23T21:30:43.543Z",
-      "model": "claude-opus-4"
+      "canonicalized_at": "2026-07-23T21:57:45.677Z",
+      "model": "claude-sonnet-5"
     }
   },
   {
@@ -1215,15 +1225,22 @@
     "id": "53413",
     "title": "Flija Layered Pancake / Crepe",
     "category": "Breakfast",
-    "area": null,
+    "area": "Albanian",
     "servings": 8,
     "instructions": [
-      "Make the flour batter: whisk flour, water and salt until smooth and lump-free. Aim for a thick but still pourable consistency, adding a splash more water if needed. Set aside.",
-      "Make the filling batter: whisk the melted butter, oil and your chosen yogurt or cream until smooth and runny, like custard. Rest 10 minutes, then whisk again. Set aside.",
-      "Heat the grill to medium. Oil the base of a large deep baking tray. Using a squeeze bottle or ladle, pipe the flour batter in lines to form a star pattern, leaving triangular gaps between the lines. Grill 3-5 minutes until golden.",
-      "Brush the whole surface with the filling batter, then pipe another star of flour batter, laying the lines through the gaps from the previous layer. Grill 3-5 minutes until golden.",
-      "Keep repeating, filling each triangular gap on every layer, until all the batter is used - roughly 2 hours. Every couple of layers, add one full layer to fill any larger gaps.",
-      "Serve straight away with honey or yogurt."
+      "Whisk the flour, water, and salt together until every lump dissolves; the batter should be thick but still pourable — add a splash more water if it's too stiff.",
+      "Set the flour batter aside.",
+      "Whisk the melted butter, oil, and your chosen yogurt or cream together until smooth; let it rest 10 minutes, then whisk again until it's the consistency of custard.",
+      "Set the filling aside.",
+      "Preheat the grill to a medium setting.",
+      "Rub a little olive oil over the base of a large, deep baking tray or pie pan.",
+      "Pipe or ladle the flour batter in thin lines across the pan in a star pattern, leaving triangular gaps between the lines — the batter is too thick to pour.",
+      "Grill this first layer until golden brown, 3–5 minutes.",
+      "Brush the whole surface, both battered and bare patches, with a layer of the filling mixture.",
+      "Pipe another star-patterned layer of flour batter, threading it through the gaps left by the previous layer and again leaving triangular spaces.",
+      "Grill until golden, another 3–5 minutes.",
+      "Repeat the filling-then-batter layering, topping up any thin or bare patches every couple of rounds, until all the batter and filling are used up — this takes roughly 2 hours total.",
+      "Serve the finished flija straight away with honey or yogurt."
     ],
     "ingredients": [
       {
@@ -1248,7 +1265,7 @@
         "grams": 6,
         "cooked": false,
         "frying_medium": false,
-        "note": "1 tsp salt converted to ~6g"
+        "note": "1 tsp salt estimated at ~6g"
       },
       {
         "original": "220g Melted Butter",
@@ -1256,7 +1273,7 @@
         "grams": 220,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "chosen filling variant (yogurt-based); brushed into the layers and eaten, stays in dish"
       },
       {
         "original": "200ml Vegetable Oil",
@@ -1264,63 +1281,63 @@
         "grams": 184,
         "cooked": false,
         "frying_medium": false,
-        "note": "200ml oil converted at ~0.92 g/ml; oil is whisked into the eaten filling batter, not a frying medium"
+        "note": "200ml converted to grams using oil density ~0.92g/ml; part of chosen filling variant"
       },
       {
         "original": "5 tablespoons Greek Yogurt",
         "key": "greek yogurt",
-        "grams": 75,
+        "grams": 77,
         "cooked": false,
         "frying_medium": false,
-        "note": "5 tbsp converted at ~15g each"
+        "note": "5 tbsp (~15ml each) converted to grams; recipe says 'chosen yogurt/cream' — three filling variants given, this one (yogurt) chosen as the canonical filling, others zeroed"
       },
       {
         "original": "220g Melted Butter",
         "key": "melted butter",
-        "grams": 220,
+        "grams": 0,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "alternative filling variant (clotted cream); not summed — cook picks one filling, not all three"
       },
       {
         "original": "200ml Vegetable Oil",
         "key": "vegetable oil",
-        "grams": 184,
+        "grams": 0,
         "cooked": false,
         "frying_medium": false,
-        "note": "200ml oil converted at ~0.92 g/ml; oil is whisked into the eaten filling batter, not a frying medium"
+        "note": "alternative filling variant (clotted cream); not summed"
       },
       {
         "original": "3  tablespoons Clotted Cream",
         "key": "clotted cream",
-        "grams": 45,
+        "grams": 0,
         "cooked": false,
         "frying_medium": false,
-        "note": "3 tbsp converted at ~15g each"
+        "note": "alternative filling variant; not summed — 'chosen yogurt/cream' implies one filling is used"
       },
       {
         "original": "220g Melted Butter",
         "key": "melted butter",
-        "grams": 220,
+        "grams": 0,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "alternative filling variant (sour cream); not summed"
       },
       {
         "original": "500ml Sour Cream",
         "key": "sour cream",
-        "grams": 480,
+        "grams": 0,
         "cooked": false,
         "frying_medium": false,
-        "note": "500ml converted at ~0.96 g/ml"
+        "note": "alternative filling variant; not summed — 'chosen yogurt/cream' implies one filling is used"
       },
       {
         "original": "3  tablespoons Olive Oil",
         "key": "olive oil",
-        "grams": 40,
+        "grams": 0,
         "cooked": false,
         "frying_medium": false,
-        "note": "3 tbsp converted at ~13.5g each; whisked into the eaten filling batter, not a frying medium"
+        "note": "alternative filling variant (sour cream); not summed"
       }
     ],
     "media": {
@@ -1331,8 +1348,8 @@
     "provenance": {
       "source": "themealdb",
       "fetched_at": "2026-07-23T21:03:26.140Z",
-      "canonicalized_at": "2026-07-23T21:31:16.796Z",
-      "model": "claude-opus-4"
+      "canonicalized_at": "2026-07-23T21:57:41.484Z",
+      "model": "claude-sonnet-5"
     }
   },
   {
@@ -1340,28 +1357,28 @@
     "title": "Mini butter buns",
     "category": "Side",
     "area": null,
-    "servings": 24,
+    "servings": 90,
     "instructions": [
-      "Combine the bread flour, sugar, instant yeast, and salt in a large mixing bowl.",
-      "Pour in the warm milk and knead into a rough dough.",
-      "Once the dough is smooth and elastic, work in the butter and keep kneading until fully incorporated.",
-      "Cover the bowl and let the dough rise until doubled, about 90 minutes.",
-      "Turn out onto a lightly floured surface, divide the dough, and roll every piece into a smooth ball.",
-      "Lightly grease your pans and arrange the dough balls on them.",
-      "Cover and let rise again until puffy and soft.",
-      "Brush the tops with egg white.",
-      "Meanwhile, heat the oven to 375F (190C).",
-      "Bake uncovered for 28 to 32 minutes, until the crust is golden brown.",
-      "Cool briefly and enjoy."
+      "Whisk together the bread flour, sugar, yeast, and salt in a large bowl.",
+      "Pour in the warm milk and knead until a rough dough forms.",
+      "Once the dough turns smooth and elastic, work in the softened butter and keep kneading until fully incorporated.",
+      "Cover the bowl and let the dough rise until it has doubled in size, about 90 minutes.",
+      "Turn the risen dough out onto a floured surface, divide it into small portions, and roll each into a smooth ball.",
+      "Grease your baking pans lightly and arrange the dough balls on them.",
+      "Cover the pans and let the buns rise again until they look puffy and soft.",
+      "Brush the tops of the risen buns with egg white using a pastry brush.",
+      "Near the end of the rise, preheat the oven to 375°F.",
+      "Uncover the buns and bake for 28 to 32 minutes, until the crusts turn golden brown.",
+      "Pull them from the oven and enjoy warm."
     ],
     "ingredients": [
       {
         "original": "4-5 pound Bread Flour",
         "key": "bread flour",
-        "grams": 2041,
+        "grams": 1814,
         "cooked": false,
         "frying_medium": false,
-        "note": "Original gives a 4-5 lb range; used the 4.5 lb midpoint (2041 g)."
+        "note": "Original states a range '4-5 pound Bread Flour'; took low end (4 lb ≈ 1814g). No yield stated for this recipe (mini buns, category: Side); servings inferred by summing total dough mass (~3460g) and dividing by an estimated ~38g per mini bun, giving ~90 pieces — flagged as an inference, not a stated count."
       },
       {
         "original": "6 cups Milk",
@@ -1369,15 +1386,15 @@
         "grams": 1440,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "6 cups converted at ~240g/cup."
       },
       {
         "original": "3  tablespoons Sugar",
         "key": "sugar",
-        "grams": 38,
+        "grams": 37.5,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "3 tbsp granulated sugar at ~12.5g/tbsp."
       },
       {
         "original": "1 ½ tbsp Instant Yeast",
@@ -1385,7 +1402,7 @@
         "grams": 14,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "1 1/2 tbsp instant yeast at ~9.3g/tbsp."
       },
       {
         "original": "2 1/2 Tsp Salt",
@@ -1393,7 +1410,7 @@
         "grams": 15,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "2 1/2 tsp salt at ~6g/tsp."
       },
       {
         "original": "10 tblsp Unsalted Butter",
@@ -1401,7 +1418,7 @@
         "grams": 142,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "10 tbsp unsalted butter at ~14.2g/tbsp; kneaded into dough, remains in the eaten buns."
       },
       {
         "original": "2 Egg",
@@ -1409,7 +1426,7 @@
         "grams": 100,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "2 whole eggs (~50g each) listed, but instructions only use the egg white brushed on top as a glaze before baking — most of the egg mass is not actually consumed as part of the dough."
       }
     ],
     "media": {
@@ -1420,8 +1437,8 @@
     "provenance": {
       "source": "themealdb",
       "fetched_at": "2026-07-23T21:03:26.140Z",
-      "canonicalized_at": "2026-07-23T21:31:16.840Z",
-      "model": "claude-opus-4"
+      "canonicalized_at": "2026-07-23T21:57:56.971Z",
+      "model": "claude-sonnet-5"
     }
   }
 ]
