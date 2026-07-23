@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Platform,
   Pressable,
@@ -10,9 +10,9 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Text, OttoArt, OttoLoading, OttoError, Screen } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
@@ -34,6 +34,20 @@ export function ShoppingScreen() {
   const router = useRouter();
   const { entries, days, isLoading: planLoading } = usePlan();
   const padRef = useRef<View>(null);
+  const qc = useQueryClient();
+
+  // Refresh on every open. staleTime is 60s app-wide, so without this a reopened
+  // list could show a stale plan or stale shared check-state (Juan: "needs to
+  // update properly every time I open it"). Invalidate the sources on focus; the
+  // derived ingredient rows rebuild from them.
+  useFocusEffect(
+    useCallback(() => {
+      qc.invalidateQueries({ queryKey: ['plan'] });
+      qc.invalidateQueries({ queryKey: ['household-week'] });
+      qc.invalidateQueries({ queryKey: ['household-list'] });
+      qc.invalidateQueries({ queryKey: ['plan-list'] });
+    }, [qc]),
+  );
 
   // Shared kitchen: when the user is in a household the list aggregates EVERY
   // member's week and the check-offs + custom items are shared in realtime
