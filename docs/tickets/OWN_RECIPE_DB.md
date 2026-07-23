@@ -118,6 +118,94 @@ the catalogue only ever contains verified data. Over time the TheMealDB origin b
 golden suite + T6 corpus scan are the regression net. **Not over-engineering:** it *removes* a
 moving part (live API + patch overlays) and replaces it with data that is simply correct.
 
+## Architecture — the data framework (designed 2026-07-23)
+
+This is the **medallion architecture** (bronze → silver → gold), the industry-standard layered
+data model, mapped onto Otto's existing patterns. Three laws hold it together: each layer is
+**derivable from the layer below plus the ontology**; every layer has **exactly one writer**;
+fixes flow to the *owning* layer, never to a derived one.
+
+```
+Recipe-App/
+├── supabase/
+│   ├── migrations/                    schema + RLS (writer: security-builder)
+│   └── seeds/                         NEW — version-controlled data (the "dbt seeds" pattern)
+│       ├── raw/
+│       │   └── themealdb-2026-07.json   BRONZE  verbatim snapshot. Immutable audit trail.
+│       │                                        "Capture everything, transform nothing."
+│       └── canonical/
+│           └── recipes.json             SILVER  ★ THE source of truth for seed recipes.
+│                                                Git-versioned → data fixes are PR-reviewed.
+├── tools/                             the ONLY data writers (extends engine.md Law 3)
+│   ├── snapshot-seeds.mjs                bronze:  API → raw JSON (runs once)
+│   ├── canonicalize-seeds.mjs            silver:  raw × canonicalizer agents × critic
+│   ├── deploy-seeds.mjs                  serving: canonical JSON → Supabase upsert
+│   ├── recompute-nutrition.mjs           gold:    canonical × usdaTable → seed_nutrition
+│   └── nutrition-breakdown.mjs           audit    (already exists — T6)
+├── src/features/nutrition/engine/data/  ONTOLOGY (exists, unchanged) — usdaTable.json is the
+│                                        food-entity store; its keys are the join everywhere
+└── src/features/recipes/                app reads seed_recipes from Supabase (Phase 4 cutover)
+```
+
+**Layers and their single writers:**
+
+| Layer | Artifact | Writer | Edited by hand? |
+|---|---|---|---|
+| Bronze (raw) | `seeds/raw/*.json` | `snapshot-seeds.mjs`, once | **Never** — provenance |
+| Silver (canonical) | `seeds/canonical/recipes.json` ★ | canonicalization pipeline; then PR-reviewed corrections | **Yes — this is THE place fixes go** |
+| Serving copy | `seed_recipes` table (Supabase) | `deploy-seeds.mjs` only | Never — derived from silver, like a build artifact |
+| Gold (computed) | `seed_nutrition` table | `recompute-nutrition.mjs` only | Never — disposable, regenerate any time |
+| Ontology | `engine/data/*.json` | tools scripts (Law 3) | Via tools/PR — per-ingredient truth lives here |
+
+**The silver record shape** (one recipe — dual representation, original never destroyed):
+
+```jsonc
+{
+  "id": "52874",
+  "title": "Beef and Mustard Pie",
+  "category": "Beef", "area": "British",
+  "servings": 4,                          // verified from instructions, not assumed
+  "instructions": ["..."],                // Otto-voice steps (the one rewritten text)
+  "ingredients": [{
+    "original": "1kg Beef",               // TheMealDB line, verbatim — NEVER destroyed
+    "key": "beef",                        // canonical usdaTable key — the ontology join
+    "grams": 1000,
+    "cooked": false, "frying_medium": false,
+    "note": null                          // set when an amount was inferred (doubt survives)
+  }],
+  "media": { "image": "...", "youtube": "...", "source": "..." },   // untouched, founder call
+  "provenance": { "source": "themealdb", "fetched_at": "...", "canonicalized_at": "...", "model": "..." }
+}
+```
+
+**Deliberate simplicity calls (less is more, with reasons):**
+- **One canonical file**, not 750 — diffs fine in PRs, tiny in git (~2–3 MB), one thing to load.
+- **JSONB `ingredients` column** in `seed_recipes`, not a normalized child table — the app only
+  ever reads whole recipes; zero joins; Postgres JSONB stays queryable (GIN index) if search-by-
+  ingredient is ever wanted. Normalization can be added later without touching silver.
+- **No graph database** — Whisk's food graph serves recommendation at web scale; a 750-recipe
+  catalogue joined to a 964-key ontology needs none of it.
+- **No runtime parser for seeds** — grams are resolved once at canonicalization; the engine's
+  parser keeps working for user imports, where free text actually lives.
+
+**Research — this IS how the professionals do it** (and what we borrowed from whom):
+- **Medallion bronze/silver/gold** is the standard layered model across modern data platforms
+  ("capture everything, transform nothing" at raw; silver as the canonical form; gold as
+  serving) — adopted wholesale. [Databricks](https://www.databricks.com/blog/what-is-medallion-architecture)
+- **NYT Cooking** parses every ingredient phrase into structured {qty, unit, name} while
+  keeping the original phrase — their open-source `ingredient-phrase-tagger` — the dual
+  representation our silver shape uses. [nytimes/ingredient-phrase-tagger](https://github.com/nytimes/ingredient-phrase-tagger)
+- **Whisk/Samsung Food** maps unstructured recipe text onto a canonical food ontology and
+  enriches from it — our `usdaTable` keys are the same pattern at Otto scale; the key join
+  means we could add per-food properties later without schema change. [Whisk docs](https://docs.whisk.com/)
+- **RecipeDB** (academic) does canonical matching via exact → strip-processing-words → stemmed —
+  which is literally `lookup.ts`'s strategy, independently validated. [RecipeDB](https://academic.oup.com/database/article/doi/10.1093/database/baaa077/6006228)
+- **Version-controlled reference data** loaded into the warehouse by script (the dbt "seeds"
+  pattern) — why silver lives in git with the DB as a derived serving copy.
+- Where the big players differ: ML parsers at ingestion scale (NYT's CRF) and graph enrichment
+  (Whisk). Both solve volumes Otto doesn't have; a one-time Claude pass over a fixed catalogue
+  is the right-sized equivalent, and both patterns remain adoptable later without re-architecture.
+
 ## Agent crew — reuse map (decided 2026-07-23)
 
 The existing `.claude/agents/` crew covers this roadmap almost entirely; **one new agent** is
