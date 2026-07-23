@@ -11,14 +11,16 @@ The founder reviews via git afterward. Exception: destructive/irreversible actio
 scope changes still get a question.
 
 ## Operating mode
-- **Decide + document.** Every non-obvious call gets a numbered entry in `docs/REDESIGN_NOTES.md`
-  (continue the A/B/C/P numbering). Rejected directions get logged too, so you never loop.
+- **Decide + document.** Every non-obvious call gets a numbered entry in
+  `docs/history/REDESIGN_NOTES.md` (continue the A/B/C/P numbering). Rejected directions get
+  logged too, so you never loop.
 - **Ground design in Mobbin.** Before remaking any surface, run a Mobbin research pass
   (subagent, ~10-16 searches, comparison table + patterns + synthesis). Principles, not pixels.
 - **Subagents fan out** research/QA; **Figma `use_figma` calls stay strictly sequential.**
 - **Small commits, push to main frequently** (fast-forward only; never force-push).
   A cloud co-pilot session also pushes to main — ALWAYS `git fetch && git pull --rebase` first.
-  It hands work down via `docs/TERMINAL_TICKET_*.md`; execute tickets in their stated order.
+  It hands work down via `docs/tickets/*.md` (the active board; historical tickets are
+  archived in `docs/history/TERMINAL_TICKET_*.md`); execute tickets in their stated order.
 - **Verify everything twice:** Chrome (localhost:8081, mobile viewport) AND the iOS simulator
   ("iPhone 17 Pro Max"). The native dev build is `com.otto.recipes` (launch it, not Expo Go).
 - **Adversarial QA** after each major surface: spawn a read-only QA subagent, fix P1s
@@ -44,9 +46,11 @@ scope changes still get a question.
 - Reanimated LAYOUT animations break web — use RN Animated for fades; core shared-values OK.
 - Otto mascot appears at emotional beats, never crowding dense content. Paw = save mark.
 - Every tappable ≥44pt (or hitSlop) with an accessibilityLabel.
-- Authoritative docs: `docs/DESIGN_SYSTEM.md` (Part B), `docs/MASCOT.md`, `docs/SCREEN_MAP.md`,
-  `docs/OTTO_V2_ROADMAP.md`. Figma DS file: X1eGT54CTwtowHNve30vvE — keep it in sync (new page
-  per shipped batch, wireframes in DS style).
+- Authoritative docs: `docs/reference/DESIGN_SYSTEM.md` (Part B), `docs/reference/MASCOT.md`,
+  `docs/reference/SCREEN_MAP.md` (roadmap history: `docs/history/OTTO_V2_ROADMAP.md`). Data
+  rules: `docs/reference/contracts/data-ownership.md` — one source of truth per data kind;
+  never put an ingredient name next to a number in a `.ts` file. Figma DS file:
+  X1eGT54CTwtowHNve30vvE — keep it in sync (new page per shipped batch, wireframes in DS style).
 
 ## Asset pipeline (Otto art)
 - Generate with Higgsfield `generate_image`, model `nano_banana_pro`, ALWAYS passing the hero

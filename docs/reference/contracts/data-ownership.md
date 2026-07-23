@@ -37,6 +37,16 @@ contain, and these are NOT "ingredient data":
 The line: a **number tied to a specific ingredient** is data (owned by a JSON
 file). A **rule or constant that applies across ingredients** is logic.
 
+## Planned extension → `docs/tickets/OWN_RECIPE_DB.md`
+
+The approved plan extends this contract with a **medallion-layered recipe catalogue**
+(`otto-recipes`): bronze = verbatim source snapshots (immutable), silver =
+`supabase/otto-recipes/canonical/recipes.json` (the git-versioned source of truth for recipe
+content), serving copy = the `otto_recipes` table (written only by `deploy-recipes.mjs`), gold =
+`seed_nutrition` (recomputed, never edited). Once shipped, per-recipe facts move from
+`recipeFacts.json` into the canonical records and the ownership table above gains those rows.
+Until then, the table above is the law for the code as it exists.
+
 ## Known deviation (documented, not hidden) → ticket T2
 
 `parse.ts` still holds per-ingredient **weight** data inline: `DENSITY`,

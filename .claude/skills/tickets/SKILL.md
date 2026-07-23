@@ -5,7 +5,9 @@ description: Ticket board for the Otto cloud↔terminal handoff loop. Use to lis
 
 # Otto ticket board — cloud ↔ terminal loop
 
-Tickets live in `docs/TERMINAL_TICKET_*.md` (+ `docs/TICKET_SESSION_HANDOFF.md` as the
+Active tickets live in **`docs/tickets/*.md`** (currently `NUTRITION_ACCURACY.md` and
+`OWN_RECIPE_DB.md`); completed/historical tickets are archived under
+`docs/history/TERMINAL_TICKET_*.md` (+ `docs/history/TICKET_SESSION_HANDOFF.md`, the old
 running handoff). **Git is the channel**: the cloud session and this terminal both push to
 `main`. Every action here starts with a sync and ends with a push — that IS the
 "back and forward".
@@ -18,7 +20,8 @@ git fetch && git pull --rebase   # never skip; the other session pushes to main 
 
 ## `/tickets` or `/tickets list` — the board
 
-1. Glob `docs/TERMINAL_TICKET_*.md` + `docs/TICKET_SESSION_HANDOFF.md`.
+1. Glob `docs/tickets/*.md` (the active board). `docs/history/TERMINAL_TICKET_*.md` is the
+   archive — list it only if asked for history.
 2. Status = derived, not stored: a ticket is **OPEN** if its "Done when" checklist has
    unchecked `- [ ]` boxes and no `> STATUS:` line says otherwise; **DONE** if all boxes
    checked or a `> STATUS: done` line exists; **IN PROGRESS** if a `> STATUS: in-progress`
