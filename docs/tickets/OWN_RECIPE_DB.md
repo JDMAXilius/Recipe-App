@@ -235,6 +235,52 @@ is deliberately **read-only** (like critic): it *returns* validated structured o
 lands the data. That preserves the crew discipline — producers propose, critics refute,
 builders write, verifier proves.
 
+## Phase 7 — The data asset: collecting user-created recipes (vision, 2026-07-23)
+
+**Founder vision:** every recipe created in the app (Ask Otto, the editor, photo) is a data
+point. Collected, canonicalized, and de-identified, the corpus becomes a licensable dataset —
+the model Edamam runs today (5M+ recipes / 1M foods licensed to Nestlé, Amazon, Microsoft,
+NYT) and Nutritionix (enterprise licensing from ~$1,850/mo). The value is NOT raw text — it's
+**canonical, USDA-linked, structured** recipe data, which is exactly what the canonicalizer
+gate produces. Otto's pipeline is the product.
+
+**Provenance decides what is sellable** (this is the load-bearing design decision):
+
+| `provenance.source` | In catalogue? | In sellable corpus? | Why |
+|---|---|---|---|
+| `otto` (editorial) | yes | **yes** | fully owned |
+| `otto-ai` (Ask Otto generations) | curated subset | **yes** | model outputs are Otto's under Anthropic commercial terms |
+| `user-created` (editor, from scratch) | curated gems | **yes, gated** | needs ToS license grant + consent + de-identification (below) |
+| `user-imported` (URL/photo import) | never | **NO** | third-party content — a user importing seriouseats.com gives Otto zero rights to sell it |
+| `themealdb` (the initial ~750) | yes | **NO (default)** | crowdsourced under attribution terms; reselling it as our dataset is a rights violation unless explicitly cleared |
+
+**Pipeline (reuses everything already designed):** the private `recipes` table stays exactly
+the product feature it is (user-owned, RLS). A collector job copies **eligible** (consented +
+sellable-provenance) records → de-identify → corpus bronze (verbatim minus identity) → the
+same **canonicalizer + critic gate** → corpus silver. Two tiers of one asset: **Tier A** =
+curated promotions into the public `otto-recipes` catalogue (the 2,000+ vision); **Tier B** =
+the full de-identified canonical corpus (the licensable dataset).
+
+**De-identification rules (non-negotiable):** strip user id, name, avatar, journal/photos,
+device data; no per-user linkage in the corpus — recipes only. Free text (titles, notes) gets
+a scrub pass ("Grandma Rosa's soup" carries a name). Coarse time at most; no location.
+
+**Legal gates — ALL must land before the first record is collected for sale:**
+1. **ToS**: a license-grant clause (user grants Otto a perpetual license to de-identified
+   recipe content). Today's ToS almost certainly lacks it.
+2. **Privacy policy + in-app transparency**: plain-language disclosure. GDPR: explicit consent
+   for EU users; CCPA: "sale/share" classification → Do-Not-Sell link + opt-out honored.
+3. **App Store privacy label** update — data leaving the app for non-app purposes changes the
+   declaration; misdeclaring is a rejection/removal risk.
+4. **Counsel review** before the first license deal.
+5. **Brand honesty (Otto law):** say it plainly in-app — "recipes you create may, anonymized,
+   grow Otto's cookbook and food data" — with an opt-out (opt-in where law requires). A quiet
+   harvest would be both illegal in key markets and fatal to the "honest cookbook" brand.
+
+Sources: [Edamam](https://www.euroquity.com/en/company/edamam) ·
+[Nutritionix database licensing](https://www.nutritionix.com/database) ·
+[market comparison](https://about.greenchoicenow.com/nutrition-data-api-comparison)
+
 ## Relationship to NUTRITION_ACCURACY.md
 
 T6 stays (the auditor). T1-mechanism stays (guards user imports). T1-data-curation, T2's
