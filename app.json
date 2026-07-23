@@ -2,13 +2,14 @@
   "expo": {
     "name": "Otto",
     "slug": "otto",
-    "version": "2.0.0",
+    "version": "1.0.14",
     "scheme": "otto",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.otto.recipes",
+      "buildNumber": "30",
       "supportsTablet": true,
       "usesAppleSignIn": true
     },
@@ -33,6 +34,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f58c8fc1-5a5c-4e3c-b923-cdb4bb37c43c"
+      }
+    },
+    "owner": "black-360"
   }
 }

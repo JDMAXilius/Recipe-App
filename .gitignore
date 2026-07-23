@@ -32,3 +32,7 @@ backend/scripts/provenance-cache-*.json
 
 expo-env.d.ts
 # @end expo-cli
+
+# EAS local iOS signing credentials — never commit
+credentials.json
+credentials/
