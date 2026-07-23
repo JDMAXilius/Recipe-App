@@ -1,0 +1,1427 @@
+[
+  {
+    "id": "52781",
+    "title": "Irish stew",
+    "category": "Beef",
+    "area": "Irish",
+    "servings": 8,
+    "instructions": [
+      "Heat the oven to 180C/350F/gas 4.",
+      "Drain and rinse the soaked wheat, cover with plenty of water, bring to a boil and simmer about 1 hour until tender. Drain and set aside.",
+      "Season the lamb with 1 tsp salt and black pepper. Heat 1 tbsp oil in a large deep saute pan over medium-high heat, and sear the lamb in batches for 4 minutes until browned all over, adding oil as needed. Transfer to a bowl.",
+      "Lower to medium heat, add 1 tbsp oil, and fry the shallots 4 minutes until caramelised; add to the lamb. Brown the remaining vegetables the same way, adding oil as needed.",
+      "Add the wine, sugar, herbs, 1 tsp salt and a good grind of pepper to the pan and boil hard for 3 minutes.",
+      "Return the lamb, vegetables and wheat to the pot, add the stock, cover and boil for 5 minutes.",
+      "Transfer to the oven and cook, covered, for 1 hour 30 minutes.",
+      "Check the liquid; if there is a lot, uncover and boil a few minutes to reduce."
+    ],
+    "ingredients": [
+      {
+        "original": "300g soaked overnight in water whole wheat",
+        "key": "whole wheat",
+        "grams": 300,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2kg cut into 3cm cubes lamb loin chops",
+        "key": "lamb loin chops",
+        "grams": 2000,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "120ml olive oil",
+        "key": "olive oil",
+        "grams": 108,
+        "cooked": false,
+        "frying_medium": true,
+        "note": "120ml olive oil converted at ~0.9 g/ml; used in batches to sear lamb and brown vegetables and mostly left in the pan"
+      },
+      {
+        "original": "24 Skinned shallots",
+        "key": "shallots",
+        "grams": 720,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "count only, no weight given; 24 shallots estimated at ~30g each"
+      },
+      {
+        "original": "4 large Carrots",
+        "key": "carrots",
+        "grams": 480,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "count only, no weight given; 4 large carrots estimated at ~120g each"
+      },
+      {
+        "original": "2 turnips",
+        "key": "turnips",
+        "grams": 280,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "count only, no weight given; 2 turnips estimated at ~140g each"
+      },
+      {
+        "original": "1 celeriac",
+        "key": "celeriac",
+        "grams": 650,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "count only, no weight given; 1 celeriac estimated at ~650g"
+      },
+      {
+        "original": "350g charlotte potatoes",
+        "key": "charlotte potatoes",
+        "grams": 350,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "150ml white wine",
+        "key": "white wine",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "150ml converted at ~1 g/ml"
+      },
+      {
+        "original": "1 tsp caster sugar",
+        "key": "caster sugar",
+        "grams": 4,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 tsp caster sugar converted to ~4g"
+      },
+      {
+        "original": "4 sprigs fresh thyme",
+        "key": "fresh thyme",
+        "grams": 4,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 sprigs estimated at ~1g each"
+      },
+      {
+        "original": "4 sprigs oregano",
+        "key": "oregano",
+        "grams": 4,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 sprigs estimated at ~1g each"
+      },
+      {
+        "original": "450ml chicken stock",
+        "key": "chicken stock",
+        "grams": 450,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "450ml converted at ~1 g/ml"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/sxxpst1468569714.jpg",
+      "youtube": "https://www.youtube.com/watch?v=kYH2qJXnSMo",
+      "source": "http://www.ottolenghi.co.uk/recipes/meat/irish-stew-shop"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:24:36.056Z",
+      "model": "claude-opus-4"
+    }
+  },
+  {
+    "id": "52856",
+    "title": "Choc Chip Pecan Pie",
+    "category": "Dessert",
+    "area": "United States",
+    "servings": 12,
+    "instructions": [
+      "Make the pastry: tip the flour, butter, cream cheese and icing sugar into a food processor with 1/4 tsp salt and blend until it looks like breadcrumbs. With the blade running, drizzle in 2-3 tsp cold water until the mixture clumps together. Bring together into a ball, pat into a disc, wrap and chill at least 20 mins.",
+      "Heat oven to 200C/180C fan. Roll the pastry to the thickness of a coin and line a deep 23cm fluted tart tin, pressing into the corners with no gaps. Leave 1cm overhanging and keep the scraps.",
+      "Line the case with scrunched parchment and baking beans. Blind-bake 15-20 mins until the sides are set, then remove the beans and parchment and bake 5 mins more until golden. Trim the pastry flush with the tin and patch any cracks with the scraps.",
+      "In a pan, melt the butter, maple syrup, both sugars and 1/4 tsp salt, stirring until smooth. Take off the heat and cool 10 mins. Reduce oven to 160C/140C fan.",
+      "Beat the eggs, then mix in the syrup mixture, vanilla and pecans until well combined.",
+      "Pour half the filling into the case, scatter over half the chocolate chips, then add the rest of the filling and chips. Bake on the middle shelf 50-55 mins until set.",
+      "Cool, then chill at least 2 hrs before serving."
+    ],
+    "ingredients": [
+      {
+        "original": "300g Plain Flour",
+        "key": "plain flour",
+        "grams": 300,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "75g Butter",
+        "key": "butter",
+        "grams": 75,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "100g Cream Cheese",
+        "key": "cream cheese",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tbls Icing Sugar",
+        "key": "icing sugar",
+        "grams": 8,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 tbsp icing sugar inferred as ~8g"
+      },
+      {
+        "original": "150g Butter",
+        "key": "butter",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "200ml Maple Syrup",
+        "key": "maple syrup",
+        "grams": 268,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "200ml converted to ~268g at ~1.34 g/ml"
+      },
+      {
+        "original": "250g Light Brown Soft Sugar",
+        "key": "light brown soft sugar",
+        "grams": 250,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "100g Dark Brown Soft Sugar",
+        "key": "dark brown soft sugar",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "4 Eggs",
+        "key": "eggs",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 eggs inferred at ~50g each"
+      },
+      {
+        "original": "1 tsp Vanilla Extract",
+        "key": "vanilla extract",
+        "grams": 4,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 tsp inferred as ~4g"
+      },
+      {
+        "original": "400g Pecan Nuts",
+        "key": "pecan nuts",
+        "grams": 400,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "200g Dark Chocolate Chips",
+        "key": "dark chocolate chips",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/rqvwxt1511384809.jpg",
+      "youtube": "https://www.youtube.com/watch?v=fDpoT0jvg4Y",
+      "source": "https://www.bbcgoodfood.com/recipes/choc-chip-pecan-pie"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:30:43.658Z",
+      "model": "claude-opus-4"
+    }
+  },
+  {
+    "id": "52894",
+    "title": "Battenberg Cake",
+    "category": "Dessert",
+    "area": "British",
+    "servings": 20,
+    "instructions": [
+      "Heat oven to 180C/160C fan/gas 4. Line the base and sides of a 20cm square tin with baking parchment, crossing two 20cm strips over the base.",
+      "Make the almond sponge: beat butter, caster sugar, self-raising flour, ground almonds, baking powder, eggs, vanilla and almond extract in a large bowl with an electric whisk until smooth.",
+      "Scrape into the tin, spread to the corners and bake 25-30 mins, until a skewer comes out clean. Cool in the tin 10 mins, then finish on a wire rack.",
+      "Make the pink sponge the same way but omit the almond extract and fold in pink food colouring. Bake and cool as before.",
+      "Heat the apricot jam until runny, then sieve. Trim the sponges square, then cut each into 4 slices the same width as the sponge height. Trim to equal lengths.",
+      "Roll one marzipan block on icing-sugar-dusted surface to just over 20cm wide and about 0.5cm thick. Brush with jam.",
+      "Lay a pink and an almond slice side by side on the marzipan, jam between them, leaving 4cm marzipan clear at the end. Brush jam on top and sandwich the remaining 2 slices on, alternating colours for a checkerboard.",
+      "Trim marzipan to length, lift and smooth over the cake, leaving a small fold along the bottom edge. Crimp the edges with fingers or a fork and mark the 10 slices.",
+      "Repeat to assemble the second Battenberg. Keep airtight or wrapped up to 3 days, or freeze up to a month."
+    ],
+    "ingredients": [
+      {
+        "original": "175g Butter",
+        "key": "butter",
+        "grams": 175,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "175g Caster Sugar",
+        "key": "caster sugar",
+        "grams": 175,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "140g Self-raising Flour",
+        "key": "self-raising flour",
+        "grams": 140,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "50g Almonds",
+        "key": "ground almonds",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Instructions specify ground almonds; mapped to ground almonds key."
+      },
+      {
+        "original": "½ tsp Baking Powder",
+        "key": "baking powder",
+        "grams": 2.5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "½ tsp inferred as ~2.5g."
+      },
+      {
+        "original": "3 Medium Eggs",
+        "key": "eggs",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 medium eggs inferred as ~50g each = 150g."
+      },
+      {
+        "original": "½ tsp Vanilla Extract",
+        "key": "vanilla extract",
+        "grams": 2.5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "½ tsp inferred as ~2.5g."
+      },
+      {
+        "original": "¼ teaspoon Almond Extract",
+        "key": "almond extract",
+        "grams": 1.25,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "¼ tsp inferred as ~1.25g."
+      },
+      {
+        "original": "175g Butter",
+        "key": "butter",
+        "grams": 175,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "175g Caster Sugar",
+        "key": "caster sugar",
+        "grams": 175,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "140g Self-raising Flour",
+        "key": "self-raising flour",
+        "grams": 140,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "50g Almonds",
+        "key": "ground almonds",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Instructions specify ground almonds; mapped to ground almonds key."
+      },
+      {
+        "original": "½ tsp Baking Powder",
+        "key": "baking powder",
+        "grams": 2.5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "½ tsp inferred as ~2.5g."
+      },
+      {
+        "original": "3 Medium Eggs",
+        "key": "eggs",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 medium eggs inferred as ~50g each = 150g."
+      },
+      {
+        "original": "½ tsp Vanilla Extract",
+        "key": "vanilla extract",
+        "grams": 2.5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "½ tsp inferred as ~2.5g."
+      },
+      {
+        "original": "¼ teaspoon Almond Extract",
+        "key": "almond extract",
+        "grams": 1.25,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "¼ tsp inferred as ~1.25g."
+      },
+      {
+        "original": "½ tsp Pink Food Colouring",
+        "key": null,
+        "grams": 2.5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "No usdaTable key for food colouring; ½ tsp inferred as ~2.5g."
+      },
+      {
+        "original": "200g Apricot",
+        "key": "apricot jam",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Instructions use apricot jam ('heat the jam'); mapped to apricot jam key."
+      },
+      {
+        "original": "1kg Marzipan",
+        "key": "marzipan",
+        "grams": 1000,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "Dusting Icing Sugar",
+        "key": "icing sugar",
+        "grams": 10,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "No amount stated; dusting inferred as ~10g."
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/ywwrsp1511720277.jpg",
+      "youtube": "https://www.youtube.com/watch?v=aB41Q7kDZQ0",
+      "source": "https://www.bbcgoodfood.com/recipes/1120657/battenberg-cake"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:30:43.600Z",
+      "model": "claude-opus-4"
+    }
+  },
+  {
+    "id": "52937",
+    "title": "Jerk chicken with rice & peas",
+    "category": "Chicken",
+    "area": "Jamaican",
+    "servings": 4,
+    "instructions": [
+      "Make the jerk marinade: blend the spring onions, ginger, garlic, onion, red chillies, thyme, lime juice, soy sauce, vegetable oil, brown sugar and allspice with 1 tsp salt to a thick puree. Don't add water — if it won't blend, stop, stir and restart.",
+      "Taste and balance: it should be pleasantly salty. Add more chilli for heat, or a little more brown sugar if it's too salty or sour.",
+      "Slash the chicken thighs, rub the marinade into every crevice, cover and marinate overnight in the fridge.",
+      "Roast the chicken: heat oven to 180C/160C fan/gas 4. Put the thighs in a roasting tin with the lime halves and cook 45 mins until tender and cooked through. (For authentic jerk, barbecue over slow indirect heat with wood chips for about 30 mins instead.)",
+      "Meanwhile make the rice & peas: rinse the basmati rice, then tip into a large saucepan with the coconut milk, spring onions, thyme, garlic and allspice — everything except the beans. Season with salt, add 300ml cold water and bring to the boil.",
+      "Once boiling, turn down to medium, cover and cook 10 mins.",
+      "Stir in the kidney beans, cover, take off the heat and rest 5 mins until the liquid is absorbed.",
+      "Squeeze the roasted lime over the chicken and serve with the rice & peas, plus hot sauce if you like it fiery."
+    ],
+    "ingredients": [
+      {
+        "original": "12 Chicken Thighs",
+        "key": "chicken thighs",
+        "grams": 1800,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "12 thighs; per-thigh weight inferred at ~150g bone-in"
+      },
+      {
+        "original": "1/2 Lime",
+        "key": "lime",
+        "grams": 33,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "half a lime inferred from ~66g whole lime; roasted alongside chicken"
+      },
+      {
+        "original": "1  bunch Spring Onions",
+        "key": "spring onions",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "bunch weight inferred at ~100g"
+      },
+      {
+        "original": "1 tbs chopped Ginger",
+        "key": "ginger",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "3 cloves Garlic",
+        "key": "garlic",
+        "grams": 9,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 cloves at ~3g each"
+      },
+      {
+        "original": "1/2 Onion",
+        "key": "onion",
+        "grams": 75,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "half an onion inferred at ~75g"
+      },
+      {
+        "original": "3 chopped Red Chilli",
+        "key": "red chilli",
+        "grams": 45,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 chillies inferred at ~15g each"
+      },
+      {
+        "original": "1/2 teaspoon Thyme",
+        "key": "thyme",
+        "grams": 0.5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "Juice of 1 Lime",
+        "key": "lime juice",
+        "grams": 30,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "juice of 1 lime inferred at ~30g"
+      },
+      {
+        "original": "2 tbs Soy Sauce",
+        "key": "soy sauce",
+        "grams": 32,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2 tbs Vegetable Oil",
+        "key": "vegetable oil",
+        "grams": 28,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "3 tbs Brown Sugar",
+        "key": "brown sugar",
+        "grams": 36,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tbs Allspice",
+        "key": "allspice",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "200g Basmati Rice",
+        "key": "basmati rice",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "400g Coconut Milk",
+        "key": "coconut milk",
+        "grams": 400,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1  bunch Spring Onions",
+        "key": "spring onions",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "bunch weight inferred at ~100g"
+      },
+      {
+        "original": "2 sprigs Thyme",
+        "key": "fresh thyme",
+        "grams": 2,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 sprigs inferred at ~1g each"
+      },
+      {
+        "original": "2 cloves chopped Garlic",
+        "key": "garlic",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 cloves at ~3g each"
+      },
+      {
+        "original": "1 tbs Allspice",
+        "key": "allspice",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "800g Kidney Beans",
+        "key": "kidney beans",
+        "grams": 800,
+        "cooked": true,
+        "frying_medium": false,
+        "note": "800g is canned/drained weight (2x400g cans), added already cooked near the end"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/tytyxu1515363282.jpg",
+      "youtube": "https://www.youtube.com/watch?v=qfchrS2D_v4",
+      "source": "https://www.bbcgoodfood.com/recipes/2369635/jerk-chicken-with-rice-and-peas"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:30:43.880Z",
+      "model": "claude-opus-4"
+    }
+  },
+  {
+    "id": "53104",
+    "title": "Lamingtons",
+    "category": "Dessert",
+    "area": "Australian",
+    "servings": 9,
+    "instructions": [
+      "Heat the oven to 200C/180C fan/gas 6. Butter and line a 20 x 30cm rectangular tin.",
+      "Beat the salted butter and golden caster sugar until pale and fluffy. Add the eggs one at a time, beating well after each. Beat in the flour, milk and salt until combined, then spoon into the tin. Bake for 25 minutes until golden and firm. Cool completely.",
+      "Slice the sponge horizontally into two halves and trim the edges square. Cut into 18 squares. Whip the cream with the icing sugar to soft peaks. Spread jam then cream on half the squares, sandwich with the remaining squares, and chill in the fridge.",
+      "For the icing, whisk the melted unsalted butter with the milk. Sieve the cocoa powder and icing sugar together, then gradually whisk into the butter mixture until smooth. Blend with a hand blender if it turns lumpy.",
+      "Divide the desiccated coconut between three shallow bowls.",
+      "Dip each lamington in the icing until fully coated, roll in the coconut and set on a wire rack. Chill at least 1 hour."
+    ],
+    "ingredients": [
+      {
+        "original": "125g Salted Butter",
+        "key": "salted butter",
+        "grams": 125,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "250g Golden Caster Sugar",
+        "key": "golden caster sugar",
+        "grams": 250,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "3 Large Egg",
+        "key": "eggs",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 large eggs converted at ~50g each"
+      },
+      {
+        "original": "250g Self-raising Flour",
+        "key": "self-raising flour",
+        "grams": 250,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "3  tablespoons Milk",
+        "key": "milk",
+        "grams": 45,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 tbsp milk converted at ~15g/tbsp"
+      },
+      {
+        "original": "1/2 teaspoon Salt",
+        "key": "salt",
+        "grams": 3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 tsp salt converted to ~3g"
+      },
+      {
+        "original": "250ml Double Cream",
+        "key": "double cream",
+        "grams": 250,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "250ml converted 1:1 to grams"
+      },
+      {
+        "original": "2 tblsp Icing Sugar",
+        "key": "icing sugar",
+        "grams": 16,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 tbsp icing sugar converted at ~8g/tbsp"
+      },
+      {
+        "original": "200g Raspberry Jam",
+        "key": "raspberry jam",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "350g Desiccated Coconut",
+        "key": "desiccated coconut",
+        "grams": 350,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "80g Unsalted Butter",
+        "key": "unsalted butter",
+        "grams": 80,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "250ml Milk",
+        "key": "milk",
+        "grams": 250,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "250ml converted 1:1 to grams"
+      },
+      {
+        "original": "50g Cocoa Powder",
+        "key": "cocoa powder",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "400g Icing Sugar",
+        "key": "icing sugar",
+        "grams": 400,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/j2n7vg1761848636.jpg",
+      "youtube": "https://www.youtube.com/watch?v=CbHWqzw4Qxg",
+      "source": "https://www.bbcgoodfood.com/recipes/lamingtons"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:30:43.715Z",
+      "model": "claude-opus-4"
+    }
+  },
+  {
+    "id": "53175",
+    "title": "Spanish-style slow-cooked lamb shoulder & beans",
+    "category": "Lamb",
+    "area": "Spanish",
+    "servings": 6,
+    "instructions": [
+      "Make the spice mix: combine the crushed garlic, hot smoked paprika, olive oil and rosemary with a large pinch of salt. Slash the lamb shoulder all over and rub the mix in. Marinate up to 24 hrs if you have time — optional.",
+      "Heat oven to 150C/130C fan/gas 2. Heat the olive oil in a large flameproof casserole over medium-high heat. Add the onions, carrots and garlic bulb and sizzle 5 mins until softened. Pour in the chicken stock and bring to the boil.",
+      "Nestle the lamb in the pan, cover, and roast 2 hrs.",
+      "Uncover and lift the lamb onto a plate. Stir the butter beans, roasted peppers and black olives through the stock, sit the lamb back on top, and return uncovered for 1 hr 30 mins until cooked through.",
+      "Transfer the lamb to a board and shred with two forks. Stir the parsley through the braised beans and serve."
+    ],
+    "ingredients": [
+      {
+        "original": "2.5kg Lamb Shoulder",
+        "key": "lamb shoulder",
+        "grams": 2500,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tblsp Olive Oil",
+        "key": "olive oil",
+        "grams": 14,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2 chopped Onion",
+        "key": "chopped onion",
+        "grams": 300,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 2 medium onions (~150g each)"
+      },
+      {
+        "original": "4 Chopped Carrots",
+        "key": "carrots",
+        "grams": 280,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 4 medium carrots (~70g each)"
+      },
+      {
+        "original": "1 Garlic Bulb",
+        "key": "garlic bulb",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred for 1 whole bulb (~50g)"
+      },
+      {
+        "original": "500ml Chicken Stock",
+        "key": "chicken stock",
+        "grams": 500,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1200g Butter Beans",
+        "key": "butter beans",
+        "grams": 1200,
+        "cooked": true,
+        "frying_medium": false,
+        "note": "canned/cooked beans stirred in ready to eat"
+      },
+      {
+        "original": "450g Roasted pepper",
+        "key": "roasted pepper",
+        "grams": 450,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "300g Black Olives",
+        "key": "black olives",
+        "grams": 300,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "4 tablespoons Parsley",
+        "key": "parsley",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 4 tbsp chopped (~4g/tbsp)"
+      },
+      {
+        "original": "4 Cloves Crushed Garlic",
+        "key": "garlic",
+        "grams": 12,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 4 cloves (~3g each)"
+      },
+      {
+        "original": "1 tablespoon Hot smoked paprika",
+        "key": "hot smoked paprika",
+        "grams": 7,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 1 tbsp ground paprika (~7g)"
+      },
+      {
+        "original": "4 tablespoons Olive Oil",
+        "key": "olive oil",
+        "grams": 54,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1/2 teaspoon Rosemary",
+        "key": "rosemary",
+        "grams": 1,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 1/2 tsp dried (~1g)"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/9kwatm1763327074.jpg",
+      "youtube": "https://www.youtube.com/watch?v=D35ByGgKNaY",
+      "source": "https://www.bbcgoodfood.com/recipes/spanish-style-slow-cooked-lamb-shoulder-beans"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:30:43.543Z",
+      "model": "claude-opus-4"
+    }
+  },
+  {
+    "id": "53279",
+    "title": "Baklava with spiced nuts, ricotta & chocolate",
+    "category": "Dessert",
+    "area": "Turkish",
+    "servings": 48,
+    "instructions": [
+      "Make the syrup: combine the sugar with 650ml water in a large saucepan. Stir over low heat until dissolved, then boil. Reduce to a simmer for 15 mins, add a few drops of lemon juice and simmer 5 mins more. Cool.",
+      "Melt the butter gently in a small pan for 5 mins, skimming off any froth. Set aside for assembly.",
+      "For the filling, crush all the nuts to a mostly-fine mix with a few chunky pieces. Stir in the cinnamon and cardamom and set aside.",
+      "In another bowl, mix the ricotta with the lemon and orange zests and the vanilla.",
+      "Heat the oven to 180C/160C fan/gas 4. Brush a large baking tray (about 35 x 47cm) with melted butter.",
+      "Working one filo sheet at a time (keep the rest under a damp tea towel), lay a sheet with a short end facing you. Scatter 30g of the nut mix over it, then spoon 1 tbsp ricotta along the near end.",
+      "Fold the near end over the filling, set a thin skewer alongside and roll into a long, chipolata-thick roll. Scrunch it accordion-style, slide it off the skewer onto the tray, and repeat for about 12 rolls.",
+      "Cut each roll into four for 48 large baklava (or eight for 96 mini). Brush with the remaining butter and bake 20-25 mins until golden, turning the tray halfway.",
+      "While the baklava is still hot, ladle over the syrup until it sizzles. Leave to cool and absorb.",
+      "Melt the dark chocolate over simmering water or in short microwave bursts, drizzle over the cooled baklava and finish with the ground pistachios."
+    ],
+    "ingredients": [
+      {
+        "original": "500g Sugar",
+        "key": "sugar",
+        "grams": 500,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "To taste Lemon Juice",
+        "key": "lemon juice",
+        "grams": 3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Recipe says 'a few drops' with no amount; inferred ~3g."
+      },
+      {
+        "original": "300g Walnuts",
+        "key": "walnuts",
+        "grams": 300,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "200g Pecan Nuts",
+        "key": "pecan nuts",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "100g Almonds",
+        "key": "almonds",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2 tablespoons Ground Cinnamon",
+        "key": "ground cinnamon",
+        "grams": 14,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Inferred from 2 tbsp ground cinnamon at ~7g/tbsp."
+      },
+      {
+        "original": "1 tablespoon Ground Cardomom",
+        "key": "ground cardomom",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Inferred from 1 tbsp ground cardamom at ~6g/tbsp."
+      },
+      {
+        "original": "500g Ricotta",
+        "key": "ricotta",
+        "grams": 500,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "Zest of 1 Lemon",
+        "key": "lemon zest",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Inferred zest yield of 1 lemon ~6g."
+      },
+      {
+        "original": "Zest of 1 Orange",
+        "key": "orange zest",
+        "grams": 9,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Inferred zest yield of 1 orange ~9g."
+      },
+      {
+        "original": "1 tablespoon Vanilla Bean Paste",
+        "key": "vanilla bean paste",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Inferred from 1 tbsp at ~15g/tbsp."
+      },
+      {
+        "original": "250g Unsalted Butter",
+        "key": "unsalted butter",
+        "grams": 250,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "500g Filo Pastry",
+        "key": "filo pastry",
+        "grams": 500,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "100g Ground Pistachios",
+        "key": "ground pistachios",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/ytme8t1764111401.jpg",
+      "youtube": "https://www.youtube.com/watch?v=yK_sSFDvsT0",
+      "source": "https://www.bbcgoodfood.com/recipes/baklava-with-spiced-nuts-ricotta-chocolate"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:30:43.485Z",
+      "model": "claude-opus-4"
+    }
+  },
+  {
+    "id": "53343",
+    "title": "Classic Tourtière",
+    "category": "Beef",
+    "area": "Canadian",
+    "servings": 9,
+    "instructions": [
+      "Heat the oil in a large skillet over medium-high and saute the onion and garlic until softened, about 5 minutes.",
+      "Add the ground beef and pork with the summer savoury, clove and nutmeg. Cook, breaking up the meat, until browned.",
+      "Pour in the beef stock and bring to a simmer, then lower to medium-low. Stir in the grated potato and cook until the liquid is almost fully absorbed, about 15 minutes.",
+      "Remove the bay leaf, season with salt and pepper, then take off the heat and let the filling cool completely — it bakes best chilled.",
+      "Heat the oven to 375F (190C). Roll one pastry disc just under 1/4 inch thick and line a 9-inch pie plate. Fill with cooled tourtiere mixture and spread even.",
+      "Roll a second disc to the same thickness, cut a steam hole in the centre, and lay it over the filling. Trim to 1/2 inch beyond the rim and pinch the edges to seal. Brush with beaten egg.",
+      "Bake about 45 minutes, until the pastry is deep golden. Let rest 15 minutes before slicing. Repeat with the remaining pastry for the second pie."
+    ],
+    "ingredients": [
+      {
+        "original": "2 tablespoons Canola Oil",
+        "key": "canola oil",
+        "grams": 28,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 chopped Onion",
+        "key": "onion",
+        "grams": 110,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "no size given; assumed one medium onion"
+      },
+      {
+        "original": "2 cloves minced Garlic",
+        "key": "garlic",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 2 cloves"
+      },
+      {
+        "original": "1 lb Ground Beef",
+        "key": "ground beef",
+        "grams": 454,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 lb Ground Pork",
+        "key": "ground pork",
+        "grams": 454,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tsp Dried Leaves Of Summer Savoury",
+        "key": "dried leaves of summer savoury",
+        "grams": 1,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 1 tsp dried herb"
+      },
+      {
+        "original": "To taste Salt",
+        "key": "salt",
+        "grams": 3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "no amount given; season-to-taste estimate"
+      },
+      {
+        "original": "To taste Pepper",
+        "key": "pepper",
+        "grams": 1,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "no amount given; season-to-taste estimate"
+      },
+      {
+        "original": "1/2 tsp Ground Clove",
+        "key": "ground clove",
+        "grams": 1,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 1/2 tsp ground spice"
+      },
+      {
+        "original": "1/2 tsp Ground Nutmeg",
+        "key": "ground nutmeg",
+        "grams": 1,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from 1/2 tsp ground spice"
+      },
+      {
+        "original": "1 Bay Leaf",
+        "key": "bay leaf",
+        "grams": 0.2,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred; removed before serving"
+      },
+      {
+        "original": "1 cup Beef Stock",
+        "key": "beef stock",
+        "grams": 240,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 small Russet Potato",
+        "key": "russet potato",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred from one small potato"
+      },
+      {
+        "original": "4 Shortcrust Pastry",
+        "key": "shortcrust pastry",
+        "grams": 900,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "weight inferred; 4 discs for two 9-inch double-crust pies, ~225g each"
+      },
+      {
+        "original": "1 beaten Egg",
+        "key": "egg",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/0sd7ac1764787957.jpg",
+      "youtube": "https://www.youtube.com/watch?v=PM9TZPUJTiU",
+      "source": "https://canadianfoodfocus.org/recipes/classic-canadian-dish-classic-tourtiere/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:30:43.822Z",
+      "model": "claude-opus-4"
+    }
+  },
+  {
+    "id": "53413",
+    "title": "Flija Layered Pancake / Crepe",
+    "category": "Breakfast",
+    "area": null,
+    "servings": 8,
+    "instructions": [
+      "Make the flour batter: whisk flour, water and salt until smooth and lump-free. Aim for a thick but still pourable consistency, adding a splash more water if needed. Set aside.",
+      "Make the filling batter: whisk the melted butter, oil and your chosen yogurt or cream until smooth and runny, like custard. Rest 10 minutes, then whisk again. Set aside.",
+      "Heat the grill to medium. Oil the base of a large deep baking tray. Using a squeeze bottle or ladle, pipe the flour batter in lines to form a star pattern, leaving triangular gaps between the lines. Grill 3-5 minutes until golden.",
+      "Brush the whole surface with the filling batter, then pipe another star of flour batter, laying the lines through the gaps from the previous layer. Grill 3-5 minutes until golden.",
+      "Keep repeating, filling each triangular gap on every layer, until all the batter is used - roughly 2 hours. Every couple of layers, add one full layer to fill any larger gaps.",
+      "Serve straight away with honey or yogurt."
+    ],
+    "ingredients": [
+      {
+        "original": "1 kg Flour",
+        "key": "flour",
+        "grams": 1000,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 L Water",
+        "key": "water",
+        "grams": 1000,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tsp Salt",
+        "key": "salt",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 tsp salt converted to ~6g"
+      },
+      {
+        "original": "220g Melted Butter",
+        "key": "melted butter",
+        "grams": 220,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "200ml Vegetable Oil",
+        "key": "vegetable oil",
+        "grams": 184,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "200ml oil converted at ~0.92 g/ml; oil is whisked into the eaten filling batter, not a frying medium"
+      },
+      {
+        "original": "5 tablespoons Greek Yogurt",
+        "key": "greek yogurt",
+        "grams": 75,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "5 tbsp converted at ~15g each"
+      },
+      {
+        "original": "220g Melted Butter",
+        "key": "melted butter",
+        "grams": 220,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "200ml Vegetable Oil",
+        "key": "vegetable oil",
+        "grams": 184,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "200ml oil converted at ~0.92 g/ml; oil is whisked into the eaten filling batter, not a frying medium"
+      },
+      {
+        "original": "3  tablespoons Clotted Cream",
+        "key": "clotted cream",
+        "grams": 45,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 tbsp converted at ~15g each"
+      },
+      {
+        "original": "220g Melted Butter",
+        "key": "melted butter",
+        "grams": 220,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "500ml Sour Cream",
+        "key": "sour cream",
+        "grams": 480,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "500ml converted at ~0.96 g/ml"
+      },
+      {
+        "original": "3  tablespoons Olive Oil",
+        "key": "olive oil",
+        "grams": 40,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 tbsp converted at ~13.5g each; whisked into the eaten filling batter, not a frying medium"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/eqnf3p1779649407.jpg",
+      "youtube": "https://www.youtube.com/watch?v=D2zlt4ZXAfA",
+      "source": "https://www.myalbanianfood.com/recipe/albanian-flija-pancake/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:31:16.796Z",
+      "model": "claude-opus-4"
+    }
+  },
+  {
+    "id": "53560",
+    "title": "Mini butter buns",
+    "category": "Side",
+    "area": null,
+    "servings": 24,
+    "instructions": [
+      "Combine the bread flour, sugar, instant yeast, and salt in a large mixing bowl.",
+      "Pour in the warm milk and knead into a rough dough.",
+      "Once the dough is smooth and elastic, work in the butter and keep kneading until fully incorporated.",
+      "Cover the bowl and let the dough rise until doubled, about 90 minutes.",
+      "Turn out onto a lightly floured surface, divide the dough, and roll every piece into a smooth ball.",
+      "Lightly grease your pans and arrange the dough balls on them.",
+      "Cover and let rise again until puffy and soft.",
+      "Brush the tops with egg white.",
+      "Meanwhile, heat the oven to 375F (190C).",
+      "Bake uncovered for 28 to 32 minutes, until the crust is golden brown.",
+      "Cool briefly and enjoy."
+    ],
+    "ingredients": [
+      {
+        "original": "4-5 pound Bread Flour",
+        "key": "bread flour",
+        "grams": 2041,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Original gives a 4-5 lb range; used the 4.5 lb midpoint (2041 g)."
+      },
+      {
+        "original": "6 cups Milk",
+        "key": "milk",
+        "grams": 1440,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "3  tablespoons Sugar",
+        "key": "sugar",
+        "grams": 38,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 ½ tbsp Instant Yeast",
+        "key": "instant yeast",
+        "grams": 14,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2 1/2 Tsp Salt",
+        "key": "salt",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "10 tblsp Unsalted Butter",
+        "key": "unsalted butter",
+        "grams": 142,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2 Egg",
+        "key": "eggs",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/l6hj9a1784668199.jpg",
+      "youtube": null,
+      "source": "https://dominicagourmet.com/mini-lobster-bread-bowls/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T21:31:16.840Z",
+      "model": "claude-opus-4"
+    }
+  }
+]

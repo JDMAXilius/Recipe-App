@@ -36,3 +36,6 @@ expo-env.d.ts
 # EAS local iOS signing credentials — never commit
 credentials.json
 credentials/
+
+# otto-recipes canonicalization scratch (inputs/per-recipe outputs); silver recipes.json IS committed
+supabase/otto-recipes/canonical/_*

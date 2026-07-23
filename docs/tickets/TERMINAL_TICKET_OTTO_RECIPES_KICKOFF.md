@@ -130,5 +130,32 @@ confirmation still open — founder to verify the account; not a snapshot blocke
   misses — `52885` " Bubble & Squeak", `53120` "Æbleskiver"). Verbatim + RLS: no findings.
 - Script `tools/snapshot-themealdb.mjs` is re-runnable (`--self-check` for offline logic). Bronze is IMMUTABLE
   from here (never edited — provenance).
-- **NEXT: Phase 2 pilot** — canonicalize 10 (ranked worst-first via T6 over the bronze), critic-refute each,
-  human-review, then STOP for founder go/no-go before the full 792.
+### 2026-07-23 — Phase 2 PILOT done (10 recipes, crew ladder) — SHIP-WITH-CAVEAT
+- **Driver** `tools/canonicalize-recipes.mjs` (`--rank`/`--emit`/`--land`/`--self-check`): zod silver schema with a
+  HARD key gate (a non-null `key` must be one of the 969 usdaTable keys; an invented key never lands).
+- **Pilot 10** ranked worst-first on RAW bronze (no recipeFacts overlay — that overlay is what Phase 2 retires):
+  Flija 53413, Spanish lamb 53175, Baklava 53279, Battenberg 52894, Jerk chicken 52937, Mini buns 53560,
+  Pecan pie 52856, Irish stew 52781, Lamingtons 53104, Tourtière 53343.
+- **Canonicalized** all 10 (canonicalizer agent → zod-land → provenance+media auto-filled). Landed in
+  `supabase/otto-recipes/canonical/recipes.json` (silver = git-versioned source of truth; scratch `_*` gitignored).
+- **Result — every recipe: refused-disaster → plausible** (raw÷4 → canonical): Baklava 2646→**221** (serv 48),
+  Butter buns 2396→**399** (24), Battenberg 2651→**530** (20), Tourtière 1712→**761** (9), Pecan 2322→**774** (12),
+  Lamingtons 2215→**985** (9), Irish stew 2356→**1094** (8 + oil film), Spanish lamb 3076→**1532** (6),
+  Flija 3294→**1647** (8), Jerk 2231→**1805** (4). **Servings verification is the dominant fix.** 1 null-key in 130+
+  ingredients (food colouring → Phase 3 skips it).
+- **Schema finding (fixed):** `area` must be nullable (Flija, Mini buns have no TheMealDB area).
+- **Critic (REFUTER) = SHIP-WITH-CAVEAT.** Engine sound (fidelity 10/10, keys 87/87 valid, grams within tol,
+  cooked-flag pipeline correct). Defects confined to instruction-derived judgment fields — **FIX IN PROMPT/SCHEMA
+  BEFORE THE 792 RUN:**
+  1. [HIGH] Flija triple-counted 3 ALTERNATIVE fillings ("your chosen…") → sum ONE variant, don't add.
+  2. [HIGH] Mini buns servings=24 unsupported (~4× low). **servings honesty gate:** cite the source yield phrase in
+     the note, else mark low-confidence + sanity-check vs total food mass / piece count.
+  3. [MED] frying_medium inconsistent (Irish oil true, Spanish lamb's same browning oil false) — give the prompt an
+     explicit consumed-vs-discarded test.
+  4. [LOW] drop the thyme vs fresh-thyme distinction (same fdcId).
+- **⚠️ 792 MECHANISM BLOCKER:** no local `ANTHROPIC_API_KEY` (server-side Supabase secret only), and the pilot's
+  hand-land/agent-dispatch approach does NOT scale to 792. Options: (1) deploy a `canonicalize` edge function
+  (recommended — key stays server-side, local `--run-batch` driver calls it + zod-lands), (2) put the key in
+  `.env.development` for a direct-API batch driver, (3) agent-workflow (~10× token cost). **Founder pick needed.**
+- **NEXT (post-decision):** apply the 4 prompt/schema fixes → re-validate on the flagged pilot recipes → build the
+  chosen mechanism → run full 792 → critic-sample → commit. Then Phase 3 (ingredient top-up) / Phase 4 (cutover).
