@@ -1,15 +1,14 @@
-# L1+L2 gate for the v2 rebuild — runs on every push to rebuild branches,
-# regardless of which session pushed (REBUILD_01 Part A).
-name: rebuild-v2 checks
+# Typecheck / lint / test gate. Runs on main and any PR into it.
+name: checks
 
 on:
   push:
-    branches: ['rebuild/v2', 'rebuild/**']
+    branches: ['main']
   pull_request:
-    branches: ['rebuild/v2']
+    branches: ['main']
 
 jobs:
-  l1-l2:
+  checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
