@@ -45,20 +45,22 @@ export function OttoClubScreen() {
   const notifyMe = () =>
     show("You're on the list — Otto will holler when the Club opens.", 'success');
 
-  const BENEFITS = [
-    'Unlimited saved recipes — your whole collection, no caps',
-    'Import recipes from anywhere on the web',
-    'Smart weekly plans and shopping lists',
-    'Keeps the lights on — the Club is how Otto pays the cooks and the servers',
+  const BENEFITS: { icon: keyof typeof Ionicons.glyphMap; text: string }[] = [
+    { icon: 'bookmark', text: 'Unlimited saved recipes — your whole collection, no caps' },
+    { icon: 'link', text: 'Import recipes from anywhere on the web' },
+    { icon: 'calendar', text: 'Smart weekly plans and shopping lists' },
+    { icon: 'paw', text: 'Keeps the lights on — the Club is how Otto pays the cooks and the servers' },
   ];
 
-  const TIMELINE = [
-    { date: `Today, ${prettyDate(now)}`, body: 'Everything unlocks. Cook away.' },
+  const TIMELINE: { icon: keyof typeof Ionicons.glyphMap; date: string; body: string }[] = [
+    { icon: 'lock-open', date: `Today, ${prettyDate(now)}`, body: 'Everything unlocks. Cook away.' },
     {
+      icon: 'notifications',
       date: prettyDate(reminderDay),
       body: "We'll send you a reminder that your trial ends tomorrow.",
     },
     {
+      icon: 'star',
       date: prettyDate(chargeDay),
       body: `You'd be charged $${PRICE_YEAR} for the year. Cancel before then, pay nothing.`,
     },
@@ -92,10 +94,12 @@ export function OttoClubScreen() {
         {/* Benefits */}
         <View style={{ gap: space[2] }}>
           {BENEFITS.map((b) => (
-            <View key={b} style={styles.benefitRow}>
-              <Text role="computed">✓</Text>
+            <View key={b.text} style={styles.benefitRow}>
+              <View style={styles.benefitTile}>
+                <Ionicons name={b.icon} size={20} color={colors.terracotta} />
+              </View>
               <View style={{ flex: 1 }}>
-                <Text role="body">{b}</Text>
+                <Text role="body">{b.text}</Text>
               </View>
             </View>
           ))}
@@ -105,18 +109,27 @@ export function OttoClubScreen() {
         <View style={{ gap: space[2] }}>
           <Text role="title">How your {TRIAL_DAYS} free days work</Text>
           <View>
-            {TIMELINE.map((step, i) => (
-              <View key={step.date} style={styles.timelineRow}>
-                <View style={styles.rail}>
-                  <View style={styles.dot} />
-                  {i < TIMELINE.length - 1 ? <View style={styles.line} /> : null}
+            {TIMELINE.map((step, i) => {
+              const isCharge = i === TIMELINE.length - 1;
+              return (
+                <View key={step.date} style={styles.timelineRow}>
+                  <View style={styles.rail}>
+                    <View style={[styles.node, isCharge && styles.nodeSoft]}>
+                      <Ionicons
+                        name={step.icon}
+                        size={15}
+                        color={isCharge ? colors.terracotta : colors.white}
+                      />
+                    </View>
+                    {i < TIMELINE.length - 1 ? <View style={styles.line} /> : null}
+                  </View>
+                  <View style={styles.timelineBody}>
+                    <RNText style={styles.stepDate}>{step.date}</RNText>
+                    <Text role="caption">{step.body}</Text>
+                  </View>
                 </View>
-                <View style={styles.timelineBody}>
-                  <RNText style={styles.stepDate}>{step.date}</RNText>
-                  <Text role="caption">{step.body}</Text>
-                </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </View>
 
@@ -144,14 +157,16 @@ export function OttoClubScreen() {
         </Text>
 
         {/* Opens-soon banner + notify link (honest pre-IAP state, no primary CTA) */}
-        <View style={styles.banner}>
-          <View style={styles.bannerHead}>
-            <Ionicons name="paw" size={16} color={colors.terracotta} />
-            <Text role="label">Otto Club opens soon</Text>
+        <View style={{ gap: space[2], alignItems: 'center' }}>
+          <View style={styles.banner}>
+            <View style={styles.bannerHead}>
+              <Ionicons name="time-outline" size={16} color={colors.terracotta} />
+              <Text role="label">Otto Club opens soon</Text>
+            </View>
           </View>
-          <Text role="caption">
+          <RNText style={styles.bannerNote}>
             Memberships aren&apos;t on sale yet — this is the menu, not the bill.
-          </Text>
+          </RNText>
         </View>
 
         <Pressable
@@ -232,17 +247,27 @@ const styles = {
     justifyContent: 'center',
   } as ViewStyle,
 
-  benefitRow: { flexDirection: 'row', gap: space[2], alignItems: 'flex-start' } as ViewStyle,
+  benefitRow: { flexDirection: 'row', gap: space[3], alignItems: 'center' } as ViewStyle,
+  benefitTile: {
+    width: 40,
+    height: 40,
+    borderRadius: radii.button,
+    backgroundColor: colors.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  } as ViewStyle,
 
   timelineRow: { flexDirection: 'row', gap: space[3] } as ViewStyle,
-  rail: { width: 12, alignItems: 'center' } as ViewStyle,
-  dot: {
-    width: 12,
-    height: 12,
+  rail: { width: 30, alignItems: 'center' } as ViewStyle,
+  node: {
+    width: 30,
+    height: 30,
     borderRadius: radii.pill,
     backgroundColor: colors.terracotta,
-    marginTop: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
   } as ViewStyle,
+  nodeSoft: { backgroundColor: colors.accentSoft } as ViewStyle,
   line: { flex: 1, width: 2, backgroundColor: colors.accentSoft, marginTop: 2 } as ViewStyle,
   timelineBody: { flex: 1, paddingBottom: space[4], gap: 2 } as ViewStyle,
   stepDate: { ...type.body, fontWeight: '700', color: colors.ink } as TextStyle,
@@ -265,7 +290,7 @@ const styles = {
   planCardActive: { borderColor: colors.terracotta, backgroundColor: colors.creamDeep } as ViewStyle,
   planTop: { flexDirection: 'row', alignItems: 'center', gap: space[2] } as ViewStyle,
   badge: {
-    backgroundColor: colors.gold,
+    backgroundColor: colors.terracotta,
     borderRadius: radii.pill,
     paddingHorizontal: space[2],
     paddingVertical: 3,
@@ -273,19 +298,24 @@ const styles = {
   badgeText: { ...type.meta, fontVariant: ['tabular-nums'], color: colors.white } as TextStyle,
 
   banner: {
-    backgroundColor: colors.creamDeep,
+    alignSelf: 'stretch',
+    backgroundColor: colors.accentSoft,
     borderRadius: radii.card,
     padding: space[4],
-    gap: space[2],
     alignItems: 'center',
   } as ViewStyle,
   bannerHead: { flexDirection: 'row', alignItems: 'center', gap: space[2] } as ViewStyle,
+  bannerNote: {
+    ...type.meta,
+    fontVariant: ['tabular-nums'],
+    color: colors.inkSoft,
+    textAlign: 'center',
+  } as TextStyle,
 
   notify: { alignItems: 'center' } as ViewStyle,
   notifyText: {
     ...type.body,
     fontWeight: '600',
     color: colors.terracotta,
-    textDecorationLine: 'underline',
   } as TextStyle,
 };

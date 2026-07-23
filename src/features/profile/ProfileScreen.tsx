@@ -207,12 +207,12 @@ export function ProfileScreen() {
           accessibilityRole="button"
           accessibilityLabel="Otto Club — see how it works"
         >
-          <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-            <View style={{ flex: 1, gap: space[1] }}>
-              <RNText style={clubTitle}>Otto Club</RNText>
-              <Text role="body">Everything Otto can do, one simple membership. Opening soon.</Text>
-            </View>
-            <OttoArt name="floating" size={72} />
+          <View style={styles.clubArt} pointerEvents="none">
+            <OttoArt name="floating" size={132} />
+          </View>
+          <View style={{ gap: space[1], paddingRight: 92 }}>
+            <RNText style={clubTitle}>Otto Club</RNText>
+            <Text role="body">Everything Otto can do, one simple membership. Opening soon.</Text>
           </View>
           <View style={styles.clubButton}>
             <RNText style={clubButtonText}>See how it works</RNText>
@@ -418,7 +418,7 @@ const styles: Record<string, ViewStyle> = {
   unitRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: space[3] },
   unitToggle: { width: 160 },
   clubCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.accentSoft,
     borderRadius: radii.card,
     borderWidth: 1.5,
     borderColor: colors.terracotta,
@@ -426,6 +426,7 @@ const styles: Record<string, ViewStyle> = {
     gap: space[3],
     overflow: 'hidden',
   },
+  clubArt: { position: 'absolute', right: -6, bottom: -10 },
   clubButton: {
     alignSelf: 'flex-start',
     backgroundColor: colors.terracotta,
