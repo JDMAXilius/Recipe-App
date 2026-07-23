@@ -110,3 +110,25 @@ Read https://www.themealdb.com/terms_of_use.php directly. Answers to the three g
 IMAGE-copy sub-step (Phase 1 step 7) is DEFERRED (hotlink + attribution) pending the founder image
 call / a permission email. Supporter-key confirmation is a founder item (app-store compliance),
 independent of snapshotting.
+
+**Founder decision (2026-07-23):** image strategy = **keep hotlinking + attribution** (re-host not
+pursued). Phase 1 image-copy step is closed as "hotlink, no copy." (Supporter-key paid-tier
+confirmation still open — founder to verify the account; not a snapshot blocker.)
+
+### 2026-07-23 — Phase 1 DONE (crew ladder: security-builder + builder → lead-verify → critic SHIP)
+- **`otto_recipes` migration applied** (`supabase/migrations/20260723140000_otto_recipes.sql`): `id text pk,
+  canonical jsonb, provenance jsonb, created_at, updated_at`. RLS mirrors `seed_nutrition` — one SELECT
+  policy for anon/authenticated `using(true)`, no write policy. **RLS verified LIVE:** anon SELECT → `200 []`,
+  anon INSERT → `401 / 42501 "violates row-level security policy"`. Types regenerated (`src/types/database.ts`,
+  `tsc` clean).
+- **Bronze snapshot committed** (`supabase/otto-recipes/raw/themealdb-2026-07.json`, 2.2 MB): pulled via the
+  `content` edge function (v2 supporter key server-side) by categories→filter→lookup. **TRUE RECIPE COUNT
+  = 792** (settles the ~750/777 float). 14 categories, 0 failures, verbatim (54 fields/meal), sorted, deduped,
+  zero transformation leak. Image URLs hotlinked (per founder call).
+- **Critic (REFUTER) = SHIP:** completeness proven by an independent letter-search index (snapshot is a strict
+  superset, 0 real recipes missing; category-filter even catches leading-space/non-ASCII names letter-search
+  misses — `52885` " Bubble & Squeak", `53120` "Æbleskiver"). Verbatim + RLS: no findings.
+- Script `tools/snapshot-themealdb.mjs` is re-runnable (`--self-check` for offline logic). Bronze is IMMUTABLE
+  from here (never edited — provenance).
+- **NEXT: Phase 2 pilot** — canonicalize 10 (ranked worst-first via T6 over the bronze), critic-refute each,
+  human-review, then STOP for founder go/no-go before the full 792.

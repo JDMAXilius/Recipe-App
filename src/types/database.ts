@@ -2,10 +2,10 @@
 // Source of truth: the Supabase schema (docs/contracts/database.md).
 // Regenerate after any migration via the Supabase MCP
 // `generate_typescript_types` (or `supabase gen types typescript`).
-// Regenerated 2026-07-23 after the SECURITY DEFINER hardening migration:
-// dropped the dead v1 collab_lists/collab_items tables + their 4 RPCs, and
-// moved is_household_member/shares_household to the private schema (no longer
-// in the public API surface).
+// Regenerated 2026-07-23 after the otto_recipes migration (otto-recipes
+// Phase 1): the catalogue serving table (id, canonical jsonb, provenance
+// jsonb, timestamps) — RLS public-read, service-role write, mirroring
+// seed_nutrition.
 export type Json =
   | string
   | number
@@ -58,6 +58,94 @@ export type Database = {
         }
         Relationships: []
       }
+      household_list_state: {
+        Row: {
+          checked: boolean
+          custom_name: string | null
+          household_id: string
+          item_key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          checked?: boolean
+          custom_name?: string | null
+          household_id: string
+          item_key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          checked?: boolean
+          custom_name?: string | null
+          household_id?: string
+          item_key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_list_state_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      household_members: {
+        Row: {
+          display_name: string | null
+          household_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          display_name?: string | null
+          household_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          display_name?: string | null
+          household_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_members_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          invite_code: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          invite_code: string
+          name?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          invite_code?: string
+          name?: string
+        }
+        Relationships: []
+      }
       list_shares: {
         Row: {
           created_at: string | null
@@ -82,22 +170,28 @@ export type Database = {
         }
         Relationships: []
       }
-      households: {
-        Row: { created_at: string; created_by: string; id: string; invite_code: string; name: string }
-        Insert: { created_at?: string; created_by: string; id?: string; invite_code: string; name?: string }
-        Update: { created_at?: string; created_by?: string; id?: string; invite_code?: string; name?: string }
-        Relationships: []
-      }
-      household_members: {
-        Row: { display_name: string | null; household_id: string; joined_at: string; user_id: string }
-        Insert: { display_name?: string | null; household_id: string; joined_at?: string; user_id: string }
-        Update: { display_name?: string | null; household_id?: string; joined_at?: string; user_id?: string }
-        Relationships: []
-      }
-      household_list_state: {
-        Row: { checked: boolean; custom_name: string | null; household_id: string; item_key: string; updated_at: string; updated_by: string | null }
-        Insert: { checked?: boolean; custom_name?: string | null; household_id: string; item_key: string; updated_at?: string; updated_by?: string | null }
-        Update: { checked?: boolean; custom_name?: string | null; household_id?: string; item_key?: string; updated_at?: string; updated_by?: string | null }
+      otto_recipes: {
+        Row: {
+          canonical: Json
+          created_at: string
+          id: string
+          provenance: Json
+          updated_at: string
+        }
+        Insert: {
+          canonical: Json
+          created_at?: string
+          id: string
+          provenance: Json
+          updated_at?: string
+        }
+        Update: {
+          canonical?: Json
+          created_at?: string
+          id?: string
+          provenance?: Json
+          updated_at?: string
+        }
         Relationships: []
       }
       plan_entries: {
