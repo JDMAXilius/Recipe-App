@@ -45,17 +45,26 @@ import recipeFacts from "../src/features/nutrition/engine/data/recipeFacts.json"
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
-// Fat words that read as a frying medium (mirrors guards.ts FAT_RE, which is not
-// exported). Used only to flag "oil counted whole" — a diagnostic hint, not a
-// compute path.
+// Fat words that MIGHT be a browning/frying medium counted as if eaten. This is a
+// DIAGNOSTIC SUPERSET of the engine's frying-medium FAT_RE (guards.ts, not
+// exported): it deliberately adds butter/margarine, which the guard never treats
+// as a medium, because they are common browning fats a human should eyeball for
+// T1. It gates a hint only (OIL_WHOLE) — never a compute path — so being broader
+// than the guard is intentional, not a mirror of it.
 const FAT_RE = /\b(oils?|ghee|lard|shortening|dripping|tallow|butter|margarine)\b/i;
+// More fat than one portion plausibly contains reads as a cooking medium, not an
+// ingredient. Keyed on GRAMS like the guard (guards.ts FRYING_MEDIUM_MIN_G_PER_SERVING),
+// not on kcal — a kcal bar mislabels normal eaten oil in small-serving dishes.
+const OIL_SUSPECT_PER_SERVING_G = 20; // ~1.5 tbsp of pure oil per plate
+const OIL_SUSPECT_TOTAL_G = 50; // and a real pour overall, so tiny recipes are spared
 
 // ── one recipe → structured breakdown ────────────────────────────────────────
 // Rebuilds the row set exactly as compute.ts buildContext does, then applies the
 // same guards in the same order, snapshotting each line's grams BEFORE the guards
 // so we can show what the engine dropped (e.g. oil the frying-medium guard zeroed).
 function breakdown(recipe) {
-  const facts = recipe.recipeId != null ? recipeFacts[String(recipe.recipeId)] ?? null : null;
+  // Truthiness gate matches the engine's factsFor (compute.ts) exactly — id 0 → null.
+  const facts = recipe.recipeId ? recipeFacts[String(recipe.recipeId)] ?? null : null;
   const perServing = Math.max(1, Number(facts?.servings) || Number(recipe.servings) || 1);
   const cookedSet = new Set((facts?.cooked || []).map(key));
 
@@ -83,14 +92,19 @@ function breakdown(recipe) {
     const flags = [];
 
     if (!r.food && !negligible) flags.push("UNMATCHED");
-    // Oil/butter still counted whole (frying-medium guard did NOT fire) and
-    // contributing real calories — the T1 signal.
+    // A fat line counted whole in an amount too large to be eaten as an
+    // ingredient — the T1 signal. Keyed on GRAMS (per-serving AND total), the
+    // way the frying-medium guard is, so normal eaten oil (a tbsp stirred into
+    // a dish) does NOT trip it. Only fires when the guard left the line at full
+    // grams: reduced (frying/condiment) or estimated lines are already handled.
     if (
       r.food &&
       FAT_RE.test(r.name || "") &&
       !r.fryingMedium &&
+      !r.batchCondiment &&
       !r.estimated &&
-      (kcalServing ?? 0) > 100
+      grams / perServing >= OIL_SUSPECT_PER_SERVING_G &&
+      (r._origGrams ?? 0) >= OIL_SUSPECT_TOTAL_G
     ) {
       flags.push("OIL_WHOLE");
     }
@@ -113,16 +127,20 @@ function breakdown(recipe) {
       fdcId: r.food ? r.food.fdcId : null,
       kcal100,
       kcalServing: kcalServing != null ? round(kcalServing, 0) : null,
+      kcalServingRaw: kcalServing, // unrounded — summed once for Σ, so it tracks the engine
       negligible,
       flags,
     };
   });
 
   // Share of the per-serving kcal each line carries (post-guard) — the "one line
-  // dominates" outlier is share-based, computed after the total is known.
-  const totalKcal = lines.reduce((a, l) => a + (l.kcalServing ?? 0), 0);
+  // dominates" outlier is share-based, computed after the total is known. Sum the
+  // UNROUNDED per-line kcal and round once (like compute.ts sum("kcal")/perServing),
+  // so Σ lines reconciles with the engine's result.kcal instead of drifting ~N×0.5.
+  const totalRaw = lines.reduce((a, l) => a + (l.kcalServingRaw ?? 0), 0);
+  const totalKcal = round(totalRaw, 0);
   for (const l of lines) {
-    l.share = totalKcal > 0 && l.kcalServing != null ? l.kcalServing / totalKcal : 0;
+    l.share = totalRaw > 0 && l.kcalServingRaw != null ? l.kcalServingRaw / totalRaw : 0;
     if (l.share >= 0.35 && (l.kcalServing ?? 0) > 60) l.flags.push("BIG_SHARE");
   }
   lines.sort((a, b) => (b.kcalServing ?? 0) - (a.kcalServing ?? 0));
@@ -195,27 +213,39 @@ function signals(b) {
   return s;
 }
 
+// Severity for ranking. A refused recipe (result null) is the MOST broken, not the
+// least — rank it by its uncapped Σ lines (which is why the engine refused), so it
+// sorts to the TOP where the worst-first table promises it, never to the bottom as 0.
+const severity = (b) => (b.result ? b.result.kcal : b.totalKcal + 100000);
+
 function printCorpus(recipes) {
   const scored = recipes.map(breakdown);
-  // Worst-first: implausibly high totals and the biggest single-line dominance.
-  scored.sort((a, b) => (b.result?.kcal ?? 0) - (a.result?.kcal ?? 0));
-  console.log(`\nScanned ${scored.length} recipes. Ranked by kcal/serving (worst-first):\n`);
-  console.log("   " + pad("kcal", 6) + pad("recipe", 34) + "signals");
+  scored.sort((a, b) => severity(b) - severity(a));
+  console.log(`\nScanned ${scored.length} recipes. Ranked worst-first (refused = uncapped Σ):\n`);
+  console.log("   " + pad("kcal", 12) + pad("recipe", 34) + "signals");
   for (const b of scored) {
-    const k = b.result ? b.result.kcal : "null";
-    console.log("   " + pad(k, 6) + pad(b.name, 34) + (signals(b).join("  ·  ") || "—"));
+    const k = b.result ? String(b.result.kcal) : `null(${b.totalKcal})`;
+    console.log("   " + pad(k, 12) + pad(b.name, 34) + (signals(b).join("  ·  ") || "—"));
   }
-  // Then the full breakdown of the top offenders so the culprit lines are visible.
-  const worst = scored.filter((b) => (b.result?.kcal ?? 0) >= 700 || signals(b).length).slice(0, 8);
+  // Full breakdown of the top offenders so the culprit lines are visible. Refused
+  // recipes are always suspect (they include the ones too broken to score), so they
+  // are never filtered out; then high totals and any flagged recipe, worst-first.
+  const worst = scored
+    .filter((b) => !b.result || b.result.kcal >= 700 || signals(b).length)
+    .slice(0, 8);
   if (worst.length) {
     console.log(`\n\nFull breakdown of the ${worst.length} most suspect:`);
     worst.forEach(printOne);
   }
 }
 
-// The ticket's reference case — Irish Stew, traced 2026-07-23 (1135 kcal/serving).
-// Ingredients/quantities as TheMealDB serves them; recipeId omitted so it uses
-// the flat default and reproduces the pre-fix behaviour the ticket describes.
+// The ticket's reference case — Irish Stew (docs/tickets/NUTRITION_ACCURACY.md §1).
+// Ingredients/quantities as TheMealDB serves them; recipeId omitted so no curated
+// facts apply. NOTE: the ticket's §1 trace quoted 1135 kcal/serving off a
+// loin-chop lamb match; the default `lamb` match has since changed (now "Lamb,
+// ground, raw"), so today the uncapped Σ is ~1870 and the engine REFUSES it
+// (>1500 kcal plausibility cap). The three culprits are the same — this case
+// still surfaces all of them, which is the point of the demo.
 const IRISH_STEW = {
   name: "Irish Stew (ticket reference case)",
   servings: 4,
@@ -250,14 +280,16 @@ if (argv.includes("--corpus")) {
   if (!argv.includes("--demo") && argv.length) {
     console.error("Unknown args. Use --demo | --file <json> | --corpus <json>. Running --demo.\n");
   }
-  console.log("DEMO — the Irish Stew reference case from docs/tickets/NUTRITION_ACCURACY.md");
-  console.log("(recipeId omitted, so no curated facts apply — reproduces the pre-fix trace)");
+  console.log("DEMO — the Irish Stew reference case from docs/tickets/NUTRITION_ACCURACY.md §1");
+  console.log("(recipeId omitted, so no curated facts apply)");
   printOne(breakdown(IRISH_STEW));
   console.log(
-    "\nReading it: OIL_WHOLE on the 120 ml olive oil is the T1 target — a browning\n" +
-      "medium counted as if eaten. UNMATCHED on the 'soaked overnight…' line is the\n" +
-      "mis-parse the ticket names (almost certainly barley). HUGE_GRAMS / BIG_SHARE on\n" +
-      "the 2 kg lamb is the fatty-cut + raw-match (T5) — leaner, cooked would drop it."
+    "\nReading it: engine REFUSES (uncapped Σ ~1870 > 1500 cap) — correct, but the\n" +
+      "breakdown shows WHY. OIL_WHOLE on the 120 ml olive oil is the T1 target: a\n" +
+      "browning medium counted as if eaten (110 g, ~28 g/serving). UNMATCHED on the\n" +
+      "'soaked overnight…' line is the mis-parse the ticket names (almost certainly\n" +
+      "barley). HUGE_GRAMS / BIG_SHARE on the 2 kg lamb → 'Lamb, ground, raw' is the\n" +
+      "fatty-cut + raw match (T5) — a leaner, cooked record would drop it sharply."
   );
 }
 void HERE;
