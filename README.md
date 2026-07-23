@@ -43,32 +43,41 @@ Light-only, token-pure. Terracotta `#C4562E` accent, cream paper surfaces, Lora 
 ## Architecture
 
 ```
-mobile/    Expo SDK 54 · React Native 0.81 · expo-router v6 · JS/JSX only
-           tokens via useTheme() · reanimated core (no layout anims on web)
-           native dev build: com.otto.recipes (expo-dev-client)
-backend/   Express + Drizzle ORM + Supabase Postgres · Supabase Auth (JWT verify)
-           tables: favorites · recipes (user imports/creations) · plan_entries
-                   recipe_shares · list_shares · collab_lists · collab_items · seed_nutrition
-           deterministic /api/import (schema.org JSON-LD, SSRF-guarded)
-           RLS enabled · zod validation · rate limits · structured logging
+app/       expo-router v6 routes (TypeScript): (auth) · (tabs) · recipe/ · shopping ·
+           household · journal · otto-club · onboarding · …
+src/       feature-first modules — everything the app does lives here
+  features/  auth · recipes · cookbook · cook · planner · nutrition · import · chat ·
+             household · share · journal · profile · onboarding · notifications
+  shared/    theme (tokens + semantic-ink) · ui · supabase client · lib (engine) ·
+             haptics · storage · motion
+supabase/  Postgres schema as migrations/ + Edge Functions (functions/): import-recipe
+           (schema.org JSON-LD, SSRF-guarded) · generate-recipe · resolve-nutrition ·
+           content (TheMealDB proxy) · delete-account. RLS is the security boundary.
 content    TheMealDB (seed recipes + ingredient lists) + user imports — behind a RecipeSource seam
 nutrition  USDA FoodData Central (CC0) — usdaTable.json ships in the app, zero runtime calls
 ```
 
-Deterministic client libs do the heavy lifting (no LLM in the loop): `ingredientParser` (kitchen-fraction scaling, US↔Metric), `stepEnrich` (durations/temps), `cookSession` (step splitting + ingredient matching), `stepAction` (Otto art selection), `shoppingList` (summing + aisles).
+Expo SDK 54 · React Native 0.81 · TypeScript · expo-router v6 · TanStack Query ·
+Supabase (Auth + Postgres + Edge Functions + Realtime). Native dev build:
+`com.otto.recipes`. Tokens via the semantic-ink theme; reanimated core (no layout anims on web).
+
+Deterministic libs do the heavy lifting (no LLM in the cook/scale path): `ingredientParser`
+(kitchen-fraction scaling, US↔Metric), `stepEnrich` (durations/temps), `cookSession` (step
+splitting + ingredient matching), `stepAction` (Otto art selection), `shoppingList` (summing +
+aisles) — under `src/features/*/` and `src/shared/lib`.
 
 ## Run it
 
 ```bash
-# backend
-cd backend && npm install && npm run dev          # :5001
-
 # app (web + Expo Go)
-cd mobile && npm install && npx expo start        # :8081
+npm install && npx expo start                     # :8081
 
-# native iOS dev build (first time; see note below)
-cd mobile && npx expo run:ios --device "iPhone 17 Pro Max"
+# native iOS dev build (needs the native modules — expo-audio/keep-awake/image-picker)
+npx expo run:ios --device "iPhone 17 Pro Max"
 ```
+
+Server-side logic lives in **Supabase Edge Functions** (`supabase/functions/`) and schema in
+`supabase/migrations/` — deployed to the Supabase project, not a separate server.
 
 > **CocoaPods on a stock Mac (no Homebrew, system Ruby 2.6):**
 > `gem install --user-install activesupport -v 6.1.7.10 --no-document && gem install --user-install cocoapods --no-document`, then put `$HOME/.gem/ruby/2.6.0/bin` on PATH.
@@ -77,25 +86,14 @@ cd mobile && npx expo run:ios --device "iPhone 17 Pro Max"
 ### `.env`
 
 ```bash
-# backend/.env
-PORT=5001
-DATABASE_URL=...            # Supabase (aws-0-us-east-1.pooler)
-SUPABASE_URL=...            # same project as the app — token verification
-SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...   # completes account deletion — auth user AND
-                                # their Storage photos (set in prod)
-SHARE_BASE_URL=https://ottosapp.com   # public origin for /r, /l, /hl share links;
-                                      # falls back to the request host
-WEB_ORIGINS=...                 # optional, comma-separated extra CORS origins.
-                                # ottosapp.com + www are already built in.
-
-# mobile/.env
+# .env (root) — publishable client config, safe to expose; RLS is the security boundary
 EXPO_PUBLIC_SUPABASE_URL=...
 EXPO_PUBLIC_SUPABASE_ANON_KEY=...
-EXPO_PUBLIC_API_URL=http://localhost:5001/api   # LAN IP for devices
 ```
 
-`EXPO_PUBLIC_*` vars are inlined at build time — restart Expo after changing them.
+`EXPO_PUBLIC_*` vars are inlined at build time — restart Expo after changing them. Server-side
+secrets (e.g. the service-role key that completes account deletion) live in Edge Function config,
+never in the app bundle.
 
 ## Docs map
 

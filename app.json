@@ -1,3 +1,38 @@
 {
-  "expo": {}
+  "expo": {
+    "name": "Otto",
+    "slug": "otto",
+    "version": "2.0.0",
+    "scheme": "otto",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.otto.recipes",
+      "supportsTablet": true,
+      "usesAppleSignIn": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser",
+      "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Otto uses your photos to import a recipe or add a plate to your cooking journal.",
+          "cameraPermission": "Otto uses your camera to snap a recipe or your finished plate."
+        }
+      ],
+      "expo-notifications",
+      "expo-audio"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
 }

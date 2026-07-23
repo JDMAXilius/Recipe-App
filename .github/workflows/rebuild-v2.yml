@@ -1,0 +1,23 @@
+# L1+L2 gate for the v2 rebuild — runs on every push to rebuild branches,
+# regardless of which session pushed (REBUILD_01 Part A).
+name: rebuild-v2 checks
+
+on:
+  push:
+    branches: ['rebuild/v2', 'rebuild/**']
+  pull_request:
+    branches: ['rebuild/v2']
+
+jobs:
+  l1-l2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test

@@ -1,1 +1,0 @@
-ALTER TABLE "favorites" ADD COLUMN "category" text;

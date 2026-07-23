@@ -5,41 +5,65 @@
 > report-backs land in ticket files and get folded in here. Keep this under
 > ~60 lines — history belongs in git, details belong in tickets.
 
-**Last updated:** 2026-07-21 · by terminal (ticket 00 executed)
+**Last updated:** 2026-07-21 · by terminal (M0 complete, founder signed off)
 
 ## Where we are
 
 | | |
 |---|---|
-| Current milestone | **M0** — ticket 00 done (archive pending founder); ticket 01 next |
-| Integration branch | `rebuild/v2` @ 213ece47 |
-| Legacy snapshot | `v1-legacy` @ 213ece47 · tag `v1.0-legacy` |
+| Current milestone | **M3 DONE (9 features, 163/163) → M4 integration next** (ticket 04) |
+| Integration branch | `rebuild/v2` @ 81e5d6db — scaffold + crew + contracts, CI green |
+| Legacy snapshot | `v1-legacy` @ c54b1293 · tag `v1.0-legacy` |
 | Old-code archive | **pending founder** — classifier blocks mirror push from terminal |
-| Last verified commit | 213ece47 (main, backend 115/115 · mobile 60/60) |
+| Last verified commit | 81e5d6db (rebuild/v2, CI green) · main @ 88315a43 green |
 | v1 app status | shippable from `main`; both suites green |
 
 ## Gates
 
 | Gate | Status |
 |---|---|
-| M0 Contracts signed | ☐ not started |
-| M1 Engine green | ☐ blocked on M0 |
-| M2 Platform ready | ☐ blocked on M0 |
-| M3 Features merged | ☐ blocked on M1+M2 |
-| M4 Converged + device QA | ☐ blocked on M3 |
+| M0 Contracts signed | ☑ **founder sign-off 2026-07-21** (critic panel: 24 findings folded) |
+| M1 Engine green | ☑ **91/91, byte-identical to v1** (@12502ac6) |
+| M2 Platform ready | ☑ **applied live + 75/75 RLS attack test** (@ff0dd011); advisors clean of ERROR; 3 fns via MCP + 3 via CLI, secrets set |
+| M3 Features merged | ☑ **9/9 features, two waves, repo-wide 163/163** (@21c9e20a) |
+| M4 Converged + device QA | ◐ A–E done + **cutover commit staged** (@ce6b34e5 removes v1, v2 green standalone); PR `rebuild/v2 → main` ready to open; **founder: device QA + open/approve/merge** |
 
 ## Open packets / tickets
 
 | Ticket | Status |
 |---|---|
-| REBUILD_00 source control | **done** (report-back in docs/archive/; archive mirror pending founder) |
-| REBUILD_01 M0 scaffold/crew/contracts | **in progress — terminal** |
-| REBUILD_02–04 | issued after their gate (see INDEX) |
+| REBUILD_00 source control | **done** (archive mirror still pending founder) |
+| REBUILD_01 M0 scaffold/crew/contracts | **done** (report-back in docs/archive/) |
+| REBUILD_02 M1 engine + M2 platform | **done** (@ff0dd011) |
+| REBUILD_03 M3 feature fan-out | **done** — 9 features, 2 waves (@21c9e20a) |
+| REBUILD_04 M4 integration + QA | next |
+
+## Deferred backlog (post-review; fold into Phase F / follow-ups)
+
+M3 carry-overs — DONE in M4 A–C: Input primitive ✓, max-less Ring ✓, UserId
+brand ✓, Cooked filter wired ✓, my-recipes count ✓.
+
+Still open (documented, not silent):
+- **Cook journey reachability**: no "Cook" button on RecipeDetail, and
+  fetchCookRecipe loads only user recipes from the DB — cooking a TheMealDB
+  **seed** needs its steps via the content edge fn. Wire button + seed-loading.
+- **Share actions**: ShareCard renders, but useCreateRecipeShare/shareText are
+  not wired to the detail "Share this recipe" (dead until wired).
+- **Native deps** (device stage): react-native-get-random-values (share tokens),
+  expo-web-browser + apple-auth (native OAuth), AsyncStorage (auth session +
+  prefs/journal/household persistence — currently session-local).
+- **One-copy cleanups**: `parseIngredientLine` used by 3 features via engine
+  internals → move to `@/shared/lib`; canonical `IngredientPair` in `@/types`
+  (redefined 4×).
+- LOWs: US measure-prose fidelity, setTimeout cleanup on delete-arm, finish
+  multi-timer, scrim/badge tokens.
 
 ## Blockers
 
-- Old-code archive: founder must run `git clone --mirror` + `git push --mirror`
-  to Old-recipe-app.git (terminal permission classifier blocks both).
+- Old-code archive: founder must run the two mirror commands to Old-recipe-app.git
+  (clone done in /tmp; push --mirror pending).
+- ~~M2 apply step~~ **DONE** (@ff0dd011): 11 migrations live, 5 fns deployed +
+  secrets set, types regenerated, RLS attack test 75/75.
 
 ## Open decisions (founder) — ALL RESOLVED 2026-07-21
 

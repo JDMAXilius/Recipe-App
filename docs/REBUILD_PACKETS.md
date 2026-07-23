@@ -63,6 +63,14 @@ Rules: every field required; `gaps` may be empty but must be present;
 schema failure triggers one automatic self-correction retry, then the packet
 returns to the manager as failed (counts toward the two-failure limit).
 
+M0 amendments (critic panel): `journey` is `null` for packets with no
+screen (engine, migrations, tooling) — null is schema-valid there, absent
+is not. `gaps` entries may be strings OR structured objects (critic
+findings `{claim, failure_scenario, severity, evidence}`, scout reports) —
+validators accept both. `owner_path` must match the WORKFLOW §4.4 ownership
+table (incl. M0 addendum) or a feature-module.md boundary; the manager's
+pre-spawn validation rejects broader paths.
+
 ## 3. `contract_gap` (the cycle-breaker)
 
 When a builder discovers its contract is missing something (e.g. planner

@@ -1,0 +1,30 @@
+{
+  "_source": "RECORDED from the frozen TS engine (computeNutrition), run 2026-07-22 — NOT invented. Garlic butter chicken x0.5 -> 1 serving, the TestFlight-QA phantom-carbs recipe. Values fall inside the v1 golden ranges (kcal 320-500, carbs <=5): the phantom 20g is gone (2.7g), so the regression is caught on the rendered pixels.",
+  "garlic-butter-chicken": {
+    "input": {
+      "ingredients": [
+        { "measure": "200 g", "name": "chicken breast, sliced thin" },
+        { "measure": "14.2 g", "name": "butter" },
+        { "measure": "0.5 tbsp", "name": "olive oil" },
+        { "measure": "1.5 cloves", "name": "garlic, minced" },
+        { "measure": "0.3 tsp", "name": "paprika" },
+        { "measure": "0.3 tsp", "name": "salt" },
+        { "measure": "0.1 tsp", "name": "black pepper" },
+        { "measure": "0.5 tbsp", "name": "fresh parsley, chopped" },
+        { "measure": "0.5 tbsp", "name": "lemon juice" }
+      ],
+      "servings": 1
+    },
+    "expected": {
+      "kcal": 414,
+      "protein_g": 45.7,
+      "carbs_g": 2.7,
+      "fat_g": 23.7,
+      "fiber_g": 0.7,
+      "sugar_g": null,
+      "sodium_mg": 881,
+      "confidence": "high",
+      "basis": "measured"
+    }
+  }
+}

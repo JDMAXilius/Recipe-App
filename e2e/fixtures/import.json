@@ -1,0 +1,24 @@
+{
+  "_source": "Anon-observable copy is authored verbatim in AddSheet.tsx / EditRecipeScreen.tsx and asserted as-is (runs in cloud + CI). The authed block (a real URL import through the import-recipe edge function → review → save) is RECORDED at SG5 against the otto-e2e user, never invented; null until then, and the journey skips it while null.",
+  "addSheet": {
+    "route": "/add",
+    "title": "Bring in a recipe",
+    "importCta": "Import it",
+    "writeCta": "Write it myself"
+  },
+  "editor": {
+    "manualRoute": "/recipe/edit",
+    "newHeading": "New recipe",
+    "ottoPanelTitle": "Cook something up with Otto",
+    "labels": ["TITLE", "INGREDIENTS", "STEPS (OPTIONAL)"],
+    "saveCta": "Save to my cookbook"
+  },
+  "authed": {
+    "comment": "Terminal-only (docs/contracts/testing.md — authed import/save). RECORDED at SG5, never invented; null until then.",
+    "importUrl": null,
+    "reviewHeading": null,
+    "expectedTitle": null,
+    "expectedIngredient": null,
+    "savedRedirect": null
+  }
+}
