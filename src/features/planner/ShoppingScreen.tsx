@@ -416,7 +416,17 @@ const styles: Record<string, ViewStyle & TextStyle> = {
   scroll: { padding: space[4], paddingBottom: space[7] },
   empty: { alignItems: 'center', gap: space[3], marginTop: space[5] },
 
-  pad: { position: 'relative', marginTop: space[2], marginBottom: space[4] },
+  // The rasterized root (captureRef target) needs an OPAQUE background — react-
+  // native-view-shot renders a transparent root as black/blank, which the share
+  // try/catch then silently swallowed (user got text, no note image). The
+  // padSheet child still paints the border+shadow on top, so the look is unchanged.
+  pad: {
+    position: 'relative',
+    marginTop: space[2],
+    marginBottom: space[4],
+    backgroundColor: colors.white,
+    borderRadius: radii.card,
+  },
   padSheet: {
     position: 'absolute',
     top: 0,

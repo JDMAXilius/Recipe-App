@@ -145,18 +145,55 @@ export function useSharedList(householdId: string | null): UseSharedList {
     };
   }, [householdId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Optimistic writes — the shared list must react instantly like the personal
+  // list (local useState) and like usePlan. Without them, a check-off/add/remove
+  // waited a full Supabase write + refetch/realtime round-trip and felt dead.
+  const snapshot = async () => {
+    await qc.cancelQueries({ queryKey: key });
+    const prev = qc.getQueryData<ListStateRow[]>(key) ?? [];
+    return prev;
+  };
+  const rollback = (_e: unknown, _v: unknown, ctx: { prev: ListStateRow[] } | undefined) => {
+    if (ctx) qc.setQueryData(key, ctx.prev);
+  };
+  const settle = () => qc.invalidateQueries({ queryKey: key });
+
   const toggleMut = useMutation({
     mutationFn: (v: { itemKey: string; checked: boolean }) =>
       setChecked(householdId as string, v.itemKey, v.checked, userId as string),
-    onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onMutate: async (v) => {
+      const prev = await snapshot();
+      const next = prev.some((r) => r.item_key === v.itemKey)
+        ? prev.map((r) => (r.item_key === v.itemKey ? { ...r, checked: v.checked } : r))
+        : [...prev, { item_key: v.itemKey, checked: v.checked, custom_name: null }];
+      qc.setQueryData<ListStateRow[]>(key, next);
+      return { prev };
+    },
+    onError: rollback,
+    onSettled: settle,
   });
   const addMut = useMutation({
     mutationFn: (name: string) => addCustomItem(householdId as string, name, userId as string),
-    onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onMutate: async (name) => {
+      const prev = await snapshot();
+      qc.setQueryData<ListStateRow[]>(key, [
+        ...prev,
+        { item_key: `tmp-${prev.length}-${name}`, checked: false, custom_name: name },
+      ]);
+      return { prev };
+    },
+    onError: rollback,
+    onSettled: settle,
   });
   const removeMut = useMutation({
     mutationFn: (itemKey: string) => removeCustomItem(householdId as string, itemKey),
-    onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onMutate: async (itemKey) => {
+      const prev = await snapshot();
+      qc.setQueryData<ListStateRow[]>(key, prev.filter((r) => r.item_key !== itemKey));
+      return { prev };
+    },
+    onError: rollback,
+    onSettled: settle,
   });
 
   return {
