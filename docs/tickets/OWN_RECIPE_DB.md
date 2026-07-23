@@ -67,7 +67,7 @@ Read TheMealDB terms directly; confirm supporter status; decide image strategy (
 replace). Gate for everything below.
 
 **Phase 1 — Snapshot (own the bytes)** `[terminal + network]`
-Script pulls every seed recipe via the existing `content` edge function → new `seed_recipes`
+Script pulls every seed recipe via the existing `content` edge function → new `otto_recipes`
 table (migration + RLS public-read, mirroring `seed_nutrition`) storing the **original data
 verbatim** (provenance: `themealdb`, source id, fetched_at) + a versioned JSON export in the
 repo for audit. Never destroy source data — canonical corrections live alongside it.
@@ -98,7 +98,7 @@ Canonicalization flags names with no `usdaTable` key → add real USDA records (
 the handful that matter; skip negligibles. The table stays the single source of truth.
 
 **Phase 4 — Cutover** `[terminal]`
-`recipes.queries.ts` reads `seed_recipes` instead of the content proxy (feature-flagged). The
+`recipes.queries.ts` reads `otto_recipes` instead of the content proxy (feature-flagged). The
 engine consumes canonical grams directly for seeds (parse/guards untouched — still guard user
 imports). Retire the `content` function or reduce it to image proxying. Goldens + full suite +
 T6 re-run are the gate.
@@ -125,35 +125,45 @@ data model, mapped onto Otto's existing patterns. Three laws hold it together: e
 **derivable from the layer below plus the ontology**; every layer has **exactly one writer**;
 fixes flow to the *owning* layer, never to a derived one.
 
+**Naming (founder call, 2026-07-23): the catalogue is `otto-recipes` / `otto_recipes` — named
+for the brand, not the source.** "Seed" naming would bake TheMealDB's origin into table and
+folder names forever; but the origin is a **per-record fact**, not an identity. The catalogue
+launches with ~750 records whose `provenance.source = "themealdb"` and grows past **2,000+**
+with Otto-original recipes (`provenance.source = "otto"`), every one entering through the same
+canonicalizer + critic gate. Born-canonical records (Otto originals) simply have no bronze row —
+bronze only holds snapshots of *external* sources. (`seed_nutrition` keeps its name for now —
+it's an existing production table the app reads; renaming it to `otto_nutrition` is a cheap
+optional at Phase 5, when every row is regenerated anyway.)
+
 ```
 Recipe-App/
 ├── supabase/
 │   ├── migrations/                    schema + RLS (writer: security-builder)
-│   └── seeds/                         NEW — version-controlled data (the "dbt seeds" pattern)
+│   └── otto-recipes/                  NEW — Otto's catalogue, version-controlled
 │       ├── raw/
 │       │   └── themealdb-2026-07.json   BRONZE  verbatim snapshot. Immutable audit trail.
 │       │                                        "Capture everything, transform nothing."
 │       └── canonical/
-│           └── recipes.json             SILVER  ★ THE source of truth for seed recipes.
+│           └── recipes.json             SILVER  ★ THE source of truth for Otto's catalogue.
 │                                                Git-versioned → data fixes are PR-reviewed.
 ├── tools/                             the ONLY data writers (extends engine.md Law 3)
-│   ├── snapshot-seeds.mjs                bronze:  API → raw JSON (runs once)
-│   ├── canonicalize-seeds.mjs            silver:  raw × canonicalizer agents × critic
-│   ├── deploy-seeds.mjs                  serving: canonical JSON → Supabase upsert
+│   ├── snapshot-themealdb.mjs                bronze:  API → raw JSON (runs once)
+│   ├── canonicalize-recipes.mjs            silver:  raw × canonicalizer agents × critic
+│   ├── deploy-recipes.mjs                  serving: canonical JSON → Supabase upsert
 │   ├── recompute-nutrition.mjs           gold:    canonical × usdaTable → seed_nutrition
 │   └── nutrition-breakdown.mjs           audit    (already exists — T6)
 ├── src/features/nutrition/engine/data/  ONTOLOGY (exists, unchanged) — usdaTable.json is the
 │                                        food-entity store; its keys are the join everywhere
-└── src/features/recipes/                app reads seed_recipes from Supabase (Phase 4 cutover)
+└── src/features/recipes/                app reads otto_recipes from Supabase (Phase 4 cutover)
 ```
 
 **Layers and their single writers:**
 
 | Layer | Artifact | Writer | Edited by hand? |
 |---|---|---|---|
-| Bronze (raw) | `seeds/raw/*.json` | `snapshot-seeds.mjs`, once | **Never** — provenance |
-| Silver (canonical) | `seeds/canonical/recipes.json` ★ | canonicalization pipeline; then PR-reviewed corrections | **Yes — this is THE place fixes go** |
-| Serving copy | `seed_recipes` table (Supabase) | `deploy-seeds.mjs` only | Never — derived from silver, like a build artifact |
+| Bronze (raw) | `otto-recipes/raw/*.json` | `snapshot-themealdb.mjs`, once | **Never** — provenance |
+| Silver (canonical) | `otto-recipes/canonical/recipes.json` ★ | canonicalization pipeline; then PR-reviewed corrections | **Yes — this is THE place fixes go** |
+| Serving copy | `otto_recipes` table (Supabase) | `deploy-recipes.mjs` only | Never — derived from silver, like a build artifact |
 | Gold (computed) | `seed_nutrition` table | `recompute-nutrition.mjs` only | Never — disposable, regenerate any time |
 | Ontology | `engine/data/*.json` | tools scripts (Law 3) | Via tools/PR — per-ingredient truth lives here |
 
@@ -180,7 +190,7 @@ Recipe-App/
 
 **Deliberate simplicity calls (less is more, with reasons):**
 - **One canonical file**, not 750 — diffs fine in PRs, tiny in git (~2–3 MB), one thing to load.
-- **JSONB `ingredients` column** in `seed_recipes`, not a normalized child table — the app only
+- **JSONB `ingredients` column** in `otto_recipes`, not a normalized child table — the app only
   ever reads whole recipes; zero joins; Postgres JSONB stays queryable (GIN index) if search-by-
   ingredient is ever wanted. Normalization can be added later without touching silver.
 - **No graph database** — Whisk's food graph serves recommendation at web scale; a 750-recipe
