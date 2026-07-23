@@ -86,24 +86,31 @@ edge function per TheMealDB recipe, write `[{ name, recipeId, servings, ingredie
 `--corpus` it to rank all 750+ worst-first. (USDA is blocked in cloud sessions, but the breakdown
 itself runs fully offline — the table + engine ship locally.)
 
-### T1 — Cooking-oil / medium detection  ·  HIGH impact  ·  ✅ DONE (2026-07-23)
-`applyFryingMedium` (`guards.ts`) now has a second, lower **browning-medium** tier below the deep-fry
-bath. It fires only when the ingredient list shows a real searing context — a substantial **searable
-main** (meat/fish/tofu/aubergine ≥ 150 g, *excluding* stocks/broths that merely name an animal) is
-present — and the oil pour is large (≥ 50 g total AND ≥ 20 g/serving). Then the oil counts only the
-film absorbed by the **seared food** (Bognár unbreaded ≈ 1 g/100 g, floored at 10 g), not the whole
-pour. This deliberately does NOT read cooking steps — the engine never does (contract) — it infers the
-context from the list. Butter is intentionally left out of this tier (its own analysis pending).
+### T1 — Cooking-oil / medium detection  ·  HIGH impact  ·  ⚠️ ATTEMPTED + REVERTED — needs curated facts
+A list-inference version was built and **reverted after an adversarial review found a BLOCKER.** Record
+so nobody re-tries the same dead end:
 
-**Why the gate matters (the risk the ticket names):** oil with no seared main — a dressing, aglio e
-olio, a drizzle — is still counted whole, so genuinely-eaten oil is never under-counted. A 1–2 tbsp
-sauté stays whole too (below both floors). Deep-fry baths are unchanged (still ~6 %-of-submerged-food).
+**What was tried:** a second "browning-medium" tier in `applyFryingMedium` that fired when a substantial
+**searable main** (meat/fish ≥ 150 g) was present AND the oil pour was large (≥ 50 g total, ≥ 20 g/serving),
+reducing the oil to the film the seared food absorbs (Bognár ≈ 1 g/100 g).
 
-**Result:** Irish stew's 120 ml browning oil drops from 244 → ~44 kcal/serving (110 g → 20 g absorbed).
-(The full stew still reads high until T5/T3 fix the raw ground-lamb match — T1 only owns the oil.)
-**Goldens added** (`golden.test.mjs`): "a browning pour is a medium, not eaten oil" and the inverse,
-"the SAME oil with no seared main is eaten in full (dressing)". Whole golden + laws suites stay green.
-Verify with the T6 tool: `--demo` shows the oil line flagged `frying-absorbed`.
+**Why it fails (the ticket's own stated risk, realized):** the gate can only check that a searable main
+*exists in the list* — it cannot check that the oil actually fried it, because the engine never reads
+cooking steps (hard contract). So a **curry / braise / stir-fry** — where the oil blooms into a sauce
+that IS eaten — has its oil gutted to the 10 g floor and ships as **confidence "high", basis "measured",
+doubt ≈ 0** (the reduction hides its own uncertainty because doubt is mass-weighted). That is an
+under-count laundered as a measured number — the exact honesty-law violation T1 was meant to prevent.
+A grilled-chicken-salad-with-vinaigrette hits the same trap (≈ −360 kcal/serving of eaten oil). The
+ticket's premise ("browning oil mostly stays in the pan, even in a stew") is itself contestable and is
+**not decidable from the ingredient list.**
+
+**Recommended path (needs a decision):** do it the way the engine already handles the other
+un-inferable facts (`servings`, `cooked`) — a **curated per-recipe `frying` flag in `recipeFacts.json`**:
+a human reads the instructions and marks which oil line is a discarded frying medium. Deterministic,
+exact, zero false positives — but **seed-only** (user/imported recipes keep oil counted whole, the
+honest over-count, never a laundered under-count). Deep-fry *baths* stay handled by the existing tier.
+Alternative (bigger): thread `steps` into the engine for a deterministic keyword scan — a real contract
+change. **Decision for Juan:** curated-facts flag (recommended) vs. leave T1 as bath-only vs. steps.
 
 ### T2 — Weight-layer audit + expand (the "MFP model")  ·  HIGH  ·  [terminal]
 Grow `pieceWeights.json` (79) and promote common `EACH_G`/`PIECE_G` estimates in `parse.ts` to

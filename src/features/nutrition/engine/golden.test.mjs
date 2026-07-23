@@ -90,38 +90,6 @@ test("golden: beef stew (serves 4)", () => {
   assert.ok(out.protein_g > out.fat_g, "lean stew is protein-dominant");
 });
 
-test("golden: a browning pour is a medium, not eaten oil (T1)", () => {
-  // 1 kg beef browned in 100 ml oil, serves 4. The oil sears the meat and mostly
-  // stays in the pan — counting the whole 100 g pour would add ~225 kcal/serving
-  // of pure oil to the card. It must add only its absorbed film, yet not zero.
-  const base = [
-    { measure: "1 kg", name: "beef" },
-    { measure: "2", name: "onions" },
-    { measure: "3", name: "carrots" },
-  ];
-  const withOil = compute([...base, { measure: "100 ml", name: "olive oil" }], 4);
-  const noOil = compute(base, 4);
-  const added = withOil.kcal - noOil.kcal;
-  assert.ok(added > 0, "some oil is absorbed and eaten — never zero");
-  assert.ok(added < 80, `a browning medium must not add a whole pour (~225): +${added}`);
-});
-
-test("golden: the SAME oil with no seared main is eaten in full (dressing)", () => {
-  // Guards the gate from the other side: 100 ml oil with greens + vinegar and NO
-  // main to sear is a dressing — every drop is eaten, so it is counted whole and
-  // must dominate the (otherwise near-zero) salad.
-  const dressing = compute(
-    [
-      { measure: "200 g", name: "lettuce" },
-      { measure: "3 tbsp", name: "vinegar" },
-      { measure: "100 ml", name: "olive oil" },
-    ],
-    2
-  );
-  assert.ok(dressing, "a dressed salad should compute");
-  assert.ok(dressing.fat_g > 30, `oil in a dressing is eaten whole, got ${dressing.fat_g} g fat`);
-});
-
 test("golden: banana smoothie (serves 1)", () => {
   const out = compute(
     [
