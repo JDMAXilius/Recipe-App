@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  Linking,
   Pressable,
   ScrollView,
   Text as RNText,
@@ -10,18 +11,25 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, OttoArt, useToast } from '@/shared/ui';
+import { Button, Text, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
+import { useClub } from './club.purchases';
 
-// Otto Club paywall — membership surface, FRONTEND ONLY (packet). Ship-honest
-// pre-IAP state: purchases aren't live, so the CTA says "opens soon", there is
-// NO Restore link (a dead one is a trust bug), no remind-me toggle (no trial
-// exists yet), and the charge line stays conditional ("you'd be charged").
-// Every date is computed from real "now" — never hardcoded. When StoreKit /
-// RevenueCat lands: real CTA, Restore, and "you'd" → "you'll".
+// Otto Club paywall. Three states, decided by RevenueCat at runtime:
+//  · member  — already subscribed: thank-you card + manage link, no sell.
+//  · live    — offerings loaded: real prices/trial from the store, purchase +
+//              Restore + the Terms/Privacy links App Review requires.
+//  · fallback — offerings unavailable (products not configured, offline):
+//              the honest "opens soon" state below. No dead buy buttons.
+// Every date is computed from real "now" — never hardcoded. The constants are
+// display placeholders for the fallback only; live mode prices come from the
+// store.
 const PRICE_YEAR = 29.99;
 const PRICE_MONTH = 4.99;
 const TRIAL_DAYS = 5;
+const TERMS_URL = 'https://ottosapp.com/terms';
+const PRIVACY_URL = 'https://ottosapp.com/privacy';
+const MANAGE_URL = 'https://apps.apple.com/account/subscriptions';
 
 const prettyDate = (date: Date) =>
   date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
@@ -31,19 +39,51 @@ export function OttoClubScreen() {
   const insets = useSafeAreaInsets();
   const { show } = useToast();
   const [plan, setPlan] = useState<'year' | 'month'>('year'); // annual preselected
+  const club = useClub();
+
+  // Live mode reads price/trial from the store; fallback keeps the placeholders.
+  // In live mode the trial is ONLY what the store's intro offer says — if the
+  // product has no free trial we must not advertise one (trust + App Review).
+  const priceYear = club.yearly?.product.price ?? PRICE_YEAR;
+  const priceMonth = club.monthly?.product.price ?? PRICE_MONTH;
+  const priceYearText = club.yearly?.product.priceString ?? `$${PRICE_YEAR}`;
+  const priceMonthText = club.monthly?.product.priceString ?? `$${PRICE_MONTH}`;
+  const trialDays = club.live ? club.trialDays : TRIAL_DAYS;
+  const hasTrial = trialDays != null;
 
   const now = new Date();
-  const chargeDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + TRIAL_DAYS);
+  const chargeDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (trialDays ?? 0));
   // reminder lands the day before the charge — "your trial ends tomorrow"
-  const reminderDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + TRIAL_DAYS - 1);
+  const reminderDay = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + (trialDays ?? 0) - 1,
+  );
 
-  const monthlyEquivalent = (PRICE_YEAR / 12).toFixed(2);
-  const yearlyIfMonthly = (PRICE_MONTH * 12).toFixed(2);
+  const monthlyEquivalent = (priceYear / 12).toFixed(2);
+  const yearlyIfMonthly = (priceMonth * 12).toFixed(2);
   // savings computed ONLY against our own real monthly price — no fake anchors
-  const savePct = Math.round((1 - PRICE_YEAR / (PRICE_MONTH * 12)) * 100);
+  const savePct = Math.round((1 - priceYear / (priceMonth * 12)) * 100);
 
   const notifyMe = () =>
     show("You're on the list — Otto will holler when the Club opens.", 'success');
+
+  const selectedPkg = plan === 'year' ? club.yearly : club.monthly;
+  const onBuy = async () => {
+    if (!selectedPkg) return;
+    const result = await club.buy(selectedPkg);
+    if (result === 'ok') show('Welcome to the Club — everything is unlocked.', 'success');
+    else if (result === 'error')
+      show("The purchase didn't go through. You weren't charged.", 'error');
+    // cancelled: user closed the sheet on purpose, no toast nagging
+  };
+  const onRestore = async () => {
+    const restored = await club.restore();
+    show(
+      restored ? 'Membership restored — welcome back.' : 'No membership found on this Apple ID.',
+      restored ? 'success' : 'info',
+    );
+  };
 
   const BENEFITS: { icon: keyof typeof Ionicons.glyphMap; text: string }[] = [
     { icon: 'bookmark', text: 'Unlimited saved recipes — your whole collection, no caps' },
@@ -62,7 +102,9 @@ export function OttoClubScreen() {
     {
       icon: 'star',
       date: prettyDate(chargeDay),
-      body: `You'd be charged $${PRICE_YEAR} for the year. Cancel before then, pay nothing.`,
+      body: `${club.live ? "You'll" : "You'd"} be charged ${
+        plan === 'year' ? `${priceYearText} for the year` : `${priceMonthText} for the month`
+      }. Cancel before then, pay nothing.`,
     },
   ];
 
@@ -105,9 +147,11 @@ export function OttoClubScreen() {
           ))}
         </View>
 
-        {/* Trial timeline — real computed dates, dotted connector */}
+        {/* Trial timeline — real computed dates, dotted connector. Hidden when
+            the live product carries no free trial: promising one is a trust bug. */}
+        {hasTrial ? (
         <View style={{ gap: space[2] }}>
-          <Text role="title">How your {TRIAL_DAYS} free days work</Text>
+          <Text role="title">How your {trialDays} free days work</Text>
           <View>
             {TIMELINE.map((step, i) => {
               const isCharge = i === TIMELINE.length - 1;
@@ -132,59 +176,112 @@ export function OttoClubScreen() {
             })}
           </View>
         </View>
+        ) : null}
 
         {/* Price block — annual preselected, math shown both directions */}
         <View style={{ gap: space[2] }}>
           <PlanCard
             active={plan === 'year'}
             onPress={() => setPlan('year')}
-            name={`Yearly — $${PRICE_YEAR}/year`}
+            name={`Yearly — ${priceYearText}/year`}
             math={`$${monthlyEquivalent} a month. Save ${savePct}% vs monthly.`}
             badge={`SAVE ${savePct}%`}
+            note={hasTrial ? `${trialDays} days free first · Cancel anytime` : 'Cancel anytime'}
           />
           <PlanCard
             active={plan === 'month'}
             onPress={() => setPlan('month')}
-            name={`Monthly — $${PRICE_MONTH}/month`}
+            name={`Monthly — ${priceMonthText}/month`}
             math={`$${yearlyIfMonthly} a year if you stay all 12 months.`}
+            note={hasTrial ? `${trialDays} days free first · Cancel anytime` : 'Cancel anytime'}
           />
         </View>
 
         <Text role="caption">
-          No charge today. {TRIAL_DAYS} days free, then{' '}
-          {plan === 'year' ? `$${PRICE_YEAR}/year` : `$${PRICE_MONTH}/month`} starting{' '}
-          {prettyDate(chargeDay)}. That&apos;s the whole price — one tier, no add-ons.
+          {hasTrial
+            ? `No charge today. ${trialDays} days free, then ${
+                plan === 'year' ? `${priceYearText}/year` : `${priceMonthText}/month`
+              } starting ${prettyDate(chargeDay)}. That's the whole price — one tier, no add-ons.`
+            : `${
+                plan === 'year' ? `${priceYearText}/year` : `${priceMonthText}/month`
+              }, billed through your Apple ID. That's the whole price — one tier, no add-ons.`}
         </Text>
 
-        {/* Opens-soon banner + notify link (honest pre-IAP state, no primary CTA) */}
-        <View style={{ gap: space[2], alignItems: 'center' }}>
-          <View style={styles.banner}>
-            <View style={styles.bannerHead}>
-              <Ionicons name="time-outline" size={16} color={colors.terracotta} />
-              <Text role="label">Otto Club opens soon</Text>
+        {club.member ? (
+          /* Already in — no sell, just thanks + where to manage */
+          <View style={{ gap: space[2], alignItems: 'center' }}>
+            <View style={styles.banner}>
+              <View style={styles.bannerHead}>
+                <Ionicons name="paw" size={16} color={colors.terracotta} />
+                <Text role="label">You&apos;re in the Club</Text>
+              </View>
+            </View>
+            <Pressable
+              onPress={() => Linking.openURL(MANAGE_URL)}
+              accessibilityRole="link"
+              accessibilityLabel="Manage subscription"
+              style={styles.notify}
+            >
+              <RNText style={styles.notifyText}>Manage subscription</RNText>
+            </Pressable>
+          </View>
+        ) : club.live ? (
+          /* Live store — real purchase, Restore, and the links App Review requires */
+          <View style={{ gap: space[3] }}>
+            <Button
+              title={hasTrial ? `Start my ${trialDays} free days` : 'Join Otto Club'}
+              variant="primary"
+              onPress={onBuy}
+              loading={club.purchasing}
+            />
+            <Pressable
+              onPress={onRestore}
+              accessibilityRole="button"
+              accessibilityLabel="Restore purchases"
+              style={styles.notify}
+            >
+              <RNText style={styles.notifyText}>Restore purchases</RNText>
+            </Pressable>
+            <View style={styles.legalRow}>
+              <Pressable onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link">
+                <RNText style={styles.legalLink}>Terms of Service</RNText>
+              </Pressable>
+              <RNText style={styles.legalDot}>·</RNText>
+              <Pressable onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link">
+                <RNText style={styles.legalLink}>Privacy Policy</RNText>
+              </Pressable>
             </View>
           </View>
-          <RNText style={styles.bannerNote}>
-            Memberships aren&apos;t on sale yet — this is the menu, not the bill.
-          </RNText>
-        </View>
-
-        <Pressable
-          onPress={notifyMe}
-          accessibilityRole="button"
-          accessibilityLabel="Notify me when Otto Club opens"
-          style={styles.notify}
-        >
-          <RNText style={styles.notifyText}>Notify me when it opens</RNText>
-        </Pressable>
+        ) : (
+          /* Fallback — store unavailable, stay honest (no dead buy button) */
+          <View style={{ gap: space[2], alignItems: 'center' }}>
+            <View style={styles.banner}>
+              <View style={styles.bannerHead}>
+                <Ionicons name="time-outline" size={16} color={colors.terracotta} />
+                <Text role="label">Otto Club opens soon</Text>
+              </View>
+            </View>
+            <RNText style={styles.bannerNote}>
+              Memberships aren&apos;t on sale yet — this is the menu, not the bill.
+            </RNText>
+            <Pressable
+              onPress={notifyMe}
+              accessibilityRole="button"
+              accessibilityLabel="Notify me when Otto Club opens"
+              style={styles.notify}
+            >
+              <RNText style={styles.notifyText}>Notify me when it opens</RNText>
+            </Pressable>
+          </View>
+        )}
 
         {/* How do I cancel — answered inline, not a FAQ link */}
         <View style={styles.card}>
           <Text role="title">How do I cancel?</Text>
           <Text role="caption">
-            Open Settings on your iPhone → tap your name → Subscriptions → Otto → Cancel. Do it any
-            time before {prettyDate(chargeDay)} and you pay nothing. You keep access for all{' '}
-            {TRIAL_DAYS} days either way.
+            {hasTrial
+              ? `Open Settings on your iPhone → tap your name → Subscriptions → Otto → Cancel. Do it any time before ${prettyDate(chargeDay)} and you pay nothing. You keep access for all ${trialDays} days either way.`
+              : 'Open Settings on your iPhone → tap your name → Subscriptions → Otto → Cancel. You keep access until the end of the period you already paid for.'}
           </Text>
         </View>
       </ScrollView>
@@ -198,12 +295,14 @@ function PlanCard({
   name,
   math,
   badge,
+  note,
 }: {
   active: boolean;
   onPress: () => void;
   name: string;
   math: string;
   badge?: string;
+  note: string;
 }) {
   return (
     <Pressable
@@ -228,7 +327,7 @@ function PlanCard({
         ) : null}
       </View>
       <Text role="caption">{math}</Text>
-      <Text role="caption">{TRIAL_DAYS} days free first · Cancel anytime</Text>
+      <Text role="caption">{note}</Text>
     </Pressable>
   );
 }
@@ -318,4 +417,18 @@ const styles = {
     fontWeight: '600',
     color: colors.terracotta,
   } as TextStyle,
+
+  legalRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: space[2],
+  } as ViewStyle,
+  legalLink: {
+    ...type.meta,
+    fontVariant: ['tabular-nums'],
+    color: colors.inkSoft,
+    textDecorationLine: 'underline',
+  } as TextStyle,
+  legalDot: { ...type.meta, fontVariant: ['tabular-nums'], color: colors.inkSoft } as TextStyle,
 };

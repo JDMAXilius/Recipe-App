@@ -5,6 +5,7 @@
 // auth.queries.ts. useAuth() is the cross-feature hook every other feature
 // consumes (feature-module.md allowlist).
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import Purchases from 'react-native-purchases';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/shared/supabase/client';
 import type { AuthMode, SocialProvider } from './social';
@@ -53,6 +54,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const user = session?.user ?? null;
+
+  // Keep RevenueCat's app user id in step with the Supabase user, so the
+  // membership webhook can map subscription events to accounts. logOut throws
+  // if already anonymous — harmless, swallow.
+  const uid = user?.id;
+  useEffect(() => {
+    (uid ? Purchases.logIn(uid) : Purchases.logOut()).catch(() => {});
+  }, [uid]);
 
   const value = useMemo<AuthValue>(
     () => ({

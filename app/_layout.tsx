@@ -1,6 +1,7 @@
 import 'react-native-get-random-values'; // polyfill globalThis.crypto on native (share tokens)
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Lora_400Regular, Lora_600SemiBold, Lora_700Bold } from '@expo-google-fonts/lora';
@@ -16,8 +17,15 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60_000, retry: 1 } },
 });
 
+// RevenueCat init at module scope, not in an effect: child effects (AuthProvider's
+// Purchases.logIn) run before the root layout's would, so configure must beat render.
+// Test Store key — swap for the appl_ production key before TestFlight.
+if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+Purchases.configure({ apiKey: 'test_oSJcFKqwFPgFgcamzVtQcfdrYrV' });
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Lora_400Regular, Lora_600SemiBold, Lora_700Bold });
+
   if (!fontsLoaded) return <Splash />;
 
   return (
