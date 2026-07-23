@@ -137,8 +137,17 @@ This is where Otto is genuinely behind Edamam/MFP and where accuracy gains actua
 key AND `lamb leg` both wrongly resolved to **"Lamb, ground, raw"** (282 kcal, 23.4 g fat) — a fatty
 ground-meat default for what is usually a stew/roast cut. Both now point to the leanest realistic whole
 cut already in the table, **"Lamb, foreshank, separable lean and fat, trimmed to 1/4″ fat" (fdcId
-172481, 201 kcal, 13.4 g fat, 18.9 g protein)** — a real record, so provenance holds. `lamb mince` is
-deliberately LEFT as ground (koftas/burgers need it). Irish stew's lamb line: 1410 → **1005 kcal/srv**.
+172481, 201 kcal, 13.4 g fat, 18.9 g protein)** — a real record, so provenance holds. Irish stew's
+lamb line: 1410 → **1005 kcal/srv**.
+
+**Ground lamb kept fatty across ALL spellings (fix from adversarial review):** re-pointing bare `lamb`
+first regressed `minced lamb`/`ground lamb`, which have no own key and strip via QUALIFIER to `lamb` —
+so they wrongly hit the lean foreshank (a fatty-item under-count). Added explicit `minced lamb` and
+`ground lamb` keys → ground (174370, 282 kcal); with `lamb mince` that covers every common spelling.
+Only bare/`diced`/`leg` lamb (real stew/roast cuts) now take the leaner default. (Beef/pork never had
+this hole — they already carry explicit `minced …`/`ground …` keys, which is why their re-point was
+safe and lamb's was not.) Known pre-existing gap, unrelated: `"leg of lamb"` word order resolves to
+nothing (only `lamb leg` is keyed) — a coverage-ticket item, not this fix.
 The gap to the ticket's ~230 target is in the honest (under-count) direction; a truly generic
 "trimmed retail cuts" record (~230) isn't in the bundled table and would need a USDA lookup to add.
 
