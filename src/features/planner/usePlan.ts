@@ -110,7 +110,15 @@ export function usePlan(): UsePlan {
   const cookedMut = useMutation({
     mutationFn: ({ id, cooked }: { id: number; cooked: boolean }) =>
       setPlanEntryCooked(id, cooked),
-    onSuccess: invalidate,
+    // Optimistic like add/remove/swap — the flame + strike-through must flip on
+    // tap, not after the round-trip (that lag read as "cooked doesn't work").
+    onMutate: async ({ id, cooked }: { id: number; cooked: boolean }) => {
+      const ctx = await snapshot();
+      qc.setQueryData<PlanEntry[]>(key, ctx.prev.map((e) => (e.id === id ? { ...e, cooked } : e)));
+      return ctx;
+    },
+    onError: (_e, _v, ctx) => rollback(ctx),
+    onSettled: invalidate,
   });
 
   return {
