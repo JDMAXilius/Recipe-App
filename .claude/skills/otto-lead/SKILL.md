@@ -11,14 +11,16 @@ The founder reviews via git afterward. Exception: destructive/irreversible actio
 scope changes still get a question.
 
 ## Operating mode
-- **Decide + document.** Every non-obvious call gets a numbered entry in `docs/REDESIGN_NOTES.md`
-  (continue the A/B/C/P numbering). Rejected directions get logged too, so you never loop.
+- **Decide + document.** Every non-obvious call gets a numbered entry in
+  `docs/history/REDESIGN_NOTES.md` (continue the A/B/C/P numbering). Rejected directions get
+  logged too, so you never loop.
 - **Ground design in Mobbin.** Before remaking any surface, run a Mobbin research pass
   (subagent, ~10-16 searches, comparison table + patterns + synthesis). Principles, not pixels.
 - **Subagents fan out** research/QA; **Figma `use_figma` calls stay strictly sequential.**
 - **Small commits, push to main frequently** (fast-forward only; never force-push).
   A cloud co-pilot session also pushes to main — ALWAYS `git fetch && git pull --rebase` first.
-  It hands work down via `docs/TERMINAL_TICKET_*.md`; execute tickets in their stated order.
+  It hands work down via `docs/tickets/*.md` (the active board; historical tickets are
+  archived in `docs/history/TERMINAL_TICKET_*.md`); execute tickets in their stated order.
 - **Verify everything twice:** Chrome (localhost:8081, mobile viewport) AND the iOS simulator
   ("iPhone 17 Pro Max"). The native dev build is `com.otto.recipes` (launch it, not Expo Go).
 - **Adversarial QA** after each major surface: spawn a read-only QA subagent, fix P1s
@@ -38,15 +40,18 @@ scope changes still get a question.
 - Attribution is immutable: imported recipes keep source name + live link forever.
 
 ## Design system (locked)
-- **Light only.** Tokens via `useTheme()` — zero hardcoded colors/spacing. Terracotta accent
-  #C4562E; serif display = bundled Lora; semantic ink rule: terracotta = computed/interactive,
-  ink = authored. JS/JSX only (no TS). Alert.alert is a web no-op → two-tap arm or confirm().
+- **Light only.** Tokens from `src/shared/theme/` — zero hardcoded colors/spacing. Terracotta
+  accent #C4562E; serif display = bundled Lora; semantic ink rule: terracotta =
+  computed/interactive, ink = authored. **TypeScript strict** (the v2 app is TS; the old
+  "JS-only" rule died with v1). Alert.alert is a web no-op → two-tap arm or confirm().
 - Reanimated LAYOUT animations break web — use RN Animated for fades; core shared-values OK.
 - Otto mascot appears at emotional beats, never crowding dense content. Paw = save mark.
 - Every tappable ≥44pt (or hitSlop) with an accessibilityLabel.
-- Authoritative docs: `docs/DESIGN_SYSTEM.md` (Part B), `docs/MASCOT.md`, `docs/SCREEN_MAP.md`,
-  `docs/OTTO_V2_ROADMAP.md`. Figma DS file: X1eGT54CTwtowHNve30vvE — keep it in sync (new page
-  per shipped batch, wireframes in DS style).
+- Authoritative docs: `docs/reference/DESIGN_SYSTEM.md` (Part B), `docs/reference/MASCOT.md`,
+  `docs/reference/SCREEN_MAP.md` (roadmap history: `docs/history/OTTO_V2_ROADMAP.md`). Data
+  rules: `docs/reference/contracts/data-ownership.md` — one source of truth per data kind;
+  never put an ingredient name next to a number in a `.ts` file. Figma DS file:
+  X1eGT54CTwtowHNve30vvE — keep it in sync (new page per shipped batch, wireframes in DS style).
 
 ## Asset pipeline (Otto art)
 - Generate with Higgsfield `generate_image`, model `nano_banana_pro`, ALWAYS passing the hero
@@ -58,20 +63,22 @@ scope changes still get a question.
   squish a painting; cutouts beat background-matching for seamless cards.
 
 ## Verification recipe
-- Web: expo dev server :8081; backend :5001 (`cd backend && npm run dev`); e2e user
+- Web: expo dev server :8081 (`npx expo start`). **There is no backend to run** — v2 is
+  Supabase-direct (the old Express `backend/` is archived on `v1-legacy`). e2e user
   claude-e2e-a@example.com / test-password-123 (token via Supabase password grant).
 - Sim: `xcrun simctl openurl ... "exp://<LAN-IP>:8081/--/<path>"` for Expo Go, or launch
   `com.otto.recipes`. Screenshots via `simctl io ... screenshot`.
 - Native rebuilds: PATH needs `$HOME/.gem/ruby/2.6.0/bin` (CocoaPods on system ruby — see
   memory `otto-dev-build`). Splash/plugin changes need `expo prebuild -p ios --clean` first.
 
-## Key code map
-- Deterministic libs: `mobile/lib/{ingredientParser,stepEnrich,cookSession,stepAction,shoppingList,week}.js`
-- Services: `mobile/services/{mealAPI,userRecipes}.js` (user ids = `u-<dbId>`)
-- Backend: `backend/src/server.js` + `src/lib/importRecipe.js` (SSRF-guarded JSON-LD import),
-  Drizzle schema `src/db/schema.js`. **NEVER `drizzle-kit push`** — it hangs headless and the
-  journal is out of sync. Schema ships via **idempotent scripts in `backend/scripts/`** run
-  against prod (`b0-hardening`, `b1-schema`, `s2-share-schema`, `s3-collab-schema`).
+## Key code map (v2 — `mobile/` and `backend/` are GONE, archived on `v1-legacy`)
+- Deterministic engines: `src/features/nutrition/engine/{parse,lookup,compute,guards}.ts`,
+  `src/features/cook/{session,stepEnrich,stepAction}`, `src/features/planner/{week,shoppingList}`,
+  `src/features/recipes/recipe.scale.ts` (user ids = `u-<dbId>`, `src/types/ids.ts`)
+- Data layer: per-feature `*.queries.ts` (TanStack Query) → Supabase JS client directly
+- Server side: `supabase/functions/{content,import-recipe,generate-recipe,resolve-nutrition,delete-account}`
+  (import-recipe is the SSRF-guarded JSON-LD import). Schema = timestamped SQL in
+  `supabase/migrations/` (RLS in the same migration; regenerate `src/types/database.ts` after)
 - Cadence: after each surface — verify web+sim → commit (trailer:
   `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`) → push → update REDESIGN_NOTES.
 
@@ -93,8 +100,10 @@ the only measure being applied — code written. Completion means *behaviour obs
 - **A health check is NOT a deploy check.** `/api/health` returned 200 through all three stale
   days. Probe a route from the *newest* feature: unauthenticated `GET /api/lists/<anything>` →
   **401 JSON** when current, **404 HTML** when stale. Check the body, not the status.
-- **Any new table in `schema.js` needs a matching script in `backend/scripts/` run against prod**,
-  or it works locally and silently 500s in production. Three features died on this.
+- **Schema declared ≠ schema live** (v1 lesson, three features died on it; v2 form): a new
+  table exists only when its migration in `supabase/migrations/` is APPLIED to the project and
+  `src/types/database.ts` regenerated — a migration file sitting in the repo works locally
+  and silently fails in production.
 - **TestFlight: uploading is not distributing.** `eas submit` succeeds and the build sits there.
   "Otto Insiders" has **automatic distribution OFF**, so builds 20–22 processed VALID and reached
   nobody. Assign the build to the group (ASC API or the TestFlight tab) or no email is ever sent.
@@ -114,5 +123,7 @@ They meet in `parseIngredient.js`: line → `{qty,unit,item,grams}` → × USDA 
 cache this product is built on. The standing rule it bought: **read a vendor's cache/retention
 terms BEFORE writing the adapter** — Otto was built cache-first and the licence was read after.
 TheMealDB's own terms: the test key `"1"` is for development/education, *"you must become a
-supporter if releasing publicly on an appstore"* — the paid key must move server-side before
-public release (`mealAPI.js` still calls v1 direct from the bundle).
+supporter if releasing publicly on an appstore"* — **done in v2**: the supporter key lives
+server-side in the `content` edge function; the bundle never sees it. (Planned next: the
+`otto-recipes` migration — `docs/tickets/OWN_RECIPE_DB.md` — removes the runtime dependency
+entirely.)

@@ -14,6 +14,9 @@ export interface Row {
   estimated?: boolean;
   fryingMedium?: boolean;
   batchCondiment?: boolean;
+  // Set by buildContext from recipeFacts `frying`: a human marked this line as a
+  // browning/frying medium that mostly stays in the pan. See applyFryingMedium.
+  curatedFrying?: boolean;
 }
 
 // ── Raw-vs-cooked ambiguity (usdaProvider.js) ────────────────────────────────
@@ -53,17 +56,7 @@ export function hasAmbiguousGrain(list: { name?: string | null; measure?: string
 // A fat line this large cannot be an eaten ingredient: no 4-serving dish
 // contains 250 g of oil as food. Above this we read it as the frying bath.
 const FRYING_MEDIUM_MIN_G = 250;
-const FAT_RE = /\b(oils?|ghee|lard|shortening|dripping|tallow|margarine)\b/i;
-// Butter is matched as a bare dairy-butter word, ruling out the EATEN foods the
-// WORD rides on — peanut/nut butter, butter beans, buttermilk, butternut. It is
-// used ONLY to keep butter out of the fried-food denominator (it is a fat, not
-// food being fried); butter is NOT a browning medium — see applyFryingMedium.
-const BUTTER_RE = /\bbutter\b/i;
-const BUTTER_NOT =
-  /\b(peanut|nut|almond|cashew|hazelnut|apple|cocoa|shea|body|butter ?beans?|buttermilk|butternut|butterhead|butterscotch)\b/i;
-const isButterMedium = (name: string) => BUTTER_RE.test(name) && !BUTTER_NOT.test(name);
-const isFatLine = (name: string) => FAT_RE.test(name) || isButterMedium(name);
-
+const FAT_RE = /\b(oils?|ghee|lard|shortening|dripping|tallow)\b/i;
 // Grams of fat absorbed per 100 g of food fried. Bognár (2002), BFE-R-02-03 —
 // the table EuroFIR and FAO both cite: breaded meat/fish/vegetables 5–6,
 // unbreaded 0–1, doughnuts/fried dough ~10. We use one conservative middle
@@ -78,104 +71,55 @@ const FAT_ABSORBED_PER_100G = 6;
 // 60 g of fat in ONE portion is already extreme as an eaten ingredient.
 const FRYING_MEDIUM_MIN_G_PER_SERVING = 60;
 
-// T1 (Irish Stew, 2026-07-23). The bath rule above catches DEEP fries but misses
-// the more common leak: a MODERATE pour used to BROWN. Irish stew's "120ml olive
-// oil" (110 g) is 976 uneaten kcal, yet at 8 servings it is only 13.75 g/serving
-// — far under any bath threshold, and LOWERING the per-serving bar can't fix it
-// without also zeroing a 120 g jar of vinaigrette. The honest signal is not the
-// oil's size but whether there is something to brown IN it: substantial MEAT. So
-// a moderate fat pour counts as a browning medium only when a real quantity of
-// meat/fish is present. A dressing, aglio e olio, hummus/pesto, an oil-poach, a
-// Mediterranean bean-in-oil braise (Fasoliyyeh, Gigantes) — none carry browning
-// meat, so their oil stays fully eaten, exactly as the honesty constraint demands.
-const MEAT_RE =
-  /\b(beef|mince|steak|lamb|mutton|pork|bacon|ham|gammon|sausages?|chorizo|pancetta|prosciutto|salami|veal|goat|venison|chicken|turkey|duck|quail|poultry|meat|fish|salmon|cod|tuna|haddock|tilapia|barramundi|snapper|mackerel|trout|prawns?|shrimps?|squid|octopus|scallops?|tofu|paneer)\b/i;
-// Stock/broth/sauce/paste carry the meat word but no meat to brown.
-const MEAT_NOT = /\b(stock|broth|bouillon|consomm|sauce|paste|powder|cube)\b/i;
-const MEAT_MIN_G = 100;
-
-// T1-followup (marinade/roast, NOT this ticket): unquantified proteins — "1
-// Chicken", "1 Lamb Leg", "2 x 400g barramundi" — parse to —g, so meatPresent
-// stays false and the oil is (correctly, for now) left whole. Those dishes
-// (53103, 53280, 53437) mistake a MARINADE for a browning medium, a different
-// problem from browning-vs-eaten; left for a future ticket.
-
-// Liquids do not absorb frying oil, so they must not pad the food mass the bath
-// model divides the oil across. Mulukhiyah's 1 L water inflated the denominator
-// enough to force a genuine oil-braise down to the 14 g browning film. (T1 rev.)
-const LIQUID_RE = /\b(water|stock|broth|bouillon|consomm[eé]|wine|beer|ale|lager|cider|milk|cream|buttermilk|juice|vinegar)\b/i;
-
-// A moderate pour is a BROWNING medium only in a hot meat braise/sear. The same
-// pour in a cold DRESSED or finished-starch dish is eaten vinaigrette/finishing
-// fat, and slashing that is a false positive on eaten calories (REFUTER, T1
-// rev). Ingredient-line signals of that non-browning context:
-//   • a vinaigrette/dressing — vinegar, mustard-emulsion, an explicit dressing word;
-//   • a salad base — raw salad leaves/veg (spinach, lettuce, rocket, cucumber, avocado…);
-//   • a starch that DOMINATES the dish (potato/rice/pasta/quinoa the largest food
-//     line) — a dressed pasta/potato salad or a finished mash/risotto, not a braise.
-// Irish stew keeps browning: its lamb dominates (no starch base) and it carries
-// no dressing or salad line. Mulukhiyah keeps browning too: jute (a cooked green)
-// is not a salad leaf and does not match the starch base.
-const DRESSING_RE = /\b(vinegar|vinaigrette|dressing|mustard)\b/i;
-const SALAD_VEG_RE =
-  /\b(lettuce|spinach|rocket|arugula|cucumber|avocado|watercress|mesclun|mixed greens|salad leaves)\b/i;
-const STARCH_RE =
-  /\b(potato(?:es)?|rice|pasta|spaghetti|macaroni|noodles?|penne|farfalle|fusilli|rigatoni|tagliatelle|fettuccine|linguine|couscous|quinoa|bulgur|orzo|barley|farro|gnocchi)\b/i;
-// What a browning film actually leaves behind: ~1 tbsp clings to the food, the
-// rest is pan residue or renders off (USDA FNDDS retention; NUTRITION_ACCURACY
-// T1). Unlike the deep-fry model this is a flat cap — a browning pour is a thin
-// medium, not a bath the food is immersed in, so absorption does not scale with
-// the whole food mass.
-const FRY_ABSORBED_G = 14;
+// ── Curated browning/frying medium (recipeFacts `frying`) ────────────────────
+// The bath thresholds above only catch a submerged deep-fry. The commoner case —
+// a stew or curry that browns a large main in "120 ml oil", most of which stays
+// in the pan — sits FAR below the bath bar and so was counted whole (976 kcal of
+// uneaten oil in one Irish stew). It CANNOT be inferred from the ingredient list:
+// the same 120 ml oil is discarded pan residue in one dish and an eaten sauce
+// base in the next, and only the instructions say which — which the engine never
+// reads (contract). So this is HUMAN-curated per recipe, exactly like `servings`
+// and `cooked`: a person marks the line, and only then is it treated as a medium.
+// No threshold, no list heuristic, no false positives. Count only the film the
+// food retains — a small amount that scales gently with servings, floored so a
+// genuine pour never reads as near-zero. (Deep-fry baths still need no curation;
+// the bath tier catches those for every recipe.)
+const FRYING_MEDIUM_ABSORBED_G_PER_SERVING = 4;
+const FRYING_MEDIUM_ABSORBED_FLOOR_G = 10;
 
 export function applyFryingMedium(rows: Row[], perServing = 4): void {
   const servings = Math.max(1, perServing);
-  const bathMin = Math.min(FRYING_MEDIUM_MIN_G, FRYING_MEDIUM_MIN_G_PER_SERVING * servings);
-  const meatPresent = rows.some(
-    (r) => (r.parsed.grams ?? 0) >= MEAT_MIN_G && MEAT_RE.test(r.name || "") && !MEAT_NOT.test(r.name || "")
+  const bathThreshold = Math.min(FRYING_MEDIUM_MIN_G, FRYING_MEDIUM_MIN_G_PER_SERVING * servings);
+  // A large FAT_RE line reads as a submerged deep-fry bath (the pre-existing tier).
+  const isBathOil = (r: Row) => (r.parsed.grams ?? 0) >= bathThreshold && FAT_RE.test(r.name || "");
+  // What a bath cooks — everything EXCEPT the bath oils. Kept verbatim from the
+  // original: a sub-threshold fat line still counts as fried food here, so a
+  // recipe pairing a bath oil with a smaller oil is unchanged by this tier.
+  const friedFoodGrams = rows
+    .filter((r) => !isBathOil(r) && (r.parsed.grams ?? 0) > 0)
+    .reduce((a, r) => a + (r.parsed.grams as number), 0);
+  const curatedAbsorbed = Math.max(
+    FRYING_MEDIUM_ABSORBED_FLOOR_G,
+    Math.round(FRYING_MEDIUM_ABSORBED_G_PER_SERVING * servings)
   );
 
-  // The solid food lines (fat and liquid excluded) the oil would be browning /
-  // soaking into — also the basis for "which food dominates".
-  const foods = rows.filter(
-    (r) => (r.parsed.grams ?? 0) > 0 && !isFatLine(r.name || "") && !LIQUID_RE.test(r.name || "")
-  );
-  const dominant = foods.reduce<Row | null>(
-    (max, r) => ((r.parsed.grams as number) > (max?.parsed.grams ?? 0) ? r : max),
-    null
-  );
-  // Dressed/finished context ⇒ the fat is eaten, not a browning medium.
-  const dressedContext =
-    (dominant != null && STARCH_RE.test(dominant.name || "")) ||
-    rows.some((r) => DRESSING_RE.test(r.name || "") || SALAD_VEG_RE.test(r.name || ""));
-
-  const fats = rows.filter((r) => {
-    if (r.fryingMedium) return false; // idempotent: never re-medium a reduced line
+  for (const r of rows) {
+    if (r.fryingMedium) continue; // already interpreted — keep the guard idempotent
     const grams = r.parsed.grams ?? 0;
-    if (grams <= 0) return false;
-    const name = r.name || "";
-    // Butter is NOT a frying medium. It is a finishing/mounting fat — stirred
-    // into mash, risotto, and sauces and fully eaten — far more often than a
-    // browning bath, and every worst T1 false positive was butter slashed on a
-    // fully-eaten dish. Real deep-frying uses ghee/clarified (already in FAT_RE);
-    // frying in whole butter is vanishingly rare. So butter is always eaten. The
-    // `!FAT_RE` gate below already excludes it; this is the reason. (T1 rev.)
-    if (!FAT_RE.test(name)) return false;
-    return grams >= bathMin || (meatPresent && grams > FRY_ABSORBED_G && !dressedContext);
-  });
-  if (!fats.length) return;
-
-  const friedFoodGrams = foods.reduce((a, r) => a + (r.parsed.grams as number), 0);
-  for (const r of fats) {
-    const oil = r.parsed.grams as number;
-    const deepFry = Math.round((friedFoodGrams * FAT_ABSORBED_PER_100G) / 100);
-    // Bath (deep fry): the oil pool exceeds what the food can soak up, so the
-    // food's absorption is the ceiling and the rest is drained — count that.
-    // Film (browning): the pour is less than that ceiling, a thin medium to sear
-    // in rather than a bath, so only ~1 tbsp clings and the rest stays in the pan.
-    const absorbed = deepFry <= oil ? deepFry : Math.min(oil, FRY_ABSORBED_G);
+    if (grams <= 0) continue;
+    let absorbed: number | null = null;
+    if (isBathOil(r)) {
+      // Deep-fry bath (inferred): food submerged, ~6 % of its weight absorbed.
+      // Checked FIRST so a line mis-curated as browning but actually a bath still
+      // gets the (larger, safer) bath estimate rather than the small film.
+      absorbed = Math.round((friedFoodGrams * FAT_ABSORBED_PER_100G) / 100);
+    } else if (r.curatedFrying) {
+      // Human-confirmed browning medium — no threshold, no inference. Film only.
+      absorbed = curatedAbsorbed;
+    }
+    if (absorbed == null || absorbed >= grams) continue; // eaten / no reduction → count whole
     // Never claim MORE was absorbed than the cook put in the pan.
-    r.parsed = { ...r.parsed, grams: Math.min(absorbed, oil), confidence: "medium" };
+    r.parsed = { ...r.parsed, grams: Math.min(absorbed, grams), confidence: "medium" };
     r.fryingMedium = true; // an interpretation, so it scores as a guess
   }
 }

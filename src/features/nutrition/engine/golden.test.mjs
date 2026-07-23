@@ -104,12 +104,13 @@ test("golden: banana smoothie (serves 1)", () => {
 
 // T1 (2026-07-23): browning oil is not eaten. Irish stew's "120ml olive oil"
 // (110 g) is a moderate pour used to brown 2 kg of lamb — 976 uneaten kcal read
-// whole. At 8 servings it is 13.75 g/serving, under any bath threshold, so the
-// fix keys on the browning MEAT being present, not the oil's size. Pinned below
-// the old buggy 1135: the oil now counts only its ~14 g absorbed film. (The lamb
-// cut + raw-fat match keep the total high — that is T5, a separate ticket.)
-test("golden: Irish stew (52781) — browning oil counted absorbed, not whole", () => {
-  // recipeId → curated servings=8. Old value 1135 (oil whole) must now fail high.
+// whole. Below any bath threshold, and it CANNOT be inferred from the ingredient
+// list (the same oil is eaten sauce in the next recipe), so it is HUMAN-curated:
+// recipeFacts[52781].frying names "olive oil" and applyFryingMedium counts only
+// its film (max(10, 4 g/serving)). Pinned below the old buggy 1135. (The lamb cut
+// + raw-fat match keep the total high — that is T5, a separate ticket.)
+test("golden: Irish stew (52781) — curated browning oil counted as film, not whole", () => {
+  // recipeId → curated servings=8 + frying:["olive oil"]. Old value 1135 (oil whole) must now fail high.
   const out8 = computeNutrition({
     ingredients: [
       { measure: "300g soaked overnight in water", name: "whole wheat" },
@@ -127,11 +128,11 @@ test("golden: Irish stew (52781) — browning oil counted absorbed, not whole", 
   assert.ok(out8.kcal < 1135, `oil must be discounted below the whole-oil ${out8.kcal}`);
 });
 
-// The other half of T1: oil that is genuinely EATEN must NOT be discounted. A
-// green-beans-in-olive-oil braise carries no browning meat, so the guard leaves
-// its oil whole. If the browning rule ever over-reached, this dish would collapse
-// (~54 g oil → 14 g would drop it under 130 kcal/serving).
-test("golden: olive-oil braise (no meat) keeps its oil — eaten, not a medium", () => {
+// The other half of T1's design: an UNcurated oil is eaten whole — the curated-only
+// rule takes no oil as a medium unless a human marked it, so no false positives. This
+// braise (no recipeId, so no curation possible) keeps its ~54 g oil in full; if any
+// inference ever crept back in and slashed it, this dish would collapse under 130.
+test("golden: uncurated olive-oil braise keeps its oil — eaten, not a medium", () => {
   const out = compute(
     [
       { measure: "1/4 cup", name: "Olive Oil" }, { measure: "16 ounces", name: "Green Beans" },
@@ -143,11 +144,11 @@ test("golden: olive-oil braise (no meat) keeps its oil — eaten, not a medium",
   assert.ok(out.fat_g > 11, `braising oil is eaten, must stay in fat, got ${out.fat_g}`);
 });
 
-// T1 REVISION (2026-07-23): the browning rule must NOT slash EATEN fat. Butter is
-// a finishing/mounting fat, not a browning medium — Salmon Prawn Risotto's 50 g is
-// stirred in at the end (mantecatura) and fully eaten. Pinned near its whole-fat
-// value; the earlier buggy revision cut it to a 14 g film (~763) and is now caught.
-test("golden: risotto butter (52823) is eaten (mantecatura), not a browning medium", () => {
+// Curated-only design regression guard: an UNcurated fat stays whole. Salmon Prawn
+// Risotto's 50 g butter is mantecatura (stirred in, fully eaten) and is not marked
+// frying, so it counts whole. This pins the "no inference" guarantee on a real recipe:
+// if a size/meat heuristic ever crept back it would wrongly cut this to a ~763 film.
+test("golden: uncurated risotto butter (52823) is eaten whole, not a medium", () => {
   const out = computeNutrition({
     ingredients: [
       { measure: "50g/2oz", name: "butter" }, { measure: "1 finely chopped", name: "onion" },
@@ -164,10 +165,10 @@ test("golden: risotto butter (52823) is eaten (mantecatura), not a browning medi
   assert.ok(out.kcal > 830, `butter must stay whole, not slashed to a film ${out.kcal}`);
 });
 
-// The other half: oil that is EATEN as a vinaigrette must NOT be discounted. Tuna
-// Niçoise dresses a cold potato/tuna salad with its oil (vinegar + a potato base
-// mark the non-browning context); the buggy revision slashed it to ~343.
-test("golden: Niçoise oil (52852) is eaten vinaigrette, not a browning medium", () => {
+// Same guarantee for oil: Tuna Niçoise dresses a cold salad with its oil, is not
+// marked frying, so the oil counts whole. Under the retired inference attempt this
+// was wrongly slashed to ~343; the curated-only design keeps it honest by default.
+test("golden: uncurated Niçoise oil (52852) is eaten whole, not a medium", () => {
   const out = computeNutrition({
     ingredients: [
       { measure: "450g", name: "Potatoes" }, { measure: "2 tblsp", name: "Olive Oil" },

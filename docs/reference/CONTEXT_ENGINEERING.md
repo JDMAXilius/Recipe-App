@@ -4,6 +4,11 @@
 
 **Stack in one line:** TypeScript Expo (React Native) app talking **directly to Supabase** — Postgres + RLS, Auth, Storage, and a few Edge Functions — with TanStack Query as the data layer and TheMealDB (via a key-proxy function) as the seed recipe source.
 
+> **Active initiatives live in `docs/tickets/`** — nutrition accuracy (`NUTRITION_ACCURACY.md`)
+> and the planned `otto-recipes` data-ownership migration (`OWN_RECIPE_DB.md`, which will
+> replace the runtime TheMealDB dependency described below). This doc describes the app as it
+> **is**; check the tickets for where it's going.
+
 ---
 
 ## 1. What this app is

@@ -76,6 +76,9 @@ string, `u-` prefix) live in `src/types/ids.ts`; constructors validate.
 2. **Macro rule:** every test asserts P/C/F, never kcal alone.
 3. **One data copy:** the 5 JSON files exist only in `engine/data/`;
    `tools/` scripts are their only writers. Checksums asserted in tests.
+   Which file owns which kind of data (and the logic-vs-data line) is the
+   **`data-ownership.md`** contract — read it before putting an ingredient
+   name next to a number in any `.ts` file.
 4. **Guards carry over verbatim.** The carb ceiling lives in `guards.ts` —
    INSIDE the engine, one copy (deviation from FRAMEWORK §3, which sketched
    it in feature-layer estimates.ts; contract wins — pinned by

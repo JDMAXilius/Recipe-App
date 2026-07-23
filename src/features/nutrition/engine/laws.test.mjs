@@ -84,6 +84,73 @@ test("law: guard idempotence — carb ceiling", () => {
   }
 });
 
+test("curated frying medium reduces oil to its film; the same oil uncurated is eaten whole", () => {
+  const main = () => ({ parsed: parseIngredientLine("2 kg lamb"), food: {}, name: "Lamb", resolved: false });
+  const oil = (curated) => ({
+    parsed: parseIngredientLine("120 ml olive oil"),
+    food: {},
+    name: "Olive Oil",
+    resolved: false,
+    curatedFrying: curated,
+  });
+
+  // Curated: a human marked the 120 ml oil as a browning medium → count the film.
+  const curated = [main(), oil(true)];
+  applyFryingMedium(curated, 4);
+  assert.ok(curated[1].parsed.grams > 0, "some oil is retained — never zero");
+  assert.ok(curated[1].parsed.grams < 30, `browning oil counts only its film, got ${curated[1].parsed.grams} g`);
+  assert.equal(curated[1].fryingMedium, true, "flagged as an interpretation (scores as a guess)");
+
+  // Identical oil, NOT curated, below the bath bar → eaten in full. This is the
+  // whole point of the curated-only design: no false positives from inference.
+  const plain = [main(), oil(false)];
+  applyFryingMedium(plain, 4);
+  assert.ok(plain[1].parsed.grams > 100, `uncurated moderate oil is eaten whole, got ${plain[1].parsed.grams}`);
+  assert.ok(!plain[1].fryingMedium, "uncurated moderate oil is not treated as a medium");
+});
+
+test("curated frying medium: safe precedence, no-op, and bath-pairing", () => {
+  const mk = (grams, name, cur) => ({
+    parsed: { grams, confidence: "high" },
+    food: {},
+    name,
+    resolved: false,
+    curatedFrying: cur,
+  });
+
+  // Finding 1 — a bath oil paired with a SUB-threshold fat is unchanged: the
+  // small fat still counts as fried food, so the bath absorbs 6% of (500+200).
+  const paired = [mk(500, "Chicken"), mk(2000, "Oil"), mk(200, "Ghee")];
+  applyFryingMedium(paired, 4);
+  assert.equal(paired[1].parsed.grams, 42, "bath absorbed = 6% of (chicken+ghee)");
+  assert.equal(paired[2].parsed.grams, 200, "sub-threshold ghee is eaten whole");
+
+  // Finding 3a — a line mis-curated as browning but actually a bath still gets
+  // the larger, safer bath estimate (60), never the small film.
+  const misCurated = [mk(1000, "Chicken"), mk(2000, "Oil", true)];
+  applyFryingMedium(misCurated, 4);
+  assert.equal(misCurated[1].parsed.grams, 60, "bath model wins over the film for a real bath");
+
+  // Finding 3b — when the film would exceed the actual pour, do nothing: no
+  // reduction and no spurious interpretation flag.
+  const tiny = [mk(200, "Olive Oil", true)];
+  applyFryingMedium(tiny, 100);
+  assert.equal(tiny[0].parsed.grams, 200, "film ≥ pour → counted whole");
+  assert.ok(!tiny[0].fryingMedium, "no reduction → not flagged as a medium");
+});
+
+test("law: curated frying medium is idempotent", () => {
+  const mk = () => [
+    { parsed: parseIngredientLine("120 ml olive oil"), food: {}, name: "Olive Oil", resolved: false, curatedFrying: true },
+  ];
+  const once = mk();
+  applyFryingMedium(once, 4);
+  const twice = mk();
+  applyFryingMedium(twice, 4);
+  applyFryingMedium(twice, 4);
+  assert.equal(twice[0].parsed.grams, once[0].parsed.grams, "re-application must not reduce again");
+});
+
 test("law: guard idempotence — frying medium and batch condiment", () => {
   const mkRows = () => [
     { parsed: parseIngredientLine("1000 g chicken"), food: {}, name: "chicken", resolved: false },

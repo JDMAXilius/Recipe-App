@@ -1903,6 +1903,28 @@
     "sodium_mg": 38800
   },
   "lamb": {
+    "fdcId": 172481,
+    "usda": "Lamb, foreshank, separable lean and fat, trimmed to 1/4\" fat, choice, raw",
+    "kcal": 201,
+    "protein_g": 18.9,
+    "fat_g": 13.4,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 72
+  },
+  "minced lamb": {
+    "fdcId": 174370,
+    "usda": "Lamb, ground, raw",
+    "kcal": 282,
+    "protein_g": 16.6,
+    "fat_g": 23.4,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 59
+  },
+  "ground lamb": {
     "fdcId": 174370,
     "usda": "Lamb, ground, raw",
     "kcal": 282,
@@ -3850,15 +3872,15 @@
     "sodium_mg": 1150
   },
   "lamb leg": {
-    "fdcId": 174370,
-    "usda": "Lamb, ground, raw",
-    "kcal": 282,
-    "protein_g": 16.6,
-    "fat_g": 23.4,
+    "fdcId": 172481,
+    "usda": "Lamb, foreshank, separable lean and fat, trimmed to 1/4\" fat, choice, raw",
+    "kcal": 201,
+    "protein_g": 18.9,
+    "fat_g": 13.4,
     "carbs_g": 0,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 59
+    "sodium_mg": 72
   },
   "lamb shoulder": {
     "fdcId": 175262,
