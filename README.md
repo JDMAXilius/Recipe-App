@@ -137,7 +137,7 @@ Runs **on-device with zero network calls** — `usdaTable.json` ships in the app
 
 Light-only, token-pure. Terracotta `#C4562E` accent, cream paper surfaces, Lora serif display, warm ink. Otto appears at emotional beats; the paw is the save mark everywhere.
 
-- `docs/DESIGN_SYSTEM.md` (authoritative) · `docs/MASCOT.md` · `docs/SCREEN_MAP.md`
+- `docs/reference/DESIGN_SYSTEM.md` (authoritative) · `docs/reference/MASCOT.md` · `docs/reference/SCREEN_MAP.md`
 - Tokens: `src/shared/theme/`; mascot/action/food art under `assets/` via `src/shared/assets.ts`
 - Figma DS file: `X1eGT54CTwtowHNve30vvE`; master board `mM0uWkHod9rL1Ff1VJ64Au`
 
@@ -184,12 +184,13 @@ CI (`.github/workflows/ci.yml`) runs all three on every push to `main` and PRs i
 
 | Doc | What it holds |
 |---|---|
-| `docs/ARCHITECTURE.md` | Full v2 codebase map (grounded in the source) |
-| `docs/API_ARCHITECTURE.md` | The data-access model — RLS queries, Edge Functions, RPCs, Realtime |
-| `docs/DESIGN_SYSTEM.md` | The authoritative design system |
-| `docs/CONTEXT_ENGINEERING.md` | "How to navigate the tree" + task→file map |
-| `docs/REDESIGN_NOTES.md` | The decision log — every call with rationale |
-| `docs/contracts/` | Feature-module, database, engine, UI, persistence, testing contracts |
+| `docs/reference/ARCHITECTURE.md` | Full v2 codebase map (grounded in the source) |
+| `docs/reference/API_ARCHITECTURE.md` | The data-access model — RLS queries, Edge Functions, RPCs, Realtime |
+| `docs/reference/DESIGN_SYSTEM.md` | The authoritative design system |
+| `docs/reference/CONTEXT_ENGINEERING.md` | "How to navigate the tree" + task→file map |
+| `docs/reference/contracts/` | Feature-module, database, engine, UI, persistence, testing contracts |
+| `docs/history/REDESIGN_NOTES.md` | The decision log — every call with rationale |
+| `docs/history/` · `docs/README.md` | The full build record (tickets, rebuild, research, captures) |
 
 ## Status
 
