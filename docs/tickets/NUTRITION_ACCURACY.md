@@ -122,6 +122,10 @@ over-count, never a laundered under-count).
   the seed corpus to shortlist candidate recipes, read each one's TheMealDB **instructions**, and add
   the oil line to `frying` only where the steps say brown/sear/fry-then-discard (NOT where the oil
   becomes an eaten sauce — curry/braise/stir-fry). Needs TheMealDB (blocked in cloud). Then T7 recompute.
+  - **Curator note (matches `cooked`'s convention):** the `frying` string must equal the recipe's raw
+    ingredient **name** exactly (case-insensitive) — it is matched against `p.name`, not the parsed item.
+    A near-miss silently no-ops. A curated line that is actually a deep-fry bath is safe (the bath tier
+    still governs it); the flag is for the MODERATE browning pours the bath bar misses.
 
 ### T2 — Weight-layer audit + expand (the "MFP model")  ·  HIGH  ·  [terminal]
 Grow `pieceWeights.json` (79) and promote common `EACH_G`/`PIECE_G` estimates in `parse.ts` to

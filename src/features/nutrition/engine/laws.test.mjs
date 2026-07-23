@@ -109,6 +109,36 @@ test("curated frying medium reduces oil to its film; the same oil uncurated is e
   assert.ok(!plain[1].fryingMedium, "uncurated moderate oil is not treated as a medium");
 });
 
+test("curated frying medium: safe precedence, no-op, and bath-pairing", () => {
+  const mk = (grams, name, cur) => ({
+    parsed: { grams, confidence: "high" },
+    food: {},
+    name,
+    resolved: false,
+    curatedFrying: cur,
+  });
+
+  // Finding 1 — a bath oil paired with a SUB-threshold fat is unchanged: the
+  // small fat still counts as fried food, so the bath absorbs 6% of (500+200).
+  const paired = [mk(500, "Chicken"), mk(2000, "Oil"), mk(200, "Ghee")];
+  applyFryingMedium(paired, 4);
+  assert.equal(paired[1].parsed.grams, 42, "bath absorbed = 6% of (chicken+ghee)");
+  assert.equal(paired[2].parsed.grams, 200, "sub-threshold ghee is eaten whole");
+
+  // Finding 3a — a line mis-curated as browning but actually a bath still gets
+  // the larger, safer bath estimate (60), never the small film.
+  const misCurated = [mk(1000, "Chicken"), mk(2000, "Oil", true)];
+  applyFryingMedium(misCurated, 4);
+  assert.equal(misCurated[1].parsed.grams, 60, "bath model wins over the film for a real bath");
+
+  // Finding 3b — when the film would exceed the actual pour, do nothing: no
+  // reduction and no spurious interpretation flag.
+  const tiny = [mk(200, "Olive Oil", true)];
+  applyFryingMedium(tiny, 100);
+  assert.equal(tiny[0].parsed.grams, 200, "film ≥ pour → counted whole");
+  assert.ok(!tiny[0].fryingMedium, "no reduction → not flagged as a medium");
+});
+
 test("law: curated frying medium is idempotent", () => {
   const mk = () => [
     { parsed: parseIngredientLine("120 ml olive oil"), food: {}, name: "Olive Oil", resolved: false, curatedFrying: true },

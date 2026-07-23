@@ -90,9 +90,13 @@ const FRYING_MEDIUM_ABSORBED_FLOOR_G = 10;
 export function applyFryingMedium(rows: Row[], perServing = 4): void {
   const servings = Math.max(1, perServing);
   const bathThreshold = Math.min(FRYING_MEDIUM_MIN_G, FRYING_MEDIUM_MIN_G_PER_SERVING * servings);
-  // Everything that isn't oil — what a submerged fry cooks in the bath.
+  // A large FAT_RE line reads as a submerged deep-fry bath (the pre-existing tier).
+  const isBathOil = (r: Row) => (r.parsed.grams ?? 0) >= bathThreshold && FAT_RE.test(r.name || "");
+  // What a bath cooks — everything EXCEPT the bath oils. Kept verbatim from the
+  // original: a sub-threshold fat line still counts as fried food here, so a
+  // recipe pairing a bath oil with a smaller oil is unchanged by this tier.
   const friedFoodGrams = rows
-    .filter((r) => (r.parsed.grams ?? 0) > 0 && !FAT_RE.test(r.name || ""))
+    .filter((r) => !isBathOil(r) && (r.parsed.grams ?? 0) > 0)
     .reduce((a, r) => a + (r.parsed.grams as number), 0);
   const curatedAbsorbed = Math.max(
     FRYING_MEDIUM_ABSORBED_FLOOR_G,
@@ -104,14 +108,16 @@ export function applyFryingMedium(rows: Row[], perServing = 4): void {
     const grams = r.parsed.grams ?? 0;
     if (grams <= 0) continue;
     let absorbed: number | null = null;
-    if (r.curatedFrying) {
-      // Human-confirmed medium — no threshold, no inference. Count the film only.
-      absorbed = curatedAbsorbed;
-    } else if (FAT_RE.test(r.name || "") && grams >= bathThreshold) {
+    if (isBathOil(r)) {
       // Deep-fry bath (inferred): food submerged, ~6 % of its weight absorbed.
+      // Checked FIRST so a line mis-curated as browning but actually a bath still
+      // gets the (larger, safer) bath estimate rather than the small film.
       absorbed = Math.round((friedFoodGrams * FAT_ABSORBED_PER_100G) / 100);
+    } else if (r.curatedFrying) {
+      // Human-confirmed browning medium — no threshold, no inference. Film only.
+      absorbed = curatedAbsorbed;
     }
-    if (absorbed == null) continue; // eaten ingredient — count it whole
+    if (absorbed == null || absorbed >= grams) continue; // eaten / no reduction → count whole
     // Never claim MORE was absorbed than the cook put in the pan.
     r.parsed = { ...r.parsed, grams: Math.min(absorbed, grams), confidence: "medium" };
     r.fryingMedium = true; // an interpretation, so it scores as a guess
