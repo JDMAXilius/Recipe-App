@@ -79,9 +79,10 @@ but they differ:*
 - **Source URL** (`strSource`): the attribution trail — keep forever ("source credited
   forever" is already Otto law).
 - **Image** (`strMealThumb`): points at TheMealDB's CDN — snapshotting only the URL keeps a
-  runtime dependency on their image host. Plan: copy the files into Supabase Storage **iff the
-  terms allow re-hosting** (the Phase 0 check); fallback = keep hotlinking + attribution;
-  long-term = replace with Otto's own art/photography via the asset pipeline (real IP).
+  runtime dependency on their image host. Plan: copy the **existing files as-is** into Supabase
+  Storage **iff the terms allow re-hosting** (the Phase 0 check); fallback = keep hotlinking +
+  attribution. **Founder call (2026-07-23): the existing images/videos/sources are KEPT, not
+  replaced or regenerated** — the migration changes who stores the data, never the content.
 
 **Phase 2 — Canonicalization (the one-time fix)** `[terminal + Claude API]`
 Batch pass, one recipe at a time, zod-validated structured output:
