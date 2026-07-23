@@ -2,8 +2,10 @@
 // Source of truth: the Supabase schema (docs/contracts/database.md).
 // Regenerate after any migration via the Supabase MCP
 // `generate_typescript_types` (or `supabase gen types typescript`).
-// Regenerated 2026-07-22 after the v2 RLS migrations applied (adds the 7
-// SECURITY DEFINER functions to Functions).
+// Regenerated 2026-07-23 after the SECURITY DEFINER hardening migration:
+// dropped the dead v1 collab_lists/collab_items tables + their 4 RPCs, and
+// moved is_household_member/shares_household to the private schema (no longer
+// in the public API surface).
 export type Json =
   | string
   | number
@@ -20,60 +22,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      collab_items: {
-        Row: {
-          added_by_name: string
-          amount: string | null
-          checked: boolean
-          checked_by_name: string | null
-          created_at: string | null
-          id: number
-          name: string
-          token: string
-        }
-        Insert: {
-          added_by_name: string
-          amount?: string | null
-          checked?: boolean
-          checked_by_name?: string | null
-          created_at?: string | null
-          id?: number
-          name: string
-          token: string
-        }
-        Update: {
-          added_by_name?: string
-          amount?: string | null
-          checked?: boolean
-          checked_by_name?: string | null
-          created_at?: string | null
-          id?: number
-          name?: string
-          token?: string
-        }
-        Relationships: []
-      }
-      collab_lists: {
-        Row: {
-          created_at: string | null
-          owner_user_id: string
-          revoked_at: string | null
-          token: string
-        }
-        Insert: {
-          created_at?: string | null
-          owner_user_id: string
-          revoked_at?: string | null
-          token: string
-        }
-        Update: {
-          created_at?: string | null
-          owner_user_id?: string
-          revoked_at?: string | null
-          token?: string
-        }
-        Relationships: []
-      }
       favorites: {
         Row: {
           category: string | null
@@ -322,33 +270,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      is_household_member: { Args: { hid: string }; Returns: boolean }
-      join_household: { Args: { code: string }; Returns: string }
-      add_collab_item: {
-        Args: {
-          p_amount: string
-          p_display_name: string
-          p_name: string
-          p_token: string
-        }
-        Returns: Json
-      }
       admin_delete_user_data: {
         Args: { p_user_id: string }
         Returns: undefined
-      }
-      delete_collab_item: {
-        Args: { p_id: number; p_token: string }
-        Returns: boolean
-      }
-      get_collab_list: {
-        Args: { p_token: string }
-        Returns: {
-          is_mine: boolean
-          items: Json
-          status: string
-          token: string
-        }[]
       }
       get_list_share: {
         Args: { p_token: string }
@@ -364,15 +288,7 @@ export type Database = {
           status: string
         }[]
       }
-      set_collab_item_checked: {
-        Args: {
-          p_checked: boolean
-          p_display_name: string
-          p_id: number
-          p_token: string
-        }
-        Returns: Json
-      }
+      join_household: { Args: { code: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
