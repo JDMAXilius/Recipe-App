@@ -189,7 +189,7 @@ CI (`.github/workflows/ci.yml`) runs all three on every push to `main` and PRs i
 | `docs/reference/API_ARCHITECTURE.md` | The data-access model — RLS queries, Edge Functions, RPCs, Realtime |
 | `docs/reference/DESIGN_SYSTEM.md` | The authoritative design system |
 | `docs/reference/CONTEXT_ENGINEERING.md` | "How to navigate the tree" + task→file map |
-| `docs/reference/contracts/` | Feature-module, database, engine, UI, persistence, testing contracts |
+| `docs/reference/contracts/` | Feature-module, database, engine, UI, persistence, testing, data-ownership contracts |
 | `docs/history/REDESIGN_NOTES.md` | The decision log — every call with rationale |
 | `docs/history/` · `docs/README.md` | The full build record (tickets, rebuild, research, captures) |
 
