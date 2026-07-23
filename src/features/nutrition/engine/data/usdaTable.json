@@ -2354,26 +2354,26 @@
     "sodium_mg": 1280
   },
   "parmesan": {
-    "fdcId": 172206,
-    "usda": "Parmesan cheese topping, fat free",
-    "kcal": 370,
-    "protein_g": 40,
-    "fat_g": 5,
-    "carbs_g": 40,
+    "fdcId": 170848,
+    "usda": "Cheese, parmesan, hard",
+    "kcal": 392,
+    "protein_g": 35.8,
+    "fat_g": 25,
+    "carbs_g": 3.22,
     "fiber_g": 0,
-    "sugar_g": null,
-    "sodium_mg": 1150
+    "sugar_g": 0.11,
+    "sodium_mg": 1180
   },
   "parmesan cheese": {
-    "fdcId": 172206,
-    "usda": "Parmesan cheese topping, fat free",
-    "kcal": 370,
-    "protein_g": 40,
-    "fat_g": 5,
-    "carbs_g": 40,
+    "fdcId": 170848,
+    "usda": "Cheese, parmesan, hard",
+    "kcal": 392,
+    "protein_g": 35.8,
+    "fat_g": 25,
+    "carbs_g": 3.22,
     "fiber_g": 0,
-    "sugar_g": null,
-    "sodium_mg": 1150
+    "sugar_g": 0.11,
+    "sodium_mg": 1180
   },
   "parmigiano-reggiano": {
     "fdcId": 170848,
@@ -2871,15 +2871,15 @@
     "sodium_mg": 47
   },
   "sesame seed": {
-    "fdcId": 170192,
-    "usda": "Seeds, sesame flour, high-fat",
-    "kcal": 526,
-    "protein_g": 30.8,
-    "fat_g": 37.1,
-    "carbs_g": 26.6,
-    "fiber_g": null,
-    "sugar_g": null,
-    "sodium_mg": 41
+    "fdcId": 170150,
+    "usda": "Seeds, sesame seeds, whole, dried",
+    "kcal": 573,
+    "protein_g": 17.7,
+    "fat_g": 49.7,
+    "carbs_g": 23.4,
+    "fiber_g": 11.8,
+    "sugar_g": 0.3,
+    "sodium_mg": 11
   },
   "shallots": {
     "fdcId": 170499,
@@ -2948,15 +2948,15 @@
     "sodium_mg": 68
   },
   "sour cream": {
-    "fdcId": 172210,
-    "usda": "KRAFT BREAKSTONE'S Reduced Fat Sour Cream",
-    "kcal": 152,
-    "protein_g": 4.5,
-    "fat_g": 12,
-    "carbs_g": 6.5,
-    "fiber_g": 0.1,
-    "sugar_g": null,
-    "sodium_mg": 59
+    "fdcId": 171257,
+    "usda": "Cream, sour, cultured",
+    "kcal": 198,
+    "protein_g": 2.44,
+    "fat_g": 19.4,
+    "carbs_g": 4.63,
+    "fiber_g": 0,
+    "sugar_g": 3.41,
+    "sodium_mg": 31
   },
   "soy sauce": {
     "fdcId": 174277,
@@ -4048,15 +4048,15 @@
     "sodium_mg": 474
   },
   "mascarpone": {
-    "fdcId": 169081,
-    "usda": "Cheese spread, cream cheese base",
-    "kcal": 295,
-    "protein_g": 7.1,
-    "fat_g": 28.6,
-    "carbs_g": 3.5,
+    "fdcId": 173418,
+    "usda": "Cheese, cream — proxy for mascarpone (no USDA mascarpone record; closest soft cream cheese; real mascarpone is richer, ~429 kcal/44g fat)",
+    "kcal": 350,
+    "protein_g": 6.15,
+    "fat_g": 34.4,
+    "carbs_g": 5.52,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 436
+    "sodium_mg": 314
   },
   "mozzarella": {
     "fdcId": 170845,
@@ -4367,15 +4367,15 @@
     "sodium_mg": 2
   },
   "paneer": {
-    "fdcId": 169081,
-    "usda": "Cheese spread, cream cheese base",
-    "kcal": 295,
-    "protein_g": 7.1,
-    "fat_g": 28.6,
-    "carbs_g": 3.5,
+    "fdcId": 170845,
+    "usda": "Cheese, mozzarella, whole milk — proxy for paneer (no USDA paneer record; the closest whole-milk fresh cheese: same ~300 kcal, ~22g protein, ~22g fat)",
+    "kcal": 299,
+    "protein_g": 22.17,
+    "fat_g": 22.14,
+    "carbs_g": 2.4,
     "fiber_g": 0,
     "sugar_g": null,
-    "sodium_mg": 436
+    "sodium_mg": 486
   },
   "naan bread": {
     "fdcId": 171845,
