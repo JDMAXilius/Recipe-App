@@ -14,6 +14,9 @@ export interface Row {
   estimated?: boolean;
   fryingMedium?: boolean;
   batchCondiment?: boolean;
+  // Set by buildContext from recipeFacts `frying`: a human marked this line as a
+  // browning/frying medium that mostly stays in the pan. See applyFryingMedium.
+  curatedFrying?: boolean;
 }
 
 // ── Raw-vs-cooked ambiguity (usdaProvider.js) ────────────────────────────────
@@ -68,17 +71,49 @@ const FAT_ABSORBED_PER_100G = 6;
 // 60 g of fat in ONE portion is already extreme as an eaten ingredient.
 const FRYING_MEDIUM_MIN_G_PER_SERVING = 60;
 
+// ── Curated browning/frying medium (recipeFacts `frying`) ────────────────────
+// The bath thresholds above only catch a submerged deep-fry. The commoner case —
+// a stew or curry that browns a large main in "120 ml oil", most of which stays
+// in the pan — sits FAR below the bath bar and so was counted whole (976 kcal of
+// uneaten oil in one Irish stew). It CANNOT be inferred from the ingredient list:
+// the same 120 ml oil is discarded pan residue in one dish and an eaten sauce
+// base in the next, and only the instructions say which — which the engine never
+// reads (contract). So this is HUMAN-curated per recipe, exactly like `servings`
+// and `cooked`: a person marks the line, and only then is it treated as a medium.
+// No threshold, no list heuristic, no false positives. Count only the film the
+// food retains — a small amount that scales gently with servings, floored so a
+// genuine pour never reads as near-zero. (Deep-fry baths still need no curation;
+// the bath tier catches those for every recipe.)
+const FRYING_MEDIUM_ABSORBED_G_PER_SERVING = 4;
+const FRYING_MEDIUM_ABSORBED_FLOOR_G = 10;
+
 export function applyFryingMedium(rows: Row[], perServing = 4): void {
-  const threshold = Math.min(FRYING_MEDIUM_MIN_G, FRYING_MEDIUM_MIN_G_PER_SERVING * Math.max(1, perServing));
-  const fats = rows.filter((r) => (r.parsed.grams ?? 0) >= threshold && FAT_RE.test(r.name || ""));
-  if (!fats.length) return;
+  const servings = Math.max(1, perServing);
+  const bathThreshold = Math.min(FRYING_MEDIUM_MIN_G, FRYING_MEDIUM_MIN_G_PER_SERVING * servings);
+  // Everything that isn't oil — what a submerged fry cooks in the bath.
   const friedFoodGrams = rows
-    .filter((r) => !fats.includes(r) && (r.parsed.grams ?? 0) > 0)
+    .filter((r) => (r.parsed.grams ?? 0) > 0 && !FAT_RE.test(r.name || ""))
     .reduce((a, r) => a + (r.parsed.grams as number), 0);
-  for (const r of fats) {
-    const absorbed = Math.round((friedFoodGrams * FAT_ABSORBED_PER_100G) / 100);
+  const curatedAbsorbed = Math.max(
+    FRYING_MEDIUM_ABSORBED_FLOOR_G,
+    Math.round(FRYING_MEDIUM_ABSORBED_G_PER_SERVING * servings)
+  );
+
+  for (const r of rows) {
+    if (r.fryingMedium) continue; // already interpreted — keep the guard idempotent
+    const grams = r.parsed.grams ?? 0;
+    if (grams <= 0) continue;
+    let absorbed: number | null = null;
+    if (r.curatedFrying) {
+      // Human-confirmed medium — no threshold, no inference. Count the film only.
+      absorbed = curatedAbsorbed;
+    } else if (FAT_RE.test(r.name || "") && grams >= bathThreshold) {
+      // Deep-fry bath (inferred): food submerged, ~6 % of its weight absorbed.
+      absorbed = Math.round((friedFoodGrams * FAT_ABSORBED_PER_100G) / 100);
+    }
+    if (absorbed == null) continue; // eaten ingredient — count it whole
     // Never claim MORE was absorbed than the cook put in the pan.
-    r.parsed = { ...r.parsed, grams: Math.min(absorbed, r.parsed.grams as number), confidence: "medium" };
+    r.parsed = { ...r.parsed, grams: Math.min(absorbed, grams), confidence: "medium" };
     r.fryingMedium = true; // an interpretation, so it scores as a guess
   }
 }

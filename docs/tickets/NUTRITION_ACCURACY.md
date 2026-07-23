@@ -104,13 +104,24 @@ A grilled-chicken-salad-with-vinaigrette hits the same trap (≈ −360 kcal/ser
 ticket's premise ("browning oil mostly stays in the pan, even in a stew") is itself contestable and is
 **not decidable from the ingredient list.**
 
-**Recommended path (needs a decision):** do it the way the engine already handles the other
-un-inferable facts (`servings`, `cooked`) — a **curated per-recipe `frying` flag in `recipeFacts.json`**:
-a human reads the instructions and marks which oil line is a discarded frying medium. Deterministic,
-exact, zero false positives — but **seed-only** (user/imported recipes keep oil counted whole, the
-honest over-count, never a laundered under-count). Deep-fry *baths* stay handled by the existing tier.
-Alternative (bigger): thread `steps` into the engine for a deterministic keyword scan — a real contract
-change. **Decision for Juan:** curated-facts flag (recommended) vs. leave T1 as bath-only vs. steps.
+**Chosen path — curated `frying` flag. MECHANISM SHIPPED (2026-07-23); data curation is the follow-up.**
+Done exactly like `servings`/`cooked`: `recipeFacts.json` entries may now carry an optional
+`frying: string[]` naming the oil/fat lines that are a browning medium for that recipe. `buildContext`
+(`compute.ts`) reads it into a `fryingSet` and marks each row `curatedFrying`; `applyFryingMedium`
+(`guards.ts`) then counts only the film that line retains — `max(10 g, 4 g × servings)`, capped at the
+oil present — with **no threshold and no list inference**, so there are zero false positives. Deep-fry
+*baths* are still auto-detected for every recipe by the existing tier. Everything is gated on a human
+having named the line, so **user/imported recipes are untouched** (oil counted whole — the honest
+over-count, never a laundered under-count).
+
+- **Behaviour change today: none.** Every `frying` array is absent/empty, so nothing reduces yet.
+- **Tests:** `laws.test.mjs` pins the reduction + idempotence + the "uncurated oil is eaten whole"
+  guarantee. Whole golden + laws suites green. Wiring verified end-to-end (a curated `frying` fact drops
+  a stew's browning oil and lets it compute instead of hitting the plausibility cap).
+- **Follow-up (networked / terminal):** curate the actual `frying` arrays. Use T6's `OIL_WHOLE` flag on
+  the seed corpus to shortlist candidate recipes, read each one's TheMealDB **instructions**, and add
+  the oil line to `frying` only where the steps say brown/sear/fry-then-discard (NOT where the oil
+  becomes an eaten sauce — curry/braise/stir-fry). Needs TheMealDB (blocked in cloud). Then T7 recompute.
 
 ### T2 — Weight-layer audit + expand (the "MFP model")  ·  HIGH  ·  [terminal]
 Grow `pieceWeights.json` (79) and promote common `EACH_G`/`PIECE_G` estimates in `parse.ts` to

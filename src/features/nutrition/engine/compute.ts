@@ -41,7 +41,7 @@ import recipeFacts from "./data/recipeFacts.json" with { type: "json" };
 // This is a language judgement, not a number: the facts only choose WHICH USDA
 // record applies and how many the pot feeds. Every calorie still comes from
 // USDA, and any recipe missing from this file falls back to the old guards.
-type RecipeFacts = { servings?: number; cooked?: string[] };
+type RecipeFacts = { servings?: number; cooked?: string[]; frying?: string[] };
 const FACTS = recipeFacts as Record<string, RecipeFacts>;
 const factsFor = (id: string | undefined | null): RecipeFacts | null =>
   id ? FACTS[String(id)] ?? null : null;
@@ -79,6 +79,9 @@ function buildContext(input: ComputeNutritionInput, override?: ResolvedOverride)
   // default is what turned "2kg Shredded Meat" into 1200 kcal/serving.
   const perServing = Math.max(1, Number(facts?.servings) || Number(servings) || 1);
   const cookedSet = new Set((facts?.cooked || []).map(key));
+  // Curated frying/browning media for this recipe — same shape as `cooked`: a
+  // human read the instructions and named the oil line that is a cooking medium.
+  const fryingSet = new Set((facts?.frying || []).map(key));
 
   const rows: Row[] = list.map((p) => {
     const line = [p.measure, p.name].filter(Boolean).join(" ").trim();
@@ -96,7 +99,7 @@ function buildContext(input: ComputeNutritionInput, override?: ResolvedOverride)
         fromResolver = true;
       }
     }
-    return { parsed, food, name: p.name, resolved: fromResolver };
+    return { parsed, food, name: p.name, resolved: fromResolver, curatedFrying: fryingSet.has(key(p.name)) };
   });
 
   return { list, facts, perServing, rows };
