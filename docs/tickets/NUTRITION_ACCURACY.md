@@ -65,12 +65,26 @@ so it must model yield itself (T1/T3).
 
 ## 4. Tickets (prioritized)
 
-### T6 — Per-recipe breakdown diagnostic tool  ·  do this FIRST  ·  [terminal]
-Save the inline breakdown script (built 2026-07-23, ran on Irish Stew) as
-`tools/nutrition-breakdown.mjs`: given a recipe id/name, print each ingredient's **parsed grams +
-kcal contribution + matched USDA record**, sorted, flagging outliers (huge grams, low-confidence
-parse, oil counted whole). Run it across all seed recipes to surface the worst over-counts → this
-feeds T1/T2/T5. (Run via `node --experimental-strip-types --import src/features/nutrition/engine/ts-ext-resolve.mjs`.)
+### T6 — Per-recipe breakdown diagnostic tool  ·  do this FIRST  ·  ✅ BUILT (2026-07-23)
+`tools/nutrition-breakdown.mjs` is committed. Given a recipe (id/name/ingredients) it prints each
+line's **parsed grams + kcal contribution + matched USDA record (with fdcId)**, sorted heaviest-first,
+flagging outliers: `OIL_WHOLE` (frying medium counted as eaten — the T1 signal), `UNMATCHED`,
+`HUGE_GRAMS`, `BIG_SHARE` (one line dominates the total), `low-conf`, `NO_GRAMS`, plus the guards that
+*did* fire (`frying-absorbed`, `condiment-capped`, `typical-amt`, `cooked-record`). It reuses the
+engine's own parse→lookup→guards path in compute.ts order, so the numbers match what the engine sums.
+
+Run:
+```
+node --experimental-strip-types --import ./src/features/nutrition/engine/ts-ext-resolve.mjs \
+     tools/nutrition-breakdown.mjs [--demo | --file <recipe.json> | --corpus <recipes.json>]
+```
+`--demo` reproduces the Irish Stew trace (surfaces all three culprits the ticket named).
+`tools/nutrition-breakdown.sample.json` is a 4-recipe example / corpus template.
+
+**Remaining networked step (terminal w/ network):** generate the full seed corpus — call the `content`
+edge function per TheMealDB recipe, write `[{ name, recipeId, servings, ingredients }]`, then
+`--corpus` it to rank all 750+ worst-first. (USDA is blocked in cloud sessions, but the breakdown
+itself runs fully offline — the table + engine ship locally.)
 
 ### T1 — Cooking-oil / medium detection  ·  HIGH impact  ·  [terminal]
 Extend `applyFryingMedium` (`guards.ts`) so a **large** oil/butter quantity in a **savory main dish**
