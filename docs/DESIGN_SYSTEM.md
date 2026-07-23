@@ -7,9 +7,10 @@ where it extends or contradicts Part A**; Part A kept for token tables + traceab
 **Last updated:** 2026-07-14 (redesign Phase 3)
 
 > **⚠️ D2 — LIGHT ONLY (governs everything):** the app ships the base light token set and the
-> user cannot change it. §1.2 dark tokens and §1.4 niche accents stay in code, unused at
-> runtime, for future niche *builds*. No theme switcher, no appearance picker, no niche picker
-> anywhere in UI. `ThemeContext` is locked to `base.light`.
+> user cannot change it. The shipped token module (`src/shared/theme/tokens.ts`) is light-only;
+> the §1.2 dark tokens and §1.4 niche accents live in *this doc* for future niche *builds*, not
+> in runtime code. No theme switcher, no appearance picker, no niche picker anywhere in UI.
+> There is no `ThemeContext` in v2 — tokens are a plain module (not a context).
 
 ---
 
@@ -133,12 +134,17 @@ All validated against Mobbin references (`MOBBIN_COMPARISON.md`):
 8. **EmptyState / LoadingState** — Otto expression (Sad/Sleepy) + one-line message + optional action; watercolor wash permitted.
 9. **MascotBadge** — 32–40px circular crop of Otto's face for headers.
 
-## 7. Implementation mapping (when we build)
+## 7. Implementation mapping (as built in v2)
 
-- `mobile/constants/colors.js` → restructure to export this token set; `THEMES` becomes `{base, lean, keto, bulk}` each `{light, dark}`; macro colors exported separately as `NUTRITION_COLORS` (never themed).
-- Runtime theming per `PROMPT_ENGINEERING.md` **F1** (ThemeContext + `useTheme()`).
-- Mascot PNGs live in `mobile/assets/mascot/` (download from CDN — see `MASCOT.md` §2 warning).
-- New components in `mobile/components/nutrition/` (`CalorieRing`, `MacroBar`, `ServingStepper`, `NutritionCard`).
+- `src/shared/theme/tokens.ts` is the ONE token source — this light table, plus `macro` colors
+  (never re-skinned), `overlay`, the type scale, `space`, `radii`, springs, and `shadow`. A plain
+  module, not a context; no file hardcodes a hex/spring/type size. Dark + niche sets are doc-only.
+- No runtime theming: light is locked in `tokens.ts` (and `app.json` `"userInterfaceStyle": "light"`).
+  Color-per-role (semantic ink) is applied by the `Text` primitive in `src/shared/ui/`.
+- Mascot PNGs live in `assets/mascot/`, wired through the typed registry `src/shared/assets.ts`
+  (components read from there, never `require()` at the call site). See `MASCOT.md` §2 warning.
+- Nutrition components live in `src/features/nutrition/components/` (`NutritionCard`, `CalorieRing`);
+  the calorie ring reuses `Ring` from `src/shared/ui/`.
 
 ## 8. Traceability
 
@@ -159,19 +165,21 @@ All validated against Mobbin references (`MOBBIN_COMPARISON.md`):
 # Part B — Redesign codification (Phase 3, 2026-07-14) — AUTHORITATIVE
 
 > Locks every system decision the Phase-4 screens build against. Sources: `AUDIT.md`,
-> `MOBBIN_COMPARISON.md` Part 2, `REDESIGN_NOTES.md` (P2-1…P2-11). Code is truth: tokens in
-> `mobile/constants/colors.js` + `mobile/constants/tokens.js`; theme lock in
-> `mobile/context/ThemeContext.jsx`.
+> `MOBBIN_COMPARISON.md` Part 2, `REDESIGN_NOTES.md` (P2-1…P2-11). Code is truth: all tokens
+> (colors, macro, overlay, type, space, radii, springs, shadow) live in one light-only module,
+> `src/shared/theme/tokens.ts` — there is no separate theme context in v2.
 
 ## B1. Tokens — light-only truth
 
 - **Palette:** Part A §1.1 light table is complete and final. No new colors. Scrims/overlays are
   now tokens too (they were the stragglers): `overlay.scrim = rgba(42,33,27,0.35)` (photo
   overlays — warm ink, never pure black), `overlay.scrimStrong = rgba(42,33,27,0.65)` (hero
-  gradient foot), `overlay.textShadow = rgba(42,33,27,0.45)`. Exported from `tokens.js`.
-- **Runtime lock:** `ThemeContext` pins `niche="base"`, `mode="light"`; `setNiche`/`setMode`
-  removed from the public API. `app.json` → `"userInterfaceStyle": "light"`.
-- **Hardcoded-value ledger (to purge in Phase 4):**
+  gradient foot), `overlay.textShadow = rgba(42,33,27,0.45)`. All exported from
+  `src/shared/theme/tokens.ts` (the `overlay` object).
+- **Runtime lock:** light is baked into `tokens.ts` (no niche/mode API exists) and
+  `app.json` → `"userInterfaceStyle": "light"`.
+- **Hardcoded-value ledger** *(v1-historical — the `mobile/app/*.jsx` files below were deleted in
+  the v2 rebuild; the rule they encode still holds: no hex/overlay literal outside `tokens.ts`)*:
   1. `app/recipe/[id].jsx:182–277` — four gradient pairs (`#FF6B6B/#FF8E53`, `#4ECDC4/#44A08D`,
      `#FF0000/#CC0000`, `#9C27B0/#673AB7`) — all die with the rainbow section icons.
   2. `app/recipe/[id].jsx:134` + `recipe-detail.styles.js:40,71,85` + `home.styles.js:56,80` —
@@ -267,8 +275,8 @@ studio), each on the shared `surfaceWarm` warm-tint field, consistent scale, sof
 | 13 | egg + toast plate | Breakfast |
 | 14 | stew pot | Goat |
 
-Spec: 512px source PNGs → rendered ~72pt in category tiles; one unifying warm tint behind all;
-label below in sentence case. File names `mobile/assets/food/cat-<category>.png`.
+Spec: 512px source art → rendered ~72pt in category tiles; one unifying warm tint behind all;
+label below in sentence case. Shipped as `assets/food/cat-<category>.webp`.
 
 ## B6. Otto usage rules (D3) — where he lives, where he's banned
 

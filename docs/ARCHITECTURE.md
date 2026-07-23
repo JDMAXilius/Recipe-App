@@ -7,40 +7,55 @@ Grounded in the actual source tree (not aspirational).
 
 ## 1. What Otto is, in one paragraph
 
-A warm, illustrated recipe app. A **React Native (Expo) mobile app** talks to an
-**Express + Postgres backend**. Recipes come from TheMealDB (seed) and from users
-(imports + their own writing). Nutrition is computed from **USDA FoodData Central**
-data bundled into the backend. Two hard rules run through everything:
+A warm, illustrated recipe app. A **TypeScript Expo (React Native) app** talks
+**directly to Supabase** — Postgres (with RLS as the security boundary), Auth,
+Storage, and a handful of **Edge Functions** for the few jobs that must run
+server-side. There is **no Express backend anymore**: the app queries the
+database through the Supabase JS client, and the server-side logic (URL import,
+Claude generation, the live-USDA resolver tail, the TheMealDB key proxy, account
+deletion) lives in `supabase/functions/`. Recipes come from TheMealDB (seed) and
+from users (imports + their own writing + Otto's generations). Nutrition is
+computed **on-device** from **USDA FoodData Central** data bundled into the app.
+Two hard rules run through everything:
 
 - **Honesty law** — never fabricate data. `null` beats a guess.
 - **Semantic ink** — terracotta = computed/interactive, ink = human-authored.
 
 ```
 Recipe-App/
-├── mobile/     Expo SDK 54 · React Native 0.81 · expo-router v6 · JS/JSX only
-├── backend/    Express 5 · Drizzle ORM · Supabase Postgres · Supabase Auth
-├── docs/       Design system, decision log, roadmaps, tickets, these breakdowns
+├── app/         expo-router v6 file-based routes (TypeScript)
+├── src/         features/ (feature-first modules) + shared/ + types/
+├── supabase/    functions/ (edge functions) + migrations/ (SQL schema + RLS)
+├── assets/      mascot art, action art, food-category icons, app icons
+├── docs/        Design system, decision log, roadmaps, tickets, these breakdowns
+├── e2e/ · test/ integration + node --test suites
 ├── reusable-app/               Extracted reusable app scaffold (Otto = worked example)
 ├── reusable-website-branding/  Reusable brand/website scaffold
 └── altavida/                   A second brand built on the reusable scaffold
 ```
 
+Stack in one line: **Expo SDK 54 · React Native 0.81 · React 19 · expo-router
+v6 · TypeScript · TanStack Query v5 · zod v4 · Supabase JS v2 · Lora (serif)**.
+
 ---
 
-## 2. Mobile app (`mobile/`)
+## 2. The app (`app/` + `src/`)
 
-### 2.1 Bootstrap & provider tree — `app/_layout.jsx`
+### 2.1 Bootstrap & provider tree — `app/_layout.tsx`
 
-The root layout loads fonts (Lora) and nests the global providers. **Order matters**
-(inner providers depend on outer ones):
+The root layout loads Lora (render-gated on it so the serif never flashes
+system-first) and nests the providers. v2 has **one** React context (`Auth`);
+everything else that used to be a context is now server state in TanStack Query.
 
 ```
-ThemeProvider              tokens/colors (light-only lock)
-└── AuthProvider           Supabase session → user
-    └── NutritionProvider  batched per-card nutrition (needs the session)
-        └── SavedProvider  the user's saved recipes (paw-mark state)
-            └── ToastProvider  global toast
-                └── <Stack>    expo-router screen stack
+GestureHandlerRootView
+└── ErrorBoundary
+    └── SafeAreaProvider
+        └── QueryClientProvider    TanStack Query (staleTime 60s, retry 1)
+            └── AuthProvider       Supabase session → user (the one context)
+                └── <Stack>        expo-router screen stack
+                    + <ToastHost>  global toast
+                    + <NotifSync>  keeps OS reminders in step with plan+prefs
 ```
 
 ### 2.2 Routing — `app/` (file-based, expo-router)
@@ -49,247 +64,238 @@ Every file is a route. Groups in `(parens)` don't add a URL segment.
 
 | Path | Screen |
 |---|---|
-| `app/_layout.jsx` | Root: providers + stack + splash gate |
-| `app/onboarding.jsx` | 3-screen painted intro (no account wall) |
-| `app/(tabs)/_layout.jsx` | Bottom tab bar |
-| `app/(tabs)/index.jsx` | **Discover** (search, categories, "Otto's pick") |
-| `app/(tabs)/cookbook.jsx` | **Cookbook** (All · Saved · My recipes) |
-| `app/(tabs)/create.jsx` | **Create** hub |
-| `app/(tabs)/plan.jsx` | **Otto's week** planner |
-| `app/(tabs)/profile.jsx` | **You** (stats, journal, units, sign-out) |
-| `app/recipe/[id].jsx` | Recipe detail (nutrition, scaling, video) |
-| `app/recipe/cook/[id].jsx` | **Cook mode** (mise-en-place → big-type steps → finish) |
-| `app/recipe/edit.jsx` | Recipe editor (write/edit own) |
-| `app/add.jsx` | Add sheet (paste URL / write it myself) |
-| `app/shopping.jsx` | Shopping list |
+| `app/_layout.tsx` | Root: providers + stack |
+| `app/index.tsx` | Launch gate → onboarding / sign-in / tabs (`resolveRoute`) |
+| `app/onboarding.tsx` | Painted intro (no account wall) |
+| `app/(tabs)/_layout.tsx` | Bottom tab bar (5 tabs; raised center ＋) |
+| `app/(tabs)/index.tsx` | **Discover** (search, category tiles, Otto's pick) |
+| `app/(tabs)/cookbook.tsx` | **Cookbook** (All · Saved · My recipes) |
+| `app/(tabs)/create.tsx` | **Create** — chat with Otto to build a recipe |
+| `app/(tabs)/plan.tsx` | **Plan** — Otto's week |
+| `app/(tabs)/profile.tsx` | **Account** (stats, journal, prefs, sign-out) |
+| `app/recipe/[id].tsx` | Recipe detail (nutrition, scaling, video) |
+| `app/recipe/cook/[id].tsx` | **Cook mode** (mise-en-place → big-type steps → finish) |
+| `app/recipe/edit.tsx` | Recipe editor (write/edit own; import/generate land here) |
+| `app/add.tsx` | Add sheet (paste URL / snap a photo / write it myself) |
+| `app/shopping.tsx` | Shopping list (personal + shared household) |
+| `app/household.tsx` | Shared-kitchen membership |
+| `app/journal.tsx` | Cook journal |
+| `app/chats.tsx` | Otto chat threads |
+| `app/otto-club.tsx` | Membership/paywall surface |
+| `app/notifications.tsx`, `preferences.tsx`, `faq.tsx` | Secondary screens |
 | `app/(auth)/*` | sign-in, sign-up, forgot-password |
-| `app/auth/callback.jsx`, `reset-password.jsx`, `change-password.jsx` | Auth flows |
-| `app/otto-club.jsx` | Membership/paywall surface |
-| `app/journal.jsx`, `household.jsx`, `notifications.jsx`, `preferences.jsx`, `faq.jsx` | Secondary screens |
+| `app/auth/callback.tsx`, `reset-password.tsx`, `change-password.tsx` | Auth flows |
 
-### 2.3 State — `context/` (React Context providers)
+Screen files are thin — most delegate to a `*Screen` component in the owning
+feature module (e.g. `app/(tabs)/cookbook.tsx` → `features/cookbook/CookbookScreen`).
 
-| File | Responsibility |
+### 2.3 Feature modules — `src/features/*` (feature-first)
+
+Each feature owns its screens, components, pure logic (`*.ts` + `*.test.mjs`),
+and **all its server state** in a `*.queries.ts` file (TanStack Query hooks over
+the Supabase client — no raw `fetch` in screens). `index.ts` is the public seam.
+
+| Feature | Owns |
 |---|---|
-| `AuthContext.jsx` | Wraps Supabase auth; exposes `session/user/isSignedIn/signOut` |
-| `SavedContext.jsx` | Single source of truth for saved recipes; optimistic paw-mark toggles |
-| `NutritionContext.jsx` | Batches per-card nutrition into **one request per frame**, memory-cached, so a card and its detail page never disagree |
-| `ThemeContext.jsx` | Light-only locked token set; `useTheme()` read API |
-| `ToastContext.jsx` | Global toast; `useToast().show({...})` |
+| `auth/` | `AuthProvider`, the auth screens, OAuth (`oauth*.ts`), username/social helpers |
+| `recipes/` | Discover + detail, TheMealDB transform (`mealdb.transform.ts`), recipe scaling (`recipe.scale.ts`), category/filter/video components |
+| `cookbook/` | Cookbook screen; "mine" vs "saved" queries; RecipeCard |
+| `import/` | Add sheet, edit-recipe screen, `import.queries.ts` (edge calls + recipes CRUD), `draft.ts` (Add→editor hand-off) |
+| `cook/` | Cook mode: `session.ts` (step split + ingredient match), `stepEnrich.ts` (timers/temps), `stepAction.ts` (which Otto art), StepCard/TimerHub |
+| `nutrition/` | The **deterministic engine** (`engine/`, §3), NutritionCard, CalorieRing, `estimates.ts` (category fallback), the seed-cache + resolver queries |
+| `planner/` | Week model (`week.ts`), plan picking, `shoppingList.ts` (aisle rollup), plan/shopping screens |
+| `household/` | Shared kitchen: `useHousehold`/`useSharedList` (realtime), `household.queries.ts` |
+| `journal/` | Cook journal logic + screen |
+| `chat/` | Otto chat: `chat.logic.ts`, `useChat`, calls `generate-recipe` in chat mode |
+| `share/` | Share cards, share text/image, capability tokens (`token.ts`), `share.queries.ts` |
+| `notifications/` | Notif prefs + `NotifSync`; expo-notifications wiring |
+| `onboarding/` | Splash, onboarding screen, first-run `gate.ts` / `resolveRoute` |
+| `profile/` | Account screen + sub-screens (FAQ, Household, Otto Club, Preferences), prefs logic |
 
-### 2.4 Components — `components/`
+### 2.4 Shared — `src/shared/*`
 
-Presentational + Otto's brand pieces.
-
-- **Brand:** `PawMark` (the save mark, emits on `ottoBus`), `OttoStates` / `OttoIdle` (mascot at emotional beats), `AnimatedSplash`.
-- **Recipe UI:** `RecipeCard`, `CategoryFilter`, `FilterSheet`, `ScreenHeader`, `SafeScreen`, `Bounceable`, `LoadingSpinner`, `NoFavoritesFound`.
-- **Nutrition:** `nutrition/NutritionCard.jsx` (the card in the screenshots), `nutrition/CalorieRing.jsx`.
-- **Sharing:** `ShareCard`, `ShoppingListShareCard`, `ShareCoachSheet`.
-- **Video:** `VideoEmbed.native.jsx` / `VideoEmbed.web.jsx` (platform-split file — Metro picks by extension).
-- **Auth:** `SocialAuthButtons`.
-
-### 2.5 The deterministic engines — `lib/`
-
-This is where the real logic lives. **No LLM in the render path** — all pure JS.
-
-| File | What it does |
+| Path | What it is |
 |---|---|
-| `ingredientParser.js` | Ingredient line → qty/unit/item; kitchen-fraction scaling; US↔Metric |
-| `ingredientWeight.js`, `cupWeights.json` | Volume↔weight conversion tables |
-| `foodScale.js` | Scales a whole ingredient list by a factor |
-| `stepEnrich.js` | Parses durations/temperatures out of method steps |
-| `cookSession.js` | Splits steps for Cook mode; matches step ↔ ingredients |
-| `stepAction.js` | Chooses which Otto action illustration a step shows |
-| `shoppingList.js` | Sums ingredients across the week into aisle sections |
-| `week.js` | The 7-day planner model |
-| `fdaCalories.js` | FDA calorie rounding for the label (21 CFR 101.9) |
-| `suggest.js` | Search/suggestion helpers |
-| `api.js` | `authFetch` — fetch with Supabase token, 15s timeout, GET retry |
-| `supabase.js` | Supabase client |
-| `socialAuth.js`, `username.js` | Auth helpers |
-| `notifications.js` | expo-notifications wiring |
-| `share*.js` (`shareCard`, `shareText`, `shareIntent`), `uploadRecipePhoto.js` | Sharing + photo capture |
-| `draftStore.js` | Module-level hand-off slot: Add sheet → editor |
-| `ottoBus.js` | Tiny event bus so Otto reacts to app events (save → mascot) |
-| `prefs.js` | Local preferences (unit system, etc.) |
+| `theme/tokens.ts` | The **one** token source — colors, macro colors, overlays, type scale, spacing, radii, springs, shadows. Light-only, plain module (not a context). No file hardcodes a hex. |
+| `ui/` | Primitives: `Text` (applies semantic-ink color per role), `Button`, `Input`, `Screen`, `Sheet`, `Ring`, `Toast`, `SegmentBar`, `Bounceable`, `ErrorBoundary`, `TabBarCreateButton`, and the Otto marks (`OttoArt`, `OttoStates`, `OttoIdle`, `PawMark`) |
+| `supabase/client.ts` | The Supabase JS client (AsyncStorage-backed session) |
+| `assets.ts` | Typed asset registry — the ONE place painted art is `require()`d |
+| `haptics.ts`, `motion.ts` | Haptic + reanimated-spring helpers |
+| `storage.ts`, `bus.ts`, `imagePicker.ts` | AsyncStorage wrapper, tiny event bus (Otto reacts to saves), photo picker |
+| `lib/` | `fdaCalories.ts` (FDA label rounding, 21 CFR 101.9) + `format.ts`. **Note:** the nutrition engine is NOT here — it lives in `features/nutrition/engine/`; the cook/scale/shopping libs live in their feature modules. |
 
-### 2.6 Data sources — `services/`
+### 2.5 Types — `src/types/`
 
-The **RecipeSource seam** on the client:
-
-| File | What it does |
-|---|---|
-| `mealAPI.js` | Seed recipes via **our** backend (`/api/content`), not TheMealDB directly (the paid key is injected server-side). SWR memory cache. |
-| `userRecipes.js` | User recipes (imports + own). Owns the id convention: seed = `"52772"`, user = `"u-<dbId>"`. `NutritionAPI` for computed values. Both sources emit the **same recipe shape** so detail/cook/cards need no branches. |
-
-### 2.7 The rest
-
-- `constants/` — `colors.js`, `tokens.js` (spacing/type/radius/timing), `api.js` (API_URL), `foodIcons.js`, **`nutritionEstimates.js`** (category-typical fallback estimates).
-- `hooks/` — `useDebounce.js`, `useUnitSystem.js`.
-- `assets/styles/*.styles.js` — per-screen StyleSheet modules (one per screen).
-- `test/`, `lib/__tests__/` — `node --test` unit tests.
+- `database.ts` — generated Supabase table types (`Tables`, `TablesInsert`).
+- `ids.ts` — **branded** ids with validating constructors: `SeedId` (numeric
+  content, `"52772"`), `UserRecipeId` (`"u-"`-prefixed), `UserId` (a UUID). An
+  invalid string throws rather than silently branding.
 
 ---
 
-## 3. Backend (`backend/`)
+## 3. The nutrition engine — `src/features/nutrition/engine/`
 
-### 3.1 The server — `src/server.js`
-
-One Express app. Middleware pipeline, in order:
-
-```
-trust proxy (prod)
-  → CORS (ottosapp.com + www built in, WEB_ORIGINS extra)
-  → helmet
-  → request id + structured logging
-  → apiLimiter (global rate limit)
-  → routes
-```
-
-Route groups (all `/api/*` require `requireAuth` **except** `/api/content` and the
-public share pages), each with a tiered rate limiter:
-
-| Group | Routes | Limiter |
-|---|---|---|
-| Content | `GET /api/content/:endpoint` (TheMealDB passthrough) | `contentLimiter` |
-| Favorites | `POST/GET/DELETE /api/favorites` | default |
-| Import | `POST /api/import`, `/import/text`, `/import/photo` | `costlyLimiter` |
-| Generate | `POST /api/generate`, `/generate/chat` | `costlyLimiter` |
-| Recipes | CRUD `/api/recipes`, `/recipes/:id/nutrition/recompute` | default/costly |
-| Nutrition | `GET /api/nutrition/seed[/:mealId]` | `seedReadLimiter` |
-| Plan | `GET/POST/PATCH/DELETE /api/plan` | default |
-| Account | `DELETE /api/account` | `destructiveLimiter` |
-| Sharing | `/api/recipes/:id/share`, `/api/share/list`, collab `/api/lists/*` | default/costly |
-| Public pages | `GET /r/:slug`, `/l/:token`, `/hl/:token` | `publicShareLimiter` |
-
-### 3.2 Config & middleware — `src/config/`, `src/middleware/`
-
-| File | What it does |
-|---|---|
-| `config/env.js` | Central env loading (all `process.env` reads live here) |
-| `config/db.js` | Drizzle client over Supabase Postgres |
-| `middleware/auth.js` | `requireAuth` — verifies the Supabase JWT, derives the user (never trust a client-sent userId) |
-
-### 3.3 Domain logic — `src/lib/`
-
-| File / dir | What it does |
-|---|---|
-| `content/RecipeSource.js` | Server-side seam over the seed source (TheMealDB adapter). `getById/search/filterByIngredient/randomBatch`. |
-| `importRecipe.js` | URL → recipe draft via **schema.org JSON-LD**. Deterministic, SSRF-guarded, returns null on miss. |
-| `import/extractRecipe.js` | Text → recipe via Claude (dormant without key). |
-| `import/extractPhoto.js` | Photo → recipe via Claude vision. |
-| `import/social.js` | Social URLs (detect platform → import). |
-| `generateRecipe.js` | "Cook something up with Otto" — Claude writes a draft; `is_possible` gate; always lands on the edit screen; saved with source `otto`. |
-| `validate.js` | zod schemas per endpoint (`schemas.*`) + `validate()` middleware |
-| `rateLimits.js` | The tiered limiters |
-| `logger.js` | pino structured logging + `reportError` (Sentry) |
-| `sharePages.js` | Server-rendered public share HTML (`/r`, `/l`, `/hl`) |
-| `weightDisplay.js` | Formats weights for display |
-| **`nutrition/`** | The nutrition subsystem — see §4 |
-
-### 3.4 Database — `src/db/`
-
-- `schema.js` — Drizzle table defs. Tables: `favorites`, `recipes`, `plan_entries`,
-  `seed_nutrition`, `resolved_ingredients`, `recipe_shares`, `list_shares`,
-  `collab_lists`, `collab_items`.
-- `migrations/` — generated SQL + `meta/` snapshots. RLS enabled.
-
-### 3.5 Scripts & tests
-
-- `scripts/` — **build** the bundled data (`build-usda-table.mjs`, `build-cooked-table.mjs`,
-  `build-piece-weights.mjs`, `build-cup-weights.mjs`), **audit** it
-  (`audit-*.mjs`), and one-off ops (`refresh-nutrition.mjs`, `recompute-user-recipes.mjs`,
-  `cleanup-anonymous-users.mjs`). `corpus/a..z.json` is the cached TheMealDB corpus for offline audits.
-- `test/` — `node --test` covering parsing, provider, resolver, imports, share pages,
-  account deletion, and `goldenNutrition.test.mjs` (regression on known recipes).
-
----
-
-## 4. The nutrition subsystem — `backend/src/lib/nutrition/`
-
-The heart of the app, and the most-worked area. Three stages, USDA-backed, cached.
+The heart of the app moved on-device. **Zero network calls at runtime** — a
+recipe view is pure arithmetic that can't be rate-limited or broken by a vendor
+outage. Deterministic, no LLM in the compute path. Three stages:
 
 ```
 ingredient line
    │
-   ▼  parseIngredient.js            ── measurement → grams
- { qty, unit, item, grams, confidence }
+   ▼  parse.ts                     ── measurement → grams (densities, piece/cup
+ { qty, unit, item, grams, confidence }    weights, fraction/range parsing)
    │
-   ▼  lookup()  (usdaProvider.js)   ── name → USDA food row
- usdaTable.json  (943 rows, per-100g values)
-   │  (miss?) → resolveIngredient.js  ── Claude PICKS a real USDA record (never invents)
-   │  (raw vs cooked?) → resolveCooked.js / usdaCookedTable.json
-   ▼
- usdaProvider.js                    ── grams × per-100g ÷ servings, + guards
- { kcal, protein_g, carbs_g, fat_g, …, confidence } | null
+   ▼  lookup.ts                    ── name → USDA food row (exact + qualifier-strip)
+ data/usdaTable.json  (962 rows, per-100g)  + data/usdaCookedTable.json (cooked states)
+   │
+   ▼  compute.ts + guards.ts       ── grams × per-100g ÷ servings, guards, confidence
+ { kcal, protein_g, carbs_g, fat_g, …, basis, doubt } | null
 ```
 
 | File | Role |
 |---|---|
-| `parseIngredient.js` | Line → grams. Owns unit vocabulary, densities, piece weights, fraction/range parsing, pack-size + frying-oil handling. |
-| `NutritionProvider.js` | The seam. `computeNutrition(ingredients, servings, recipeId, steps)`. Picks the active provider. |
-| `usdaProvider.js` | The active provider. Name→record lookup (with qualifier stripping), the **guards** (canned-legume→cooked, frying-medium, coverage floor, kcal plausibility, raw/cooked ambiguity), the per-nutrient sum, and the confidence score. |
-| `usdaTable.json` | 943 TheMealDB names → real USDA records (fdcId + per-100g). Built by `scripts/build-usda-table.mjs`. |
-| `usdaCookedTable.json` | Cooked-state records (raw brown rice 360 vs cooked 123). |
-| `pieceWeights.json`, `cupWeights.json` | USDA-verified piece and cup weights. |
-| `recipeFacts.json` | Per-seed-recipe curated facts: real servings + which lines arrive already cooked. |
-| `resolveIngredient.js` | Claude-as-matcher (dormant without `ANTHROPIC_API_KEY`). Stage 1: pick from the bundled table. Stage 2: live USDA search (`usdaSearch.js`) → pick a real candidate. Cached in `resolved_ingredients`. |
-| `resolveCooked.js` | Claude reads the method to settle raw-vs-cooked for ambiguous grains. |
-| `usdaSearch.js` | Live USDA FoodData Central search (needs `USDA_API_KEY`). |
-| `lifecycle.js` | **When** nutrition runs: async on create/edit/recompute, backfilled onto the row, **never on read**. |
+| `parse.ts` | Line → grams. Unit vocabulary, densities, `data/pieceWeights.json` + `data/cupWeights.json`, fraction/range parsing. |
+| `lookup.ts` | Name → USDA row against `data/usdaTable.json` (with qualifier stripping) and cooked-state row against `data/usdaCookedTable.json`. |
+| `compute.ts` | The deterministic sum: coverage floor, per-nutrient totals, confidence, and the **honesty law** — below coverage or on an ambiguous grain it returns `null`. |
+| `guards.ts` | The guards: frying-medium, batch condiments, typical amounts, carb ceiling, kcal plausibility, negligible lines, coverage/serving bounds. |
+| `schemas.ts` | zod schema for the stored/returned nutrition shape (trust boundary). |
+| `data/recipeFacts.json` | Per-seed-recipe curated facts: real `servings` + which lines arrive already `cooked` (a language judgement TheMealDB never states — it only chooses WHICH USDA record applies). |
+| `data/*.json` | Bundled tables (USDA raw/cooked, piece/cup weights, recipe facts). Built offline; no build step ships with the app. |
 
-**Runtime cost: zero network calls.** `usdaTable.json` ships with the backend, so a
-recipe view is pure arithmetic — can't be rate-limited, can't break if a vendor is down.
-Claude/USDA-search only run once per unseen ingredient, then cache forever.
+The v1 resolver tails (Claude-as-matcher, cooked-state classifier) are **outside**
+the engine now — they're the `resolve-nutrition` edge function (§5). Their dormant
+behavior *is* the engine's behavior: an unmatched line stays unmatched.
 
-### The two client-side consumers
-
-- `NutritionCard.jsx` renders `computed` (the USDA object) when present; when it's
-  `null` it falls back to the **category estimate** from `constants/nutritionEstimates.js`
-  and says *"from this kind of dish."* (This fallback is the source of the phantom-carbs
-  behaviour seen in QA — see the diagnosis in chat / `docs/QA.md`.)
-- `NutritionContext.jsx` batches card-level requests so cards and detail agree.
+**Two consumers** (`nutrition/`): `NutritionCard` renders the computed USDA
+object when present; when it's `null` it falls back to the **category estimate**
+in `estimates.ts` and labels it *"ESTIMATED PER SERVING."* `nutrition.queries.ts`
+reads the `seed_nutrition` cache first, computes locally second, and only then
+asks the resolver for names the bundled table missed (§6).
 
 ---
 
-## 5. Cross-cutting conventions
+## 4. Data layer — TanStack Query + Supabase + RLS
+
+There is no server JWT-verify middleware for data reads. **RLS is the security
+boundary.** Components call feature `*.queries.ts` hooks that use the Supabase
+JS client directly:
+
+- **Reads/writes** go straight to Postgres via `supabase.from('...')`, scoped by
+  the authenticated user's RLS policies (owner-only on every user table).
+- **Realtime**: the shared shopping list subscribes via
+  `supabase.channel().on('postgres_changes', …)` — see
+  `src/features/household/useHousehold.ts` (`useHousehold` + `useSharedList`); a
+  push just invalidates the relevant Query key.
+- **Edge functions** (§5) are invoked with `supabase.functions.invoke(...)`,
+  which attaches the session token; the function derives identity from it.
+- **Capability-URL data** (share pages, collab lists) is read/written only
+  through `SECURITY DEFINER` RPCs (§6), never bare table SELECTs.
+
+---
+
+## 5. Supabase (`supabase/`)
+
+### 5.1 Edge functions — `supabase/functions/`
+
+Five functions plus shared plumbing (`_shared/http.ts`: CORS, `json`,
+`getUserId` — verifies the access token and derives the user id, never trusts a
+client-sent one — `serviceClient`, and a per-user sliding-window `rateLimited`).
+
+| Function | Method | Auth | Job |
+|---|---|---|---|
+| `content/` | GET | anon JWT only | TheMealDB **v2 supporter** passthrough. Endpoint + param allowlist, TTL cache with stale-on-error. Exists only to keep `THEMEALDB_KEY` out of the app bundle; refuses (503) if the key is unset (no free-tier fallback). |
+| `import-recipe/` | POST | user | URL → recipe draft via **schema.org JSON-LD**. Deterministic, no LLM. **SSRF-guarded**: resolve-then-connect, every redirect hop's resolved IP checked against private/reserved ranges (incl. IPv4-mapped IPv6 bypasses). Returns 422 on no-recipe. |
+| `generate-recipe/` | POST | user + rate-limit | Claude (`claude-opus-4-8`). Body decides the mode: `{prompt}` → one-shot, `{messages}` → **chat**, `{image}` → **vision (photo→recipe)** via `imageMode.ts`. JSON-schema-constrained; `is_possible`/decline gate; **dormant (503)** without `ANTHROPIC_API_KEY`. |
+| `resolve-nutrition/` | POST | user + rate-limit | Live-USDA tail for names the on-device table misses. USDA FoodData Central search → Claude (`claude-haiku-4-5`) **picks** a real `fdcId` (never invents a calorie; honesty guard: the pick must be a returned candidate). Caches hits AND misses in `resolved_ingredients`. Needs both `ANTHROPIC_API_KEY` + `USDA_API_KEY`; else honest miss. |
+| `delete-account/` | POST/DELETE | user + rate-limit | App Store 5.1.1(v). Order kept from v1: `admin_delete_user_data` RPC (one transaction), then Storage photos, then the auth user. |
+
+Every AI/costly path: token-derived identity, per-user rate limit, dormant gate
+with honest 503 copy, and error bodies written in Otto's voice (the client puts
+them straight on a toast).
+
+### 5.2 Schema & RLS — `supabase/migrations/*.sql`
+
+Plain SQL migrations (not Drizzle). RLS enabled on every table; user tables are
+owner-only. Notable tables:
+
+| Table | Purpose |
+|---|---|
+| `recipes` | User imports/creations/generations (`id serial`; ingredients/steps `jsonb`; `nutrition jsonb`; `source`, `visibility`). Owner-only CRUD. |
+| `favorites` | Saved recipes (paw-mark). Owner-only. |
+| `plan_entries` | The week planner. Owner-only (+ household-read). |
+| `seed_nutrition` | Server-computed USDA figures for seed recipes. Read-all. |
+| `resolved_ingredients` | Durable resolver cache (name → USDA food row). Read-all; service-role write. |
+| `recipe_shares`, `list_shares` | Capability-token share rows. Owner CRUD; public read via RPC only. |
+| `collab_lists`, `collab_items` | Token-gated collaborative shopping lists. |
+| `households`, `household_members`, `household_list_state` | Shared-kitchen shopping list (realtime). Membership gated by `is_household_member()`; join via `join_household(code)`. |
+
+`SECURITY DEFINER` functions are the only path to capability-URL data
+(`get_recipe_share`, `get_list_share`, `get_collab_list`, `add_collab_item`,
+`set_collab_item_checked`, `delete_collab_item`) and to account deletion
+(`admin_delete_user_data`). Each pins an empty `search_path`, revokes the default
+PUBLIC grant, and re-grants to exactly the roles that need it. RLS attacks are
+regression-tested in `supabase/migrations/tests/rls-attacks.test.mjs`.
+
+---
+
+## 6. Cross-cutting conventions
 
 | Concern | How it works |
 |---|---|
-| **Auth** | Supabase Auth. Client attaches JWT via `authFetch`; server verifies in `requireAuth` and derives the user. Anonymous browsing until first save. |
-| **Recipe source seam** | Two sources (TheMealDB seed, user recipes) behind one shape. `RecipeSource.js` (server) + `services/*` (client). Swap the adapter, UI unchanged. |
-| **ID convention** | Seed = numeric string (`"52772"`); user = `"u-<dbId>"`. `isUserRecipeId()` is the only place that knows. |
-| **Honesty law** | No fabricated numbers. Nutrition returns `null` rather than guess; UI degrades to a labelled estimate. |
-| **Caching** | Content SWR (client, 5 min); nutrition computed once and stored; ingredient resolutions cached in `resolved_ingredients` forever. |
-| **AI is dormant-safe** | Every Claude path (`generate`, `extract*`, `resolve*`) no-ops without `ANTHROPIC_API_KEY`; the app still works, just more deterministic. |
-| **Styling** | Tokens only (`constants/tokens.js`, `colors.js`), light-only lock, per-screen `.styles.js`. |
+| **Auth** | Supabase Auth. `AuthProvider` is the only React context. Edge functions derive identity from the verified token via `getUserId`; data access is guarded by RLS. |
+| **Recipe source seam** | Two sources (TheMealDB seed via `content/`, user recipes in `recipes`) behind one recipe shape (`mealdb.transform.ts` normalizes TheMealDB). Detail/cook/cards never branch on origin. |
+| **ID convention** | `src/types/ids.ts` — `SeedId` numeric (`"52772"`), `UserRecipeId` `"u-<recipes.id>"`, `UserId` UUID. A route ref starting `u-` routes to the DB; else a seed id → `content/`. |
+| **Honesty law** | No fabricated numbers. The engine returns `null` rather than guess; the UI degrades to a labelled category estimate. |
+| **Semantic ink** | Terracotta = computed/interactive, ink = authored. Enforced by the `Text` primitive + `tokens.ts`. |
+| **Zero-runtime-cost nutrition** | `usdaTable.json` (962 rows) ships in the app; a recipe view is pure arithmetic. Claude/USDA-search run once per unseen ingredient, then cache in `resolved_ingredients` forever. |
+| **AI is dormant-safe** | Every Claude path (`generate-recipe`, `resolve-nutrition`) 503s without `ANTHROPIC_API_KEY`; the app still works, just more deterministic. |
+| **Data access** | All server state in feature `*.queries.ts` via TanStack Query; no raw `fetch` in screens. |
+| **Styling** | Tokens only (`shared/theme/tokens.ts`), light-only lock. |
 
 ---
 
-## 6. Key data flows
+## 7. Key data flows
 
 **Import a recipe (URL):**
-`add.jsx` → `POST /api/import` → `importRecipe.js` (schema.org) → draft → `draftStore` → `recipe/edit.jsx` → save → `POST /api/recipes` → `lifecycle.js` backfills nutrition.
+`add.tsx` → `import.queries.ts` `invoke('import-recipe', {url})` → schema.org
+JSON-LD (SSRF-guarded) → draft → `draft.ts` hand-off → `recipe/edit.tsx` → save
+via `supabase.from('recipes').insert(...)` (RLS owner-scoped).
 
-**Generate with Otto:**
-`create.jsx` → `POST /api/generate` → `generateRecipe.js` (Claude, `is_possible` gate) → draft → edit screen → save (source `otto`).
+**Generate with Otto (chat):**
+`(tabs)/create.tsx` → `chat.queries.ts` `invoke('generate-recipe', {messages})`
+→ Claude Opus, chat mode (`clarify`/`recipe`/`decline`) → recipe lands on the
+edit screen → save with `source: 'otto'`.
+
+**Snap a photo → recipe:**
+`add.tsx` → `invoke('generate-recipe', {image})` → vision mode → same review
+editor.
 
 **View nutrition:**
-`recipe/[id].jsx` reads stored `seed_nutrition`/`recipes.nutrition` → `NutritionCard` renders `computed`, or falls back to `nutritionEstimates.js`.
+`recipe/[id].tsx` → `nutrition.queries.ts` reads `seed_nutrition` cache → else
+`engine/compute.ts` locally → else `resolve-nutrition` for missing names, then
+recompute → `NutritionCard` renders the computed object or `estimates.ts`.
 
 **Cook mode:**
-`recipe/cook/[id].jsx` ← `cookSession.js` (step split + ingredient match) + `stepEnrich.js` (timers) + `stepAction.js` (Otto art).
+`recipe/cook/[id].tsx` ← seed via `content/lookup.php` (or the DB row) ←
+`cook/session.ts` (step split + ingredient match) + `stepEnrich.ts` (timers) +
+`stepAction.ts` (Otto art).
+
+**Shared shopping list:**
+`shopping.tsx` / `household.tsx` → `useSharedList(householdId)` → reads
+`household_list_state`, mutates via `set_checked` etc., and a
+`postgres_changes` channel invalidates the Query key so every member's list
+updates live.
 
 ---
 
-## 7. External services & env
+## 8. External services & env
 
-| Service | Used for | Key |
+| Service | Used for | Key (Supabase secret / env) |
 |---|---|---|
-| Supabase | Postgres + Auth + Storage | `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
-| TheMealDB | Seed recipes (server-side supporter key) | in `RecipeSource.js` |
-| USDA FoodData Central | Nutrition (bundled; live search optional) | `USDA_API_KEY` (optional) |
-| Anthropic (Claude) | Import/extract/generate/resolve (all optional) | `ANTHROPIC_API_KEY` |
-| Sentry | Error reporting | Sentry DSN |
+| Supabase | Postgres + Auth + Storage + Edge Functions | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
+| TheMealDB | Seed recipes (server-side supporter key) | `THEMEALDB_KEY` (in the `content` function) |
+| USDA FoodData Central | Nutrition (bundled on-device; live search optional) | `USDA_API_KEY` (optional, `resolve-nutrition`) |
+| Anthropic (Claude) | generate / resolve (all optional/dormant-gated) | `ANTHROPIC_API_KEY` |
 
-Client env is `EXPO_PUBLIC_*` (inlined at build). Backend runs on `:5001`; app (Expo) on `:8081`.
+Client env is `EXPO_PUBLIC_*` (inlined at build) for the Supabase URL + anon
+key. Edge-function secrets live in Supabase, never in the bundle.

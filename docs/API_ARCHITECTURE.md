@@ -1,220 +1,162 @@
 # Otto — API Communication Architecture
 
-Status: **adopted 2026-07-21** (cloud session; decisions logged as Phase 13 in
-`docs/REDESIGN_NOTES.md`). This is the authoritative map of how every byte
-moves between the app, the backend, and the outside world — what is shipped,
-the contracts every route follows, and the numbered plan for the rest.
-
-Companion docs: `BACKEND_ROADMAP.md` (feature history), `PRE_LAUNCH_CHECKLIST.md`,
-`TERMINAL_TICKET_*.md` (work handed to the terminal session).
+The authoritative map of how the app talks to the outside world in **v2**. There
+is **no Express backend**: the app talks **directly to Supabase** (Postgres via
+the JS client, guarded by RLS) and calls a small set of **Edge Functions** for
+the jobs that must run server-side (secret keys, arbitrary-URL fetching, the
+Claude calls, account deletion). Companion docs: `ARCHITECTURE.md` (the file
+tree), `PRE_LAUNCH_CHECKLIST.md`.
 
 ---
 
-## 1. The four planes (shipped today)
+## 1. The planes
 
 ```
-┌─────────────── mobile (Expo RN, JS only) ───────────────┐
-│  services/mealAPI.js      services/userRecipes.js       │
-│  (content plane)          (user + AI planes, authFetch) │
-└───────────┬──────────────────────┬──────────────────────┘
-            │ no auth              │ Bearer <supabase JWT>
-            ▼                      ▼
-┌────────────────── backend (Express 5, Railway) ─────────────────┐
-│ /api/content/*        /api/{recipes,favorites,plan,lists,...}   │
-│    │                      │            /api/{import,generate}   │
-│    ▼                      ▼                   │                 │
-│ TheMealDB           Supabase Postgres         ▼                 │
-│ (supporter key,     (Drizzle; RLS backstop)  Claude API         │
-│  server-side)                                (dormant-gated)    │
-│                                                                 │
-│ /r /l /hl — server-rendered public share pages (no app needed)  │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────── app (Expo RN, TypeScript) ────────────────┐
+│  src/features/*/*.queries.ts  — TanStack Query hooks       │
+│  over @/shared/supabase/client (Supabase JS)               │
+└───────┬──────────────────┬──────────────────┬─────────────┘
+        │ direct queries    │ functions.invoke  │ functions.invoke
+        │ (RLS-scoped)      │ (session token)   │ (anon JWT)
+        ▼                   ▼                   ▼
+┌──────────────┐  ┌───────────────────────┐  ┌───────────────┐
+│ Postgres     │  │ Edge Functions        │  │ content/      │
+│ (RLS + RPCs) │  │ import-recipe         │  │ (TheMealDB    │
+│              │  │ generate-recipe       │  │  supporter    │
+│ recipes,     │  │ resolve-nutrition     │  │  proxy)       │
+│ favorites,   │  │ delete-account        │  └──────┬────────┘
+│ plan_entries │  └───────┬───────────────┘         │
+│ households…  │          │ Claude / USDA           ▼
+└──────────────┘          ▼                      TheMealDB v2
+                    api.anthropic.com
+                    api.nal.usda.gov
 ```
 
-### 1a. Content plane — Discover before signup
-- `mobile/services/mealAPI.js` → `GET /api/content/:endpoint` → TheMealDB.
-- **No auth by design** (Discover works for anonymous guests); `contentLimiter`
-  (600/15 min/IP) is what protects the paid key from being farmed as a proxy.
-- Endpoint allowlist (`search|lookup|random|categories|filter|list.php`) and
-  param allowlist (`s i a c f`) — anything else is dropped, not forwarded.
-- The supporter key lives ONLY in `ENV.THEMEALDB_KEY`. Never `EXPO_PUBLIC_*`:
-  anything bundled ships inside the IPA.
+Three ways bytes move:
 
-### 1b. User plane — everything owned by a person
-- `mobile/lib/api.js#authFetch` attaches the Supabase access token; the server
-  derives identity via `getUser` (never trusts a client-sent userId) and RLS
-  on all 8 tables backstops every query.
-- Resources: `recipes` (user ids `u-<dbId>`), `favorites`, `plan`, `lists`
-  (collab shopping, token = membership), `share` mint/revoke, `nutrition`
-  (compute-once cache), `account` (delete, two-tap + `destructiveLimiter`).
-- Every write is zod-validated at the edge (`lib/validate.js`); clamps mirror
-  the save schema so no flow can hand the editor an unsaveable draft.
+1. **Direct DB access** — `supabase.from('recipes').select()/insert()/…`. No
+   server hop. Every user table has RLS owner-only policies; the token the JS
+   client carries *is* the credential.
+2. **Edge functions** — `supabase.functions.invoke('<name>', …)`. The invoke
+   attaches the session token; the function verifies it (`getUserId`) and
+   derives identity from it — a client-supplied user id is never trusted.
+3. **Capability RPCs** — `SECURITY DEFINER` functions for share pages / collab
+   lists (§4), the only read/write path to that data (bare table SELECTs stay
+   impossible).
 
-### 1c. AI plane — Otto's paid brain (all dormant-gated)
-| Seam | Route | Model | Job |
+---
+
+## 2. Edge functions (`supabase/functions/`)
+
+Shared plumbing lives in `_shared/http.ts`: `corsHeaders`, `json(status, body)`,
+`preflight`, `getUserId(req)` (token → user id, or null), `serviceClient()`
+(service-role, from `Deno.env` only), and `rateLimited(key, limit, windowMs)` (a
+per-user sliding window). Service-role and API keys come **only** from
+`Deno.env` and are never logged or echoed.
+
+| Function | Method | Auth | Purpose (from its `index.ts`) |
 |---|---|---|---|
-| URL import | `POST /api/import` | none → Haiku fallback | JSON-LD first (deterministic, SSRF-guarded); LLM only for social captions |
-| Text import | `POST /api/import/text` | Haiku | classify-and-copy pasted words into a draft |
-| Recipe creation | `POST /api/generate` | Opus 4.8 | write a recipe from a wish (structured outputs, adaptive thinking) |
+| `content` | GET | anon JWT (no user) | TheMealDB **v2 supporter** passthrough. `endpoint` allowlist (`search/lookup/random/categories/filter/list.php`) + param allowlist (`s i a c f`). TTL cache (24h lookups, 1h search) with stale-on-error. Exists only to keep `THEMEALDB_KEY` out of the app bundle; **503 if the key is unset** — no free-tier fallback. |
+| `import-recipe` | POST | user | URL → recipe draft via **schema.org JSON-LD**. Deterministic, no LLM. **SSRF-guarded**: resolve-then-connect; every redirect hop's resolved IP checked against private/reserved ranges (v4, IPv6, and IPv4-mapped/NAT64 bypasses); 3 MB byte cap; http(s) only; 12s timeout. `422` when no recipe is found. |
+| `generate-recipe` | POST | user + rate-limit (20/15m) | Claude `claude-opus-4-8`, JSON-schema-constrained, adaptive thinking. Body selects the mode: **`{prompt}`** → one-shot recipe; **`{messages}`** → chat (`clarify`/`recipe`/`decline`); **`{image}`** → vision (photo→recipe) via `imageMode.ts`. `is_possible`/decline gate (422). **Dormant → 503** without `ANTHROPIC_API_KEY`. |
+| `resolve-nutrition` | POST | user + rate-limit (20/15m) | Live-USDA tail for ingredient names the on-device table misses. USDA FoodData Central search (`Foundation`+`SR Legacy`, per-100g) → Claude `claude-haiku-4-5` **picks** the matching `fdcId`. Honesty guard: the pick must be a candidate USDA actually returned, else `null`. Caches hits AND misses durably in `resolved_ingredients`. Needs `ANTHROPIC_API_KEY` + `USDA_API_KEY`; otherwise an honest (uncached) miss. |
+| `delete-account` | POST/DELETE | user + rate-limit (5/15m) | App Store 5.1.1(v). Order kept from v1: `admin_delete_user_data` RPC (one transaction over all owned rows), then Storage photos (`recipe-photos/<userId>/…`, paged), then the auth user. |
 
-The four-part pattern every AI seam follows — **new seams copy it exactly**:
-1. **Dormant gate**: `Boolean(ENV.ANTHROPIC_API_KEY)` → honest 503 copy when off.
-2. **`requireAuth` + `costlyLimiter`** (20/15 min/user) — money calls are never
-   anonymous and never unlimited.
-3. **Review-first**: output lands on the edit screen, never straight on the
-   shelf; saved rows carry an honest `source` label (`imported|manual|otto`).
-4. **Honest declines**: an `is_possible`-style gate returns a plain-language
-   reason (422) instead of inventing something.
+### The AI/costly pattern (every server-side money/destructive path)
+1. **Token-derived identity** — `getUserId`; never an anonymous or client-named user.
+2. **Per-user rate limit** — `rateLimited(...)` → 429 with plain-language copy.
+3. **Dormant gate** — `Boolean(Deno.env.get('ANTHROPIC_API_KEY'))` → honest 503.
+4. **Honest declines** — `is_possible`/candidate-guard → 422/`null`, never invention.
+5. **Review-first** — generated/imported drafts land on the edit screen; saved
+   rows carry an honest `source` (`imported` / `otto` / manual).
 
-### 1d. Public plane — links that work without the app
-- `/r/:slug` (recipe), `/l/:token` (list snapshot), `/hl/:token` (live collab
-  list) — server-rendered HTML, weight-first via `lib/weightDisplay.js` (the
-  backend mirror of `mobile/lib/foodScale.js`; Railway's Root Directory =
-  `backend` means the server can NEVER import `mobile/`).
-- Capability tokens ~72-bit CSPRNG; `publicShareLimiter` blunts scrapers, not
-  brute force (infeasible either way).
+Errors are returned as `{ error: "<sentence in Otto's voice>" }`; the client's
+`invokeEdge` surfaces that body verbatim onto a toast (see
+`src/features/import/import.queries.ts`).
 
 ---
 
-## 2. Cross-cutting contracts (the rules every route follows)
+## 3. Direct database access (TanStack Query + RLS)
 
-- **Auth**: `Authorization: Bearer <supabase access token>`; server-side
-  `getUser` per request; `req.userId` is the only identity.
-- **Error shape**: always `{ error: "user-ready sentence in Otto's voice" }`.
-  The client's `parseOrThrow` throws `body.error` verbatim — server copy IS
-  the toast. No stack traces, no error codes in bodies.
-- **Status vocabulary**: 400 invalid input · 401 no/bad token · 404 not yours
-  or gone · 422 honest decline (import/generate) · 429 limiter ·
-  502 upstream failed · 503 feature dormant.
-- **Rate-limit tiers** (`lib/rateLimits.js`): `apiLimiter` 300/min/IP global ·
-  `contentLimiter` 600/15m/IP · `costlyLimiter` 20/15m/user ·
-  `seedReadLimiter` 120/15m/user · `publicShareLimiter` 120/15m/IP ·
-  `destructiveLimiter` 5/15m/user.
-- **Upstream calls** always carry `AbortSignal.timeout(...)` — no route hangs
-  on a dead vendor.
-- **Logging**: pino + `reportError`; Sentry wakes when `SENTRY_DSN` lands.
-- **Client layer**: all network goes through `services/` (`MealAPI`,
-  `UserRecipeAPI`, `CollabAPI`, `ShareAPI`, `NutritionAPI`, `PlanAPI`) — no
-  raw `fetch` in screens. One recipe shape (`transformMealData` /
-  `transformUserRecipe`) so surfaces never branch on origin.
+Screens never `fetch`. Each feature owns a `*.queries.ts` with TanStack Query
+hooks over the Supabase client. RLS is the boundary — the same query run by two
+users returns two different row sets, enforced in Postgres, not in app code.
+
+| Domain | File | Talks to |
+|---|---|---|
+| Discover / detail | `features/recipes/recipe.queries.ts` | `content` fn (seed) + `recipes` table (user) |
+| Cookbook | `features/cookbook/{mine,saved}.queries.ts` | `recipes`, `favorites` |
+| Import / editor CRUD | `features/import/import.queries.ts` | `import-recipe` + `generate-recipe` fns, `recipes` insert/update/delete |
+| Nutrition | `features/nutrition/{nutrition,resolve}.queries.ts` | `seed_nutrition` (read), on-device engine, `resolve-nutrition` fn |
+| Planner | `features/planner/plan.queries.ts` | `plan_entries`, `content` fn (seed lookups) |
+| Household list | `features/household/household.queries.ts` + `useHousehold.ts` | `households*` tables + **Realtime** |
+| Chat | `features/chat/chat.queries.ts` | `generate-recipe` fn (chat mode) |
+| Share | `features/share/share.queries.ts` | `recipe_shares` / `list_shares` + capability RPCs |
+| Profile / account | `features/profile/profile.queries.ts` | prefs tables, `delete-account` fn |
+
+**Realtime**: `useSharedList` / `useHousehold`
+(`src/features/household/useHousehold.ts`) open a
+`supabase.channel().on('postgres_changes', …)` subscription on
+`household_list_state` / `household_members`; a push just
+`invalidateQueries` the relevant key, so every member's list updates live. (The
+tables are added to the `supabase_realtime` publication in the households
+migration.)
 
 ---
 
-## 3. The rest — numbered decisions (API-1 … API-10)
+## 4. Capability URLs — share pages & collab lists
 
-Effort: S < half a session · M ≈ a session. "Cloud" = doable here;
-"founder" = needs dashboard/CLI hands.
+Share/collab data is reached only through `SECURITY DEFINER` RPCs
+(`supabase/migrations/20260721090009_share_functions.sql`), each keyed on the
+exact slug/token so URLs are never enumerable:
 
-### API-1 · Deploy-provable health — **do first** (S, cloud + founder deploy)
-`/api/health` returns `{ success }` today, which is how prod ran a 3-day-old
-build while every ticket read ✅. Change: health also returns
-`{ version, sha }` (git sha baked at start from env or `RAILWAY_GIT_COMMIT_SHA`).
-A deploy check becomes `curl /api/health` — no more probing feature routes and
-reading 401-vs-404 tea leaves.
+| RPC | Returns | Granted to |
+|---|---|---|
+| `get_recipe_share(slug)` | `{status, recipe}` (owner `user_id` stripped) | anon + authenticated |
+| `get_list_share(token)` | `{status, payload}` (list snapshot) | anon + authenticated |
+| `get_collab_list(token)` | `{status, is_mine, items}` | authenticated only |
+| `add_collab_item / set_collab_item_checked / delete_collab_item` | the mutated row | authenticated only |
 
-### API-2 · Request IDs (S, cloud)
-Middleware stamps `req.id` (crypto random), echoes `X-Request-Id`, includes it
-in every pino line and `reportError`. When a founder screenshot says "it
-failed", the log line is findable. No client change required.
+Status vocabulary: `ok` / `revoked` (410) / `missing` or zero rows (404). Bare
+SELECTs on the underlying tables are blocked by RLS.
 
-### API-3 · Server-side content cache (S/M, cloud)
-`/api/content` re-fetches TheMealDB on every call. Add an in-memory TTL cache:
-`lookup/categories/list` 24 h · `search/filter` 1 h · `random` never cached.
-Cuts supporter-key quota, snaps Discover latency, and outages coast on warm
-entries. In-memory is enough — one Railway instance; revisit only if we scale
-out.
+---
 
-### API-4 · Versioning policy — a rule, not a prefix (S, doc-only)
-No `/api/v1/`. App-store clients live for months, so the real contract is:
-**additive-only changes; never repurpose or remove a field; a breaking change
-gets a NEW route name** (e.g. `/api/generate2`), and old routes die only when
-analytics say the old binaries are gone. A version prefix adds ceremony
-without changing that obligation.
+## 5. Cross-cutting contracts
 
-### API-5 · Client resilience (M, cloud)
-`authFetch` today = raw fetch: no timeout, no retry. Change: 15 s timeout on
-all calls; **one** retry with short backoff for idempotent GETs only (never
-POST — an import or generate must not double-fire); a tiny
-stale-while-revalidate module cache for Discover reads. Explicitly rejected:
-adopting react-query — a cross-cutting rewrite the app doesn't need at this
-size.
+- **Auth**: `Authorization: Bearer <supabase access token>`, attached by the JS
+  client. Edge functions verify + derive identity via `getUserId`; DB access is
+  RLS-scoped. `content` needs only the anon JWT (Discover works before signup).
+- **Error shape**: `{ error: "user-ready sentence in Otto's voice" }`. The
+  client surfaces `error.context.json().error` verbatim — server copy IS the toast.
+- **Status vocabulary**: 400 invalid input · 401 no/bad token · 405 wrong method
+  · 413 photo too big · 422 honest decline (import/generate) · 429 rate-limit ·
+  502 upstream failed · 503 feature dormant / key unset.
+- **Rate limits**: per-user sliding windows in the functions (`gen`/`resolve`
+  20/15m, `del` 5/15m); Supabase's platform per-IP limits guard `content`'s
+  supporter key. No shared Express limiter anymore.
+- **Timeouts**: every upstream call carries `AbortSignal.timeout(...)` (Claude
+  60–120s, USDA 10s, page fetch 12s, TheMealDB 10s) — no function hangs on a
+  dead vendor.
+- **Client layer**: all network is TanStack Query over the Supabase client in
+  `*.queries.ts`; no raw `fetch` in screens. One recipe shape
+  (`mealdb.transform.ts`) so surfaces never branch on origin.
+- **Secrets**: service-role + API keys live only in Supabase secrets / `Deno.env`
+  and are never logged. `EXPO_PUBLIC_*` carries only the Supabase URL + anon key
+  (extractable by design; RLS is what protects data).
 
-### API-6 · Shared-list freshness — **already shipped** (verified 2026-07-21)
-`household.jsx` already refreshes on focus AND polls every 8 s while the
-screen is open — better than the 20 s this plan proposed. Nothing to build.
-Later, if real households feel any lag: Supabase Realtime on the collab
-tables — the schema already fits. Polling first; Realtime is an upgrade,
-not a rewrite.
+---
 
-### API-7 · Offline read cache (M, later phase)
-Cookbook/plan/detail keep last-good JSON in AsyncStorage and render read-only
-with an honest "as of <time>" stamp when offline. Writes stay online-only —
-no sync-conflict machinery for a v1 household app. Scheduled after API-1…6.
+## 6. Founder activation switches (the non-code blockers)
 
-### API-8 · AI plane roadmap — next seams, in order (M each, cloud)
-All copy the §1c four-part pattern; all wake with the same key.
-1. **Photo → recipe** — **SHIPPED 2026-07-21** (dormant until the key):
-   `POST /api/import/photo` (Opus 4.8 vision, shared extraction schema,
-   auth-before-8MB-body-parse), "Snap the recipe" card on the Add sheet,
-   same review editor. Wakes with `ANTHROPIC_API_KEY` like every AI seam.
-2. **Ask Otto on a recipe**: substitutions, "can I make this dairy-free?",
-   technique questions — scoped to the open recipe, answers grounded in it.
-3. **Plan my week**: generate a week from the cookbook + prefs, landing as
-   plan entries the user confirms — review-first, like everything.
-
-### API-9 · Images for AI/manual recipes (decision, S)
-**No AI-generated food photography presented as real — ever** (honesty law).
-Imageless recipes get the Otto placeholder treatment; real photos come from
-the user's library via the storage bucket (SQL in
-`TERMINAL_TICKET_FUNCTIONAL_FIXES.md` Task 3, founder-run).
-
-### API-10 · Founder activation checklist (the only non-code blockers)
 | Switch | Where | Wakes |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | Railway env | whole AI plane (import/text/generate) |
-| `THEMEALDB_KEY` | Railway env | supporter key (test key "1" until then) |
-| Photo bucket SQL | Supabase SQL editor | device photo upload |
-| Anonymous sign-in toggle | Supabase Auth settings | guest flow (worst live issue) |
-| `SUPABASE_SERVICE_ROLE_KEY` rotation | Supabase dashboard | (hygiene — never paste the value into chat) |
-| `SHARE_BASE_URL` | Railway env | pretty share links when the domain lands |
-| `SENTRY_DSN` (optional) | Railway env | error reporting |
-| `npx -y @railway/cli up backend --service Recipe-App --ci` | founder terminal | **every backend merge — push ≠ deploy** |
+| `ANTHROPIC_API_KEY` | Supabase secret | `generate-recipe` + the Claude half of `resolve-nutrition` |
+| `USDA_API_KEY` | Supabase secret | live-USDA tail in `resolve-nutrition` |
+| `THEMEALDB_KEY` | Supabase secret | the `content` seed library (503 until set) |
+| `recipe-photos` bucket + policies | migrations `…_storage_policies.sql` | device photo upload |
+| Edge functions deployed | `supabase functions deploy` | any of the above going live |
 
----
-
-## 4. Execution order
-
-- **Run A — hardening sweep** — **DONE 2026-07-21**: API-1 health
-  `{version, sha}` (deploy check = one curl) · API-2 request ids
-  (`X-Request-Id` echoed, non-2xx completions logged with id) · API-3
-  content TTL cache with stale-on-outage fallback · API-5 client 15 s
-  timeout + GET-only single retry + Discover stale-while-revalidate cache ·
-  API-6 verified already shipped (8 s focus polling). API-4 adopted by this
-  document. **Live after the founder's next `railway up` deploy.**
-- **Run B — AI seam #1** — **DONE 2026-07-21**: photo → recipe shipped
-  end-to-end dormant (route + vision extractor + Add-sheet card + tests).
-  Run A's client timeout also gained per-call overrides so the AI seams
-  (60–120 s budgets) are never cut off by the 15 s default.
-- **Run C — comfort**: API-7 offline reads; Realtime upgrade only if
-  households ask.
-- **Standing terminal work** (already ticketed): live-corpus line validation,
-  density-table unification, device QA/TestFlight, activation checklist above.
-
----
-
-## 5. "Do we need X?" — the classic checklist, answered (founder Q, 2026-07-21)
-
-| Item | Verdict | Why / trigger to revisit |
-|---|---|---|
-| Rate limits | **Have** | Six tiers live (§2); Supabase limits auth itself. Enough for launch scale. |
-| API contract | **Have (enforced, not ceremonial)** | zod at the edge + one error shape + services layer = the contract; API-4 additive-only rule governs evolution. |
-| OpenAPI spec / generated types | Skip | One first-party client. Trigger: a second client or external consumer — then generate from the zod schemas. |
-| Client API keys | Skip | JWT is the credential; a bundled key is extractable from the IPA by design. |
-| Pagination | Skip | Personal cookbooks are small. Trigger: analytics show cookbooks in the thousands. |
-| Idempotency keys | Skip | API-5 never retries writes — removes the double-fire problem instead of solving it. |
-| Timeouts | Have (server) / API-5 (client) | Every upstream call carries AbortSignal.timeout; authFetch gets one in Run A. |
-| CORS | **Have** | Allowlist + `WEB_ORIGINS` env for new fronts. |
-| Body/size limits | **Have** | 1 MB JSON cap + per-field zod clamps. |
-| Observability | Half | pino live; request ids (API-2) + Sentry DSN complete it. |
-| Webhooks | Skip | No external consumers of our events. |
-| Quota/SLA tiers | Skip | costlyLimiter is the quota. Paid tiers are a business decision, not infrastructure. |
+Nutrition itself needs **no** activation: the 962-row USDA table ships on-device,
+so per-serving figures compute with zero network and zero keys. The resolver
+tail only enriches names the bundle misses.
