@@ -72334,6 +72334,1777 @@
     }
   },
   {
+    "id": "53414",
+    "title": "Kurabie Butter Cookies",
+    "category": "Dessert",
+    "area": null,
+    "servings": 20,
+    "instructions": [
+      "Combine all the dough ingredients in a large mixing bowl and mix until a soft, sticky dough forms; work in a little extra flour if it's too sticky to handle.",
+      "Rub melted butter over your hands, then divide the dough into 20 equal pieces and roll each into a ball, re-buttering your hands between each ball.",
+      "Arrange the balls 5cm apart on a greased or lined baking tray, baking in two batches.",
+      "Brush each ball with beaten egg, then bake at 180°C for 20 minutes until lightly golden and still slightly soft in the middle.",
+      "Transfer the cookies to a cooling rack and let them cool completely."
+    ],
+    "ingredients": [
+      {
+        "original": "650g Flour",
+        "key": "flour",
+        "grams": 650,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "275ml Greek Yogurt",
+        "key": "greek yogurt",
+        "grams": 275,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "275ml treated as ~275g using 1:1 density"
+      },
+      {
+        "original": "3 Eggs",
+        "key": "eggs",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 eggs estimated at 50g each"
+      },
+      {
+        "original": "200g Sugar",
+        "key": "sugar",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "120g Melted Butter",
+        "key": "melted butter",
+        "grams": 120,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tsp Baking Powder",
+        "key": "baking powder",
+        "grams": 4,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 tsp estimated at ~4g"
+      },
+      {
+        "original": "1 drop Vanilla Extract",
+        "key": "vanilla extract",
+        "grams": 0.05,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'1 drop' is imprecise; estimated at ~0.05g"
+      },
+      {
+        "original": "1 Egg",
+        "key": "egg",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "used for egg wash brushing before baking, not mixed into dough"
+      },
+      {
+        "original": "10g Melted Butter",
+        "key": "melted butter",
+        "grams": 10,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "extra butter used to grease hands while rolling dough, only partially incorporated"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/qidask1779650423.jpg",
+      "youtube": null,
+      "source": "https://www.myalbanianfood.com/recipe/albanian-kurabie/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:22:33.082Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53415",
+    "title": "Torrijas",
+    "category": "Breakfast",
+    "area": "Spanish",
+    "servings": 4,
+    "instructions": [
+      "Grate the zest of the orange and lemon into a saucepan.",
+      "Add the whole milk, granulated sugar, and cinnamon stick, then bring to a boil over medium heat.",
+      "Remove from the heat and stir in the dry sherry, then let the mixture cool until safe to handle.",
+      "Meanwhile, cut the day-old baguette crosswise into 1-inch-thick slices and arrange them in a single layer on a baking sheet.",
+      "Pour the warm milk mixture over the bread and let it soak for 5 minutes.",
+      "Flip each slice and let it sit for another 5 minutes until it has absorbed most of the liquid without falling apart.",
+      "Heat the olive oil in a large frying pan over medium-high heat until shimmering.",
+      "Whisk the eggs in a bowl while the oil heats.",
+      "Dip each soaked bread slice into the egg to coat, letting the excess drip off, then fry in batches until golden-brown on the bottom, about 4 minutes.",
+      "Flip and fry the second side until golden-brown, 3 to 4 minutes more.",
+      "Transfer the fried torrijas to a paper towel-lined plate to drain.",
+      "Repeat dipping and frying with the remaining bread slices.",
+      "Drizzle with honey before serving."
+    ],
+    "ingredients": [
+      {
+        "original": "1 medium Orange",
+        "key": "orange",
+        "grams": 5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "only the zest of 1 medium orange (~2 tsp) is used, not the whole fruit; grams estimated for zest weight"
+      },
+      {
+        "original": "1 medium Lemon",
+        "key": "lemon",
+        "grams": 2,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "only the zest of 1 medium lemon (~1 tsp) is used, not the whole fruit; grams estimated for zest weight"
+      },
+      {
+        "original": "4 cups Whole Milk",
+        "key": "whole milk",
+        "grams": 960,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 quart (4 cups) converted at ~240g/cup"
+      },
+      {
+        "original": "1/2 cup Sugar",
+        "key": "granulated sugar",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 cup converted at ~200g/cup"
+      },
+      {
+        "original": "1 Cinnamon Stick",
+        "key": "cinnamon stick",
+        "grams": 3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 (3-inch) stick, weight estimated"
+      },
+      {
+        "original": "1/3 cup Dry sherry",
+        "key": "dry sherry",
+        "grams": 79,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/3 cup converted at ~237g/cup"
+      },
+      {
+        "original": "1 Baguette",
+        "key": "baguette",
+        "grams": 340,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 (12-ounce) baguette converted directly"
+      },
+      {
+        "original": "1 cup Olive Oil",
+        "key": "olive oil",
+        "grams": 216,
+        "cooked": false,
+        "frying_medium": true,
+        "note": "used to shallow-fry the bread; excess oil stays in the pan and is drained off on paper towels, not served in the dish"
+      },
+      {
+        "original": "4 large Eggs",
+        "key": "eggs",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 large eggs estimated at ~50g each"
+      },
+      {
+        "original": "To serve Honey",
+        "key": "honey",
+        "grams": 40,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "amount not specified in original ('to serve'); estimated ~10g per serving for drizzling across 4 inferred servings"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/927vvp1779732018.jpg",
+      "youtube": "https://www.youtube.com/watch?v=ympLYopSKow",
+      "source": "https://www.thekitchn.com/torrijas-recipe-23214033#post-recipe-286240303"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:22:43.286Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53416",
+    "title": "Trinxat (Potato, Cabbage and Bacon Hash)",
+    "category": "Pork",
+    "area": "Spanish",
+    "servings": 4,
+    "instructions": [
+      "Bring a large pot of salted water to a boil.",
+      "Add the cabbage and potatoes and cook until tender, about 30-40 minutes.",
+      "Drain the vegetables very well.",
+      "Return them to the pot, set the burner to low, and let them steam off excess moisture.",
+      "Meanwhile, cook the bacon, reserving the rendered fat for frying the hash.",
+      "Chop the cooked bacon into small pieces.",
+      "Mash the potatoes and cabbage together with a potato masher, then stir in the minced garlic.",
+      "Season with salt and pepper to taste.",
+      "Press the mixture into individual forms, top with the bacon pieces, and fry in the reserved bacon fat until golden brown on both sides, flipping once.",
+      "Remove the forms and garnish with chopped parsley.",
+      "For one large hash instead, press everything into a skillet with the bacon on top, fry until golden, flip once, then cut into servings.",
+      "Garnish with chopped parsley before serving."
+    ],
+    "ingredients": [
+      {
+        "original": "1/2 Cabbage",
+        "key": "cabbage",
+        "grams": 500,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'1/2 Cabbage' - no yield stated; inferred a half of a ~1kg cabbage."
+      },
+      {
+        "original": "2 medium Russet Potato",
+        "key": "russet potato",
+        "grams": 300,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'2 medium Russet Potato' - inferred ~150g per medium potato."
+      },
+      {
+        "original": "4 Chopped Bacon",
+        "key": "bacon",
+        "grams": 140,
+        "cooked": true,
+        "frying_medium": false,
+        "note": "'4 Chopped Bacon' slices; cooked fully before chopping and topping the hash, fat reserved and used for frying (remains in the served dish, not drained), inferred ~35g/slice."
+      },
+      {
+        "original": "2 cloves minced Garlic",
+        "key": "minced garlic",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'2 cloves minced Garlic'; inferred ~3g per clove."
+      },
+      {
+        "original": "1 tablespoon Parsley",
+        "key": "parsley",
+        "grams": 4,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'1 tablespoon Parsley'; standard gram conversion for chopped herb."
+      },
+      {
+        "original": "To taste Salt",
+        "key": "salt",
+        "grams": 3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'To taste Salt' - no amount given; inferred a small seasoning quantity."
+      },
+      {
+        "original": "To taste Pepper",
+        "key": "pepper",
+        "grams": 1,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'To taste Pepper' - no amount given; inferred a small seasoning quantity."
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/khpso71779732715.jpg",
+      "youtube": "https://www.youtube.com/shorts/Ro-S7zlFvN4",
+      "source": "https://www.internationalcuisine.com/trinxat/#wprm-recipe-container-12938"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:22:43.419Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53417",
+    "title": "Pa Amb Tomaquet (Bread with Tomato)",
+    "category": "Vegetarian",
+    "area": "Spanish",
+    "servings": 2,
+    "instructions": [
+      "Toast the bread slices until crispy and golden, either in a toaster or in a 400°F oven — timing depends on your bread's type and thickness.",
+      "Rub a garlic clove, cut-side down, all over the top of each toasted bread slice.",
+      "Rub a tomato half, cut-side down, all over the top of the bread.",
+      "Drizzle the bread evenly with a little olive oil and sprinkle with a pinch of salt.",
+      "Repeat with the remaining bread slices and serve immediately while warm."
+    ],
+    "ingredients": [
+      {
+        "original": "2 sliced Bread",
+        "key": "bread",
+        "grams": 70,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'2 sliced Bread' — estimated 35g per slice; servings inferred as 2 from the small ingredient count, no yield stated in text."
+      },
+      {
+        "original": "2 cloves Garlic",
+        "key": "garlic clove",
+        "grams": 12,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'2 cloves Garlic' — estimated 6g per clove."
+      },
+      {
+        "original": "3 chopped Tomato",
+        "key": "tomato",
+        "grams": 360,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'3 chopped Tomato' — estimated 120g per tomato."
+      },
+      {
+        "original": "Splash Extra Virgin Olive Oil",
+        "key": "extra virgin olive oil",
+        "grams": 10,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'Splash' — estimated 10g; oil is drizzled on and eaten, not a frying medium."
+      },
+      {
+        "original": "To taste Sea Salt",
+        "key": "sea salt",
+        "grams": 2,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'To taste' — estimated a pinch, ~2g."
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/lz9rw91779733434.jpg",
+      "youtube": "https://www.youtube.com/watch?v=nFoQ5K-7_24",
+      "source": "https://www.gimmesomeoven.com/tomato-rubbed-bread-pa-amb-tomaquet-pan-con-tomate/#recipe"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:22:42.484Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53418",
+    "title": "Cambodian Stir-fried Morning Glory with Pork, Fermented Soybeans, and Garlic",
+    "category": "Pork",
+    "area": "Cambodian",
+    "servings": 2,
+    "instructions": [
+      "Heat a tablespoon of vegetable oil in a wok or large pan over medium heat.",
+      "Once the oil shimmers, add the chopped garlic and stir-fry for about 30 seconds until fragrant, being careful not to let it burn.",
+      "Add the minced pork, breaking it up with a spatula, and stir-fry until fully cooked and browned, roughly 2-3 minutes.",
+      "Stir in the fermented soya beans and cook for another minute, mixing thoroughly with the pork.",
+      "Toss in the morning glory and stir-fry for 2-3 minutes, just enough to keep its bright green colour and crisp bite.",
+      "Taste and adjust the seasoning with fish sauce or sugar as needed, then sprinkle over chilli.",
+      "Transfer to a serving dish and serve immediately with steamed rice."
+    ],
+    "ingredients": [
+      {
+        "original": "1  bunch Morning Glory",
+        "key": "morning glory",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 bunch — no gram weight given, inferred typical bunch weight ~200g"
+      },
+      {
+        "original": "150g Minced Pork",
+        "key": "minced pork",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2 tablespoons Soya Bean",
+        "key": "soya bean",
+        "grams": 20,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 tablespoons fermented soy beans — inferred ~10g per tbsp"
+      },
+      {
+        "original": "4 Cloves Chopped Garlic",
+        "key": "garlic",
+        "grams": 12,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 cloves — inferred ~3g per clove"
+      },
+      {
+        "original": "For frying Oil",
+        "key": "vegetable oil",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "stir-fry oil remains in the dish and is served, not drained off, so counted as eaten; ~1 tbsp per instructions"
+      },
+      {
+        "original": "Dash Fish Sauce",
+        "key": "fish sauce",
+        "grams": 5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'Dash' — inferred small amount"
+      },
+      {
+        "original": "Dash Sugar",
+        "key": "sugar",
+        "grams": 5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'Dash' — inferred small amount"
+      },
+      {
+        "original": "Sprinkling Chilli",
+        "key": "chilli",
+        "grams": 2,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'Sprinkling' — inferred small amount"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/wympxc1779734808.jpg",
+      "youtube": "https://www.youtube.com/watch?v=_LsP1TP4P9Q",
+      "source": "https://mitziemee.com/recipe-cambodian-stir-fried-morning-glory/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:22:54.677Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53419",
+    "title": "Crispy fried fish with ginger and fermented soybeans (trey chien chuon)",
+    "category": "Seafood",
+    "area": "Cambodian",
+    "servings": 4,
+    "instructions": [
+      "Fry the ginger in plenty of oil until golden and slightly crispy, then set it aside.",
+      "Cut the fish into strips and dredge in a thin layer of tempura flour.",
+      "Fry the fish in the same oil until golden brown and crispy.",
+      "Crush the garlic and chop it finely; chop the spring onions.",
+      "Drain the fermented soybeans in a colander, rinsing first if using salted beans.",
+      "Heat a tablespoon of oil in a deep pan or large pot and sauté the garlic until slightly golden.",
+      "Add the soybeans and stir-fry for a few minutes, adding a little sugar if the beans are very salty.",
+      "Pour in the water and fry for another minute.",
+      "Just before serving, stir in the fried ginger, spring onion, and crispy fish, then serve with steamed rice."
+    ],
+    "ingredients": [
+      {
+        "original": "2 cups Ginger",
+        "key": "ginger",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 cups ginger converted to grams by volume estimate (~100g/cup)."
+      },
+      {
+        "original": "1 lb Fish fillet",
+        "key": "fish fillet",
+        "grams": 453.6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 lb converted to grams."
+      },
+      {
+        "original": "2 tablespoons Tempura Flour",
+        "key": "tempura flour",
+        "grams": 16,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 tbsp estimated at ~8g each."
+      },
+      {
+        "original": "2 cups Oil",
+        "key": "oil",
+        "grams": 436,
+        "cooked": false,
+        "frying_medium": true,
+        "note": "Deep-frying oil for ginger and fish; not part of the served dish, so treated as frying medium."
+      },
+      {
+        "original": "4 cloves Garlic",
+        "key": "garlic clove",
+        "grams": 20,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 cloves estimated at 5g each."
+      },
+      {
+        "original": "800g Soya Bean",
+        "key": "soya bean",
+        "grams": 800,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1/2 tbs Sugar",
+        "key": "sugar",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 tbsp estimated at ~6g."
+      },
+      {
+        "original": "1/2 cup Water",
+        "key": "water",
+        "grams": 120,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 cup water ≈120g."
+      },
+      {
+        "original": "3 Spring Onions",
+        "key": "spring onions",
+        "grams": 45,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 spring onions estimated at 15g each."
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/9q1ci41779735714.jpg",
+      "youtube": "https://www.youtube.com/watch?v=V0G3ODvMg0k",
+      "source": "https://mitziemee.com/recipe-cambodian-fried-fish-ginger-fermented-soybeans/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:23:02.879Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53420",
+    "title": "Cambodian Waffles (Num Poum)",
+    "category": "Dessert",
+    "area": "Cambodian",
+    "servings": 4,
+    "instructions": [
+      "Whisk the rice flour, wheat flour, coconut milk, palm sugar, eggs and salt together in a bowl until smooth.",
+      "Brush a hot waffle iron with oil.",
+      "Pour in the batter.",
+      "Cook over an open fire until the waffle turns light brown and crispy."
+    ],
+    "ingredients": [
+      {
+        "original": "1/2 cup Rice Flour",
+        "key": "rice flour",
+        "grams": 79,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 cup rice flour converted using standard cup-to-gram estimate (~158g/cup)"
+      },
+      {
+        "original": "1/2 cup Wheat Flour",
+        "key": "wheat flour",
+        "grams": 60,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 cup wheat flour converted using standard cup-to-gram estimate (~120g/cup)"
+      },
+      {
+        "original": "1/2 cup Coconut Milk",
+        "key": "coconut milk",
+        "grams": 120,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 cup coconut milk converted using standard cup-to-gram estimate (~240g/cup)"
+      },
+      {
+        "original": "3/4 cup Palm Sugar",
+        "key": "palm sugar",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3/4 cup palm sugar converted using standard cup-to-gram estimate (~200g/cup)"
+      },
+      {
+        "original": "2 Eggs",
+        "key": "eggs",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 eggs estimated at ~50g each"
+      },
+      {
+        "original": "1/2 tsp Salt",
+        "key": "salt",
+        "grams": 3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 tsp salt converted using standard teaspoon-to-gram estimate (~6g/tsp)"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/h7zrys1779736460.jpg",
+      "youtube": "https://www.youtube.com/watch?v=QAVOTHkYXLc",
+      "source": "https://www.phnomenon.com/index.php/cambodian-food/category/recipes/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:22:54.567Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53421",
+    "title": "BEEF LOK LAK (Lok Lak Sach Ko)",
+    "category": "Beef",
+    "area": "Cambodian",
+    "servings": 4,
+    "instructions": [
+      "Fry the eggs sunny-side up and set them aside.",
+      "Finely chop the garlic, wash and drain the lettuce leaves, and thinly slice the onion and tomatoes.",
+      "Cut the beef tenderloin into 2–3 cm cubes and marinate it with sea salt, palm sugar, Chinese cooking wine, oyster sauce, soy sauce, and sesame oil, mixing well.",
+      "Heat a frying pan on high with the oil, add the chopped garlic, and stir until lightly browned.",
+      "Add the marinated beef along with all its marinade and cook for 5–7 minutes depending on how rare you like it.",
+      "Dry roast the Kampot peppercorns in a frying pan over medium-low heat for 2–3 minutes until fragrant.",
+      "Grind the roasted pepper, place it in a bowl, and mix with sea salt and lime juice to make the dipping sauce.",
+      "On a serving plate, layer the lettuce, then tomatoes, then onions.",
+      "Spoon the cooked beef over the vegetables and top with the fried eggs.",
+      "Serve with the Kampot pepper sauce and fragrant steamed rice.",
+      "Sear hot and fast — Lok Lak is best when the beef stays tender and juicy, paired with a bold, bright dipping sauce to cut the richness."
+    ],
+    "ingredients": [
+      {
+        "original": "1 kg Beef Tenderloin",
+        "key": "beef tenderloin",
+        "grams": 1000,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "5 cloves Garlic",
+        "key": "garlic clove",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "5 cloves estimated at ~3 g each"
+      },
+      {
+        "original": "2 tablespoons Oil",
+        "key": "oil",
+        "grams": 27,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "oil remains in the pan sauce served with the beef, not drained off"
+      },
+      {
+        "original": "1.5 tablespoon Palm Sugar",
+        "key": "palm sugar",
+        "grams": 18,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1.5 tbsp estimated at ~12 g/tbsp"
+      },
+      {
+        "original": "1 tsp Sea Salt",
+        "key": "sea salt",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 tsp estimated at ~6 g"
+      },
+      {
+        "original": "2 tablespoons White Wine",
+        "key": "cooking wine",
+        "grams": 30,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "labeled 'White Wine' but instructions specify Chinese cooking wine; mapped accordingly"
+      },
+      {
+        "original": "2 tablespoons Oyster Sauce",
+        "key": "oyster sauce",
+        "grams": 36,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2 tablespoons Soy Sauce",
+        "key": "soy sauce",
+        "grams": 36,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1.5 tablespoon Sesame Seed Oil",
+        "key": "sesame seed oil",
+        "grams": 20,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "500g Lettuce",
+        "key": "lettuce",
+        "grams": 500,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "400g Tomato",
+        "key": "tomato",
+        "grams": 400,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "200g Onion",
+        "key": "onion",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "4 Eggs",
+        "key": "eggs",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 eggs estimated at ~50 g each; fried and served as a topping, not merged into the dish"
+      },
+      {
+        "original": "1.5 tablespoon Sea Salt",
+        "key": "sea salt",
+        "grams": 27,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1.5 tbsp estimated at ~18 g/tbsp; separate salt portion for the dipping sauce"
+      },
+      {
+        "original": "1 tablespoon Kampot Pepper",
+        "key": "kampot pepper",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 tbsp ground pepper estimated at ~6 g"
+      },
+      {
+        "original": "1 tablespoon Lime juice",
+        "key": "lime juice",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/t2b8bn1779737789.jpg",
+      "youtube": "https://www.youtube.com/watch?v=3oWgjFhQQW0",
+      "source": "https://www.chefnak.com/beef-lok-lak"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:23:21.489Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53422",
+    "title": "Num E (Sticky Rice Balls in Sugar Syrup and Coconut Cream)",
+    "category": "Side",
+    "area": "Cambodian",
+    "servings": 6,
+    "instructions": [
+      "Simmer the coconut cream with torn pandan leaves, brown sugar, salt and ginger over low heat, bring to a boil, then cook 2 more minutes.",
+      "Turn off the heat, discard the pandan leaves, and let the syrup cool.",
+      "Blend the remaining pandan leaves with a little water until deep green, then strain well.",
+      "Knead the pandan liquid into 200g sticky rice flour until smooth.",
+      "Peel and blend the beetroot with a little water until deep red, then strain well.",
+      "Knead the beetroot liquid into another 200g sticky rice flour until smooth.",
+      "Bring 3 litres of water to a boil in a large pot.",
+      "Roll each dough into small balls, about a third the size of a ping pong ball.",
+      "Drop the balls into the boiling water and cook until they float, then transfer to iced water to keep them separate.",
+      "Drain the balls well, then stir them into the cooled coconut syrup.",
+      "Serve in small bowls, topped with longan and shredded coconut as desired.",
+      "Add the coloring liquids gradually since each flour absorbs differently, aiming for a smooth, pliable, non-sticky dough."
+    ],
+    "ingredients": [
+      {
+        "original": "700g Sticky Rice Flour",
+        "key": "sticky rice flour",
+        "grams": 700,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Ingredient list states 700g total, but instructions only account for 400g (200g used for each of the two doughs); quantity taken from the ingredient line."
+      },
+      {
+        "original": "7 Pandan Leaves",
+        "key": null,
+        "grams": 35,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Pandan leaves have no matching USDA key; weight inferred at ~5g per leaf for 7 leaves — flagged as missing ingredient."
+      },
+      {
+        "original": "1/4 Beetroot",
+        "key": "beetroot",
+        "grams": 30,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Inferred weight for '1/4 beetroot' assuming a ~120g medium beetroot."
+      },
+      {
+        "original": "100g Pumpkin",
+        "key": "pumpkin",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Not referenced anywhere in the given instructions; possibly for an additional color variant not described — flagged as a doubt."
+      },
+      {
+        "original": "100g Taro",
+        "key": "taro",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Not referenced anywhere in the given instructions; possibly for an additional color variant not described — flagged as a doubt."
+      },
+      {
+        "original": "100g Longan",
+        "key": "longan",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "200g Coconut",
+        "key": "coconut",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Used as garnish per instructions ('shredded coconut as desired')."
+      },
+      {
+        "original": "2L Water",
+        "key": "water",
+        "grams": 2000,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Boiling water for cooking the rice balls (combined with the 1L line to make the stated 3 litres); mostly discarded after cooking."
+      },
+      {
+        "original": "1 L Water",
+        "key": "water",
+        "grams": 1000,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Boiling water for cooking the rice balls (combined with the 2L line to make the stated 3 litres); mostly discarded after cooking."
+      },
+      {
+        "original": "1/2 tsp Salt",
+        "key": "salt",
+        "grams": 3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Converted from 1/2 tsp."
+      },
+      {
+        "original": "5 Slices Ginger",
+        "key": "ginger",
+        "grams": 10,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Inferred weight for '5 slices' of ginger, ~2g per slice."
+      },
+      {
+        "original": "3 Cups Coconut Cream",
+        "key": "coconut cream",
+        "grams": 720,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Converted from 3 cups at ~240g per cup."
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/5572yt1779739329.jpg",
+      "youtube": "https://www.youtube.com/watch?v=RDlkKhMho90",
+      "source": "https://www.chefnak.com/sticky-rice-balls-in-coconut-syrup"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:23:45.357Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53423",
+    "title": "Meang Nem",
+    "category": "Seafood",
+    "area": "Thai",
+    "servings": 4,
+    "instructions": [
+      "Rinse the rice and let it soak in water for about 10 minutes, then drain thoroughly.",
+      "Heat a wok or large skillet over medium heat and add the drained rice, stirring constantly until it turns evenly dark golden brown and smells toasty, about 5 minutes.",
+      "Tip the toasted rice into a bowl to cool, then grind it finely with a spice grinder or mortar and pestle.",
+      "Sift the ground rice through a fine mesh strainer to remove any coarse bits and set the roasted rice powder aside.",
+      "Thinly slice the shallots lengthwise.",
+      "Finely chop the galangal, pickled scallion heads, chillies, and bitter orange zest.",
+      "Coarsely grind the roasted peanuts and set aside.",
+      "Heat a frying pan over low heat, add the shredded coconut, and toast, stirring, for 2–3 minutes, then set aside.",
+      "In a large bowl, combine the lime juice, bitter orange juice, palm sugar, pickled scallion brine, and fish sauce, stirring until the sugar fully dissolves.",
+      "In a mixing bowl, combine the dried shrimp, toasted coconut, chopped aromatics, and the dressing, mixing well.",
+      "Stir in the roasted rice powder, then top with the coarsely ground roasted peanuts.",
+      "Arrange the salad on a large plate for guests to spoon onto small plates, wrap in leafy greens with vegetables, and eat in bite-size portions.",
+      "For a vegetarian version, omit the dried shrimp and fish sauce, seasoning to taste with soy sauce and a pinch of sea salt to keep the sweet-sour balance."
+    ],
+    "ingredients": [
+      {
+        "original": "50g Dried Shrimp",
+        "key": "dried shrimp",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "40g Rice",
+        "key": "rice",
+        "grams": 40,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "dry-toasted and ground into roasted rice powder, not boiled; not counted as cooked"
+      },
+      {
+        "original": "100g Coconut",
+        "key": "shredded coconut",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "20g Orange Zest",
+        "key": "orange zest",
+        "grams": 20,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "recipe specifies 'bitter orange zest'; approximated with generic orange zest key"
+      },
+      {
+        "original": "3 Chilli",
+        "key": "chilli",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "quantity given as '3 Chilli' with no weight; grams inferred at ~5g per chilli"
+      },
+      {
+        "original": "50g Peanuts",
+        "key": "roasted peanut",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "100g Pickled Scallion Heads",
+        "key": "pickled scallion heads",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "30 ml Pickled Scallion Head Brine",
+        "key": "pickle juice",
+        "grams": 30,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "listed as 'Pickled Scallion Head Brine'; no scallion-specific brine key exists, approximated with generic pickle juice"
+      },
+      {
+        "original": "25g Galangal",
+        "key": "galangal",
+        "grams": 25,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "30g Shallots",
+        "key": "shallots",
+        "grams": 30,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "20 ml Orange Juice",
+        "key": "orange juice",
+        "grams": 20,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "recipe specifies 'bitter orange juice'; approximated with generic orange juice key"
+      },
+      {
+        "original": "50 ml Lime juice",
+        "key": "lime juice",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "50 ml Fish Sauce",
+        "key": "fish sauce",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "50g Palm Sugar",
+        "key": "palm sugar",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/5rk8vc1779740302.jpg",
+      "youtube": null,
+      "source": "https://www.chefnak.com/meang-nem"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:23:28.333Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53424",
+    "title": "Laos Plantain Coconut Bake (Flourless Muffin)",
+    "category": "Dessert",
+    "area": "Laotian",
+    "servings": 12,
+    "instructions": [
+      "Preheat your oven to 350°F (175°C).",
+      "Mash the plantains until they form a smooth paste.",
+      "Combine the coconut cream and granulated sugar with the mashed plantain, mixing well until fully incorporated.",
+      "Line a muffin pan with paper liners.",
+      "Spoon the mixture evenly into the muffin cups.",
+      "Bake for 45 minutes, until cooked all the way through."
+    ],
+    "ingredients": [
+      {
+        "original": "450ml Coconut Cream",
+        "key": "coconut cream",
+        "grams": 450,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "450ml converted to grams assuming ~1g/ml for coconut cream"
+      },
+      {
+        "original": "4 large Plantain",
+        "key": "plantain",
+        "grams": 800,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "estimated 200g per large plantain x4; no explicit weight given"
+      },
+      {
+        "original": "4 tablespoons Sugar",
+        "key": "granulated sugar",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 tablespoons estimated at ~12.5g each"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/x7cbsp1779811798.jpg",
+      "youtube": null,
+      "source": "https://cookingwithlane.com/laos-plantain-coconut-bake/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:23:39.079Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53425",
+    "title": "Authentic Laos Tapioca Pudding with Bananas",
+    "category": "Dessert",
+    "area": "Laotian",
+    "servings": 5,
+    "instructions": [
+      "Soak the tapioca pearls in a bowl of warm water for 20 minutes.",
+      "Peel the bananas and slice them into half-inch rounds, then set aside.",
+      "Bring 4 cups of water to a boil in a pot on the stove.",
+      "Add the banana slices to the boiling water.",
+      "After the tapioca has soaked for 20 minutes, drain it and rinse under cold water so the pearls separate.",
+      "Tip the drained tapioca pearls into the pot with the bananas and simmer for 3 minutes, until the pearls turn clear.",
+      "Stir in the sugar and pour in the coconut cream, mixing gently for 3 minutes to blend the flavors.",
+      "Season with salt to taste before serving."
+    ],
+    "ingredients": [
+      {
+        "original": "1 cup Warm Water",
+        "key": "warm water",
+        "grams": 236,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "soaking water for tapioca, drained and discarded before cooking"
+      },
+      {
+        "original": "4 cups Water",
+        "key": "water",
+        "grams": 944,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 cups used to boil the bananas, becomes part of the pudding liquid"
+      },
+      {
+        "original": "3  tablespoons Tapioca",
+        "key": "tapioca",
+        "grams": 36,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "grams estimated from '3 tablespoons' (~12g/tbsp)"
+      },
+      {
+        "original": "14 oz jar Coconut Milk",
+        "key": "coconut milk",
+        "grams": 397,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "listed as 'Coconut Milk (14 oz jar)' but instructions call for coconut cream; using coconut milk key from the ingredient list"
+      },
+      {
+        "original": "2 tablespoons Sugar",
+        "key": "sugar",
+        "grams": 25,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "grams estimated from '2 tablespoons' (~12.5g/tbsp)"
+      },
+      {
+        "original": "3 Cups Banana",
+        "key": "banana",
+        "grams": 450,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "grams estimated from '3 cups' sliced banana (~150g/cup)"
+      },
+      {
+        "original": "4 cups Water",
+        "key": "water",
+        "grams": 0,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "duplicate listing of the same '4 cups Water' already counted above; not summed to avoid double-counting"
+      },
+      {
+        "original": "To taste Salt",
+        "key": "salt",
+        "grams": 0,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "listed as 'to taste' with no amount specified"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/5pmn0g1779813285.jpg",
+      "youtube": "https://www.youtube.com/watch?v=JbcrpAHmk3s",
+      "source": "https://cookingwithlane.com/laos-banana-tapioca-pudding-nam-van-mak-kuay/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:23:52.020Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53426",
+    "title": "Lao Som Pak Pickled Cabbage",
+    "category": "Side",
+    "area": null,
+    "servings": 6,
+    "instructions": [
+      "Cut the cabbage into 1-inch pieces.",
+      "Rinse the cabbage in cold water, washing and draining it three times to clean it thoroughly.",
+      "Pour the bottle of water into a large clean bowl.",
+      "Add the cabbage and chopped spring onions to the water.",
+      "Stir in the salt and mix well before letting the cabbage pickle."
+    ],
+    "ingredients": [
+      {
+        "original": "1 large Cabbage",
+        "key": "cabbage",
+        "grams": 1000,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'1 large cabbage' with no weight given; estimated 1000g for a large head."
+      },
+      {
+        "original": "10 Spring Onions",
+        "key": "spring onions",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "10 spring onions estimated at ~15g each."
+      },
+      {
+        "original": "16 oz Water",
+        "key": "water",
+        "grams": 473,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "16 oz converted to grams (1 fl oz water ≈ 29.6g)."
+      },
+      {
+        "original": "2 tablespoons Salt",
+        "key": "salt",
+        "grams": 36,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 tablespoons salt estimated at ~18g per tablespoon."
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/44pjrn1779814409.jpg",
+      "youtube": "https://www.youtube.com/watch?v=0dkBqf0zj6M",
+      "source": "https://cookingwithlane.com/som-pak-thai-and-lao-pickled-fermented-cabbage/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:23:49.107Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53427",
+    "title": "Lao Naem Khao",
+    "category": "Pork",
+    "area": "Lao",
+    "servings": 4,
+    "instructions": [
+      "Thinly slice the onion and shallots, then let them soak in an ice-water bath while you prep everything else.",
+      "Grate the coconut into a large bowl.",
+      "Add the cooked rice to the coconut and mix everything together with your hands.",
+      "Roll the mixture into 2-inch rice ball croquettes.",
+      "Heat the oil in a pot or pan for deep-frying.",
+      "Beat the eggs in a large bowl, dip each rice ball in the egg wash, then drop it into the hot oil.",
+      "Fry until the balls turn dark amber brown and crispy, then lift out onto paper towel to drain.",
+      "Once cooled, break the rice balls apart into a larger bowl.",
+      "Drain the soaked onion and shallots and add them in.",
+      "Tear the sour pork sausage into small pieces (or knife-chop if you prefer) and add to the bowl.",
+      "Mix in the pickled garlic, lime juice, fish sauce, sugar, cilantro, hot mint, and regular mint.",
+      "Top with roasted peanuts and serve alongside lettuce, dried chilli, and fresh vegetables.",
+      "Store leftovers chilled for up to 4 days; do not freeze."
+    ],
+    "ingredients": [
+      {
+        "original": "3 Cups Jasmine Rice",
+        "key": "jasmine rice",
+        "grams": 555,
+        "cooked": true,
+        "frying_medium": false,
+        "note": "Assumed pre-cooked leftover jasmine rice per traditional naem khao prep; 3 cups ≈ 555 g, cooked state inferred not stated explicitly."
+      },
+      {
+        "original": "1 Coconut",
+        "key": "coconut",
+        "grams": 400,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Whole coconut yields ~400 g grated flesh; weight inferred."
+      },
+      {
+        "original": "Splash Oil",
+        "key": "oil",
+        "grams": 500,
+        "cooked": false,
+        "frying_medium": true,
+        "note": "Amount for deep-frying not specified; assumed ~500 g as frying medium, most not retained in food."
+      },
+      {
+        "original": "2 cups Sour Pork Sausage",
+        "key": "sour pork sausage",
+        "grams": 300,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 cups estimated ~300 g; fermented sausage not cooked in this recipe."
+      },
+      {
+        "original": "2 diced Pickled Garlics",
+        "key": "pickled garlics",
+        "grams": 20,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 cloves diced, estimated ~20 g."
+      },
+      {
+        "original": "Juice of 1 Lime",
+        "key": "lime juice",
+        "grams": 30,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Juice of 1 lime estimated at 30 g."
+      },
+      {
+        "original": "2 tablespoons Fish Sauce",
+        "key": "fish sauce",
+        "grams": 30,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tablespoon Sugar",
+        "key": "sugar",
+        "grams": 12,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 sliced Onion",
+        "key": "onion",
+        "grams": 110,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 sliced Shallots",
+        "key": "shallots",
+        "grams": 40,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Quantity 'Shallots' ambiguous (singular vs plural); assumed 1 shallot ≈40 g."
+      },
+      {
+        "original": "3 finely chopped Spring Onions",
+        "key": "spring onions",
+        "grams": 30,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 cup Cilantro",
+        "key": "cilantro",
+        "grams": 16,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 cup loosely packed leaves estimated at 16 g."
+      },
+      {
+        "original": "1/2 cup Hot Mint",
+        "key": "hot mint",
+        "grams": 20,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 cup leaves estimated at 20 g."
+      },
+      {
+        "original": "1/2 cup Mint",
+        "key": "mint",
+        "grams": 20,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 cup leaves estimated at 20 g."
+      },
+      {
+        "original": "1/4 cup Roasted Peanut",
+        "key": "roasted peanut",
+        "grams": 35,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "To serve Vegetables",
+        "key": "vegetables",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Garnish 'to serve', amount unspecified; nominal 50 g placeholder."
+      },
+      {
+        "original": "To serve Lettuce",
+        "key": "lettuce",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "Garnish 'to serve', amount unspecified; nominal 50 g placeholder."
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/0dypw51779817467.jpg",
+      "youtube": "https://www.youtube.com/watch?v=qDWN61Ib4A4",
+      "source": "https://cookingwithlane.com/naem-khao-crispy-coconut-rice-salad/"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:24:18.560Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53428",
+    "title": "Camaro Grelhado Com Molho Cru (Grilled Prawns with Green Onion Sauce)",
+    "category": "Seafood",
+    "area": "Brazilian",
+    "servings": 2,
+    "instructions": [
+      "Blend the garlic, spring onions, cumin, salt, vinegar, and water together into a rough paste for the sauce.",
+      "Thread the prawns onto skewers and brush generously with the sauce.",
+      "Grill the prawns for 3-4 minutes per side, until they turn opaque and lose their translucent color.",
+      "Serve hot with the remaining sauce on the side for dipping."
+    ],
+    "ingredients": [
+      {
+        "original": "1 lb Prawns",
+        "key": "prawns",
+        "grams": 454,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2 cloves minced Garlic",
+        "key": "minced garlic",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1/2 cup Spring Onions",
+        "key": "spring onions",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/2 cup estimated as 50g"
+      },
+      {
+        "original": "1 tsp Ground Cumin",
+        "key": "ground cumin",
+        "grams": 2,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1/4 tsp Salt",
+        "key": "salt",
+        "grams": 1.5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "4 tablespoons White Vinegar",
+        "key": "white vinegar",
+        "grams": 60,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "4 tablespoons Water",
+        "key": "water",
+        "grams": 60,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/jg4r991779916649.jpg",
+      "youtube": null,
+      "source": "https://www.196flavors.com/wprm_print/camarao-grelhado-com-molho-cru"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:23:59.344Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53429",
+    "title": "Paracuca (Roasted Peanuts)",
+    "category": "Starter",
+    "area": null,
+    "servings": 10,
+    "instructions": [
+      "Tip the peanuts into a large heavy saucepan with the sugar and water.",
+      "Bring to a boil and keep cooking, stirring now and then, until the syrup has evaporated, about 10 minutes.",
+      "Spread the sugared peanuts in a single layer on a greased 15x10x1-inch baking pan and sprinkle with the salt.",
+      "Bake at 300°F for 30-35 minutes, until dry and lightly browned.",
+      "Let cool completely, then store in an airtight container."
+    ],
+    "ingredients": [
+      {
+        "original": "5 Cups Unsalted Peanuts",
+        "key": "unsalted peanuts",
+        "grams": 730,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "5 cups unsalted peanuts, converted at ~146g/cup"
+      },
+      {
+        "original": "1 cup Sugar",
+        "key": "sugar",
+        "grams": 200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 cup sugar, converted at ~200g/cup"
+      },
+      {
+        "original": "1 cup Water",
+        "key": "water",
+        "grams": 236,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 cup water, converted at ~236g/cup"
+      },
+      {
+        "original": "1/4 tsp Salt",
+        "key": "salt",
+        "grams": 1.5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1/4 tsp salt, converted at ~6g/tsp"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/vgsipt1779917593.jpg",
+      "youtube": "https://www.youtube.com/watch?v=G4OFO9c8jS8",
+      "source": "https://www.tasteofhome.com/recipes/sugared-peanuts/#RecipeCard"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:24:09.385Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53430",
+    "title": "Antiguan Breakfast (Chop Up and ‘Saltfish’)",
+    "category": "Breakfast",
+    "area": "Caribbean",
+    "servings": 6,
+    "instructions": [
+      "Peel the eggplant and pumpkin, then chop both into medium-sized pieces.",
+      "Melt the butter in a medium pot over medium-high heat, then add the onion and garlic and sauté for about 2 minutes until softened but not browned.",
+      "Add the pumpkin and eggplant and sauté for another 2 to 3 minutes.",
+      "Pour in just enough water to cover the vegetables, bring to a boil, then reduce to a simmer and cook until the vegetables are soft.",
+      "Stir in the chopped callaloo (spinach) and cook for a further 3 minutes.",
+      "Drain the vegetable mixture in a colander and let it sit to release excess liquid.",
+      "Return the drained vegetables to the pot and mash vigorously with a potato masher or thick whisk until well combined.",
+      "Season with salt and pepper, tasting and adjusting as needed."
+    ],
+    "ingredients": [
+      {
+        "original": "4 Egg Plants",
+        "key": "egg plants",
+        "grams": 1200,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "4 medium eggplants; weight estimated at ~300g each, not stated in original"
+      },
+      {
+        "original": "8 oz Callaloo",
+        "key": "callaloo",
+        "grams": 227,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 lb Pumpkin",
+        "key": "pumpkin",
+        "grams": 454,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "3 cloves Chopped Garlic",
+        "key": "garlic clove",
+        "grams": 9,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 cloves estimated at ~3g each"
+      },
+      {
+        "original": "1 Diced Onion",
+        "key": "onion",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 diced onion; weight estimated at ~150g, not stated in original"
+      },
+      {
+        "original": "2 oz Butter",
+        "key": "butter",
+        "grams": 57,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "butter remains in the pot as part of the mashed dish, not a frying/discard medium"
+      },
+      {
+        "original": "1/2 tsp Salt",
+        "key": "salt",
+        "grams": 3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1/4 tsp Black Pepper",
+        "key": "pepper",
+        "grams": 0.5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/jvjnoh1780086318.jpg",
+      "youtube": null,
+      "source": "https://www.atastefortravel.ca/24626-antigua-chop-up/#recipe"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:24:14.580Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
+    "id": "53433",
+    "title": "Mango chow",
+    "category": "Side",
+    "area": null,
+    "servings": 4,
+    "instructions": [
+      "Toss the diced mango, spring onions, scotch bonnet and coriander together in a bowl.",
+      "Add the lime zest and juice, then season with salt and pepper to taste.",
+      "Serve alongside just about anything."
+    ],
+    "ingredients": [
+      {
+        "original": "1/2 Mango",
+        "key": "mango",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'1/2 Mango' assumed ~300g whole mango, half used"
+      },
+      {
+        "original": "1 chopped Spring Onions",
+        "key": "scallions",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'1 chopped Spring Onions' estimated at 15g for one stalk"
+      },
+      {
+        "original": "1 Scotch Bonnet",
+        "key": "scotch bonnet",
+        "grams": 5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'1 Scotch Bonnet' estimated at 5g for a small whole pepper"
+      },
+      {
+        "original": "2 tablespoons Coriander",
+        "key": "coriander leaves",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'2 tablespoons Coriander' estimated at ~3g per tablespoon of chopped fresh coriander"
+      },
+      {
+        "original": "Zest and juice of 1 Lime",
+        "key": "lime juice",
+        "grams": 35,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'Zest and juice of 1 Lime' combined estimate: ~5g zest + ~30g juice from one lime"
+      },
+      {
+        "original": "To taste Salt",
+        "key": "salt",
+        "grams": 2,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'To taste Salt' estimated at a pinch, ~2g"
+      },
+      {
+        "original": "To taste Pepper",
+        "key": "pepper",
+        "grams": 1,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "'To taste Pepper' estimated at a pinch, ~1g"
+      }
+    ],
+    "media": {
+      "image": "https://www.themealdb.com/images/media/meals/8hx4fi1780087744.jpg",
+      "youtube": null,
+      "source": "https://www.theguardian.com/food/2020/jul/04/andi-oliver-antiguan-feast-recipes-slow-cooked-pork-belly-corn-chilli-lime-mango-chow-spiced-bread-butter-pudding"
+    },
+    "provenance": {
+      "source": "themealdb",
+      "fetched_at": "2026-07-23T21:03:26.140Z",
+      "canonicalized_at": "2026-07-23T23:24:29.041Z",
+      "model": "claude-sonnet-5"
+    }
+  },
+  {
     "id": "53560",
     "title": "Mini butter buns",
     "category": "Side",
