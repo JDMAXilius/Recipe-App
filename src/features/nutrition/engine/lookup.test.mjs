@@ -150,3 +150,38 @@ test("T3: the new boiled-potato record is a real USDA SR row", () => {
   assert.equal(r.kcal, 87);
   assert.equal(r.carbs_g, 20.13);
 });
+
+// ── T3-followup: cooked-table poison cleanup ──────────────────────────────
+// Eleven rows keyed one food but stored a DIFFERENT one (auto-reachable via
+// "cooked/steamed X" phrasing, and wrong on the curated path too). Each was
+// DELETED so the auto path falls through to the correct RAW record or honest
+// null — never the wrong food. Assert the fabrications are gone and the
+// fall-through lands right. (steamed-rice→flower was the same fix earlier.)
+test("T3-followup: poison rows deleted, no key resolves to its wrong food", () => {
+  const POISON = [
+    "barbeque sauce", "marzipan", "christmas pudding", "tortillas", "mincemeat",
+    "egg rolls", "conchs", "hotsauce", "pico de gallo sauce", "refried beans",
+    "mashed potatoes",
+  ];
+  for (const k of POISON) {
+    assert.equal(cookedTable[k], undefined, `${k} cooked row must be deleted`);
+    // curated path (exact cooked-table match) now honestly drops to null
+    assert.equal(lookup(k, k, true), null, `curated ${k} → null`);
+  }
+
+  // barbeque sauce: was "Guava sauce" → now the real raw barbecue sauce
+  const bbq = lookup("cooked barbeque sauce", "barbeque sauce", false);
+  assert.equal(bbq?.fdcId, 174523);
+  assert.match(bbq.usda, /barbecue/i);
+  assert.doesNotMatch(bbq.usda, /guava/i, "cooked barbeque sauce must NOT be guava");
+
+  // christmas pudding: was "Christmas Crunch" cereal → now honest null
+  assert.equal(lookup("steamed christmas pudding", "christmas pudding", false), null);
+  assert.equal(cookedTable["christmas pudding"], undefined);
+
+  // conchs: was fried abalone → falls through to the real cooked conch record
+  const conch = lookup("cooked conchs", "conchs", false);
+  assert.equal(conch?.fdcId, 173720);
+  assert.match(conch.usda, /conch/i);
+  assert.doesNotMatch(conch.usda, /abalone/i, "cooked conchs must NOT be abalone");
+});

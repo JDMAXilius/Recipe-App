@@ -21,17 +21,6 @@
     "sugar_g": null,
     "sodium_mg": 7
   },
-  "barbeque sauce": {
-    "fdcId": 174686,
-    "usda": "Guava sauce, cooked",
-    "kcal": 36,
-    "protein_g": 0.32,
-    "fat_g": 0.14,
-    "carbs_g": 9.48,
-    "fiber_g": 3.6,
-    "sugar_g": null,
-    "sodium_mg": 4
-  },
   "basmati rice": {
     "fdcId": 168878,
     "usda": "Rice, white, long-grain, regular, enriched, cooked",
@@ -208,28 +197,6 @@
     "sugar_g": null,
     "sodium_mg": 246
   },
-  "christmas pudding": {
-    "fdcId": 174652,
-    "usda": "Cereals ready-to-eat, QUAKER, Christmas Crunch",
-    "kcal": 397,
-    "protein_g": 4.44,
-    "fat_g": 4.83,
-    "carbs_g": 85.9,
-    "fiber_g": 2.6,
-    "sugar_g": null,
-    "sodium_mg": 724
-  },
-  "conchs": {
-    "fdcId": 174213,
-    "usda": "Mollusks, abalone, mixed species, cooked, fried",
-    "kcal": 189,
-    "protein_g": 19.6,
-    "fat_g": 6.78,
-    "carbs_g": 11,
-    "fiber_g": 0,
-    "sugar_g": null,
-    "sodium_mg": 591
-  },
   "cooked beetroot": {
     "fdcId": 169146,
     "usda": "Beets, cooked, boiled, drained",
@@ -295,17 +262,6 @@
     "fiber_g": 1.2,
     "sugar_g": null,
     "sodium_mg": 3
-  },
-  "egg rolls": {
-    "fdcId": 173423,
-    "usda": "Egg, whole, cooked, fried",
-    "kcal": 196,
-    "protein_g": 13.6,
-    "fat_g": 14.8,
-    "carbs_g": 0.83,
-    "fiber_g": 0,
-    "sugar_g": null,
-    "sodium_mg": 207
   },
   "eggs": {
     "fdcId": 173423,
@@ -384,17 +340,6 @@
     "sugar_g": null,
     "sodium_mg": null
   },
-  "hotsauce": {
-    "fdcId": 172880,
-    "usda": "Sauce, pizza, canned, ready-to-serve",
-    "kcal": 54,
-    "protein_g": 2.18,
-    "fat_g": 1.15,
-    "carbs_g": 8.66,
-    "fiber_g": 2,
-    "sugar_g": null,
-    "sodium_mg": 348
-  },
   "hummus": {
     "fdcId": 174289,
     "usda": "Hummus, commercial",
@@ -438,28 +383,6 @@
     "fiber_g": 7.9,
     "sugar_g": null,
     "sodium_mg": 238
-  },
-  "marzipan": {
-    "fdcId": 167562,
-    "usda": "Candies, ALMOND JOY Candy Bar",
-    "kcal": 479,
-    "protein_g": 4.13,
-    "fat_g": 26.9,
-    "carbs_g": 59.5,
-    "fiber_g": 5,
-    "sugar_g": null,
-    "sodium_mg": 142
-  },
-  "mashed potatoes": {
-    "fdcId": 169305,
-    "usda": "Sweet potato, canned, mashed",
-    "kcal": 101,
-    "protein_g": 1.98,
-    "fat_g": 0.2,
-    "carbs_g": 23.2,
-    "fiber_g": 1.7,
-    "sugar_g": null,
-    "sodium_mg": 75
   },
   "meringue nests": {
     "fdcId": 172785,
@@ -526,17 +449,6 @@
     "fiber_g": 2,
     "sugar_g": null,
     "sodium_mg": 254
-  },
-  "pico de gallo sauce": {
-    "fdcId": 172880,
-    "usda": "Sauce, pizza, canned, ready-to-serve",
-    "kcal": 54,
-    "protein_g": 2.18,
-    "fat_g": 1.15,
-    "carbs_g": 8.66,
-    "fiber_g": 2,
-    "sugar_g": null,
-    "sodium_mg": 348
   },
   "pork": {
     "fdcId": 168250,
@@ -614,17 +526,6 @@
     "fiber_g": 2.8,
     "sugar_g": null,
     "sodium_mg": 7
-  },
-  "refried beans": {
-    "fdcId": 175183,
-    "usda": "Beans, baked, canned, with beef",
-    "kcal": 121,
-    "protein_g": 6.38,
-    "fat_g": 3.45,
-    "carbs_g": 16.9,
-    "fiber_g": null,
-    "sugar_g": null,
-    "sodium_mg": 475
   },
   "rice": {
     "fdcId": 169757,
@@ -724,17 +625,6 @@
     "fiber_g": 0.3,
     "sugar_g": null,
     "sodium_mg": 907
-  },
-  "tortillas": {
-    "fdcId": 168859,
-    "usda": "Tortilla chips, low fat, baked without fat",
-    "kcal": 448,
-    "protein_g": 11,
-    "fat_g": 5.7,
-    "carbs_g": 80.2,
-    "fiber_g": 5.3,
-    "sugar_g": null,
-    "sodium_mg": 517
   },
   "turkey": {
     "fdcId": 171479,
@@ -1065,17 +955,6 @@
     "fiber_g": 10.5,
     "sugar_g": null,
     "sodium_mg": 0
-  },
-  "mincemeat": {
-    "fdcId": 174034,
-    "usda": "Beef, ground, 85% lean meat / 15% fat, crumbles, cooked, pan-browned",
-    "kcal": 256,
-    "protein_g": 27.73,
-    "fat_g": 15.3,
-    "carbs_g": 0,
-    "fiber_g": 0,
-    "sugar_g": null,
-    "sodium_mg": 89
   },
   "flank steak": {
     "fdcId": 169434,
