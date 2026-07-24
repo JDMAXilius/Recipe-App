@@ -549,6 +549,39 @@
     "sugar_g": null,
     "sodium_mg": 19
   },
+  "flat rice noodles": {
+    "fdcId": 168914,
+    "usda": "Rice noodles, cooked",
+    "kcal": 108,
+    "protein_g": 1.79,
+    "fat_g": 0.2,
+    "carbs_g": 24,
+    "fiber_g": 1,
+    "sugar_g": null,
+    "sodium_mg": 19
+  },
+  "brown rice noodle": {
+    "fdcId": 168914,
+    "usda": "Rice noodles, cooked",
+    "kcal": 108,
+    "protein_g": 1.79,
+    "fat_g": 0.2,
+    "carbs_g": 24,
+    "fiber_g": 1,
+    "sugar_g": null,
+    "sodium_mg": 19
+  },
+  "vermicelli rice noodles": {
+    "fdcId": 168914,
+    "usda": "Rice noodles, cooked",
+    "kcal": 108,
+    "protein_g": 1.79,
+    "fat_g": 0.2,
+    "carbs_g": 24,
+    "fiber_g": 1,
+    "sugar_g": null,
+    "sodium_mg": 19
+  },
   "sauerkraut": {
     "fdcId": 169279,
     "usda": "Sauerkraut, canned, solids and liquids",

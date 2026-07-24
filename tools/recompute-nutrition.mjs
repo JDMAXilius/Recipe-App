@@ -73,8 +73,12 @@ function buildRows(record) {
   const perServing = Math.max(1, Number(record.servings) || 1);
   const rows = (record.ingredients || []).map((ing) => {
     const k = key(ing.key);
+    // Mirror the engine's lookup() exactly: a cooked line resolves ONLY against
+    // the cooked table, and a cooked-MISS drops to null — it must NEVER fall back
+    // to the raw usdaTable row (that re-introduces the ~3x raw-vs-cooked error the
+    // honesty law forbids; see lookup.ts:141-148). The raw branch is unchanged.
     let food = null;
-    if (k) food = ing.cooked && cookedTable[k] ? cookedTable[k] : usdaTable[k] || null;
+    if (k) food = ing.cooked ? (cookedTable[k] ?? null) : (usdaTable[k] ?? null);
     const grams = Number(ing.grams) || 0;
     return {
       // parsed mirrors ParsedLine; confidence "high" = the amount is human-verified
@@ -323,11 +327,16 @@ function selfCheck() {
   log("self-check OK");
 }
 
-const argv = process.argv;
-if (argv.includes("--self-check")) {
-  selfCheck();
-} else if (argv.includes("--dry-run")) {
-  dryRun().catch((err) => { log(`FATAL: ${err.message}`); process.exit(1); });
-} else {
-  upsert().catch((err) => { log(`FATAL: ${err.message}`); process.exit(1); });
+export { computeFromCanonical, computeAll, loadSilver };
+
+// Only dispatch the CLI when run directly, not when imported (compare scripts).
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolvePath(process.argv[1])) {
+  const argv = process.argv;
+  if (argv.includes("--self-check")) {
+    selfCheck();
+  } else if (argv.includes("--dry-run")) {
+    dryRun().catch((err) => { log(`FATAL: ${err.message}`); process.exit(1); });
+  } else {
+    upsert().catch((err) => { log(`FATAL: ${err.message}`); process.exit(1); });
+  }
 }

@@ -385,6 +385,69 @@ function fixCookedLegumes() {
   console.log(`\nrecipes → ${P.recipes}`);
 }
 
+// ── --fix-spurious-cooked : clear cooked:true where no cooked record exists ────
+// The canonicalizer OVER-flagged cooked:true on ~100 NON-YIELD keys (olive oil,
+// butter, garlic, onion, bacon, salt, sugar, water, flours…) where cooking does
+// NOT change the per-100g value, so `cooked:true` is meaningless. The recompute
+// now honestly drops a cooked line to null when its key has NO usdaCookedTable
+// record — which for these keys UNDER-counts the recipe (the raw usdaTable value
+// was correct all along). Fix: for every cooked:true line whose key is NOT in
+// usdaCookedTable, set cooked:false so it resolves against the raw record.
+//
+// GUARDRAIL: a cooked:true line with no cooked record on a genuine RAW→COOKED
+// YIELD food (grain/starch/pasta/rice/potato/legume where raw kcal >> cooked) is
+// NOT a spurious flag — it's a COVERAGE GAP. Un-flagging it to raw would OVER-
+// count. Those keys are HELD (never touched) and reported for the lead — they
+// likely need a cooked-table record added (like the rice-noodle aliases), not a
+// flag flip. Un-flag only the genuinely non-yield keys.
+// Idempotent: a cleared line is cooked:false → skipped on re-run.
+const YIELD_RE = /rice|pasta|noodle|barley|quinoa|couscous|bulgur|oat|potato|bean|pea|lentil|chickpea|grain|macaroni|orzo|farro|spelt/i;
+const SPURIOUS_COOKED_NOTE = "cooked-flag cleared: no cooked record (non-yield food, raw value is correct)";
+
+function fixSpuriousCooked() {
+  const cooked = readJson(join(ROOT, "src/features/nutrition/engine/data/usdaCookedTable.json"));
+  const cookedKeys = new Set(Object.keys(cooked));
+  const recipes = readJson(P.recipes);
+
+  let cleared = 0;
+  const clearedKeys = new Map(); // non-yield key → line count
+  const heldKeys = new Map();    // yield key (coverage gap) → { count, id, original }
+  for (const r of recipes) {
+    for (const ing of r.ingredients) {
+      if (ing.cooked !== true || ing.key == null || cookedKeys.has(ing.key)) continue;
+      if (YIELD_RE.test(ing.key)) {
+        // coverage gap on a yield food — HOLD, do not un-flag (would over-count)
+        const h = heldKeys.get(ing.key) || { count: 0, samples: [] };
+        h.count++;
+        if (h.samples.length < 3) h.samples.push({ id: r.id, original: ing.original });
+        heldKeys.set(ing.key, h);
+        continue;
+      }
+      ing.cooked = false;
+      ing.note = ing.note ? `${ing.note}; ${SPURIOUS_COOKED_NOTE}` : SPURIOUS_COOKED_NOTE;
+      cleared++;
+      clearedKeys.set(ing.key, (clearedKeys.get(ing.key) || 0) + 1);
+    }
+  }
+
+  recipes.sort((a, b) => Number(a.id) - Number(b.id));
+  writeJson(P.recipes, recipes);
+
+  console.log(`--fix-spurious-cooked: ${cleared} line(s) un-flagged (cooked true→false) across ${clearedKeys.size} non-yield key(s).`);
+  console.log("\nNON-YIELD keys cleared (raw value is correct):");
+  for (const [k, c] of [...clearedKeys.entries()].sort()) console.log(`  ${k} ×${c}`);
+
+  if (heldKeys.size) {
+    console.log(`\n⚠ HELD FOR THE LEAD — ${heldKeys.size} YIELD-food key(s) flagged cooked:true but with NO cooked record (a COVERAGE GAP, not a spurious flag). Un-flagging would OVER-count. These likely need a usdaCookedTable record added (like the rice-noodle aliases), NOT a flag flip:`);
+    for (const [k, h] of [...heldKeys.entries()].sort()) {
+      console.log(`  ${k} ×${h.count}   e.g. ${h.samples.map((s) => `${s.id} "${s.original}"`).join(" | ")}`);
+    }
+  } else {
+    console.log("\nHELD FOR THE LEAD: none — no yield-food coverage gaps in the un-flag set.");
+  }
+  console.log(`\nrecipes → ${P.recipes}`);
+}
+
 // ── --emit : the canonicalizer INPUT payload for one recipe ───────────────────
 function emit(id) {
   const bronze = loadBronze();
@@ -734,6 +797,8 @@ if (argv.includes("--self-check")) {
   splitMeasureName();
 } else if (argv.includes("--fix-cooked-legumes")) {
   fixCookedLegumes();
+} else if (argv.includes("--fix-spurious-cooked")) {
+  fixSpuriousCooked();
 } else if (argv.includes("--emit")) {
   emit(flagVal("--emit"));
 } else if (argv.includes("--land")) {
@@ -749,6 +814,7 @@ if (argv.includes("--self-check")) {
       "  --rematch-nulls               recover key:null lines the engine resolves (deterministic; needs TS loader)\n" +
       "  --split-measure-name          add measure+name per ingredient from bronze (deterministic; idempotent)\n" +
       "  --fix-cooked-legumes          set cooked:true on canned/cooked legumes (raw-vs-cooked guard; idempotent)\n" +
+      "  --fix-spurious-cooked         clear cooked:true on non-yield keys with no cooked record (holds yield gaps; idempotent)\n" +
       "  --self-check                  prove the zod key gate + resume filter (no agent/network)"
   );
   process.exit(2);
