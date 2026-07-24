@@ -102,6 +102,8 @@ export function makeSilverSchema(usdaKeySet) {
       .array(
         z.object({
           original: z.string(),
+          measure: z.string(),
+          name: z.string(),
           key: keySchema,
           grams: z.number().nonnegative(),
           cooked: z.boolean(),
@@ -275,6 +277,61 @@ async function rematchNulls() {
   console.log("\nRECOVERED (recipe id | ingredient → key):");
   for (const x of recoveredList) console.log(`  ${x.id}  ${x.name} → ${x.key}   [${x.original}]`);
   console.log(`\nStill-null → ${P.missing} (${stillNull.length} line(s)).`);
+}
+
+// ── --split-measure-name : add measure+name per ingredient from bronze ────────
+// Resolves the Phase-4 contract_gap: silver `original` is the JOINED "measure
+// name" string, but the app's detail screen renders measure + name in SEPARATE
+// columns. The split lives DETERMINISTICALLY in bronze (strMeasure/strIngredient)
+// — silver ingredients are in the SAME ORDER and COUNT as the bronze meal's
+// non-blank lines (Phase-2 count parity, verified across all 792). So for each
+// silver ingredient[i] we copy bronzeLines[i].{measure,name} and VERIFY that
+// `${measure} ${name}`.trim() === original (they must, since original was built
+// that way). Any recipe whose count/mapping doesn't line up is SKIPPED and
+// reported — never guessed. Idempotent: re-running rewrites the same fields.
+function splitMeasureName() {
+  const bronze = loadBronze();
+  const recipes = readJson(P.recipes);
+
+  let split = 0;
+  const skipped = [];
+
+  for (const r of recipes) {
+    const meal = mealById(bronze, r.id);
+    if (!meal) { skipped.push({ id: r.id, title: r.title, reason: "no bronze meal for id" }); continue; }
+    const lines = bronzeLines(meal);
+    if (lines.length !== r.ingredients.length) {
+      skipped.push({ id: r.id, title: r.title, reason: `count mismatch: bronze ${lines.length} vs silver ${r.ingredients.length}` });
+      continue;
+    }
+    // VERIFY the whole recipe before mutating any of it (all-or-nothing per recipe).
+    let bad = null;
+    for (let i = 0; i < lines.length; i++) {
+      const joined = `${lines[i].measure} ${lines[i].name}`.trim();
+      if (joined !== r.ingredients[i].original) {
+        bad = { i, joined, original: r.ingredients[i].original };
+        break;
+      }
+    }
+    if (bad) {
+      skipped.push({ id: r.id, title: r.title, reason: `mapping mismatch at [${bad.i}]: "${bad.joined}" !== original "${bad.original}"` });
+      continue;
+    }
+    for (let i = 0; i < lines.length; i++) {
+      r.ingredients[i].measure = lines[i].measure;
+      r.ingredients[i].name = lines[i].name;
+      split++;
+    }
+  }
+
+  recipes.sort((a, b) => Number(a.id) - Number(b.id));
+  writeJson(P.recipes, recipes);
+
+  console.log(`--split-measure-name: ${split} ingredient(s) split across ${recipes.length - skipped.length} recipe(s), ${skipped.length} recipe(s) skipped.`);
+  if (skipped.length) {
+    console.log("\nSKIPPED (not mutated — investigate, do not guess):");
+    for (const s of skipped) console.log(`  ${s.id}  ${s.title} — ${s.reason}`);
+  }
 }
 
 // ── --emit : the canonicalizer INPUT payload for one recipe ───────────────────
@@ -559,15 +616,15 @@ function selfCheck() {
   const valid = {
     ...base,
     ingredients: [
-      { original: "1kg Beef", key: "beef", grams: 1000, cooked: false, frying_medium: false, note: null },
-      { original: "a pinch of magic", key: null, grams: 0, cooked: false, frying_medium: false, note: "no key fits" },
+      { original: "1kg Beef", measure: "1kg", name: "Beef", key: "beef", grams: 1000, cooked: false, frying_medium: false, note: null },
+      { original: "a pinch of magic", measure: "a pinch of", name: "magic", key: null, grams: 0, cooked: false, frying_medium: false, note: "no key fits" },
     ],
   };
   const invalid = {
     ...base,
     id: "99998",
     ingredients: [
-      { original: "1kg Beef", key: "totally_invented_key_xyz", grams: 1000, cooked: false, frying_medium: false, note: null },
+      { original: "1kg Beef", measure: "1kg", name: "Beef", key: "totally_invented_key_xyz", grams: 1000, cooked: false, frying_medium: false, note: null },
     ],
   };
 
@@ -622,6 +679,8 @@ if (argv.includes("--self-check")) {
   await runBatch({ limit, concurrency, only, model: flagVal("--model") });
 } else if (argv.includes("--rematch-nulls")) {
   await rematchNulls();
+} else if (argv.includes("--split-measure-name")) {
+  splitMeasureName();
 } else if (argv.includes("--emit")) {
   emit(flagVal("--emit"));
 } else if (argv.includes("--land")) {
@@ -635,6 +694,7 @@ if (argv.includes("--self-check")) {
       "  --run-batch [--limit N]       canonicalize all un-landed bronze via the deployed edge fn (RESUMABLE)\n" +
       "              [--concurrency C=4] [--only <id,id,...>] [--model <name>]\n" +
       "  --rematch-nulls               recover key:null lines the engine resolves (deterministic; needs TS loader)\n" +
+      "  --split-measure-name          add measure+name per ingredient from bronze (deterministic; idempotent)\n" +
       "  --self-check                  prove the zod key gate + resume filter (no agent/network)"
   );
   process.exit(2);

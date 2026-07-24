@@ -16,6 +16,12 @@ import {
   parseCategories,
   parseMeals,
 } from './mealdb.transform';
+import {
+  USE_OTTO_RECIPES,
+  canonicalToRecipe,
+  canonicalToSummary,
+  parseCanonical,
+} from './canonical.transform';
 import { choosePickSource } from './recipe.pick';
 import type { Recipe, RecipeCategory, RecipeSummary } from './recipe.types';
 
@@ -33,6 +39,51 @@ async function content(endpoint: string, params: Record<string, string> = {}): P
 // A route param routes to a source: "u-12" → user recipe (DB), else a seed id.
 export function isUserRecipeRef(id: string): boolean {
   return /^u-/.test(id);
+}
+
+// ── otto_recipes serving copy (Phase-4 cutover, behind USE_OTTO_RECIPES) ──────
+// When the flag is ON these replace the `content` calls for seed detail + the
+// category/area grids. Public SELECT on otto_recipes (RLS), so they work before
+// signup exactly like the content path. OFF (the default) skips all of this.
+
+async function ottoRecipeById(id: string): Promise<Recipe | null> {
+  const { data, error } = await supabase
+    .from('otto_recipes')
+    .select('canonical')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? canonicalToRecipe(parseCanonical(data.canonical)) : null;
+}
+
+// Category × area grid. TheMealDB needs two fetches + a client intersect; the
+// canonical record carries both, so one filtered SELECT does it. category is
+// passed to the summary (not read off the record) to match the OFF path's
+// filter.php-shaped output. Ordered by id for a stable grid.
+async function ottoDiscover(
+  category: string | null,
+  area: string | null,
+): Promise<RecipeSummary[]> {
+  let q = supabase.from('otto_recipes').select('canonical').order('id');
+  if (category) q = q.eq('canonical->>category', category);
+  if (area) q = q.eq('canonical->>area', area);
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []).map((row) => canonicalToSummary(parseCanonical(row.canonical), category));
+}
+
+async function ottoRelated(category: string, selfId: string): Promise<RecipeSummary[]> {
+  const { data, error } = await supabase
+    .from('otto_recipes')
+    .select('canonical')
+    .eq('canonical->>category', category)
+    .order('id');
+  if (error) throw error;
+  return (data ?? [])
+    .map((row) => parseCanonical(row.canonical))
+    .filter((r) => r.id !== selfId)
+    .slice(0, 4)
+    .map((r) => canonicalToSummary(r, category));
 }
 
 // ── seed catalogue (content) ────────────────────────────────────────────────
@@ -87,6 +138,7 @@ export function useDiscover(category: string | null, area: string | null = null)
     queryKey: ['discover', category, area],
     enabled: !!category || !!area,
     queryFn: async () => {
+      if (USE_OTTO_RECIPES) return ottoDiscover(category, area);
       if (category && area) {
         const [catJson, areaJson] = await Promise.all([
           content('filter.php', { c: category }),
@@ -183,6 +235,7 @@ export function useRecipe(id: string) {
         if (error) throw error;
         return data ? rowToRecipe(data) : null;
       }
+      if (USE_OTTO_RECIPES) return ottoRecipeById(id);
       const meals = parseMeals(await content('lookup.php', { i: id }));
       return meals[0] ? mealToRecipe(meals[0]) : null;
     },
@@ -198,6 +251,7 @@ export function useRelated(recipe: Recipe | null | undefined) {
     queryKey: ['related', category, selfId],
     enabled: !!category && !isUserRecipeRef(selfId),
     queryFn: async () => {
+      if (USE_OTTO_RECIPES) return ottoRelated(category as string, selfId);
       const meals = parseMeals(await content('filter.php', { c: category as string }));
       return meals
         .filter((m) => m.idMeal !== selfId)
