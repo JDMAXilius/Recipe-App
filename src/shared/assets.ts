@@ -60,25 +60,66 @@ export const actionArt: Record<ActionName, ImageSourcePropType> = {
   cook: require('../../assets/actions/otto-cook.png'),
 };
 
-// TheMealDB category → painted tile. Lowercased match; misc fallback.
+// Category → painted art. Lowercased match; misc fallback. These double as
+// the DEFAULT RECIPE IMAGE for photo-less recipes (full-bleed hero, cards,
+// share) — founder call 2026-07-24 — so they must cover what Otto/users type,
+// not just TheMealDB's category list.
 const foodIcons: Record<string, ImageSourcePropType> = {
   beef: require('../../assets/food/cat-beef.webp'),
+  bread: require('../../assets/food/cat-bread.webp'),
   breakfast: require('../../assets/food/cat-breakfast.webp'),
   chicken: require('../../assets/food/cat-chicken.webp'),
   dessert: require('../../assets/food/cat-dessert.webp'),
+  drink: require('../../assets/food/cat-drink.webp'),
   goat: require('../../assets/food/cat-goat.webp'),
   lamb: require('../../assets/food/cat-lamb.webp'),
   miscellaneous: require('../../assets/food/cat-miscellaneous.webp'),
   pasta: require('../../assets/food/cat-pasta.webp'),
   pork: require('../../assets/food/cat-pork.webp'),
+  salad: require('../../assets/food/cat-salad.webp'),
+  sandwich: require('../../assets/food/cat-sandwich.webp'),
   seafood: require('../../assets/food/cat-seafood.webp'),
   side: require('../../assets/food/cat-side.webp'),
+  snack: require('../../assets/food/cat-snack.webp'),
+  soup: require('../../assets/food/cat-soup.webp'),
   starter: require('../../assets/food/cat-starter.webp'),
   vegan: require('../../assets/food/cat-vegan.webp'),
   vegetarian: require('../../assets/food/cat-vegetarian.webp'),
 };
-export const foodIcon = (category: string): ImageSourcePropType =>
-  foodIcons[category?.toLowerCase().trim()] ?? foodIcons.miscellaneous;
+
+// Freetext synonyms → a canonical painting (user/Otto categories are one plain
+// word but not a closed set). Unknown words still land on miscellaneous.
+const foodAliases: Record<string, string> = {
+  beverage: 'drink',
+  beverages: 'drink',
+  drinks: 'drink',
+  coffee: 'drink',
+  tea: 'drink',
+  smoothie: 'drink',
+  cocktail: 'drink',
+  soups: 'soup',
+  stew: 'soup',
+  salads: 'salad',
+  snacks: 'snack',
+  appetizer: 'starter',
+  sandwiches: 'sandwich',
+  burger: 'sandwich',
+  wrap: 'sandwich',
+  baking: 'bread',
+  meat: 'beef',
+  steak: 'beef',
+  fish: 'seafood',
+  noodles: 'pasta',
+  cake: 'dessert',
+  dinner: 'miscellaneous',
+  lunch: 'miscellaneous',
+  brunch: 'breakfast',
+};
+
+export const foodIcon = (category: string): ImageSourcePropType => {
+  const key = category?.toLowerCase().trim() ?? '';
+  return foodIcons[key] ?? foodIcons[foodAliases[key]] ?? foodIcons.miscellaneous;
+};
 
 export const onboardingArt: Record<'collect' | 'cook' | 'plan', ImageSourcePropType> = {
   collect: require('../../assets/onboarding/onboarding-1-collect.png'),

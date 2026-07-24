@@ -6,6 +6,7 @@
 import React, { forwardRef } from 'react';
 import { Image, View } from 'react-native';
 import { OttoArt, Text } from '@/shared/ui';
+import { foodIcon } from '@/shared/assets';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import type { ShareRecipe } from './share.types';
 
@@ -38,27 +39,18 @@ export const ShareCard = forwardRef<View, ShareCardProps>(function ShareCard(
         padding: space[5],
       }}
     >
-      {recipe.image ? (
-        <Image
-          source={{ uri: recipe.image }}
-          style={{
-            width: CARD_W - space[5] * 2,
-            height: 210,
-            borderRadius: radii.card,
-            backgroundColor: colors.creamDeep,
-          }}
-          resizeMode="cover"
-        />
-      ) : (
-        <View
-          style={{
-            width: CARD_W - space[5] * 2,
-            height: 90,
-            borderRadius: radii.card,
-            backgroundColor: colors.creamDeep,
-          }}
-        />
-      )}
+      {/* Photo, or the painted category art at the SAME full size — a
+          photo-less recipe shares like a real one (founder call 2026-07-24). */}
+      <Image
+        source={recipe.image ? { uri: recipe.image } : foodIcon(recipe.category ?? '')}
+        style={{
+          width: CARD_W - space[5] * 2,
+          height: 210,
+          borderRadius: radii.card,
+          backgroundColor: colors.creamDeep,
+        }}
+        resizeMode="cover"
+      />
 
       <View style={{ paddingTop: space[3], gap: space[1] }}>
         <Text role="display">{recipe.title}</Text>

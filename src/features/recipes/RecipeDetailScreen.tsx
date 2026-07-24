@@ -121,6 +121,7 @@ export function RecipeDetailScreen() {
   const shareRecipe: ShareRecipe = {
     title: recipe.title,
     image: recipe.image,
+    category: recipe.category,
     ingredients: scaledIngredientLines(recipe.ingredients, scaleFactor, unitSystem),
     steps: recipe.steps,
     servings,

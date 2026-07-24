@@ -10,6 +10,8 @@ import type { Json } from '@/types/database';
 export interface ShareRecipe {
   title: string;
   image?: string | null;
+  // Drives the painted-art default on the card when there is no photo.
+  category?: string | null;
   ingredients: string[];
   steps: string[];
   servings?: number | string | null;

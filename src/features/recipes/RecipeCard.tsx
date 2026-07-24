@@ -67,11 +67,13 @@ export function RecipeCard({
               resizeMode="cover"
             />
           ) : (
-            /* No photo (Otto originals ship without one until real art lands) →
-               the painted category art. Own asset — legal, on-brand. */
-            <View style={{ width: '100%', aspectRatio: 5 / 4, alignItems: 'center', justifyContent: 'center' }}>
-              <Image source={foodIcon(recipe.category ?? '')} style={{ width: '45%', height: '45%' }} resizeMode="contain" />
-            </View>
+            /* No photo → the painted category art, full bleed like a real
+               photo (founder call 2026-07-24). Own asset — legal, on-brand. */
+            <Image
+              source={foodIcon(recipe.category ?? '')}
+              style={{ width: '100%', aspectRatio: 5 / 4, backgroundColor: colors.creamDeep }}
+              resizeMode="cover"
+            />
           )}
         </View>
         <View style={{ paddingTop: space[2], gap: space[1] }}>

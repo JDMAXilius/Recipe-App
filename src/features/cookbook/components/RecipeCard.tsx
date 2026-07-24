@@ -60,11 +60,9 @@ export function RecipeCard({ item, saved, onToggleSave, onPress }: Props) {
           {item.image ? (
             <Image source={{ uri: item.image }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
           ) : (
-            /* No photo (Ask-Otto / written recipes) → the painted category art.
-               Our own asset, so every recipe gets a legal, on-brand default. */
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-              <Image source={foodIcon(item.category ?? '')} style={{ width: '45%', height: '45%' }} resizeMode="contain" />
-            </View>
+            /* No photo (Ask-Otto / written recipes) → the painted category art,
+               full bleed like a real photo. Own asset: legal, on-brand. */
+            <Image source={foodIcon(item.category ?? '')} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
           )}
 
           {item.variant !== 'saved' ? (

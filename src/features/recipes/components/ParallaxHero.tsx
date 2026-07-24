@@ -9,13 +9,12 @@
 // their range edges so momentum overshoot can't produce jumps (iOS + web).
 // Reduced motion (mandatory, per motion.ts): the photo renders static.
 import React from 'react';
-import { Animated, Image, View } from 'react-native';
+import { Animated, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 import { colors } from '@/shared/theme/tokens';
 import { foodIcon } from '@/shared/assets';
 
 const HERO_HEIGHT = 280; // photo hero (unchanged from the static v3 layout)
-const PLACEHOLDER_HEIGHT = 160; // no-photo cream block (unchanged, no parallax)
 
 export interface ParallaxHeroProps {
   image: string | null;
@@ -28,21 +27,10 @@ export interface ParallaxHeroProps {
 export function ParallaxHero({ image, category, scrollY }: ParallaxHeroProps) {
   const reduced = useReducedMotion();
 
-  if (!image) {
-    return (
-      <View
-        style={{
-          width: '100%',
-          height: PLACEHOLDER_HEIGHT,
-          backgroundColor: colors.creamDeep,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Image source={foodIcon(category ?? '')} style={{ width: 110, height: 110 }} resizeMode="contain" />
-      </View>
-    );
-  }
+  // No photo → the painted category art IS the hero (founder call 2026-07-24):
+  // same full-bleed height, same parallax, so a photo-less recipe never feels
+  // second-class. Local asset vs uri is the only difference.
+  const source = image ? { uri: image } : foodIcon(category ?? '');
 
   const transform = reduced
     ? []
@@ -74,7 +62,7 @@ export function ParallaxHero({ image, category, scrollY }: ParallaxHeroProps) {
   return (
     <View style={{ width: '100%', height: HERO_HEIGHT, overflow: 'hidden', backgroundColor: colors.creamDeep }}>
       <Animated.Image
-        source={{ uri: image }}
+        source={source}
         resizeMode="cover"
         style={{ width: '100%', height: HERO_HEIGHT, transform }}
       />
