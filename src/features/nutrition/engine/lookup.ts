@@ -17,7 +17,8 @@ export interface FoodRow {
   fiber_g: number | null;
   sugar_g: number | null;
   sodium_mg: number | null;
-  [nutrient: string]: number | string | null;
+  // `yield_from_raw` (bool opt-in) + `raw_yield` (derived number) ride here too.
+  [nutrient: string]: number | string | boolean | null;
 }
 
 // v1 passes `cookedSet.has(key(name))` — the cooked state is a boolean at the
@@ -28,6 +29,28 @@ const TABLE = table as Record<string, FoodRow>;
 const COOKED_TABLE = cookedTable as Record<string, FoodRow>;
 
 export const key = (s: unknown): string => String(s || "").trim().toLowerCase();
+
+// Raw→cooked mass yield, DERIVED not hard-coded. Protein is ~conserved through
+// cooking, so mass_cooked / mass_raw = protein_density_raw / protein_density_cooked.
+// A cooked record opts in with `yield_from_raw: true` (only for pairings where the
+// raw row is the SAME whole food — NOT the canned/prepared "raw" rows, and NOT
+// water-absorbing grains, whose ratios are meaningless or huge). The number itself
+// falls out of the two USDA records; the engine reads `raw_yield` in compute.sum().
+// Exported so the offline recompute mirror derives identically.
+export function deriveRawYield(k: string): number | undefined {
+  const cooked = COOKED_TABLE[k];
+  if (!cooked?.yield_from_raw) return undefined;
+  const rp = TABLE[k]?.protein_g;
+  const cp = cooked.protein_g;
+  if (typeof rp === "number" && typeof cp === "number" && rp > 0 && cp > 0) return rp / cp;
+  return undefined;
+}
+// Stamp it once at load so lookups return a cooked record that already carries the
+// numeric yield — compute.ts stays a pure `food.raw_yield ?? 1` read.
+for (const k of Object.keys(COOKED_TABLE)) {
+  const y = deriveRawYield(k);
+  if (y !== undefined) COOKED_TABLE[k].raw_yield = y;
+}
 
 // A literal cooked-state word IN the ingredient line/name — a deterministic read
 // of explicit text, NOT an inference from instructions (the frying-medium design

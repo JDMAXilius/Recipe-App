@@ -218,16 +218,20 @@ magic number (`tools/add-duck-cooked.mjs`):
 - Added `duck`/`duck legs` → "Duck, meat+skin, cooked, roasted" (fdcId 172411, 337 kcal/100g) to
   `usdaCookedTable.json`, and flipped the recipe line to `cooked:true` — grams stay the honest
   raw **1400** (no hand-typed cooked weight).
-- The cooked record carries a **`raw_yield`** field: the raw→cooked mass ratio, DERIVED from
-  protein conservation (raw 11.5 ÷ roasted 19.0 g protein = **0.605**), not guessed. The ~40%
-  shed is the rendered fat.
+- The cooked record carries no number — just an opt-in flag **`yield_from_raw: true`**. The engine
+  DERIVES the mass ratio from protein conservation (protein is conserved through cooking, so
+  mass_cooked/mass_raw = protein_raw / protein_cooked = 11.5 ÷ 19.0 = **0.605**) at load
+  (`lookup.ts deriveRawYield`, stamped as `raw_yield`). The ~40% shed is the rendered fat.
+- Opt-in because blanket derivation is unsafe: 75 of 93 cooked keys have a raw row, but rice/pasta/
+  beans absorb water (ratios 2–6×) and some "raw" rows are actually canned (bad protein) — so only
+  a verified same-food raw↔cooked pairing sets the flag.
 - The engine applies it in one seam — `compute.ts` `sum()` scales grams by `food.raw_yield ?? 1`
-  (mirrored in `tools/recompute-nutrition.mjs`; `FoodRowSchema.raw_yield` optional). Default 1 →
-  every other food unchanged (golden suite green, 261/261). **Reusable** for any cooked food.
-- Result: **741 kcal/serving.**
+  (mirrored in `tools/recompute-nutrition.mjs`; `FoodRowSchema` carries both optional fields).
+  Default 1 → every other food unchanged (golden suite green, 261/261). **Reusable** for any cooked food.
+- Result: **742 kcal/serving.**
 
-This is a scoped instance of the general **T3** raw→cooked yield model — now any cooked record can
-opt in by carrying a sourced `raw_yield`; growing that coverage is the T3 follow-up.
+This is a scoped instance of the general **T3** raw→cooked yield model — any cooked record now opts
+in with `yield_from_raw` and the number is derived from data; growing that coverage is the T3 follow-up.
 
 ### T7 — `seed_nutrition` recompute  ·  OPTIONAL, do LAST  ·  [terminal + Supabase MCP]
 The 6 ingredient fixes already shipped (parmesan/parmesan cheese/sesame seed/sour cream/paneer/

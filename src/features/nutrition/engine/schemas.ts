@@ -46,7 +46,10 @@ export const FoodRowSchema = z.looseObject({
   fiber_g: z.number().nullable(),
   sugar_g: z.number().nullable(),
   sodium_mg: z.number().nullable(),
-  // Optional raw→cooked mass yield for cooked-table records (e.g. confit duck at
-  // 0.605, protein-conserved). The engine multiplies grams by this; absent → 1.
+  // Cooked-table opt-in: `yield_from_raw` marks a record whose raw→cooked mass
+  // yield should be DERIVED from protein conservation vs its raw row (lookup.ts
+  // deriveRawYield). `raw_yield` is that derived number, stamped at load; the
+  // engine multiplies grams by it (absent → 1). Data carries the flag, not the number.
+  yield_from_raw: z.boolean().optional(),
   raw_yield: z.number().optional(),
 });

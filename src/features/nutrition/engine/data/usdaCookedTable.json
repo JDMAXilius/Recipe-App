@@ -1010,7 +1010,7 @@
     "fiber_g": 0,
     "sugar_g": null,
     "sodium_mg": 59,
-    "raw_yield": 0.605
+    "yield_from_raw": true
   },
   "duck legs": {
     "fdcId": 172411,
@@ -1022,6 +1022,6 @@
     "fiber_g": 0,
     "sugar_g": null,
     "sodium_mg": 59,
-    "raw_yield": 0.605
+    "yield_from_raw": true
   }
 }
