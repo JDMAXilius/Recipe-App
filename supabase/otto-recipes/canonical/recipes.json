@@ -4632,11 +4632,11 @@
       },
       {
         "original": "1 ½ teaspoons Marjoram",
-        "key": null,
+        "key": "marjoram",
         "grams": 1.5,
         "cooked": false,
         "frying_medium": false,
-        "note": "Marjoram has no matching key in the USDA table; flagged as a missing ingredient. 1½ tsp dried marjoram estimated at ~1.5g."
+        "note": "key recovered by deterministic re-match; Marjoram has no matching key in the USDA table; flagged as a missing ingredient. 1½ tsp dried marjoram estimated at ~1.5g."
       },
       {
         "original": "1 Bay Leaf",
@@ -5124,11 +5124,11 @@
       },
       {
         "original": "1/2 teaspoon marjoram",
-        "key": null,
+        "key": "marjoram",
         "grams": 0.35,
         "cooked": false,
         "frying_medium": false,
-        "note": "marjoram has no matching key in the USDA table; flagged as missing ingredient"
+        "note": "key recovered by deterministic re-match; marjoram has no matching key in the USDA table; flagged as missing ingredient"
       }
     ],
     "media": {
@@ -8384,11 +8384,11 @@
     "ingredients": [
       {
         "original": "1½ kg Clams",
-        "key": null,
+        "key": "clams",
         "grams": 1500,
         "cooked": true,
         "frying_medium": false,
-        "note": "no matching USDA key for clams; flagged as missing ingredient"
+        "note": "key recovered by deterministic re-match; no matching USDA key for clams; flagged as missing ingredient"
       },
       {
         "original": "50g Butter",
@@ -9394,11 +9394,11 @@
       },
       {
         "original": "2 tblsp Breadcrumbs",
-        "key": null,
+        "key": "breadcrumbs",
         "grams": 15,
         "cooked": false,
         "frying_medium": false,
-        "note": "missing ingredient: 'breadcrumbs' as a topping term is generic bread crumb, no exact matching table key found for plain breadcrumbs; 2 tbsp estimated at ~7.5g/tbsp"
+        "note": "key recovered by deterministic re-match; missing ingredient: 'breadcrumbs' as a topping term is generic bread crumb, no exact matching table key found for plain breadcrumbs; 2 tbsp estimated at ~7.5g/tbsp"
       },
       {
         "original": "drizzle Oil",
@@ -9640,11 +9640,11 @@
       },
       {
         "original": "400g Cannellini Beans",
-        "key": null,
+        "key": "cannellini beans",
         "grams": 400,
         "cooked": false,
         "frying_medium": false,
-        "note": "listed as '400g Cannellini Beans' but instructions describe piping filling into 'cannelloni tubes' and beans are never mentioned again — almost certainly a mislabeled cannelloni pasta ingredient; no cannelloni-tube key exists in the table, so flagged as missing rather than guessed as beans"
+        "note": "key recovered by deterministic re-match; listed as '400g Cannellini Beans' but instructions describe piping filling into 'cannelloni tubes' and beans are never mentioned again — almost certainly a mislabeled cannelloni pasta ingredient; no cannelloni-tube key exists in the table, so flagged as missing rather than guessed as beans"
       }
     ],
     "media": {
@@ -9734,11 +9734,11 @@
       },
       {
         "original": "200g Couscous",
-        "key": null,
+        "key": "couscous",
         "grams": 200,
         "cooked": false,
         "frying_medium": false,
-        "note": "missing ingredient: 'couscous' has no matching key in the USDA table"
+        "note": "key recovered by deterministic re-match; missing ingredient: 'couscous' has no matching key in the USDA table"
       },
       {
         "original": "200ml Chicken Stock",
@@ -16112,11 +16112,11 @@
     "ingredients": [
       {
         "original": "3 tsp Goose Fat",
-        "key": null,
+        "key": "goose fat",
         "grams": 13,
         "cooked": false,
         "frying_medium": false,
-        "note": "goose fat used to sear beef then the same pan builds the stew base, so it remains in the dish; no exact 'goose fat' key in table, flagged missing"
+        "note": "key recovered by deterministic re-match; goose fat used to sear beef then the same pan builds the stew base, so it remains in the dish; no exact 'goose fat' key in table, flagged missing"
       },
       {
         "original": "600g Beef Shin",
@@ -17376,11 +17376,11 @@
       },
       {
         "original": "4 tbs Gruyère",
-        "key": null,
+        "key": "gruyère",
         "grams": 0,
         "cooked": false,
         "frying_medium": false,
-        "note": "alternative cheese to Parmesan; instructions only call for Parmesan, so Gruyère is treated as a choose-one alternative and not summed"
+        "note": "key recovered by deterministic re-match; alternative cheese to Parmesan; instructions only call for Parmesan, so Gruyère is treated as a choose-one alternative and not summed"
       }
     ],
     "media": {
@@ -18763,11 +18763,11 @@
       },
       {
         "original": "1 tbs Onion",
-        "key": null,
+        "key": "onion",
         "grams": 7,
         "cooked": false,
         "frying_medium": false,
-        "note": "Instructions call for onion powder in the rub, but no matching 'onion powder' key exists in the USDA table; flagged as missing ingredient rather than mapped to fresh onion."
+        "note": "key recovered by deterministic re-match; Instructions call for onion powder in the rub, but no matching 'onion powder' key exists in the USDA table; flagged as missing ingredient rather than mapped to fresh onion."
       },
       {
         "original": "1 tbs Dill",
@@ -24706,11 +24706,11 @@
       },
       {
         "original": "4 Filo Pastry",
-        "key": null,
+        "key": "filo pastry",
         "grams": 100,
         "cooked": false,
         "frying_medium": false,
-        "note": "filo pastry has no matching table key; 4 sheets estimated at ~25g each - flagged missing ingredient"
+        "note": "key recovered by deterministic re-match; filo pastry has no matching table key; 4 sheets estimated at ~25g each - flagged missing ingredient"
       },
       {
         "original": "1 can Tuna",
@@ -28920,11 +28920,11 @@
       },
       {
         "original": "1 tsp Marjoram",
-        "key": null,
+        "key": "marjoram",
         "grams": 1,
         "cooked": false,
         "frying_medium": false,
-        "note": "marjoram has no matching key in USDA table; flagged as missing ingredient, nominal 1 tsp weight assumed"
+        "note": "key recovered by deterministic re-match; marjoram has no matching key in USDA table; flagged as missing ingredient, nominal 1 tsp weight assumed"
       },
       {
         "original": "1 tbs Paprika",
@@ -37123,11 +37123,11 @@
       },
       {
         "original": "85g Blackberries",
-        "key": null,
+        "key": "blackberries",
         "grams": 85,
         "cooked": false,
         "frying_medium": false,
-        "note": "Ingredient list states 'Blackberries' (85g) but the recipe title and instructions call for blueberries — likely a transcription error; no matching key resolved due to ambiguity, flagged as missing_ingredient."
+        "note": "key recovered by deterministic re-match; Ingredient list states 'Blackberries' (85g) but the recipe title and instructions call for blueberries — likely a transcription error; no matching key resolved due to ambiguity, flagged as missing_ingredient."
       }
     ],
     "media": {
@@ -37669,19 +37669,19 @@
       },
       {
         "original": "Bunch Rosemary",
-        "key": null,
+        "key": "rosemary",
         "grams": 0,
         "cooked": false,
         "frying_medium": false,
-        "note": "rosemary has no matching key in the allowed list (missing ingredient); used as a smouldering herb bed under the chicken on the barbecue, not eaten, so weight set to 0"
+        "note": "key recovered by deterministic re-match; rosemary has no matching key in the allowed list (missing ingredient); used as a smouldering herb bed under the chicken on the barbecue, not eaten, so weight set to 0"
       },
       {
         "original": "Bunch Rosemary",
-        "key": null,
+        "key": "rosemary",
         "grams": 0,
         "cooked": false,
         "frying_medium": false,
-        "note": "second rosemary bunch, same missing-key issue; used alongside the first bunch purely for smoke, not consumed"
+        "note": "key recovered by deterministic re-match; second rosemary bunch, same missing-key issue; used alongside the first bunch purely for smoke, not consumed"
       },
       {
         "original": "Bunch Thyme",
@@ -38690,11 +38690,11 @@
       },
       {
         "original": "1 teaspoon Salt",
-        "key": null,
+        "key": "salt",
         "grams": 6,
         "cooked": false,
         "frying_medium": false,
-        "note": "plain 'salt' has no matching key in the allowed list; flagged as missing ingredient, amount estimated from 1 tsp≈6g"
+        "note": "key recovered by deterministic re-match; plain 'salt' has no matching key in the allowed list; flagged as missing ingredient, amount estimated from 1 tsp≈6g"
       },
       {
         "original": "250g Flour",
@@ -39672,11 +39672,11 @@
       },
       {
         "original": "1 1/4 cup Flour",
-        "key": null,
+        "key": "flour",
         "grams": 150,
         "cooked": false,
         "frying_medium": false,
-        "note": "instructions specify barley flour but this key isn't in the ingredient table; flagged as missing, weight estimated from 1 1/4 cup"
+        "note": "key recovered by deterministic re-match; instructions specify barley flour but this key isn't in the ingredient table; flagged as missing, weight estimated from 1 1/4 cup"
       },
       {
         "original": "2 tblsp All purpose flour",
@@ -41402,11 +41402,11 @@
       },
       {
         "original": "100g Dried Apricots",
-        "key": null,
+        "key": "dried apricots",
         "grams": 100,
         "cooked": false,
         "frying_medium": false,
-        "note": null
+        "note": "key recovered by deterministic re-match"
       },
       {
         "original": "2 Litres Beef Stock",
@@ -46407,11 +46407,11 @@
       },
       {
         "original": "1 teaspoon Marjoram",
-        "key": null,
+        "key": "marjoram",
         "grams": 1,
         "cooked": false,
         "frying_medium": false,
-        "note": "missing ingredient: marjoram not found in USDA key table; 1 tsp estimated at 1g"
+        "note": "key recovered by deterministic re-match; missing ingredient: marjoram not found in USDA key table; 1 tsp estimated at 1g"
       },
       {
         "original": "1 tsp Mustard",
@@ -46530,11 +46530,11 @@
       },
       {
         "original": "1 teaspoon Marjoram",
-        "key": null,
+        "key": "marjoram",
         "grams": 1,
         "cooked": false,
         "frying_medium": false,
-        "note": "marjoram has no matching key in the USDA table; flagged as missing ingredient, amount estimated for 1 teaspoon"
+        "note": "key recovered by deterministic re-match; marjoram has no matching key in the USDA table; flagged as missing ingredient, amount estimated for 1 teaspoon"
       },
       {
         "original": "To taste Salt",
@@ -49626,11 +49626,11 @@
     "ingredients": [
       {
         "original": "400g Knafeh",
-        "key": null,
+        "key": "knafeh",
         "grams": 400,
         "cooked": false,
         "frying_medium": false,
-        "note": "'Knafeh'/kataifi shredded pastry dough has no matching key in the USDA table (not filo, vermicelli, or semolina); flagged as missing ingredient."
+        "note": "key recovered by deterministic re-match; 'Knafeh'/kataifi shredded pastry dough has no matching key in the USDA table (not filo, vermicelli, or semolina); flagged as missing ingredient."
       },
       {
         "original": "6 tablespoons Unsalted Butter",
@@ -50715,11 +50715,11 @@
       },
       {
         "original": "4 tablespoons Malai",
-        "key": null,
+        "key": "malai",
         "grams": 60,
         "cooked": false,
         "frying_medium": false,
-        "note": "Malai (fresh Indian clotted cream) has no matching USDA table key; flagged as a missing ingredient. 4 tbsp converted at ~15 g/tbsp (~60 g); inferred."
+        "note": "key recovered by deterministic re-match; Malai (fresh Indian clotted cream) has no matching USDA table key; flagged as a missing ingredient. 4 tbsp converted at ~15 g/tbsp (~60 g); inferred."
       }
     ],
     "media": {
@@ -51901,11 +51901,11 @@
       },
       {
         "original": "2 Salmon",
-        "key": null,
+        "key": "salmon",
         "grams": 300,
         "cooked": false,
         "frying_medium": false,
-        "note": "'2 Salmon' with no weight given; inferred ~150g per fillet (300g total). No matching 'salmon' key variant found in allowed list, flagged as missing ingredient."
+        "note": "key recovered by deterministic re-match; '2 Salmon' with no weight given; inferred ~150g per fillet (300g total). No matching 'salmon' key variant found in allowed list, flagged as missing ingredient."
       },
       {
         "original": "Juice of 2 Lime",
@@ -52286,11 +52286,11 @@
       },
       {
         "original": "1 chopped Cucumber",
-        "key": null,
+        "key": "cucumber",
         "grams": 200,
         "cooked": false,
         "frying_medium": false,
-        "note": "no matching USDA key for plain cucumber (only 'persian cucumber' exists); flagged as missing ingredient, amount inferred as 200 g for one chopped cucumber"
+        "note": "key recovered by deterministic re-match; no matching USDA key for plain cucumber (only 'persian cucumber' exists); flagged as missing ingredient, amount inferred as 200 g for one chopped cucumber"
       },
       {
         "original": "5 chopped Celery",
@@ -59472,11 +59472,11 @@
       },
       {
         "original": "Pinch Marjoram",
-        "key": null,
+        "key": "marjoram",
         "grams": 1,
         "cooked": false,
         "frying_medium": false,
-        "note": "marjoram has no matching key in the USDA table; flagged as missing ingredient, weight for 'Pinch' inferred (~1 g)"
+        "note": "key recovered by deterministic re-match; marjoram has no matching key in the USDA table; flagged as missing ingredient, weight for 'Pinch' inferred (~1 g)"
       },
       {
         "original": "75g Breadcrumbs",
@@ -59894,11 +59894,11 @@
     "ingredients": [
       {
         "original": "2 Gelatine Leafs",
-        "key": null,
+        "key": "gelatine leafs",
         "grams": 4,
         "cooked": false,
         "frying_medium": false,
-        "note": "gelatine leaf not in allowed keys; missing ingredient. Estimated 2g per leaf x2 leaves."
+        "note": "key recovered by deterministic re-match; gelatine leaf not in allowed keys; missing ingredient. Estimated 2g per leaf x2 leaves."
       },
       {
         "original": "350g Raspberries",
@@ -60067,11 +60067,11 @@
     "ingredients": [
       {
         "original": "6 large Cabbage Leaves",
-        "key": null,
+        "key": "cabbage leaves",
         "grams": 240,
         "cooked": false,
         "frying_medium": false,
-        "note": "6 large cabbage leaves, no key for 'cabbage leaves' in allowed list distinct from 'cabbage'; estimated ~40g per leaf, flagged as missing_ingredient"
+        "note": "key recovered by deterministic re-match; 6 large cabbage leaves, no key for 'cabbage leaves' in allowed list distinct from 'cabbage'; estimated ~40g per leaf, flagged as missing_ingredient"
       },
       {
         "original": "2 tablespoons Olive Oil",
@@ -60091,11 +60091,11 @@
       },
       {
         "original": "2 tsp Rosemary",
-        "key": null,
+        "key": "rosemary",
         "grams": 4,
         "cooked": false,
         "frying_medium": false,
-        "note": "'rosemary' has no matching key in the allowed USDA table list; estimated 2 tsp ≈ 4g, flagged as missing_ingredient"
+        "note": "key recovered by deterministic re-match; 'rosemary' has no matching key in the allowed USDA table list; estimated 2 tsp ≈ 4g, flagged as missing_ingredient"
       },
       {
         "original": "1 chopped Celery",
@@ -62176,11 +62176,11 @@
       },
       {
         "original": "1 vanilla pod",
-        "key": null,
+        "key": "vanilla pod",
         "grams": 4,
         "cooked": false,
         "frying_medium": false,
-        "note": "vanilla pod has no matching table key; weight inferred (~4g for one pod) as none given in original text — flagged as missing ingredient"
+        "note": "key recovered by deterministic re-match; vanilla pod has no matching table key; weight inferred (~4g for one pod) as none given in original text — flagged as missing ingredient"
       },
       {
         "original": "4 Egg Yolks",

@@ -12,6 +12,11 @@
 //                       (work set = bronze ids not yet in recipes.json), failure-
 //                       isolated (a zod/network fail is logged, never aborts the run).
 //                       [--limit N] [--concurrency C=4] [--only id,id,...] [--model x]
+//   --rematch-nulls     deterministically recover key:null lines the ENGINE resolves
+//                       (the canonicalizer missed some exact usdaTable matches). No
+//                       model/API — re-runs the engine's own lookup on each null line
+//                       and maps the record back to its usdaTable key. Idempotent.
+//                       Needs the TS loader (dynamic-imports the engine, like --rank).
 //   --self-check        prove the zod key gate + the resume filter (no agent/network)
 //
 // RUN (plain node is fine for --emit / --land / --self-check — pure JSON + zod):
@@ -208,6 +213,68 @@ async function rank(n) {
   const pilot = scored.slice(0, n).map(({ id, name, why }) => ({ id, name, why }));
   writeJson(P.pilotRank, pilot);
   console.log(JSON.stringify(pilot, null, 2));
+}
+
+// ── --rematch-nulls : recover key:null lines the engine CAN resolve ────────────
+// A bounded, DETERMINISTIC repair (no model/API): the canonicalizer model missed
+// some exact usdaTable matches, so ~25 lines carry key:null even though the
+// engine's own lookup resolves them (e.g. 52840 "1½ kg Clams" → `clams`, the
+// calorie-dominant line). We re-run the ENGINE'S matching on each null line and
+// map the resolved record back to the usdaTable key that produced it — never a
+// hand-rolled matcher, so the fill is exactly what the app will look up.
+//
+// Cooked flag is gated the same way compute.ts's UNCURATED path gates it
+// (`ing.cooked && hasCookedRecord`): a line flagged cooked with NO cooked record
+// resolves against the raw table — which is why 52840 Clams (cooked, no cooked
+// record) recovers `clams` instead of dropping. A line the engine cannot resolve
+// stays null (a genuine Phase-3 miss). Idempotent: recovered lines are no longer
+// null, so a re-run is a no-op.
+async function rematchNulls() {
+  const { parseIngredientLine } = await import("../src/features/nutrition/engine/parse.ts");
+  const { lookup, foodForKey, hasCookedRecord } = await import("../src/features/nutrition/engine/lookup.ts");
+
+  const keySet = usdaKeySet();
+  const recipes = readJson(P.recipes);
+
+  // Reverse index by OBJECT REFERENCE: foodForKey(k) returns the engine's own
+  // TABLE[k], the exact reference lookup() returns on a hit — so the map-back is
+  // an identity match, never an fdcId guess that could collide across aliases.
+  const refToKey = new Map();
+  for (const k of keySet) refToKey.set(foodForKey(k), k);
+
+  let before = 0, recovered = 0;
+  const recoveredList = [];
+  const stillNull = [];
+
+  for (const r of recipes) {
+    for (const ing of r.ingredients) {
+      if (ing.key !== null) continue;
+      before++;
+      const parsed = parseIngredientLine(ing.original);
+      const name = parsed.item;
+      const cookedEff = ing.cooked && hasCookedRecord(name, parsed.item);
+      const food = lookup(name, parsed.item, cookedEff);
+      const foundKey = food ? refToKey.get(food) : undefined;
+      if (foundKey) {
+        assert(keySet.has(foundKey), `re-match produced a non-usdaTable key: ${foundKey}`); // gate: never land an invented key
+        ing.key = foundKey;
+        ing.note = "key recovered by deterministic re-match" + (ing.note ? "; " + ing.note : "");
+        recovered++;
+        recoveredList.push({ id: r.id, name, key: foundKey, original: ing.original });
+      } else {
+        stillNull.push({ id: r.id, title: r.title, original: ing.original, note: ing.note });
+      }
+    }
+  }
+
+  recipes.sort((a, b) => Number(a.id) - Number(b.id));
+  writeJson(P.recipes, recipes);
+  writeJson(P.missing, stillNull); // rewrite: only the STILL-null lines (Phase 3)
+
+  console.log(`--rematch-nulls: ${before} null-key line(s) before → ${recovered} recovered, ${stillNull.length} still-null (genuine Phase-3 misses).`);
+  console.log("\nRECOVERED (recipe id | ingredient → key):");
+  for (const x of recoveredList) console.log(`  ${x.id}  ${x.name} → ${x.key}   [${x.original}]`);
+  console.log(`\nStill-null → ${P.missing} (${stillNull.length} line(s)).`);
 }
 
 // ── --emit : the canonicalizer INPUT payload for one recipe ───────────────────
@@ -553,6 +620,8 @@ if (argv.includes("--self-check")) {
   const concurrency = Number(flagVal("--concurrency")) || 4;
   const only = flagVal("--only") ? flagVal("--only").split(",").map((s) => s.trim()).filter(Boolean) : null;
   await runBatch({ limit, concurrency, only, model: flagVal("--model") });
+} else if (argv.includes("--rematch-nulls")) {
+  await rematchNulls();
 } else if (argv.includes("--emit")) {
   emit(flagVal("--emit"));
 } else if (argv.includes("--land")) {
@@ -565,6 +634,7 @@ if (argv.includes("--self-check")) {
       "  --land <file.json>            validate + upsert the canonicalizer OUTPUT into silver [--model <name>]\n" +
       "  --run-batch [--limit N]       canonicalize all un-landed bronze via the deployed edge fn (RESUMABLE)\n" +
       "              [--concurrency C=4] [--only <id,id,...>] [--model <name>]\n" +
+      "  --rematch-nulls               recover key:null lines the engine resolves (deterministic; needs TS loader)\n" +
       "  --self-check                  prove the zod key gate + resume filter (no agent/network)"
   );
   process.exit(2);
