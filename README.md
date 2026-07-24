@@ -11,19 +11,20 @@ A warm, hand-painted recipe app led by <b>Otto the otter chef</b>.<br/>
 
 **Discover & cook**
 - Browse and search 750+ recipes (seeded from TheMealDB, served from Otto's own DB) with painted category tiles and an "Otto's pick" hero
-- Recipe detail: photo-only hero, serif title on cream, source attribution, computed meta (servings · ingredients · steps), live ingredient scaling with US/Metric conversion, inline video, semantic-ink method steps, nutrition estimate card, related-recipes exit
+- Recipe detail: parallax photo hero, serif title on cream, source attribution, computed meta (servings · ingredients · steps), live ingredient scaling with US/Metric conversion, inline video, semantic-ink method steps, nutrition estimate card, related-recipes exit
 - **Cook mode**: mise-en-place → big-type steps with hand-painted Otto action art (chop/mix/sauté/simmer/bake/wait/season/pour/serve), tappable durations that start named timers, a multi-timer hub, alarm sound + vibration, keep-awake, swipe navigation, exit protection, and a Proud-Otto finish with "Snap your plate" journal capture
 
 **Your cookbook**
 - Save any recipe with the **paw mark** (Otto's signature)
 - **Import from any recipe site** — paste a URL, Otto reads the ingredients and steps (deterministic schema.org parsing, no AI), you review, it's on the shelf with the source credited forever
-- **Ask Otto** — chat with Otto to generate a recipe, or snap a photo of one; **write your own** in the same editor; edit and delete freely
+- **Ask Otto** — chat with Otto to generate a recipe, or snap a photo of one; **write your own** in the same editor; edit and delete freely. The editor's Ask-Otto row (new + edit modes) hands whatever's typed to the chat so Otto continues from your half-finished recipe
 - Cookbook tab with All · Saved · My recipes segments and a Cooked filter
 
 **Plan & shop**
 - **Otto's week**: a loose 7-day planner (no meal-slot guilt), add from any recipe or from the plan, cooked check-offs, "What's cooking tonight?" surfaced on Discover
 - **Shopping list** built from the week on demand: one row per ingredient with summed quantities, aisle sections, provenance ("for World's Best Lasagna"), check-offs that never reorder mid-store, your own extras
 - **Shared kitchen**: start a household or join one with an invite code — everyone adds to and checks off the **same list in real time**
+- **Share** a recipe or a shopping list as a link (capability tokens) or a rendered share card
 
 **The rest**
 - 3-screen painted onboarding + splash (still image + animated lid-lift, reduced-motion aware)
@@ -182,6 +183,30 @@ npm test              # node --test (unit + engine + edge-function logic)
 ```
 
 CI (`.github/workflows/ci.yml`) runs all three on every push to `main` and PRs into it.
+
+## Release (TestFlight)
+
+Native builds only — no OTA channel (native modules change too often). Credentials are **local**
+(`credentials/ios/`, gitignored: distribution cert `.p12` + provisioning profile + the App Store
+Connect API key), so no Apple ID login is ever needed. The loop:
+
+```bash
+# 1. bump ios.buildNumber (and version if it's a new release) in app.json, commit
+# 2. build (~20 min; env vars come from EAS `production` environment, NOT .env)
+EXPO_NO_CAPABILITY_SYNC=1 npx eas-cli build -p ios --profile production --non-interactive
+
+# 3. submit — temporarily add ascApiKeyPath/ascApiKeyId/ascApiKeyIssuerId to
+#    eas.json submit.production.ios (the CLI ignores the env-var route), then revert
+npx eas-cli submit -p ios --profile production --latest --non-interactive
+git checkout eas.json
+
+# 4. attach to the internal group — REQUIRED, the group doesn't auto-distribute;
+#    a submitted-but-unattached build reaches nobody
+node ~/.claude/skills/eas-ios-testflight/scripts/tf-attach.mjs "Otto Insiders"
+```
+
+Internal testing needs no Beta App Review — testers install the moment the build is attached.
+`ITSAppUsesNonExemptEncryption: false` in app.json skips the export-compliance prompt.
 
 ## Docs map
 
