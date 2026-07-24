@@ -56,14 +56,24 @@ async function main(apply) {
   const { createClient } = await import("@supabase/supabase-js");
   const supabase = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  // Real user recipes only: has ingredients (RLS-seed/test rows have 0).
+  // Target ONLY rows missing a nutrition value — the exact card≠detail problem
+  // (card shows the category estimate, detail computes live). Rows that already
+  // carry a figure are left untouched: recomputing them locally (with the resolver
+  // unavailable to a service-role JWT) could drop a many-ingredient recipe below
+  // the coverage floor and REGRESS a good value to null. Never destroy data to
+  // "refresh" it — a re-save in-app (user session → resolver) is the upgrade path.
   const { data: rows, error } = await supabase
     .from("recipes")
     .select("id, title, servings, ingredients, nutrition")
     .order("id");
   if (error) throw new Error(`read recipes: ${error.message}`);
-  const real = (rows ?? []).filter((r) => Array.isArray(r.ingredients) && r.ingredients.length > 0);
-  log(`${real.length} user recipes with ingredients (of ${rows?.length ?? 0} rows)\n`);
+  const real = (rows ?? []).filter(
+    (r) =>
+      Array.isArray(r.ingredients) &&
+      r.ingredients.length > 0 &&
+      (r.nutrition == null || typeof r.nutrition.kcal !== "number"),
+  );
+  log(`${real.length} user recipes with null nutrition (of ${rows?.length ?? 0} rows)\n`);
 
   let wrote = 0;
   for (const r of real) {
@@ -87,6 +97,17 @@ async function main(apply) {
     log(`  u-${r.id}  ${r.title}`);
     log(`      kcal/serving: ${before} → ${after}`);
 
+    // Safety: never overwrite an existing figure with null (a resolver-down local
+    // compute below the coverage floor). Grams are still safe to persist.
+    const hadValue = typeof r.nutrition?.kcal === "number";
+    if (nutrition == null && hadValue) {
+      log(`      (kept existing — refused to null a good value)`);
+      if (apply) {
+        const { error: uerr } = await supabase.from("recipes").update({ ingredients }).eq("id", r.id);
+        if (uerr) throw new Error(`update u-${r.id}: ${uerr.message}`);
+      }
+      continue;
+    }
     if (apply) {
       const { error: uerr } = await supabase
         .from("recipes")
