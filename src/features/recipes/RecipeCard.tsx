@@ -35,7 +35,12 @@ export function RecipeCard({
   const recipeId = Number(recipe.id);
   const isSeed = Number.isInteger(recipeId);
   const { data: seedCalories } = useSeedCalories();
-  const computedKcal = seedCalories?.get(String(recipe.id));
+  // Discover / related only ever feed this card SEED summaries (isSeed guards
+  // the paw, and no producer builds a user "u-…" summary), so the computed
+  // figure comes from the batched seed_nutrition map. A user recipe's persisted
+  // recipes.nutrition figure is read on the cookbook card, where owned recipes
+  // actually render; a non-seed id here cleanly falls to the category estimate.
+  const computedKcal = isSeed ? seedCalories?.get(String(recipe.id)) : undefined;
   const isComputed = typeof computedKcal === 'number' && Number.isFinite(computedKcal);
   const kcal = isComputed ? computedKcal : getNutritionEstimate(recipe.category).calories;
 

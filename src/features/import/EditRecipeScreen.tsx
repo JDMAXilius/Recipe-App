@@ -21,6 +21,7 @@ import {
   emptyDraft,
   emptyIngredient,
   isDirty,
+  parseEditId,
   takeDraft,
   toSavePayload,
   type Draft,
@@ -78,7 +79,7 @@ export function EditRecipeScreen() {
   const { show } = useToast();
   const { user } = useAuth();
   const { id: idParam } = useLocalSearchParams<{ id?: string }>();
-  const editId = idParam != null && /^\d+$/.test(idParam) ? Number(idParam) : null;
+  const editId = parseEditId(idParam);
 
   const draftQuery = useRecipeDraft(editId);
   const saveMut = useSaveRecipe();

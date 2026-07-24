@@ -22,9 +22,14 @@ interface Props {
 
 export function RecipeCard({ item, saved, onToggleSave, onPress }: Props) {
   const { data: seedCalories } = useSeedCalories();
-  // Only saved seed recipes have a precomputed figure; user recipes fall back
-  // to the honest category estimate.
-  const computedKcal = item.variant === 'saved' ? seedCalories?.get(String(item.recipeId)) : undefined;
+  // Both surfaces read the SAME precomputed per-serving figure: saved seeds from
+  // the batched seed_nutrition map, owned recipes from recipes.nutrition
+  // (persisted at save, threaded here as item.nutritionKcal). Either missing →
+  // the honest category estimate.
+  const computedKcal =
+    item.variant === 'saved'
+      ? seedCalories?.get(String(item.recipeId))
+      : item.nutritionKcal ?? undefined;
   const isComputed = typeof computedKcal === 'number' && Number.isFinite(computedKcal);
   const kcal = isComputed ? computedKcal : getNutritionEstimate(item.category).calories;
   // 'saved' puts the paw top-right, so the calorie pill takes top-left; owned

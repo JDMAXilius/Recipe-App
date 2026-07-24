@@ -22,6 +22,10 @@ export interface MyRecipe {
   category: string | null;
   source: string; // 'manual' | 'imported' | seed sources
   sourceName: string | null;
+  // The per-serving kcal computed + persisted at save (recipes.nutrition). Read
+  // by the card so it AGREES with what the recipe opens to; null → the card
+  // shows the labelled category estimate (older rows, or an uncomputable recipe).
+  nutritionKcal: number | null;
 }
 
 // Unified card shape the cookbook grid renders. `save` is present only for
@@ -36,4 +40,7 @@ export interface CookbookItem {
   sourceName: string | null;
   cooked: boolean;
   save: SavedRecipe | null;
+  // Persisted per-serving kcal for owned recipes (null for saved seeds, which
+  // read the batched useSeedCalories figure instead).
+  nutritionKcal: number | null;
 }

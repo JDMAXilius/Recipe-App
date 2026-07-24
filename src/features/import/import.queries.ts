@@ -10,7 +10,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FunctionsHttpError } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { supabase } from '@/shared/supabase/client';
-import type { TablesInsert, Tables } from '@/types/database';
+import { resolveNutrition, type NutritionValue } from '@/features/nutrition';
+import type { Json, TablesInsert, Tables } from '@/types/database';
 import {
   emptyIngredient,
   type CleanRecipe,
@@ -18,6 +19,7 @@ import {
   type IngredientPair,
   type RecipeSource,
 } from './draft';
+import { ingredientsWithGrams } from './save.compute';
 
 // --- edge functions -------------------------------------------------------
 
@@ -197,10 +199,32 @@ export async function getUserRecipe(id: number): Promise<Draft> {
   return rowToDraft(data);
 }
 
+// Compute-at-save, in ONE place so create + edit persist identically: resolve
+// per-line grams and the per-serving nutrition figure BEFORE the write, so
+// recipes.nutrition (the previously-dead column) becomes the single source of
+// truth both the card and the detail read — mirroring how seed recipes carry a
+// precomputed figure. Robust by contract: resolveNutrition never throws and
+// returns null below the coverage floor; a null is stored as null and the read
+// path falls back to the labelled category estimate, so a save is never blocked
+// on nutrition.
+async function computeSaveExtras(
+  recipe: CleanRecipe,
+): Promise<{ ingredients: Json; nutrition: Json }> {
+  const nutrition = await resolveNutrition({
+    ingredients: recipe.ingredients,
+    servings: recipe.servings,
+  });
+  return {
+    ingredients: ingredientsWithGrams(recipe.ingredients) as unknown as Json,
+    nutrition: (nutrition as NutritionValue | null) as unknown as Json,
+  };
+}
+
 export async function createUserRecipe(userId: string, recipe: CleanRecipe): Promise<number> {
+  const extras = await computeSaveExtras(recipe);
   const { data, error } = await supabase
     .from('recipes')
-    .insert(toInsert(userId, recipe))
+    .insert({ ...toInsert(userId, recipe), ...extras })
     .select('id')
     .single();
   if (error) throw error;
@@ -208,7 +232,9 @@ export async function createUserRecipe(userId: string, recipe: CleanRecipe): Pro
 }
 
 export async function updateUserRecipe(id: number, recipe: CleanRecipe): Promise<void> {
-  // user_id/source stay put; only editable content + updated_at move.
+  const extras = await computeSaveExtras(recipe);
+  // user_id/source stay put; only editable content + the recomputed
+  // grams/nutrition + updated_at move.
   const { error } = await supabase
     .from('recipes')
     .update({
@@ -217,7 +243,8 @@ export async function updateUserRecipe(id: number, recipe: CleanRecipe): Promise
       category: recipe.category,
       area: recipe.area,
       servings: recipe.servings,
-      ingredients: recipe.ingredients,
+      ingredients: extras.ingredients,
+      nutrition: extras.nutrition,
       steps: recipe.steps,
       updated_at: new Date().toISOString(),
     })

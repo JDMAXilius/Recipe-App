@@ -30,6 +30,7 @@ export function savedToItem(r: SavedRecipe): CookbookItem {
     sourceName: null,
     cooked: false,
     save: r,
+    nutritionKcal: null, // seeds read the batched useSeedCalories figure
   };
 }
 
@@ -44,6 +45,7 @@ export function mineToItem(r: MyRecipe): CookbookItem {
     sourceName: r.sourceName,
     cooked: false,
     save: null,
+    nutritionKcal: r.nutritionKcal,
   };
 }
 

@@ -19,36 +19,18 @@ import type { NutritionRecipe } from "./nutrition.types";
 // optional. Both the cache read and the fresh compute produce this.
 export type NutritionValue = ReturnType<typeof NutritionResultSchema.parse>;
 
-async function fetchNutrition(recipe: NutritionRecipe): Promise<NutritionValue | null> {
-  // 1. cached server-computed figure (seed recipes). maybeSingle → null when
-  //    absent (user recipes, uncached seeds), never throws on the empty case.
-  const { data } = await supabase
-    .from("seed_nutrition")
-    .select("nutrition")
-    .eq("recipe_id", String(recipe.id))
-    .maybeSingle();
-  if (data?.nutrition) {
-    const parsed = NutritionResultSchema.safeParse(data.nutrition);
-    if (parsed.success) return parsed.data;
-    // a malformed cached row is not trusted — fall through to recompute
-  }
-
-  // 2. compute locally from the ingredient list. A flat default of 4 is the
-  //    caller's fallback; curated seed recipes override it inside the engine.
-  const input: ComputeNutritionInput = {
-    ingredients: recipe.ingredients,
-    servings: recipe.servings ?? 4,
-    recipeId: recipe.id,
-    steps: recipe.steps,
-  };
+// The compute + resolver tail, in ONE place. Deterministic engine first, then
+// the edge resolver for names the bundled 962-row table missed. Exported so the
+// SAVE path (import.queries) can persist the SAME figure the detail computes —
+// user recipes then carry a precomputed per-serving number exactly like seeds,
+// which is what makes the card and the detail agree. Never throws: a resolver
+// failure degrades to the coverage-vetted local result; the engine returning
+// null (below the coverage floor) stays null and the caller falls back to the
+// labelled category estimate.
+export async function resolveNutrition(
+  input: ComputeNutritionInput,
+): Promise<NutritionValue | null> {
   const local = computeNutrition(input);
-
-  // 3. resolver tail — the 962-row bundled table covers most ingredients, but
-  //    AI-generated and URL-imported recipes carry names it lacks. Ask the
-  //    edge resolver for JUST those missing names, then recompute with the rows
-  //    it found handed in as an override. The engine does no I/O itself; it only
-  //    consumes the FoodRows. A resolver miss (null) stays a miss, and any
-  //    resolver failure degrades to `local` — the card never blocks on it.
   const missing = unmatchedNames(input);
   if (!missing.length) return local;
   const resolved = await resolveIngredients(missing);
@@ -56,6 +38,55 @@ async function fetchNutrition(recipe: NutritionRecipe): Promise<NutritionValue |
   // Prefer the improved figure; if the richer match set somehow trips a
   // plausibility guard (→ null), keep the coverage-vetted local result.
   return computeNutrition(input, resolved) ?? local;
+}
+
+async function fetchNutrition(recipe: NutritionRecipe): Promise<NutritionValue | null> {
+  const id = String(recipe.id);
+
+  // 0. user recipe ("u-<n>") → the per-serving figure computed + persisted at
+  //    save (recipes.nutrition), the single source of truth the card reads too.
+  //    Same trust-boundary parse as seed_nutrition; a missing/malformed value
+  //    (older row, or the engine returned null at save) falls through to a live
+  //    compute so nothing regresses.
+  if (id.startsWith("u-")) {
+    const { data } = await supabase
+      .from("recipes")
+      .select("nutrition")
+      .eq("id", Number(id.slice(2)))
+      .maybeSingle();
+    if (data?.nutrition) {
+      const parsed = NutritionResultSchema.safeParse(data.nutrition);
+      if (parsed.success) return parsed.data;
+    }
+    return resolveNutrition({
+      ingredients: recipe.ingredients,
+      servings: recipe.servings ?? 4,
+      recipeId: recipe.id,
+      steps: recipe.steps,
+    });
+  }
+
+  // 1. cached server-computed figure (seed recipes). maybeSingle → null when
+  //    absent (uncached seeds), never throws on the empty case.
+  const { data } = await supabase
+    .from("seed_nutrition")
+    .select("nutrition")
+    .eq("recipe_id", id)
+    .maybeSingle();
+  if (data?.nutrition) {
+    const parsed = NutritionResultSchema.safeParse(data.nutrition);
+    if (parsed.success) return parsed.data;
+    // a malformed cached row is not trusted — fall through to recompute
+  }
+
+  // 2/3. compute locally, then the resolver tail. A flat default of 4 is the
+  //    caller's fallback; curated seed recipes override it inside the engine.
+  return resolveNutrition({
+    ingredients: recipe.ingredients,
+    servings: recipe.servings ?? 4,
+    recipeId: recipe.id,
+    steps: recipe.steps,
+  });
 }
 
 export function useNutrition(recipe: NutritionRecipe) {

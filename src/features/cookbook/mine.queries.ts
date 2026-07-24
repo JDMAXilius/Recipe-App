@@ -9,6 +9,14 @@ import type { MyRecipe } from './cookbook.types';
 
 type RecipeRow = Database['public']['Tables']['recipes']['Row'];
 
+// The per-serving kcal persisted at save (recipes.nutrition), extracted the
+// same way useSeedCalories reads seed_nutrition.kcal — a null/malformed figure
+// stays null so the card shows the labelled category estimate.
+function nutritionKcalOf(nutrition: RecipeRow['nutrition']): number | null {
+  const kcal = (nutrition as { kcal?: unknown } | null)?.kcal;
+  return typeof kcal === 'number' && Number.isFinite(kcal) ? Math.round(kcal) : null;
+}
+
 export function toMyRecipe(row: RecipeRow): MyRecipe {
   return {
     id: row.id,
@@ -17,6 +25,7 @@ export function toMyRecipe(row: RecipeRow): MyRecipe {
     category: row.category,
     source: row.source,
     sourceName: row.source_name,
+    nutritionKcal: nutritionKcalOf(row.nutrition),
   };
 }
 

@@ -196,7 +196,15 @@ export function useSearch(query: string) {
 // read boundary before they reach the engine / share card (rule 6 applies to
 // our own loosely-typed columns too).
 const IngredientsJson = z
-  .array(z.object({ measure: z.string().nullish(), name: z.string().nullish() }))
+  .array(
+    z.object({
+      measure: z.string().nullish(),
+      name: z.string().nullish(),
+      // Persisted at save (import.queries) — the per-line weight the detail's
+      // scaling shows, same as the ON-path/seed grams. Absent on older rows.
+      grams: z.number().nullish(),
+    }),
+  )
   .catch([]);
 const StepsJson = z.array(z.string()).catch([]);
 
@@ -210,6 +218,7 @@ function rowToRecipe(row: Tables<'recipes'>): Recipe {
     ingredients: IngredientsJson.parse(row.ingredients).map((i) => ({
       measure: i.measure ?? '',
       name: i.name ?? '',
+      grams: i.grams ?? null,
     })),
     steps: StepsJson.parse(row.steps),
     youtubeUrl: row.youtube_url ?? null,

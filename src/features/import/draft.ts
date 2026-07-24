@@ -54,6 +54,16 @@ export function emptyIngredient(): IngredientPair {
   return { measure: '', name: '' };
 }
 
+// The recipe-detail edit link carries the "u-<n>" ref ("u-20"); the recipes
+// row id is the bare integer. Strip the prefix before the integer test so the
+// editor LOADS the existing row and SAVES via update — not the blank-form
+// insert that made every edit create a new recipe. A bare numeric ("20") still
+// works; a missing/garbage param is a create (null).
+export function parseEditId(idParam: string | null | undefined): number | null {
+  const raw = idParam?.replace(/^u-/, '');
+  return raw && /^\d+$/.test(raw) ? Number(raw) : null;
+}
+
 // A blank manual draft — "Write it myself". carryUrl keeps a failed import's
 // link so the source credit survives the fall-through to manual entry.
 export function emptyDraft(carryUrl: string | null = null): Draft {
