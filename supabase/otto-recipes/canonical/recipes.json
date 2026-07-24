@@ -106713,15 +106713,16 @@
       }
     ],
     "media": {
-      "image": null,
-      "youtube": null,
+      "image": "https://raw.githubusercontent.com/JDMAXilius/Recipe-App/main/supabase/otto-recipes/media/otto-900001.jpg",
+      "youtube": "https://www.youtube.com/watch?v=pFeE8_VqdfA",
       "source": null
     },
     "provenance": {
       "source": "otto",
       "model": "claude-fable-5",
       "authored_at": "2026-07-24T18:28:20.410Z",
-      "canonicalized_at": "2026-07-24T18:28:20.410Z"
+      "canonicalized_at": "2026-07-24T18:28:20.410Z",
+      "image_origin": "generated (Higgsfield, owned) — job e1ecf4b8"
     }
   },
   {
@@ -106872,15 +106873,16 @@
       }
     ],
     "media": {
-      "image": null,
-      "youtube": null,
+      "image": "https://raw.githubusercontent.com/JDMAXilius/Recipe-App/main/supabase/otto-recipes/media/otto-900002.jpg",
+      "youtube": "https://www.youtube.com/watch?v=c_L7ohYOkrg",
       "source": null
     },
     "provenance": {
       "source": "otto",
       "model": "claude-fable-5",
       "authored_at": "2026-07-24T18:28:20.410Z",
-      "canonicalized_at": "2026-07-24T18:28:20.410Z"
+      "canonicalized_at": "2026-07-24T18:28:20.410Z",
+      "image_origin": "generated (Higgsfield, owned) — job 23ff97e0"
     }
   },
   {
@@ -107001,15 +107003,16 @@
       }
     ],
     "media": {
-      "image": null,
-      "youtube": null,
+      "image": "https://raw.githubusercontent.com/JDMAXilius/Recipe-App/main/supabase/otto-recipes/media/otto-900003.jpg",
+      "youtube": "https://www.youtube.com/watch?v=Ob8eL4mMOys",
       "source": null
     },
     "provenance": {
       "source": "otto",
       "model": "claude-fable-5",
       "authored_at": "2026-07-24T18:28:20.410Z",
-      "canonicalized_at": "2026-07-24T18:28:20.410Z"
+      "canonicalized_at": "2026-07-24T18:28:20.410Z",
+      "image_origin": "Pexels photo 6829488 (Pexels license, no attribution required)"
     }
   }
 ]
