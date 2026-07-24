@@ -8,6 +8,7 @@ import { useFonts, Lora_400Regular, Lora_600SemiBold, Lora_700Bold } from '@expo
 import { AuthProvider } from '@/features/auth';
 import { Splash } from '@/features/onboarding';
 import { NotifSync } from '@/features/notifications';
+import { RC_API_KEY } from '@/features/profile/club.purchases';
 import { ErrorBoundary, ToastHost } from '@/shared/ui';
 
 // The provider stack: gesture root → error boundary → server state (TanStack
@@ -21,7 +22,7 @@ const queryClient = new QueryClient({
 // Purchases.logIn) run before the root layout's would, so configure must beat render.
 // Test Store key — swap for the appl_ production key before TestFlight.
 if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
-Purchases.configure({ apiKey: 'test_oSJcFKqwFPgFgcamzVtQcfdrYrV' });
+Purchases.configure({ apiKey: RC_API_KEY });
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Lora_400Regular, Lora_600SemiBold, Lora_700Bold });

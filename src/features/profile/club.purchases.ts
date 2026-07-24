@@ -9,6 +9,13 @@ import { hasClubEntitlement, introTrialDays } from './club.logic';
 
 export type BuyResult = 'ok' | 'cancelled' | 'error';
 
+// The one place the RevenueCat key lives (_layout configures with it). While
+// it's the Test Store key, its canned demo products carry fake prices — the
+// paywall shows our real launch pricing instead and only trusts store prices
+// once the real appl_ key replaces this.
+export const RC_API_KEY = 'test_oSJcFKqwFPgFgcamzVtQcfdrYrV';
+export const RC_TEST_STORE = RC_API_KEY.startsWith('test_');
+
 export function useClub() {
   const [yearly, setYearly] = useState<PurchasesPackage | null>(null);
   const [monthly, setMonthly] = useState<PurchasesPackage | null>(null);

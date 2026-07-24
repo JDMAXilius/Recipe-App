@@ -77,6 +77,15 @@ const askOttoArrow: ViewStyle = {
   alignItems: 'center',
   justifyContent: 'center',
 };
+const backBtn: ViewStyle = {
+  width: 36,
+  height: 36,
+  borderRadius: radii.pill,
+  backgroundColor: colors.creamDeep,
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: space[3],
+};
 const photoDrop: ViewStyle = {
   backgroundColor: colors.accentSoft,
   borderRadius: radii.card,
@@ -225,12 +234,22 @@ export function EditRecipeScreen() {
         contentContainerStyle={{ padding: space[5], paddingBottom: space[7] }}
         keyboardShouldPersistTaps="handled"
       >
+        <Pressable
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/cookbook'))}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          hitSlop={8}
+          style={backBtn}
+        >
+          <Ionicons name="chevron-back" size={22} color={colors.ink} />
+        </Pressable>
+
         <View style={{ marginBottom: space[4] }}>
           <Text role="display">{heading}</Text>
         </View>
 
-        {/* Manual creation only — not import review ("Check Otto's work") or edit. */}
-        {editId == null && form.mode !== 'import' && (
+        {/* Manual creation and edit — not import review ("Check Otto's work"). */}
+        {form.mode !== 'import' && (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Ask Otto — he picks up from what you have typed"

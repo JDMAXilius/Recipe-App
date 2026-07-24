@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
-import { useClub } from './club.purchases';
+import { RC_TEST_STORE, useClub } from './club.purchases';
 
 // Otto Club paywall. Three states, decided by RevenueCat at runtime:
 //  · member  — already subscribed: thank-you card + manage link, no sell.
@@ -24,7 +24,7 @@ import { useClub } from './club.purchases';
 // Every date is computed from real "now" — never hardcoded. The constants are
 // display placeholders for the fallback only; live mode prices come from the
 // store.
-const PRICE_YEAR = 29.99;
+const PRICE_YEAR = 34.99;
 const PRICE_MONTH = 4.99;
 const TRIAL_DAYS = 5;
 const TERMS_URL = 'https://ottosapp.com/terms';
@@ -44,11 +44,19 @@ export function OttoClubScreen() {
   // Live mode reads price/trial from the store; fallback keeps the placeholders.
   // In live mode the trial is ONLY what the store's intro offer says — if the
   // product has no free trial we must not advertise one (trust + App Review).
-  const priceYear = club.yearly?.product.price ?? PRICE_YEAR;
-  const priceMonth = club.monthly?.product.price ?? PRICE_MONTH;
-  const priceYearText = club.yearly?.product.priceString ?? `$${PRICE_YEAR}`;
-  const priceMonthText = club.monthly?.product.priceString ?? `$${PRICE_MONTH}`;
-  const trialDays = club.live ? club.trialDays : TRIAL_DAYS;
+  // Test Store exception: its canned demo products carry fake prices and no
+  // intro offer, so while RC_TEST_STORE we display the known launch numbers
+  // (the real appl_ key flips this back to store-authoritative automatically).
+  const storePrices = club.live && !RC_TEST_STORE;
+  const priceYear = storePrices ? (club.yearly?.product.price ?? PRICE_YEAR) : PRICE_YEAR;
+  const priceMonth = storePrices ? (club.monthly?.product.price ?? PRICE_MONTH) : PRICE_MONTH;
+  const priceYearText = storePrices
+    ? (club.yearly?.product.priceString ?? `$${PRICE_YEAR}`)
+    : `$${PRICE_YEAR}`;
+  const priceMonthText = storePrices
+    ? (club.monthly?.product.priceString ?? `$${PRICE_MONTH}`)
+    : `$${PRICE_MONTH}`;
+  const trialDays = storePrices ? club.trialDays : TRIAL_DAYS;
   const hasTrial = trialDays != null;
 
   const now = new Date();
@@ -125,7 +133,9 @@ export function OttoClubScreen() {
         </View>
 
         {/* Floating Otto — the otter lying back, eating */}
-        <OttoArt name="floating" size={220} />
+        <View style={{ alignItems: 'center' }}>
+          <OttoArt name="floating" size={220} />
+        </View>
 
         {/* In-content title + subtitle */}
         <View style={{ gap: space[1] }}>
@@ -183,7 +193,9 @@ export function OttoClubScreen() {
           <PlanCard
             active={plan === 'year'}
             onPress={() => setPlan('year')}
-            name={`Yearly — ${priceYearText}/year`}
+            name="Yearly"
+            price={priceYearText}
+            per="year"
             math={`$${monthlyEquivalent} a month. Save ${savePct}% vs monthly.`}
             badge={`SAVE ${savePct}%`}
             note={hasTrial ? `${trialDays} days free first · Cancel anytime` : 'Cancel anytime'}
@@ -191,7 +203,9 @@ export function OttoClubScreen() {
           <PlanCard
             active={plan === 'month'}
             onPress={() => setPlan('month')}
-            name={`Monthly — ${priceMonthText}/month`}
+            name="Monthly"
+            price={priceMonthText}
+            per="month"
             math={`$${yearlyIfMonthly} a year if you stay all 12 months.`}
             note={hasTrial ? `${trialDays} days free first · Cancel anytime` : 'Cancel anytime'}
           />
@@ -293,6 +307,8 @@ function PlanCard({
   active,
   onPress,
   name,
+  price,
+  per,
   math,
   badge,
   note,
@@ -300,6 +316,8 @@ function PlanCard({
   active: boolean;
   onPress: () => void;
   name: string;
+  price: string;
+  per: string;
   math: string;
   badge?: string;
   note: string;
@@ -310,7 +328,7 @@ function PlanCard({
       onPress={onPress}
       accessibilityRole="radio"
       accessibilityState={{ checked: active }}
-      accessibilityLabel={name}
+      accessibilityLabel={`${name} — ${price} per ${per}`}
     >
       <View style={styles.planTop}>
         <Ionicons
@@ -326,6 +344,10 @@ function PlanCard({
           </View>
         ) : null}
       </View>
+      <RNText style={styles.price}>
+        {price}
+        <RNText style={styles.pricePer}>/{per}</RNText>
+      </RNText>
       <Text role="caption">{math}</Text>
       <Text role="caption">{note}</Text>
     </Pressable>
@@ -388,6 +410,8 @@ const styles = {
   } as ViewStyle,
   planCardActive: { borderColor: colors.terracotta, backgroundColor: colors.creamDeep } as ViewStyle,
   planTop: { flexDirection: 'row', alignItems: 'center', gap: space[2] } as ViewStyle,
+  price: { ...type.title, color: colors.ink, marginTop: space[1] } as TextStyle,
+  pricePer: { ...type.caption, color: colors.inkSoft } as TextStyle,
   badge: {
     backgroundColor: colors.terracotta,
     borderRadius: radii.pill,
