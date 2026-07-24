@@ -159,3 +159,22 @@ confirmation still open — founder to verify the account; not a snapshot blocke
   `.env.development` for a direct-API batch driver, (3) agent-workflow (~10× token cost). **Founder pick needed.**
 - **NEXT (post-decision):** apply the 4 prompt/schema fixes → re-validate on the flagged pilot recipes → build the
   chosen mechanism → run full 792 → critic-sample → commit. Then Phase 3 (ingredient top-up) / Phase 4 (cutover).
+
+### 2026-07-23 — Phases 2-5 COMPLETE (code + data), DB writes pending founder's service-role key
+- **Phase 2 (canonicalize 792):** deployed a `canonicalize` edge function (sonnet-5, key server-side, defensive
+  key-allowlist), batch-ran all 792 (the Anthropic key hit a spend cap at ~617 → resumed after refund, 0 final
+  failures). Critic-sampled = SHIP-WITH-CAVEAT; fixed the wrong-null class (28 keys re-matched deterministically).
+  Function neutralized to a **410 tombstone** (delete the slug from the dashboard at leisure — no MCP delete tool).
+- **Phase 3 (top-up):** added 5 real USDA records for calorie-bearing misses; 42 negligible nulls remain.
+- **Phase 4 (cutover, flag-OFF):** `recipe.queries.ts` serves from `otto_recipes` behind `EXPO_PUBLIC_USE_OTTO_RECIPES`
+  (defaults OFF → app unchanged). `canonical.transform.ts` adapter; measure/name split recovered from bronze
+  (8176/8176, byte-exact rejoin) so the flag-ON detail screen renders correctly. `tools/deploy-recipes.mjs` loads
+  the serving copy.
+- **Phase 5 (recompute):** `tools/recompute-nutrition.mjs` computes from canonical directly (reuses engine guards).
+  Critic caught canned legumes flagged cooked=false (2-3× inflated) → fixed via `--fix-cooked-legumes` (46 lines).
+  Dry-run: 791 computed, 1 refused, corrections reaching users (Irish stew 1135→1094, Black Bean soup 800→300).
+- **REMAINING — two service-role DB writes (need SUPABASE_SERVICE_ROLE_KEY, founder's to supply):**
+  1. `SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node tools/deploy-recipes.mjs` — load 792 → `otto_recipes` (flag-OFF, not user-facing).
+  2. `SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node --experimental-strip-types --import ./src/features/nutrition/engine/ts-ext-resolve.mjs tools/recompute-nutrition.mjs` — recompute `seed_nutrition` (**LIVE nutrition change**).
+- **The flag flip** (`EXPO_PUBLIC_USE_OTTO_RECIPES=true`) that switches recipe *display* off TheMealDB is a separate,
+  deliberate founder action AFTER `otto_recipes` is loaded — not part of this run.
