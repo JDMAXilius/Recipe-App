@@ -211,6 +211,14 @@ to `usdaTable.json` with real USDA fdcIds. **Skip** food colourings / spice blen
 (negligible; the runtime resolver handles misses anyway). Keep the `fdcId` provenance test passing —
 proxy to the closest real record wholesale + a note (the `ackee`/`paneer` pattern) when USDA lacks it.
 
+**Cooked-duck gap (from the 2026-07-24 servings audit):** Duck Confit (52907) reads
+~1442 kcal/serving because 1400g raw skin-on `duck legs` @404 kcal/100g is counted whole,
+but confit renders most of that fat OUT (instructions: "remove the legs from the fat"). The
+honest fix is `cooked:true` on the duck line — BLOCKED because `usdaCookedTable.json` has no
+duck record (only raw `duck`/`duck legs`). Add a `duck, meat+skin, roasted` (~337 kcal/100g,
+real fdcId) cooked entry, then flip the flag → ~760 kcal/serving. Until then, left as-is (no
+silent key swap). Only recipe still ≥1000 kcal that is a genuine over-count, not a big portion.
+
 ### T7 — `seed_nutrition` recompute  ·  OPTIONAL, do LAST  ·  [terminal + Supabase MCP]
 The 6 ingredient fixes already shipped (parmesan/parmesan cheese/sesame seed/sour cream/paneer/
 mascarpone — commit `28ced5cc`) and any T1–T5 fixes only affect **live** computes. The **777 cached

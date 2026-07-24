@@ -19901,7 +19901,7 @@
       {
         "original": "320g Puff Pastry",
         "key": "puff pastry",
-        "grams": 320,
+        "grams": 100,
         "cooked": false,
         "frying_medium": false,
         "note": null,
@@ -44384,7 +44384,7 @@
       {
         "original": "350g Desiccated Coconut",
         "key": "desiccated coconut",
-        "grams": 350,
+        "grams": 120,
         "cooked": false,
         "frying_medium": false,
         "note": null,
@@ -44424,7 +44424,7 @@
       {
         "original": "400g Icing Sugar",
         "key": "icing sugar",
-        "grams": 400,
+        "grams": 200,
         "cooked": false,
         "frying_medium": false,
         "note": null,
@@ -49829,7 +49829,7 @@
     "title": "Ensaimada",
     "category": "Dessert",
     "area": "Spanish",
-    "servings": 4,
+    "servings": 8,
     "instructions": [
       "Stir the yeast into 230ml lukewarm water and let it sit for 3 minutes.",
       "Add the caster sugar, eggs, flour and a teaspoon of sea salt flakes, then mix into a rough dough.",
