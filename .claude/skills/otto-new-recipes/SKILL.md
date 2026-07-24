@@ -67,7 +67,25 @@ Full doctrine: `.claude/agents/canonicalizer.md`. The essentials:
   in the pot/sauce is `false`.
 - Every judgment that isn't obvious gets a `note` (the honesty trail).
 
-### 3. Land + compute
+### 3. Media (EVERY record, before landing — this is what makes a recipe feel finished)
+
+For each recipe, produce all three:
+- **Image** — follow the priority order in Legal rails: real Pexels photo (WebSearch →
+  curl the CDN → **Read the file to confirm it's actually the dish**) else generate
+  (Higgsfield `marketing_studio_image`, 1:1, editorial food-photo prompt, warm light).
+  Compress, commit to `supabase/otto-recipes/media/otto-<id>.jpg`, push, use the raw URL.
+- **Video** — WebSearch a YouTube how-to for the dish; put the watch URL in `media.youtube`.
+- **Origin** — set `image_origin` (generated job id, or Pexels photo id + license).
+  The tool REFUSES a record that has an image without an origin, and warns on any
+  null image/video so nothing ships bare by accident.
+
+Then include in each record:
+```json
+"media": { "image": "https://raw.githubusercontent.com/JDMAXilius/Recipe-App/main/supabase/otto-recipes/media/otto-<id>.jpg", "youtube": "https://www.youtube.com/watch?v=…", "source": null },
+"image_origin": "generated (Higgsfield, owned) — job <id>"
+```
+
+### 4. Land + compute
 
 Write the records array to a JSON file, then:
 
@@ -81,22 +99,22 @@ It validates (shape, 9xxxxx ids, key allowlist), appends silver, computes per-se
 nutrition through the SAME engine as the 792, and writes `<records>.upsert.sql`.
 Sanity-check the logged kcal/serving against common sense before applying.
 
-### 4. Apply to Supabase
+### 5. Apply to Supabase
 
 Run the emitted SQL via the **Supabase MCP `execute_sql`** tool (it upserts
 `otto_recipes` + `seed_nutrition`). There is no service-role key on disk — the MCP is
 the write path.
 
-### 5. Verify in the app (web is enough)
+### 6. Verify in the app (web is enough)
 
-- Search the title on Discover → the tile appears with the painted category art and a
-  calorie pill.
-- Open the detail → ingredients/steps render, the kcal figure matches the card
-  (both are FDA-rounded), "Otto worked this out from the ingredients".
-- The tile art comes from `foodIcon(category)` — if the category was misspelled the
-  miscellaneous bowl shows instead of the right painting.
+- Search the title on Discover → the tile appears with ITS PHOTO (curl the raw URL for
+  a 200 first) and a calorie pill.
+- Open the detail → the photo hero renders (parallax), ingredients/steps render, the
+  kcal figure matches the card (both are FDA-rounded), and the how-to video embed shows.
+- A null-image record falls back to `foodIcon(category)` painted art — if the wrong
+  painting shows, the category was misspelled.
 
-### 6. Commit
+### 7. Commit
 
 Commit the silver diff (and the records JSON if kept under `supabase/otto-recipes/`).
 The tables are derived — regenerable from silver — but silver in git IS the catalogue.

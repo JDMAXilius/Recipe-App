@@ -60,6 +60,21 @@ const Record_ = z.object({
   servings: z.number().int().positive(),
   instructions: z.array(z.string().min(1)).min(1),
   ingredients: z.array(Ingredient).min(1),
+  // Media is part of every landing (founder call 2026-07-24): a legal image
+  // (real permissively-licensed photo first, generated fallback — see the
+  // otto-new-recipes skill) and a how-to video LINK. Both nullable — null image
+  // renders the painted category art — but never omitted silently: the tool
+  // warns on every null so a bare record can't slip through unnoticed.
+  media: z
+    .object({
+      image: z.string().url().nullable(),
+      youtube: z.string().url().nullable(),
+      source: z.string().url().nullable().default(null),
+    })
+    .default({ image: null, youtube: null, source: null }),
+  // Where the image came from — generated job id, or "Pexels photo <id> (Pexels
+  // license)". Required whenever media.image is set (the legal paper trail).
+  image_origin: z.string().nullable().default(null),
 });
 
 const records = z.array(Record_).min(1).parse(JSON.parse(readFileSync(input, "utf8")));
@@ -81,10 +96,20 @@ const now = new Date().toISOString();
 const landed = [];
 for (const r of records) {
   if (have.has(r.id)) { log(`skip ${r.id} "${r.title}" — already in silver`); continue; }
+  if (r.media.image && !r.image_origin) {
+    throw new Error(`${r.id} "${r.title}": media.image set but image_origin missing — record the legal origin`);
+  }
+  if (!r.media.image) log(`WARN ${r.id} "${r.title}": no image — tile falls back to painted category art`);
+  if (!r.media.youtube) log(`WARN ${r.id} "${r.title}": no how-to video link`);
+  const { image_origin, ...rest } = r;
   landed.push({
-    ...r,
-    media: { image: null, youtube: null, source: null },
-    provenance: { source: "otto", authored_at: now, canonicalized_at: now },
+    ...rest,
+    provenance: {
+      source: "otto",
+      authored_at: now,
+      canonicalized_at: now,
+      ...(image_origin ? { image_origin } : {}),
+    },
   });
 }
 if (!landed.length) { log("nothing new to land."); process.exit(0); }
