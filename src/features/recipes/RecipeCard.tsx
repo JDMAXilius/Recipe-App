@@ -3,6 +3,7 @@ import { Image, Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { PawMark, Text } from '@/shared/ui';
 import { colors, macro, radii, shadow, space } from '@/shared/theme/tokens';
+import { fdaCalories } from '@/shared/lib/fdaCalories';
 import { useSaved } from '@/features/cookbook';
 import { useSeedCalories } from '@/features/nutrition';
 import { getNutritionEstimate } from '@/features/nutrition/estimates';
@@ -42,7 +43,9 @@ export function RecipeCard({
   // actually render; a non-seed id here cleanly falls to the category estimate.
   const computedKcal = isSeed ? seedCalories?.get(String(recipe.id)) : undefined;
   const isComputed = typeof computedKcal === 'number' && Number.isFinite(computedKcal);
-  const kcal = isComputed ? computedKcal : getNutritionEstimate(recipe.category).calories;
+  // fdaCalories so the tile prints the SAME number the detail's CalorieRing
+  // shows — a 959→"960" mismatch between card and detail reads as a bug.
+  const kcal = fdaCalories(isComputed ? computedKcal : getNutritionEstimate(recipe.category).calories);
 
   // The card Pressable and the paw Pressable are SIBLINGS, not nested — on web
   // react-native-web renders each accessibilityRole="button" as a real <button>,

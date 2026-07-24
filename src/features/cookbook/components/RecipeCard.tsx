@@ -3,6 +3,7 @@ import { Image, Pressable, Text as RNText, View } from 'react-native';
 import { PawMark, Text } from '@/shared/ui';
 import { colors, macro, radii, shadow, space } from '@/shared/theme/tokens';
 import { foodIcon } from '@/shared/assets';
+import { fdaCalories } from '@/shared/lib/fdaCalories';
 import { useSeedCalories } from '@/features/nutrition';
 import { getNutritionEstimate } from '@/features/nutrition/estimates';
 import type { CookbookItem } from '../cookbook.types';
@@ -32,7 +33,9 @@ export function RecipeCard({ item, saved, onToggleSave, onPress }: Props) {
       ? seedCalories?.get(String(item.recipeId))
       : item.nutritionKcal ?? undefined;
   const isComputed = typeof computedKcal === 'number' && Number.isFinite(computedKcal);
-  const kcal = isComputed ? computedKcal : getNutritionEstimate(item.category).calories;
+  // fdaCalories so the card prints the SAME number the detail's CalorieRing
+  // shows — a 959→"960" mismatch between card and detail reads as a bug.
+  const kcal = fdaCalories(isComputed ? computedKcal : getNutritionEstimate(item.category).calories);
   // 'saved' puts the paw top-right, so the calorie pill takes top-left; owned
   // recipes carry a "By you"/source stamp top-left, so the pill takes top-right.
   const calorieSide = item.variant === 'saved' ? 'left' : 'right';
