@@ -7,7 +7,8 @@ import { z } from "npm:zod@4";
 import { getUserId, json, preflight, rateLimited } from "../_shared/http.ts";
 import { checkImage, VISION_INSTRUCTION } from "./imageMode.ts";
 
-const MODEL = "claude-opus-4-8";
+const MODEL_TEXT = "claude-sonnet-5"; // chat + one-shot: schema-constrained work, ~5x cheaper
+const MODEL_VISION = "claude-opus-4-8"; // photo transcription stays on opus until measured on sonnet
 const MAX_PROMPT_CHARS = 600;
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
@@ -148,8 +149,21 @@ type VisionContent = Array<
 >;
 type Message = Turn | { role: "user"; content: VisionContent };
 
+// System goes as blocks: the static prompt carries a cache_control breakpoint;
+// any per-user context rides in a second, uncached block so it never breaks
+// the cacheable prefix. HONEST CEILING (critic 2026-07-24): Anthropic ignores
+// breakpoints below a ~1024-token prefix and our prompts sit under that, so
+// today this earns no discount (harmless; it self-activates if the prompt
+// grows). Confirm via usage.cache_creation_input_tokens on a live call.
+type SystemBlock = { type: "text"; text: string; cache_control?: { type: "ephemeral" } };
+function systemBlocks(staticPrompt: string, context?: string): SystemBlock[] {
+  const blocks: SystemBlock[] = [{ type: "text", text: staticPrompt, cache_control: { type: "ephemeral" } }];
+  if (context) blocks.push({ type: "text", text: context });
+  return blocks;
+}
+
 // deno-lint-ignore no-explicit-any
-async function askClaude(system: string, schema: unknown, messages: Message[]): Promise<any> {
+async function askClaude(model: string, system: SystemBlock[], schema: unknown, messages: Message[]): Promise<any> {
   const response = await fetch(ANTHROPIC_URL, {
     method: "POST",
     headers: {
@@ -158,7 +172,7 @@ async function askClaude(system: string, schema: unknown, messages: Message[]): 
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      model: MODEL,
+      model,
       max_tokens: 4000,
       thinking: { type: "adaptive" },
       system,
@@ -216,10 +230,11 @@ Deno.serve(async (req) => {
       const turns: Turn[] = parsed.data.messages.slice(-12);
       if (turns[turns.length - 1].role !== "user") return json(400, { error: "Invalid body" });
       const context = contextLines(parsed.data);
-      const system = context.length
-        ? `${CHAT_SYSTEM}\n\nContext for this person: ${context.join(" ")}`
-        : CHAT_SYSTEM;
-      const data = await askClaude(system, CHAT_SCHEMA, turns);
+      const system = systemBlocks(
+        CHAT_SYSTEM,
+        context.length ? `Context for this person: ${context.join(" ")}` : undefined,
+      );
+      const data = await askClaude(MODEL_TEXT, system, CHAT_SCHEMA, turns);
       if (!data) return json(502, { error: "Otto lost his train of thought — try again in a moment." });
       const message = String(data.message || "").slice(0, 600);
       if (data.mode === "decline") {
@@ -250,7 +265,7 @@ Deno.serve(async (req) => {
           ? json(413, { error: "That photo's a bit big for Otto — try a smaller, clearer shot." })
           : json(400, { error: "Invalid body" });
       }
-      const data = await askClaude(SYSTEM, SCHEMA, [{
+      const data = await askClaude(MODEL_VISION, systemBlocks(SYSTEM), SCHEMA, [{
         role: "user",
         content: [
           { type: "image", source: { type: "base64", media_type: check.mimeType, data: check.image } },
@@ -272,7 +287,7 @@ Deno.serve(async (req) => {
     const parsed = generateBody.safeParse(raw);
     if (!parsed.success) return json(400, { error: "Invalid body" });
     const context = contextLines(parsed.data);
-    const data = await askClaude(SYSTEM, SCHEMA, [
+    const data = await askClaude(MODEL_TEXT, systemBlocks(SYSTEM), SCHEMA, [
       {
         role: "user",
         content: `${context.length ? `${context.join("\n")}\n\n` : ""}Recipe request:\n${parsed.data.prompt}`,

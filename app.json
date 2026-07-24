@@ -42,7 +42,14 @@
         }
       ],
       "expo-notifications",
-      "expo-audio"
+      "expo-audio",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Otto listens only while you hold the mic, to write down what you said.",
+          "speechRecognitionPermission": "Speech recognition turns your words into text for Otto."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

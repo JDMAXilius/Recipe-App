@@ -18,6 +18,7 @@ import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
 import { takeOttoAsk, useSaveRecipe, type SaveInput } from '@/features/import';
 import { useChat } from './useChat';
+import { useSpeechInput } from './useSpeechInput';
 import type { ChatRecipe, StoredMessage } from './chat.types';
 
 // Chat with Otto — the ＋ (create) tab. The primary way to make
@@ -191,17 +192,33 @@ export function ChatScreen() {
   const onSend = () => {
     const text = draft.trim();
     if (!text) return;
+    // Return-key send can land mid-dictation (it bypasses the pill): stop the
+    // session first so trailing results can't repopulate the sent text.
+    if (speech.listening) speech.stop();
     haptics.select();
     setDraft('');
     chat.send(text);
     toBottom();
   };
 
-  // Voice rides the dev build only (on-device speech module); say so warmly
-  // instead of a dead tap — matches v1's "coming soon".
+  // Speak to Otto (Phase 1): on-device speech streams interim text into the
+  // draft; the cook edits and sends like typed text. Where the module or the
+  // Web Speech API is missing, keep v1's warm "coming soon" instead of a dead tap.
+  const speech = useSpeechInput(setDraft, (kind) => {
+    if (kind === 'denied') {
+      show('Otto needs the microphone for that. You can allow it in Settings.', 'error');
+    } else {
+      show('Otto couldn’t hear that. Try again.', 'error');
+    }
+  });
+
   const onSpeak = () => {
     haptics.impact();
-    show('Talking to Otto is coming soon. Type it to him for now.', 'info');
+    if (!speech.available) {
+      show('Talking to Otto is coming soon. Type it to him for now.', 'info');
+      return;
+    }
+    speech.toggle(draft); // live draft becomes the prefix dictation appends to
   };
 
   const onSave = async (recipe: ChatRecipe) => {
@@ -313,7 +330,9 @@ export function ChatScreen() {
 
         <View style={{ padding: space[3] }}>
           {/* One rounded field with a trailing pill (Figma): Speak when empty,
-              send arrow once there's text. */}
+              send arrow once there's text. While listening the pill stays put
+              (terracotta, "Listening") so the stop tap is always reachable even
+              as interim words fill the draft. */}
           <View
             style={{
               flexDirection: 'row',
@@ -345,7 +364,7 @@ export function ChatScreen() {
                 maxHeight: 120,
               }}
             />
-            {hasText ? (
+            {hasText && !speech.listening ? (
               <Pressable
                 onPress={onSend}
                 disabled={chat.isSending}
@@ -366,7 +385,7 @@ export function ChatScreen() {
               <Pressable
                 onPress={onSpeak}
                 accessibilityRole="button"
-                accessibilityLabel="Speak to Otto"
+                accessibilityLabel={speech.listening ? 'Stop listening' : 'Speak to Otto'}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -374,13 +393,15 @@ export function ChatScreen() {
                   height: 40,
                   paddingHorizontal: space[4],
                   borderRadius: radii.pill,
-                  backgroundColor: colors.ink,
+                  backgroundColor: speech.listening ? colors.terracotta : colors.ink,
                 }}
               >
                 <Ionicons name="mic" size={16} color={colors.white} />
                 {/* Pill label is white-on-dark — no ink Text role fits (like
                     Button's own label), so it's a raw token-colored string. */}
-                <RNText style={{ fontSize: 13, fontWeight: '600', color: colors.white }}>Speak</RNText>
+                <RNText style={{ fontSize: 13, fontWeight: '600', color: colors.white }}>
+                  {speech.listening ? 'Listening' : 'Speak'}
+                </RNText>
               </Pressable>
             )}
           </View>
