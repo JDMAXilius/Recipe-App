@@ -334,6 +334,57 @@ function splitMeasureName() {
   }
 }
 
+// ── --fix-cooked-legumes : correct cooked:false on canned/cooked legumes ───────
+// Phase-4/5 defect: legume lines flagged cooked:false key to the RAW/DRY legume
+// record (black beans 341 kcal/100g) instead of the COOKED one (91) → 2-3× kcal.
+// Recipe legumes are essentially always eaten cooked (canned, or dry-then-cooked);
+// only a DRY WEIGHT keeps the raw record. The LEGUME set is derived, not listed:
+// a key in BOTH usdaTable and usdaCookedTable whose name matches the pulse regex.
+// Deterministic + idempotent (a corrected line is cooked:true → skipped on re-run).
+const LEGUME_RE = /bean|pea|lentil|chickpea|garbanzo|pulse|legume/i;
+const DRY_WEIGHT_RE = /\b(dried|dry|soaked)\b/i;
+const LEGUME_COOKED_NOTE = "canned/cooked legume — cooked-state corrected (raw-vs-cooked 2-3x guard)";
+
+function fixCookedLegumes() {
+  const usda = readJson(P.usda);
+  const cooked = readJson(join(ROOT, "src/features/nutrition/engine/data/usdaCookedTable.json"));
+  const usdaKeys = new Set(Object.keys(usda));
+  const legumeSet = new Set(
+    Object.keys(cooked).filter((k) => usdaKeys.has(k) && LEGUME_RE.test(k))
+  );
+
+  console.log(`LEGUME set (${legumeSet.size} keys, in BOTH tables + pulse name):`);
+  for (const k of [...legumeSet].sort()) {
+    console.log(`  ${k}  raw=${usda[k].kcal} cooked=${cooked[k].kcal} kcal/100g`);
+  }
+
+  const recipes = readJson(P.recipes);
+  let corrected = 0;
+  const leftDry = [];
+  for (const r of recipes) {
+    for (const ing of r.ingredients) {
+      if (!legumeSet.has(ing.key) || ing.cooked !== false) continue;
+      if (DRY_WEIGHT_RE.test(ing.original)) {
+        leftDry.push({ id: r.id, key: ing.key, original: ing.original });
+        continue; // dry weight → raw record is correct; leave cooked:false
+      }
+      ing.cooked = true;
+      ing.note = ing.note ? `${ing.note}; ${LEGUME_COOKED_NOTE}` : LEGUME_COOKED_NOTE;
+      corrected++;
+    }
+  }
+
+  recipes.sort((a, b) => Number(a.id) - Number(b.id));
+  writeJson(P.recipes, recipes);
+
+  console.log(`\n--fix-cooked-legumes: ${corrected} line(s) corrected (cooked false→true), ${leftDry.length} left DRY (raw record kept).`);
+  if (leftDry.length) {
+    console.log("\nLEFT DRY (dry/soaked weight — raw record is correct):");
+    for (const d of leftDry) console.log(`  ${d.id}  ${d.key}   [${d.original}]`);
+  }
+  console.log(`\nrecipes → ${P.recipes}`);
+}
+
 // ── --emit : the canonicalizer INPUT payload for one recipe ───────────────────
 function emit(id) {
   const bronze = loadBronze();
@@ -681,6 +732,8 @@ if (argv.includes("--self-check")) {
   await rematchNulls();
 } else if (argv.includes("--split-measure-name")) {
   splitMeasureName();
+} else if (argv.includes("--fix-cooked-legumes")) {
+  fixCookedLegumes();
 } else if (argv.includes("--emit")) {
   emit(flagVal("--emit"));
 } else if (argv.includes("--land")) {
@@ -695,6 +748,7 @@ if (argv.includes("--self-check")) {
       "              [--concurrency C=4] [--only <id,id,...>] [--model <name>]\n" +
       "  --rematch-nulls               recover key:null lines the engine resolves (deterministic; needs TS loader)\n" +
       "  --split-measure-name          add measure+name per ingredient from bronze (deterministic; idempotent)\n" +
+      "  --fix-cooked-legumes          set cooked:true on canned/cooked legumes (raw-vs-cooked guard; idempotent)\n" +
       "  --self-check                  prove the zod key gate + resume filter (no agent/network)"
   );
   process.exit(2);
