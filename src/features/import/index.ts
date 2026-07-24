@@ -7,7 +7,7 @@
 // Nothing else leaks (draft slot + queries stay feature-private).
 export { AddSheet, type AddSheetProps } from './AddSheet';
 export { EditRecipeScreen } from './EditRecipeScreen';
-export { takeOttoAsk } from './draft';
+export { takeOttoAsk, stageOttoRecipe } from './draft';
 
 export {
   useImportFromUrl,

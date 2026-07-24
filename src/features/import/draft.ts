@@ -100,6 +100,34 @@ export function setDraft(next: Draft): void {
   slot = next;
 }
 
+// Chat → editor hand-off (founder call 2026-07-24): an Otto chat recipe is
+// REVIEWED before it lands, not saved on tap. Stages the recipe on the same
+// consume-once shelf the URL/photo imports use; the editor then opens as
+// "Check Otto's work" (mode import + source otto) and its Save runs the one
+// compute-at-save path.
+export function stageOttoRecipe(r: {
+  title: string;
+  servings: number;
+  category: string | null;
+  area: string | null;
+  ingredients: IngredientPair[];
+  steps: string[];
+}): void {
+  setDraft({
+    mode: 'import',
+    source: 'otto',
+    sourceUrl: null,
+    sourceName: null,
+    title: r.title,
+    image: '',
+    category: r.category ?? '',
+    area: r.area ?? '',
+    servings: r.servings,
+    ingredients: r.ingredients.length ? r.ingredients.map((p) => ({ ...p })) : [emptyIngredient()],
+    steps: r.steps.length ? [...r.steps] : [''],
+  });
+}
+
 // Reading takes it — a draft is consumed exactly once.
 export function takeDraft(): Draft | null {
   const d = slot;
