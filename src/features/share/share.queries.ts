@@ -54,7 +54,7 @@ export function useListShare(token: string) {
 async function currentUserId(): Promise<string> {
   const { data, error } = await supabase.auth.getUser();
   if (error) throw error;
-  if (!data.user) throw new Error('Not signed in — cannot create a share');
+  if (!data.user) throw new Error('Sign in to share this.');
   return data.user.id;
 }
 

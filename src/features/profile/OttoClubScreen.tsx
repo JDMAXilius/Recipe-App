@@ -74,13 +74,13 @@ export function OttoClubScreen() {
   const savePct = Math.round((1 - priceYear / (priceMonth * 12)) * 100);
 
   const notifyMe = () =>
-    show("You're on the list — Otto will holler when the Club opens.", 'success');
+    show("You're on the list. Otto will holler when the Club opens.", 'success');
 
   const selectedPkg = plan === 'year' ? club.yearly : club.monthly;
   const onBuy = async () => {
     if (!selectedPkg) return;
     const result = await club.buy(selectedPkg);
-    if (result === 'ok') show('Welcome to the Club — everything is unlocked.', 'success');
+    if (result === 'ok') show('Welcome to the Club. Everything is unlocked.', 'success');
     else if (result === 'error')
       show("The purchase didn't go through. You weren't charged.", 'error');
     // cancelled: user closed the sheet on purpose, no toast nagging
@@ -88,16 +88,16 @@ export function OttoClubScreen() {
   const onRestore = async () => {
     const restored = await club.restore();
     show(
-      restored ? 'Membership restored — welcome back.' : 'No membership found on this Apple ID.',
+      restored ? 'Membership restored. Welcome back.' : 'No membership found on this Apple ID.',
       restored ? 'success' : 'info',
     );
   };
 
   const BENEFITS: { icon: keyof typeof Ionicons.glyphMap; text: string }[] = [
-    { icon: 'bookmark', text: 'Unlimited saved recipes — your whole collection, no caps' },
+    { icon: 'bookmark', text: 'Unlimited saved recipes, no caps on your collection' },
     { icon: 'link', text: 'Import recipes from anywhere on the web' },
     { icon: 'calendar', text: 'Smart weekly plans and shopping lists' },
-    { icon: 'paw', text: 'Keeps the lights on — the Club is how Otto pays the cooks and the servers' },
+    { icon: 'paw', text: 'Keeps the lights on. The Club is how Otto pays the cooks and the servers' },
   ];
 
   const TIMELINE: { icon: keyof typeof Ionicons.glyphMap; date: string; body: string }[] = [
@@ -215,10 +215,10 @@ export function OttoClubScreen() {
           {hasTrial
             ? `No charge today. ${trialDays} days free, then ${
                 plan === 'year' ? `${priceYearText}/year` : `${priceMonthText}/month`
-              } starting ${prettyDate(chargeDay)}. That's the whole price — one tier, no add-ons.`
+              } starting ${prettyDate(chargeDay)}. That's the whole price. One tier, no add-ons.`
             : `${
                 plan === 'year' ? `${priceYearText}/year` : `${priceMonthText}/month`
-              }, billed through your Apple ID. That's the whole price — one tier, no add-ons.`}
+              }, billed through your Apple ID. That's the whole price. One tier, no add-ons.`}
         </Text>
 
         {club.member ? (
@@ -276,7 +276,7 @@ export function OttoClubScreen() {
               </View>
             </View>
             <RNText style={styles.bannerNote}>
-              Memberships aren&apos;t on sale yet — this is the menu, not the bill.
+              Memberships aren&apos;t on sale yet. Consider this a preview of the menu.
             </RNText>
             <Pressable
               onPress={notifyMe}
@@ -328,7 +328,7 @@ function PlanCard({
       onPress={onPress}
       accessibilityRole="radio"
       accessibilityState={{ checked: active }}
-      accessibilityLabel={`${name} — ${price} per ${per}`}
+      accessibilityLabel={`${name}, ${price} per ${per}`}
     >
       <View style={styles.planTop}>
         <Ionicons

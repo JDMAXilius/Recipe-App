@@ -304,11 +304,26 @@ content, he's fired from that screen.
 third-person warm narrator, NEVER first-person "I" — one narrator across the whole app):
 
 1. *Error:* "We dropped the pan. Try again in a bit."
-2. *Empty (Saved):* "Nothing saved… yet. Tap the paw on any recipe and Otto will keep it here."
+2. *Empty (Saved):* "Nothing saved yet. Tap the paw on any recipe and Otto will keep it here."
 3. *Completion (cook mode):* "Dinner, done. Otto's proud of you."
 4. *Sign-in headline:* "Back to the kitchen?" — sub "Otto kept your place."
 5. *Permission ask (notifications, future):* "Otto can remind you when it's time to cook. Only
    if you want."
+
+**Copy formatting rules (founder audit 2026-07-24 — anti-slop):**
+
+- **No em dashes (—) in user-facing copy.** The "statement — quip" cadence on every line reads
+  machine-written. Use a period and a second short sentence, or a comma. (The em dash survives
+  ONLY as the null-stat glyph in `statText` and inside code comments.)
+- **Utility messages are plain.** Confirmations of routine actions read like "Photo added." or
+  "Password changed." — no wink, no aside. Personality is reserved for emotional beats:
+  finishing a cook, deleting something, empty states, the paywall.
+- **No cutesy ellipsis** ("Nothing saved… yet"). Ellipsis is allowed only as a live progress
+  affordance ("Saving…", "Otto's thinking…").
+- **No "X, not Y" reversals as a habit** ("the menu, not the bill"). Once per surface at most.
+- **One name per concept.** The shared list's group is a *kitchen* everywhere in user copy
+  (the code/table may say household; the user never sees that word).
+- Every rule above applies to accessibilityLabels too — VoiceOver reads them aloud.
 
 Export rules: PNGs render at ≥2px per displayed pt (no scaling to mush); minimum display 48pt;
 never stretch, tint, flip, or outline the artwork; transparent-background cutouts required for

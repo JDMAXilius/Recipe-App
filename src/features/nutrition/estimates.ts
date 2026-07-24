@@ -69,9 +69,9 @@ export type EstimateKind = "computed" | "computed-low" | "category" | "none";
 export function estimateCaption(kind: EstimateKind): string {
   switch (kind) {
     case "computed":
-      return "Otto worked this out from the ingredients — an estimate.";
+      return "Otto worked this estimate out from the ingredients.";
     case "computed-low":
-      return "Otto worked this out from the ingredients, but a few lines didn't measure cleanly — treat it as a rough guide.";
+      return "Otto worked this out from the ingredients, but a few lines didn't measure cleanly. Treat it as a rough guide.";
     case "category":
       return "Otto's estimate, from this kind of dish.";
     case "none":

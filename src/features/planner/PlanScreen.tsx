@@ -50,7 +50,7 @@ export function PlanScreen() {
     try {
       await setCooked(entry.id, !entry.cooked);
     } catch {
-      show("Couldn't mark that — try again.", 'error');
+      show("Couldn't mark that. Try again.", 'error');
     }
   };
 
@@ -58,7 +58,7 @@ export function PlanScreen() {
     try {
       await remove(entry.id);
     } catch {
-      show("Couldn't remove that — try again.", 'error');
+      show("Couldn't remove that. Try again.", 'error');
     }
   };
 
@@ -73,7 +73,7 @@ export function PlanScreen() {
       else await add(input);
       haptics.notify('success');
     } catch {
-      show("Couldn't update Otto's week — try again.", 'error');
+      show("Couldn't update Otto's week. Try again.", 'error');
     }
   };
 
@@ -87,7 +87,7 @@ export function PlanScreen() {
       await add(input);
       haptics.notify('success');
     } catch {
-      show("Couldn't add leftovers — try again.", 'error');
+      show("Couldn't add leftovers. Try again.", 'error');
     }
   };
 
@@ -145,7 +145,7 @@ export function PlanScreen() {
 
               {dayEntries.length === 0 ? (
                 <Text role="caption">
-                  {index === 0 ? "Nothing yet — Otto's happy to improvise." : 'Open — no plans, no guilt.'}
+                  {index === 0 ? "Nothing yet. Otto's happy to improvise." : 'Open. No plans, no guilt.'}
                 </Text>
               ) : (
                 dayEntries.map((entry) => {
@@ -194,7 +194,7 @@ export function PlanScreen() {
                         <Pressable
                           accessibilityRole="checkbox"
                           accessibilityState={{ checked: Boolean(entry.cooked) }}
-                          accessibilityLabel={entry.cooked ? 'Cooked — tap to unmark' : 'Mark as cooked'}
+                          accessibilityLabel={entry.cooked ? 'Cooked. Tap to unmark' : 'Mark as cooked'}
                           hitSlop={6}
                           onPress={() => toggleCooked(entry)}
                         >
@@ -236,7 +236,7 @@ export function PlanScreen() {
         <View style={styles.emptyWeek}>
           <OttoArt name="happy" size={120} />
           <Text role="body">
-            Pick something from your cookbook — tonight in one tap, a list in ten seconds.
+            Pick something from your cookbook. Tonight in one tap, a list in ten seconds.
           </Text>
         </View>
       )}

@@ -86,7 +86,7 @@ export function ProfileScreen() {
       setNameOverride(await saveUsername(next));
     } catch {
       setNameOverride(null);
-      show("Couldn't save your name — try again.", 'error');
+      show("Couldn't save your name. Try again.", 'error');
     }
   };
 
@@ -94,7 +94,7 @@ export function ProfileScreen() {
     haptics.select();
     void Share.share({
       message:
-        "I've been cooking with Otto — the quieter kind of cookbook. Ask me to show you!",
+        "I've been cooking with Otto, the quieter kind of cookbook. Ask me to show you!",
     }).catch(() => {});
   };
   const rateOtto = () => {
@@ -103,11 +103,11 @@ export function ProfileScreen() {
       void Linking.openURL(RATE_APP_URL).catch(() => {});
       return;
     }
-    show("Otto isn't in the store yet — thank you for wanting to!", 'info');
+    show("Otto isn't in the store yet. Thank you for wanting to!", 'info');
   };
   const reportBug = () => {
     haptics.select();
-    const body = `What happened?\n\n\nWhat did you expect?\n\n\n—\nOtto v${APP_VERSION} · ${Platform.OS}`;
+    const body = `What happened?\n\n\nWhat did you expect?\n\n\n--\nOtto v${APP_VERSION} · ${Platform.OS}`;
     const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Otto bug report')}&body=${encodeURIComponent(body)}`;
     void Linking.openURL(url).catch(() => {});
   };
@@ -142,7 +142,7 @@ export function ProfileScreen() {
       show("Everything's deleted. Otto will miss you.", 'success');
       await signOut();
     } catch {
-      show("Couldn't delete right now — try again, or email us.", 'error');
+      show("Couldn't delete right now. Try again, or email us.", 'error');
       setDeleting(false);
       setArmDelete(false);
     }
@@ -205,7 +205,7 @@ export function ProfileScreen() {
           style={styles.clubCard}
           onPress={() => router.push('/otto-club')}
           accessibilityRole="button"
-          accessibilityLabel="Otto Club — see how it works"
+          accessibilityLabel="Otto Club. See how it works"
         >
           <View style={styles.clubArt} pointerEvents="none">
             <OttoArt name="floating" size={132} />
@@ -237,7 +237,7 @@ export function ProfileScreen() {
             </Pressable>
           ))}
         </View>
-        {nothingYet && <Text role="caption">Nothing cooked yet — Otto&apos;s ready when you are.</Text>}
+        {nothingYet && <Text role="caption">Nothing cooked yet. Otto&apos;s ready when you are.</Text>}
       </View>
 
       {/* CONTENT — the private cooking journal */}
@@ -351,7 +351,7 @@ export function ProfileScreen() {
         accessibilityLabel="Delete my account"
       >
         <Text role={armDelete ? 'computed' : 'caption'}>
-          {armDelete ? 'Tap again — this is forever' : 'Delete my account'}
+          {armDelete ? 'Tap again. This is forever' : 'Delete my account'}
         </Text>
       </Pressable>
       </ScrollView>

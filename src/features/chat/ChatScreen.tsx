@@ -201,7 +201,7 @@ export function ChatScreen() {
   // instead of a dead tap — matches v1's "coming soon".
   const onSpeak = () => {
     haptics.impact();
-    show('Talking to Otto is coming soon — type it to him for now.', 'info');
+    show('Talking to Otto is coming soon. Type it to him for now.', 'info');
   };
 
   const onSave = async (recipe: ChatRecipe) => {
@@ -213,7 +213,7 @@ export function ChatScreen() {
     try {
       const id = await saveMut.mutateAsync(input);
       haptics.notify('success');
-      show("On the shelf — it's in your cookbook.", 'success');
+      show('Saved to your cookbook.', 'success');
       router.replace(`/recipe/u-${id}`);
     } catch (err) {
       show(err instanceof Error ? err.message : 'Couldn’t save. Try again.', 'error');
@@ -272,7 +272,7 @@ export function ChatScreen() {
               <OttoIdle name="happy" size={140} sway />
               <Text role="title">What are you hungry for?</Text>
               <Text role="body">
-                Tell Otto a craving, a few ingredients, or a mood — he’ll ask a little, then write you
+                Tell Otto a craving, a few ingredients, or a mood. He’ll ask a little, then write you
                 a recipe.
               </Text>
             </View>

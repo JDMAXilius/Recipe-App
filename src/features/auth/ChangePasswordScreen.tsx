@@ -36,7 +36,7 @@ export function ChangePasswordScreen() {
       show('Password changed.', 'success');
       router.back();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't change it just now — try again.");
+      setError(err instanceof Error ? err.message : "Couldn't change it just now. Try again.");
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export function ChangePasswordScreen() {
   return (
     <AuthScreenLayout
       title="Change your password"
-      subtitle="Otto asks for the current one first — so a borrowed phone can't lock you out of your own account."
+      subtitle="Otto asks for the current one first, so a borrowed phone can't lock you out of your own account."
       error={error}
       hero={false}
     >

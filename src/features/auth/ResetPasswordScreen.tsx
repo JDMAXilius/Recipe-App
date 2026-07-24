@@ -48,7 +48,7 @@ export function ResetPasswordScreen() {
       await updatePassword(password);
       router.replace('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't save that password — try again.");
+      setError(err instanceof Error ? err.message : "Couldn't save that password. Try again.");
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export function ResetPasswordScreen() {
   return (
     <AuthScreenLayout
       title="Set a new password"
-      subtitle="Pick something you'll remember — Otto will keep you signed in afterwards."
+      subtitle="Pick something you'll remember. Otto will keep you signed in afterwards."
       error={error}
       hero={false}
     >

@@ -44,9 +44,9 @@ async function invokeEdge(fn: string, body: Record<string, unknown>): Promise<un
   if (error) {
     if (error instanceof FunctionsHttpError) {
       const payload = (await error.context.json().catch(() => null)) as { error?: string } | null;
-      throw new Error(payload?.error ?? "Otto couldn't finish that — try again in a moment.");
+      throw new Error(payload?.error ?? "Otto couldn't finish that. Try again in a moment.");
     }
-    throw new Error("Otto can't reach the kitchen — check your connection and try again.");
+    throw new Error("Otto can't reach the kitchen. Check your connection and try again.");
   }
   return data;
 }
@@ -130,7 +130,7 @@ function base64ToBytes(base64: string): Uint8Array {
 // caller can show an honest message.
 export async function uploadRecipePhoto(base64: string, mimeType?: string | null): Promise<string> {
   const bytes = base64ToBytes(base64);
-  if (!bytes.length) throw new Error('That photo came through empty — try another.');
+  if (!bytes.length) throw new Error('That photo came through empty. Try another.');
 
   const {
     data: { user },

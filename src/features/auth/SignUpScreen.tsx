@@ -43,7 +43,7 @@ export function SignUpScreen() {
   return (
     <AuthScreenLayout
       title="Pull up a stool."
-      subtitle="Save recipes, plan dinners — Otto remembers."
+      subtitle="Save recipes and plan dinners. Otto remembers."
       error={error}
     >
       <SocialAuthButtons mode="sign-up" onError={setError} />

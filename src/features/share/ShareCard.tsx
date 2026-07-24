@@ -77,7 +77,7 @@ export const ShareCard = forwardRef<View, ShareCardProps>(function ShareCard(
         }}
       >
         <OttoArt name="badge" size={20} />
-        <Text role="caption">Otto — the quieter kind of cookbook</Text>
+        <Text role="caption">Otto, the quieter kind of cookbook</Text>
       </View>
     </View>
   );

@@ -24,7 +24,7 @@ export function JournalScreen() {
           <OttoIdle name="happy" size={140} />
           <Text role="title">No plates yet</Text>
           <Text role="caption">
-            Finish a cook and snap your plate — this is where the good memories live.
+            Finish a cook and snap your plate. This is where the good memories live.
           </Text>
         </View>
       </Screen>

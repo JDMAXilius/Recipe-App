@@ -68,7 +68,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
   const startImport = async () => {
     const target = url.trim();
     if (!LOOKS_LIKE_URL.test(target)) {
-      setError("That doesn't look like a link — paste the full address, http and all.");
+      setError("That doesn't look like a link. Paste the full address, http and all.");
       return;
     }
     setError(null);
@@ -87,7 +87,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
   const startTextImport = async () => {
     const body = text.trim();
     if (body.length < 40) {
-      setError('Paste the whole thing — ingredients and steps — so Otto has enough to sort.');
+      setError('Paste the whole thing, ingredients and steps, so Otto has enough to sort.');
       return;
     }
     setError(null);
@@ -107,7 +107,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
     const picked = (await takePhoto({ base64: true })) ?? (await pickFromLibrary({ base64: true }));
     if (!picked) return;
     if (!picked.base64) {
-      setError("Otto couldn't read that photo — try a clearer shot.");
+      setError("Otto couldn't read that photo. Try a clearer shot.");
       return;
     }
     try {
@@ -117,7 +117,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
       });
       openEditor(draft);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Otto couldn't read that photo — try a clearer shot.");
+      setError(err instanceof Error ? err.message : "Otto couldn't read that photo. Try a clearer shot.");
     }
   };
 

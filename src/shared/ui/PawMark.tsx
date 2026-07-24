@@ -33,7 +33,7 @@ export function PawMark({ saved, onToggle, size = 36 }: PawMarkProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={saved ? 'Saved — remove from cookbook' : 'Save to cookbook'}
+      accessibilityLabel={saved ? 'Saved. Tap to remove from cookbook' : 'Save to cookbook'}
       accessibilityState={{ selected: saved }}
       onPress={handle}
       onPressIn={press.onPressIn}

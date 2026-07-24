@@ -28,8 +28,8 @@ const { width } = Dimensions.get('window');
 const SCENES = [
   {
     key: 'collect',
-    title: 'Every recipe you love — in one place',
-    body: 'Import from any site or video, or write your own — Otto keeps them all together.',
+    title: 'Every recipe you love, in one place',
+    body: 'Import from any site or video, or write your own. Otto keeps them all together.',
     cta: 'Continue',
   },
   {

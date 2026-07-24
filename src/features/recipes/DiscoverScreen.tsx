@@ -220,7 +220,7 @@ export function DiscoverScreen() {
             <View style={{ flex: 1, gap: 2 }}>
               <Text role="body">Ask Otto</Text>
               <Text role="caption">
-                Tell him what you&apos;re hungry for — he&apos;ll write the recipe.
+                Tell him what you&apos;re hungry for and he&apos;ll write the recipe.
               </Text>
             </View>
             <View
@@ -326,8 +326,8 @@ export function DiscoverScreen() {
               <Text role="title">{isSearching ? 'Nothing found' : 'This shelf is empty'}</Text>
               <Text role="caption">
                 {isSearching
-                  ? `Otto came up empty for “${debounced}” — try another dish or ingredient.`
-                  : 'Nothing on this shelf yet — try another category.'}
+                  ? `Otto came up empty for “${debounced}”. Try another dish or ingredient.`
+                  : 'Nothing on this shelf yet. Try another category.'}
               </Text>
             </View>
           )

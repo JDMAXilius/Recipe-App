@@ -91,7 +91,7 @@ export function RecipeDetailScreen() {
         }}
       >
         <Text role="title">That page is gone</Text>
-        <Text role="caption">Otto looked everywhere — this recipe isn’t on the shelf anymore.</Text>
+        <Text role="caption">Otto looked everywhere. This recipe isn’t on the shelf anymore.</Text>
         <Button title="Take me back" variant="secondary" onPress={() => router.back()} />
       </View>
     );
@@ -150,7 +150,7 @@ export function RecipeDetailScreen() {
         image: recipe.image,
         category: recipe.category,
       });
-      show(`On ${label}’s card — Otto’s week has plans.`, 'success');
+      show(`On ${label}’s card. Otto’s week has plans.`, 'success');
     } catch (e) {
       show((e as Error).message || 'Couldn’t add it to the week.', 'error');
     }

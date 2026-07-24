@@ -325,7 +325,7 @@ export function ShoppingScreen() {
               <View style={styles.empty}>
                 <OttoArt name="thinking" size={120} />
                 <Text role="body">
-                  Nothing to buy yet — put a dish or two on Otto&apos;s week and build the list from
+                  Nothing to buy yet. Put a dish or two on Otto&apos;s week and build the list from
                   there.
                 </Text>
               </View>

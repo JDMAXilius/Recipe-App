@@ -19,7 +19,7 @@ export function PreferencesScreen() {
   // already committed and dismisses — matching Figma's header Save.
   const onBack = () => (router.canGoBack() ? router.back() : router.replace('/profile'));
   const onSave = () => {
-    show('Noted — Discover follows your taste now.', 'success');
+    show('Noted. Discover follows your taste now.', 'success');
     onBack();
   };
 

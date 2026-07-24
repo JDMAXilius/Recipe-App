@@ -45,13 +45,13 @@ function messageForStatus(status: number, bodyError?: string): string {
     case 401:
       return 'Sign in to chat with Otto.';
     case 429:
-      return "Otto needs a breather — give it a few minutes and try again.";
+      return 'Otto needs a breather. Give it a few minutes and try again.';
     case 503:
-      return "Otto's kitchen is still being wired up — check back soon.";
+      return "Otto's kitchen is still being wired up. Check back soon.";
     case 502:
-      return 'That one slipped — try again.';
+      return "That didn't go through. Try again.";
     default:
-      return bodyError ?? "Otto couldn't finish that — try again in a moment.";
+      return bodyError ?? "Otto couldn't finish that. Try again in a moment.";
   }
 }
 
@@ -75,7 +75,7 @@ export async function sendChat(
       const body = (await error.context.json().catch(() => null)) as { error?: string } | null;
       throw new Error(messageForStatus(status, body?.error));
     }
-    throw new Error("Otto can't reach the kitchen — check your connection and try again.");
+    throw new Error("Otto can't reach the kitchen. Check your connection and try again.");
   }
   return ChatResponseSchema.parse(data);
 }

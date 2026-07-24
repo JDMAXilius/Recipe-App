@@ -30,7 +30,7 @@ export function RecipePickerSheet({ visible, title, onPick, onClose }: RecipePic
     <Sheet visible={visible} onClose={onClose} title={title}>
       {items.length === 0 ? (
         <Text role="caption">
-          Your cookbook is empty — save a recipe or write your own, then plan it here.
+          Your cookbook is empty. Save a recipe or write your own, then plan it here.
         </Text>
       ) : (
         <ScrollView style={styles.list} keyboardShouldPersistTaps="handled">

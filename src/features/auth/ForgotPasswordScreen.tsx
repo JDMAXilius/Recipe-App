@@ -28,7 +28,7 @@ export function ForgotPasswordScreen() {
       await sendPasswordReset(email);
       setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't send that just now — try again.");
+      setError(err instanceof Error ? err.message : "Couldn't send that just now. Try again.");
     } finally {
       setLoading(false);
     }

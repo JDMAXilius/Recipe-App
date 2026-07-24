@@ -169,7 +169,7 @@ export function EditRecipeScreen() {
     const picked = await pickFromLibrary({ base64: true });
     if (!picked) return; // cancelled or permission denied — no error to throw
     if (!picked.base64) {
-      show("Couldn't read that photo — try another.", 'error');
+      show("Couldn't read that photo. Try another.", 'error');
       return;
     }
     try {
@@ -194,7 +194,7 @@ export function EditRecipeScreen() {
     try {
       const id = await saveMut.mutateAsync({ id: editId, userId: user.id, recipe: result.recipe });
       haptics.notify('success');
-      show(editId != null ? 'Changes saved.' : "On the shelf — it's in your cookbook.", 'success');
+      show(editId != null ? 'Changes saved.' : 'Saved to your cookbook.', 'success');
       if (editId != null) router.back();
       else router.replace(`/recipe/u-${id}`);
     } catch (err) {
@@ -216,7 +216,7 @@ export function EditRecipeScreen() {
     try {
       await deleteMut.mutateAsync({ id: editId, userId: user.id });
       haptics.notify('warning');
-      show('Gone — Otto tore out the page.', 'success');
+      show('Gone. Otto tore out the page.', 'success');
       router.replace('/cookbook');
     } catch (err) {
       show(err instanceof Error ? err.message : "Couldn’t delete it. Try again.", 'error');
@@ -252,7 +252,7 @@ export function EditRecipeScreen() {
         {form.mode !== 'import' && (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Ask Otto — he picks up from what you have typed"
+            accessibilityLabel="Ask Otto. He picks up from what you have typed"
             onPress={askOtto}
             style={askOttoRow}
           >
@@ -460,12 +460,12 @@ export function EditRecipeScreen() {
         {form.sourceUrl != null ? (
           <View style={{ marginTop: space[5] }}>
             <Text role="caption">
-              From {form.sourceName ?? form.sourceUrl} — the credit stays with the recipe.
+              From {form.sourceName ?? form.sourceUrl}. The credit stays with the recipe.
             </Text>
           </View>
         ) : form.source === 'otto' ? (
           <View style={{ marginTop: space[5] }}>
-            <Text role="caption">Cooked up with Otto — checked and kept by you.</Text>
+            <Text role="caption">Cooked up with Otto. Checked and kept by you.</Text>
           </View>
         ) : null}
 

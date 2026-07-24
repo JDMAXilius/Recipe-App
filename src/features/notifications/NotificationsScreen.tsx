@@ -67,7 +67,7 @@ export function NotificationsScreen() {
               <Ionicons name="moon-outline" size={20} color={colors.inkSoft} />
               <View style={styles.rowBody}>
                 <Text role="body">Tonight&apos;s dinner</Text>
-                <Text role="caption">On days you planned something — one nudge, with the dish name.</Text>
+                <Text role="caption">On days you planned something, one nudge with the dish name.</Text>
               </View>
               <Switch
                 value={prefs.tonight}
@@ -103,7 +103,7 @@ export function NotificationsScreen() {
               <Ionicons name="calendar-outline" size={20} color={colors.inkSoft} />
               <View style={styles.rowBody}>
                 <Text role="body">Sunday planning nudge</Text>
-                <Text role="caption">Sunday, 9am — a fresh week, a gentle poke.</Text>
+                <Text role="caption">Sunday at 9am. A fresh week, a gentle poke.</Text>
               </View>
               <Switch
                 value={prefs.sunday}
@@ -116,7 +116,7 @@ export function NotificationsScreen() {
           </View>
 
           {Platform.OS === 'web' && (
-            <Text role="caption">Reminders arrive on the phone app — this preview can&apos;t buzz.</Text>
+            <Text role="caption">Reminders arrive on the phone app. This preview can&apos;t buzz.</Text>
           )}
         </View>
       </ScrollView>

@@ -12,15 +12,15 @@ import { colors, radii, space } from '@/shared/theme/tokens';
 const FAQS = [
   {
     q: 'Where do Otto’s recipes come from?',
-    a: 'Three shelves: a free community cookbook Otto browses for you, recipes you write yourself, and recipes you import from links. Imported ones keep their source — the credit and the live link travel with the recipe, always.',
+    a: 'Three shelves: a free community cookbook Otto browses for you, recipes you write yourself, and recipes you import from links. Imported ones keep their source. The credit and the live link travel with the recipe, always.',
   },
   {
     q: 'How do I import a recipe from a link?',
-    a: 'Paste a food-blog, TikTok or Instagram link on the Add screen. Otto pulls what it honestly can — from blogs that’s usually the full recipe; from social posts it works from the caption, so if the caption hides the recipe, Otto says so instead of guessing.',
+    a: 'Paste a food-blog, TikTok or Instagram link on the Add screen. Otto pulls what it honestly can. From blogs that’s usually the full recipe. From social posts it works from the caption, so if the caption hides the recipe, Otto says so instead of guessing.',
   },
   {
     q: 'Will my shopping list change if I change my week?',
-    a: 'Never silently. If your week no longer matches the list, a small banner asks whether to update it — your checked-off items and your own additions survive the refresh.',
+    a: 'Never silently. If your week no longer matches the list, a small banner asks whether to update it. Your checked-off items and your own additions survive the refresh.',
   },
   {
     q: 'What do food preferences actually change?',
@@ -28,11 +28,11 @@ const FAQS = [
   },
   {
     q: 'Who can see a recipe or list I share?',
-    a: 'Only people holding the link — links are long random strings nobody can guess, and the pages are read-only. A shared shopping list is a snapshot of that moment; it never updates by itself.',
+    a: 'Only people holding the link. Links are long random strings nobody can guess, and the pages are read-only. A shared shopping list is a snapshot of that moment; it never updates by itself.',
   },
   {
     q: 'Can my household share one list?',
-    a: 'Yes — from your shopping list, tap the people icon to start a shared list and send the invite link. Everyone who joins adds and checks off the same list, and each line shows who added it or picked it up.',
+    a: 'Yes. From your shopping list, tap the people icon to start a shared list and send the invite link. Everyone who joins adds and checks off the same list, and each line shows who added it or picked it up.',
   },
   {
     q: 'Where does my data live?',
@@ -40,11 +40,11 @@ const FAQS = [
   },
   {
     q: 'What is Otto Club?',
-    a: 'One simple membership for everything Otto can do — it’s opening soon. The free kitchen stays a real kitchen either way.',
+    a: 'One simple membership for everything Otto can do. It’s opening soon, and the free kitchen stays a real kitchen either way.',
   },
   {
     q: 'How do I leave?',
-    a: 'Sign out anytime from your profile, or choose Delete my account — that removes everything, for real. No guilt trip, and Otto will keep the stove warm.',
+    a: 'Sign out anytime from your profile, or choose Delete my account to remove everything, for real. No guilt trip, and Otto will keep the stove warm.',
   },
 ];
 
@@ -83,7 +83,7 @@ export function FaqScreen() {
           );
         })}
         <Text role="caption">
-          Something else on your mind? Send a thought from your profile — a human reads every one.
+          Something else on your mind? Send a thought from your profile. A human reads every one.
         </Text>
       </ScrollView>
     </Screen>

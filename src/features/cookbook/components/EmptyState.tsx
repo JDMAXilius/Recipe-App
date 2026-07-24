@@ -24,7 +24,7 @@ export function EmptyState({ segment, cookedOnly, onExplore, onAdd }: Props) {
   if (segment === 'mine') {
     return (
       <Shell art="thinking" title="Nothing of yours yet">
-        <Text role="body">Paste a link or write one down — Otto keeps your recipes right here.</Text>
+        <Text role="body">Paste a link or write one down. Otto keeps your recipes right here.</Text>
         <View style={{ marginTop: space[4] }}>
           <Button title="Add a recipe" variant="primary" onPress={onAdd} />
         </View>
@@ -32,7 +32,7 @@ export function EmptyState({ segment, cookedOnly, onExplore, onAdd }: Props) {
     );
   }
   return (
-    <Shell art="sad" title="Nothing saved… yet">
+    <Shell art="sad" title="Nothing saved yet">
       <Text role="body">Tap the paw on any recipe and Otto will keep it here for later.</Text>
       <View style={{ marginTop: space[4] }}>
         <Button title="Explore recipes" variant="primary" onPress={onExplore} />

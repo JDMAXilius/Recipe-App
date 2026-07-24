@@ -92,7 +92,7 @@ export function CookScreen() {
   const snapPlate = async () => {
     const image = (await takePhoto()) ?? (await pickFromLibrary());
     if (!image) {
-      showToast('No worries — snap your plate any time.', 'info');
+      showToast('No worries. Snap your plate any time.', 'info');
       return;
     }
     addJournalEntry({ recipeId, title: recipe?.title ?? 'A dish', image });
@@ -315,7 +315,7 @@ export function CookScreen() {
         <View style={{ marginTop: space[4], alignItems: 'center', gap: space[3] }}>
           {rating ? (
             <Text role="caption">
-              {rating === 'up' ? 'Otto will keep this one close.' : 'Noted — Otto won’t push it again.'}
+              {rating === 'up' ? 'Otto will keep this one close.' : 'Noted. Otto won’t push it again.'}
             </Text>
           ) : (
             <>

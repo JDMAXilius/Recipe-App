@@ -5,7 +5,7 @@
 // Food preferences (ported from v1 lib/prefs). Only diets TheMealDB can
 // honestly tag are offered — a toggle the data can't honor would be a lie.
 export const DIETS = [
-  { key: 'none', label: 'None — I eat everything' },
+  { key: 'none', label: 'None, I eat everything' },
   { key: 'vegetarian', label: 'Vegetarian' },
   { key: 'vegan', label: 'Vegan' },
 ] as const;

@@ -30,9 +30,9 @@ export function HouseholdScreen() {
     setBusy('create');
     try {
       await create(name.trim());
-      show('Kitchen ready — share the code so others can join.', 'success');
+      show('Kitchen ready. Share the code so others can join.', 'success');
     } catch {
-      show("Couldn't start the kitchen — try again.", 'error');
+      show("Couldn't start the kitchen. Try again.", 'error');
     } finally {
       setBusy(null);
     }
@@ -46,9 +46,9 @@ export function HouseholdScreen() {
     setBusy('join');
     try {
       await join(c, name.trim());
-      show("You're in — the shared list is on your Shopping screen.", 'success');
+      show("You're in. The shared list is on your Shopping screen.", 'success');
     } catch {
-      show('No kitchen with that code — double-check it.', 'error');
+      show('No kitchen with that code. Double-check it.', 'error');
     } finally {
       setBusy(null);
     }
@@ -59,7 +59,7 @@ export function HouseholdScreen() {
       await leave();
       show('Left the kitchen.', 'info');
     } catch {
-      show("Couldn't leave right now — try again.", 'error');
+      show("Couldn't leave right now. Try again.", 'error');
     } finally {
       setBusy(null);
     }
@@ -68,7 +68,7 @@ export function HouseholdScreen() {
     if (!household) return;
     haptics.select();
     void Share.share({
-      message: `Join our Otto kitchen — open the app, Account → Our shared list → Join, and enter code ${household.invite_code}.`,
+      message: `Join our Otto kitchen. In the app, go to Account, then Our shared list, then Join, and enter code ${household.invite_code}.`,
     }).catch(() => {});
   };
 
@@ -89,7 +89,7 @@ export function HouseholdScreen() {
             <OttoIdle name="happy" size={120} />
             <Text role="title">{household.name}</Text>
             <Text role="caption">
-              Everyone here shares one shopping list — build it on the Shopping screen and check it
+              Everyone here shares one shopping list. Build it on the Shopping screen and check it
               off together.
             </Text>
           </View>
@@ -138,7 +138,7 @@ export function HouseholdScreen() {
         <Text role="title">One list, shared</Text>
         <Text role="caption">
           Start a shared kitchen or join one with a code. Everyone adds to and checks off the same
-          shopping list — in real time.
+          shopping list, in real time.
         </Text>
 
         <View style={styles.nameLine}>

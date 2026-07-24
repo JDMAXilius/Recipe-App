@@ -173,7 +173,7 @@ const trimOrNull = (s: string): string | null => {
 export function toSavePayload(draft: Draft): SaveResult {
   const title = draft.title.trim();
   if (!title) {
-    return { ok: false, error: "Give it a name first — even 'Tuesday soup' works." };
+    return { ok: false, error: "Give it a name first. Even 'Tuesday soup' works." };
   }
   const ingredients = draft.ingredients
     .map((p) => ({ measure: p.measure.trim(), name: p.name.trim() }))

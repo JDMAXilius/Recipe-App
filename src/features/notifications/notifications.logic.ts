@@ -78,7 +78,7 @@ export function computeNotifications(
         id: `tonight-${day}`,
         date: when,
         title: 'Tonight in your kitchen',
-        body: `${dishes[0]}${extra} — ready to start cooking?`,
+        body: `${dishes[0]}${extra}. Ready to start cooking?`,
       });
     }
   }
@@ -89,7 +89,7 @@ export function computeNotifications(
       id: `sunday-${toDayKey(when)}`,
       date: when,
       title: 'Plan your week',
-      body: 'A fresh week ahead — what are you cooking?',
+      body: 'A fresh week ahead. What are you cooking?',
     });
   }
 

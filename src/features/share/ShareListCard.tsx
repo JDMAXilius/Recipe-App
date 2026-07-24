@@ -137,7 +137,7 @@ export const ShareListCard = forwardRef<View, ShareListCardProps>(function Share
                       ) : null}
                       {item.name}
                       {item.sources?.length ? (
-                        <RNText style={styles.prov}> — for {item.sources.join(', ')}</RNText>
+                        <RNText style={styles.prov}> · for {item.sources.join(', ')}</RNText>
                       ) : null}
                     </RNText>
                   </View>

@@ -12,7 +12,7 @@ const TIPS = [
   'Salt your pasta water like the sea.',
   'Rest meat as long as you seared it.',
   'Read the whole recipe before the pan gets hot.',
-  'Taste as you go — Otto always does.',
+  'Taste as you go. Otto always does.',
   'Sharp knives are safer than dull ones.',
   'Mise en place: chop first, cook calm.',
 ];
