@@ -21,8 +21,12 @@ const ChatResponseSchema = z.discriminatedUnion('mode', [
     recipe: z.object({
       title: z.string(),
       servings: z.number(),
-      category: z.string(),
-      area: z.string(),
+      // The function's shapeGeneratedRecipe emits string | null for both (a
+      // dish with no clear cuisine gets area: null). Requiring strings here
+      // turned a legal null into a parse error bubble — surfaced live when
+      // sonnet answered "tomato soup" with area: null.
+      category: z.string().nullable(),
+      area: z.string().nullable(),
       ingredients: z.array(z.object({ measure: z.string(), name: z.string() })),
       steps: z.array(z.string()),
       image: z.null(),

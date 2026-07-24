@@ -22,8 +22,8 @@ export interface StoredMessage extends WireMessage {
 export interface ChatRecipe {
   title: string;
   servings: number;
-  category: string;
-  area: string;
+  category: string | null;
+  area: string | null;
   ingredients: { measure: string; name: string }[];
   steps: string[];
   image: null;
