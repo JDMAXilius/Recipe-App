@@ -99,6 +99,8 @@ Recipe-App/
 │   │   ├── import-recipe/    URL → recipe via schema.org JSON-LD (deterministic, SSRF-guarded)
 │   │   ├── generate-recipe/  Ask Otto — Claude (opus) recipe gen: prompt · chat · photo modes
 │   │   ├── resolve-nutrition/ Claude (haiku) picks a real USDA record for unseen ingredients
+│   │   ├── revenuecat-webhook/ RevenueCat events → public.memberships (shared-secret auth)
+│   │   ├── canonicalize/     otto_recipes curation: original recipe → canonical structured record
 │   │   └── delete-account/   completes account deletion (auth user + storage)
 │   └── migrations/         Postgres schema + RLS as timestamped SQL (source of truth)
 │
@@ -125,9 +127,11 @@ Supabase
    └─ Edge Functions ── the few jobs that must run server-side:
         content → TheMealDB    import-recipe → schema.org    delete-account
         generate-recipe → Claude (opus)      resolve-nutrition → Claude (haiku) + USDA
+        revenuecat-webhook → memberships     canonicalize → otto_recipes curation
 ```
 
-- **No custom server.** The app queries Postgres directly through the Supabase client; RLS decides what each user can see. The five Edge Functions hold the only secrets (TheMealDB / Anthropic / USDA keys) so they never touch the app bundle.
+- **No custom server.** The app queries Postgres directly through the Supabase client; RLS decides what each user can see. The Edge Functions hold the only secrets (TheMealDB / Anthropic / USDA keys, the RevenueCat webhook secret, the service-role key) so they never touch the app bundle.
+- **Memberships**: RevenueCat is the purchase layer (entitlement `club`); its webhook writes `public.memberships` (read-own-row RLS, service-role writes) so the backend always knows who's in the Club.
 - **Two content sources, one job each** — **TheMealDB** supplies recipes + ingredient lines (it carries no nutrition, by design); **USDA FoodData Central** (CC0) supplies the per-ingredient nutrition those lines are costed against.
 - **Semantic ink** — terracotta = computed/interactive, ink = human-authored. **Honesty law** — never fabricate data; `null` beats a guess.
 
@@ -231,6 +235,13 @@ security advisors cleaned up. Otto Club paywall shows launch pricing against the
 **Next:** a device pass on the OS-level paths (Apple/Google/Facebook login, timer audio, camera, push);
 real App Store subscription products (Paid Apps agreement → ASC products → swap the `appl_` RevenueCat
 key) and feature gating on the `club` entitlement; then App Store submission.
+
+## Project identity
+
+- **Domain**: [ottosapp.com](https://ottosapp.com) — marketing site lives in its own repo (`Otto_Website`); Terms + Privacy hosted at `/terms` and `/privacy` (App Review requirement, linked from the paywall)
+- **Auth**: email/password + Apple, Google, and Facebook OAuth (Supabase Auth); transactional email over Google Workspace SMTP
+- **Deep-link scheme**: `otto://` (OAuth callbacks + share links); bundle id `com.otto.recipes`, Apple team `A6J6HGNWZK`
+- **Active data work** (`docs/tickets/`): nutrition accuracy (usdaTable is per-100g — the weight layer owns accuracy) and OWN_RECIPE_DB — migrating the 750 seed recipes into curated `otto_recipes` rows via the `canonicalize` function
 
 ## Credits
 
