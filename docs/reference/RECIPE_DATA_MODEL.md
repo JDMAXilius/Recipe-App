@@ -86,7 +86,15 @@ overlay that can drift.
 1. **Servings verification — #1 lever.** It multiplies every per-serving number. Rule: cite the
    yield phrase from the instructions ("serves 4", "cut into 8"); if none, infer *and* mass-sanity-
    check (a main serving ≈ 300–700 g / 400–800 kcal; flag `basis:"inferred"` + low confidence).
-   **Action:** re-verify the ~30 recipes reading > ~900 kcal/serving — nearly all are under-set.
+   **A high per-serving kcal (> ~1000) is a REVIEW TRIGGER, not a cap.** A recipe is allowed to read
+   over 1000 kcal/serving as long as it checks out against USDA + a Claude review — a rich confit,
+   a whole pizza, or a 1 lb-pork Cuban sandwich is *honestly* that caloric. Never divide servings
+   just to push a number under a threshold; that hides a real value or, worse, hides a real bug.
+   Triage by **energy density** (`tools/list-high-kcal.mjs`): plausible density + low servings =
+   maybe under-set; impossible savory density (> ~3.3 kcal/g) = an ingredient over-count to fix at
+   the source. **Audit outcome (2026-07-24):** of ~30 recipes ≥ 1000 kcal, only a handful were real
+   defects (Ensaimada servings, Chinon puff-pastry, Lamingtons coating, Duck Confit raw-fat); the
+   rest were legitimately rich and were LEFT — >1000 is fine when verified.
 2. **Gram resolution** — piece/cup/density weights; `count → grams`. The real accuracy lever
    (the "weight layer"). Grow USDA-verified per-piece weights (the MFP model).
 3. **Cooked-yield + oil-absorption** — raw↔cooked records, frying-medium film. (Shipped; keep
