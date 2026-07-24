@@ -96,13 +96,15 @@ const CHAT_SCHEMA = {
 
 const CHAT_SYSTEM = `You are Otto — a warm, capable home-cooking companion having a SHORT chat to build ONE recipe the person will save to their cookbook.
 
-Go straight to the answer. Default to "recipe" — make sensible choices yourself instead of asking. Each turn, choose exactly one mode:
+Each turn, choose exactly one mode:
 
-- "recipe": almost always. Any request you can cook a reasonable version of, just cook it — fill in the obvious defaults ("a coffee" → a simple hot coffee; "pasta" → a classic you'd pick). Put a SHORT confirmation in message (a few words: "Here's a simple black coffee."), then fill title/servings/category/area/ingredients/steps. options is [].
+- "recipe": when the request names a dish or a clear enough craving ("chicken tikka masala", "a cozy tomato soup for two", "carbonara but vegetarian"), cook it. Fill sensible defaults for anything small that's unstated. Put a SHORT confirmation in message (a few words), then fill title/servings/category/area/ingredients/steps. options is [].
 
-- "clarify": rare — only when you genuinely cannot proceed without one fact. Ask ONE short question in message with 2–4 tappable answers in options. Never ask twice; on the next turn commit to a recipe. Leave title/ingredients/steps null/empty.
+- "clarify": when the request is too general to pick well ("make me a coffee", "pasta", "something for dinner", "use up my chicken") ask ONE short question in message and put 2-4 appetizing directions in options (e.g. for coffee: "Latte", "Cappuccino", "Cold brew", "Simple black"). Options are tappable answers, each a few words. NEVER clarify twice in a row; after one clarify, commit to a recipe with whatever you have. Leave title/ingredients/steps null/empty.
 
 - "decline": not food, unsafe, or nonsense. One kind line in message. Empty/null everything else.
+
+Voice rule for message and options: short plain sentences, never the em dash character.
 
 Recipe rules (when mode is "recipe"):
 - Amounts are WEIGHT-FIRST: solids in grams ("500 g"), thin liquids in millilitres ("240 ml"), small spice amounts in tsp/tbsp ("0.5 tsp" — decimals, never fractions). measure holds ONLY the amount; name holds the ingredient. Unmeasured items get measure "".
@@ -110,7 +112,9 @@ Recipe rules (when mode is "recipe"):
 - steps: the method, one action per step, warm and clear, no numbering.
 - category is one plain word (Chicken, Dessert, Drink…); area is the cuisine or null. title: appetizing but honest.
 
-Keep message to one short line. No preamble, no follow-up suggestions, no "would you like…". Just the confirmation and the recipe.`;
+Keep message to one short line. No preamble, no follow-up suggestions, no "would you like…". Just the confirmation and the recipe.
+
+Speed matters: thinking adds latency and should be rare here. For everyday dishes, drinks, and clarify turns, respond directly without thinking. Think only when the request has genuinely tricky constraints (unusual dietary combinations, ingredient substitutions that affect chemistry).`;
 
 // ---- shaping (port of shapeGeneratedRecipe) --------------------------------
 // deno-lint-ignore no-explicit-any
@@ -162,8 +166,11 @@ function systemBlocks(staticPrompt: string, context?: string): SystemBlock[] {
   return blocks;
 }
 
+// effort: the latency knob (docs: sonnet-5 at "medium" ≈ prior-gen "high").
+// Chat/one-shot pass "medium" so turns come back faster; vision omits it
+// (default "high") because faithful photo transcription is quality-critical.
 // deno-lint-ignore no-explicit-any
-async function askClaude(model: string, system: SystemBlock[], schema: unknown, messages: Message[]): Promise<any> {
+async function askClaude(model: string, system: SystemBlock[], schema: unknown, messages: Message[], effort?: string): Promise<any> {
   const response = await fetch(ANTHROPIC_URL, {
     method: "POST",
     headers: {
@@ -176,7 +183,7 @@ async function askClaude(model: string, system: SystemBlock[], schema: unknown, 
       max_tokens: 4000,
       thinking: { type: "adaptive" },
       system,
-      output_config: { format: { type: "json_schema", schema } },
+      output_config: { format: { type: "json_schema", schema }, ...(effort ? { effort } : {}) },
       messages,
     }),
     signal: AbortSignal.timeout(120000),
@@ -234,7 +241,7 @@ Deno.serve(async (req) => {
         CHAT_SYSTEM,
         context.length ? `Context for this person: ${context.join(" ")}` : undefined,
       );
-      const data = await askClaude(MODEL_TEXT, system, CHAT_SCHEMA, turns);
+      const data = await askClaude(MODEL_TEXT, system, CHAT_SCHEMA, turns, "medium");
       if (!data) return json(502, { error: "Otto lost his train of thought. Try again in a moment." });
       const message = String(data.message || "").slice(0, 600);
       if (data.mode === "decline") {
@@ -292,7 +299,7 @@ Deno.serve(async (req) => {
         role: "user",
         content: `${context.length ? `${context.join("\n")}\n\n` : ""}Recipe request:\n${parsed.data.prompt}`,
       },
-    ]);
+    ], "medium");
     if (!data) return json(502, { error: "Otto's idea burner wouldn't light. Try again in a moment." });
     if (data.is_possible !== true) {
       return json(422, {
