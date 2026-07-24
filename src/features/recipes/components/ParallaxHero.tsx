@@ -9,24 +9,39 @@
 // their range edges so momentum overshoot can't produce jumps (iOS + web).
 // Reduced motion (mandatory, per motion.ts): the photo renders static.
 import React from 'react';
-import { Animated, View } from 'react-native';
+import { Animated, Image, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 import { colors } from '@/shared/theme/tokens';
+import { foodIcon } from '@/shared/assets';
 
 const HERO_HEIGHT = 280; // photo hero (unchanged from the static v3 layout)
 const PLACEHOLDER_HEIGHT = 160; // no-photo cream block (unchanged, no parallax)
 
 export interface ParallaxHeroProps {
   image: string | null;
+  /** Category drives the painted-art default when there's no photo (own art — no licensing). */
+  category?: string | null;
   /** The detail screen's Animated scroll offset (contentOffset.y). */
   scrollY: Animated.Value;
 }
 
-export function ParallaxHero({ image, scrollY }: ParallaxHeroProps) {
+export function ParallaxHero({ image, category, scrollY }: ParallaxHeroProps) {
   const reduced = useReducedMotion();
 
   if (!image) {
-    return <View style={{ width: '100%', height: PLACEHOLDER_HEIGHT, backgroundColor: colors.creamDeep }} />;
+    return (
+      <View
+        style={{
+          width: '100%',
+          height: PLACEHOLDER_HEIGHT,
+          backgroundColor: colors.creamDeep,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Image source={foodIcon(category ?? '')} style={{ width: 110, height: 110 }} resizeMode="contain" />
+      </View>
+    );
   }
 
   const transform = reduced

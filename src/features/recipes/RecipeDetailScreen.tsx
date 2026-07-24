@@ -168,7 +168,7 @@ export function RecipeDetailScreen() {
       >
         {/* HERO — photo only, parallax inside its clipped frame */}
         <View>
-          <ParallaxHero image={recipe.image} scrollY={scrollY} />
+          <ParallaxHero image={recipe.image} category={recipe.category} scrollY={scrollY} />
           {/* Floating back — v1 parity; the drag-anywhere gesture also works. */}
           <Pressable
             accessibilityRole="button"

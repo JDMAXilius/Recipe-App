@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, Pressable, Text as RNText, View } from 'react-native';
 import { PawMark, Text } from '@/shared/ui';
 import { colors, macro, radii, shadow, space } from '@/shared/theme/tokens';
+import { foodIcon } from '@/shared/assets';
 import { useSeedCalories } from '@/features/nutrition';
 import { getNutritionEstimate } from '@/features/nutrition/estimates';
 import type { CookbookItem } from '../cookbook.types';
@@ -55,7 +56,13 @@ export function RecipeCard({ item, saved, onToggleSave, onPress }: Props) {
         <View style={{ aspectRatio: 5 / 4, backgroundColor: colors.creamDeep }}>
           {item.image ? (
             <Image source={{ uri: item.image }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-          ) : null}
+          ) : (
+            /* No photo (Ask-Otto / written recipes) → the painted category art.
+               Our own asset, so every recipe gets a legal, on-brand default. */
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+              <Image source={foodIcon(item.category ?? '')} style={{ width: '45%', height: '45%' }} resizeMode="contain" />
+            </View>
+          )}
 
           {item.variant !== 'saved' ? (
             <View
