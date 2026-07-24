@@ -106565,5 +106565,451 @@
       "canonicalized_at": "2026-07-23T23:43:06.670Z",
       "model": "claude-sonnet-5"
     }
+  },
+  {
+    "id": "900001",
+    "title": "Chicken Tikka Masala",
+    "category": "Chicken",
+    "area": "Indian",
+    "servings": 4,
+    "instructions": [
+      "Cut the chicken into bite-size pieces and stir through the yogurt, garam masala, cumin, paprika and half the ginger and garlic. Rest for 30 minutes, or overnight in the fridge.",
+      "Warm the oil in a large pan over medium-high heat and brown the chicken in batches until charred at the edges. Set aside.",
+      "Melt the butter in the same pan and soften the onion for 5 minutes, then add the remaining ginger and garlic for 1 minute.",
+      "Pour in the chopped tomatoes and simmer for 10 minutes, until thick.",
+      "Stir in the cream, return the chicken, and simmer gently for 8-10 minutes until cooked through and silky.",
+      "Scatter with fresh coriander and serve."
+    ],
+    "ingredients": [
+      {
+        "original": "500g Chicken Breast",
+        "measure": "500g",
+        "name": "Chicken Breast",
+        "key": "chicken breast",
+        "grams": 500,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "150g Greek Yogurt",
+        "measure": "150g",
+        "name": "Greek Yogurt",
+        "key": "greek yogurt",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tbsp Garam Masala",
+        "measure": "1 tbsp",
+        "name": "Garam Masala",
+        "key": "garam masala",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tsp Ground Cumin",
+        "measure": "1 tsp",
+        "name": "Ground Cumin",
+        "key": "ground cumin",
+        "grams": 2,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tsp Paprika",
+        "measure": "1 tsp",
+        "name": "Paprika",
+        "key": "paprika",
+        "grams": 2.3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tbsp grated Ginger",
+        "measure": "1 tbsp grated",
+        "name": "Ginger",
+        "key": "ginger",
+        "grams": 6,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "3 cloves Garlic",
+        "measure": "3 cloves",
+        "name": "Garlic",
+        "key": "garlic clove",
+        "grams": 15,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 cloves at ~5g each"
+      },
+      {
+        "original": "1 large chopped Onion",
+        "measure": "1 large chopped",
+        "name": "Onion",
+        "key": "onion",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 large onion ~150g"
+      },
+      {
+        "original": "2 tbsp Butter",
+        "measure": "2 tbsp",
+        "name": "Butter",
+        "key": "butter",
+        "grams": 28,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tbsp Vegetable Oil",
+        "measure": "1 tbsp",
+        "name": "Vegetable Oil",
+        "key": "vegetable oil",
+        "grams": 14,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "browning oil stays in the sauce pan - not a discarded frying medium"
+      },
+      {
+        "original": "400g Chopped Tomatoes",
+        "measure": "400g",
+        "name": "Chopped Tomatoes",
+        "key": "chopped tomatoes",
+        "grams": 400,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "150ml Double Cream",
+        "measure": "150ml",
+        "name": "Double Cream",
+        "key": "double cream",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "Fresh Coriander",
+        "measure": "Fresh",
+        "name": "Coriander",
+        "key": "coriander",
+        "grams": 5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "garnish, ~5g estimated"
+      }
+    ],
+    "media": {
+      "image": null,
+      "youtube": null,
+      "source": null
+    },
+    "provenance": {
+      "source": "otto",
+      "model": "claude-fable-5",
+      "authored_at": "2026-07-24T18:28:20.410Z",
+      "canonicalized_at": "2026-07-24T18:28:20.410Z"
+    }
+  },
+  {
+    "id": "900002",
+    "title": "Classic Minestrone",
+    "category": "Vegetarian",
+    "area": "Italian",
+    "servings": 4,
+    "instructions": [
+      "Warm the olive oil in a large pot over medium heat and soften the onion, carrots and celery for 8 minutes.",
+      "Add the garlic and oregano and cook 1 minute more.",
+      "Pour in the chopped tomatoes and vegetable stock and bring to a gentle boil.",
+      "Add the drained cannellini beans and the pasta; simmer for 8 minutes.",
+      "Add the green beans and cook 4 minutes more, until the pasta is tender.",
+      "Stir the spinach through until it just wilts. Season to taste.",
+      "Ladle into bowls and finish each with grated Parmesan."
+    ],
+    "ingredients": [
+      {
+        "original": "2 tbsp Olive Oil",
+        "measure": "2 tbsp",
+        "name": "Olive Oil",
+        "key": "olive oil",
+        "grams": 28,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "stays in the soup, not a frying medium"
+      },
+      {
+        "original": "1 chopped Onion",
+        "measure": "1 chopped",
+        "name": "Onion",
+        "key": "onion",
+        "grams": 110,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "1 medium onion ~110g"
+      },
+      {
+        "original": "2 chopped Carrots",
+        "measure": "2 chopped",
+        "name": "Carrots",
+        "key": "carrots",
+        "grams": 120,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 medium carrots at ~60g each"
+      },
+      {
+        "original": "2 sticks Celery",
+        "measure": "2 sticks",
+        "name": "Celery",
+        "key": "celery",
+        "grams": 80,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 sticks at ~40g each"
+      },
+      {
+        "original": "2 cloves Garlic",
+        "measure": "2 cloves",
+        "name": "Garlic",
+        "key": "garlic clove",
+        "grams": 10,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "400g Chopped Tomatoes",
+        "measure": "400g",
+        "name": "Chopped Tomatoes",
+        "key": "chopped tomatoes",
+        "grams": 400,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "400g can Cannellini Beans",
+        "measure": "400g can",
+        "name": "Cannellini Beans",
+        "key": "cannellini beans",
+        "grams": 240,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "400g can yields ~240g drained - drained weight enters the pot"
+      },
+      {
+        "original": "1 litre Vegetable Stock",
+        "measure": "1 litre",
+        "name": "Vegetable Stock",
+        "key": "vegetable stock",
+        "grams": 1000,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "100g Small Pasta Shapes",
+        "measure": "100g",
+        "name": "Small Pasta Shapes",
+        "key": "macaroni",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "any small dried pasta; macaroni is the closest table record"
+      },
+      {
+        "original": "100g Green Beans",
+        "measure": "100g",
+        "name": "Green Beans",
+        "key": "green beans",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "100g Spinach",
+        "measure": "100g",
+        "name": "Spinach",
+        "key": "spinach",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tsp Dried Oregano",
+        "measure": "1 tsp",
+        "name": "Dried Oregano",
+        "key": "dried oregano",
+        "grams": 1,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "30g Parmesan",
+        "measure": "30g",
+        "name": "Parmesan",
+        "key": "parmesan",
+        "grams": 30,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": null,
+      "youtube": null,
+      "source": null
+    },
+    "provenance": {
+      "source": "otto",
+      "model": "claude-fable-5",
+      "authored_at": "2026-07-24T18:28:20.410Z",
+      "canonicalized_at": "2026-07-24T18:28:20.410Z"
+    }
+  },
+  {
+    "id": "900003",
+    "title": "Banana Bread",
+    "category": "Dessert",
+    "area": "American",
+    "servings": 8,
+    "instructions": [
+      "Heat the oven to 175C and butter a loaf tin.",
+      "Mash the bananas in a large bowl until nearly smooth.",
+      "Beat in the melted butter, then the sugar, eggs and vanilla.",
+      "Sift the flour, baking soda, salt and cinnamon over the top and fold until just combined - a few streaks of flour are fine.",
+      "Fold in the walnuts and pour into the tin.",
+      "Bake 55-60 minutes, until a skewer comes out clean.",
+      "Cool in the tin for 10 minutes, turn out onto a rack, and slice once fully cool."
+    ],
+    "ingredients": [
+      {
+        "original": "3 ripe Bananas",
+        "measure": "3 ripe",
+        "name": "Bananas",
+        "key": "banana",
+        "grams": 350,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "3 medium bananas ~115g each, peeled"
+      },
+      {
+        "original": "115g Butter",
+        "measure": "115g",
+        "name": "Butter",
+        "key": "butter",
+        "grams": 115,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "150g Sugar",
+        "measure": "150g",
+        "name": "Sugar",
+        "key": "sugar",
+        "grams": 150,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "2 Eggs",
+        "measure": "2",
+        "name": "Eggs",
+        "key": "eggs",
+        "grams": 100,
+        "cooked": false,
+        "frying_medium": false,
+        "note": "2 eggs at ~50g each"
+      },
+      {
+        "original": "1 tsp Vanilla Extract",
+        "measure": "1 tsp",
+        "name": "Vanilla Extract",
+        "key": "vanilla extract",
+        "grams": 4,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "225g Plain Flour",
+        "measure": "225g",
+        "name": "Plain Flour",
+        "key": "plain flour",
+        "grams": 225,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "1 tsp Baking Soda",
+        "measure": "1 tsp",
+        "name": "Baking Soda",
+        "key": "bicarbonate of soda",
+        "grams": 5,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "0.5 tsp Salt",
+        "measure": "0.5 tsp",
+        "name": "Salt",
+        "key": "salt",
+        "grams": 3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "0.5 tsp Cinnamon",
+        "measure": "0.5 tsp",
+        "name": "Cinnamon",
+        "key": "ground cinnamon",
+        "grams": 1.3,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      },
+      {
+        "original": "50g chopped Walnuts",
+        "measure": "50g chopped",
+        "name": "Walnuts",
+        "key": "walnuts",
+        "grams": 50,
+        "cooked": false,
+        "frying_medium": false,
+        "note": null
+      }
+    ],
+    "media": {
+      "image": null,
+      "youtube": null,
+      "source": null
+    },
+    "provenance": {
+      "source": "otto",
+      "model": "claude-fable-5",
+      "authored_at": "2026-07-24T18:28:20.410Z",
+      "canonicalized_at": "2026-07-24T18:28:20.410Z"
+    }
   }
 ]

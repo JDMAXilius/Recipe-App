@@ -3,6 +3,7 @@ import { Image, Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { PawMark, Text } from '@/shared/ui';
 import { colors, macro, radii, shadow, space } from '@/shared/theme/tokens';
+import { foodIcon } from '@/shared/assets';
 import { fdaCalories } from '@/shared/lib/fdaCalories';
 import { useSaved } from '@/features/cookbook';
 import { useSeedCalories } from '@/features/nutrition';
@@ -66,7 +67,11 @@ export function RecipeCard({
               resizeMode="cover"
             />
           ) : (
-            <View style={{ width: '100%', aspectRatio: 5 / 4 }} />
+            /* No photo (Otto originals ship without one until real art lands) →
+               the painted category art. Own asset — legal, on-brand. */
+            <View style={{ width: '100%', aspectRatio: 5 / 4, alignItems: 'center', justifyContent: 'center' }}>
+              <Image source={foodIcon(recipe.category ?? '')} style={{ width: '45%', height: '45%' }} resizeMode="contain" />
+            </View>
           )}
         </View>
         <View style={{ paddingTop: space[2], gap: space[1] }}>

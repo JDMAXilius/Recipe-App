@@ -72,6 +72,22 @@ async function ottoDiscover(
   return (data ?? []).map((row) => canonicalToSummary(parseCanonical(row.canonical), category));
 }
 
+// Title search on the serving copy — the OFF path's search.php equivalent.
+// Ingredient search stays on the content fallback below (covers the snapshot
+// catalogue; Otto originals are title-searchable only for now).
+async function ottoSearchByTitle(q: string): Promise<RecipeSummary[]> {
+  const { data, error } = await supabase
+    .from('otto_recipes')
+    .select('canonical')
+    .ilike('canonical->>title', `%${q}%`)
+    .order('id')
+    .limit(24);
+  if (error) throw error;
+  return (data ?? [])
+    .map((row) => parseCanonical(row.canonical))
+    .map((r) => canonicalToSummary(r, r.category ?? null));
+}
+
 async function ottoRelated(category: string, selfId: string): Promise<RecipeSummary[]> {
   const { data, error } = await supabase
     .from('otto_recipes')
@@ -183,6 +199,14 @@ export function useSearch(query: string) {
     queryKey: ['search', q],
     enabled: q.length > 0,
     queryFn: async () => {
+      if (USE_OTTO_RECIPES) {
+        // Cutover: titles from the serving copy (finds Otto originals too);
+        // empty → the ingredient fallback below, unchanged.
+        const hits = await ottoSearchByTitle(q);
+        if (hits.length > 0) return hits;
+        const meals = parseMeals(await content('filter.php', { i: q }));
+        return meals.slice(0, 24).map((m) => mealToSummary(m));
+      }
       let meals = parseMeals(await content('search.php', { s: q }));
       if (meals.length === 0) meals = parseMeals(await content('filter.php', { i: q }));
       return meals.slice(0, 24).map((m) => mealToSummary(m));
