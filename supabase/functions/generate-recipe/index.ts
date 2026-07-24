@@ -4,8 +4,9 @@
 // DORMANT without ANTHROPIC_API_KEY (503). Key comes ONLY from Deno.env and is
 // never logged or echoed. Per-user rate limit: this is the most expensive path.
 import { z } from "npm:zod@4";
-import { getUserId, json, preflight, rateLimited } from "../_shared/http.ts";
+import { corsHeaders, getUserId, json, preflight, rateLimited } from "../_shared/http.ts";
 import { checkImage, VISION_INSTRUCTION } from "./imageMode.ts";
+import { extractMessagePrefix, parseSseLines } from "./streamParse.ts";
 
 const MODEL_TEXT = "claude-sonnet-5"; // chat + one-shot: schema-constrained work, ~5x cheaper
 const MODEL_VISION = "claude-opus-4-8"; // photo transcription stays on opus until measured on sonnet
@@ -29,6 +30,7 @@ const chatBody = z.object({
     }))
     .min(1)
     .max(20),
+  stream: z.boolean().optional(),
   ...commonFields,
 });
 
@@ -200,6 +202,129 @@ async function askClaude(model: string, system: SystemBlock[], schema: unknown, 
   }
 }
 
+// Chat post-processing shared by the JSON and SSE paths: model output →
+// the exact response payload. null means "lost his train of thought"
+// (502 on the JSON path, an error event on the SSE path).
+const CHAT_LOST = "Otto lost his train of thought. Try again in a moment.";
+// deno-lint-ignore no-explicit-any
+function chatPayload(data: any) {
+  const message = String(data.message || "").slice(0, 600);
+  if (data.mode === "decline") {
+    return { mode: "decline", message: message || "Otto couldn't make a real recipe out of that." };
+  }
+  if (data.mode === "clarify") {
+    const options = (data.options || [])
+      .filter((o: unknown) => typeof o === "string" && (o as string).trim())
+      .slice(0, 4)
+      .map((o: string) => o.trim().slice(0, 80));
+    return { mode: "clarify", message: message || "Tell me a little more?", options };
+  }
+  const recipe = shapeGeneratedRecipe({ ...data, is_possible: true });
+  if (!recipe) return null;
+  return {
+    mode: "recipe",
+    message: message || "Here's your recipe.",
+    recipe: { ...recipe, image: null, source: "otto", sourceUrl: null, sourceName: null },
+  };
+}
+
+// Chat mode with stream:true — same Anthropic call with stream:true, relayed
+// as our own SSE: {"type":"delta","text"} for each new slice of the message
+// field, then {"type":"done","payload"} with EXACTLY the JSON-path payload,
+// or {"type":"error","error"} with the JSON-path copy. Auth/rate-limit/400/
+// 503 all ran before we get here.
+function streamChat(system: SystemBlock[], turns: Turn[]): Response {
+  const body = new ReadableStream({
+    async start(controller) {
+      const encoder = new TextEncoder();
+      const send = (obj: unknown) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
+      try {
+        const response = await fetch(ANTHROPIC_URL, {
+          method: "POST",
+          headers: {
+            "x-api-key": Deno.env.get("ANTHROPIC_API_KEY")!,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            model: MODEL_TEXT,
+            max_tokens: 4000,
+            stream: true,
+            thinking: { type: "adaptive" },
+            system,
+            output_config: { format: { type: "json_schema", schema: CHAT_SCHEMA }, effort: "medium" },
+            messages: turns,
+          }),
+          signal: AbortSignal.timeout(120000),
+        });
+        if (!response.ok || !response.body) throw new Error(`Anthropic answered ${response.status}`);
+
+        const decoder = new TextDecoder();
+        const reader = response.body.getReader();
+        let carry = "";
+        let buffer = "";
+        let sent = "";
+        let stopReason: string | null = null;
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const split = parseSseLines(decoder.decode(value, { stream: true }), carry);
+            carry = split.carry;
+            for (const raw of split.events) {
+              // deno-lint-ignore no-explicit-any
+              let event: any;
+              try {
+                event = JSON.parse(raw);
+              } catch {
+                continue;
+              }
+              if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
+                buffer += event.delta.text;
+                const prefix = extractMessagePrefix(buffer);
+                if (prefix.length > sent.length) {
+                  send({ type: "delta", text: prefix.slice(sent.length) });
+                  sent = prefix;
+                }
+              } else if (event.type === "message_delta") {
+                stopReason = event.delta?.stop_reason ?? stopReason;
+              }
+              // thinking deltas and every other event type: ignored
+            }
+          }
+        } finally {
+          reader.cancel().catch(() => {}); // client gone or loop done: stop upstream
+        }
+
+        let payload = null;
+        if (stopReason !== "max_tokens" && stopReason !== "refusal") {
+          try {
+            payload = chatPayload(JSON.parse(buffer));
+          } catch {
+            // payload stays null → error event
+          }
+        }
+        send(payload ? { type: "done", payload } : { type: "error", error: CHAT_LOST });
+      } catch (error) {
+        console.error("recipe chat stream failed", (error as Error).message);
+        try {
+          send({ type: "error", error: "Otto couldn't finish that idea right now. Try again in a moment." });
+        } catch {
+          // client already disconnected — nothing to tell it
+        }
+      }
+      try {
+        controller.close();
+      } catch {
+        // already closed/cancelled
+      }
+    },
+  });
+  return new Response(body, {
+    headers: { ...corsHeaders, "content-type": "text/event-stream", "cache-control": "no-cache" },
+  });
+}
+
 function contextLines(body: z.infer<typeof generateBody> | z.infer<typeof chatBody>): string[] {
   const context: string[] = [];
   if (Number.isInteger(body.servings) && body.servings! > 0) {
@@ -241,26 +366,12 @@ Deno.serve(async (req) => {
         CHAT_SYSTEM,
         context.length ? `Context for this person: ${context.join(" ")}` : undefined,
       );
+      if (parsed.data.stream) return streamChat(system, turns);
       const data = await askClaude(MODEL_TEXT, system, CHAT_SCHEMA, turns, "medium");
-      if (!data) return json(502, { error: "Otto lost his train of thought. Try again in a moment." });
-      const message = String(data.message || "").slice(0, 600);
-      if (data.mode === "decline") {
-        return json(200, { mode: "decline", message: message || "Otto couldn't make a real recipe out of that." });
-      }
-      if (data.mode === "clarify") {
-        const options = (data.options || [])
-          .filter((o: unknown) => typeof o === "string" && (o as string).trim())
-          .slice(0, 4)
-          .map((o: string) => o.trim().slice(0, 80));
-        return json(200, { mode: "clarify", message: message || "Tell me a little more?", options });
-      }
-      const recipe = shapeGeneratedRecipe({ ...data, is_possible: true });
-      if (!recipe) return json(502, { error: "Otto lost his train of thought. Try again in a moment." });
-      return json(200, {
-        mode: "recipe",
-        message: message || "Here's your recipe.",
-        recipe: { ...recipe, image: null, source: "otto", sourceUrl: null, sourceName: null },
-      });
+      if (!data) return json(502, { error: CHAT_LOST });
+      const payload = chatPayload(data);
+      if (!payload) return json(502, { error: CHAT_LOST });
+      return json(200, payload);
     }
 
     // -------- vision mode (photo → transcribed recipe) --------

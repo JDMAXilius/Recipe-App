@@ -16,7 +16,7 @@ import { Button, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
 import { colors, fonts, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
-import { takeOttoAsk, useSaveRecipe, type SaveInput } from '@/features/import';
+import { stageOttoRecipe, takeOttoAsk } from '@/features/import';
 import { useChat } from './useChat';
 import { useSpeechInput } from './useSpeechInput';
 import type { ChatRecipe, StoredMessage } from './chat.types';
@@ -114,15 +114,7 @@ function OptionChips({ options, onPick }: { options: string[]; onPick: (o: strin
   );
 }
 
-function RecipePreview({
-  recipe,
-  onSave,
-  saving,
-}: {
-  recipe: ChatRecipe;
-  onSave: () => void;
-  saving: boolean;
-}) {
+function RecipePreview({ recipe, onReview }: { recipe: ChatRecipe; onReview: () => void }) {
   const meta = [recipe.category, recipe.area, `Serves ${recipe.servings}`].filter(Boolean).join(' · ');
   return (
     <View
@@ -149,13 +141,7 @@ function RecipePreview({
       {recipe.ingredients.length > 6 ? (
         <Text role="caption">…and {recipe.ingredients.length - 6} more</Text>
       ) : null}
-      <Button
-        title={saving ? 'Saving…' : 'Save to cookbook'}
-        onPress={onSave}
-        variant="primary"
-        size="lg"
-        loading={saving}
-      />
+      <Button title="Review and save" onPress={onReview} variant="primary" size="lg" />
     </View>
   );
 }
@@ -164,11 +150,10 @@ export function ChatScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { show } = useToast();
-  const { user, isSignedIn } = useAuth();
+  const { isSignedIn } = useAuth();
   // ?chat=<id> — arriving from Recent chats reopens that thread.
   const { chat: chatParam } = useLocalSearchParams<{ chat?: string }>();
   const chat = useChat({ threadId: chatParam });
-  const saveMut = useSaveRecipe();
   const [draft, setDraft] = useState('');
   const scrollRef = useRef<ScrollView>(null);
 
@@ -221,20 +206,13 @@ export function ChatScreen() {
     speech.toggle(draft); // live draft becomes the prefix dictation appends to
   };
 
-  const onSave = async (recipe: ChatRecipe) => {
-    if (!user) {
-      show('Sign in to save recipes to your cookbook.', 'error');
-      return;
-    }
-    const input: SaveInput = { id: null, userId: user.id, recipe };
-    try {
-      const id = await saveMut.mutateAsync(input);
-      haptics.notify('success');
-      show('Saved to your cookbook.', 'success');
-      router.replace(`/recipe/u-${id}`);
-    } catch (err) {
-      show(err instanceof Error ? err.message : 'Couldn’t save. Try again.', 'error');
-    }
+  // Review-first (founder call 2026-07-24): Otto's recipe opens in the editor
+  // as "Check Otto's work" so the cook changes or approves it before it lands.
+  // The editor's Save owns persistence (one compute-at-save path).
+  const onReview = (recipe: ChatRecipe) => {
+    haptics.select();
+    stageOttoRecipe(recipe);
+    router.push('/recipe/edit');
   };
 
   if (!isSignedIn) {
@@ -310,14 +288,20 @@ export function ChatScreen() {
           {chat.response?.mode === 'recipe' && (
             <RecipePreview
               recipe={chat.response.recipe}
-              onSave={() => onSave((chat.response as { recipe: ChatRecipe }).recipe)}
-              saving={saveMut.isPending}
+              onReview={() => onReview((chat.response as { recipe: ChatRecipe }).recipe)}
             />
           )}
 
           {chat.isSending && (
             <View style={[bubbleBase, { alignSelf: 'flex-start', backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border }]}>
-              <Text role="caption">Otto’s thinking…</Text>
+              {/* Streamed prose fills this bubble live; before the first delta
+                  (or on the non-streaming fallback) it's the thinking line.
+                  Scroll keeps up via the ScrollView's onContentSizeChange. */}
+              {chat.streamingText ? (
+                <Text role="body">{chat.streamingText}</Text>
+              ) : (
+                <Text role="caption">Otto’s thinking…</Text>
+              )}
             </View>
           )}
 

@@ -42,6 +42,20 @@
 6. **New native build** → TestFlight → sandbox-test a real purchase + restore + webhook row in
    `memberships`; verify the timeline copy reads "You'll be charged" (it keys off live mode).
 
+## AI cost controls (founder call 2026-07-24: per-call engineering, NO user quota)
+
+The contract lives on the AI calls themselves, not on a monthly user allowance:
+- max_tokens 4000 output ceiling; stop_reason max_tokens/refusal returns the friendly
+  502, never a half recipe (the tokens-exceeded clause).
+- Input capped: 12-turn / 600-char transcript, ~500-token system prompts, json_schema
+  output (no prose waste, no retry loops).
+- Cheapest adequate model per job: sonnet chat/one-shot at effort medium with thinking
+  steered off for everyday turns; haiku nutrition matching; opus only for photo vision.
+- 20 calls per 15 min per user as the abuse guard; auth before any token is spent.
+- TODO: log usage.input_tokens/output_tokens per call (no content) so cost per ask is
+  measured, not guessed; use the Batch API (50% off) for non-interactive catalog jobs
+  in the otto-new-recipes pipeline.
+
 ## Open loose ends
 
 - `hello@ottosapp.com` (contact email in legal docs/support page) doesn't exist — add as alias.

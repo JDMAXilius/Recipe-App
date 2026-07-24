@@ -14,7 +14,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { kv } from '@/shared/storage';
-import { sendChat, type ChatOptions } from './chat.queries';
+import { sendChatStreaming, type ChatOptions } from './chat.queries';
 import { optionPickToMessage, pruneHistory, toWireTranscript } from './chat.logic';
 import type { ChatResponse, StoredMessage } from './chat.types';
 
@@ -72,6 +72,7 @@ export interface UseChat {
   messages: StoredMessage[];
   response: ChatResponse | null; // latest turn → chips / recipe / decline UI
   isSending: boolean;
+  streamingText: string | null; // Otto's prose so far while a turn streams in
   error: string | null;
   ready: boolean; // history loaded from kv
   send: (text: string) => void;
@@ -83,6 +84,7 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
   const [messages, setMessages] = useState<StoredMessage[]>([]);
   const [response, setResponse] = useState<ChatResponse | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [streamingText, setStreamingText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   // Latest messages for the async send closure (avoids a stale snapshot when
@@ -139,7 +141,10 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
       setResponse(null);
       setError(null);
       setIsSending(true);
-      sendChat(toWireTranscript(withUser), chatOpts)
+      setStreamingText(null);
+      // Streaming send: deltas fill the live bubble; the persisted transcript
+      // still comes from the final response only (same as the old sendChat).
+      sendChatStreaming(toWireTranscript(withUser), chatOpts, setStreamingText)
         .then((res) => {
           const ottoMsg: StoredMessage = { role: 'assistant', content: res.message, ts: Date.now() };
           persist(pruneHistory([...messagesRef.current, ottoMsg], Date.now()));
@@ -148,7 +153,10 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
         .catch((err: unknown) => {
           setError(err instanceof Error ? err.message : "Otto couldn't finish that.");
         })
-        .finally(() => setIsSending(false));
+        .finally(() => {
+          setStreamingText(null);
+          setIsSending(false);
+        });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [isSending, persist],
@@ -156,5 +164,5 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
 
   const pickOption = useCallback((option: string) => send(option), [send]);
 
-  return { messages, response, isSending, error, ready, send, pickOption };
+  return { messages, response, isSending, streamingText, error, ready, send, pickOption };
 }
