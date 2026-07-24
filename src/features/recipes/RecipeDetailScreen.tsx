@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, Text as RNText, View } from 'react-native';
+import { Animated, Platform, Pressable, Text as RNText, View, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,14 +11,36 @@ import { haptics } from '@/shared/haptics';
 // Deep import mirrors RecipeCard → nutrition/estimates; no barrel for leaf utils.
 import { segmentStep } from '@/features/cook/stepEnrich';
 import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
-import { ShareCard, shareRecipeCard, type ShareRecipe } from '@/features/share';
+import { ShareCard, shareRecipeCard, useCreateRecipeShare, type ShareRecipe } from '@/features/share';
 import { useSaved } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
 import { usePrefs } from '@/features/profile';
 import { RecipeCard } from './RecipeCard';
+import { ParallaxHero } from './components/ParallaxHero';
 import { VideoEmbed } from './components/VideoEmbed';
 import { scaleIngredients, scaledIngredientLines } from './recipe.scale';
 import { isUserRecipeRef, useRecipe, useRelated } from './recipe.queries';
+
+// Public share page for a minted recipe slug (capability URL — the slug IS the
+// secret). Shape matches the canonical example in share/shareText.test.mjs;
+// the web resolver route ships with the share-pages work, not this screen.
+const SHARE_PAGE_BASE = 'https://ottosapp.com/s';
+
+// The hero cluster's circular cream button (same visual language as the
+// floating back button): 44pt target, white pill, soft shadow.
+const heroRoundButton: ViewStyle = {
+  width: 44,
+  height: 44,
+  borderRadius: radii.pill,
+  backgroundColor: colors.white,
+  alignItems: 'center',
+  justifyContent: 'center',
+  shadowColor: '#000',
+  shadowOpacity: 0.15,
+  shadowRadius: 6,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 3,
+};
 
 // Recipe Detail v3: photo hero (title never on the art) → eyebrow → serif title
 // → attribution → computed meta → NutritionCard → live-scaling ingredients
@@ -39,6 +61,14 @@ export function RecipeDetailScreen() {
   const { unitSystem } = usePrefs();
   const { show } = useToast();
   const shareCardRef = useRef<View>(null); // captured to a PNG by shareRecipeCard
+  const createShare = useCreateRecipeShare(); // capability-link mint (own recipes)
+  const mintedSlug = useRef<string | null>(null); // one link per visit; repeat taps reuse it
+
+  // Scroll offset driving the hero parallax (ParallaxHero). RN Animated per the
+  // motion.ts law; native driver on device, JS-driven on web (react-native-web
+  // has no native animated module — the Platform guard skips its warning+
+  // fallback and keeps scrolling jump-free).
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   // Every recipe opens at one serving (founder call): the stepper starts at 1
   // and scales the list down to a single portion. The true yield stays in
@@ -105,6 +135,25 @@ export function RecipeDetailScreen() {
     sourceUrl: recipe.sourceUrl,
   };
 
+  // Hero Share (own recipes) — the existing capability-link machinery, reused:
+  // useCreateRecipeShare mints a CSPRNG slug into recipe_shares (share.queries),
+  // the URL rides into shareRecipeCard → the native Share sheet (same artifact
+  // as the bottom Share button). If minting fails (offline, signed out) the
+  // sheet still opens without a link — honest, never blocked.
+  const shareOwnRecipe = async () => {
+    haptics.impact('medium');
+    let url: string | undefined;
+    try {
+      const slug =
+        mintedSlug.current ?? (await createShare.mutateAsync(Number(recipeId.slice(2))));
+      mintedSlug.current = slug;
+      url = `${SHARE_PAGE_BASE}/${slug}`;
+    } catch {
+      // no link — fall through to the plain card/text share
+    }
+    await shareRecipeCard(shareCardRef, shareRecipe, url);
+  };
+
   const addToWeek = async (dayKey: string, label: string) => {
     setPlanOpen(false);
     try {
@@ -123,18 +172,17 @@ export function RecipeDetailScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: space[7] }}>
-        {/* HERO — photo only */}
+      <Animated.ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: space[7] }}
+        scrollEventThrottle={16}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+          useNativeDriver: Platform.OS !== 'web',
+        })}
+      >
+        {/* HERO — photo only, parallax inside its clipped frame */}
         <View>
-          {recipe.image ? (
-            <Image
-              source={{ uri: recipe.image }}
-              style={{ width: '100%', height: 280, backgroundColor: colors.creamDeep }}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={{ width: '100%', height: 160, backgroundColor: colors.creamDeep }} />
-          )}
+          <ParallaxHero image={recipe.image} scrollY={scrollY} />
           {/* Floating back — v1 parity; the drag-anywhere gesture also works. */}
           <Pressable
             accessibilityRole="button"
@@ -183,28 +231,27 @@ export function RecipeDetailScreen() {
                 }
               />
             ) : (
-              // User's own recipe (id "u-…") — edit affordance in the hero (v1
-              // parity). Seed recipes get the paw instead; never both.
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Edit recipe"
-                onPress={() => router.push(`/recipe/edit?id=${recipeId}`)}
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: radii.pill,
-                  backgroundColor: colors.white,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  shadowColor: '#000',
-                  shadowOpacity: 0.15,
-                  shadowRadius: 6,
-                  shadowOffset: { width: 0, height: 2 },
-                  elevation: 3,
-                }}
-              >
-                <Ionicons name="pencil" size={20} color={colors.ink} />
-              </Pressable>
+              // User's own recipe (id "u-…") — Share + edit affordances in the
+              // hero (v1 parity for edit; Share mints the capability link).
+              // Seed recipes get the paw instead; never both.
+              <>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Share recipe"
+                  onPress={shareOwnRecipe}
+                  style={heroRoundButton}
+                >
+                  <Ionicons name="share-outline" size={20} color={colors.ink} />
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Edit recipe"
+                  onPress={() => router.push(`/recipe/edit?id=${recipeId}`)}
+                  style={heroRoundButton}
+                >
+                  <Ionicons name="pencil" size={20} color={colors.ink} />
+                </Pressable>
+              </>
             )}
           </View>
         </View>
@@ -407,7 +454,7 @@ export function RecipeDetailScreen() {
             </View>
           ) : null}
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* PINNED BOTTOM BAR (v1 parity) — Start cooking is the primary flame
           Bounceable; Add-to-week is its quiet 54×54 calendar companion. Save +
