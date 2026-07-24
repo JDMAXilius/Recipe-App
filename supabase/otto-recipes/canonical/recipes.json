@@ -40212,11 +40212,11 @@
       },
       {
         "original": "1 Pepper",
-        "key": "pepper",
+        "key": "red pepper",
         "grams": 120,
         "cooked": false,
         "frying_medium": false,
-        "note": "listed in ingredients but never referenced in the instructions; grams inferred using a standard pepper weight, usage unclear",
+        "note": "listed in ingredients but never referenced in the instructions; grams inferred using a standard pepper weight, usage unclear; re-keyed: vegetable pepper, was mis-matched to black-pepper spice",
         "measure": "1",
         "name": "Pepper"
       }

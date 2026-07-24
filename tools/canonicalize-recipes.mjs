@@ -448,6 +448,80 @@ function fixSpuriousCooked() {
   console.log(`\nrecipes → ${P.recipes}`);
 }
 
+// ── --fix-pepper-veg : re-key VEGETABLE peppers off the black-pepper SPICE ─────
+// Live defect: whole/diced VEGETABLE peppers were keyed to the black-pepper SPICE
+// record (fdcId 170931, "Spices, pepper, black", 251 kcal/100g). A vegetable pepper
+// is ~20-31 kcal/100g. Chivito uruguayo (53063) has "1 Pepper" → key "pepper" →
+// 120 g weighed as a veg but priced as spice = 151 phantom kcal/serving.
+//
+// Deterministic + idempotent. A line is re-keyed iff its key resolves to the
+// black-pepper spice record AND it is CLEARLY a vegetable:
+//   grams >= 40 (a seasoning pepper is <10 g), OR
+//   the original/name names an explicit sweet/bell pepper (bell|sweet|red|green|
+//   yellow|orange pepper, capsicum) and NOT a spice form (black|white|ground|
+//   cayenne|chilli|chili|crushed|peppercorn|flakes).
+// The bare word "pepper" alone is NOT enough — "Pinch Pepper" / "1 tsp Pepper" /
+// "To taste Pepper" are seasoning (table/black pepper) and stay put; the grams
+// gate is what separates a whole vegetable from a shake of spice. Genuine spice
+// lines (small grams, "Black Pepper", "Peppercorns") are never touched.
+//
+// After a re-key the key is a veg key (not a spice key) → skipped on re-run.
+const VEG_PEPPER_KEY = "red pepper"; // fdcId 170108 "Peppers, sweet, red, raw" 26 kcal → generic sweet veg pepper
+const VEG_PEPPER_PHRASE_RE = /\b(?:bell|sweet|red|green|yellow|orange)\s+peppers?\b|\bcapsicum\b/i;
+const PEPPER_SPICE_FORM_RE = /black|white|ground|cayenne|chilli|chili|crushed|peppercorn|flakes/i;
+const VEG_PEPPER_MIN_G = 40; // a spice pepper line is <10 g; a whole veg pepper is ~120 g
+const VEG_PEPPER_NOTE = "re-keyed: vegetable pepper, was mis-matched to black-pepper spice";
+
+function fixPepperVeg() {
+  const usda = readJson(P.usda);
+  // The black-pepper SPICE record and every alias that resolves to it.
+  const spice = usda["pepper"] || usda["black pepper"];
+  assert(spice && /pepper, black/i.test(spice.usda), "expected a 'Spices, pepper, black' record under key 'pepper'/'black pepper'");
+  const spiceFdc = spice.fdcId;
+  const spiceKeys = new Set(Object.keys(usda).filter((k) => usda[k].fdcId === spiceFdc));
+
+  // Guardrail: the veg target must be a REAL sweet-vegetable-pepper record ~20-31 kcal.
+  const veg = usda[VEG_PEPPER_KEY];
+  assert(veg, `veg-pepper key '${VEG_PEPPER_KEY}' not found in usdaTable`);
+  assert(/pepper/i.test(veg.usda) && veg.kcal >= 15 && veg.kcal <= 35,
+    `veg-pepper key '${VEG_PEPPER_KEY}' is not a plausible raw-veg pepper (got ${veg.usda} ${veg.kcal} kcal)`);
+
+  console.log(`black-pepper SPICE record: fdcId ${spiceFdc} "${spice.usda}" ${spice.kcal} kcal/100g`);
+  console.log(`  spice keys resolving to it: ${[...spiceKeys].sort().join(", ")}`);
+  console.log(`veg-pepper target: key "${VEG_PEPPER_KEY}" → fdcId ${veg.fdcId} "${veg.usda}" ${veg.kcal} kcal/100g\n`);
+
+  const recipes = readJson(P.recipes);
+  let rekeyed = 0;
+  const touched = [];
+  for (const r of recipes) {
+    for (const ing of r.ingredients) {
+      if (!spiceKeys.has(ing.key)) continue;
+      const text = `${ing.original || ""} ${ing.name || ""}`;
+      const isVeg =
+        (Number(ing.grams) || 0) >= VEG_PEPPER_MIN_G ||
+        (VEG_PEPPER_PHRASE_RE.test(text) && !PEPPER_SPICE_FORM_RE.test(text));
+      if (!isVeg) continue;
+      const oldKey = ing.key;
+      const oldKcal = usda[oldKey].kcal;
+      assert(spiceKeys.has(oldKey), "re-key guard: only spice-keyed lines are touched");
+      ing.key = VEG_PEPPER_KEY;
+      ing.note = ing.note ? `${ing.note}; ${VEG_PEPPER_NOTE}` : VEG_PEPPER_NOTE;
+      rekeyed++;
+      touched.push({ id: r.id, original: ing.original, grams: ing.grams, oldKey, oldKcal, newKcal: veg.kcal });
+    }
+  }
+
+  recipes.sort((a, b) => Number(a.id) - Number(b.id));
+  writeJson(P.recipes, recipes);
+
+  console.log(`--fix-pepper-veg: ${rekeyed} line(s) re-keyed (spice→veg).`);
+  for (const t of touched) {
+    console.log(`  ${t.id}  [${t.original}]  ${t.grams}g   ${t.oldKey} ${t.oldKcal} → ${VEG_PEPPER_KEY} ${t.newKcal} kcal/100g`);
+  }
+  if (!rekeyed) console.log("  (nothing to re-key — already fixed / idempotent no-op)");
+  console.log(`\nrecipes → ${P.recipes}`);
+}
+
 // ── --emit : the canonicalizer INPUT payload for one recipe ───────────────────
 function emit(id) {
   const bronze = loadBronze();
@@ -799,6 +873,8 @@ if (argv.includes("--self-check")) {
   fixCookedLegumes();
 } else if (argv.includes("--fix-spurious-cooked")) {
   fixSpuriousCooked();
+} else if (argv.includes("--fix-pepper-veg")) {
+  fixPepperVeg();
 } else if (argv.includes("--emit")) {
   emit(flagVal("--emit"));
 } else if (argv.includes("--land")) {
@@ -815,6 +891,7 @@ if (argv.includes("--self-check")) {
       "  --split-measure-name          add measure+name per ingredient from bronze (deterministic; idempotent)\n" +
       "  --fix-cooked-legumes          set cooked:true on canned/cooked legumes (raw-vs-cooked guard; idempotent)\n" +
       "  --fix-spurious-cooked         clear cooked:true on non-yield keys with no cooked record (holds yield gaps; idempotent)\n" +
+      "  --fix-pepper-veg              re-key VEGETABLE peppers off the black-pepper spice record (idempotent)\n" +
       "  --self-check                  prove the zod key gate + resume filter (no agent/network)"
   );
   process.exit(2);
