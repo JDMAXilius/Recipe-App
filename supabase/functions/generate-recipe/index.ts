@@ -214,10 +214,10 @@ Deno.serve(async (req) => {
   if (!userId) return json(401, { error: "Missing or invalid access token" });
   // v1 costlyLimiter budget: 20 per 15 min per user.
   if (rateLimited(`gen:${userId}`, 20, 15 * 60 * 1000)) {
-    return json(429, { error: "Too many requests — give it a few minutes and try again" });
+    return json(429, { error: "Too many requests. Give it a few minutes and try again" });
   }
   if (!Deno.env.get("ANTHROPIC_API_KEY")) {
-    return json(503, { error: "Otto can't cook ideas up just yet — that part of the kitchen is still being wired up." });
+    return json(503, { error: "Otto can't cook ideas up just yet. That part of the kitchen is still being wired up." });
   }
 
   const raw = await req.json().catch(() => ({}));
@@ -235,7 +235,7 @@ Deno.serve(async (req) => {
         context.length ? `Context for this person: ${context.join(" ")}` : undefined,
       );
       const data = await askClaude(MODEL_TEXT, system, CHAT_SCHEMA, turns);
-      if (!data) return json(502, { error: "Otto lost his train of thought — try again in a moment." });
+      if (!data) return json(502, { error: "Otto lost his train of thought. Try again in a moment." });
       const message = String(data.message || "").slice(0, 600);
       if (data.mode === "decline") {
         return json(200, { mode: "decline", message: message || "Otto couldn't make a real recipe out of that." });
@@ -248,7 +248,7 @@ Deno.serve(async (req) => {
         return json(200, { mode: "clarify", message: message || "Tell me a little more?", options });
       }
       const recipe = shapeGeneratedRecipe({ ...data, is_possible: true });
-      if (!recipe) return json(502, { error: "Otto lost his train of thought — try again in a moment." });
+      if (!recipe) return json(502, { error: "Otto lost his train of thought. Try again in a moment." });
       return json(200, {
         mode: "recipe",
         message: message || "Here's your recipe.",
@@ -262,7 +262,7 @@ Deno.serve(async (req) => {
       const check = checkImage((raw as any).image, (raw as any).mimeType);
       if (!check.ok) {
         return check.status === 413
-          ? json(413, { error: "That photo's a bit big for Otto — try a smaller, clearer shot." })
+          ? json(413, { error: "That photo's a bit big for Otto. Try a smaller, clearer shot." })
           : json(400, { error: "Invalid body" });
       }
       const data = await askClaude(MODEL_VISION, systemBlocks(SYSTEM), SCHEMA, [{
@@ -272,14 +272,14 @@ Deno.serve(async (req) => {
           { type: "text", text: VISION_INSTRUCTION },
         ],
       }]);
-      if (!data) return json(502, { error: "Otto's idea burner wouldn't light — try again in a moment." });
+      if (!data) return json(502, { error: "Otto's idea burner wouldn't light. Try again in a moment." });
       if (data.is_possible !== true) {
         return json(422, {
-          error: String(data.decline_reason || "Otto couldn't read that photo — try a clearer shot.").slice(0, 300),
+          error: String(data.decline_reason || "Otto couldn't read that photo. Try a clearer shot.").slice(0, 300),
         });
       }
       const recipe = shapeGeneratedRecipe(data);
-      if (!recipe) return json(502, { error: "Otto couldn't read that photo — try a clearer shot." });
+      if (!recipe) return json(502, { error: "Otto couldn't read that photo. Try a clearer shot." });
       return json(200, { ...recipe, image: null, source: "otto", sourceUrl: null, sourceName: null });
     }
 
@@ -293,17 +293,17 @@ Deno.serve(async (req) => {
         content: `${context.length ? `${context.join("\n")}\n\n` : ""}Recipe request:\n${parsed.data.prompt}`,
       },
     ]);
-    if (!data) return json(502, { error: "Otto's idea burner wouldn't light — try again in a moment." });
+    if (!data) return json(502, { error: "Otto's idea burner wouldn't light. Try again in a moment." });
     if (data.is_possible !== true) {
       return json(422, {
         error: String(data.decline_reason || "Otto couldn't make a real recipe out of that.").slice(0, 300),
       });
     }
     const recipe = shapeGeneratedRecipe(data);
-    if (!recipe) return json(502, { error: "Otto's idea burner wouldn't light — try again in a moment." });
+    if (!recipe) return json(502, { error: "Otto's idea burner wouldn't light. Try again in a moment." });
     return json(200, { ...recipe, image: null, source: "otto", sourceUrl: null, sourceName: null });
   } catch (error) {
     console.error("recipe generation failed", (error as Error).message);
-    return json(502, { error: "Otto couldn't finish that idea right now — try again in a moment." });
+    return json(502, { error: "Otto couldn't finish that idea right now. Try again in a moment." });
   }
 });
