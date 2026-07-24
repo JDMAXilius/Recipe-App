@@ -82,16 +82,25 @@ export function canonicalToRecipe(rec: CanonicalRecord): Recipe {
     // byte-identical: compute.ts re-joins [measure, name], and `${measure} ${name}`
     // reconstructs `original` (verified for all ingredients), so grams are unchanged.
     // `original` fallback covers any pre-split record still lacking the fields.
+    // grams is the canonical TOTAL weight this line contributed to nutrition —
+    // surfaced so the detail can show it (÷ servings) as the amount, matching
+    // seed_nutrition. null when the record lacks it (pre-grams / null-key lines),
+    // where the detail falls back to the re-parsed text measure (OFF-path parity).
     ingredients: (rec.ingredients ?? []).map((i) => ({
       measure: i.measure ?? '',
       name: i.name ?? i.original,
+      grams: i.grams ?? null,
     })),
     steps: rec.instructions ?? [],
     youtubeUrl: rec.media?.youtube ?? null,
-    // Parity with mealToRecipe: yield stays null; recipeFacts.json still owns the
-    // real servings (Phase 5 folds canonical.servings in). Surfacing it now would
-    // change scaling / per-serving output for recipes where it differs from 4.
-    servings: null,
+    // Single source of truth: surface the canonical yield so the detail's
+    // per-serving scaling divides ingredient grams by the SAME servings that
+    // seed_nutrition (server per-serving) was computed at — the amount and the
+    // kcal then describe the same portion. Null (unknown yield) → the detail's
+    // `|| 4` default, unchanged. seed_nutrition is server-per-serving, so this
+    // does NOT change nutrition; only the uncached local-engine fallback (which
+    // already reads Recipe.servings) sees the real yield, which is more correct.
+    servings: rec.servings ?? null,
     source: rec.provenance?.source ?? 'themealdb',
     sourceName: null,
     sourceUrl: rec.media?.source ?? null,

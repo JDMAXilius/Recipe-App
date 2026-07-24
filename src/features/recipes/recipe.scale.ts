@@ -9,7 +9,10 @@
 // Imported relatively — a runtime value import must resolve under `npm test`,
 // whose loader doesn't read tsconfig `@/` aliases (same as estimates.ts →
 // ./engine/guards). Resolves to the identical module either way.
-import { parseIngredientLine, type IngredientPair } from '../nutrition/engine/parse';
+import { parseIngredientLine } from '../nutrition/engine/parse';
+// The feature's own pair (carries the ON-path `grams`); structurally a superset
+// of the engine's { measure?, name? }, so parseIngredientLine still accepts it.
+import type { IngredientPair } from './recipe.types';
 
 export type UnitSystem = 'metric' | 'us';
 
@@ -37,6 +40,18 @@ export function scaleIngredient(
   const factor = Number.isFinite(rawFactor) && rawFactor > 0 ? rawFactor : 1;
   const parsed = parseIngredientLine(pair);
   const name = (pair.name ?? parsed.item ?? '').trim();
+
+  // ON-path single source of truth: when the canonical record carried this
+  // line's grams (the weight seed_nutrition was computed from), show THAT,
+  // scaled — in both unit systems — so the amount and the nutrition describe the
+  // same portion, and count-measures ("2" Beef Brisket) render as their real
+  // weight instead of a nonsensical scaled count. The OFF/TheMealDB path has no
+  // grams and falls through to the unchanged text-measure behaviour below.
+  if (pair.grams != null && Number.isFinite(pair.grams)) {
+    const grams = pair.grams * factor;
+    const display = grams > 1000 ? `${fmt(grams / 1000)} kg` : `${fmt(grams)} g`;
+    return { display, name, scalable: true };
+  }
 
   // Metric / weight-first: the engine's grams are the display when it resolved a
   // weight. Roll to kg above 1000 g (shopping-scale convention).

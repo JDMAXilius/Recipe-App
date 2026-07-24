@@ -11,6 +11,12 @@ export type RecipeId = SeedId | UserRecipeId;
 export interface IngredientPair {
   measure: string;
   name: string;
+  // ON-path (otto_recipes) single source of truth: the canonical TOTAL grams for
+  // this line — the same weight seed_nutrition was computed from. When present,
+  // the detail shows grams (÷ servings) so the amount and the nutrition describe
+  // the SAME portion. null/absent on the OFF (TheMealDB) path, which keeps its
+  // re-parsed text measure unchanged.
+  grams?: number | null;
 }
 
 // The full recipe the detail screen renders. `source` mirrors the DB column

@@ -53,8 +53,16 @@ test('canonicalToRecipe splits measure/name into separate columns (no measure pr
   // NutritionCard/ShareCard read `.name` alone — so name must NOT carry the
   // measure prefix. canonical now carries the bronze-recovered split.
   const r = canonicalToRecipe(parseCanonical(canonical));
-  assert.deepEqual(r.ingredients[0], { measure: '500g', name: 'Raw king prawns' });
-  assert.deepEqual(r.ingredients[1], { measure: '3 tablespoons', name: 'Olive oil' });
+  assert.deepEqual(r.ingredients[0], { measure: '500g', name: 'Raw king prawns', grams: 500 });
+  assert.deepEqual(r.ingredients[1], { measure: '3 tablespoons', name: 'Olive oil', grams: 41 });
+});
+
+test('canonicalToRecipe surfaces each line’s canonical grams (SSOT for the amount)', () => {
+  // grams is the total weight seed_nutrition was computed from — the detail shows
+  // it (÷ servings) so the amount and the kcal describe the same portion.
+  const r = canonicalToRecipe(parseCanonical(canonical));
+  assert.equal(r.ingredients[0].grams, 500);
+  assert.equal(r.ingredients[1].grams, 41);
 });
 
 test('pre-split record (no measure/name) falls back to original in the name column', () => {
@@ -63,12 +71,16 @@ test('pre-split record (no measure/name) falls back to original in the name colu
   const r = canonicalToRecipe(
     parseCanonical({ id: '1', title: 'Old', ingredients: [{ original: '1 Onion' }] }),
   );
-  assert.deepEqual(r.ingredients[0], { measure: '', name: '1 Onion' });
+  assert.deepEqual(r.ingredients[0], { measure: '', name: '1 Onion', grams: null });
 });
 
-test('servings stays null — parity with mealToRecipe (recipeFacts owns yield)', () => {
+test('canonicalToRecipe surfaces the canonical servings (SSOT for per-serving scaling)', () => {
+  // Was hard-null; now the real yield flows through so the detail scales the
+  // ingredient grams by the SAME servings seed_nutrition used (amount == kcal).
   const r = canonicalToRecipe(parseCanonical(canonical));
-  assert.equal(r.servings, null);
+  assert.equal(r.servings, 4);
+  // unknown yield stays null → the detail falls back to its `|| 4` default.
+  assert.equal(canonicalToRecipe(parseCanonical({ id: '1', title: 'x' })).servings, null);
 });
 
 test('ingredient line the engine parses is byte-identical to the OFF path', () => {
