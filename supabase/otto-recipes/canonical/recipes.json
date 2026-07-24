@@ -88762,11 +88762,11 @@
       },
       {
         "original": "1 cup Cassava Flour",
-        "key": null,
+        "key": "cassava flour",
         "grams": 120,
         "cooked": false,
         "frying_medium": false,
-        "note": "Cup-to-gram conversion inferred (~120 g/cup)."
+        "note": "key recovered by deterministic re-match; Cup-to-gram conversion inferred (~120 g/cup)."
       },
       {
         "original": "Pinch Salt",
@@ -89581,11 +89581,11 @@
     "ingredients": [
       {
         "original": "1/2 Green Papaya",
-        "key": null,
+        "key": "green papaya",
         "grams": 350,
         "cooked": false,
         "frying_medium": false,
-        "note": "'1/2 Green Papaya' — no matching USDA key for papaya in table; flagged as missing ingredient. Grams estimated assuming a ~700g whole green papaya (half ≈350g flesh)."
+        "note": "key recovered by deterministic re-match; '1/2 Green Papaya' — no matching USDA key for papaya in table; flagged as missing ingredient. Grams estimated assuming a ~700g whole green papaya (half ≈350g flesh)."
       },
       {
         "original": "1 tablespoon Lemon Juice",
@@ -89899,11 +89899,11 @@
       },
       {
         "original": "200g Canned Beans",
-        "key": null,
+        "key": "canned beans",
         "grams": 200,
         "cooked": true,
         "frying_medium": false,
-        "note": "generic 'canned beans' with no type specified; no matching bean key in table, flagged as missing ingredient. Canned beans are pre-cooked."
+        "note": "key recovered by deterministic re-match; generic 'canned beans' with no type specified; no matching bean key in table, flagged as missing ingredient. Canned beans are pre-cooked."
       },
       {
         "original": "4 cloves Garlic",
