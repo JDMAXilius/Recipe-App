@@ -14,10 +14,25 @@ Never insert into the tables without landing silver first.
 
 - **Recipe text**: author it fresh, or take only the *facts* (ingredients, quantities,
   procedure) from references — never copy prose. Instructions are written in Otto's voice.
-- **Images**: `media.image` stays **null** (the app renders the painted category art —
-  our own asset) unless a photo we OWN or GENERATED is available. **Never** hotlink or
-  copy photos from recipe sites.
-- **Videos**: linking a YouTube URL in `media.youtube` is fine (it's a link, not a copy).
+- **Images** (founder policy 2026-07-24), in priority order:
+  1. **Real photo with a permissive license** — Pexels is the proven source (their
+     license: free commercial use, no attribution). Their site Cloudflare-blocks the
+     automated browser, but WebSearch surfaces photo ids and the CDN is curl-able:
+     `https://images.pexels.com/photos/<id>/pexels-photo-<id>.jpeg?auto=compress&w=1200`.
+     **View the photo (Read tool) before using it — it must actually BE the dish**
+     (a "minestrone" search returned a poke bowl).
+  2. **Generated photorealistic** — Higgsfield `marketing_studio_image`, 1:1, ~2 credits;
+     editorial food-photography prompt, warm light to match the catalogue. Owned outright.
+  3. Neither → leave `media.image` null; the app shows the painted category art.
+  **Never** hotlink or copy photos from recipe sites/blogs.
+  Hosting: compress (`sips -s format jpeg -s formatOptions 72 -Z 1024`), commit to
+  `supabase/otto-recipes/media/otto-<id>.jpg`, push, then use the raw URL
+  `https://raw.githubusercontent.com/JDMAXilius/Recipe-App/main/supabase/otto-recipes/media/otto-<id>.jpg`
+  (repo is public; upgrade path is a Supabase storage `catalog/` folder).
+  Record the origin in `provenance.image_origin` (generated job id, or Pexels photo id + license).
+- **Videos**: LINKS ONLY, never generated, never downloaded — a YouTube watch URL in
+  `media.youtube` (WebSearch `"<dish> recipe video youtube.com/watch"`; prefer
+  well-known cooking channels; it renders in the detail's VideoEmbed).
 - Existing snapshot recipes keep their TheMealDB images/videos AS-IS (founder directive).
 
 ## The pipeline
