@@ -48,11 +48,12 @@ test('shopping list: grouped by aisle, checked stay home, extras section', () =>
     custom: [{ key: 'x', name: 'napkins' }],
     checked: { c: true },
   });
+  assert.match(out, /3 things to pick up/); // open items + open extras; checked apples stay home
   assert.match(out, /\*Dairy\*/);
   assert.match(out, /- 1L milk \(for Pancakes\)/);
   assert.match(out, /- cheese/);
   assert.doesNotMatch(out, /apples/); // checked → omitted
-  assert.match(out, /\*Extras\*/);
+  assert.match(out, /\*Everything else\*/); // mirrors the shared card's section name
   assert.match(out, /- napkins/);
 });
 

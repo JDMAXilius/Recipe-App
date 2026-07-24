@@ -3,6 +3,7 @@
 // the rest is what recipes/planner legitimately consume to mint links and
 // build share copy. Nothing else leaks.
 export { ShareCard, type ShareCardProps } from './ShareCard';
+export { ShareListCard, ShoppingListBanner, type ShareListCardProps } from './ShareListCard';
 export {
   useRecipeShare,
   useListShare,

@@ -35,13 +35,20 @@ export function buildRecipeShareText(recipe: ShareRecipe, url?: string): string 
   return lines.join('\n');
 }
 
-// Same grouping the picture uses (open items, by aisle, then extras) so the
-// text and the card always agree. Checked rows stay home.
+// Same structure the picture (ShareListCard) uses — the "N things to pick up"
+// count, open items by aisle, then extras under "Everything else" — so the
+// text and the card always agree. Checked rows stay home. (The card's em-dash
+// provenance stays "(for …)" here: plain hyphen-bullets + parens paste cleanly
+// everywhere and this file stays free of decorative Unicode.)
 export function buildShoppingListShareText(state: ShoppingListState): string {
   const { items = [], custom = [], checked = {} } = state;
   const lines = ['*Shopping list*'];
 
   const open = items.filter((i) => !checked[i.key]);
+  const extras = custom.filter((c) => !checked[c.key]);
+  const count = open.length + extras.length;
+  lines.push('', `${count} ${count === 1 ? 'thing' : 'things'} to pick up`);
+
   const aisles = [...new Set(open.map((i) => i.aisle))];
   for (const aisle of aisles) {
     lines.push('', `*${aisle}*`);
@@ -52,9 +59,8 @@ export function buildShoppingListShareText(state: ShoppingListState): string {
     }
   }
 
-  const extras = custom.filter((c) => !checked[c.key]);
   if (extras.length) {
-    lines.push('', '*Extras*');
+    lines.push('', '*Everything else*');
     for (const extra of extras) lines.push(`- ${extra.name}`);
   }
 
