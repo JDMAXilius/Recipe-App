@@ -19612,9 +19612,9 @@
         "original": "4 Duck Legs",
         "key": "duck legs",
         "grams": 1400,
-        "cooked": false,
+        "cooked": true,
         "frying_medium": false,
-        "note": "4 legs; ~350g each raw weight estimated (typical duck leg size); no stated servings, inferred 4 servings (one leg per person) based on 4 legs used",
+        "note": "confit: raw skin-on legs slow-cooked in their own fat, which renders out and is discarded. cooked:true → roasted-duck record @337; the record's raw_yield (0.605, protein-conserved) converts the 1400g raw to the eaten cooked mass in the engine.",
         "measure": "4",
         "name": "Duck Legs"
       },

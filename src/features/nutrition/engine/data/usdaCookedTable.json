@@ -999,5 +999,29 @@
     "fiber_g": 0,
     "sugar_g": null,
     "sodium_mg": 70
+  },
+  "duck": {
+    "fdcId": 172411,
+    "usda": "Duck, domesticated, meat and skin, cooked, roasted",
+    "kcal": 337,
+    "protein_g": 19,
+    "fat_g": 28.4,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 59,
+    "raw_yield": 0.605
+  },
+  "duck legs": {
+    "fdcId": 172411,
+    "usda": "Duck, domesticated, meat and skin, cooked, roasted",
+    "kcal": 337,
+    "protein_g": 19,
+    "fat_g": 28.4,
+    "carbs_g": 0,
+    "fiber_g": 0,
+    "sugar_g": null,
+    "sodium_mg": 59,
+    "raw_yield": 0.605
   }
 }

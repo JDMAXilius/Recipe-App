@@ -218,7 +218,12 @@ export function computeNutrition(
     let total: number | null = null;
     for (const { parsed, food } of usable) {
       const v = (food as Record<string, unknown>)[field];
-      if (Number.isFinite(v)) total = (total ?? 0) + ((v as number) * (parsed.grams as number)) / 100;
+      // raw→cooked mass yield: a cooked record may carry `raw_yield` (< 1 when
+      // cooking sheds mass, e.g. confit duck rendering its fat) so the eaten
+      // nutrients = raw grams × yield × per-100g. Absent (every raw food, most
+      // cooked ones) → 1, i.e. unchanged. Sourced per-record, not per-recipe.
+      const y = (food as { raw_yield?: number }).raw_yield ?? 1;
+      if (Number.isFinite(v)) total = (total ?? 0) + ((v as number) * (parsed.grams as number) * y) / 100;
     }
     return total;
   };

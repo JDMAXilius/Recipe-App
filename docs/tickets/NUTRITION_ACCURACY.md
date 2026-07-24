@@ -211,13 +211,23 @@ to `usdaTable.json` with real USDA fdcIds. **Skip** food colourings / spice blen
 (negligible; the runtime resolver handles misses anyway). Keep the `fdcId` provenance test passing —
 proxy to the closest real record wholesale + a note (the `ackee`/`paneer` pattern) when USDA lacks it.
 
-**Cooked-duck gap (from the 2026-07-24 servings audit):** Duck Confit (52907) reads
-~1442 kcal/serving because 1400g raw skin-on `duck legs` @404 kcal/100g is counted whole,
-but confit renders most of that fat OUT (instructions: "remove the legs from the fat"). The
-honest fix is `cooked:true` on the duck line — BLOCKED because `usdaCookedTable.json` has no
-duck record (only raw `duck`/`duck legs`). Add a `duck, meat+skin, roasted` (~337 kcal/100g,
-real fdcId) cooked entry, then flip the flag → ~760 kcal/serving. Until then, left as-is (no
-silent key swap). Only recipe still ≥1000 kcal that is a genuine over-count, not a big portion.
+**Cooked-duck gap (from the 2026-07-24 servings audit): ✅ RESOLVED — modular `raw_yield`.**
+Duck Confit (52907) read 1442 kcal/serving: 1400g raw skin-on `duck legs` @404 kcal/100g counted
+whole, but confit renders the subcutaneous fat OUT and discards it. Fixed WITHOUT a per-recipe
+magic number (`tools/add-duck-cooked.mjs`):
+- Added `duck`/`duck legs` → "Duck, meat+skin, cooked, roasted" (fdcId 172411, 337 kcal/100g) to
+  `usdaCookedTable.json`, and flipped the recipe line to `cooked:true` — grams stay the honest
+  raw **1400** (no hand-typed cooked weight).
+- The cooked record carries a **`raw_yield`** field: the raw→cooked mass ratio, DERIVED from
+  protein conservation (raw 11.5 ÷ roasted 19.0 g protein = **0.605**), not guessed. The ~40%
+  shed is the rendered fat.
+- The engine applies it in one seam — `compute.ts` `sum()` scales grams by `food.raw_yield ?? 1`
+  (mirrored in `tools/recompute-nutrition.mjs`; `FoodRowSchema.raw_yield` optional). Default 1 →
+  every other food unchanged (golden suite green, 261/261). **Reusable** for any cooked food.
+- Result: **741 kcal/serving.**
+
+This is a scoped instance of the general **T3** raw→cooked yield model — now any cooked record can
+opt in by carrying a sourced `raw_yield`; growing that coverage is the T3 follow-up.
 
 ### T7 — `seed_nutrition` recompute  ·  OPTIONAL, do LAST  ·  [terminal + Supabase MCP]
 The 6 ingredient fixes already shipped (parmesan/parmesan cheese/sesame seed/sour cream/paneer/

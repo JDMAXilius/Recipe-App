@@ -121,7 +121,11 @@ function computeFromCanonical(record) {
     let total = null;
     for (const { parsed, food } of usable) {
       const v = food[field];
-      if (Number.isFinite(v)) total = (total ?? 0) + (v * parsed.grams) / 100;
+      // Mirror compute.ts: cooked records may carry a raw→cooked mass `raw_yield`
+      // (default 1 = unchanged). Keeps the offline recompute byte-identical to the
+      // live engine.
+      const y = food.raw_yield ?? 1;
+      if (Number.isFinite(v)) total = (total ?? 0) + (v * parsed.grams * y) / 100;
     }
     return total;
   };

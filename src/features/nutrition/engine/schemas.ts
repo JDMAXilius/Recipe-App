@@ -46,4 +46,7 @@ export const FoodRowSchema = z.looseObject({
   fiber_g: z.number().nullable(),
   sugar_g: z.number().nullable(),
   sodium_mg: z.number().nullable(),
+  // Optional raw→cooked mass yield for cooked-table records (e.g. confit duck at
+  // 0.605, protein-conserved). The engine multiplies grams by this; absent → 1.
+  raw_yield: z.number().optional(),
 });
