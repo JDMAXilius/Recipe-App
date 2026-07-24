@@ -11,7 +11,7 @@ import { haptics } from '@/shared/haptics';
 // Deep import mirrors RecipeCard → nutrition/estimates; no barrel for leaf utils.
 import { segmentStep } from '@/features/cook/stepEnrich';
 import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
-import { ShareCard, shareRecipeCard, useCreateRecipeShare, type ShareRecipe } from '@/features/share';
+import { ShareCard, shareRecipeCard, type ShareRecipe } from '@/features/share';
 import { useSaved } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
 import { usePrefs } from '@/features/profile';
@@ -20,11 +20,6 @@ import { ParallaxHero } from './components/ParallaxHero';
 import { VideoEmbed } from './components/VideoEmbed';
 import { scaleIngredients, scaledIngredientLines } from './recipe.scale';
 import { isUserRecipeRef, useRecipe, useRelated } from './recipe.queries';
-
-// Public share page for a minted recipe slug (capability URL — the slug IS the
-// secret). Shape matches the canonical example in share/shareText.test.mjs;
-// the web resolver route ships with the share-pages work, not this screen.
-const SHARE_PAGE_BASE = 'https://ottosapp.com/s';
 
 // The hero cluster's circular cream button (same visual language as the
 // floating back button): 44pt target, white pill, soft shadow.
@@ -61,8 +56,6 @@ export function RecipeDetailScreen() {
   const { unitSystem } = usePrefs();
   const { show } = useToast();
   const shareCardRef = useRef<View>(null); // captured to a PNG by shareRecipeCard
-  const createShare = useCreateRecipeShare(); // capability-link mint (own recipes)
-  const mintedSlug = useRef<string | null>(null); // one link per visit; repeat taps reuse it
 
   // Scroll offset driving the hero parallax (ParallaxHero). RN Animated per the
   // motion.ts law; native driver on device, JS-driven on web (react-native-web
@@ -135,23 +128,16 @@ export function RecipeDetailScreen() {
     sourceUrl: recipe.sourceUrl,
   };
 
-  // Hero Share (own recipes) — the existing capability-link machinery, reused:
-  // useCreateRecipeShare mints a CSPRNG slug into recipe_shares (share.queries),
-  // the URL rides into shareRecipeCard → the native Share sheet (same artifact
-  // as the bottom Share button). If minting fails (offline, signed out) the
-  // sheet still opens without a link — honest, never blocked.
+  // Hero Share (own recipes) — shares the painted recipe card, identical to the
+  // bottom Share button. It does NOT mint a capability link: nothing in the app
+  // (or on the website yet) resolves a share token, and the native sheet drops a
+  // URL anyway — so a minted link is a dead link plus an orphan recipe_shares
+  // row per tap. A clickable "open my recipe" link is a real follow-up (it needs
+  // a /s/<slug> resolver page + the URL delivered in the sheet); until then this
+  // shares the recipe the way that actually works.
   const shareOwnRecipe = async () => {
     haptics.impact('medium');
-    let url: string | undefined;
-    try {
-      const slug =
-        mintedSlug.current ?? (await createShare.mutateAsync(Number(recipeId.slice(2))));
-      mintedSlug.current = slug;
-      url = `${SHARE_PAGE_BASE}/${slug}`;
-    } catch {
-      // no link — fall through to the plain card/text share
-    }
-    await shareRecipeCard(shareCardRef, shareRecipe, url);
+    await shareRecipeCard(shareCardRef, shareRecipe);
   };
 
   const addToWeek = async (dayKey: string, label: string) => {

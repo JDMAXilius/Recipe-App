@@ -263,7 +263,7 @@ export function ShoppingScreen() {
           >
             <Ionicons name="people-outline" size={22} color={colors.ink} />
           </Pressable>
-          {total > 0 && (
+          {total > 0 && done < total && (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Share the shopping list"

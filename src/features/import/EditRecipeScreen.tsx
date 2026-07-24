@@ -229,7 +229,8 @@ export function EditRecipeScreen() {
           <Text role="display">{heading}</Text>
         </View>
 
-        {editId == null && (
+        {/* Manual creation only — not import review ("Check Otto's work") or edit. */}
+        {editId == null && form.mode !== 'import' && (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Ask Otto — he picks up from what you have typed"

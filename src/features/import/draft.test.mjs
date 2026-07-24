@@ -118,6 +118,14 @@ test('draftToAsk: renders only the filled fields, trimmed', () => {
   );
 });
 
+test('draftToAsk: the untouched default servings is not asserted to Otto', () => {
+  const d = emptyDraft(); // servings === DEFAULT_SERVINGS (1)
+  d.title = 'Lasagna';
+  const ask = draftToAsk(d);
+  assert.ok(ask.includes('Title: Lasagna'));
+  assert.ok(!ask.includes('Serves:'), 'a serving count the user never chose must not anchor Otto');
+});
+
 test('takeOttoAsk: consume-once shelf, separate from the draft slot', () => {
   assert.equal(takeOttoAsk(), null);
   setDraft(emptyDraft()); // an import hand-off in flight…

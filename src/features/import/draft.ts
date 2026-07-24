@@ -129,7 +129,10 @@ export function draftToAsk(d: Draft): string | null {
   if (title) lines.push(`Title: ${title}`);
   const kind = [category, area].filter(Boolean).join(' · ');
   if (kind) lines.push(`Kind of dish: ${kind}`);
-  lines.push(`Serves: ${d.servings}`);
+  // Only send a serving count the user actually chose — the untouched default
+  // would anchor Otto on a number nobody stated (the function's own rule: render
+  // only the filled fields).
+  if (d.servings !== DEFAULT_SERVINGS) lines.push(`Serves: ${d.servings}`);
   if (ingredients.length > 0) lines.push(`Ingredients so far: ${ingredients.join('; ')}`);
   if (steps.length > 0) {
     lines.push(`Steps so far: ${steps.map((s, i) => `${i + 1}. ${s}`).join(' ')}`);
