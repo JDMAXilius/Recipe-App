@@ -30,6 +30,29 @@ export type NutritionValue = ReturnType<typeof NutritionResultSchema.parse>;
 export async function resolveNutrition(
   input: ComputeNutritionInput,
 ): Promise<NutritionValue | null> {
+  // No ingredient lines → the exact answer is zero, not "no answer". Without
+  // this, empty recipes fell through null → the category estimate, showing
+  // ~350 cal for a recipe that contains nothing. Zero is computed truth here
+  // (founder rule 2026-07-24: the figure comes from the set ingredients only).
+  const lines = input.ingredients.filter((p) => p && (p.name?.trim() || p.measure?.trim()));
+  if (lines.length === 0) {
+    return {
+      kcal: 0,
+      protein_g: 0,
+      carbs_g: 0,
+      fat_g: 0,
+      fiber_g: 0,
+      sugar_g: 0,
+      sodium_mg: 0,
+      basis_grams: 0,
+      per: 'serving',
+      source: 'usda',
+      confidence: 'high',
+      basis: 'measured',
+      doubt: null,
+      computed_at: new Date().toISOString(),
+    };
+  }
   const local = computeNutrition(input);
   const missing = unmatchedNames(input);
   if (!missing.length) return local;

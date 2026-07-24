@@ -17,6 +17,22 @@ function nutritionKcalOf(nutrition: RecipeRow['nutrition']): number | null {
   return typeof kcal === 'number' && Number.isFinite(kcal) ? Math.round(kcal) : null;
 }
 
+// Nutrition comes from the set ingredients only (founder rule 2026-07-24): a
+// recipe with NO ingredient lines is exactly 0 kcal — never the category
+// estimate. Covers rows saved before resolveNutrition learned the same rule.
+function hasIngredientLines(ingredients: RecipeRow['ingredients']): boolean {
+  return (
+    Array.isArray(ingredients) &&
+    ingredients.some((p) => {
+      const pair = p as { name?: unknown; measure?: unknown } | null;
+      return Boolean(
+        (typeof pair?.name === 'string' && pair.name.trim()) ||
+          (typeof pair?.measure === 'string' && pair.measure.trim()),
+      );
+    })
+  );
+}
+
 export function toMyRecipe(row: RecipeRow): MyRecipe {
   return {
     id: row.id,
@@ -25,7 +41,7 @@ export function toMyRecipe(row: RecipeRow): MyRecipe {
     category: row.category,
     source: row.source,
     sourceName: row.source_name,
-    nutritionKcal: nutritionKcalOf(row.nutrition),
+    nutritionKcal: hasIngredientLines(row.ingredients) ? nutritionKcalOf(row.nutrition) : 0,
   };
 }
 
