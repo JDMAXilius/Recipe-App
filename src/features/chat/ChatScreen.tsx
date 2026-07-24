@@ -10,13 +10,13 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
 import { colors, fonts, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
-import { useSaveRecipe, type SaveInput } from '@/features/import';
+import { takeOttoAsk, useSaveRecipe, type SaveInput } from '@/features/import';
 import { useChat } from './useChat';
 import type { ChatRecipe, StoredMessage } from './chat.types';
 
@@ -170,6 +170,19 @@ export function ChatScreen() {
   const saveMut = useSaveRecipe();
   const [draft, setDraft] = useState('');
   const scrollRef = useRef<ScrollView>(null);
+
+  // The recipe editor's Ask-Otto hand-off: arriving with a part-filled form,
+  // its rendered ask lands in the composer — visible and editable, so the cook
+  // sees exactly what Otto will start from. On focus (not mount) because the
+  // create tab stays mounted between visits; the slot is consume-once, so a
+  // plain ＋ tap later never resurrects an old ask.
+  useFocusEffect(
+    useCallback(() => {
+      if (!isSignedIn) return; // leave it for after sign-in — don't burn the slot
+      const ask = takeOttoAsk();
+      if (ask) setDraft(ask);
+    }, [isSignedIn]),
+  );
 
   const toBottom = useCallback(() => {
     requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));

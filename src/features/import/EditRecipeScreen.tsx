@@ -10,7 +10,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Text, useToast } from '@/shared/ui';
+import { Button, OttoArt, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
@@ -18,17 +18,18 @@ import { pickFromLibrary } from '@/shared/imagePicker';
 import { RecipeInput } from './components/RecipeInput';
 import {
   cloneDraft,
+  draftToAsk,
   emptyDraft,
   emptyIngredient,
   isDirty,
   parseEditId,
+  setOttoAsk,
   takeDraft,
   toSavePayload,
   type Draft,
 } from './draft';
 import {
   useDeleteRecipe,
-  useGenerateRecipe,
   useRecipeDraft,
   useSaveRecipe,
   useUploadRecipePhoto,
@@ -56,12 +57,25 @@ const deleteRow: ViewStyle = {
   gap: space[2],
   paddingVertical: space[3],
 };
-const panel: ViewStyle = {
+// Compact Ask-Otto entry (mirrors the Discover dashboard row): tap → chat,
+// carrying whatever's already typed. Row is ≥48pt tall via the art + padding.
+const askOttoRow: ViewStyle = {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: space[3],
   backgroundColor: colors.creamDeep,
   borderRadius: radii.card,
-  padding: space[4],
-  gap: space[3],
+  padding: space[3],
+  paddingRight: space[4],
   marginBottom: space[4],
+};
+const askOttoArrow: ViewStyle = {
+  width: 36,
+  height: 36,
+  borderRadius: radii.pill,
+  backgroundColor: colors.terracotta,
+  alignItems: 'center',
+  justifyContent: 'center',
 };
 const photoDrop: ViewStyle = {
   backgroundColor: colors.accentSoft,
@@ -84,7 +98,6 @@ export function EditRecipeScreen() {
   const draftQuery = useRecipeDraft(editId);
   const saveMut = useSaveRecipe();
   const deleteMut = useDeleteRecipe();
-  const generateMut = useGenerateRecipe();
   const uploadMut = useUploadRecipePhoto();
 
   // Non-edit: take the hand-off slot exactly once (or start blank). Edit mode
@@ -102,7 +115,6 @@ export function EditRecipeScreen() {
   }, [editId, draftQuery.data, baseline]);
 
   const [armDelete, setArmDelete] = useState(false);
-  const [wish, setWish] = useState('');
 
   if (!form) {
     return (
@@ -129,21 +141,15 @@ export function EditRecipeScreen() {
   const removeStep = (index: number) =>
     patch({ steps: form.steps.length > 1 ? form.steps.filter((_, i) => i !== index) : form.steps });
 
-  const cookWithOtto = async () => {
-    const ask = wish.trim();
-    if (ask.length < 3) {
-      show('Tell Otto a little more — what kind of dish, for how many?', 'info');
-      return;
-    }
-    try {
-      const draft = await generateMut.mutateAsync({ prompt: ask, servings: form.servings });
-      // Keep the editor open in review mode with Otto's draft filled in.
-      setForm({ ...draft, mode: 'import', source: 'otto' });
-      setWish('');
-      show("Otto wrote it out — check his work, then save it.", 'success');
-    } catch (err) {
-      show(err instanceof Error ? err.message : "Otto couldn't finish that idea.", 'error');
-    }
+  // Ask Otto = hop to chat (the ＋ tab), carrying whatever's typed so far.
+  // The rendered ask rides the same consume-once shelf pattern as the AddSheet
+  // hand-off; the chat composer takes it on focus. An empty form just opens
+  // a fresh chat — nothing to carry.
+  const askOtto = () => {
+    haptics.select();
+    const ask = draftToAsk(form);
+    if (ask) setOttoAsk(ask);
+    router.push('/create');
   };
 
   // Pick a photo of the dish from the library → upload to the recipe-photos
@@ -223,27 +229,22 @@ export function EditRecipeScreen() {
           <Text role="display">{heading}</Text>
         </View>
 
-        {form.mode === 'manual' && (
-          <View style={panel}>
-            <Text role="title">Cook something up with Otto</Text>
-            <Text role="caption">
-              Describe the dish — Otto writes the whole recipe into this form for you to tweak and
-              save.
-            </Text>
-            <RecipeInput
-              value={wish}
-              onChangeText={setWish}
-              placeholder="What are you hungry for?"
-              accessibilityLabel="Describe the recipe you want"
-              multiline
-            />
-            <Button
-              title={generateMut.isPending ? 'Otto’s cooking…' : 'Cook it up'}
-              onPress={cookWithOtto}
-              variant="primary"
-              loading={generateMut.isPending}
-            />
-          </View>
+        {editId == null && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ask Otto — he picks up from what you have typed"
+            onPress={askOtto}
+            style={askOttoRow}
+          >
+            <OttoArt name="happy" size={48} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text role="body">Ask Otto</Text>
+              <Text role="caption">He’ll pick up from whatever you’ve typed here.</Text>
+            </View>
+            <View style={askOttoArrow}>
+              <Ionicons name="arrow-forward" size={18} color={colors.white} />
+            </View>
+          </Pressable>
         )}
 
         {form.mode === 'import' && (

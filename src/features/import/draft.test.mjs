@@ -5,10 +5,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   cloneDraft,
+  draftToAsk,
   emptyDraft,
   isDirty,
   setDraft,
+  setOttoAsk,
   takeDraft,
+  takeOttoAsk,
   toSavePayload,
 } from './draft.ts';
 
@@ -80,6 +83,49 @@ test('isDirty: false against its own clone, true after any edit', () => {
 
   const servings = { ...base, servings: base.servings + 1 };
   assert.equal(isDirty(servings, baseline), true);
+});
+
+test('draftToAsk: empty form → null (fresh chat, nothing to carry)', () => {
+  assert.equal(draftToAsk(emptyDraft()), null);
+  // A lone measure with no ingredient name is not content either.
+  const d = emptyDraft();
+  d.ingredients = [{ measure: '500 g', name: '  ' }];
+  assert.equal(draftToAsk(d), null);
+});
+
+test('draftToAsk: renders only the filled fields, trimmed', () => {
+  const d = emptyDraft();
+  d.title = '  Tuscan soup ';
+  d.area = ' Italian ';
+  d.servings = 4;
+  d.ingredients = [
+    { measure: ' 500 g ', name: ' chicken ' },
+    { measure: '', name: 'salt' },
+    { measure: '1 tsp', name: '  ' }, // nameless → dropped, matches toSavePayload
+  ];
+  d.steps = [' Simmer. ', '   '];
+  const ask = draftToAsk(d);
+  assert.equal(
+    ask,
+    [
+      "Help me finish this recipe I've started:",
+      'Title: Tuscan soup',
+      'Kind of dish: Italian',
+      'Serves: 4',
+      'Ingredients so far: 500 g chicken; salt',
+      'Steps so far: 1. Simmer.',
+    ].join('\n'),
+  );
+});
+
+test('takeOttoAsk: consume-once shelf, separate from the draft slot', () => {
+  assert.equal(takeOttoAsk(), null);
+  setDraft(emptyDraft()); // an import hand-off in flight…
+  setOttoAsk('Help me finish this');
+  assert.equal(takeOttoAsk(), 'Help me finish this');
+  assert.equal(takeOttoAsk(), null); // gone — no stale ask in the next chat
+  assert.notEqual(takeDraft(), null); // …the draft slot was untouched
+  assert.equal(takeDraft(), null); // (drain it so later tests start clean)
 });
 
 test('cloneDraft: arrays do not alias the source', () => {

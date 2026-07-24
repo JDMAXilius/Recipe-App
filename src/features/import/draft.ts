@@ -107,6 +107,53 @@ export function takeDraft(): Draft | null {
   return d;
 }
 
+// --- Ask-Otto hand-off (editor → chat) ------------------------------------
+
+// Renders whatever the cook has already filled in into an opening ask for the
+// chat composer, so Otto picks up from the in-progress form instead of a blank
+// "what are you hungry for?". null when the form is effectively empty — then
+// the chat just opens fresh. Pure, so draft.test.mjs can pin the wording rules.
+export function draftToAsk(d: Draft): string | null {
+  const title = d.title.trim();
+  const category = d.category.trim();
+  const area = d.area.trim();
+  const ingredients = d.ingredients
+    .map((p) => ({ measure: p.measure.trim(), name: p.name.trim() }))
+    .filter((p) => p.name) // a measure with no name isn't an ingredient yet
+    .map((p) => [p.measure, p.name].filter(Boolean).join(' '));
+  const steps = d.steps.map((s) => s.trim()).filter(Boolean);
+  if (!title && !category && !area && ingredients.length === 0 && steps.length === 0) {
+    return null;
+  }
+  const lines = ["Help me finish this recipe I've started:"];
+  if (title) lines.push(`Title: ${title}`);
+  const kind = [category, area].filter(Boolean).join(' · ');
+  if (kind) lines.push(`Kind of dish: ${kind}`);
+  lines.push(`Serves: ${d.servings}`);
+  if (ingredients.length > 0) lines.push(`Ingredients so far: ${ingredients.join('; ')}`);
+  if (steps.length > 0) {
+    lines.push(`Steps so far: ${steps.map((s, i) => `${i + 1}. ${s}`).join(' ')}`);
+  }
+  return lines.join('\n');
+}
+
+// Same one-slot, consume-once shelf as the draft above, going the OTHER way:
+// the editor sets the rendered ask, the chat composer takes it on focus. A
+// separate slot so an Ask-Otto hop can never collide with an import hand-off.
+let askSlot: string | null = null;
+
+export function setOttoAsk(text: string): void {
+  askSlot = text;
+}
+
+// Reading takes it — an ask is consumed exactly once, never leaks into a
+// later fresh chat.
+export function takeOttoAsk(): string | null {
+  const a = askSlot;
+  askSlot = null;
+  return a;
+}
+
 // --- save validation ------------------------------------------------------
 
 export type SaveResult =

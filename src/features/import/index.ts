@@ -3,9 +3,11 @@
 //     component, NOT a screen).
 //   • EditRecipeScreen — the write/edit-your-own editor, mounted by app/recipe/edit.
 //   • import hooks — for a route or sibling that needs to drive import/generate.
+//   • takeOttoAsk — the chat composer consumes the editor's Ask-Otto hand-off.
 // Nothing else leaks (draft slot + queries stay feature-private).
 export { AddSheet, type AddSheetProps } from './AddSheet';
 export { EditRecipeScreen } from './EditRecipeScreen';
+export { takeOttoAsk } from './draft';
 
 export {
   useImportFromUrl,
