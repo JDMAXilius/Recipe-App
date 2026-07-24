@@ -10,7 +10,7 @@ A warm, hand-painted recipe app led by <b>Otto the otter chef</b>.<br/>
 ## What Otto does today
 
 **Discover & cook**
-- Browse and search 750+ seed recipes (TheMealDB) with painted category tiles and an "Otto's pick" hero
+- Browse and search 750+ recipes (seeded from TheMealDB, served from Otto's own DB) with painted category tiles and an "Otto's pick" hero
 - Recipe detail: photo-only hero, serif title on cream, source attribution, computed meta (servings · ingredients · steps), live ingredient scaling with US/Metric conversion, inline video, semantic-ink method steps, nutrition estimate card, related-recipes exit
 - **Cook mode**: mise-en-place → big-type steps with hand-painted Otto action art (chop/mix/sauté/simmer/bake/wait/season/pour/serve), tappable durations that start named timers, a multi-timer hub, alarm sound + vibration, keep-awake, swipe navigation, exit protection, and a Proud-Otto finish with "Snap your plate" journal capture
 
@@ -28,7 +28,7 @@ A warm, hand-painted recipe app led by <b>Otto the otter chef</b>.<br/>
 **The rest**
 - 3-screen painted onboarding + splash (still image + animated lid-lift, reduced-motion aware)
 - "You" tab: earned stats (cooked/saved/yours — each a door), a private cooking journal, inline US/Metric, editable name + avatar, quiet sign-out, visible account deletion
-- **Otto Club** membership surface (honest pricing math) — frontend complete, purchases "open soon" until IAP lands
+- **Otto Club** membership — $34.99/yr · $4.99/mo · 5-day trial, honest pricing math; RevenueCat wired end-to-end (purchase/restore/entitlement + Supabase membership webhook), running on the RC Test Store until the App Store products go live
 
 ## Tech stack
 
@@ -165,9 +165,11 @@ Supabase project — there is no separate server to run.
 # .env (root) — publishable client config, safe to expose; RLS is the security boundary
 EXPO_PUBLIC_SUPABASE_URL=...
 EXPO_PUBLIC_SUPABASE_ANON_KEY=...
+EXPO_PUBLIC_USE_OTTO_RECIPES=true   # serve recipe display from Otto's DB (not TheMealDB)
 ```
 
-`EXPO_PUBLIC_*` vars are inlined at build time — restart Expo after changing them. Server-side secrets
+`EXPO_PUBLIC_*` vars are inlined at build time — restart Expo after changing them, and keep the same
+set registered in **EAS env** (`eas env:list production`) or TestFlight builds silently ship without them. Server-side secrets
 (`ANTHROPIC_API_KEY`, `THEMEALDB_KEY`, `USDA_API_KEY`, the service-role key for account deletion) live
 in **Supabase Edge Function config**, never in the app bundle.
 
@@ -196,12 +198,14 @@ CI (`.github/workflows/ci.yml`) runs all three on every push to `main` and PRs i
 
 ## Status
 
-**Shipped to TestFlight — v1.0.14 (build 30).** The feature-first v2 rebuild is live on `main` (the old
-RN-JS app + Express backend are archived on the `v1-legacy` branch). Backend runs entirely on Supabase —
-all Edge Functions active, Claude generation + nutrition resolution working, security advisors cleaned up.
+**On TestFlight — v1.0.15 (build 31)**, internal "Otto Insiders" group. The feature-first v2 rebuild is
+live on `main` (the old RN-JS app + Express backend are archived on the `v1-legacy` branch). Backend runs
+entirely on Supabase — all Edge Functions active, Claude generation + nutrition resolution working,
+security advisors cleaned up. Otto Club paywall shows launch pricing against the RevenueCat Test Store.
 
-**Next:** a device pass on the OS-level paths (Apple/Google/Facebook login, timer audio, camera, push),
-then App Store submission. Otto Club IAP lands when gating should go live.
+**Next:** a device pass on the OS-level paths (Apple/Google/Facebook login, timer audio, camera, push);
+real App Store subscription products (Paid Apps agreement → ASC products → swap the `appl_` RevenueCat
+key) and feature gating on the `club` entitlement; then App Store submission.
 
 ## Credits
 
