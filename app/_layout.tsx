@@ -8,7 +8,7 @@ import { useFonts, Lora_400Regular, Lora_600SemiBold, Lora_700Bold } from '@expo
 import { AuthProvider } from '@/features/auth';
 import { Splash } from '@/features/onboarding';
 import { NotifSync } from '@/features/notifications';
-import { RC_API_KEY } from '@/features/profile/club.purchases';
+import { RC_API_KEY, RC_TEST_STORE } from '@/features/profile/club.purchases';
 import { ErrorBoundary, ToastHost } from '@/shared/ui';
 
 // The provider stack: gesture root → error boundary → server state (TanStack
@@ -20,9 +20,12 @@ const queryClient = new QueryClient({
 
 // RevenueCat init at module scope, not in an effect: child effects (AuthProvider's
 // Purchases.logIn) run before the root layout's would, so configure must beat render.
-// Test Store key — swap for the appl_ production key before TestFlight.
+// A test_ key in a RELEASE build makes the RC SDK alert "Wrong API Key" and exit(0)
+// on launch — so while we're on the Test Store key, only configure in dev. Every
+// Purchases call is .catch-guarded, so an unconfigured release falls back to the
+// paywall's opens-soon state. The gate dissolves itself once the appl_ key lands.
 if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
-Purchases.configure({ apiKey: RC_API_KEY });
+if (__DEV__ || !RC_TEST_STORE) Purchases.configure({ apiKey: RC_API_KEY });
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Lora_400Regular, Lora_600SemiBold, Lora_700Bold });
