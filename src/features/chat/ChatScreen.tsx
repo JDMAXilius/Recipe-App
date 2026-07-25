@@ -1,32 +1,27 @@
 import React, { useCallback, useRef, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text as RNText,
-  TextInput,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
-import { colors, fonts, radii, space } from '@/shared/theme/tokens';
+import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
 import { stageOttoRecipe, takeOttoAsk } from '@/features/import';
+import { ChatEmptyState } from './components/ChatEmptyState';
+import { Composer } from './components/Composer';
+import { Transcript } from './components/Transcript';
 import { useChat } from './useChat';
 import { useSpeechInput } from './useSpeechInput';
-import type { ChatRecipe, StoredMessage } from './chat.types';
+import type { ChatRecipe } from './chat.types';
 
 // Chat with Otto — the ＋ (create) tab. The primary way to make
 // a recipe: describe a dish, Otto writes it inline, you save. Header doors reach
-// Recent chats (clock → /chats) and Bring-in-a-recipe (import → /add). Transcript
-// (you right / Otto left), clarify chips, an inline recipe preview with
-// Save-to-cookbook, and Otto's living presence. Every server state
-// (loading/error/clarify/recipe/decline) renders inline — never a crash.
+// Recent chats (clock → /chats) and Bring-in-a-recipe (import → /add). This file
+// is the conductor only: the empty state, the transcript and the composer card
+// are their own components, so what lives here is state, hand-offs and layout.
+// Every server state (loading/error/clarify/recipe/decline) renders inline —
+// never a crash.
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -59,93 +54,6 @@ function HeaderButton({
   );
 }
 
-const bubbleBase: ViewStyle = {
-  maxWidth: '82%',
-  borderRadius: radii.card,
-  paddingHorizontal: space[4],
-  paddingVertical: space[3],
-  marginBottom: space[3],
-};
-
-function Bubble({ message }: { message: StoredMessage }) {
-  const mine = message.role === 'user';
-  return (
-    <View
-      style={[
-        bubbleBase,
-        mine
-          ? { alignSelf: 'flex-end', backgroundColor: colors.creamDeep }
-          : {
-              alignSelf: 'flex-start',
-              backgroundColor: colors.white,
-              borderWidth: 1,
-              borderColor: colors.border,
-            },
-      ]}
-    >
-      <Text role="body">{message.content}</Text>
-    </View>
-  );
-}
-
-// Clarify options → tappable pills that send the chosen text as the next turn.
-function OptionChips({ options, onPick }: { options: string[]; onPick: (o: string) => void }) {
-  return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2], marginBottom: space[3] }}>
-      {options.map((option) => (
-        <Pressable
-          key={option}
-          onPress={() => onPick(option)}
-          accessibilityRole="button"
-          accessibilityLabel={option}
-          style={{
-            borderWidth: 1,
-            borderColor: colors.terracotta,
-            borderRadius: radii.pill,
-            paddingHorizontal: space[4],
-            paddingVertical: space[2],
-            backgroundColor: colors.cream,
-          }}
-        >
-          <Text role="computed">{option}</Text>
-        </Pressable>
-      ))}
-    </View>
-  );
-}
-
-function RecipePreview({ recipe, onReview }: { recipe: ChatRecipe; onReview: () => void }) {
-  const meta = [recipe.category, recipe.area, `Serves ${recipe.servings}`].filter(Boolean).join(' · ');
-  return (
-    <View
-      style={{
-        backgroundColor: colors.creamDeep,
-        borderRadius: radii.card,
-        padding: space[4],
-        gap: space[3],
-        marginBottom: space[3],
-      }}
-    >
-      <Text role="title">{recipe.title}</Text>
-      {meta ? <Text role="meta">{meta}</Text> : null}
-      <View>
-        <Text role="caption">
-          {recipe.ingredients.length} ingredients · {recipe.steps.length} steps
-        </Text>
-      </View>
-      {recipe.ingredients.slice(0, 6).map((ing, i) => (
-        <Text key={i} role="body">
-          • {[ing.measure, ing.name].filter(Boolean).join(' ')}
-        </Text>
-      ))}
-      {recipe.ingredients.length > 6 ? (
-        <Text role="caption">…and {recipe.ingredients.length - 6} more</Text>
-      ) : null}
-      <Button title="Review and save" onPress={onReview} variant="primary" size="lg" />
-    </View>
-  );
-}
-
 export function ChatScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -156,6 +64,10 @@ export function ChatScreen() {
   const chat = useChat({ threadId: chatParam });
   const [draft, setDraft] = useState('');
   const scrollRef = useRef<ScrollView>(null);
+  // Destructured so the callbacks below can depend on the stable pieces (the
+  // hooks' objects are new every render): that keeps the memoized Transcript
+  // out of the keystroke path.
+  const { send, pickOption, isSending } = chat;
 
   // The recipe editor's Ask-Otto hand-off: arriving with a part-filled form,
   // its rendered ask lands in the composer — visible and editable, so the cook
@@ -174,18 +86,6 @@ export function ChatScreen() {
     requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
   }, []);
 
-  const onSend = () => {
-    const text = draft.trim();
-    if (!text) return;
-    // Return-key send can land mid-dictation (it bypasses the pill): stop the
-    // session first so trailing results can't repopulate the sent text.
-    if (speech.listening) speech.stop();
-    haptics.select();
-    setDraft('');
-    chat.send(text);
-    toBottom();
-  };
-
   // Speak to Otto (Phase 1): on-device speech streams interim text into the
   // draft; the cook edits and sends like typed text. Where the module or the
   // Web Speech API is missing, keep v1's warm "coming soon" instead of a dead tap.
@@ -196,24 +96,40 @@ export function ChatScreen() {
       show('Otto couldn’t hear that. Try again.', 'error');
     }
   });
+  const { listening, available: canSpeak, stop: stopSpeech, toggle: toggleSpeech } = speech;
 
-  const onSpeak = () => {
+  const onSend = useCallback(() => {
+    const text = draft.trim();
+    if (!text) return;
+    // Send can land mid-dictation (the Speak pill now stays put beside it): stop
+    // the session first so trailing results can't repopulate the sent text.
+    if (listening) stopSpeech();
+    haptics.select();
+    setDraft('');
+    send(text);
+    toBottom();
+  }, [draft, listening, stopSpeech, send, toBottom]);
+
+  const onSpeak = useCallback(() => {
     haptics.impact();
-    if (!speech.available) {
+    if (!canSpeak) {
       show('Talking to Otto is coming soon. Type it to him for now.', 'info');
       return;
     }
-    speech.toggle(draft); // live draft becomes the prefix dictation appends to
-  };
+    toggleSpeech(draft); // live draft becomes the prefix dictation appends to
+  }, [canSpeak, toggleSpeech, draft, show]);
 
   // Review-first (founder call 2026-07-24): Otto's recipe opens in the editor
   // as "Check Otto's work" so the cook changes or approves it before it lands.
   // The editor's Save owns persistence (one compute-at-save path).
-  const onReview = (recipe: ChatRecipe) => {
-    haptics.select();
-    stageOttoRecipe(recipe);
-    router.push('/recipe/edit');
-  };
+  const onReview = useCallback(
+    (recipe: ChatRecipe) => {
+      haptics.select();
+      stageOttoRecipe(recipe);
+      router.push('/recipe/edit');
+    },
+    [router],
+  );
 
   if (!isSignedIn) {
     return (
@@ -228,8 +144,7 @@ export function ChatScreen() {
     );
   }
 
-  const empty = chat.messages.length === 0 && !chat.isSending;
-  const hasText = draft.trim().length > 0;
+  const empty = chat.messages.length === 0 && !isSending;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: insets.top }}>
@@ -258,137 +173,38 @@ export function ChatScreen() {
       >
         <ScrollView
           ref={scrollRef}
+          // paddingBottom space[5] keeps the last bubble clear of the taller
+          // composer card; the card's own well below adds the rest.
           contentContainerStyle={{ padding: space[4], paddingBottom: space[5] }}
           keyboardShouldPersistTaps="handled"
           onContentSizeChange={toBottom}
         >
           {empty ? (
-            <View style={{ alignItems: 'center', gap: space[3], paddingVertical: space[6] }}>
-              <OttoIdle name="happy" size={140} sway />
-              <Text role="title">What are you hungry for?</Text>
-              <Text role="body">
-                Tell Otto a craving, a few ingredients, or a mood. He’ll ask a little, then write you
-                a recipe.
-              </Text>
-            </View>
+            <ChatEmptyState />
           ) : (
-            <View style={{ alignItems: 'center', marginBottom: space[3] }}>
-              <OttoIdle name={chat.isSending ? 'thinking' : 'happy'} size={72} />
-            </View>
-          )}
-
-          {chat.messages.map((m, i) => (
-            <Bubble key={`${m.ts}-${i}`} message={m} />
-          ))}
-
-          {chat.response?.mode === 'clarify' && (
-            <OptionChips options={chat.response.options} onPick={chat.pickOption} />
-          )}
-
-          {chat.response?.mode === 'recipe' && (
-            <RecipePreview
-              recipe={chat.response.recipe}
-              onReview={() => onReview((chat.response as { recipe: ChatRecipe }).recipe)}
+            <Transcript
+              messages={chat.messages}
+              response={chat.response}
+              isSending={isSending}
+              streamingText={chat.streamingText}
+              error={chat.error}
+              onPickOption={pickOption}
+              onReview={onReview}
             />
-          )}
-
-          {chat.isSending && (
-            <View style={[bubbleBase, { alignSelf: 'flex-start', backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border }]}>
-              {/* Streamed prose fills this bubble live; before the first delta
-                  (or on the non-streaming fallback) it's the thinking line.
-                  Scroll keeps up via the ScrollView's onContentSizeChange. */}
-              {chat.streamingText ? (
-                <Text role="body">{chat.streamingText}</Text>
-              ) : (
-                <Text role="caption">Otto’s thinking…</Text>
-              )}
-            </View>
-          )}
-
-          {chat.error != null && (
-            <View accessibilityRole="alert" style={{ marginBottom: space[3] }}>
-              <Text role="computed">{chat.error}</Text>
-            </View>
           )}
         </ScrollView>
 
-        <View style={{ padding: space[3] }}>
-          {/* One rounded field with a trailing pill (Figma): Speak when empty,
-              send arrow once there's text. While listening the pill stays put
-              (terracotta, "Listening") so the stop tap is always reachable even
-              as interim words fill the draft. */}
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'flex-end',
-              gap: space[2],
-              backgroundColor: colors.white,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: radii.card,
-              paddingLeft: space[4],
-              paddingRight: space[2],
-              paddingVertical: space[2],
-            }}
-          >
-            <TextInput
-              value={draft}
-              onChangeText={setDraft}
-              placeholder="Tell Otto what you’re after…"
-              placeholderTextColor={colors.inkSoft}
-              accessibilityLabel="Message Otto"
-              multiline
-              onSubmitEditing={onSend}
-              style={{
-                flex: 1,
-                fontFamily: fonts.body,
-                fontSize: 16,
-                color: colors.ink,
-                paddingVertical: space[2],
-                maxHeight: 120,
-              }}
-            />
-            {hasText && !speech.listening ? (
-              <Pressable
-                onPress={onSend}
-                disabled={chat.isSending}
-                accessibilityRole="button"
-                accessibilityLabel="Send"
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: radii.pill,
-                  backgroundColor: colors.terracotta,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Ionicons name="arrow-up" size={20} color={colors.white} />
-              </Pressable>
-            ) : (
-              <Pressable
-                onPress={onSpeak}
-                accessibilityRole="button"
-                accessibilityLabel={speech.listening ? 'Stop listening' : 'Speak to Otto'}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: space[1],
-                  height: 40,
-                  paddingHorizontal: space[4],
-                  borderRadius: radii.pill,
-                  backgroundColor: speech.listening ? colors.terracotta : colors.ink,
-                }}
-              >
-                <Ionicons name="mic" size={16} color={colors.white} />
-                {/* Pill label is white-on-dark — no ink Text role fits (like
-                    Button's own label), so it's a raw token-colored string. */}
-                <RNText style={{ fontSize: 13, fontWeight: '600', color: colors.white }}>
-                  {speech.listening ? 'Listening' : 'Speak'}
-                </RNText>
-              </Pressable>
-            )}
-          </View>
+        {/* The composer's well: same space[4] gutter as the transcript, so the
+            card's edges line up with the bubbles above it. */}
+        <View style={{ paddingHorizontal: space[4], paddingTop: space[3], paddingBottom: space[4] }}>
+          <Composer
+            value={draft}
+            onChangeText={setDraft}
+            onSend={onSend}
+            onSpeak={onSpeak}
+            listening={listening}
+            sending={isSending}
+          />
         </View>
       </KeyboardAvoidingView>
     </View>
