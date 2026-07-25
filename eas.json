@@ -24,10 +24,7 @@
     "production": {
       "ios": {
         "appleTeamId": "A6J6HGNWZK",
-        "ascAppId": "6792195637",
-        "ascApiKeyPath": "credentials/ios/AuthKey_NTMZWLG54S.p8",
-        "ascApiKeyId": "NTMZWLG54S",
-        "ascApiKeyIssuerId": "361fd3cd-bc61-405c-ab39-775dae4144b9"
+        "ascAppId": "6792195637"
       }
     }
   }

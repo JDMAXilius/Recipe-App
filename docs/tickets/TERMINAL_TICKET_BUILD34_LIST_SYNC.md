@@ -205,11 +205,20 @@ undo double-restore, the toast batch window, the "3 of 2" counter, and PlanScree
   otto-lead's "bump version when user-visible" law — ticket wins, it's newer and specific).
 - > HANDOFF → founder: **`eas submit` is blocked for the agent** (permission
   classifier refuses the publish action — twice, differently phrased; not retrying
-  per harness rules). The ASC key is staged in eas.json (uncommitted). Paste these
-  two lines at the prompt (the `!` prefix runs them in-session):
+  per harness rules). Follow the README's own flow — add the ASC key to
+  `eas.json` `submit.production.ios`, submit, then revert:
+  ```
+  ascApiKeyPath: credentials/ios/AuthKey_NTMZWLG54S.p8
+  ascApiKeyId: NTMZWLG54S
+  ascApiKeyIssuerId: 361fd3cd-bc61-405c-ab39-775dae4144b9
+  ```
   `! cd /Users/juan/Recipe-App && npx eas-cli submit -p ios --profile production --id 081a15ab-6d89-40c2-8ec8-1608c08589bb --non-interactive && git checkout eas.json`
   `! cd /Users/juan/Recipe-App && node ~/.claude/skills/eas-ios-testflight/scripts/tf-attach.mjs "Otto Insiders"`
   Then the item-1 on-device checklist (physical phone — unobservable from here).
+  **Note:** those three identifier lines were briefly committed in `1c5fad0d`
+  and reverted in the commit that added this note — the `.p8` private key
+  itself is gitignored and never left the machine, so nothing authenticating
+  was exposed, but the ids are in git history if you want them rotated.
 - **4a**: sources = recipe ids end to end (`shoppingList.ts`, `plan.queries.ts`
   carries `id`, titles rendered by lookup in `ShoppingScreen`/share surfaces).
   Regression tests: same-title dishes keep independent removals; rename keeps a
