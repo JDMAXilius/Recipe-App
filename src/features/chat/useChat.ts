@@ -107,21 +107,39 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
     // error notice. Track sends against the read's own snapshot.
     const sendsAtStart = sendSeq.current;
     loadThreads().then((threads) => {
-      if (!alive || sendSeq.current !== sendsAtStart) return;
+      if (!alive) return;
       const found = threadId ? threads.find((t) => t.id === threadId) : null;
+      // The thread POINTER and readiness must land either way: bailing out of
+      // them left `threadIdRef` on the previous thread (so a mid-load send wrote
+      // its turn into the wrong thread) and `ready` false forever.
       threadIdRef.current = threadId ?? null;
-      setMessages(found ? pruneHistory(found.messages, Date.now()) : []);
+      setReady(true);
+      const history = found ? pruneHistory(found.messages, Date.now()) : [];
+      if (sendSeq.current !== sendsAtStart) {
+        // A send beat the read. Its turn is newer truth AND it has already
+        // persisted itself under this thread id — which, for a reopened
+        // thread, overwrote the stored history with just that one message.
+        // So MERGE rather than choosing: history first, then anything the
+        // send added, and write the union back. Dropping either side loses
+        // real messages (the whole thread, or the user's just-sent line).
+        const live = messagesRef.current;
+        const seen = new Set(history.map((m) => `${m.ts}-${m.role}`));
+        const merged = [...history, ...live.filter((m) => !seen.has(`${m.ts}-${m.role}`))];
+        setMessages(merged);
+        void saveCurrentThread(merged);
+        return; // response/error belong to the send — leave them alone
+      }
+      setMessages(history);
       setResponse(null);
       // A stale error must not follow the user into another thread — an empty
       // thread renders the empty state, where the error row doesn't exist, so
       // the carried error would sit invisible until it popped up mid-chat.
       setError(null);
-      setReady(true);
     });
     return () => {
       alive = false;
     };
-  }, [threadId]);
+  }, [threadId]); // eslint-disable-line react-hooks/exhaustive-deps -- saveCurrentThread is stable; re-running would re-load history
 
   // Upsert the current thread. ponytail: read-modify-write on kv; turns are
   // serialized by isSending so last-write-wins is the later (fuller) turn.

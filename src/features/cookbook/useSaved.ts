@@ -50,6 +50,20 @@ export function useSaved() {
       qc.setQueryData<SavedRecipe[]>(key, applyOptimisticToggle(prev, recipe));
       return { prev };
     },
+    onSuccess: (_data, { wasSaved }) => {
+      // The first-save moment burns a once-ever flag, so it fires on CONFIRMED
+      // truth, not on the optimistic flip: an offline tap used to spend the
+      // celebration on a save that then rolled back, and the real first save
+      // was never marked. (The per-save feedback — pluck, hop — stays optimistic
+      // in toggle(); it's cheap and reversible. This isn't.)
+      if (wasSaved) return;
+      void (async () => {
+        if (await kv.get('firstSaveCelebrated', false)) return;
+        await kv.set('firstSaveCelebrated', true);
+        haptics.notify('success');
+        sound.play('allDone');
+      })();
+    },
     onError: (_err, _vars, ctx) => {
       if (ctx) qc.setQueryData(savedKey(userId), ctx.prev); // roll back to server truth
     },
@@ -75,14 +89,9 @@ export function useSaved() {
         sound.play('save');
         // The mascot's save hop (ui-components.md §5): OttoIdle listens with
         // reactTo="save" and DiscoverScreen's comment already claimed this was
-        // wired — nothing emitted. It does now, on every save.
+        // wired — nothing emitted. It does now, on every save. The once-ever
+        // celebration rides the mutation's onSuccess instead (see above).
         ottoBus.emit('save');
-        void (async () => {
-          if (await kv.get('firstSaveCelebrated', false)) return;
-          await kv.set('firstSaveCelebrated', true);
-          haptics.notify('success');
-          sound.play('allDone');
-        })();
       }
     },
     [mutation, qc, userId],

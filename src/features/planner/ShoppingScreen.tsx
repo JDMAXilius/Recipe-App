@@ -111,7 +111,7 @@ export function ShoppingScreen() {
   // Shared kitchen: when the user is in a household the list aggregates EVERY
   // member's week and the check-offs + custom items are shared in realtime
   // (household_list_state). Otherwise it's the personal week with local state.
-  const { household, memberIds } = useHousehold();
+  const { household, memberIds, isLoading: householdLoading } = useHousehold();
   const shared = useSharedList(household?.id ?? null);
   const isShared = !!household;
 
@@ -242,9 +242,16 @@ export function ShoppingScreen() {
   // is NOT "loaded" — an errored or disabled plan query reports isLoading false
   // with entries [], which would wipe every exclusion (and persist the wipe)
   // for an offline shopper. Success only.
-  const weekSettled = isShared
-    ? householdQuery.isSuccess && !householdQuery.isFetching && !householdQuery.isPlaceholderData
-    : planSuccess;
+  // householdLoading gates BOTH branches: `isShared` is false for the whole
+  // membership round-trip, so a household user's first render took the personal
+  // branch — and with a warm ['plan'] cache planSuccess is already true, so it
+  // pruned a housemate's dropped dish against MY dishes only and persisted the
+  // wipe. Membership has to be known before "the week" means anything.
+  const weekSettled =
+    !householdLoading &&
+    (isShared
+      ? householdQuery.isSuccess && !householdQuery.isFetching && !householdQuery.isPlaceholderData
+      : planSuccess);
   useEffect(() => {
     if (!weekSettled || !hydrated) return;
     setExcluded((prev) => {
@@ -564,7 +571,11 @@ export function ShoppingScreen() {
   // A failed WEEK is as honest a failure as a failed ingredient fetch — without
   // this the screen renders "Nothing to buy yet" over a week it simply couldn't
   // read (the same honesty-law violation as the household reads, personal path).
-  if (planError || listQuery.isError) {
+  // But only when there is NOTHING to show: TanStack keeps data through a failed
+  // REFETCH, and this screen refetches on every focus — blanking a working list
+  // because one background poll failed in a shop basement is its own dishonesty.
+  const nothingToShow = allItems.length === 0 && customList.length === 0;
+  if ((planError && nothingToShow && !isShared) || (listQuery.isError && nothingToShow)) {
     return (
       <Screen title="Shopping list" onBack={() => router.back()}>
         <OttoError onRetry={() => (planError ? qc.invalidateQueries({ queryKey: ['plan'] }) : listQuery.refetch())} />

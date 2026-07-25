@@ -39,6 +39,12 @@ async function hydrate() {
   enabled = raw !== false; // anything but a stored false means ON (default ON)
   emit();
 }
+// Kick the read at MODULE LOAD, not at first play. Reading it lazily meant the
+// first sound after every cold start escaped the toggle entirely: the read
+// hadn't resolved, `enabled` was still the default true, and a user who turned
+// sounds off heard one anyway on every launch. Starting at import puts the
+// resolve well before any tap is physically possible.
+void hydrate();
 
 // Reduced-motion flag, kept fresh by the OS listener (the kit is not a hook,
 // so useReducedMotion isn't available — this is the imperative mirror).

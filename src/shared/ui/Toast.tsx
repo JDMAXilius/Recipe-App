@@ -59,11 +59,12 @@ export function ToastHost() {
       haptics.notify('error');
       sound.play('gentleError');
     }
-    // Announce on BOTH native platforms. accessibilityLiveRegion is Android-only
-    // (RN docs) AND unreliable here even there: the host View is mounted with
-    // the toast rather than changing content inside an existing region, so
-    // TalkBack typically says nothing. An imperative announcement is the only
-    // thing that reliably tells either platform a row went and Undo exists.
+    // ONE announcement, on both native platforms. accessibilityLiveRegion is
+    // Android-only (RN docs) and unreliable here anyway — the host View is
+    // MOUNTED with the toast rather than changing inside an existing region.
+    // It's dropped rather than kept alongside this call: where TalkBack does
+    // fire on the subtree change, keeping both made every removal announce
+    // twice. Imperative is the one path that behaves the same on both.
     // (Web: react-native-web's announceForAccessibility is a no-op stub.)
     AccessibilityInfo.announceForAccessibility(
       toast.actionLabel ? `${toast.message} ${toast.actionLabel} available.` : toast.message,
@@ -79,7 +80,6 @@ export function ToastHost() {
   return (
     <View
       pointerEvents="box-none"
-      accessibilityLiveRegion="polite"
       style={{
         position: 'absolute',
         left: space[4],
