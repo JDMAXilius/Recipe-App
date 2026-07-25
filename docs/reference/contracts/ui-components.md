@@ -174,7 +174,13 @@ PawMark  { saved: boolean, onToggle: () => void, size? }
              // legally imports shared (bus/haptics/storage/auth) and returns
              // { saved, toggle }; callers pass those to PawMark. This keeps the
              // dependency arrow features → shared, never the reverse.
-OttoArt  { name: OttoName|SceneName, size? }   // real art via assets.ts
+OttoArt  { name: OttoName|SceneName, size?, label? } // real art via assets.ts
+             // DECORATIVE BY DEFAULT (a11y, 2026-07-25): the mascot used to
+             // announce the developer string "Otto illustration: happy" as the
+             // first thing VoiceOver read on a screen. It is now hidden from the
+             // a11y tree unless a caller passes a real human `label` — every one
+             // of the 27 call sites pairs the art with visible text that says it
+             // better, so none passes one today.
 Toast    // useToast().show(message, kind, { ottoImage?, actionLabel?, onAction? }) — fade + Otto card
 Sheet    { visible, onClose, title?, children } // spring.sheet present + gesture-to-dismiss
 Button, SegmentBar, Input // unchanged
