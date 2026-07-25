@@ -16,6 +16,16 @@ import {
 } from 'react-native-reanimated';
 import { spring, timing } from './theme/tokens';
 
+// Role-named curves for the timing scale (contract: motion.md §1). tokens.ts
+// carries the durations (pure data); the curves need reanimated's Easing, so
+// their one home is here. Components use these ONLY through hooks in this
+// file — a raw Easing.* or inline duration in a component is a review failure.
+export const easings = {
+  enter: Easing.out(Easing.cubic), // decelerate — arrives fast, lands soft
+  exit: Easing.in(Easing.cubic), // accelerate — leaves quicker than it came
+  emphasis: Easing.inOut(Easing.cubic),
+} as const;
+
 // Press-feedback spring (Bounceable core): scale → 0.97 on press. Reduced motion
 // → a simple opacity dip, no scale.
 export function usePressSpring() {

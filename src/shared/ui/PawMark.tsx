@@ -24,7 +24,9 @@ export function PawMark({ saved, onToggle, size = 36 }: PawMarkProps) {
 
   const handle = () => {
     if (!saved) {
-      haptics.notify('success'); // a save (false→true); haptic stays under reduced motion
+      // A save is a COMMIT, not a flow completion — notify('success') is
+      // reserved for finished journeys (motion.md §2; the first vocabulary fix).
+      haptics.impact('light');
       pop(); // no-op under reduced motion
     }
     onToggle();

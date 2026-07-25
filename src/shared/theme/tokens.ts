@@ -83,4 +83,15 @@ export const spring = {
   sheet: { damping: 22, stiffness: 260, mass: 1 },
 } as const;
 
-export const timing = { sweep: 500, fade: 200 } as const; // ring count-up (ease-out cubic), fades
+// Durations are role-named (contract: motion.md §1 — "intentional easing").
+// The matching CURVES live in motion.ts `easings` (they need reanimated's
+// Easing; tokens stays a pure-data module). enter decelerates, exit
+// accelerates and is faster — the room doesn't watch the door.
+export const timing = {
+  sweep: 500, // ring count-up (ease-out cubic)
+  fade: 200, // fades
+  enter: 260, // something arriving: sheet, card, reveal
+  exit: 180, // something leaving
+  emphasis: 420, // a beat that carries meaning (count resolve, state change)
+  celebrate: 900, // the whole envelope of a registered moment (motion.md §4)
+} as const;

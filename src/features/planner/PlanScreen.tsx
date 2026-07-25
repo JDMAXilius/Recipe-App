@@ -71,7 +71,7 @@ export function PlanScreen() {
       const input = pickToAddInput(pick, target.day);
       if (target.entryId != null) await swap(target.entryId, input);
       else await add(input);
-      haptics.notify('success');
+      haptics.impact('light'); // a commit, not a flow completion (motion.md §2)
     } catch {
       show("Couldn't update Otto's week. Try again.", 'error');
     }
@@ -85,7 +85,7 @@ export function PlanScreen() {
     if (!input) return;
     try {
       await add(input);
-      haptics.notify('success');
+      haptics.impact('light'); // a commit, not a flow completion (motion.md §2)
     } catch {
       show("Couldn't add leftovers. Try again.", 'error');
     }
