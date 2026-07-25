@@ -19,13 +19,11 @@ import { sound } from '@/shared/sound';
 import { kv } from '@/shared/storage';
 import { alarmSound } from '@/shared/assets';
 import { colors, radii, space } from '@/shared/theme/tokens';
-import { toUserRecipeId } from '@/types/ids';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
 import { usePlan } from '@/features/planner';
 import { useJournal } from '@/features/journal';
 import { usePrefs } from '@/features/profile';
 import { scaleIngredient } from '@/features/recipes/recipe.scale';
-import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
 import { fetchCookRecipe } from './cook.queries';
 import { splitSteps, matchStepIngredients, mmss, type IngredientPair } from './session';
 import { segmentStep } from './stepEnrich';
@@ -326,28 +324,16 @@ export function CookScreen() {
 
   // ---------------------------------------------------------------- FINISH
   if (phase === 'done') {
-    // cook loads user recipes from the `recipes` table, so the id is a user
-    // recipe ref ("u-<id>") — NOT a seed id. Using toSeedId here would key the
-    // nutrition cache into seed_nutrition's TheMealDB namespace and could serve
-    // an unrelated seed's macros (review finding). u- keeps the id spaces apart.
-    const nutritionRecipe: NutritionRecipe = {
-      id: toUserRecipeId(`u-${recipe.id}`),
-      ingredients: recipe.ingredientPairs,
-      servings: recipe.servings,
-      category: recipe.category,
-      steps: recipe.steps,
-    };
+    // NO nutrition card here (founder, 2026-07-25 — design change made on
+    // Screen/v1/Cook-Finish first). The finish screen is the celebration beat:
+    // proud Otto, the line, the rating. Numbers belong on the recipe, where the
+    // same honest estimate still lives — this is a REMOVAL, not a
+    // contradiction, so the honesty law (card and detail must AGREE) is intact.
     return (
       <View style={{ flex: 1, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', padding: space[6], gap: space[3] }}>
         <OttoArt name="proud" size={200} />
         <Text role="display">Dinner, done.</Text>
         <Text role="body">Otto&apos;s proud of you.</Text>
-        {/* The shared honest card — labelled estimate, no daily-goal denominator,
-            FDA-rounded kcal. Replaces hand-rolled Rings that showed "415 / 2000"
-            unlabelled (review: honesty-law violation). */}
-        <View style={{ alignSelf: 'stretch', marginTop: space[4] }}>
-          <NutritionCard recipe={nutritionRecipe} />
-        </View>
         {/* Would you cook it again? — a quiet thumbs rating (v1 parity). */}
         <View style={{ marginTop: space[4], alignItems: 'center', gap: space[3] }}>
           {rating ? (
