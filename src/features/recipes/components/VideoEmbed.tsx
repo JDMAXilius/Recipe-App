@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Image, Platform, Pressable, Text as RNText, View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { colors, radii, space } from '@/shared/theme/tokens';
+import { haptics } from '@/shared/haptics';
 import { Text } from '@/shared/ui';
 
 // Inline recipe video — the tap swaps the thumbnail for an in-card player and
@@ -19,7 +21,7 @@ export function getYouTubeId(url: string | null | undefined): string | null {
 // Native-only in-app player. The require is inside this component (never
 // rendered on web) so Metro's web bundle never evaluates react-native-webview,
 // which has no web support.
-function NativeVideo({ videoId }: { videoId: string }) {
+function NativeVideo({ videoId, onFail }: { videoId: string; onFail: () => void }) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { WebView } = require('react-native-webview') as typeof import('react-native-webview');
   // A bare iframe to youtube.com/embed fails in WKWebView (error 153/152 — the
@@ -35,21 +37,37 @@ function NativeVideo({ videoId }: { videoId: string }) {
       allowsInlineMediaPlayback
       mediaPlaybackRequiresUserAction={false}
       originWhitelist={['*']}
+      // The in-app player is best-effort, not a guarantee: YouTube blocks
+      // embedded playback in app webviews for a growing set of videos (errors
+      // 150/153 — uploader disabled embedding, or the webview itself is
+      // refused). Surface a real failure instead of a silent black rectangle.
+      onError={onFail}
+      onHttpError={onFail}
+      onRenderProcessGone={onFail}
     />
   );
 }
 
 export function VideoEmbed({ youtubeUrl }: { youtubeUrl: string | null }) {
   const [playing, setPlaying] = useState(false);
+  const [failed, setFailed] = useState(false);
   const videoId = getYouTubeId(youtubeUrl);
   if (!videoId) return null;
 
   const onPlay = () => setPlaying(true);
 
+  // The escape hatch. Opens in the system browser sheet (or the YouTube app via
+  // its universal link), which plays what the in-app webview may refuse — the
+  // same WebBrowser the detail screen already uses for source attribution.
+  const watchOnYouTube = () => {
+    haptics.select();
+    void WebBrowser.openBrowserAsync(youtubeUrl ?? `https://www.youtube.com/watch?v=${videoId}`);
+  };
+
   return (
     <View style={{ gap: space[2] }}>
       <Text role="title">See it made</Text>
-      {playing ? (
+      {playing && !failed ? (
         Platform.OS === 'web' ? (
           React.createElement('iframe', {
             title: 'Recipe video',
@@ -59,8 +77,26 @@ export function VideoEmbed({ youtubeUrl }: { youtubeUrl: string | null }) {
             allowFullScreen: true,
           })
         ) : (
-          <NativeVideo videoId={videoId} />
+          <NativeVideo videoId={videoId} onFail={() => setFailed(true)} />
         )
+      ) : failed ? (
+        // Honest failure: say the player couldn't run it here and hand over a
+        // route that works, rather than leaving a dead black box on the card.
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Watch this recipe video on YouTube"
+          onPress={watchOnYouTube}
+          style={{
+            backgroundColor: colors.creamDeep,
+            borderRadius: radii.card,
+            padding: space[5],
+            alignItems: 'center',
+            gap: space[2],
+          }}
+        >
+          <Text role="body">This one won’t play inside Otto.</Text>
+          <Text role="computed">Watch it on YouTube →</Text>
+        </Pressable>
       ) : (
         <Pressable
           accessibilityRole="button"
@@ -99,7 +135,23 @@ export function VideoEmbed({ youtubeUrl }: { youtubeUrl: string | null }) {
           </View>
         </Pressable>
       )}
-      <Text role="caption">Watch this one being made before you start.</Text>
+      {playing && !failed && Platform.OS !== 'web' ? (
+        // A webview that fails SILENTLY (a black rectangle, no error event) is
+        // the failure mode that stranded this before, and onError can't catch
+        // it. So the way out is always on screen while the in-app player is up —
+        // never a dead end waiting on an event that may not fire.
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Watch this recipe video on YouTube instead"
+          onPress={watchOnYouTube}
+          hitSlop={8}
+          style={{ minHeight: 44, justifyContent: 'center' }}
+        >
+          <Text role="computed">Not playing? Watch on YouTube →</Text>
+        </Pressable>
+      ) : (
+        <Text role="caption">Watch this one being made before you start.</Text>
+      )}
     </View>
   );
 }
