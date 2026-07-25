@@ -1,6 +1,6 @@
 # TERMINAL TICKET — delight engineering: sound, motion, moments, and the /polish sweep
 
-> STATUS: in-progress — terminal 2026-07-25 (09287cb2)
+> STATUS: in-progress — terminal 2026-07-25 (c21dac72). Phases 0-2 + 4 landed; Phase 3 measured (no-go recommended). Remaining boxes need the founder: three map sign-offs, the icon-button ruling, the Rive call, and on-device off-ramp checks.
 > STATUS: open — cut from cloud 2026-07-25. Founder directive: "Duolingo and Tiimo are doing
 > it pretty, pretty good — animation, sounds, all kinds of stuff. Define how they actually do
 > it, find the areas our app is lacking, and approach this as a context engineer / AI
@@ -199,9 +199,9 @@ Ranked; each lands alone so the critic can refute it alone:
       Phase 2 already shipped the delight; this phase is the ceiling, not the floor.
 
 ### Phase 4 — the sweep `[continuous]`
-- [ ] `/polish --all`: every screen swept against the finished vocabulary; findings → packets
+- [x] `/polish --all`: 5 screens swept (RecipeDetail, Shopping, Cook, Chat, Plan); findings → packets
       → crew loop; "swept @ sha" per screen in the Log.
-- [ ] Screen transitions pass (G5): chosen curves on push/sheet/tab, verified on device.
+- [x] Screen transitions pass (G5): push curve chosen (honest ceiling logged); **on-device verify = founder**.
 - [x] Add `/polish` to the pre-release ritual in `TERMINAL_TICKET_RELEASE_READINESS.md` F1.
 
 ### Crew map (who does what — same law as every ticket: nothing lands unrefuted)
@@ -324,7 +324,100 @@ redrawn as vector art. Revisit if/when the mascot gets a vector redraw for
 other reasons. > HANDOFF → founder: this is a go/no-go call, not a terminal
 call — the numbers above are the input.
 
-### Phase 4 — the sweep (in progress)
-RecipeDetail swept (calibration, above). ShoppingScreen, CookScreen,
-ChatScreen and PlanScreen sweeps running — findings appended below as they
-land. `swept @ 1c5fad0d`.
+### Phase 4 — the sweep ✅ (5 screens swept, findings landed)
+`swept @ c21dac72`: RecipeDetail (calibration), ShoppingScreen, CookScreen,
+ChatScreen, PlanScreen. **~40 findings across five screens**; the P1s and every
+vocabulary violation are FIXED (`d41fd6a9`), the rest are packet input below.
+
+**P1s found and fixed:**
+- **The shopping moment armed on kv, which resolves before the rows** — so a
+  finished list chimed on open, and a partner-completed list always did. My
+  own bug, one commit old. (Also fixed: it fired when the last *unchecked* row
+  was thrown off the list — a removal is not an achievement.)
+- **One cook voided the silent switch for the whole app.**
+  `setAudioModeAsync({playsInSilentMode:true})` is process-global and had no
+  cleanup, so after a single cook the save pluck played out loud on a silenced
+  phone. Off-ramp #1 was a comment, not a behaviour.
+- **A failed cook fetch was indistinguishable from an uncookable recipe** —
+  the cook was dumped back with no error and no retry.
+- **A failed week load rendered as seven empty days** — the app asserting you
+  planned nothing when it knew nothing. (`usePlan.ts` warns about exactly this
+  in writing; PlanScreen wasn't reading `isError` at all.)
+- **PlanScreen's row actions were ~30pt targets** — including destructive
+  remove, a thumb-width from "cooked".
+
+**The root cause worth naming:** `Bounceable` accepted no `style`, so any
+tappable needing layout (`flex: 1` rows, fixed circles, padding) *could not*
+adopt it — which is why call sites kept hand-rolling `pressed && {opacity}`.
+Six findings, one cause. It takes `style`/`hitSlop` now.
+
+**Vocabulary drift found and fixed:** step navigation fired `impact('medium')`
+(the pick-up weight) on the most frequent event in cook mode; step-done sounded
+on pager jumps that skipped five steps; add/remove custom item, restore-hidden
+and remove-planned-dish were commits with no haptic; the Speak toggle buzzed
+*before* its availability guard ("coming soon" after telling the hand something
+happened); error toasts were silent to hand and ear at six call sites; clarify
+chips sent a turn with a different feel than the Send button.
+
+### The refuter pass on the delight batch (9 findings, all fixed — `c21dac72`)
+Worth recording because several were *fixes that didn't fix*:
+- The **Sounds toggle was unread on every cold start's first sound** — the kv
+  read was kicked off by the first `play()` and hadn't resolved. Reads at
+  module load now.
+- The **exclusion prune took the personal branch during the household
+  round-trip** (`isShared` is false until membership resolves, and a warm plan
+  cache makes `planSuccess` true immediately) — a housemate's dropped dish was
+  pruned against my dishes only, and persisted. My F1 fix had missed this.
+- **A failed background refetch blanked a working list.** TanStack keeps data
+  through a failed refetch and this screen refetches on focus, so one bad poll
+  in a shop basement replaced a full list with an error card.
+- **The chat send-vs-load guard truncated threads.** Standing down left the
+  send's one-message write as the entire stored thread — a reopened
+  20-message thread lost 20 messages. It merges now.
+- **The once-ever first-save flag was burned optimistically** — an offline tap
+  spent the celebration on a save that rolled back.
+- **The guard test passed three real violations** (double-quoted imports,
+  `FadeIn.duration(320)`, raw `Easing.*`). Hardened and *verified by running
+  the refuter's own violation file through it* — it fails, as it must.
+
+### Standing packet input (not yet landed — needs the founder ruling or a contract edit)
+- **OPEN FOUNDER RULING: do hero/toolbar icon buttons need `Bounceable`?**
+  Named on every screen swept. One ruling closes ~6 findings; until then a
+  "polished" screen cannot sweep clean.
+- `contract_gap`: `Text` takes only `role` — no `align`, no `numberOfLines`,
+  no `type.input`. That is *why* ~30 sites hand-roll `RNText` with literal
+  font sizes. Fix the primitive, not the sites.
+- `Sheet` ships `Modal animationType="slide"` where §6 specs `spring.sheet` +
+  gesture-to-dismiss, with no reduced-motion path; three scrim values in the
+  app (`overlay.scrim` and two hardcoded near-misses).
+- `HoldToRemoveRow` consumes spring/timing configs directly (should be a
+  `motion.ts` hook), and its fly-out uses `timing.fade` where the role is
+  `exit`.
+- Shopping's moment ships without its Otto beat (§4 says "Otto nod"); the
+  completion isn't announced to VoiceOver.
+- Remaining unfeedback'd tappables: recipe/picker/prep/timer rows, dish chips,
+  the 48pt add button.
+
+### Observations the sweeps surfaced (real bugs, outside this ticket's scope)
+Logged so they aren't lost — each deserves its own ticket:
+1. **Cook timers stop when the app backgrounds.** `setInterval` decrementing a
+   counter, no wall-clock reconcile: a 10-minute timer with 4 minutes in the
+   background thinks those 4 minutes never happened, and never alarms.
+2. **Simultaneous timer finishes are swallowed** — only `finished[0]` alarms.
+3. **The cook-again rating is write-only** — `kv 'cookRatings'` has a writer
+   and no reader anywhere; the comment claims a re-cook remembers your call.
+4. **PlanScreen's × is one-tap destructive** with no confirm and no undo,
+   while the sibling shopping list uses hold-to-remove + undo for a *less*
+   costly action.
+5. **`Composer`'s keyboard send path is dead** — `onSubmitEditing` on a
+   `multiline` input never fires; only the button sends.
+6. **Shopping's share button vanishes at completion** — ticking the last item
+   removes the share action, so a shopper who wants to send the finished list
+   has to untick something.
+7. **Mise-en-place ticks are component state** — leave cook and they're gone.
+8. **RecipeDetail's "Take me back"** calls `router.back()` with no fallback;
+   via deep link it does nothing.
+9. **`CenterModal` has no `onRequestClose`** — Android hardware back does
+   nothing on the exit-confirm and timer-done modals.
+10. UNVERIFIED (needs a device): PlanScreen's `OttoLoading` may render
+    collapsed — `flex: 1` inside a `contentContainerStyle` with no `flexGrow`.
