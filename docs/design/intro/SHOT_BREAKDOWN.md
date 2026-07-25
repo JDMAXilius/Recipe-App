@@ -117,3 +117,17 @@ Shot E's push-in can stay generative — it is the one shot that came out right.
 
 **Budget note:** 46 credits remain of 198. That is ~1 more video shot, or ~23
 stills. Spend it on stills.
+
+### ✅ Done, 2026-07-25 — see `BUILD_NOTE.md`
+
+Four in-between stills generated (`A2-run-gather`, `AB-plant`, `BC1-rising`,
+`BC2-stands-hat-down`, `CD-lowers-paw` — five, one of which was a re-roll for a
+missing apron). **12 credits spent, 34 remain.** The full nine-frame sequence is
+in `frames/_contact-sheet.png`.
+
+One thing this uncovered that the spec did not anticipate: the keyframes were
+generated independently, so **the character is a different size in each one** —
+up to 2× on head width, which is a rigid part. Rendering them raw would violate
+§2 invariant 3 (no camera move) by reading as a creep-in. Per-frame scale and
+anchor constants fix it in code at zero credit cost; they are calibrated in
+`normalize.py` and tabulated in `BUILD_NOTE.md` §3.
