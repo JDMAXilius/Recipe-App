@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Image, Pressable, Text as RNText, TextInput, View, type TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -52,12 +52,22 @@ export function DiscoverScreen() {
   const searchQuery = useSearch(debounced);
   const isSearching = debounced.length > 0;
 
-  // Land on the first category once the catalogue loads (no server-side default).
+  // Land on the first category ONCE, when the catalogue first loads (there is no
+  // server-side default). It must never re-fire: `applyFilters` deliberately sets
+  // the category to null for a cuisine-only browse ("show me Italian and
+  // Japanese"), and a re-firing seed effect would immediately stuff the first
+  // category back in — the sheet would promise 31 recipes and the grid would
+  // render 1, titled with a category the cook never chose. The ref makes this a
+  // first-load default instead of a standing rule; clearing everything still
+  // falls back to a category, explicitly, inside applyFilters.
+  const didSeedCategory = useRef(false);
   useEffect(() => {
-    if (!selectedCategory && categoriesQuery.data?.length) {
+    if (didSeedCategory.current || !categoriesQuery.data?.length) return;
+    didSeedCategory.current = true;
+    if (!selectedCategory && activeAreas.length === 0) {
       setSelectedCategory(categoriesQuery.data[0].name);
     }
-  }, [categoriesQuery.data, selectedCategory]);
+  }, [categoriesQuery.data, selectedCategory, activeAreas.length]);
 
   const grid = useMemo(
     () => (isSearching ? searchQuery.data ?? [] : discoverQuery.data ?? []),

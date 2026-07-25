@@ -77,7 +77,15 @@ async function ottoDiscover(
   if (areas.length > 0) q = q.in('canonical->>area', areas);
   const { data, error } = await q;
   if (error) throw error;
-  return (data ?? []).map((row) => canonicalToSummary(parseCanonical(row.canonical), category));
+  // Fall back to the row's OWN category when we didn't filter by one. Unlike
+  // filter.php (which omits strCategory, hence the stamp-back), the canonical
+  // row carries it — and a cuisine-only browse would otherwise hand every card
+  // a null category, dropping it to the generic nutrition estimate and the
+  // blank placeholder art for data we already have in hand.
+  return (data ?? []).map((row) => {
+    const rec = parseCanonical(row.canonical);
+    return canonicalToSummary(rec, category ?? rec.category ?? null);
+  });
 }
 
 // Title search on the serving copy — the OFF path's search.php equivalent.
@@ -167,13 +175,18 @@ export function useDiscover(category: string | null, areas: string[] = []) {
     queryKey: ['discover', category, [...areas].sort().join('|')],
     enabled: !!category || areas.length > 0,
     queryFn: async () => {
-      if (USE_OTTO_RECIPES) return ottoDiscover(category, areas);
-      if (areas.length > 0) {
+      // Sort here too, not just in the key: the key is order-insensitive, so two
+      // different selection ORDERS share one cache entry — the result must
+      // therefore be a pure function of that key, or whichever order fetched
+      // first would decide what the other one sees.
+      const sorted = [...areas].sort();
+      if (USE_OTTO_RECIPES) return ottoDiscover(category, sorted);
+      if (sorted.length > 0) {
         // One round trip per selected cuisine + the category one, all in flight
         // together (the old two-fetch Promise.all, widened).
         const [catJson, areaJsons] = await Promise.all([
           category ? content('filter.php', { c: category }) : Promise.resolve(null),
-          Promise.all(areas.map((a) => content('filter.php', { a }))),
+          Promise.all(sorted.map((a) => content('filter.php', { a }))),
         ]);
         // Union keyed by id — dedupes meals that sit in two selected cuisines,
         // and keeps TheMealDB's own order (first cuisine first) so a single

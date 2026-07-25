@@ -24,6 +24,12 @@ const panel: ViewStyle = {
   borderTopRightRadius: radii.sheet,
   padding: space[5],
   paddingBottom: space[6],
+  // A sheet is anchored to the bottom of a flex-end backdrop, and RN's default
+  // flexShrink is 0 — so a panel taller than the window doesn't scroll or
+  // shrink, it runs off the TOP, taking the grabber and title with it and
+  // leaving no way to scroll them back. Cap it so tall content is contained;
+  // content that can grow (a chip list, a long form) owns its own scroller.
+  maxHeight: '85%',
 };
 
 const grabber: ViewStyle = {

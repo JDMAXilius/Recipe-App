@@ -170,12 +170,17 @@ export function FilterSheet({
     setSelectedAreas([]);
   };
 
-  const countLabel = count.isFetching ? 'Counting…' : `${n} ${n === 1 ? 'recipe' : 'recipes'}`;
-  const ctaTitle = nothingSelected
-    ? 'Show recipes'
-    : count.isFetching
-      ? 'Counting…'
-      : `Show ${n} ${n === 1 ? 'recipe' : 'recipes'}`;
+  // A failed count is UNKNOWN, not zero. `data` is undefined on error, so the
+  // `?? 0` above would otherwise let the sheet state "0 recipes" — and now on two
+  // surfaces — for a filter that has plenty (honesty law: never assert a number
+  // we don't have). Offline, the header goes quiet and the CTA stops promising.
+  const countLabel = count.isFetching ? 'Counting…' : count.isError ? '—' : `${n} ${n === 1 ? 'recipe' : 'recipes'}`;
+  const ctaTitle =
+    nothingSelected || count.isError
+      ? 'Show recipes'
+      : count.isFetching
+        ? 'Counting…'
+        : `Show ${n} ${n === 1 ? 'recipe' : 'recipes'}`;
   const selectedCount = (category ? 1 : 0) + selectedAreas.length;
 
   return (
@@ -198,30 +203,33 @@ export function FilterSheet({
         {nothingSelected ? null : <Text role="meta">{countLabel}</Text>}
       </View>
 
-      {/* Selected summary — what's on, and one tap to take any of it off,
-          without hunting the value back down in its group. Absent entirely
-          when nothing is selected (no empty-state noise). */}
-      {selectedCount > 0 ? (
-        <View
-          style={{
-            backgroundColor: colors.creamDeep,
-            borderRadius: radii.card,
-            padding: space[3],
-            gap: space[2],
-            marginBottom: space[4],
-          }}
-        >
-          <Text role="meta">{`SELECTED · ${selectedCount}`}</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
-            {category ? <RemoveChip label={category} onRemove={clearCategory} /> : null}
-            {selectedAreas.map((a) => (
-              <RemoveChip key={a} label={a} onRemove={removeArea(a)} />
-            ))}
-          </View>
-        </View>
-      ) : null}
-
       <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
+        {/* Selected summary — what's on, and one tap to take any of it off,
+            without hunting the value back down in its group. Absent entirely
+            when nothing is selected (no empty-state noise). It lives INSIDE the
+            scroller: pinned above it, each wrapped row of chips grew the sheet
+            ~52pt with nothing able to shrink, so a few selections pushed the
+            grabber and title off the top of a small screen. */}
+        {selectedCount > 0 ? (
+          <View
+            style={{
+              backgroundColor: colors.creamDeep,
+              borderRadius: radii.card,
+              padding: space[3],
+              gap: space[2],
+              marginBottom: space[4],
+            }}
+          >
+            <Text role="meta">{`SELECTED · ${selectedCount}`}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
+              {category ? <RemoveChip label={category} onRemove={clearCategory} /> : null}
+              {selectedAreas.map((a) => (
+                <RemoveChip key={a} label={a} onRemove={removeArea(a)} />
+              ))}
+            </View>
+          </View>
+        ) : null}
+
         <GroupHeader label="Category" hint="single choice" />
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2], marginTop: space[2], marginBottom: space[4] }}>
           {categories.map((c) => (
