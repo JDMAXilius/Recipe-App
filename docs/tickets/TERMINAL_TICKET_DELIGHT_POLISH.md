@@ -202,7 +202,7 @@ Ranked; each lands alone so the critic can refute it alone:
 - [ ] `/polish --all`: every screen swept against the finished vocabulary; findings → packets
       → crew loop; "swept @ sha" per screen in the Log.
 - [ ] Screen transitions pass (G5): chosen curves on push/sheet/tab, verified on device.
-- [ ] Add `/polish` to the pre-release ritual in `TERMINAL_TICKET_RELEASE_READINESS.md` F1.
+- [x] Add `/polish` to the pre-release ritual in `TERMINAL_TICKET_RELEASE_READINESS.md` F1.
 
 ### Crew map (who does what — same law as every ticket: nothing lands unrefuted)
 

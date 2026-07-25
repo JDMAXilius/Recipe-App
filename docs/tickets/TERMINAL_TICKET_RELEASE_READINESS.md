@@ -245,6 +245,14 @@ Otto currently ships with **no crash reporting and no analytics** — `grep -rn 
       ink = authored), `Bounceable` as the only press-feedback wrapper (`Composer.tsx:119, 140`
       currently hand-rolls `opacity: 0.8`), spacing from tokens, no raw hex, one loading pattern,
       one error pattern, one empty-state pattern.
+      **The sweep is now a command, not a habit: run `/polish <Screen>` (or `--all`)** —
+      `.claude/skills/polish/SKILL.md`, shipped 2026-07-25 with the delight vocabulary
+      (`docs/reference/contracts/motion.md`). It audits this exact checklist plus the
+      haptic/sound maps and reduced-motion paths, and emits findings as builder packets.
+      Calibrated on RecipeDetail (15 findings on an "already polished" screen), then run
+      over ShoppingScreen, CookScreen, ChatScreen and PlanScreen — see the DELIGHT ticket's
+      Log for the standing findings and the one open founder ruling (do hero/toolbar icon
+      buttons need `Bounceable`?). **Pre-release ritual: no screen ships unswept.**
 - [ ] **F2. Copy pass.** Every string in Otto's voice, no slop, no placeholder, no developer
       language leaking into the UI (see the `OttoArt` a11y string in C1).
 - [ ] **F3. Motion + haptics** consistent and reduced-motion aware; nothing janky on the oldest
