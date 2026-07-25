@@ -132,10 +132,11 @@ export function DiscoverScreen() {
           }}
         >
           <Ionicons name="options-outline" size={20} color={colors.ink} />
-          {/* Dot = the grid is filtered, on either dimension. NOTE: a category
-              is seeded as soon as the catalogue loads, so in practice this
-              lights on nearly every visit — see the packet doubt. */}
-          {selectedCategory || activeAreas.length > 0 ? (
+          {/* Dot = a NON-DEFAULT filter is on, which in practice means cuisine:
+              a category is auto-seeded the moment the catalogue loads, so
+              including it here would light the dot on every visit and tell the
+              cook nothing. Cuisine is the only dimension they opted into. */}
+          {activeAreas.length > 0 ? (
             <View
               style={{
                 position: 'absolute',

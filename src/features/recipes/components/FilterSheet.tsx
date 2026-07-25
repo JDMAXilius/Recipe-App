@@ -238,7 +238,14 @@ export function FilterSheet({
       </ScrollView>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[4], marginTop: space[5] }}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Clear all filters" onPress={clearAll} hitSlop={8}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Clear all filters"
+          onPress={clearAll}
+          // A real 44pt target rather than hitSlop on a bare label — it sits
+          // beside a full-height CTA, where a small target is easiest to miss.
+          style={{ minHeight: 44, justifyContent: 'center', paddingRight: space[2] }}
+        >
           <Text role="computed">Clear all</Text>
         </Pressable>
         <View style={{ flex: 1 }}>
