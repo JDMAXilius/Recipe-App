@@ -14,7 +14,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import { Text, OttoIdle, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
+import { Text, OttoArt, OttoIdle, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -636,6 +636,16 @@ export function ShoppingScreen() {
               </RNText>
             )}
 
+            {/* The moment's VISUAL half (motion.md §4 asks for an Otto nod).
+                Without it the celebration was a haptic and a chime, which is
+                nothing at all under reduced motion or with Sounds off — the two
+                off-ramps most likely to be on for the people who need them. */}
+            {allDone && (
+              <View style={styles.doneBeat}>
+                <OttoArt name="pleased" size={112} />
+              </View>
+            )}
+
             {/* Source-recipe chips — tap × to drop that dish from the list. */}
             {activeRecipeIds.length > 0 && (
               <View style={styles.chipsRow}>
@@ -1002,6 +1012,7 @@ const styles: Record<string, ViewStyle & TextStyle> = {
     minHeight: 44,
     marginBottom: space[3],
   },
+  doneBeat: { alignItems: 'center', marginBottom: space[4] },
   restoreText: { fontSize: 13, color: colors.inkSoft },
   restoreAction: { fontWeight: '700', color: colors.terracotta, textDecorationLine: 'underline' },
 

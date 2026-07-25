@@ -17,6 +17,7 @@ export type OttoArtName =
   | 'happy'
   | 'excited'
   | 'proud'
+  | 'pleased'
   | 'sad'
   | 'sleepy'
   | 'thinking'

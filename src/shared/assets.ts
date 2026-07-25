@@ -10,6 +10,7 @@ export type OttoName =
   | 'sad'
   | 'excited'
   | 'proud'
+  | 'pleased'
   | 'sleepy'
   | 'floating'
   | 'hero'
@@ -34,6 +35,10 @@ export const ottoArt: Record<OttoName, ImageSourcePropType> = {
   sad: require('../../assets/mascot/otto-sad-cut.png'),
   excited: require('../../assets/mascot/otto-excited-cut.png'),
   proud: require('../../assets/mascot/otto-proud-cut.png'),
+  // Eyes closed, quietly content — the "nod" the moment registry asks for
+  // (motion.md §4, shopping list done). Generated 2026-07-25 against the
+  // character lock, background flood-cut, native aspect preserved.
+  pleased: require('../../assets/mascot/otto-pleased-cut.png'),
   sleepy: require('../../assets/mascot/otto-sleepy-cut.png'),
   floating: require('../../assets/mascot/otto-floating-cut.png'),
   hero: require('../../assets/mascot/otto-hero.png'),
