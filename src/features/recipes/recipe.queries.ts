@@ -11,6 +11,7 @@ import { usePrefs } from '@/features/profile';
 import type { Tables } from '@/types/database';
 import { toUserRecipeId } from '@/types/ids';
 import {
+  type Meal,
   mealToRecipe,
   mealToSummary,
   parseCategories,
@@ -56,17 +57,24 @@ async function ottoRecipeById(id: string): Promise<Recipe | null> {
   return data ? canonicalToRecipe(parseCanonical(data.canonical)) : null;
 }
 
-// Category × area grid. TheMealDB needs two fetches + a client intersect; the
-// canonical record carries both, so one filtered SELECT does it. category is
+// Category × areas grid. TheMealDB needs a fetch per filter + a client intersect;
+// the canonical record carries both, so one filtered SELECT does it. category is
 // passed to the summary (not read off the record) to match the OFF path's
 // filter.php-shaped output. Ordered by id for a stable grid.
+//
+// Cuisine is multi-select, so areas is an OR *within* the group, ANDed with the
+// single category — one .in() against the same `canonical->>area` accessor .eq()
+// already uses. PostgREST parses the field (arrows included) and the operator
+// separately, so `in` reads that JSON accessor exactly like `eq` does; the
+// client serialises `canonical->>area=in.(Italian,Japanese)`, i.e. only the
+// operator changes. Empty areas = no cuisine filter at all (not "match none").
 async function ottoDiscover(
   category: string | null,
-  area: string | null,
+  areas: string[],
 ): Promise<RecipeSummary[]> {
   let q = supabase.from('otto_recipes').select('canonical').order('id');
   if (category) q = q.eq('canonical->>category', category);
-  if (area) q = q.eq('canonical->>area', area);
+  if (areas.length > 0) q = q.in('canonical->>area', areas);
   const { data, error } = await q;
   if (error) throw error;
   return (data ?? []).map((row) => canonicalToSummary(parseCanonical(row.canonical), category));
@@ -144,30 +152,40 @@ export function useFeatured() {
   });
 }
 
-// Browse grid, intersected across Category × Cuisine/area (FilterSheet). TheMealDB
-// can't combine filters server-side, so both/either resolve here: category+area
-// fetches each and intersects by id; single dimension is a straight filter.php.
-// filter.php omits strCategory, so stamp back the one we filtered by (keeps the
-// grid honest, same fix as v1 Discover).
-export function useDiscover(category: string | null, area: string | null = null) {
+// Browse grid, intersected across Category (single) × Cuisine/areas (multi,
+// FilterSheet). TheMealDB can't combine filters server-side, so it resolves here:
+// each selected cuisine is its own filter.php call, UNIONed by id (a recipe
+// matching ANY selected cuisine qualifies — that's what multi-select means),
+// then intersected with the category set. Single dimension is a straight
+// filter.php. filter.php omits strCategory, so stamp back the one we filtered by
+// (keeps the grid honest, same fix as v1 Discover).
+export function useDiscover(category: string | null, areas: string[] = []) {
   return useQuery<RecipeSummary[]>({
-    queryKey: ['discover', category, area],
-    enabled: !!category || !!area,
+    // Cuisines are a SET, not a sequence: sort into the key so picking Thai then
+    // Italian hits the same cache entry as Italian then Thai (re-ordering must
+    // never refetch). Joined to a string so the key stays a stable primitive.
+    queryKey: ['discover', category, [...areas].sort().join('|')],
+    enabled: !!category || areas.length > 0,
     queryFn: async () => {
-      if (USE_OTTO_RECIPES) return ottoDiscover(category, area);
-      if (category && area) {
-        const [catJson, areaJson] = await Promise.all([
-          content('filter.php', { c: category }),
-          content('filter.php', { a: area }),
+      if (USE_OTTO_RECIPES) return ottoDiscover(category, areas);
+      if (areas.length > 0) {
+        // One round trip per selected cuisine + the category one, all in flight
+        // together (the old two-fetch Promise.all, widened).
+        const [catJson, areaJsons] = await Promise.all([
+          category ? content('filter.php', { c: category }) : Promise.resolve(null),
+          Promise.all(areas.map((a) => content('filter.php', { a }))),
         ]);
-        const ids = new Set(parseMeals(areaJson).map((m) => m.idMeal));
+        // Union keyed by id — dedupes meals that sit in two selected cuisines,
+        // and keeps TheMealDB's own order (first cuisine first) so a single
+        // selection renders exactly the grid it did before.
+        const union = new Map<string, Meal>();
+        for (const json of areaJsons) {
+          for (const m of parseMeals(json)) union.set(m.idMeal, m);
+        }
+        if (!category) return [...union.values()].map((m) => mealToSummary(m));
         return parseMeals(catJson)
-          .filter((m) => ids.has(m.idMeal))
+          .filter((m) => union.has(m.idMeal))
           .map((m) => mealToSummary(m, category));
-      }
-      if (area) {
-        const meals = parseMeals(await content('filter.php', { a: area }));
-        return meals.map((m) => mealToSummary(m));
       }
       const meals = parseMeals(await content('filter.php', { c: category as string }));
       return meals.map((m) => mealToSummary(m, category));

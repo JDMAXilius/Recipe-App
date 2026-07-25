@@ -33,7 +33,8 @@ export function DiscoverScreen() {
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [activeArea, setActiveArea] = useState<string | null>(null);
+  // Cuisine is multi-select (Category stays one); empty = no cuisine filter.
+  const [activeAreas, setActiveAreas] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export function DiscoverScreen() {
   // Tonight band: today's planned dish, if any (planner → recipes allowlist).
   const { entries, days } = usePlan();
   const tonight = tonightEntry(entries, days[0].key);
-  const discoverQuery = useDiscover(selectedCategory, activeArea);
+  const discoverQuery = useDiscover(selectedCategory, activeAreas);
   const searchQuery = useSearch(debounced);
   const isSearching = debounced.length > 0;
 
@@ -62,23 +63,27 @@ export function DiscoverScreen() {
     () => (isSearching ? searchQuery.data ?? [] : discoverQuery.data ?? []),
     [isSearching, searchQuery.data, discoverQuery.data],
   );
-  const browseTitle = [selectedCategory, activeArea].filter(Boolean).join(' · ') || 'Recipes';
+  // Every selected cuisine is named, same ' · ' rhythm as category → cuisine.
+  const browseTitle = [selectedCategory, ...activeAreas].filter(Boolean).join(' · ') || 'Recipes';
   const gridTitle = isSearching ? `Results for “${debounced}”` : browseTitle;
   const featured = featuredQuery.data;
 
   // A category tile tap is the quick path — it clears any cuisine filter (v1).
   const selectCategory = (name: string) => {
-    setActiveArea(null);
+    setActiveAreas([]);
     setSelectedCategory(name);
   };
 
   // FilterSheet apply: filtering is a browse action, so exit search. Clearing
-  // both (null/null) falls back to the first category so the grid never empties.
-  const applyFilters = (category: string | null, area: string | null) => {
+  // everything (null + no cuisines) falls back to the first category so the
+  // grid never empties.
+  const applyFilters = (category: string | null, nextAreas: string[]) => {
     setFilterOpen(false);
     setQuery('');
-    setActiveArea(area);
-    setSelectedCategory(category ?? (area ? null : categoriesQuery.data?.[0]?.name ?? null));
+    setActiveAreas(nextAreas);
+    setSelectedCategory(
+      category ?? (nextAreas.length > 0 ? null : categoriesQuery.data?.[0]?.name ?? null),
+    );
   };
 
   // Grid loading/error tracks whichever query feeds it (search vs browse); browse
@@ -127,7 +132,10 @@ export function DiscoverScreen() {
           }}
         >
           <Ionicons name="options-outline" size={20} color={colors.ink} />
-          {activeArea ? (
+          {/* Dot = the grid is filtered, on either dimension. NOTE: a category
+              is seeded as soon as the catalogue loads, so in practice this
+              lights on nearly every visit — see the packet doubt. */}
+          {selectedCategory || activeAreas.length > 0 ? (
             <View
               style={{
                 position: 'absolute',
@@ -339,7 +347,7 @@ export function DiscoverScreen() {
         categories={(categoriesQuery.data ?? []).map((c) => c.name)}
         areas={areasQuery.data ?? []}
         initialCategory={selectedCategory}
-        initialArea={activeArea}
+        initialAreas={activeAreas}
         onApply={applyFilters}
       />
     </SafeAreaView>
