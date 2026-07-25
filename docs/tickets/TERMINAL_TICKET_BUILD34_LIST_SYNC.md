@@ -1,6 +1,6 @@
 # TERMINAL TICKET — build 34, shared-list removal sync, one remove affordance
 
-> STATUS: in-progress — terminal 2026-07-25 (09287cb2)
+> STATUS: in-progress — terminal 2026-07-25 (c21dac72). Items 2, 3 and 4 are DONE (refuted + verified). Item 1: build 34 is built on EAS; the SUBMIT is blocked for the agent (permission classifier) and the on-device checklist needs a phone — both are founder rungs. 4b needs a founder decision.
 > STATUS: open — cut from cloud 2026-07-25. Items 1–3 are the founder's open list; item 4 is
 > the confirmed fallout from the adversarial review of `9fbd4dc` + `5f9fdcd` (hold-to-remove),
 > which lives in the same code and should be fixed in the same pass.
@@ -243,3 +243,31 @@ undo double-restore, the toast batch window, the "3 of 2" counter, and PlanScree
 - **What the fixes did NOT touch** (review's verified-correct list): cancelled
   gesture, commit-on-release, undo double-restore, batch window, legacy
   migration path — all preserved; suite pins the engine behavior.
+
+**2026-07-25 (later) — critic REFUTER on the batch: 8 findings, all fixed.**
+Verifier ran the full ladder clean (tsc, eslint, 309 tests, web export). The
+review earned its keep — three of the eight were *fixes that didn't fix*:
+- **F1 (P2)**: the exclusion prune ran on `!isLoading`, which is ALSO false for
+  an errored or disabled plan query — an offline shopper's dropped dishes were
+  wiped and the wipe persisted. `usePlan` now exposes `isSuccess`/`isError`;
+  a failed week renders `OttoError` instead of "Nothing to buy yet".
+  *(A later pass found this still broke for households: `isShared` is false
+  during the membership round-trip. Fixed in `c21dac72`.)*
+- **F2 (P2)**: 4c was fixed for ingredients but not for the custom-extra undo
+  this ticket's item 3 added — the toast outlives the screen, so it now writes
+  through to kv, and restores the row unticked.
+- **F3 (P2)**: `failOffsetY` was **dead config**. With `activateAfterLongPress`,
+  RNGH fails the gesture on any pre-activation movement before offsets are ever
+  consulted (RNPanHandler.m; web uses a 15pt slop) — the line read like a fix
+  and did nothing. The real hazard is a vertical drag AFTER activation, which
+  now bails out, drops the lift and skips the commit. Ceiling documented: true
+  simultaneity needs the ScrollView's gesture ref.
+- **F4–F8**: stored removals carry an identity version (pre-v2 title-keyed
+  entries are dropped, fail-open, rather than rotting); `removed_at` added so
+  4b's expiry rule can reach households; a history load that resolves mid-send
+  no longer wipes that send's error; toasts announce on both platforms; local
+  custom undo restores unticked.
+
+> HANDOFF → cloud: the shopping list, chat and planner code has moved
+> substantially since this ticket was cut (`62efae5d`, `1c5fad0d`, `d41fd6a9`,
+> `c21dac72`). Re-read before quoting line numbers from section 4.
