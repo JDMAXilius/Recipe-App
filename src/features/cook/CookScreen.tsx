@@ -6,7 +6,6 @@ import {
   Pressable,
   ScrollView,
   Text as RNText,
-  Vibration,
   View,
 } from 'react-native';
 import { useKeepAwake } from 'expo-keep-awake';
@@ -14,10 +13,11 @@ import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, OttoArt, Sheet, Text, useToast } from '@/shared/ui';
+import { Button, OttoArt, OttoError, Sheet, Text, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { kv } from '@/shared/storage';
+import { alarmSound } from '@/shared/assets';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { toUserRecipeId } from '@/types/ids';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
@@ -59,11 +59,20 @@ export function CookScreen() {
   // the two-tone alarm chime — set to play even on the silent switch, because a
   // cooking timer you can't hear is a burnt dinner. Native only (web no-ops).
   useKeepAwake();
-  const alarm = useAudioPlayer(require('../../../assets/sounds/timer-alarm.wav'));
+  const alarm = useAudioPlayer(alarmSound);
   const alarmRef = useRef(alarm);
   alarmRef.current = alarm;
+  // Audio mode is PROCESS-WIDE, so this must be scoped to the cook session and
+  // restored on the way out. Without the cleanup, one cook left the whole app
+  // playing through the silent switch — the save pluck ringing out loud on a
+  // silenced phone, breaking off-ramp #1 for every sound in the kit
+  // (motion.md §3, which scopes this exception to "DURING a cook session").
   useEffect(() => {
-    if (Platform.OS !== 'web') void setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
+    if (Platform.OS === 'web') return;
+    void setAudioModeAsync({ playsInSilentMode: true }).catch(() => {});
+    return () => {
+      void setAudioModeAsync({ playsInSilentMode: false }).catch(() => {});
+    };
   }, []);
   const soundAlarm = () => {
     if (Platform.OS === 'web') return;
@@ -73,7 +82,7 @@ export function CookScreen() {
     } catch {
       // audio unavailable — the vibration + modal still fire
     }
-    Vibration.vibrate([0, 500, 350, 500, 350, 500, 350, 500, 350, 500]);
+    haptics.alarm(); // the one alert pattern, inside the kit (motion.md §2)
   };
   const [snapped, setSnapped] = useState(false);
   // "Would you cook it again?" — a light thumbs rating on the finish screen
@@ -209,11 +218,12 @@ export function CookScreen() {
   }, [steps, timers]);
 
   // ---- navigation --------------------------------------------------------
+  // A step change is a micro-selection (motion.md §2). It used to fire
+  // impact('medium') — the weight the map reserves for a physical pick-up —
+  // making the most frequent event in cook mode the heaviest one in the app.
   const goTo = (nextStep: number) => {
     if (nextStep < 0 || nextStep >= steps.length) return;
-    haptics.impact('medium');
-    // Moving FORWARD is a step done (motion.md §3); stepping back isn't.
-    if (nextStep > step) sound.play('stepDone');
+    haptics.select();
     setStep(nextStep);
   };
 
@@ -238,7 +248,16 @@ export function CookScreen() {
       });
   };
 
-  const advance = () => (step === steps.length - 1 ? finish() : goTo(step + 1));
+  // The step-done tap belongs to ADVANCING one step, not to jumping the pager:
+  // jumping 2 → 7 sounded "done" for five steps nobody did.
+  const advance = () => {
+    if (step === steps.length - 1) {
+      finish();
+      return;
+    }
+    sound.play('stepDone');
+    goTo(step + 1);
+  };
   const goBackStep = () => goTo(step - 1);
 
   const requestExit = () => {
@@ -265,7 +284,11 @@ export function CookScreen() {
   goBackRef.current = goBackStep;
 
   // Bail out (via effect, never during render) when the recipe can't be cooked.
-  const mustLeave = !recipeQuery.isLoading && (!recipe || steps.length === 0);
+  // A FAILED fetch is not the same as an uncookable recipe: silently dumping
+  // the cook back where they came from says "this can't be cooked" when the
+  // truth is "we couldn't load it". Errors get the error state + a retry.
+  const mustLeave =
+    !recipeQuery.isLoading && !recipeQuery.isError && (!recipe || steps.length === 0);
   useEffect(() => {
     if (mustLeave) leave();
   }, [mustLeave]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -275,6 +298,13 @@ export function CookScreen() {
       <View style={{ flex: 1, backgroundColor: colors.cream, alignItems: 'center', justifyContent: 'center', gap: space[4] }}>
         <OttoArt name="scene-loading" size={120} />
         <Text role="body">Setting up your station…</Text>
+      </View>
+    );
+  }
+  if (recipeQuery.isError) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.cream }}>
+        <OttoError message="We couldn't open that recipe." onRetry={() => recipeQuery.refetch()} />
       </View>
     );
   }

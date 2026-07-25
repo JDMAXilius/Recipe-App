@@ -41,6 +41,7 @@ function HeaderButton({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={label}
+      hitSlop={4} // 40pt circle → 48pt target, clearing the 44pt floor (§7.1)
       style={{
         width: 40,
         height: 40,
@@ -115,13 +116,26 @@ export function ChatScreen() {
   }, [draft, listening, stopSpeech, send, toBottom]);
 
   const onSpeak = useCallback(() => {
-    haptics.impact();
     if (!canSpeak) {
+      // No haptic before the guard: a commit-weight thump followed by "coming
+      // soon" tells the hand something happened when nothing did.
       show('Talking to Otto is coming soon. Type it to him for now.', 'info');
       return;
     }
+    haptics.select(); // a toggle is a micro-selection (motion.md §2)
     toggleSpeech(draft); // live draft becomes the prefix dictation appends to
   }, [canSpeak, toggleSpeech, draft, show]);
+
+  // A clarify chip sends a full turn, so it gets the same beat as Send —
+  // otherwise the same user act feels different depending on where it started.
+  const onPickChip = useCallback(
+    (option: string) => {
+      haptics.select();
+      sound.play('send');
+      pickOption(option);
+    },
+    [pickOption],
+  );
 
   // Review-first (founder call 2026-07-24): Otto's recipe opens in the editor
   // as "Check Otto's work" so the cook changes or approves it before it lands.
@@ -195,7 +209,7 @@ export function ChatScreen() {
               isSending={isSending}
               streamingText={chat.streamingText}
               error={chat.error}
-              onPickOption={pickOption}
+              onPickOption={onPickChip}
               onReview={onReview}
             />
           )}

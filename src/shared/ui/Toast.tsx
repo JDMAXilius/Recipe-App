@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo, Pressable, Text as RNText, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { colors, radii, space, timing } from '../theme/tokens';
+import { haptics } from '../haptics';
+import { sound } from '../sound';
 import { OttoArt, type OttoArtName } from './OttoArt';
 
 export type ToastKind = 'info' | 'success' | 'error';
@@ -50,6 +52,13 @@ export function ToastHost() {
 
   useEffect(() => {
     if (!toast) return;
+    // Failure reaches the hand and the ear, not just the eye (motion.md §2/§3).
+    // One place, because every failure in the app surfaces as an error toast —
+    // six call sites were silent before this.
+    if (toast.kind === 'error') {
+      haptics.notify('error');
+      sound.play('gentleError');
+    }
     // Announce on BOTH native platforms. accessibilityLiveRegion is Android-only
     // (RN docs) AND unreliable here even there: the host View is mounted with
     // the toast rather than changing content inside an existing region, so

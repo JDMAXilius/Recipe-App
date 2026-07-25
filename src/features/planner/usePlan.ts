@@ -19,6 +19,7 @@ export interface UsePlan {
    *  prune state against the week must not treat that as "the week is empty". */
   isSuccess: boolean;
   isError: boolean;
+  refetch: () => void;
   add: (input: AddPlanInput) => Promise<PlanEntry>;
   remove: (id: number) => Promise<void>;
   swap: (oldId: number, input: AddPlanInput) => Promise<void>;
@@ -132,6 +133,7 @@ export function usePlan(): UsePlan {
     isLoading: query.isLoading,
     isSuccess: query.isSuccess,
     isError: query.isError,
+    refetch: () => void query.refetch(),
     add: (input) => addMut.mutateAsync(input),
     remove: (id) => removeMut.mutateAsync(id),
     swap: (oldId, input) => swapMut.mutateAsync({ oldId, input }).then(() => undefined),

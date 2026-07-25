@@ -290,6 +290,7 @@ export function ShoppingScreen() {
   }, []);
 
   const addCustom = useCallback((name: string) => {
+    haptics.impact('light'); // a commit (motion.md §2)
     const { isShared: sharedNow, shared: list } = liveRef.current;
     if (sharedNow) list.addCustom(name);
     // Date.now() key — a re-used index would collide checkboxes after removals.
@@ -337,6 +338,7 @@ export function ShoppingScreen() {
   const undoBatch = useRef<{ entries: RemovedEntry[]; at: number }>({ entries: [], at: 0 });
   const removeItem = useCallback(
     (item: ShoppingItem) => {
+      haptics.impact('light'); // the removal COMMITS here (the hold only armed it)
       const entry: RemovedEntry = { key: item.key, sources: item.sources, at: Date.now() };
       const { isShared: sharedNow, shared: list } = liveRef.current;
       if (sharedNow) list.setRemoved(item.key, true, item.sources);
@@ -373,7 +375,7 @@ export function ShoppingScreen() {
   // Removals belonging to a different source set (another week's version of
   // the same ingredient) are left untouched.
   const restoreHidden = useCallback(() => {
-    haptics.select();
+    haptics.impact('light'); // putting N rows back is a commit, not a selection
     undoBatch.current = { entries: [], at: 0 };
     const restoring = hiddenItems.map((h) => ({ key: h.key, sources: h.sources }));
     const { isShared: sharedNow, shared: list } = liveRef.current;
@@ -418,6 +420,7 @@ export function ShoppingScreen() {
   // name (a re-created row: new key, unchecked — the honest reconstruction).
   const removeCustom = useCallback(
     (key: string, name: string) => {
+      haptics.impact('light'); // a commit — and this one is a real DB delete
       const { isShared: sharedNow, shared: list } = liveRef.current;
       if (sharedNow) list.removeCustom(key);
       else setCustom((prev) => prev.filter((c) => c.key !== key));
@@ -476,8 +479,14 @@ export function ShoppingScreen() {
   // moment, that's a memory).
   const allDone = total > 0 && done === total;
   const lastSeen = useRef<{ allDone: boolean; done: number } | null>(null);
+  // Arm only once the ROWS have arrived, not merely once kv has. kv resolves
+  // first, so arming on `hydrated` armed against an empty list (total 0,
+  // allDone false) and then "crossed" the moment the finished list loaded —
+  // chiming for a list completed yesterday, or by a partner. Shared mode was
+  // worse: shared.rows always arrive after mount.
+  const listReady = isShared ? !shared.isLoading : listSettled || allItems.length === 0;
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !listReady) return;
     const prev = lastSeen.current;
     lastSeen.current = { allDone, done };
     if (!prev) return; // first observation arms, never fires
@@ -489,7 +498,7 @@ export function ShoppingScreen() {
       haptics.notify('success');
       sound.play('allDone');
     }
-  }, [allDone, done, hydrated]);
+  }, [allDone, done, hydrated, listReady]);
 
   // Share: on native snapshot the offscreen ShareListCard (the recipient-facing
   // picture — bullets, open items only, Otto sign-off) to a PNG via

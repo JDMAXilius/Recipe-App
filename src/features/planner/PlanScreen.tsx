@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, Button, OttoIdle, OttoLoading, useToast } from '@/shared/ui';
+import { Text, Button, OttoIdle, OttoLoading, OttoError, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { colors, radii, shadow, space, type } from '@/shared/theme/tokens';
@@ -36,7 +36,8 @@ interface PickerTarget {
 export function PlanScreen() {
   const router = useRouter();
   const { show } = useToast();
-  const { entries, days, isLoading, add, remove, swap, setCooked } = usePlan();
+  const { entries, days, isLoading, isError, isSuccess, refetch, add, remove, swap, setCooked } =
+    usePlan();
   const [picker, setPicker] = useState<PickerTarget | null>(null);
 
   const byDay: Record<string, PlanEntry[]> = {};
@@ -49,10 +50,17 @@ export function PlanScreen() {
   // MOMENT 4 (motion.md §4): every day of the week has a dish. Fires once on
   // the crossing — arming on the first observation, so opening an already-full
   // week is a memory, not a moment.
+  //
+  // A celebration is Otto + haptic + chime + a warm line — with
+  // only the last two, the whole moment collapses to one anonymous buzz under
+  // reduced motion or Sounds-off, indistinguishable from an error. The toast
+  // carries the visual half and survives both off-ramps.
   const weekFull = days.length > 0 && days.every((d) => (byDay[d.key]?.length ?? 0) > 0);
   const weekCelebrated = useRef<boolean | null>(null);
   useEffect(() => {
-    if (isLoading) return;
+    // isSuccess, not !isLoading: an optimistic add that later rolls back must
+    // not congratulate anyone, and an errored week must not arm anything.
+    if (!isSuccess) return;
     if (weekCelebrated.current === null) {
       weekCelebrated.current = weekFull;
       return;
@@ -60,9 +68,10 @@ export function PlanScreen() {
     if (weekFull && !weekCelebrated.current) {
       haptics.notify('success');
       sound.play('allDone');
+      show("Seven days, seven dinners. Otto's set.", 'success', { ottoImage: 'excited' });
     }
     weekCelebrated.current = weekFull;
-  }, [weekFull, isLoading]);
+  }, [weekFull, isSuccess, show]);
 
   const toggleCooked = async (entry: PlanEntry) => {
     haptics.select();
@@ -76,6 +85,7 @@ export function PlanScreen() {
   const removeEntry = async (entry: PlanEntry) => {
     try {
       await remove(entry.id);
+      haptics.impact('light'); // a commit (motion.md §2) — add/carry already do
     } catch {
       show("Couldn't remove that. Try again.", 'error');
     }
@@ -134,6 +144,11 @@ export function PlanScreen() {
 
       {isLoading ? (
         <OttoLoading message="Checking Otto's week…" />
+      ) : isError ? (
+        // An errored query also reports isLoading false with entries [] — and
+        // seven "Open. No plans, no guilt." cards would assert the user planned
+        // nothing when the app knows nothing (usePlan.ts says this in writing).
+        <OttoError message="We couldn't reach Otto's week." onRetry={refetch} />
       ) : (
         days.map((day, index) => {
           const dayEntries = byDay[day.key] || [];
@@ -151,7 +166,7 @@ export function PlanScreen() {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={`Add a dish to ${day.label}`}
-                  hitSlop={6}
+                  hitSlop={4}
                   style={styles.addBtn}
                   onPress={() => {
                     haptics.select();
@@ -202,7 +217,7 @@ export function PlanScreen() {
                         <Pressable
                           accessibilityRole="button"
                           accessibilityLabel={`Swap ${entry.title}`}
-                          hitSlop={6}
+                          hitSlop={13}
                           onPress={() => {
                             haptics.select();
                             setPicker({ day: day.key, entryId: entry.id });
@@ -214,7 +229,7 @@ export function PlanScreen() {
                           accessibilityRole="checkbox"
                           accessibilityState={{ checked: Boolean(entry.cooked) }}
                           accessibilityLabel={entry.cooked ? 'Cooked. Tap to unmark' : 'Mark as cooked'}
-                          hitSlop={6}
+                          hitSlop={13}
                           onPress={() => toggleCooked(entry)}
                         >
                           <Ionicons
@@ -227,7 +242,7 @@ export function PlanScreen() {
                           <Pressable
                             accessibilityRole="button"
                             accessibilityLabel={`Add ${entry.title} as leftovers tomorrow`}
-                            hitSlop={6}
+                            hitSlop={13}
                             onPress={() => carryLeftovers(entry, day.key)}
                           >
                             <Ionicons name="repeat" size={18} color={colors.inkSoft} />
@@ -236,7 +251,7 @@ export function PlanScreen() {
                         <Pressable
                           accessibilityRole="button"
                           accessibilityLabel={`Remove ${entry.title} from ${day.label}`}
-                          hitSlop={6}
+                          hitSlop={13}
                           onPress={() => removeEntry(entry)}
                         >
                           <Ionicons name="close" size={18} color={colors.inkSoft} />

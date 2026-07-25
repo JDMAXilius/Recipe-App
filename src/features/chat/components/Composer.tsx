@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Pressable,
   Text as RNText,
   TextInput,
   View,
@@ -8,7 +7,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Text } from '@/shared/ui';
+import { Bounceable, Text } from '@/shared/ui';
 import { colors, fonts, radii, shadow, space, type } from '@/shared/theme/tokens';
 
 // The composer CARD — the thing you touch every time you talk to Otto, so it
@@ -109,15 +108,10 @@ export function Composer({
         style={field}
       />
       <View style={actions}>
-        <Pressable
+        <Bounceable
           onPress={onSpeak}
-          accessibilityRole="button"
           accessibilityLabel={listening ? 'Stop listening' : 'Speak to Otto'}
-          style={({ pressed }) => [
-            speakPill,
-            { backgroundColor: listening ? colors.terracotta : colors.creamDeep },
-            pressed && { opacity: 0.8 },
-          ]}
+          style={[speakPill, { backgroundColor: listening ? colors.terracotta : colors.creamDeep }]}
         >
           <Ionicons name="mic" size={18} color={listening ? colors.white : colors.ink} />
           {listening ? (
@@ -125,23 +119,21 @@ export function Composer({
           ) : (
             <Text role="label">Speak</Text>
           )}
-        </Pressable>
-        <Pressable
+        </Bounceable>
+        <Bounceable
           onPress={onSend}
           disabled={!canSend}
-          accessibilityRole="button"
           accessibilityLabel="Send"
-          accessibilityState={{ disabled: !canSend, busy: sending }}
-          style={({ pressed }) => [
+          accessibilityState={{ busy: sending }}
+          style={[
             sendButton,
             // gray is the disabled/muted token — a dimmed terracotta would still
             // read as "tap me". Nothing to send, nothing that looks tappable.
             { backgroundColor: canSend ? colors.terracotta : colors.gray },
-            pressed && canSend && { opacity: 0.8 },
           ]}
         >
           <Ionicons name="arrow-up" size={22} color={colors.white} />
-        </Pressable>
+        </Bounceable>
       </View>
     </View>
   );
