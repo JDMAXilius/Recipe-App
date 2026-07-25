@@ -1,8 +1,17 @@
 # Otto intro — beat sheet (v2)
 
-Storyboard: **`otto-intro-storyboard-v2.png`** (current). `v1` kept as the
-earlier direction — it opened on the wordmark alone; the founder cut that so the
-name lands only on the final look.
+Storyboard: **`otto-intro-storyboard-v3.png`** — FINAL, founder-approved.
+
+It is v1's drawings, unchanged, with three surgical edits made in pixels rather
+than by regenerating (`rebuild-v3.py` is the script, so it's reproducible):
+panel 1 (the empty title frame) dropped, the `otto` wordmark erased from panels
+3 and 5, and the otter re-centred in panel 5. Panel numbers keep their original
+2–6 — renumbering would mean redrawing them, and the drawings were not to be
+touched.
+
+`v1` and `v2` are kept as earlier directions. v2 explored the same cut by
+regenerating; the founder preferred v1's actual drawings, which is why v3 edits
+rather than redraws.
 Reference the founder gave: the Pixar/Luxo Jr. ident.
 
 **What we're actually stealing from Luxo.** Not the lamp and not the length —
@@ -14,13 +23,13 @@ flops over his eyes, and then the look.
 
 ## The beats
 
-| # | t | On screen | Notes |
+| panel | t | On screen | Notes |
 |---|---|---|---|
-| 1 | 0.00–0.45 | **Cold open on action.** He dashes in from the LEFT of an empty cream frame, body stretched low, hat streaming back | No wordmark, no held title card. Starting on movement is punchier than starting on a logo, and it buys back a quarter-second. |
-| 2 | 0.45–0.72 | Skid to a stop, dust puff, hat flops over his eyes | The consequence — the squash-the-I beat. Fast; it's an accident, not a pose. |
-| 3 | 0.72–1.02 | One paw pushes the hat back up, dust settling | The recovery. Deadpan, not mugging. |
-| 4 | 1.02–1.25 | He turns to face the viewer | A separate beat from the look. Don't merge them — the turn is what makes the look land. |
-| 5 | 1.25–1.70 | The hold: warm closed-eye smile, and **now** `otto` fades in beside him | The name and the look arrive together, so they read as one gesture: he says hello and tells you who he is. Wordmark fade ~0.2s, then ~0.25s to read it. |
+| 2 | 0.00–0.45 | **Cold open on action.** He dashes in from the LEFT of an empty cream frame, body stretched low, hat streaming back | No wordmark, no held title card. Starting on movement is punchier than starting on a logo, and it buys back a quarter-second. |
+| 3 | 0.45–0.72 | Skid to a stop, dust puff, hat flops over his eyes | The consequence — the squash-the-I beat. Fast; it's an accident, not a pose. |
+| 4 | 0.72–1.02 | One paw pushes the hat back up, dust settling | The recovery. Deadpan, not mugging. |
+| 5 | 1.02–1.25 | He turns to face the viewer | A separate beat from the look. Don't merge them — the turn is what makes the look land. |
+| 6 | 1.25–1.70 | The hold: warm closed-eye smile, and **now** `otto` fades in beside him | The name and the look arrive together, so they read as one gesture: he says hello and tells you who he is. Wordmark fade ~0.2s, then ~0.25s to read it. |
 
 ## How long: **1.7s**, hard ceiling 2.0s
 
