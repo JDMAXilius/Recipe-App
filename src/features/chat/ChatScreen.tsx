@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Button, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
@@ -59,6 +60,9 @@ function HeaderButton({
 export function ChatScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  // Real tab bar height (safe-area included) — the keyboard offset must clear
+  // exactly this, no more and no less.
+  const tabBarHeight = useBottomTabBarHeight();
   const { show } = useToast();
   const { isSignedIn } = useAuth();
   // ?chat=<id> — arriving from Recent chats reopens that thread.
@@ -184,9 +188,13 @@ export function ChatScreen() {
           onPress={() => router.push('/add')}
         />
       </View>
+      {/* The offset is the tab bar's REAL height, read from the navigator —
+          the old hardcoded 90 was right on exactly one device, so on the
+          others the composer either hid under the keyboard or floated above
+          it with a band of dead cream. */}
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={90}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={tabBarHeight}
         style={{ flex: 1 }}
       >
         <ScrollView
@@ -217,7 +225,7 @@ export function ChatScreen() {
 
         {/* The composer's well: same space[4] gutter as the transcript, so the
             card's edges line up with the bubbles above it. */}
-        <View style={{ paddingHorizontal: space[4], paddingTop: space[3], paddingBottom: space[4] }}>
+        <View style={{ paddingHorizontal: space[4], paddingTop: space[3], paddingBottom: space[3] }}>
           <Composer
             value={draft}
             onChangeText={setDraft}

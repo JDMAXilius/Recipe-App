@@ -7,16 +7,21 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Bounceable, Text } from '@/shared/ui';
-import { colors, fonts, radii, shadow, space, type } from '@/shared/theme/tokens';
+import { Bounceable } from '@/shared/ui';
+import { colors, fonts, radii, shadow, space } from '@/shared/theme/tokens';
 
-// The composer CARD — the thing you touch every time you talk to Otto, so it
-// gets the same weight as an Otto Club plan card: white surface, radii.card,
-// space[4] padding, shadow.card. Two ROWS, not one thin line: the ask on its own
-// full-width line, the two real actions (Speak, Send) beneath it on a defined
-// baseline. Both actions are always visible — the old single trailing pill
-// swapped Speak↔Send, which hid the stop-target the moment dictation produced a
-// word. Speak stays put and reachable now, listening or not.
+// ONE rounded field with a trailing pill (founder, 2026-07-25 — back to the v1
+// shape): the ask fills the line, and the action sits inside the field on the
+// right. Dark Speak pill when there's nothing to send, terracotta send arrow
+// once there is. While dictating, the pill STAYS the pill (terracotta,
+// "Listening") so the stop target never moves out from under the thumb as
+// interim words fill the draft — that was the one real complaint against this
+// layout, and gating the swap on `listening` answers it without the two-row card.
+//
+// Dimensions are the v1 shape at honest sizes: the trailing control is 44pt
+// (v1 shipped 40, under the touch floor), and the field's own line-height and
+// padding are set so the row is exactly TAP + the vertical padding at rest —
+// it grows only when the ask wraps.
 export interface ComposerProps {
   value: string;
   onChangeText: (text: string) => void;
@@ -30,42 +35,39 @@ export interface ComposerProps {
 // ≥44pt touch floor (ui-components.md §7.1) — a target size, not a spacing step,
 // so it is not on the space[] scale.
 const TAP = 44;
-// Preserved from the one-row composer: the field grows with the ask, then
-// scrolls, so a long paste can never eat the transcript.
-const INPUT_MAX_HEIGHT = 120;
+// The field grows with the ask, then scrolls, so a long paste can never eat the
+// transcript. ~4 lines at this line height.
+const INPUT_MAX_HEIGHT = 112;
 
-const card: ViewStyle = {
+const field: ViewStyle = {
+  flexDirection: 'row',
+  alignItems: 'flex-end', // the pill stays on the baseline as the ask wraps
+  gap: space[2],
   backgroundColor: colors.white,
   borderRadius: radii.card,
-  padding: space[4],
-  gap: space[3],
-  // Hairline AND shadow: RN's shadow renders faint on web, the border keeps the
-  // card's edge honest there without changing the native look.
   borderWidth: 1,
   borderColor: colors.border,
+  paddingLeft: space[4],
+  paddingRight: space[2],
+  paddingVertical: space[2],
   ...shadow.card,
 };
 
-const field: TextStyle = {
+const input: TextStyle = {
+  flex: 1,
   fontFamily: fonts.body,
-  // 16 is the field size the other three text inputs use (Input, AuthInput,
+  // 16 is the field size the app's other inputs use (Input, AuthInput,
   // RecipeInput); tokens.type has no input role to borrow.
   fontSize: 16,
-  lineHeight: 24,
+  lineHeight: 22,
   color: colors.ink,
-  minHeight: TAP,
+  // Centres a single line against the 44pt pill beside it: 22 line + 11×2 = 44.
+  paddingTop: 11,
+  paddingBottom: 11,
   maxHeight: INPUT_MAX_HEIGHT,
-  textAlignVertical: 'top',
 };
 
-const actions: ViewStyle = {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: space[3],
-};
-
-const speakPill: ViewStyle = {
+const pill: ViewStyle = {
   flexDirection: 'row',
   alignItems: 'center',
   gap: space[2],
@@ -80,11 +82,12 @@ const sendButton: ViewStyle = {
   borderRadius: radii.pill,
   alignItems: 'center',
   justifyContent: 'center',
+  backgroundColor: colors.terracotta,
 };
 
-// White-on-terracotta while listening: no ink Text role fits white text (same
-// reason Button styles its own label), so this one string reads the tokens direct.
-const listeningLabel: TextStyle = { ...type.label, color: colors.white };
+// White-on-dark label: no ink Text role produces white (same reason Button
+// styles its own label), so this one string reads the tokens directly.
+const pillLabel: TextStyle = { fontSize: 14, fontWeight: '700', color: colors.white };
 
 export function Composer({
   value,
@@ -94,9 +97,10 @@ export function Composer({
   listening,
   sending,
 }: ComposerProps) {
-  const canSend = value.trim().length > 0 && !sending;
+  const hasText = value.trim().length > 0;
+  const showSend = hasText && !listening;
   return (
-    <View style={card}>
+    <View style={field}>
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -104,37 +108,28 @@ export function Composer({
         placeholderTextColor={colors.inkSoft}
         accessibilityLabel="Message Otto"
         multiline
-        onSubmitEditing={onSend}
-        style={field}
+        style={input}
       />
-      <View style={actions}>
-        <Bounceable
-          onPress={onSpeak}
-          accessibilityLabel={listening ? 'Stop listening' : 'Speak to Otto'}
-          style={[speakPill, { backgroundColor: listening ? colors.terracotta : colors.creamDeep }]}
-        >
-          <Ionicons name="mic" size={18} color={listening ? colors.white : colors.ink} />
-          {listening ? (
-            <RNText style={listeningLabel}>Listening</RNText>
-          ) : (
-            <Text role="label">Speak</Text>
-          )}
-        </Bounceable>
+      {showSend ? (
         <Bounceable
           onPress={onSend}
-          disabled={!canSend}
+          disabled={sending}
           accessibilityLabel="Send"
           accessibilityState={{ busy: sending }}
-          style={[
-            sendButton,
-            // gray is the disabled/muted token — a dimmed terracotta would still
-            // read as "tap me". Nothing to send, nothing that looks tappable.
-            { backgroundColor: canSend ? colors.terracotta : colors.gray },
-          ]}
+          style={sendButton}
         >
           <Ionicons name="arrow-up" size={22} color={colors.white} />
         </Bounceable>
-      </View>
+      ) : (
+        <Bounceable
+          onPress={onSpeak}
+          accessibilityLabel={listening ? 'Stop listening' : 'Speak to Otto'}
+          style={[pill, { backgroundColor: listening ? colors.terracotta : colors.ink }]}
+        >
+          <Ionicons name="mic" size={18} color={colors.white} />
+          <RNText style={pillLabel}>{listening ? 'Listening' : 'Speak'}</RNText>
+        </Bounceable>
+      )}
     </View>
   );
 }

@@ -46,6 +46,30 @@ export function usePressSpring() {
   return { style, onPressIn, onPressOut };
 }
 
+// A one-shot press pop for a control that NAVIGATES AWAY on tap (the raised ＋).
+// press-in/press-out pairs get orphaned when navigation steals the touch — the
+// out never fires and the control stays stuck at its pressed scale, which is
+// why the ＋ came back from a screen looking smaller than it left. This runs the
+// whole down-and-back beat from onPress, so it always returns to rest, and it
+// dips harder than usePressSpring because this button is meant to be felt.
+// Reduced motion gets the same beat as an opacity flash — feedback, not scale.
+export function usePressPop() {
+  const reduced = useReducedMotion();
+  const scale = useSharedValue(1);
+  const dim = useSharedValue(0);
+  const style = useAnimatedStyle(() =>
+    reduced ? { opacity: 1 - dim.value * 0.3 } : { transform: [{ scale: scale.value }] },
+  );
+  const pop = () => {
+    if (reduced) {
+      dim.value = withSequence(withTiming(1, { duration: timing.fade }), withTiming(0, { duration: timing.fade }));
+      return;
+    }
+    scale.value = withSequence(withSpring(0.86, spring.pop), withSpring(1, spring.pop));
+  };
+  return { style, pop };
+}
+
 // OttoIdle breathing loop: ±1.5% scale, −2px rise, optional ±1.2° sway, ~4.2s/breath.
 export function useBreathe({ sway = false }: { sway?: boolean } = {}) {
   const reduced = useReducedMotion();

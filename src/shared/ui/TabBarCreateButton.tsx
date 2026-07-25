@@ -3,15 +3,27 @@ import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { haptics } from '@/shared/haptics';
-import { usePressSpring } from '@/shared/motion';
-import { colors, shadow } from '@/shared/theme/tokens';
+import { usePressPop } from '@/shared/motion';
+import { colors, radii, shadow } from '@/shared/theme/tokens';
 
 // The v1 signature: a raised, circular terracotta ＋ standing in for the `create`
 // tab's button (spec §Bottom tab bar). Rendered via Tabs.Screen `tabBarButton`,
 // so react-navigation's `onPress` is forwarded verbatim (navigation still works).
-// Press feedback comes from usePressSpring (contract: motion lives in one place).
+//
+// Two behaviours the founder asked for (2026-07-25):
+// 1. The press must be FELT and must always come back. usePressPop runs the
+//    whole dip-and-return from onPress — the old press-in/press-out pair was
+//    orphaned by navigation (the out never fired), so the ＋ came back from the
+//    chat screen still scaled down.
+// 2. Already on the create tab → the tap does NOTHING. No navigation, no
+//    haptic, no pop: you're there, and re-announcing arrival is noise. The
+//    accessibilityState marks it selected, which is what says so.
+const SIZE = 58;
+const LIFT = -26; // how far the disc stands proud of the bar
+
 export function TabBarCreateButton({ onPress, accessibilityState }: BottomTabBarButtonProps) {
-  const { style, onPressIn, onPressOut } = usePressSpring();
+  const { style, pop } = usePressPop();
+  const isOnScreen = !!accessibilityState?.selected;
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Pressable
@@ -19,19 +31,19 @@ export function TabBarCreateButton({ onPress, accessibilityState }: BottomTabBar
         accessibilityLabel="Create recipe"
         accessibilityState={accessibilityState}
         onPress={(e) => {
-          haptics.impact('light'); // kit is already web-safe + fire-and-forget
+          if (isOnScreen) return; // already here — nothing to do
+          haptics.impact('medium'); // heavier than a tab tick: this one moves you
+          pop();
           onPress?.(e);
         }}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
       >
         <Animated.View
           style={[
             {
-              width: 58,
-              height: 58,
-              borderRadius: 29,
-              marginTop: -26, // lifts the disc above the bar
+              width: SIZE,
+              height: SIZE,
+              borderRadius: radii.pill,
+              marginTop: LIFT,
               backgroundColor: colors.terracotta,
               borderWidth: 3,
               borderColor: colors.cream, // 3px surface ring
