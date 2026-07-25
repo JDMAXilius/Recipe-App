@@ -177,6 +177,7 @@ export function useSharedList(householdId: string | null): UseSharedList {
               custom_name: null,
               removed: false,
               removed_sources: null,
+              removed_at: null,
             },
           ];
       qc.setQueryData<ListStateRow[]>(key, next);
@@ -197,6 +198,7 @@ export function useSharedList(householdId: string | null): UseSharedList {
           custom_name: name,
           removed: false,
           removed_sources: null,
+          removed_at: null,
         },
       ]);
       return { prev };
@@ -219,7 +221,11 @@ export function useSharedList(householdId: string | null): UseSharedList {
       setItemRemoved(householdId as string, v.itemKey, v.removed, v.sources, userId as string),
     onMutate: async (v) => {
       const prev = await snapshot();
-      const patch = { removed: v.removed, removed_sources: v.removed ? v.sources : null };
+      const patch = {
+        removed: v.removed,
+        removed_sources: v.removed ? v.sources : null,
+        removed_at: v.removed ? new Date().toISOString() : null,
+      };
       const next = prev.some((r) => r.item_key === v.itemKey)
         ? prev.map((r) => (r.item_key === v.itemKey ? { ...r, ...patch } : r))
         : [...prev, { item_key: v.itemKey, checked: false, custom_name: null, ...patch }];

@@ -108,15 +108,19 @@ function HoldToRemoveRowBase({
   // i.e. a swipe TICKED THE ITEM OFF.
   const touchStart = useSharedValue<{ x: number; y: number } | null>(null);
   const moved = useSharedValue(false);
+  // Set when a post-activation vertical drag abandons the removal (see onUpdate).
+  const bailed = useSharedValue(false);
 
   const pan = useMemo(
     () =>
       Gesture.Pan()
         .activateAfterLongPress(HOLD_MS)
-        // A touch that goes vertical before the hold arms is the ScrollView's,
-        // not ours: without this, a thumb resting 300ms while reading armed the
-        // pan and the list refused to scroll on the follow-up flick.
-        .failOffsetY([-MOVE_SLOP, MOVE_SLOP])
+        // NOTE: no failOffsetX/Y here — with activateAfterLongPress set, RNGH
+        // already fails the gesture on ANY pre-activation movement past its own
+        // ~10pt slop (RNPanHandler.m; web uses 15), and offset thresholds are
+        // only consulted while the state is still Possible. Adding them reads
+        // like a fix and does nothing. The real hazard is AFTER activation —
+        // handled in onUpdate below.
         .onTouchesDown((e) => {
           const t = e.allTouches[0];
           touchStart.value = { x: t.absoluteX, y: t.absoluteY };
@@ -131,6 +135,7 @@ function HoldToRemoveRowBase({
         })
         .onBegin(() => {
           removing.value = false;
+          bailed.value = false;
           runOnJS(clearHeld)();
         })
         .onStart(() => {
@@ -138,6 +143,22 @@ function HoldToRemoveRowBase({
           runOnJS(held)();
         })
         .onUpdate((e) => {
+          if (bailed.value) return;
+          // A thumb resting while reading arms the hold; the follow-up flick is
+          // then a VERTICAL drag on an active pan. It can't be handed back to
+          // the ScrollView mid-gesture, so the next best thing is to let go
+          // immediately and visibly: the row drops back, and the user's second
+          // flick scrolls normally instead of dragging a lifted row around.
+          // ponytail: real simultaneity needs the ScrollView's gesture ref
+          // threaded in (simultaneousWithExternalGesture) — do that if the
+          // one-wasted-flick still annoys on device.
+          if (Math.abs(e.translationY) > MOVE_SLOP * 2 && Math.abs(e.translationY) > Math.abs(e.translationX)) {
+            bailed.value = true;
+            x.value = withSpring(0, spring.snappy);
+            lift.value = reduced ? 0 : withSpring(0, spring.snappy);
+            runOnJS(released)();
+            return;
+          }
           x.value = e.translationX;
         })
         .onEnd((e, success) => {
@@ -145,6 +166,7 @@ function HoldToRemoveRowBase({
           // an incoming call, a web pointercancel. The finger never came up, so
           // nothing may be removed — onFinalize still springs the row back.
           if (!success) return;
+          if (bailed.value) return; // the finger went scrolling — not a removal
           // COMMIT_FALLBACK is already a threshold — only the measured width
           // gets scaled by the ratio.
           const limit = width.value ? width.value * COMMIT_RATIO : COMMIT_FALLBACK;
@@ -172,7 +194,7 @@ function HoldToRemoveRowBase({
           lift.value = reduced ? 0 : withSpring(0, spring.snappy);
           runOnJS(released)();
         }),
-    [reduced, clearHeld, held, released, commitRemove, lift, removing, width, x, touchStart, moved],
+    [reduced, clearHeld, held, released, commitRemove, lift, removing, width, x, touchStart, moved, bailed],
   );
 
   const animStyle = useAnimatedStyle(() => {

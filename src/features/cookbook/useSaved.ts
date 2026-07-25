@@ -6,6 +6,10 @@
 import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
+import { haptics } from '@/shared/haptics';
+import { sound } from '@/shared/sound';
+import { kv } from '@/shared/storage';
+import { ottoBus } from '@/shared/bus';
 import { deleteFavorite, fetchFavorites, insertFavorite } from './saved.queries';
 import { applyOptimisticToggle, deriveSavedIds } from './cookbook.logic';
 import type { SavedRecipe } from './cookbook.types';
@@ -63,6 +67,23 @@ export function useSaved() {
         qc.getQueryData<SavedRecipe[]>(savedKey(userId)) ?? [],
       ).has(recipe.recipeId);
       mutation.mutate({ recipe, wasSaved });
+      // MOMENT 3 (motion.md §4): the FIRST recipe ever saved — once, ever.
+      // PawMark's own feedback (pop + light impact + save sound) covers every
+      // save; this adds the one-time completion beat on top. Fire-and-forget:
+      // a failed kv read just means no celebration, never a broken save.
+      if (!wasSaved) {
+        sound.play('save');
+        // The mascot's save hop (ui-components.md §5): OttoIdle listens with
+        // reactTo="save" and DiscoverScreen's comment already claimed this was
+        // wired — nothing emitted. It does now, on every save.
+        ottoBus.emit('save');
+        void (async () => {
+          if (await kv.get('firstSaveCelebrated', false)) return;
+          await kv.set('firstSaveCelebrated', true);
+          haptics.notify('success');
+          sound.play('allDone');
+        })();
+      }
     },
     [mutation, qc, userId],
   );

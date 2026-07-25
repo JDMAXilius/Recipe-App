@@ -26,6 +26,8 @@ export interface ListStateRow {
    *  client keeps locally: the row's key + the recipe IDS it came from. */
   removed: boolean;
   removed_sources: string[] | null;
+  /** When the removal was made — NOT updated_at, which every check-off bumps. */
+  removed_at: string | null;
 }
 
 // Unambiguous invite code — no O/0/I/1 to misread over text.
@@ -138,7 +140,7 @@ export async function getHouseholdWeekDishes(
 export async function getListState(householdId: string): Promise<ListStateRow[]> {
   const { data, error } = await supabase
     .from('household_list_state')
-    .select('item_key, checked, custom_name, removed, removed_sources')
+    .select('item_key, checked, custom_name, removed, removed_sources, removed_at')
     .eq('household_id', householdId);
   if (error) throw error;
   return data ?? [];
@@ -179,14 +181,18 @@ export async function setItemRemoved(
   sources: string[] | null,
   userId: string,
 ): Promise<void> {
+  const now = new Date().toISOString();
   const { error } = await supabase.from('household_list_state').upsert(
     {
       household_id: householdId,
       item_key: itemKey,
       removed,
       removed_sources: removed ? sources : null,
+      // Distinct from updated_at (every check-off bumps that) so a future
+      // expiry rule can reach shared removals too — ticket 4b.
+      removed_at: removed ? now : null,
       updated_by: userId,
-      updated_at: new Date().toISOString(),
+      updated_at: now,
     },
     { onConflict: 'household_id,item_key' },
   );

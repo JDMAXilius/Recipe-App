@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
+import { sound } from '@/shared/sound';
 import { useAuth } from '@/features/auth';
 import { stageOttoRecipe, takeOttoAsk } from '@/features/import';
 import { ChatEmptyState } from './components/ChatEmptyState';
@@ -105,6 +106,9 @@ export function ChatScreen() {
     // the session first so trailing results can't repopulate the sent text.
     if (listening) stopSpeech();
     haptics.select();
+    // MOMENT 5 (motion.md §4): a texture beat, deliberately NOT a celebration —
+    // a barely-there tick so sending has a body. Restraint is the spec here.
+    sound.play('send');
     setDraft('');
     send(text);
     toBottom();

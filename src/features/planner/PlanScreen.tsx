@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -11,8 +11,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, Button, OttoArt, OttoLoading, useToast } from '@/shared/ui';
+import { Text, Button, OttoIdle, OttoLoading, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
+import { sound } from '@/shared/sound';
 import { colors, radii, shadow, space, type } from '@/shared/theme/tokens';
 import { usePlan } from './usePlan';
 import { RecipePickerSheet } from './components/RecipePickerSheet';
@@ -44,6 +45,24 @@ export function PlanScreen() {
     (byDay[dayKey] = byDay[dayKey] || []).push(e);
   }
   const planned = entries.length;
+
+  // MOMENT 4 (motion.md §4): every day of the week has a dish. Fires once on
+  // the crossing — arming on the first observation, so opening an already-full
+  // week is a memory, not a moment.
+  const weekFull = days.length > 0 && days.every((d) => (byDay[d.key]?.length ?? 0) > 0);
+  const weekCelebrated = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (isLoading) return;
+    if (weekCelebrated.current === null) {
+      weekCelebrated.current = weekFull;
+      return;
+    }
+    if (weekFull && !weekCelebrated.current) {
+      haptics.notify('success');
+      sound.play('allDone');
+    }
+    weekCelebrated.current = weekFull;
+  }, [weekFull, isLoading]);
 
   const toggleCooked = async (entry: PlanEntry) => {
     haptics.select();
@@ -234,7 +253,7 @@ export function PlanScreen() {
 
       {!isLoading && planned === 0 && (
         <View style={styles.emptyWeek}>
-          <OttoArt name="happy" size={120} />
+          <OttoIdle name="happy" size={120} sway />
           <Text role="body">
             Pick something from your cookbook. Tonight in one tap, a list in ten seconds.
           </Text>

@@ -93,14 +93,21 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
   messagesRef.current = messages;
   // The thread this session writes to; minted on the first turn of a new chat.
   const threadIdRef = useRef<string | null>(threadId ?? null);
+  // Bumped by every send; the history load compares it to detect "the user
+  // started talking while I was reading" and stands down.
+  const sendSeq = useRef(0);
 
   // Load history: a reopened thread (threadId) shows its transcript, a fresh
   // create tab starts empty. setMessages directly (not persist) so reopening a
   // thread never bumps its updatedAt.
   useEffect(() => {
     let alive = true;
+    // A send that starts (and fails) while this read is in flight owns the
+    // transcript — the resolving load must not clobber its message or wipe its
+    // error notice. Track sends against the read's own snapshot.
+    const sendsAtStart = sendSeq.current;
     loadThreads().then((threads) => {
-      if (!alive) return;
+      if (!alive || sendSeq.current !== sendsAtStart) return;
       const found = threadId ? threads.find((t) => t.id === threadId) : null;
       threadIdRef.current = threadId ?? null;
       setMessages(found ? pruneHistory(found.messages, Date.now()) : []);
@@ -140,6 +147,7 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
       if (isSending) return;
       const userMsg = optionPickToMessage(text, Date.now());
       if (!userMsg) return;
+      sendSeq.current += 1;
       const withUser = pruneHistory([...messagesRef.current, userMsg], Date.now());
       persist(withUser);
       setResponse(null);

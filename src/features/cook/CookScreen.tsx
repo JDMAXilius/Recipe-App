@@ -16,6 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, OttoArt, Sheet, Text, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
+import { sound } from '@/shared/sound';
 import { kv } from '@/shared/storage';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { toUserRecipeId } from '@/types/ids';
@@ -211,6 +212,8 @@ export function CookScreen() {
   const goTo = (nextStep: number) => {
     if (nextStep < 0 || nextStep >= steps.length) return;
     haptics.impact('medium');
+    // Moving FORWARD is a step done (motion.md §3); stepping back isn't.
+    if (nextStep > step) sound.play('stepDone');
     setStep(nextStep);
   };
 
@@ -220,7 +223,11 @@ export function CookScreen() {
   };
 
   const finish = () => {
+    // MOMENT 1, the biggest earned win in the app (motion.md §4): the reserved
+    // completion haptic + the one proud chime. The visual beat is the `done`
+    // phase below (proud Otto + "Dinner, done. Otto's proud of you.").
     haptics.notify('success');
+    sound.play('allDone');
     setPhase('done');
     // Cook-completion (planner allowlist): mark every plan entry for this recipe
     // cooked. usePlan invalidates ['plan', userId] → useCookedState updates.

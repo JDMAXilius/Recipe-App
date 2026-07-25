@@ -14,6 +14,11 @@ export interface UsePlan {
   entries: PlanEntry[];
   days: WeekDay[];
   isLoading: boolean;
+  /** The week LOADED — not merely "not loading". An errored or disabled query
+   *  also reports isLoading false while `entries` is [], and consumers that
+   *  prune state against the week must not treat that as "the week is empty". */
+  isSuccess: boolean;
+  isError: boolean;
   add: (input: AddPlanInput) => Promise<PlanEntry>;
   remove: (id: number) => Promise<void>;
   swap: (oldId: number, input: AddPlanInput) => Promise<void>;
@@ -125,6 +130,8 @@ export function usePlan(): UsePlan {
     entries: query.data ?? [],
     days,
     isLoading: query.isLoading,
+    isSuccess: query.isSuccess,
+    isError: query.isError,
     add: (input) => addMut.mutateAsync(input),
     remove: (id) => removeMut.mutateAsync(id),
     swap: (oldId, input) => swapMut.mutateAsync({ oldId, input }).then(() => undefined),

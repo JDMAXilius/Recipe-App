@@ -14,8 +14,9 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import { Text, OttoArt, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
+import { Text, OttoIdle, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
+import { sound } from '@/shared/sound';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { kv } from '@/shared/storage';
 import { buildShoppingListShareText, ShareListCard, ShoppingListBanner } from '@/features/share';
@@ -50,6 +51,9 @@ import { HoldToRemoveRow } from './components/HoldToRemoveRow';
 // without a way back: the "N hidden · Show them" line is always there while
 // anything is hidden, not just for the 5s the undo toast lives.
 
+// Bump when the MEANING of a removal's `sources` changes. 2 = recipe ids.
+const REMOVED_IDENTITY_V = 2;
+
 // The kv blob, validated before trust (storage.ts:24-26 rule): a corrupt or
 // hand-edited value must degrade per FIELD (catch), never throw mid-hydration —
 // a stored `null` used to crash the async hydrate and nothing persisted for the
@@ -60,15 +64,32 @@ const storedStateSchema = z
     custom: z.array(z.object({ key: z.string(), name: z.string() })).catch([]),
     excluded: z.array(z.string()).catch([]),
     removed: z.unknown().optional(),
+    // Removal-identity version. v1 (or absent) = sources were dish TITLES, as
+    // shipped in builds 33/34; those entries can never match id-keyed sources
+    // again, so they are dropped on read rather than left to rot in the blob.
+    // Fail-open by design: the shopper sees their rows back, not data lost.
+    removedV: z.number().optional(),
   })
-  .catch({ checked: {}, custom: [], excluded: [], removed: [] });
+  .catch({ checked: {}, custom: [], excluded: [], removed: [], removedV: REMOVED_IDENTITY_V });
 type StoredShoppingState = z.infer<typeof storedStateSchema>;
-const EMPTY_STORED: StoredShoppingState = { checked: {}, custom: [], excluded: [], removed: [] };
+const EMPTY_STORED: StoredShoppingState = {
+  checked: {},
+  custom: [],
+  excluded: [],
+  removed: [],
+  removedV: REMOVED_IDENTITY_V,
+};
 
 export function ShoppingScreen() {
   const router = useRouter();
   const { show } = useToast();
-  const { entries, days, isLoading: planLoading } = usePlan();
+  const {
+    entries,
+    days,
+    isLoading: planLoading,
+    isSuccess: planSuccess,
+    isError: planError,
+  } = usePlan();
   // The offscreen ShareListCard (the recipient-facing picture) — captured by
   // react-native-view-shot when sharing on native.
   const shareCardRef = useRef<View>(null);
@@ -199,20 +220,31 @@ export function ShoppingScreen() {
       // absorbs anything (missing field, pre-release `string[]`, junk):
       // dropped, never guessed at — a bare name carries no source set, and
       // inventing one would resurrect the hide-that-ingredient-forever bug.
-      setLocalRemoved(normalizeRemoved(saved.removed));
+      // Pre-v2 blobs keyed removals on dish TITLES — dead weight against
+      // id-keyed rows, so they're dropped rather than silently kept forever.
+      setLocalRemoved(saved.removedV === REMOVED_IDENTITY_V ? normalizeRemoved(saved.removed) : []);
       setHydrated(true);
     })();
   }, []);
   useEffect(() => {
     if (!hydrated) return;
-    kv.set('shoppingState', { checked, custom, excluded, removed: localRemoved });
+    kv.set('shoppingState', {
+      checked,
+      custom,
+      excluded,
+      removed: localRemoved,
+      removedV: REMOVED_IDENTITY_V,
+    });
   }, [hydrated, checked, custom, excluded, localRemoved]);
   // Prune exclusions to dishes still on the week — but only once the week's
-  // source has SETTLED. A momentary short member list (a refetch, a placeholder)
-  // used to resurrect a dish the shopper dropped.
+  // source has genuinely LOADED. A momentary short member list (a refetch, a
+  // placeholder) used to resurrect a dish the shopper dropped; and `!isLoading`
+  // is NOT "loaded" — an errored or disabled plan query reports isLoading false
+  // with entries [], which would wipe every exclusion (and persist the wipe)
+  // for an offline shopper. Success only.
   const weekSettled = isShared
     ? householdQuery.isSuccess && !householdQuery.isFetching && !householdQuery.isPlaceholderData
-    : !planLoading;
+    : planSuccess;
   useEffect(() => {
     if (!weekSettled || !hydrated) return;
     setExcluded((prev) => {
@@ -284,7 +316,12 @@ export function ShoppingScreen() {
     }
     void (async () => {
       const saved = await kv.get('shoppingState', EMPTY_STORED, storedStateSchema);
-      await kv.set('shoppingState', { ...saved, removed: fn(normalizeRemoved(saved.removed)) });
+      const current = saved.removedV === REMOVED_IDENTITY_V ? normalizeRemoved(saved.removed) : [];
+      await kv.set('shoppingState', {
+        ...saved,
+        removed: fn(current),
+        removedV: REMOVED_IDENTITY_V,
+      });
     })();
   }, []);
 
@@ -389,8 +426,33 @@ export function ShoppingScreen() {
         actionLabel: 'Undo',
         onAction: () => {
           const { isShared: sharedUndo, shared: listUndo } = liveRef.current;
-          if (sharedUndo) listUndo.addCustom(name);
-          else setCustom((prev) => [...prev, { key, name }]);
+          if (sharedUndo) {
+            listUndo.addCustom(name); // a query mutation — survives unmount
+            return;
+          }
+          // The toast outlives this screen, so the local path writes through
+          // to kv when we're gone (same law as the ingredient undo), and the
+          // row comes back UNTICKED — a restored row still marked "got it"
+          // is a lie.
+          if (!unmounted.current) {
+            setChecked((prev) => {
+              const next = { ...prev };
+              delete next[key];
+              return next;
+            });
+            setCustom((prev) => [...prev, { key, name }]);
+            return;
+          }
+          void (async () => {
+            const saved = await kv.get('shoppingState', EMPTY_STORED, storedStateSchema);
+            const checkedNext = { ...saved.checked };
+            delete checkedNext[key];
+            await kv.set('shoppingState', {
+              ...saved,
+              checked: checkedNext,
+              custom: [...saved.custom, { key, name }],
+            });
+          })();
         },
       });
     },
@@ -406,6 +468,26 @@ export function ShoppingScreen() {
   const done =
     items.filter((i) => isChecked(i.key)).length +
     customList.filter((c) => isChecked(c.key)).length;
+
+  // MOMENT 2 (motion.md §4): the last item goes in the basket. The count line
+  // resolves to a sentence, the reserved completion haptic fires and the proud
+  // chime plays — once per crossing, not on every re-render, and never on a
+  // list that was already complete when the screen opened (that's not a
+  // moment, that's a memory).
+  const allDone = total > 0 && done === total;
+  const celebrated = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!hydrated) return;
+    if (celebrated.current === null) {
+      celebrated.current = allDone; // first observation arms, never fires
+      return;
+    }
+    if (allDone && !celebrated.current) {
+      haptics.notify('success');
+      sound.play('allDone');
+    }
+    celebrated.current = allDone;
+  }, [allDone, hydrated]);
 
   // Share: on native snapshot the offscreen ShareListCard (the recipient-facing
   // picture — bullets, open items only, Otto sign-off) to a PNG via
@@ -468,10 +550,13 @@ export function ShoppingScreen() {
     );
   }
 
-  if (listQuery.isError) {
+  // A failed WEEK is as honest a failure as a failed ingredient fetch — without
+  // this the screen renders "Nothing to buy yet" over a week it simply couldn't
+  // read (the same honesty-law violation as the household reads, personal path).
+  if (planError || listQuery.isError) {
     return (
       <Screen title="Shopping list" onBack={() => router.back()}>
-        <OttoError onRetry={() => listQuery.refetch()} />
+        <OttoError onRetry={() => (planError ? qc.invalidateQueries({ queryKey: ['plan'] }) : listQuery.refetch())} />
       </Screen>
     );
   }
@@ -525,7 +610,7 @@ export function ShoppingScreen() {
 
             {total > 0 && (
               <RNText style={styles.countHeader}>
-                {done} of {total} in the basket
+                {allDone ? 'All in the basket.' : `${done} of ${total} in the basket`}
               </RNText>
             )}
 
@@ -578,7 +663,7 @@ export function ShoppingScreen() {
             {allItems.length === 0 && customList.length === 0 ? (
               // Genuinely nothing planned.
               <View style={styles.empty}>
-                <OttoArt name="thinking" size={120} />
+                <OttoIdle name="thinking" size={120} sway />
                 <Text role="body">
                   Nothing to buy yet. Put a dish or two on Otto&apos;s week and build the list from
                   there.
@@ -590,7 +675,7 @@ export function ShoppingScreen() {
               // the dish chips, so this state says what actually happened and
               // points at the restore line above.
               <View style={styles.empty}>
-                <OttoArt name="thinking" size={120} />
+                <OttoIdle name="thinking" size={120} sway />
                 <Text role="body">
                   You&apos;ve taken everything off this list. The dishes are still on the week —
                   tap &ldquo;Show them&rdquo; above to put the ingredients back.

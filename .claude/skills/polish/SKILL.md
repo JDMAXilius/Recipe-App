@@ -50,6 +50,23 @@ Severity: P1 = breaks an off-ramp/a11y/honesty; P2 = vocabulary violation;
 P3 = drift/nice-to-have. End with a one-line verdict: `SWEEPS CLEAN` or
 `N findings (aP1 bP2 cP3)`.
 
+## Exceptions (calibrated 2026-07-25 on the RecipeDetail dry-run — 15 findings, 2.5 FPs)
+
+- **Frozen-8 primitives** listed "unchanged" in ui-components.md §6 (Button,
+  SegmentBar, Input…): their internal patterns are sanctioned — Button's
+  pressed-opacity dip is NOT a finding.
+- **Routine-fetch loading states** may be quiet text — OttoLoading's own doc
+  reserves it for cold-start/slow paths. Only flag a bare loading state on a
+  cold-start path.
+- **Shared-primitive findings are recorded ONCE against the component**, in a
+  dedicated component pass — never repeated per screen (`--all` must not
+  report Sheet's default slide N times).
+- **Prose/text links** (incl. "Watch on YouTube →"-style fallback lines) are
+  exempt from the Bounceable rule; the tappable-card/tile rule stands.
+- **OPEN founder ruling** (2026-07-25): do circular icon buttons in
+  hero/toolbars need Bounceable? Until ruled, flag them but group them as ONE
+  finding per screen, not one per button.
+
 ## Rules
 
 - **Never edit code.** This skill is the auditor half of the loop — findings
@@ -58,8 +75,10 @@ P3 = drift/nice-to-have. End with a one-line verdict: `SWEEPS CLEAN` or
 - No taste findings: everything maps to a numbered checklist item and cites
   the contract line it violates. If it isn't in the contracts, it isn't a
   finding — propose a contract edit instead.
+- **Out-of-scope observations lane**: real bugs the checklist can't express
+  (dead buttons, honesty violations) go under a separate "Observations"
+  heading — never dropped, never shoehorned into a motion rule.
 - False-positive discipline: if unsure whether an exception applies, read the
-  imported component before flagging. Calibrated 2026-07-25 on RecipeDetail
-  (see DELIGHT ticket Log).
+  imported component before flagging.
 - When the sweep is clean, record `swept @ <short sha>` in the active ticket's
   Log with the screen name.
