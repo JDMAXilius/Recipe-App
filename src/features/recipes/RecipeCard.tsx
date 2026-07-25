@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { PawMark, Text } from '@/shared/ui';
@@ -29,6 +29,7 @@ export function RecipeCard({
   onPress?: () => void;
 }) {
   const router = useRouter();
+  const [cardW, setCardW] = useState(0);
   const { isSaved, toggle } = useSaved();
   // favorites.recipe_id is INTEGER (seed ids only). A user-recipe summary
   // ("u-12") would Number() to NaN and poison the favorites row, so the paw is
@@ -53,13 +54,30 @@ export function RecipeCard({
   // and a <button> inside a <button> is invalid HTML (hydration error). The paw
   // overlays via absolute positioning on the wrapper, outside the card button.
   return (
-    <View style={{ flex: 1, margin: space[2], maxWidth: '50%' }}>
+    <View
+      style={{ flex: 1, margin: space[2], maxWidth: '50%' }}
+      // One measurement per card: the photo is a 5:4 crop of the card's own
+      // width, so width alone places the paw on the photo's bottom edge (Figma)
+      // without hard-coding a height that would drift on another screen size.
+      onLayout={(e) => setCardW(e.nativeEvent.layout.width)}
+    >
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Open recipe ${recipe.title}`}
         onPress={onPress ?? (() => router.push(`/recipe/${recipe.id}`))}
       >
-        <View style={{ borderRadius: radii.card, overflow: 'hidden', backgroundColor: colors.creamDeep }}>
+        {/* The card IS a white surface (Figma): photo bleeding to the top
+            corners, title + macro dots on the card below it. Previously the
+            title sat on the page background, so a tile read as a loose photo
+            with a caption instead of a card. */}
+        <View
+          style={{
+            borderRadius: radii.card,
+            overflow: 'hidden',
+            backgroundColor: colors.white,
+            ...shadow.card,
+          }}
+        >
           {recipe.image ? (
             <Image
               source={{ uri: recipe.image }}
@@ -75,20 +93,20 @@ export function RecipeCard({
               resizeMode="cover"
             />
           )}
-        </View>
-        <View style={{ paddingTop: space[2], gap: space[1] }}>
-          <Text role="body">{recipe.title}</Text>
-          <MacroDots />
+          <View style={{ padding: space[3], gap: space[2] }}>
+            <Text role="body">{recipe.title}</Text>
+            <MacroDots />
+          </View>
         </View>
       </Pressable>
-      {/* Calorie pill (top-left, opposite the paw): computed figure when known,
-          category estimate ("~") otherwise. */}
+      {/* Calorie pill — top RIGHT (Figma): computed figure when known, category
+          estimate ("~") otherwise. */}
       <View
         pointerEvents="none"
         style={{
           position: 'absolute',
           top: space[2],
-          left: space[2],
+          right: space[2],
           flexDirection: 'row',
           alignItems: 'center',
           gap: space[1],
@@ -100,10 +118,18 @@ export function RecipeCard({
         }}
       >
         <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.terracotta }} />
-        <Text role="caption">{`${isComputed ? '' : '~'}${kcal} cal`}</Text>
+        <Text role="caption">{`${isComputed ? '' : '~'}${kcal} CAL`}</Text>
       </View>
-      {isSeed ? (
-        <View style={{ position: 'absolute', top: space[2], right: space[2] }}>
+      {isSeed && cardW > 0 ? (
+        // Straddles the photo's bottom edge, clear of the calorie pill (Figma).
+        // Sibling of the card Pressable, never nested — see the note above.
+        <View
+          style={{
+            position: 'absolute',
+            top: cardW * (4 / 5) - PAW / 2,
+            right: space[3],
+          }}
+        >
           <PawMark
             saved={isSaved(recipeId)}
             onToggle={() =>
@@ -116,13 +142,16 @@ export function RecipeCard({
                 servings: null,
               })
             }
-            size={26}
+            size={PAW}
           />
         </View>
       ) : null}
     </View>
   );
 }
+
+// The paw's rendered size — also the offset that centres it on the photo's edge.
+const PAW = 34;
 
 // The 3 macro dots under the title (protein · carbs · fat) — a fixed decorative
 // brand motif from the Figma card, NOT a per-recipe claim (a summary carries no

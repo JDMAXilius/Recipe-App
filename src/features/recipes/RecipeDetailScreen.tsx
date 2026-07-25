@@ -432,7 +432,19 @@ export function RecipeDetailScreen() {
           {/* EXIT — related recipes */}
           {related.length > 0 ? (
             <View style={{ gap: space[3] }}>
-              <Text role="title">More from the pantry</Text>
+              <View style={{ gap: space[1] }}>
+                <Text role="title">More from the pantry</Text>
+                {/* Names what the row actually is — useRelated returns other
+                    recipes in THIS category, so the line is descriptive, not
+                    decoration. Lowercased so "Beef" reads as "beef dishes";
+                    no category (user recipes never reach here) → the plain
+                    line rather than an awkward "other  dishes". */}
+                <Text role="caption">
+                  {recipe.category
+                    ? `Other ${recipe.category.toLowerCase()} dishes Otto keeps close by.`
+                    : 'Other dishes Otto keeps close by.'}
+                </Text>
+              </View>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                 {related.map((r) => (
                   <RecipeCard key={String(r.id)} recipe={r} />
