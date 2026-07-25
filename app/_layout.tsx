@@ -10,6 +10,7 @@ import { Splash } from '@/features/onboarding';
 import { NotifSync } from '@/features/notifications';
 import { RC_API_KEY, RC_TEST_STORE } from '@/features/profile/club.purchases';
 import { ErrorBoundary, ToastHost } from '@/shared/ui';
+import { timing } from '@/shared/theme/tokens';
 
 // The provider stack: gesture root → error boundary → server state (TanStack
 // Query) → auth (the one allowed context) → toasts → safe area. Lora is loaded
@@ -48,7 +49,20 @@ export default function RootLayout() {
                   (react-native-screens' fullScreenSwipeEnabled), so Android was
                   always on the system back gesture / hardware back. Cook opts
                   out entirely below — its step pager owns horizontal pans. */}
-              <Stack screenOptions={{ headerShown: false }}>
+              {/* G5, "intentional easing" (motion.md §1): the push is CHOSEN,
+                  not inherited — one slide-from-right on both platforms
+                  (Android's default differs), at the `enter` duration.
+                  HONEST CEILING: this is a native stack, so iOS runs UIKit's
+                  own transition curve and `animationDuration` is Android-only.
+                  Claiming a tokenized curve on iOS here would be false; the
+                  role-named tokens govern in-app motion, not the OS push. */}
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                  animationDuration: timing.enter,
+                }}
+              >
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="(auth)" />
                 <Stack.Screen name="add" />
