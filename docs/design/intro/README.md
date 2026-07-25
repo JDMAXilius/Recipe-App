@@ -1,6 +1,8 @@
-# Otto intro — beat sheet v1
+# Otto intro — beat sheet (v2)
 
-Storyboard: `otto-intro-storyboard-v1.png` (low-fi, generated 2026-07-25).
+Storyboard: **`otto-intro-storyboard-v2.png`** (current). `v1` kept as the
+earlier direction — it opened on the wordmark alone; the founder cut that so the
+name lands only on the final look.
 Reference the founder gave: the Pixar/Luxo Jr. ident.
 
 **What we're actually stealing from Luxo.** Not the lamp and not the length —
@@ -14,16 +16,28 @@ flops over his eyes, and then the look.
 
 | # | t | On screen | Notes |
 |---|---|---|---|
-| 1 | 0.00–0.25 | Cream frame, the `otto` wordmark alone, centred | The stage is set before anything happens. Stillness makes the entrance read. |
-| 2 | 0.25–0.75 | He dashes in from the LEFT, body stretched low, hat streaming back | Fast. Cross the frame in ~0.5s; he should feel like he's late. |
-| 3 | 0.75–1.05 | Skid to a stop beside the wordmark, dust puff, hat flops over his eyes | The consequence. This is the squash-the-I moment — a small physical accident. |
-| 4 | 1.05–1.40 | One paw pushes the hat back up, dust settling | The recovery. Deadpan, not mugging. |
-| 5 | 1.40–1.70 | He turns to face the viewer, small and calm beside the wordmark | The turn is a separate beat from the look. Don't merge them. |
-| 6 | 1.70–2.10 | Hold: the warm closed-eye smile, then cross-fade to the app | The `pleased` expression already exists as art (`otto-pleased-cut.png`). |
+| 1 | 0.00–0.45 | **Cold open on action.** He dashes in from the LEFT of an empty cream frame, body stretched low, hat streaming back | No wordmark, no held title card. Starting on movement is punchier than starting on a logo, and it buys back a quarter-second. |
+| 2 | 0.45–0.72 | Skid to a stop, dust puff, hat flops over his eyes | The consequence — the squash-the-I beat. Fast; it's an accident, not a pose. |
+| 3 | 0.72–1.02 | One paw pushes the hat back up, dust settling | The recovery. Deadpan, not mugging. |
+| 4 | 1.02–1.25 | He turns to face the viewer | A separate beat from the look. Don't merge them — the turn is what makes the look land. |
+| 5 | 1.25–1.70 | The hold: warm closed-eye smile, and **now** `otto` fades in beside him | The name and the look arrive together, so they read as one gesture: he says hello and tells you who he is. Wordmark fade ~0.2s, then ~0.25s to read it. |
 
-**Total ~2.1s.** Pixar's ident is ~10s because it plays once in a cinema. An app
-that makes a hungry person wait 10s to cook is hostile. Two seconds is the
-ceiling, and it must never block first paint.
+## How long: **1.7s**, hard ceiling 2.0s
+
+The number isn't taste — it's set by a constraint. **The intro should hide
+inside the app's own cold start, so it costs the user nothing.** A React Native
+cold start on a mid-tier phone is roughly 1.5–3s; at 1.7s the animation is
+finished before the app would have been interactive anyway. Go past ~2s and you
+stop masking a wait and start *being* one.
+
+Pixar's ident is ~10s because it plays once, in a cinema, to a seated audience.
+An app that makes a hungry person wait 10s to cook is hostile.
+
+**Make the last beat elastic.** Beats 1–4 are fixed (they're physical action —
+stretching them looks like slow motion). Beat 5, the hold, is the shock
+absorber: hold it while the app finishes booting, and cut the moment it's ready.
+That way a fast phone sees ~1.5s, a slow one sees ~2.2s, and neither ever waits
+*because of us*.
 
 ## Rules this has to obey
 
@@ -60,5 +74,10 @@ ceiling, and it must never block first paint.
 2. Does he enter from the left, or drop in from the top (a wetter, more
    otter-ish entrance)?
 3. Frequency: once per install, or once per day?
-4. Is the hat-flop the right accident, or should he skid *into* the wordmark and
-   nudge it — closer to Luxo squashing the I?
+4. Is the hat-flop the right accident? With the wordmark gone from the early
+   frames, the alternative is he skids past his mark and has to step back into
+   it — a different joke, same length. (He can no longer bump the wordmark,
+   since it isn't there yet.)
+
+*Answered 2026-07-25: the wordmark appears only on the final hold — so no title
+card, and the intro cold-opens on the run.*
