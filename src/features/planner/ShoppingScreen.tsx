@@ -475,19 +475,21 @@ export function ShoppingScreen() {
   // list that was already complete when the screen opened (that's not a
   // moment, that's a memory).
   const allDone = total > 0 && done === total;
-  const celebrated = useRef<boolean | null>(null);
+  const lastSeen = useRef<{ allDone: boolean; done: number } | null>(null);
   useEffect(() => {
     if (!hydrated) return;
-    if (celebrated.current === null) {
-      celebrated.current = allDone; // first observation arms, never fires
-      return;
-    }
-    if (allDone && !celebrated.current) {
+    const prev = lastSeen.current;
+    lastSeen.current = { allDone, done };
+    if (!prev) return; // first observation arms, never fires
+    // The crossing must come from CHECKING something off. Throwing the last
+    // unchecked row off the list also makes done === total — a removal is not
+    // an achievement, and celebrating it would dilute the reserved signal
+    // (motion.md §2/§4).
+    if (allDone && !prev.allDone && done > prev.done) {
       haptics.notify('success');
       sound.play('allDone');
     }
-    celebrated.current = allDone;
-  }, [allDone, hydrated]);
+  }, [allDone, done, hydrated]);
 
   // Share: on native snapshot the offscreen ShareListCard (the recipient-facing
   // picture — bullets, open items only, Otto sign-off) to a PNG via
