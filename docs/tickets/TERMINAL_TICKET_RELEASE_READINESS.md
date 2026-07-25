@@ -1,5 +1,6 @@
 # TERMINAL TICKET — release readiness audit (ship-ready)
 
+> STATUS: in-progress — terminal 2026-07-25 (06a7f5dc). Section A first, per the ordering law.
 > STATUS: open — cut from cloud 2026-07-25. Founder directive: "the app is pretty much almost
 > finished and ready to publish — define and audit everything necessary, research what other
 > companies do before releasing, polish as much as possible."
