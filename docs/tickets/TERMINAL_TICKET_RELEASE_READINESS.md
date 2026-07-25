@@ -256,6 +256,29 @@ Otto currently ships with **no crash reporting and no analytics** — `grep -rn 
 
 ---
 
+## Crew — how this ticket is actually run (added 2026-07-25)
+
+Same law as every ticket: audits produce findings, findings become packets, and **nothing
+lands unrefuted**. This ticket is the audit trail; the crew does the work.
+
+| Section | Who audits | Who fixes | Who refutes/verifies |
+|---|---|---|---|
+| A1, A9 (URLs, metadata, copy) | **builder** (research + drafts) | builder | **critic** REFUTER on every claim ("this URL resolves" gets *checked*, not asserted) |
+| A2, A3 (privacy label, manifest) | **security-builder** walks tables/functions/SDKs and drafts the truth table | security-builder | critic REFUTER — every label row cross-examined against code |
+| A4 (review account) | **security-builder** (seeding via service role) | — | founder holds the credentials |
+| A5, C1, C2, C7, F1–F5 (iPad, a11y, devices, content QA, finish) | `/polish` skill once it exists (`TERMINAL_TICKET_DELIGHT_POLISH.md` 3b) + **builder** sweeps | builder / **ui-systems** (tokens, primitives) / **delight** (motion, sound) | critic REFUTER per batch; **verifier** runs the ladder; founder does the on-device rung |
+| A6 (Otto Club) | per `OTTO_CLUB_GOLIVE.md` | builder + security-builder (webhook) | critic + a real sandbox purchase (founder) |
+| A7, A8 (rights, disclaimers) | **builder** research; wording in Otto's voice | builder | critic JUDGE on the wording, REFUTER on the claims |
+| B1–B5 (crash SDK, funnel, kill switch, alarms) | **builder** (SDK) + **security-builder** (app_config flag, RLS) | same | critic REFUTER (PII-in-breadcrumbs hunt is a named packet), verifier |
+| C4, C8 (offline honesty, BUILD34 defects) | already-confirmed findings | builder per packet | critic REFUTER re-run on the fix (the shopping fix that "fixed" 5f9fdcd is the cautionary tale) |
+| D1–D5 (security) | **security-builder** + advisors | security-builder | critic REFUTER attacks the fix; RLS attack suite extended, not just re-run |
+| E1–E5 (release mechanics) | founder + terminal together | — | exit criteria written in the Log before the round starts, judged after |
+
+Rule of the ladder, restated for this ticket: **verifier** closes nothing by itself — green
+tsc/eslint/suites is rung V1; the critic's refutation is V2; the founder's on-device pass is
+the rung the cloud can never do (haptics, sound, feel, App Store panels). A box in this
+ticket closes only when the highest rung that can observe it has passed.
+
 ## Done when
 
 - [ ] Every Section A box closed, with the App Privacy truth table (A2) written into the Log
