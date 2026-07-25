@@ -1,5 +1,6 @@
 # TERMINAL TICKET — build 34, shared-list removal sync, one remove affordance
 
+> STATUS: in-progress — terminal 2026-07-25 (09287cb2)
 > STATUS: open — cut from cloud 2026-07-25. Items 1–3 are the founder's open list; item 4 is
 > the confirmed fallout from the adversarial review of `9fbd4dc` + `5f9fdcd` (hold-to-remove),
 > which lives in the same code and should be fixed in the same pass.

@@ -1,5 +1,6 @@
 # TERMINAL TICKET — delight engineering: sound, motion, moments, and the /polish sweep
 
+> STATUS: in-progress — terminal 2026-07-25 (09287cb2)
 > STATUS: open — cut from cloud 2026-07-25. Founder directive: "Duolingo and Tiimo are doing
 > it pretty, pretty good — animation, sounds, all kinds of stuff. Define how they actually do
 > it, find the areas our app is lacking, and approach this as a context engineer / AI
