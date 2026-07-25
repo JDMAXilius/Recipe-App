@@ -39,3 +39,6 @@ credentials/
 
 # otto-recipes canonicalization scratch (inputs/per-recipe outputs); silver recipes.json IS committed
 supabase/otto-recipes/canonical/_*
+
+# Web export output (expo export --platform web) — a build artifact, never committed
+dist/
