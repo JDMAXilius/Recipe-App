@@ -4,7 +4,7 @@
 // contract in isolation.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShoppingList, aisleFor, AISLES } from './shoppingList.ts';
+import { buildShoppingList, aisleFor, pruneRemoved, AISLES } from './shoppingList.ts';
 
 const ing = (name, over = {}) => ({ name, qty: null, unit: null, grams: null, raw: '', ...over });
 
@@ -100,4 +100,21 @@ test('no-reorder: order is a pure function of input, identical across rebuilds',
   assert.deepEqual(keys1, keys2);
   // check state lives outside buildShoppingList (it takes no check map), so
   // ticking an item literally cannot feed back into ordering.
+});
+
+test('pruneRemoved: drops keys the week no longer produces, keeps the live ones', () => {
+  const items = buildShoppingList([
+    { title: 'A', ingredients: [ing('onion', { grams: 100 }), ing('flour', { grams: 100 })] },
+  ]);
+  const liveKeys = items.map((i) => i.key);
+  // "onion" is still on the week (stays hidden); "chicken" came from a dish the
+  // shopper has since dropped, so the memory of removing it must not linger.
+  assert.deepEqual(pruneRemoved(['onion', 'chicken'], liveKeys), ['onion']);
+});
+
+test('pruneRemoved: returns the SAME array when nothing changed (no needless re-render)', () => {
+  const removed = ['onion'];
+  assert.equal(pruneRemoved(removed, ['onion', 'flour']), removed); // identity, not just equality
+  const empty = [];
+  assert.equal(pruneRemoved(empty, []), empty);
 });

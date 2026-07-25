@@ -13,7 +13,7 @@ import {
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Text, OttoArt, OttoLoading, OttoError, Screen } from '@/shared/ui';
+import { Text, OttoArt, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { kv } from '@/shared/storage';
@@ -21,7 +21,8 @@ import { buildShoppingListShareText, ShareListCard, ShoppingListBanner } from '@
 import { useHousehold, useSharedList, getHouseholdWeekDishes } from '@/features/household';
 import { usePlan } from './usePlan';
 import { getListRecipes } from './plan.queries';
-import { buildShoppingList, AISLES } from './shoppingList';
+import { buildShoppingList, pruneRemoved, AISLES, type ShoppingItem } from './shoppingList';
+import { HoldToRemoveRow } from './components/HoldToRemoveRow';
 
 // Shopping list (roadmap Phase 4): built from the current week, one row per
 // ingredient with summed quantities + provenance, aisle sections, whole-row
@@ -29,9 +30,15 @@ import { buildShoppingList, AISLES } from './shoppingList';
 // and is NOT an input to buildShoppingList — so ticking an item can never
 // move it. Check state + custom extras persist to kv ('shoppingState') so the
 // list survives leaving the screen; the derived rows always rebuild from plan.
+//
+// Three grades of "I don't need this": drop a whole DISH (chip ×), delete a
+// custom extra (its ×), or throw ONE ingredient off by holding the row and
+// dragging it away (HoldToRemoveRow). Removed keys live in `removed` beside
+// `excluded` — filtered out of the rows, the basket count, and the share.
 
 export function ShoppingScreen() {
   const router = useRouter();
+  const { show } = useToast();
   const { entries, days, isLoading: planLoading } = usePlan();
   // The offscreen ShareListCard (the recipient-facing picture) — captured by
   // react-native-view-shot when sharing on native.
@@ -100,9 +107,19 @@ export function ShoppingScreen() {
   // When the week is empty the query is disabled and RETAINS its last data —
   // so the list must be forced empty here, or removing every dish would leave
   // the old ingredients on screen (the "doesn't update" bug).
-  const items = useMemo(
+  const allItems = useMemo(
     () => (activeRecipeIds.length === 0 ? [] : buildShoppingList(listQuery.data ?? [])),
     [activeRecipeIds.length, listQuery.data],
+  );
+
+  // Single ingredient rows the shopper threw off the list (hold-then-drag, or
+  // the VoiceOver action). Held by item key, persisted like `excluded`. Every
+  // consumer below — rows, counts, share text, share card — reads `items`, so a
+  // removed thing is gone from ALL of them, not just hidden on screen.
+  const [removed, setRemoved] = useState<string[]>([]);
+  const items = useMemo(
+    () => (removed.length === 0 ? allItems : allItems.filter((i) => !removed.includes(i.key))),
+    [allItems, removed],
   );
 
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -129,17 +146,21 @@ export function ShoppingScreen() {
         checked: Record<string, boolean>;
         custom: { key: string; name: string }[];
         excluded?: string[];
-      }>('shoppingState', { checked: {}, custom: [], excluded: [] });
+        removed?: string[];
+      }>('shoppingState', { checked: {}, custom: [], excluded: [], removed: [] });
       setChecked(saved.checked ?? {});
       setCustom(saved.custom ?? []);
       setExcluded(saved.excluded ?? []);
+      // `removed` landed after the first shipped shape — a blob saved without
+      // it must still load, hence the ?? [] (same defence as `excluded`).
+      setRemoved(saved.removed ?? []);
       hydrated.current = true;
     })();
   }, []);
   useEffect(() => {
     if (!hydrated.current) return;
-    kv.set('shoppingState', { checked, custom, excluded });
-  }, [checked, custom, excluded]);
+    kv.set('shoppingState', { checked, custom, excluded, removed });
+  }, [checked, custom, excluded, removed]);
   // Prune exclusions to dishes still on the week (once it has loaded), so a
   // dropped-then-replanned dish returns to the list instead of staying hidden.
   useEffect(() => {
@@ -149,6 +170,15 @@ export function ShoppingScreen() {
       return next.length === prev.length ? prev : next;
     });
   }, [recipeIds]);
+  // Same prune for hand-removed rows, against the ingredients the week actually
+  // produces now. Guarded on a non-empty build: while the list query is loading
+  // (or the week is momentarily empty) allItems is [], and pruning against that
+  // would wipe the memory and resurrect every removed row.
+  useEffect(() => {
+    if (allItems.length === 0) return;
+    const liveKeys = allItems.map((i) => i.key);
+    setRemoved((prev) => pruneRemoved(prev, liveKeys));
+  }, [allItems]);
 
   const toggle = (key: string) => {
     haptics.select();
@@ -163,6 +193,21 @@ export function ShoppingScreen() {
     if (isShared) shared.addCustom(name);
     // Date.now() key — a re-used index would collide checkboxes after removals.
     else setCustom((prev) => [...prev, { key: `custom-${Date.now()}-${Math.floor(Math.random() * 1e6)}`, name }]);
+  };
+
+  // Hold-then-drag committed (or the accessibility action fired): the row goes,
+  // the basket count drops with it, and a toast holds the door open for a
+  // change of mind. SHARED HOUSEHOLDS: this stays on this device —
+  // household_list_state has no "removed" column and inventing one is a
+  // migration, not a screen change (see report/gap). Check-offs and custom
+  // items still sync exactly as before.
+  const removeItem = (item: ShoppingItem) => {
+    setRemoved((prev) => (prev.includes(item.key) ? prev : [...prev, item.key]));
+    const label = item.name.charAt(0).toUpperCase() + item.name.slice(1);
+    show(`${label} — off the list.`, 'info', {
+      actionLabel: 'Undo',
+      onAction: () => setRemoved((prev) => prev.filter((key) => key !== item.key)),
+    });
   };
 
   const removeCustom = (key: string) => {
@@ -334,14 +379,16 @@ export function ShoppingScreen() {
                 <View key={group.aisle} style={styles.section}>
                   <RNText style={styles.aisleHeader}>{group.aisle}</RNText>
                   <View style={styles.rule} />
+                  {/* Tap = check off (unchanged). Hold ~300ms → the row lifts →
+                      drag it away to take it off the list entirely. */}
                   {group.items.map((item) => (
                     <View key={item.key}>
-                      <Pressable
+                      <HoldToRemoveRow
                         style={styles.itemRow}
-                        accessibilityRole="checkbox"
-                        accessibilityState={{ checked: Boolean(isChecked(item.key)) }}
+                        checked={Boolean(isChecked(item.key))}
                         accessibilityLabel={`${item.amount} ${item.name}`.trim()}
                         onPress={() => toggle(item.key)}
+                        onRemove={() => removeItem(item)}
                       >
                         <View style={[styles.check, isChecked(item.key) && styles.checkOn]}>
                           {isChecked(item.key) && (
@@ -354,7 +401,7 @@ export function ShoppingScreen() {
                             <Text role="caption">for {item.sources.join(' · ')}</Text>
                           )}
                         </View>
-                      </Pressable>
+                      </HoldToRemoveRow>
                       <View style={styles.sep} />
                     </View>
                   ))}

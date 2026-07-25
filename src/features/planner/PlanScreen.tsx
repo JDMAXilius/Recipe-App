@@ -106,7 +106,7 @@ export function PlanScreen() {
       {planned > 0 && (
         <View style={{ marginBottom: space[4] }}>
           <Button
-            title="Build my list from this week"
+            title="Build my shopping list"
             variant="primary"
             onPress={() => router.push('/shopping')}
           />

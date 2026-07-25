@@ -206,3 +206,15 @@ export function buildShoppingList(recipes: RecipeForList[]): ShoppingItem[] {
   items.sort((a, b) => AISLES.indexOf(a.aisle) - AISLES.indexOf(b.aisle));
   return items;
 }
+
+// Hand-removed rows (hold-then-drag on the list) are remembered by item key.
+// They must be pruned the same way dropped dishes are: once the week no longer
+// produces that ingredient, the memory has to go, or a re-planned dish would
+// come back invisible forever. Returns the SAME array when nothing changed so
+// a setState(prev => …) can no-op instead of re-rendering the list.
+export function pruneRemoved(removed: string[], liveKeys: string[]): string[] {
+  if (removed.length === 0) return removed;
+  const live = new Set(liveKeys);
+  const next = removed.filter((key) => live.has(key));
+  return next.length === removed.length ? removed : next;
+}
