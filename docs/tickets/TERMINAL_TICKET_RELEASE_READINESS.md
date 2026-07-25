@@ -206,8 +206,9 @@ Otto currently ships with **no crash reporting and no analytics** — `grep -rn 
 
 ## Section D — security and data `[before external testers]`
 
-- [ ] **D1.** `mcp__Supabase_Otto__get_advisors` (security + performance) clean, or every finding
-      triaged in the Log with a reason.
+- [x] **D1.** `mcp__Supabase_Otto__get_advisors` (security + performance) clean, or every finding
+      triaged in the Log with a reason. *(2026-07-25: 0 errors; 3 FK indexes fixed, rest triaged;
+      one founder action — leaked-password protection.)*
 - [ ] **D2.** Run `supabase/migrations/tests/rls-attacks.test.mjs` against the **production**
       project (not just local) and confirm user B cannot read or write user A's rows — recipes,
       photos, plans, households, shares.
@@ -303,3 +304,28 @@ ticket closes only when the highest rung that can observe it has passed.
 ## Log
 
 <!-- append dated findings here; this is the shared thread between terminal and cloud -->
+
+**2026-07-25 — terminal. D1 (Supabase advisors) — audited, triaged, partly fixed.**
+
+Security advisors: **0 ERROR, 6 WARN.** Triage:
+
+| Finding | Verdict |
+|---|---|
+| `get_list_share` / `get_recipe_share` executable by **anon** (SECURITY DEFINER) | **BY DESIGN — accepted.** A share link must resolve for someone who is not signed in; that is the whole feature. Both take an unguessable token/slug and are the intended public door. Not a leak: they return one row keyed by the secret, and revocation is checked inside the function. |
+| Same two + `join_household` executable by **authenticated** | **BY DESIGN — accepted.** `join_household` is SECURITY DEFINER precisely so a joiner cannot read the household row until they are a member; it was already hardened (`revoke execute … from public`, `grant … to authenticated`) in `20260723120000_harden_security_definer_functions.sql`. |
+| **Leaked password protection DISABLED** | **REAL FINDING — founder action, see below.** Supabase can check new passwords against HaveIBeenPwned. It is off. This is a dashboard setting; the MCP cannot flip it. |
+
+Performance advisors: **0 ERROR.** Triage:
+
+| Finding | Verdict |
+|---|---|
+| 3× unindexed FK (`household_list_state.updated_by`, `household_members.user_id`, `households.created_by`) | **FIXED** — migration `20260725140000_household_fk_covering_indexes.sql`, applied to prod. Matters most on ACCOUNT DELETION, which is shipped: an unindexed FK makes each cascade a sequential scan. |
+| 5× `auth_rls_initplan` (households / household_members policies re-evaluate `auth.uid()` per row) | **DEFERRED with reason.** The fix (wrapping in `(select auth.uid())`) is well-known and safe in principle, but it is a rewrite of live RLS policies, and per this ticket's own crew law an RLS change needs security-builder + a re-run and extension of the attack suite — not a drive-by. At current row counts the cost is unmeasurable. Revisit when a household has real volume, or bundle it with the next RLS packet. |
+| 2× multiple permissive policies (`plan_entries`, `recipes` — `*_select_own` + `*_household_read`) | **BY DESIGN — accepted.** Two readers, two reasons: your own rows, and a co-member's rows in a shared kitchen. Merging them into one policy would save a policy evaluation and cost clarity in the exact place clarity protects people. |
+| Unused index `favorites_user_id_idx` | **Accepted, leave.** "Never used" reflects a two-tester dataset, not a useless index. |
+
+> HANDOFF → founder (D1, 2 min): enable leaked-password protection.
+> 1. Open https://supabase.com/dashboard/project/mepzfdefanfpnrvydyty/auth/providers
+> 2. Under **Email** → find **Prevent use of leaked passwords** → turn it ON. Save.
+> Nothing in the app changes; Supabase starts rejecting passwords that appear in
+> known breach corpora at sign-up and password-change.
