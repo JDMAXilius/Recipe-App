@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, Sheet, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
@@ -22,6 +23,12 @@ export interface FilterSheetProps {
   onApply: (category: string | null, area: string | null) => void;
 }
 
+// Selected state carries THREE cues — soft terracotta wash, a terracotta ring,
+// and a check — never colour alone (WCAG 1.4.1; the researched filter pattern).
+// The label stays INK at every state: a category name is authored content, and
+// ink on accentSoft reads ~11.7:1 where the old filled-terracotta chip painted
+// terracotta text on a terracotta fill (1:1 — the label vanished). accentSoft is
+// used exactly as its token documents it: "chip fills, selected tiles".
 function Chip({
   label,
   active,
@@ -38,13 +45,20 @@ function Chip({
       accessibilityLabel={`Filter ${label}`}
       onPress={onPress}
       style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: space[2],
+        minHeight: 44, // tap-target law (matches the shopping-list chip)
         paddingHorizontal: space[4],
         paddingVertical: space[2],
         borderRadius: radii.pill,
-        backgroundColor: active ? colors.terracotta : colors.creamDeep,
+        backgroundColor: active ? colors.accentSoft : colors.creamDeep,
+        borderWidth: 1.5,
+        borderColor: active ? colors.terracotta : 'transparent',
       }}
     >
-      <Text role={active ? 'computed' : 'body'}>{label}</Text>
+      {active ? <Ionicons name="checkmark" size={15} color={colors.terracotta} /> : null}
+      <Text role="body">{label}</Text>
     </Pressable>
   );
 }
