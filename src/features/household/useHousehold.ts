@@ -16,6 +16,7 @@ import {
   leaveHousehold,
   removeCustomItem,
   setChecked,
+  setItemRemoved,
   type Household,
   type HouseholdMember,
   type ListStateRow,
@@ -113,6 +114,9 @@ export interface UseSharedList {
   toggle: (itemKey: string, checked: boolean) => void;
   addCustom: (name: string) => void;
   removeCustom: (itemKey: string) => void;
+  /** Hand-removal sync: removed=true hides the row on every member's phone;
+   *  removed=false is the restore/undo path. `sources` are recipe ids. */
+  setRemoved: (itemKey: string, removed: boolean, sources: string[] | null) => void;
 }
 
 // The realtime shared check/custom state for a household's list. Null household
@@ -165,7 +169,16 @@ export function useSharedList(householdId: string | null): UseSharedList {
       const prev = await snapshot();
       const next = prev.some((r) => r.item_key === v.itemKey)
         ? prev.map((r) => (r.item_key === v.itemKey ? { ...r, checked: v.checked } : r))
-        : [...prev, { item_key: v.itemKey, checked: v.checked, custom_name: null }];
+        : [
+            ...prev,
+            {
+              item_key: v.itemKey,
+              checked: v.checked,
+              custom_name: null,
+              removed: false,
+              removed_sources: null,
+            },
+          ];
       qc.setQueryData<ListStateRow[]>(key, next);
       return { prev };
     },
@@ -178,7 +191,13 @@ export function useSharedList(householdId: string | null): UseSharedList {
       const prev = await snapshot();
       qc.setQueryData<ListStateRow[]>(key, [
         ...prev,
-        { item_key: `tmp-${prev.length}-${name}`, checked: false, custom_name: name },
+        {
+          item_key: `tmp-${prev.length}-${name}`,
+          checked: false,
+          custom_name: name,
+          removed: false,
+          removed_sources: null,
+        },
       ]);
       return { prev };
     },
@@ -195,6 +214,21 @@ export function useSharedList(householdId: string | null): UseSharedList {
     onError: rollback,
     onSettled: settle,
   });
+  const setRemovedMut = useMutation({
+    mutationFn: (v: { itemKey: string; removed: boolean; sources: string[] | null }) =>
+      setItemRemoved(householdId as string, v.itemKey, v.removed, v.sources, userId as string),
+    onMutate: async (v) => {
+      const prev = await snapshot();
+      const patch = { removed: v.removed, removed_sources: v.removed ? v.sources : null };
+      const next = prev.some((r) => r.item_key === v.itemKey)
+        ? prev.map((r) => (r.item_key === v.itemKey ? { ...r, ...patch } : r))
+        : [...prev, { item_key: v.itemKey, checked: false, custom_name: null, ...patch }];
+      qc.setQueryData<ListStateRow[]>(key, next);
+      return { prev };
+    },
+    onError: rollback,
+    onSettled: settle,
+  });
 
   return {
     rows: query.data ?? [],
@@ -202,5 +236,6 @@ export function useSharedList(householdId: string | null): UseSharedList {
     toggle: (itemKey, checked) => toggleMut.mutate({ itemKey, checked }),
     addCustom: (name) => addMut.mutate(name),
     removeCustom: (itemKey) => removeMut.mutate(itemKey),
+    setRemoved: (itemKey, removed, sources) => setRemovedMut.mutate({ itemKey, removed, sources }),
   };
 }

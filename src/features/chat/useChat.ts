@@ -105,6 +105,10 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
       threadIdRef.current = threadId ?? null;
       setMessages(found ? pruneHistory(found.messages, Date.now()) : []);
       setResponse(null);
+      // A stale error must not follow the user into another thread — an empty
+      // thread renders the empty state, where the error row doesn't exist, so
+      // the carried error would sit invisible until it popped up mid-chat.
+      setError(null);
       setReady(true);
     });
     return () => {

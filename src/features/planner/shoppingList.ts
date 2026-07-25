@@ -36,6 +36,10 @@ export interface ParsedIngredient {
 }
 
 export interface RecipeForList {
+  /** Stable recipe id (plan_entries.recipe_id: "u-<n>" or a seed id). This —
+   *  never the title — is a source's identity: two dishes sharing a title are
+   *  different dishes, and a renamed dish is still the same one. */
+  id: string;
   title: string;
   ingredients: ParsedIngredient[];
 }
@@ -45,6 +49,7 @@ export interface ShoppingItem {
   name: string;
   aisle: Aisle;
   amount: string;
+  /** Recipe IDS the amount came from (render titles by lookup). */
   sources: string[];
 }
 
@@ -169,7 +174,7 @@ export function buildShoppingList(recipes: RecipeForList[]): ShoppingItem[] {
         map.set(key, item);
       }
       item.entries.push(ing);
-      if (!item.sources.includes(recipe.title)) item.sources.push(recipe.title);
+      if (!item.sources.includes(recipe.id)) item.sources.push(recipe.id);
     }
   }
 
@@ -216,18 +221,25 @@ export function buildShoppingList(recipes: RecipeForList[]): ShoppingItem[] {
 // the exact failure this feature exists to prevent, inverted.
 //
 // So a removal also remembers WHAT it was removing: the row's `sources` (the
-// dishes the amount came from). A row is hidden only when a remembered removal
-// has the same key AND the same set of sources. Same dish still on the week →
-// still hidden (what the shopper meant). The ingredient turning up from a
-// different dish, or from one more dish, is a DIFFERENT shopping decision, so
-// the row comes back with its new amount.
+// RECIPE IDS the amount came from — ids, not titles: two dishes sharing a
+// title are different dishes, and renaming a dish must not orphan or revive a
+// removal). A row is hidden only when a remembered removal has the same key
+// AND the same set of source ids. Same dish still on the week → still hidden
+// (what the shopper meant). The ingredient turning up from a different dish,
+// or from one more dish, is a DIFFERENT shopping decision, so the row comes
+// back with its new amount.
 export interface RemovedEntry {
   key: string;
   sources: string[];
+  /** When the shopper removed it (ms epoch). Optional: pre-stamp blobs carry
+   *  none. Not yet enforced — the expiry rule is a founder call (ticket 4b);
+   *  stamping now means whatever rule lands can apply retroactively. */
+  at?: number;
 }
 
-// Order-insensitive set compare. `sources` is built deduped (buildShoppingList
-// pushes a title once), so length + membership is a true set comparison here.
+// Order-insensitive set compare. Both boundaries dedupe (buildShoppingList
+// pushes an id once; normalizeRemoved dedupes stored blobs), so length +
+// membership is a true set comparison here.
 export function sameSources(a: string[], b: string[]): boolean {
   if (a === b) return true;
   if (a.length !== b.length) return false;
@@ -250,10 +262,14 @@ export function normalizeRemoved(raw: unknown): RemovedEntry[] {
   const out: RemovedEntry[] = [];
   for (const entry of raw) {
     if (!entry || typeof entry !== 'object') continue; // legacy plain string → ignored
-    const { key, sources } = entry as { key?: unknown; sources?: unknown };
+    const { key, sources, at } = entry as { key?: unknown; sources?: unknown; at?: unknown };
     if (typeof key !== 'string' || !key) continue;
     if (!Array.isArray(sources)) continue;
-    out.push({ key, sources: sources.filter((s): s is string => typeof s === 'string') });
+    // Dedupe: sameSources is a length + membership compare, which is only a
+    // true set compare over deduped inputs — a hand-edited ["A","A"] blob
+    // would make it asymmetric.
+    const clean = [...new Set(sources.filter((s): s is string => typeof s === 'string'))];
+    out.push({ key, sources: clean, ...(typeof at === 'number' ? { at } : {}) });
   }
   return out;
 }
@@ -263,11 +279,30 @@ export function normalizeRemoved(raw: unknown): RemovedEntry[] {
 // dish would come back invisible forever. Keyed on the ingredient being live —
 // a live key whose sources changed is handled by isRemoved (it simply stops
 // matching), so it can stay until the ingredient itself leaves the week.
+//
+// The build is best-effort per dish (a failed fetch yields fewer recipes), so
+// pruning is gated PER ENTRY, not on the whole build being complete: an entry
+// is pruned only when every dish it names is accounted for — either resolved
+// in this build (its ingredients are genuinely in liveKeys, so the key being
+// absent is real) or off the active week entirely (its absence is real too).
+// A dish that was asked for but didn't come back is unknown — its removals are
+// kept, never guessed away. This kills both failure modes at once: the flaky
+// wipe (one bad fetch erased 'olive oil' for good) and the permanent freeze
+// (one forever-unresolvable dish disabled pruning for every entry, making all
+// removals immortal).
+//
 // Returns the SAME array when nothing changed so a setState(prev => …) can
 // no-op instead of re-rendering the list.
-export function pruneRemoved(removed: RemovedEntry[], liveKeys: string[]): RemovedEntry[] {
+export function pruneRemoved(
+  removed: RemovedEntry[],
+  liveKeys: string[],
+  build?: { resolvedIds: string[]; activeIds: string[] },
+): RemovedEntry[] {
   if (removed.length === 0) return removed;
   const live = new Set(liveKeys);
-  const next = removed.filter((r) => live.has(r.key));
+  const resolved = build ? new Set(build.resolvedIds) : null;
+  const active = build ? new Set(build.activeIds) : null;
+  const accounted = (id: string) => !resolved || !active || resolved.has(id) || !active.has(id);
+  const next = removed.filter((r) => live.has(r.key) || !r.sources.every(accounted));
   return next.length === removed.length ? removed : next;
 }

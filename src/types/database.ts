@@ -64,6 +64,8 @@ export type Database = {
           custom_name: string | null
           household_id: string
           item_key: string
+          removed: boolean
+          removed_sources: string[] | null
           updated_at: string
           updated_by: string | null
         }
@@ -72,6 +74,8 @@ export type Database = {
           custom_name?: string | null
           household_id: string
           item_key: string
+          removed?: boolean
+          removed_sources?: string[] | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -80,6 +84,8 @@ export type Database = {
           custom_name?: string | null
           household_id?: string
           item_key?: string
+          removed?: boolean
+          removed_sources?: string[] | null
           updated_at?: string
           updated_by?: string | null
         }

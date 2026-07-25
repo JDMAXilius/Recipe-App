@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, Text as RNText, View } from 'react-native';
+import { AccessibilityInfo, Platform, Pressable, Text as RNText, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { colors, radii, space, timing } from '../theme/tokens';
 import { OttoArt, type OttoArtName } from './OttoArt';
@@ -50,6 +50,14 @@ export function ToastHost() {
 
   useEffect(() => {
     if (!toast) return;
+    // accessibilityLiveRegion below is Android-only (RN docs) — on iOS a toast
+    // was completely silent to VoiceOver: a removal fired, Undo appeared and
+    // expired, and the user was never told either happened. Announce explicitly.
+    if (Platform.OS === 'ios') {
+      AccessibilityInfo.announceForAccessibility(
+        toast.actionLabel ? `${toast.message} ${toast.actionLabel} available.` : toast.message,
+      );
+    }
     // Toasts with an action linger longer (undo needs a beat), per v1.
     const ms = toast.actionLabel ? 5000 : 3000;
     const timer = setTimeout(() => setToast(null), ms);

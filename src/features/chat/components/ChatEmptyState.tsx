@@ -26,8 +26,11 @@ const column: ViewStyle = { alignItems: 'center', gap: space[2], maxWidth: MEASU
 
 // Text is role-only (no align prop), so the two centered hero lines style
 // themselves from the type tokens — the contained exception AuthScreenLayout
-// documents and this screen must match. Roles are unchanged: display ink for the
-// headline, body inkSoft (the caption ink) for the support line.
+// documents and this screen must match. DELIBERATE DEVIATION: the support line
+// is body-SIZE in the caption INK — "body inkSoft" is not a Text role
+// (Text.tsx: role IS the color decision), so it's hand-mixed here like the
+// headline, as part of the same documented escape hatch. If a second screen
+// wants this pairing, promote it to a real role instead of copying this.
 const headline: TextStyle = { ...type.display, color: colors.ink, textAlign: 'center' };
 const support: TextStyle = { ...type.body, color: colors.inkSoft, textAlign: 'center' };
 

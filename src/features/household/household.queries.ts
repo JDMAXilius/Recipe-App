@@ -22,6 +22,10 @@ export interface ListStateRow {
   item_key: string;
   checked: boolean;
   custom_name: string | null;
+  /** Hand-removed from the shared list (hold-then-drag). Same identity the
+   *  client keeps locally: the row's key + the recipe IDS it came from. */
+  removed: boolean;
+  removed_sources: string[] | null;
 }
 
 // Unambiguous invite code — no O/0/I/1 to misread over text.
@@ -33,29 +37,35 @@ function newCode(): string {
 }
 
 // The caller's household (a user is in at most one — the first membership wins).
+// READS THROW on error (honesty law): a swallowed error here made downstream
+// screens render a confident wrong state ("Nothing to buy yet" over a full
+// week). Throwing lets TanStack Query surface isError and retry.
 export async function getMyHousehold(userId: string): Promise<Household | null> {
-  const { data: mem } = await supabase
+  const { data: mem, error: memError } = await supabase
     .from('household_members')
     .select('household_id')
     .eq('user_id', userId)
     .order('joined_at')
     .limit(1)
     .maybeSingle();
+  if (memError) throw memError;
   if (!mem) return null;
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('households')
     .select('id, name, invite_code, created_by')
     .eq('id', mem.household_id)
     .maybeSingle();
+  if (error) throw error;
   return data ?? null;
 }
 
 export async function getMembers(householdId: string): Promise<HouseholdMember[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('household_members')
     .select('user_id, display_name, joined_at')
     .eq('household_id', householdId)
     .order('joined_at');
+  if (error) throw error;
   return data ?? [];
 }
 
@@ -111,22 +121,26 @@ export async function getHouseholdWeekDishes(
   toDay: string,
 ): Promise<HouseholdDish[]> {
   if (memberIds.length === 0) return [];
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('plan_entries')
     .select('recipe_id, title')
     .in('user_id', memberIds)
     .gte('day', fromDay)
     .lte('day', toDay);
+  // Throw, don't return [] — an empty array here told the shopping screen the
+  // week was empty and it rendered "Nothing to buy yet" as fact (4f).
+  if (error) throw error;
   const seen = new Map<string, string>();
   for (const r of data ?? []) if (r.recipe_id && !seen.has(r.recipe_id)) seen.set(r.recipe_id, r.title);
   return [...seen].map(([recipeId, title]) => ({ recipeId, title }));
 }
 
 export async function getListState(householdId: string): Promise<ListStateRow[]> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('household_list_state')
-    .select('item_key, checked, custom_name')
+    .select('item_key, checked, custom_name, removed, removed_sources')
     .eq('household_id', householdId);
+  if (error) throw error;
   return data ?? [];
 }
 
@@ -152,6 +166,31 @@ export async function addCustomItem(householdId: string, name: string, userId: s
     checked: false,
     updated_by: userId,
   });
+}
+
+// A removal is a row like a check-off is — upsert keyed the same way, so a
+// partner's phone gets it over the existing realtime channel. `sources` are
+// recipe ids (shoppingList.ts identity); restore writes removed=false and
+// clears them.
+export async function setItemRemoved(
+  householdId: string,
+  itemKey: string,
+  removed: boolean,
+  sources: string[] | null,
+  userId: string,
+): Promise<void> {
+  const { error } = await supabase.from('household_list_state').upsert(
+    {
+      household_id: householdId,
+      item_key: itemKey,
+      removed,
+      removed_sources: removed ? sources : null,
+      updated_by: userId,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'household_id,item_key' },
+  );
+  if (error) throw error;
 }
 
 export async function removeCustomItem(householdId: string, itemKey: string): Promise<void> {

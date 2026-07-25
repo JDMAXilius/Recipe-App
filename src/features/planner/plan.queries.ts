@@ -92,7 +92,7 @@ async function getSeedRecipeForList(id: string): Promise<RecipeForList | null> {
     const meal = parseMeals(data)[0];
     if (!meal) return null;
     const recipe = mealToRecipe(meal);
-    return { title: recipe.title, ingredients: recipe.ingredients.map(toParsed) };
+    return { id, title: recipe.title, ingredients: recipe.ingredients.map(toParsed) };
   } catch {
     return null;
   }
@@ -125,7 +125,8 @@ export async function getListRecipes(recipeIds: string[]): Promise<RecipeForList
         const pairs: StoredPair[] = Array.isArray(row.ingredients)
           ? (row.ingredients as StoredPair[])
           : [];
-        return { title: row.title, ingredients: pairs.map(toParsed) };
+        // id restores the plan-entry form ("u-<n>") — the identity removals key on.
+        return { id: `u-${row.id}`, title: row.title, ingredients: pairs.map(toParsed) };
       });
     })(),
     Promise.all(seedIds.map(getSeedRecipeForList)).then(

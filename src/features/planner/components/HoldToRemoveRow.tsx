@@ -15,7 +15,7 @@
 // no fade, no fly-out) and removes instantly; the gesture itself still works,
 // and VoiceOver never needs it at all (accessibilityActions below).
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { Pressable, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Pressable, type ViewStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   runOnJS,
@@ -34,9 +34,15 @@ const HOLD_MS = 300;
 // Fling distance that commits the removal: 35% of the row's own width, so the
 // gesture scales with phone/tablet instead of a magic pixel count.
 const COMMIT_RATIO = 0.35;
-// Fallback threshold for the frame before onLayout has measured the row.
+// Commit THRESHOLD (already-scaled px, not a width) for the frame before
+// onLayout has measured the row — the review caught it being multiplied by
+// COMMIT_RATIO, which made a pre-layout release commit at 42pt.
 const COMMIT_FALLBACK = 120;
 const LIFT_SCALE = 1.03;
+// A touch that travels farther than this before the hold arms is a scroll or a
+// stray swipe, not a press — it must neither arm the pan (failOffsetY) nor
+// fall through to the checkbox press (movement guard below).
+const MOVE_SLOP = 12;
 
 export interface HoldToRemoveRowProps {
   /** Tap (no hold) — the existing whole-row check-off. */
@@ -82,6 +88,9 @@ function HoldToRemoveRowBase({
     heldRef.current = true;
     setLifted(true);
     haptics.impact('medium'); // the "it's in your hand now" beat
+    // The lift is scale + shadow only — announce it for anyone not seeing it
+    // (WCAG 1.4.1: state changes can't live in visuals alone).
+    AccessibilityInfo.announceForAccessibility('Held. Swipe sideways to remove.');
   }, []);
   const released = useCallback(() => setLifted(false), []);
   // New touch — clear the last press's guard so a plain tap still checks off.
@@ -92,10 +101,34 @@ function HoldToRemoveRowBase({
     onRemoveRef.current();
   }, []);
 
+  // Touch travel before the hold arms, tracked from the first touch. The pan
+  // never fires onUpdate until it activates, so this is the only view of the
+  // pre-activation movement — it feeds the press guard: a sideways swipe that
+  // never held used to fail the gesture and fall through to Pressable.onPress,
+  // i.e. a swipe TICKED THE ITEM OFF.
+  const touchStart = useSharedValue<{ x: number; y: number } | null>(null);
+  const moved = useSharedValue(false);
+
   const pan = useMemo(
     () =>
       Gesture.Pan()
         .activateAfterLongPress(HOLD_MS)
+        // A touch that goes vertical before the hold arms is the ScrollView's,
+        // not ours: without this, a thumb resting 300ms while reading armed the
+        // pan and the list refused to scroll on the follow-up flick.
+        .failOffsetY([-MOVE_SLOP, MOVE_SLOP])
+        .onTouchesDown((e) => {
+          const t = e.allTouches[0];
+          touchStart.value = { x: t.absoluteX, y: t.absoluteY };
+          moved.value = false;
+        })
+        .onTouchesMove((e) => {
+          const s = touchStart.value;
+          const t = e.allTouches[0];
+          if (s && t && Math.hypot(t.absoluteX - s.x, t.absoluteY - s.y) > MOVE_SLOP) {
+            moved.value = true;
+          }
+        })
         .onBegin(() => {
           removing.value = false;
           runOnJS(clearHeld)();
@@ -112,7 +145,9 @@ function HoldToRemoveRowBase({
           // an incoming call, a web pointercancel. The finger never came up, so
           // nothing may be removed — onFinalize still springs the row back.
           if (!success) return;
-          const limit = (width.value || COMMIT_FALLBACK) * COMMIT_RATIO;
+          // COMMIT_FALLBACK is already a threshold — only the measured width
+          // gets scaled by the ratio.
+          const limit = width.value ? width.value * COMMIT_RATIO : COMMIT_FALLBACK;
           if (Math.abs(e.translationX) < limit) return; // under the threshold → onFinalize springs it back
           removing.value = true;
           // Commit HERE, on release — the fly-out is purely decorative. Driving
@@ -137,7 +172,7 @@ function HoldToRemoveRowBase({
           lift.value = reduced ? 0 : withSpring(0, spring.snappy);
           runOnJS(released)();
         }),
-    [reduced, clearHeld, held, released, commitRemove, lift, removing, width, x],
+    [reduced, clearHeld, held, released, commitRemove, lift, removing, width, x, touchStart, moved],
   );
 
   const animStyle = useAnimatedStyle(() => {
@@ -192,6 +227,7 @@ function HoldToRemoveRowBase({
               heldRef.current = false;
               return; // that press was a hold/drag, not a check-off
             }
+            if (moved.value) return; // a swipe/scroll that never held is NOT a check-off
             onPress();
           }}
         >

@@ -177,7 +177,10 @@ export function ChatScreen() {
           // composer card; the card's own well below adds the rest.
           contentContainerStyle={{ padding: space[4], paddingBottom: space[5] }}
           keyboardShouldPersistTaps="handled"
-          onContentSizeChange={toBottom}
+          // Only a real transcript chases its own tail. The empty state GREW
+          // (220pt hero) past small-phone viewports, and this autoscroll was
+          // shoving Otto's head under the header the moment the screen opened.
+          onContentSizeChange={empty ? undefined : toBottom}
         >
           {empty ? (
             <ChatEmptyState />

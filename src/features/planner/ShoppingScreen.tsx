@@ -13,6 +13,7 @@ import {
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 import { Text, OttoArt, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -48,6 +49,21 @@ import { HoldToRemoveRow } from './components/HoldToRemoveRow';
 // the ingredient's name forever (see shoppingList.ts). Nothing is hidden
 // without a way back: the "N hidden · Show them" line is always there while
 // anything is hidden, not just for the 5s the undo toast lives.
+
+// The kv blob, validated before trust (storage.ts:24-26 rule): a corrupt or
+// hand-edited value must degrade per FIELD (catch), never throw mid-hydration —
+// a stored `null` used to crash the async hydrate and nothing persisted for the
+// whole session. `removed` stays unknown here; normalizeRemoved is its guard.
+const storedStateSchema = z
+  .object({
+    checked: z.record(z.string(), z.boolean()).catch({}),
+    custom: z.array(z.object({ key: z.string(), name: z.string() })).catch([]),
+    excluded: z.array(z.string()).catch([]),
+    removed: z.unknown().optional(),
+  })
+  .catch({ checked: {}, custom: [], excluded: [], removed: [] });
+type StoredShoppingState = z.infer<typeof storedStateSchema>;
+const EMPTY_STORED: StoredShoppingState = { checked: {}, custom: [], excluded: [], removed: [] };
 
 export function ShoppingScreen() {
   const router = useRouter();
@@ -127,10 +143,21 @@ export function ShoppingScreen() {
 
   // Single ingredient rows the shopper threw off the list (hold-then-drag, or
   // the VoiceOver action). Each removal remembers the row's key AND its source
-  // dishes, persisted like `excluded`. Every consumer below — rows, counts,
+  // recipe IDS. Personal list: local state, persisted like `excluded`. Shared
+  // household: removals are rows in household_list_state (removed=true) so a
+  // partner's phone hides the same row in realtime — the local state is not
+  // consulted at all in shared mode. Every consumer below — rows, counts,
   // share text, share card — reads `items`, so a removed thing is gone from ALL
   // of them, not just hidden on screen.
-  const [removed, setRemoved] = useState<RemovedEntry[]>([]);
+  const [localRemoved, setLocalRemoved] = useState<RemovedEntry[]>([]);
+  const sharedRemoved = useMemo<RemovedEntry[]>(
+    () =>
+      shared.rows
+        .filter((r) => r.removed)
+        .map((r) => ({ key: r.item_key, sources: r.removed_sources ?? [] })),
+    [shared.rows],
+  );
+  const removed = isShared ? sharedRemoved : localRemoved;
   const items = useMemo(
     () => (removed.length === 0 ? allItems : allItems.filter((i) => !isRemoved(i, removed))),
     [allItems, removed],
@@ -157,59 +184,62 @@ export function ShoppingScreen() {
     : custom;
 
   // Persistence (contract: persistence.md). Hydrate once on mount, then mirror
-  // every change back to kv. The `hydrated` guard stops the mount save from
-  // clobbering stored state with the empty defaults before the load resolves.
-  const hydrated = useRef(false);
+  // every change back to kv. `hydrated` is STATE, not a ref: rows must not
+  // render (and removals must not be pruned) against the empty defaults while
+  // the load is still in flight — a removal made in that window was silently
+  // overwritten by the resolving hydrate.
+  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
     (async () => {
-      const saved = await kv.get<{
-        checked: Record<string, boolean>;
-        custom: { key: string; name: string }[];
-        excluded?: string[];
-        removed?: unknown;
-      }>('shoppingState', { checked: {}, custom: [], excluded: [], removed: [] });
-      setChecked(saved.checked ?? {});
-      setCustom(saved.custom ?? []);
-      setExcluded(saved.excluded ?? []);
-      // `removed` landed after the first shipped shape — a blob saved without
-      // it must still load, hence the default. normalizeRemoved also absorbs
-      // the pre-release `string[]` shape (dropped, never guessed at: a bare
-      // name carries no source set, and inventing one would resurrect the
-      // hide-that-ingredient-forever bug).
-      setRemoved(normalizeRemoved(saved.removed));
-      hydrated.current = true;
+      const saved = await kv.get('shoppingState', EMPTY_STORED, storedStateSchema);
+      setChecked(saved.checked);
+      setCustom(saved.custom);
+      setExcluded(saved.excluded);
+      // `removed` landed after the first shipped shape — normalizeRemoved
+      // absorbs anything (missing field, pre-release `string[]`, junk):
+      // dropped, never guessed at — a bare name carries no source set, and
+      // inventing one would resurrect the hide-that-ingredient-forever bug.
+      setLocalRemoved(normalizeRemoved(saved.removed));
+      setHydrated(true);
     })();
   }, []);
   useEffect(() => {
-    if (!hydrated.current) return;
-    kv.set('shoppingState', { checked, custom, excluded, removed });
-  }, [checked, custom, excluded, removed]);
-  // Prune exclusions to dishes still on the week (once it has loaded), so a
-  // dropped-then-replanned dish returns to the list instead of staying hidden.
+    if (!hydrated) return;
+    kv.set('shoppingState', { checked, custom, excluded, removed: localRemoved });
+  }, [hydrated, checked, custom, excluded, localRemoved]);
+  // Prune exclusions to dishes still on the week — but only once the week's
+  // source has SETTLED. A momentary short member list (a refetch, a placeholder)
+  // used to resurrect a dish the shopper dropped.
+  const weekSettled = isShared
+    ? householdQuery.isSuccess && !householdQuery.isFetching && !householdQuery.isPlaceholderData
+    : !planLoading;
   useEffect(() => {
-    if (recipeIds.length === 0) return;
+    if (!weekSettled || !hydrated) return;
     setExcluded((prev) => {
       const next = prev.filter((id) => recipeIds.includes(id));
       return next.length === prev.length ? prev : next;
     });
-  }, [recipeIds]);
+  }, [weekSettled, hydrated, recipeIds]);
   // Same prune for hand-removed rows, against the ingredients the week actually
-  // produces now — but ONLY against a build we know is complete. getListRecipes
-  // is best-effort per dish (a seed fetch that fails yields fewer recipes), so
-  // a non-empty but PARTIAL build would prune still-valid removals and persist
-  // the loss: one flaky fetch used to wipe 'olive oil' + 'salt' for good.
-  // Complete means: settled (not fetching), real data (not the kept-previous
-  // placeholder for a week that's still loading), and one recipe back for every
-  // dish we asked about.
+  // produces now. getListRecipes is best-effort per dish (a failed fetch yields
+  // fewer recipes), so pruning is gated PER ENTRY inside pruneRemoved: an entry
+  // goes only when every dish it names either resolved in this build or is off
+  // the active week — a dish that failed to come back keeps its removals. This
+  // replaces the old whole-build completeness gate, which one permanently
+  // unresolvable dish could hold shut forever (making every removal immortal).
+  // Shared mode: removals live server-side; a stale removed row simply stops
+  // matching (isRemoved) — ponytail: no server-side prune until it costs something.
   const listSettled =
     listQuery.isSuccess && !listQuery.isFetching && !listQuery.isPlaceholderData;
-  const listComplete =
-    listSettled && (listQuery.data?.length ?? 0) === activeRecipeIds.length;
   useEffect(() => {
-    if (!listComplete || allItems.length === 0) return;
+    if (isShared || !listSettled || !weekSettled || !hydrated) return;
     const liveKeys = allItems.map((i) => i.key);
-    setRemoved((prev) => pruneRemoved(prev, liveKeys));
-  }, [listComplete, allItems]);
+    const build = {
+      resolvedIds: (listQuery.data ?? []).map((r) => r.id),
+      activeIds: activeRecipeIds,
+    };
+    setLocalRemoved((prev) => pruneRemoved(prev, liveKeys, build));
+  }, [isShared, listSettled, weekSettled, hydrated, allItems, listQuery.data, activeRecipeIds]);
 
   // The shared-household hooks hand back fresh function identities every
   // render, which would defeat the memoized rows below. Read them through a
@@ -234,12 +264,34 @@ export function ShoppingScreen() {
     else setCustom((prev) => [...prev, { key: `custom-${Date.now()}-${Math.floor(Math.random() * 1e6)}`, name }]);
   }, []);
 
+  // The undo toast outlives this screen (ToastHost is app-root): tapping Undo
+  // after navigating away used to call setState on an unmounted screen — React
+  // dropped it silently, the toast dismissed as if it worked, and kv kept the
+  // removal. Local-mode changes therefore write THROUGH to kv when the screen
+  // is gone; shared-mode changes are mutations on the app-level query client
+  // and survive unmount on their own.
+  const unmounted = useRef(false);
+  useEffect(
+    () => () => {
+      unmounted.current = true;
+    },
+    [],
+  );
+  const applyLocalRemoved = useCallback((fn: (prev: RemovedEntry[]) => RemovedEntry[]) => {
+    if (!unmounted.current) {
+      setLocalRemoved(fn);
+      return;
+    }
+    void (async () => {
+      const saved = await kv.get('shoppingState', EMPTY_STORED, storedStateSchema);
+      await kv.set('shoppingState', { ...saved, removed: fn(normalizeRemoved(saved.removed)) });
+    })();
+  }, []);
+
   // Hold-then-drag committed (or the accessibility action fired): the row goes,
   // the basket count drops with it, and a toast holds the door open for a
-  // change of mind. SHARED HOUSEHOLDS: this stays on this device —
-  // household_list_state has no "removed" column and inventing one is a
-  // migration, not a screen change (see report/gap). Check-offs and custom
-  // items still sync exactly as before.
+  // change of mind. Shared households: the removal is a row write, so every
+  // member's phone drops the row in realtime (item 2 of the BUILD34 ticket).
   //
   // There is only one toast slot, so two removals in a row used to leave the
   // first one un-undoable. Removals inside the toast's own lifetime therefore
@@ -248,8 +300,10 @@ export function ShoppingScreen() {
   const undoBatch = useRef<{ entries: RemovedEntry[]; at: number }>({ entries: [], at: 0 });
   const removeItem = useCallback(
     (item: ShoppingItem) => {
-      const entry: RemovedEntry = { key: item.key, sources: item.sources };
-      setRemoved((prev) => (isRemoved(item, prev) ? prev : [...prev, entry]));
+      const entry: RemovedEntry = { key: item.key, sources: item.sources, at: Date.now() };
+      const { isShared: sharedNow, shared: list } = liveRef.current;
+      if (sharedNow) list.setRemoved(item.key, true, item.sources);
+      else applyLocalRemoved((prev) => (isRemoved(item, prev) ? prev : [...prev, entry]));
 
       const now = Date.now();
       const stillUp = now - undoBatch.current.at < UNDO_TOAST_MS;
@@ -261,34 +315,87 @@ export function ShoppingScreen() {
         actionLabel: 'Undo',
         onAction: () => {
           undoBatch.current = { entries: [], at: 0 };
-          setRemoved((prev) =>
-            prev.filter(
-              (r) => !batch.some((b) => b.key === r.key && sameSources(b.sources, r.sources)),
-            ),
-          );
+          const { isShared: sharedUndo, shared: listUndo } = liveRef.current;
+          if (sharedUndo) for (const b of batch) listUndo.setRemoved(b.key, false, null);
+          else
+            applyLocalRemoved((prev) =>
+              prev.filter(
+                (r) => !batch.some((b) => b.key === r.key && sameSources(b.sources, r.sources)),
+              ),
+            );
+        },
+      });
+    },
+    [show, applyLocalRemoved],
+  );
+
+  // The always-available way back: put every row this build is hiding back on
+  // the list — unticked (a restored row still marked "got it" is a lie), and
+  // itself undoable, because "Show them" is all-or-nothing: 8 hidden, wanted 1,
+  // the toast's Undo re-hides the other 7 instead of leaving them lost.
+  // Removals belonging to a different source set (another week's version of
+  // the same ingredient) are left untouched.
+  const restoreHidden = useCallback(() => {
+    haptics.select();
+    undoBatch.current = { entries: [], at: 0 };
+    const restoring = hiddenItems.map((h) => ({ key: h.key, sources: h.sources }));
+    const { isShared: sharedNow, shared: list } = liveRef.current;
+    const uncheck = (keys: string[]) => {
+      if (sharedNow) {
+        for (const key of keys)
+          if (list.rows.some((r) => r.item_key === key && r.checked)) list.toggle(key, false);
+      } else {
+        setChecked((prev) => {
+          const next = { ...prev };
+          for (const key of keys) delete next[key];
+          return next;
+        });
+      }
+    };
+    if (sharedNow) for (const r of restoring) list.setRemoved(r.key, false, null);
+    else
+      applyLocalRemoved((prev) =>
+        prev.filter((p) => !restoring.some((h) => h.key === p.key && sameSources(h.sources, p.sources))),
+      );
+    uncheck(restoring.map((r) => r.key));
+    show(restoring.length === 1 ? 'Back on the list.' : `${restoring.length} back on the list.`, 'info', {
+      actionLabel: 'Undo',
+      onAction: () => {
+        const { isShared: sharedUndo, shared: listUndo } = liveRef.current;
+        if (sharedUndo) for (const r of restoring) listUndo.setRemoved(r.key, true, r.sources);
+        else
+          applyLocalRemoved((prev) => [
+            ...prev,
+            ...restoring
+              .filter((h) => !prev.some((p) => p.key === h.key && sameSources(p.sources, h.sources)))
+              .map((h) => ({ ...h, at: Date.now() })),
+          ]);
+      },
+    });
+  }, [hiddenItems, show, applyLocalRemoved]);
+
+  // Custom extras leave through the SAME door as ingredients (one remove
+  // affordance, founder: "swipe to remove but no button") — and never silently:
+  // the shared-mode removal is a real DB delete, so the undo toast is the only
+  // thing standing between a brushed thumb and a lost "Coffee". Undo re-adds by
+  // name (a re-created row: new key, unchecked — the honest reconstruction).
+  const removeCustom = useCallback(
+    (key: string, name: string) => {
+      const { isShared: sharedNow, shared: list } = liveRef.current;
+      if (sharedNow) list.removeCustom(key);
+      else setCustom((prev) => prev.filter((c) => c.key !== key));
+      const label = name.charAt(0).toUpperCase() + name.slice(1);
+      show(`${label} — off the list.`, 'info', {
+        actionLabel: 'Undo',
+        onAction: () => {
+          const { isShared: sharedUndo, shared: listUndo } = liveRef.current;
+          if (sharedUndo) listUndo.addCustom(name);
+          else setCustom((prev) => [...prev, { key, name }]);
         },
       });
     },
     [show],
   );
-
-  // The always-available way back: put every row this build is hiding back on
-  // the list. Removals belonging to a different source set (another week's
-  // version of the same ingredient) are left untouched.
-  const restoreHidden = useCallback(() => {
-    haptics.select();
-    undoBatch.current = { entries: [], at: 0 };
-    setRemoved((prev) =>
-      prev.filter(
-        (r) => !hiddenItems.some((h) => h.key === r.key && sameSources(h.sources, r.sources)),
-      ),
-    );
-  }, [hiddenItems]);
-
-  const removeCustom = (key: string) => {
-    if (isShared) shared.removeCustom(key);
-    else setCustom((prev) => prev.filter((c) => c.key !== key));
-  };
 
   const grouped = AISLES.map((aisle) => ({
     aisle,
@@ -306,9 +413,22 @@ export function ShoppingScreen() {
   // web use navigator.share or the OS text share. Native modules are require()'d
   // only on the native branch so the web bundle never executes them (mirrors
   // src/features/share).
+  // The share surfaces print `sources` verbatim — hand them TITLES, not the
+  // recipe ids the engine keys removals on.
+  const shareItems = useMemo(
+    () =>
+      items.map((i) => ({
+        ...i,
+        sources: i.sources
+          .map((id) => recipeTitles.get(id))
+          .filter((t): t is string => Boolean(t)),
+      })),
+    [items, recipeTitles],
+  );
+
   const shareList = async () => {
     haptics.select();
-    const text = buildShoppingListShareText({ items, custom: customList, checked: checkedMap });
+    const text = buildShoppingListShareText({ items: shareItems, custom: customList, checked: checkedMap });
     if (Platform.OS !== 'web' && shareCardRef.current) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports -- native-only; keeps view-shot out of the web runtime
@@ -336,7 +456,9 @@ export function ShoppingScreen() {
     await Share.share({ message: text }).catch(() => {});
   };
 
-  const loading = planLoading || listQuery.isLoading;
+  // !hydrated: rows must not render against the empty defaults while the kv
+  // load is in flight — a removal made in that window was overwritten (4g).
+  const loading = planLoading || listQuery.isLoading || !hydrated;
 
   if (loading) {
     return (
@@ -485,6 +607,10 @@ export function ShoppingScreen() {
                     <ShoppingItemRow
                       key={item.key}
                       item={item}
+                      sourceLabel={item.sources
+                        .map((id) => recipeTitles.get(id))
+                        .filter(Boolean)
+                        .join(' · ')}
                       checked={isChecked(item.key)}
                       onToggle={toggle}
                       onRemove={removeItem}
@@ -498,35 +624,19 @@ export function ShoppingScreen() {
               <View style={styles.section}>
                 <RNText style={styles.aisleHeader}>Everything else</RNText>
                 <View style={styles.rule} />
+                {/* Same gesture as the ingredient rows — hold, lift, swipe off,
+                    undo toast. The old visible ✕ was the affordance INVERTED
+                    against risk: a hard delete one accidental tap away, while
+                    the recoverable removal hid behind a deliberate gesture. */}
                 {customList.map((item) => (
-                  <View key={item.key}>
-                    <View style={styles.itemRow}>
-                      <Pressable
-                        style={[styles.check, isChecked(item.key) && styles.checkOn]}
-                        accessibilityRole="checkbox"
-                        accessibilityState={{ checked: Boolean(isChecked(item.key)) }}
-                        accessibilityLabel={item.name}
-                        hitSlop={8}
-                        onPress={() => toggle(item.key)}
-                      >
-                        {isChecked(item.key) && (
-                          <Ionicons name="checkmark" size={17} color={colors.white} />
-                        )}
-                      </Pressable>
-                      <View style={{ flex: 1, opacity: isChecked(item.key) ? 0.75 : 1 }}>
-                        {itemLine(null, item.name, isChecked(item.key))}
-                      </View>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={`Remove ${item.name}`}
-                        onPress={() => removeCustom(item.key)}
-                        style={styles.removeBtn}
-                      >
-                        <Ionicons name="close" size={16} color={colors.inkSoft} />
-                      </Pressable>
-                    </View>
-                    <View style={styles.sep} />
-                  </View>
+                  <CustomItemRow
+                    key={item.key}
+                    itemKey={item.key}
+                    name={item.name}
+                    checked={isChecked(item.key)}
+                    onToggle={toggle}
+                    onRemove={removeCustom}
+                  />
                 ))}
               </View>
             )}
@@ -551,7 +661,7 @@ export function ShoppingScreen() {
           >
             <ShareListCard
               ref={shareCardRef}
-              list={{ items, custom: customList, checked: checkedMap }}
+              list={{ items: shareItems, custom: customList, checked: checkedMap }}
             />
           </View>
         )}
@@ -577,11 +687,15 @@ function itemLine(amount: string | null | undefined, name: string, on: boolean) 
 // actually changed instead of rebuilding 40 rows' gesture handlers.
 const ShoppingItemRow = React.memo(function ShoppingItemRow({
   item,
+  sourceLabel,
   checked,
   onToggle,
   onRemove,
 }: {
   item: ShoppingItem;
+  /** Dish titles for the provenance line — looked up from the source ids by
+   *  the screen (sources are recipe ids, never titles: shoppingList.ts). */
+  sourceLabel: string;
   checked: boolean;
   onToggle: (key: string) => void;
   onRemove: (item: ShoppingItem) => void;
@@ -600,7 +714,42 @@ const ShoppingItemRow = React.memo(function ShoppingItemRow({
         </View>
         <View style={{ flex: 1, opacity: checked ? 0.75 : 1 }}>
           {itemLine(item.amount, item.name, checked)}
-          {item.sources.length > 0 && <Text role="caption">for {item.sources.join(' · ')}</Text>}
+          {sourceLabel.length > 0 && <Text role="caption">for {sourceLabel}</Text>}
+        </View>
+      </HoldToRemoveRow>
+      <View style={styles.sep} />
+    </View>
+  );
+});
+
+// A custom extra behind the same hold-to-remove gesture as the ingredients.
+const CustomItemRow = React.memo(function CustomItemRow({
+  itemKey,
+  name,
+  checked,
+  onToggle,
+  onRemove,
+}: {
+  itemKey: string;
+  name: string;
+  checked: boolean;
+  onToggle: (key: string) => void;
+  onRemove: (key: string, name: string) => void;
+}) {
+  return (
+    <View>
+      <HoldToRemoveRow
+        style={styles.itemRow}
+        checked={checked}
+        accessibilityLabel={name}
+        onPress={() => onToggle(itemKey)}
+        onRemove={() => onRemove(itemKey, name)}
+      >
+        <View style={[styles.check, checked && styles.checkOn]}>
+          {checked && <Ionicons name="checkmark" size={17} color={colors.white} />}
+        </View>
+        <View style={{ flex: 1, opacity: checked ? 0.75 : 1 }}>
+          {itemLine(null, name, checked)}
         </View>
       </HoldToRemoveRow>
       <View style={styles.sep} />
@@ -792,7 +941,6 @@ const styles: Record<string, ViewStyle & TextStyle> = {
     justifyContent: 'center',
   },
   checkOn: { backgroundColor: colors.terracotta, borderColor: colors.terracotta },
-  removeBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 
   addRow: { flexDirection: 'row', alignItems: 'center', gap: space[3], marginTop: space[3] },
   addInput: {
