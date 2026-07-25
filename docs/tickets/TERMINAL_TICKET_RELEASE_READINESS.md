@@ -71,7 +71,7 @@ Confirmed in the repo; spend no session time here unless something below contrad
 
 ## Section A — submission blockers `[gates everything]`
 
-- [ ] **A1. The policy URLs must actually resolve.** `ProfileScreen.tsx:37-38` and
+- [x] **A1. The policy URLs must actually resolve.** *(2026-07-25: all four 200 with real content; /support exists — see Log.)* `ProfileScreen.tsx:37-38` and
       `OttoClubScreen.tsx:30-31` point at `https://ottosapp.com/privacy` and `/terms`. From the
       cloud session both returned 403 through the proxy — **unverified, not confirmed broken**.
       Open both in a browser. A 404 or placeholder at a URL you also typed into App Store Connect
@@ -323,6 +323,42 @@ Performance advisors: **0 ERROR.** Triage:
 | 5× `auth_rls_initplan` (households / household_members policies re-evaluate `auth.uid()` per row) | **DEFERRED with reason.** The fix (wrapping in `(select auth.uid())`) is well-known and safe in principle, but it is a rewrite of live RLS policies, and per this ticket's own crew law an RLS change needs security-builder + a re-run and extension of the attack suite — not a drive-by. At current row counts the cost is unmeasurable. Revisit when a household has real volume, or bundle it with the next RLS packet. |
 | 2× multiple permissive policies (`plan_entries`, `recipes` — `*_select_own` + `*_household_read`) | **BY DESIGN — accepted.** Two readers, two reasons: your own rows, and a co-member's rows in a shared kitchen. Merging them into one policy would save a policy evaluation and cost clarity in the exact place clarity protects people. |
 | Unused index `favorites_user_id_idx` | **Accepted, leave.** "Never used" reflects a two-tester dataset, not a useless index. |
+
+**2026-07-25 — terminal. C1 (accessibility) — first batch + its refutation. NOT closed.**
+
+Landed: chat bubbles announce their speaker; `OttoArt` is decorative by default
+(it used to read the developer string "Otto illustration: happy" as the first
+thing on a screen — that was also an F2 copy violation); clarify chips and the
+chat header doors reach a real 44pt; the streaming bubble names Otto too (its
+attribution used to flicker on when the turn settled); a failed send now
+announces on iOS.
+
+**The finding worth carrying forward — `hitSlop` is often decoration.** The
+critic pass proved it from the RN source: slop only reaches a child when an
+ANCESTOR's bounds already contain the touch. Where a parent hugs its children,
+Fabric computes `overflowInset {0,0,0,0}`, treats the parent as clipping, and
+returns nil before the child's `hitTestEdgeInsets` are consulted. Three targets
+"fixed" earlier the same day were unchanged in reality — including PlanScreen's
+**destructive remove at ~18pt**. Fixed by growing the box (or the parent's
+padding), not the slop. **There are ~20 more `hitSlop` call sites in the repo
+and each is suspect until its parent geometry is checked** — that is a packet,
+not a box tick.
+
+**Still open in C1, do not tick it:**
+- **Contrast, and it is bigger than one chip.** `Text role="computed"` is
+  terracotta `#C4562E`; on cream `#FAF4EA` that measures **4.07:1**, under the
+  4.5:1 floor, and at 15px/600 it does not qualify for the large-text relief.
+  This is the semantic-ink rule itself failing AA wherever computed text sits on
+  cream — a ui-systems decision (darker terracotta for text? filled chip? bolder
+  and larger?), not a per-screen patch. **Founder + ui-systems call.**
+- Bubble boundaries are invisible: white on cream is 1.09:1, creamDeep on cream
+  1.10:1, the hairline 1.22:1 against a 3:1 floor. Alignment is doing all the
+  work for sighted low-vision users.
+- Dynamic Type at AX5 and reduced motion: not swept yet.
+- Web: `accessible={false}` is a no-op in react-native-web, so the mascot now
+  renders `<img>` with NO alt and screen readers read the filename. Decorative
+  images need `alt=""`, which is a different value from absent. P3 (the release
+  target is the App Store) but it is a regression on web.
 
 **2026-07-25 — terminal. A3 (privacy manifest) — verified against the real prebuild output, one gap found.**
 
