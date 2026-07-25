@@ -38,11 +38,17 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
-              {/* fullScreenGestureEnabled: v1 parity — drag from anywhere to go
-                  back on every pushed card (not just the thin left edge, and it
-                  gives Android a back gesture too). Cook opts out below because
-                  its step pager owns horizontal pans. */}
-              <Stack screenOptions={{ headerShown: false, fullScreenGestureEnabled: true }}>
+              {/* Back is the LEFT-EDGE swipe, not a drag from anywhere. The
+                  full-screen variant recognised a pan starting mid-screen, so a
+                  slightly-diagonal flick down a long page (recipe detail, the
+                  parallax hero) was claimed as "go back" instead of scrolling —
+                  the gesture has to be intentional or the page can't be read.
+                  The edge gesture is also what every iOS app trains for, and it
+                  costs Android nothing: fullScreenGestureEnabled is iOS-only
+                  (react-native-screens' fullScreenSwipeEnabled), so Android was
+                  always on the system back gesture / hardware back. Cook opts
+                  out entirely below — its step pager owns horizontal pans. */}
+              <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="(auth)" />
                 <Stack.Screen name="add" />

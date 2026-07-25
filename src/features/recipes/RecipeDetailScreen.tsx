@@ -445,9 +445,20 @@ export function RecipeDetailScreen() {
                     : 'Other dishes Otto keeps close by.'}
                 </Text>
               </View>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                {related.map((r) => (
-                  <RecipeCard key={String(r.id)} recipe={r} />
+              {/* A 2×2 grid, built as explicit rows of two. A single wrapping
+                  row can't do it: RecipeCard is flex:1 (basis 0), so four cards
+                  shrink onto ONE line — flex-wrap never fires and the tiles come
+                  out quarter-width. Chunking into pairs is the same shape the
+                  Discover FlatList gets from numColumns={2}: a row wrapper with
+                  flex:1 children, the card's own maxWidth 50% keeping a lone
+                  odd card at half width instead of stretching it across. */}
+              <View>
+                {pairs(related).map((row) => (
+                  <View key={row.map((r) => r.id).join('-')} style={{ flexDirection: 'row' }}>
+                    {row.map((r) => (
+                      <RecipeCard key={String(r.id)} recipe={r} />
+                    ))}
+                  </View>
                 ))}
               </View>
             </View>
@@ -542,6 +553,15 @@ export function RecipeDetailScreen() {
       </Sheet>
     </View>
   );
+}
+
+// Chunks the related recipes into rows of two so they lay out as a 2×2 grid.
+// useRelated already caps the list at 4; an odd tail simply makes a short last
+// row (the card's maxWidth 50% stops it stretching).
+function pairs<T>(items: T[]): T[][] {
+  const rows: T[][] = [];
+  for (let i = 0; i < items.length; i += 2) rows.push(items.slice(i, i + 2));
+  return rows;
 }
 
 function Stepper({ label, symbol, onPress }: { label: string; symbol: string; onPress: () => void }) {
