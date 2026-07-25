@@ -21,7 +21,16 @@ import { buildShoppingListShareText, ShareListCard, ShoppingListBanner } from '@
 import { useHousehold, useSharedList, getHouseholdWeekDishes } from '@/features/household';
 import { usePlan } from './usePlan';
 import { getListRecipes } from './plan.queries';
-import { buildShoppingList, pruneRemoved, AISLES, type ShoppingItem } from './shoppingList';
+import {
+  buildShoppingList,
+  isRemoved,
+  normalizeRemoved,
+  pruneRemoved,
+  sameSources,
+  AISLES,
+  type RemovedEntry,
+  type ShoppingItem,
+} from './shoppingList';
 import { HoldToRemoveRow } from './components/HoldToRemoveRow';
 
 // Shopping list (roadmap Phase 4): built from the current week, one row per
@@ -33,8 +42,12 @@ import { HoldToRemoveRow } from './components/HoldToRemoveRow';
 //
 // Three grades of "I don't need this": drop a whole DISH (chip ×), delete a
 // custom extra (its ×), or throw ONE ingredient off by holding the row and
-// dragging it away (HoldToRemoveRow). Removed keys live in `removed` beside
-// `excluded` — filtered out of the rows, the basket count, and the share.
+// dragging it away (HoldToRemoveRow). Removals live in `removed` beside
+// `excluded` — filtered out of the rows, the basket count, and the share — and
+// each one remembers the DISHES it came from, so it hides that removal and not
+// the ingredient's name forever (see shoppingList.ts). Nothing is hidden
+// without a way back: the "N hidden · Show them" line is always there while
+// anything is hidden, not just for the 5s the undo toast lives.
 
 export function ShoppingScreen() {
   const router = useRouter();
@@ -113,18 +126,25 @@ export function ShoppingScreen() {
   );
 
   // Single ingredient rows the shopper threw off the list (hold-then-drag, or
-  // the VoiceOver action). Held by item key, persisted like `excluded`. Every
-  // consumer below — rows, counts, share text, share card — reads `items`, so a
-  // removed thing is gone from ALL of them, not just hidden on screen.
-  const [removed, setRemoved] = useState<string[]>([]);
+  // the VoiceOver action). Each removal remembers the row's key AND its source
+  // dishes, persisted like `excluded`. Every consumer below — rows, counts,
+  // share text, share card — reads `items`, so a removed thing is gone from ALL
+  // of them, not just hidden on screen.
+  const [removed, setRemoved] = useState<RemovedEntry[]>([]);
   const items = useMemo(
-    () => (removed.length === 0 ? allItems : allItems.filter((i) => !removed.includes(i.key))),
+    () => (removed.length === 0 ? allItems : allItems.filter((i) => !isRemoved(i, removed))),
+    [allItems, removed],
+  );
+  // What this build is currently hiding — drives the restore line, and is the
+  // exact set "Show them" puts back (a removal for some OTHER week's version of
+  // the same ingredient is left alone).
+  const hiddenItems = useMemo(
+    () => (removed.length === 0 ? [] : allItems.filter((i) => isRemoved(i, removed))),
     [allItems, removed],
   );
 
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [custom, setCustom] = useState<{ key: string; name: string }[]>([]);
-  const [newItem, setNewItem] = useState('');
 
   // Unified check/custom access — the household's realtime state when shared,
   // local state otherwise. The rest of the screen reads only these.
@@ -146,14 +166,17 @@ export function ShoppingScreen() {
         checked: Record<string, boolean>;
         custom: { key: string; name: string }[];
         excluded?: string[];
-        removed?: string[];
+        removed?: unknown;
       }>('shoppingState', { checked: {}, custom: [], excluded: [], removed: [] });
       setChecked(saved.checked ?? {});
       setCustom(saved.custom ?? []);
       setExcluded(saved.excluded ?? []);
       // `removed` landed after the first shipped shape — a blob saved without
-      // it must still load, hence the ?? [] (same defence as `excluded`).
-      setRemoved(saved.removed ?? []);
+      // it must still load, hence the default. normalizeRemoved also absorbs
+      // the pre-release `string[]` shape (dropped, never guessed at: a bare
+      // name carries no source set, and inventing one would resurrect the
+      // hide-that-ingredient-forever bug).
+      setRemoved(normalizeRemoved(saved.removed));
       hydrated.current = true;
     })();
   }, []);
@@ -171,29 +194,45 @@ export function ShoppingScreen() {
     });
   }, [recipeIds]);
   // Same prune for hand-removed rows, against the ingredients the week actually
-  // produces now. Guarded on a non-empty build: while the list query is loading
-  // (or the week is momentarily empty) allItems is [], and pruning against that
-  // would wipe the memory and resurrect every removed row.
+  // produces now — but ONLY against a build we know is complete. getListRecipes
+  // is best-effort per dish (a seed fetch that fails yields fewer recipes), so
+  // a non-empty but PARTIAL build would prune still-valid removals and persist
+  // the loss: one flaky fetch used to wipe 'olive oil' + 'salt' for good.
+  // Complete means: settled (not fetching), real data (not the kept-previous
+  // placeholder for a week that's still loading), and one recipe back for every
+  // dish we asked about.
+  const listSettled =
+    listQuery.isSuccess && !listQuery.isFetching && !listQuery.isPlaceholderData;
+  const listComplete =
+    listSettled && (listQuery.data?.length ?? 0) === activeRecipeIds.length;
   useEffect(() => {
-    if (allItems.length === 0) return;
+    if (!listComplete || allItems.length === 0) return;
     const liveKeys = allItems.map((i) => i.key);
     setRemoved((prev) => pruneRemoved(prev, liveKeys));
-  }, [allItems]);
+  }, [listComplete, allItems]);
 
-  const toggle = (key: string) => {
+  // The shared-household hooks hand back fresh function identities every
+  // render, which would defeat the memoized rows below. Read them through a
+  // latest ref so the row callbacks can be stable AND always act on current
+  // state (a stale closure here would toggle the wrong row).
+  const liveRef = useRef({ isShared, shared });
+  liveRef.current = { isShared, shared };
+
+  const toggle = useCallback((key: string) => {
     haptics.select();
-    if (isShared) shared.toggle(key, !isChecked(key));
-    else setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+    const { isShared: sharedNow, shared: list } = liveRef.current;
+    if (sharedNow) {
+      const on = list.rows.some((r) => r.item_key === key && r.checked);
+      list.toggle(key, !on);
+    } else setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
 
-  const addCustom = () => {
-    const name = newItem.trim();
-    if (!name) return;
-    setNewItem('');
-    if (isShared) shared.addCustom(name);
+  const addCustom = useCallback((name: string) => {
+    const { isShared: sharedNow, shared: list } = liveRef.current;
+    if (sharedNow) list.addCustom(name);
     // Date.now() key — a re-used index would collide checkboxes after removals.
     else setCustom((prev) => [...prev, { key: `custom-${Date.now()}-${Math.floor(Math.random() * 1e6)}`, name }]);
-  };
+  }, []);
 
   // Hold-then-drag committed (or the accessibility action fired): the row goes,
   // the basket count drops with it, and a toast holds the door open for a
@@ -201,14 +240,50 @@ export function ShoppingScreen() {
   // household_list_state has no "removed" column and inventing one is a
   // migration, not a screen change (see report/gap). Check-offs and custom
   // items still sync exactly as before.
-  const removeItem = (item: ShoppingItem) => {
-    setRemoved((prev) => (prev.includes(item.key) ? prev : [...prev, item.key]));
-    const label = item.name.charAt(0).toUpperCase() + item.name.slice(1);
-    show(`${label} — off the list.`, 'info', {
-      actionLabel: 'Undo',
-      onAction: () => setRemoved((prev) => prev.filter((key) => key !== item.key)),
-    });
-  };
+  //
+  // There is only one toast slot, so two removals in a row used to leave the
+  // first one un-undoable. Removals inside the toast's own lifetime therefore
+  // accumulate into ONE batch: the toast counts them and Undo puts the whole
+  // batch back. (Anything older is still recoverable from "Show them".)
+  const undoBatch = useRef<{ entries: RemovedEntry[]; at: number }>({ entries: [], at: 0 });
+  const removeItem = useCallback(
+    (item: ShoppingItem) => {
+      const entry: RemovedEntry = { key: item.key, sources: item.sources };
+      setRemoved((prev) => (isRemoved(item, prev) ? prev : [...prev, entry]));
+
+      const now = Date.now();
+      const stillUp = now - undoBatch.current.at < UNDO_TOAST_MS;
+      const batch = [...(stillUp ? undoBatch.current.entries : []), entry];
+      undoBatch.current = { entries: batch, at: now };
+
+      const label = item.name.charAt(0).toUpperCase() + item.name.slice(1);
+      show(batch.length === 1 ? `${label} — off the list.` : `${batch.length} off the list.`, 'info', {
+        actionLabel: 'Undo',
+        onAction: () => {
+          undoBatch.current = { entries: [], at: 0 };
+          setRemoved((prev) =>
+            prev.filter(
+              (r) => !batch.some((b) => b.key === r.key && sameSources(b.sources, r.sources)),
+            ),
+          );
+        },
+      });
+    },
+    [show],
+  );
+
+  // The always-available way back: put every row this build is hiding back on
+  // the list. Removals belonging to a different source set (another week's
+  // version of the same ingredient) are left untouched.
+  const restoreHidden = useCallback(() => {
+    haptics.select();
+    undoBatch.current = { entries: [], at: 0 };
+    setRemoved((prev) =>
+      prev.filter(
+        (r) => !hiddenItems.some((h) => h.key === r.key && sameSources(h.sources, r.sources)),
+      ),
+    );
+  }, [hiddenItems]);
 
   const removeCustom = (key: string) => {
     if (isShared) shared.removeCustom(key);
@@ -278,17 +353,6 @@ export function ShoppingScreen() {
       </Screen>
     );
   }
-
-  // One item line: quantity in terracotta, name in ink; both struck through and
-  // terracotta-tinted once checked (the "got it" read at a glance).
-  const itemLine = (amount: string | null | undefined, name: string, on: boolean) => (
-    <RNText>
-      {amount ? (
-        <RNText style={[styles.itemAmount, on && styles.struck]}>{amount} </RNText>
-      ) : null}
-      <RNText style={[styles.itemName, on && styles.struck]}>{name}</RNText>
-    </RNText>
-  );
 
   return (
     <Screen
@@ -366,12 +430,48 @@ export function ShoppingScreen() {
               </View>
             )}
 
-            {total === 0 ? (
+            {/* The way back. Always on screen while anything is hidden — the
+                undo toast lives 5 seconds, a shopper's change of mind doesn't. */}
+            {hiddenItems.length > 0 && (
+              <Pressable
+                onPress={restoreHidden}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  hiddenItems.length === 1
+                    ? 'Show the item you took off the list'
+                    : `Show the ${hiddenItems.length} items you took off the list`
+                }
+                style={styles.restoreRow}
+              >
+                <Ionicons name="arrow-undo-outline" size={16} color={colors.inkSoft} />
+                <RNText style={styles.restoreText}>
+                  {hiddenItems.length} hidden ·{' '}
+                  <RNText style={styles.restoreAction}>
+                    Show {hiddenItems.length === 1 ? 'it' : 'them'}
+                  </RNText>
+                </RNText>
+              </Pressable>
+            )}
+
+            {allItems.length === 0 && customList.length === 0 ? (
+              // Genuinely nothing planned.
               <View style={styles.empty}>
                 <OttoArt name="thinking" size={120} />
                 <Text role="body">
                   Nothing to buy yet. Put a dish or two on Otto&apos;s week and build the list from
                   there.
+                </Text>
+              </View>
+            ) : items.length === 0 && allItems.length > 0 ? (
+              // The week HAS ingredients — the shopper has taken every one off.
+              // Saying "nothing planned" here would be a lie sitting right under
+              // the dish chips, so this state says what actually happened and
+              // points at the restore line above.
+              <View style={styles.empty}>
+                <OttoArt name="thinking" size={120} />
+                <Text role="body">
+                  You&apos;ve taken everything off this list. The dishes are still on the week —
+                  tap &ldquo;Show them&rdquo; above to put the ingredients back.
                 </Text>
               </View>
             ) : (
@@ -382,28 +482,13 @@ export function ShoppingScreen() {
                   {/* Tap = check off (unchanged). Hold ~300ms → the row lifts →
                       drag it away to take it off the list entirely. */}
                   {group.items.map((item) => (
-                    <View key={item.key}>
-                      <HoldToRemoveRow
-                        style={styles.itemRow}
-                        checked={Boolean(isChecked(item.key))}
-                        accessibilityLabel={`${item.amount} ${item.name}`.trim()}
-                        onPress={() => toggle(item.key)}
-                        onRemove={() => removeItem(item)}
-                      >
-                        <View style={[styles.check, isChecked(item.key) && styles.checkOn]}>
-                          {isChecked(item.key) && (
-                            <Ionicons name="checkmark" size={17} color={colors.white} />
-                          )}
-                        </View>
-                        <View style={{ flex: 1, opacity: isChecked(item.key) ? 0.75 : 1 }}>
-                          {itemLine(item.amount, item.name, isChecked(item.key))}
-                          {item.sources.length > 0 && (
-                            <Text role="caption">for {item.sources.join(' · ')}</Text>
-                          )}
-                        </View>
-                      </HoldToRemoveRow>
-                      <View style={styles.sep} />
-                    </View>
+                    <ShoppingItemRow
+                      key={item.key}
+                      item={item}
+                      checked={isChecked(item.key)}
+                      onToggle={toggle}
+                      onRemove={removeItem}
+                    />
                   ))}
                 </View>
               ))
@@ -447,27 +532,10 @@ export function ShoppingScreen() {
             )}
 
             {/* "Something else?" — add-your-own row, inside the pad like the
-                printed sheet it belongs to. */}
-            <View style={styles.addRow}>
-              <TextInput
-                style={styles.addInput}
-                value={newItem}
-                onChangeText={setNewItem}
-                placeholder="Something else? Coffee…"
-                placeholderTextColor={colors.inkSoft}
-                onSubmitEditing={addCustom}
-                returnKeyType="done"
-                accessibilityLabel="Add your own item"
-              />
-              <Pressable
-                onPress={addCustom}
-                accessibilityRole="button"
-                accessibilityLabel="Add item"
-                style={styles.addBtn}
-              >
-                <Ionicons name="add" size={26} color={colors.white} />
-              </Pressable>
-            </View>
+                printed sheet it belongs to. Its draft text is ITS OWN state
+                (see AddItemRow): on the screen it re-rendered every ingredient
+                row on every keystroke. */}
+            <AddItemRow onAdd={addCustom} />
           </View>
         </View>
 
@@ -491,6 +559,93 @@ export function ShoppingScreen() {
     </Screen>
   );
 }
+
+// One item line: quantity in terracotta, name in ink; both struck through and
+// terracotta-tinted once checked (the "got it" read at a glance).
+function itemLine(amount: string | null | undefined, name: string, on: boolean) {
+  return (
+    <RNText>
+      {amount ? <RNText style={[styles.itemAmount, on && styles.struck]}>{amount} </RNText> : null}
+      <RNText style={[styles.itemName, on && styles.struck]}>{name}</RNText>
+    </RNText>
+  );
+}
+
+// One ingredient row, memoized. `item` comes from a useMemo'd build and the two
+// callbacks are stable, so a re-render of the screen (a check-off elsewhere, a
+// refetch, a keystroke that escapes AddItemRow) re-renders only the rows that
+// actually changed instead of rebuilding 40 rows' gesture handlers.
+const ShoppingItemRow = React.memo(function ShoppingItemRow({
+  item,
+  checked,
+  onToggle,
+  onRemove,
+}: {
+  item: ShoppingItem;
+  checked: boolean;
+  onToggle: (key: string) => void;
+  onRemove: (item: ShoppingItem) => void;
+}) {
+  return (
+    <View>
+      <HoldToRemoveRow
+        style={styles.itemRow}
+        checked={checked}
+        accessibilityLabel={`${item.amount} ${item.name}`.trim()}
+        onPress={() => onToggle(item.key)}
+        onRemove={() => onRemove(item)}
+      >
+        <View style={[styles.check, checked && styles.checkOn]}>
+          {checked && <Ionicons name="checkmark" size={17} color={colors.white} />}
+        </View>
+        <View style={{ flex: 1, opacity: checked ? 0.75 : 1 }}>
+          {itemLine(item.amount, item.name, checked)}
+          {item.sources.length > 0 && <Text role="caption">for {item.sources.join(' · ')}</Text>}
+        </View>
+      </HoldToRemoveRow>
+      <View style={styles.sep} />
+    </View>
+  );
+});
+
+// The add-your-own row owns its draft text. Held on the screen, every keystroke
+// re-rendered every ingredient row (and rebuilt every row's pan gesture); held
+// here, typing "coffee" re-renders this row and nothing else.
+const AddItemRow = React.memo(function AddItemRow({ onAdd }: { onAdd: (name: string) => void }) {
+  const [newItem, setNewItem] = useState('');
+  const submit = () => {
+    const name = newItem.trim();
+    if (!name) return;
+    setNewItem('');
+    onAdd(name);
+  };
+  return (
+    <View style={styles.addRow}>
+      <TextInput
+        style={styles.addInput}
+        value={newItem}
+        onChangeText={setNewItem}
+        placeholder="Something else? Coffee…"
+        placeholderTextColor={colors.inkSoft}
+        onSubmitEditing={submit}
+        returnKeyType="done"
+        accessibilityLabel="Add your own item"
+      />
+      <Pressable
+        onPress={submit}
+        accessibilityRole="button"
+        accessibilityLabel="Add item"
+        style={styles.addBtn}
+      >
+        <Ionicons name="add" size={26} color={colors.white} />
+      </Pressable>
+    </View>
+  );
+});
+
+// Matches ToastHost's lifetime for a toast that carries an action — removals
+// inside that window share one undo.
+const UNDO_TOAST_MS = 5000;
 
 // Pad frame insets (from the pad's outer edge). The double frame is two nested
 // hairlines a step apart; content padding clears them so text never collides
@@ -580,6 +735,19 @@ const styles: Record<string, ViewStyle & TextStyle> = {
     backgroundColor: colors.creamDeep,
   },
   chipText: { flexShrink: 1, fontSize: 15, fontWeight: '700', color: colors.ink },
+
+  // Quiet by design: this is a way back, not a call to action — so it reads as
+  // a note on the pad, at a full 44pt target.
+  restoreRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space[2],
+    minHeight: 44,
+    marginBottom: space[3],
+  },
+  restoreText: { fontSize: 13, color: colors.inkSoft },
+  restoreAction: { fontWeight: '700', color: colors.terracotta, textDecorationLine: 'underline' },
 
   section: { marginBottom: space[5] },
   aisleHeader: {

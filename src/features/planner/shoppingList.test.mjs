@@ -4,7 +4,15 @@
 // contract in isolation.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildShoppingList, aisleFor, pruneRemoved, AISLES } from './shoppingList.ts';
+import {
+  buildShoppingList,
+  aisleFor,
+  pruneRemoved,
+  isRemoved,
+  sameSources,
+  normalizeRemoved,
+  AISLES,
+} from './shoppingList.ts';
 
 const ing = (name, over = {}) => ({ name, qty: null, unit: null, grams: null, raw: '', ...over });
 
@@ -109,12 +117,70 @@ test('pruneRemoved: drops keys the week no longer produces, keeps the live ones'
   const liveKeys = items.map((i) => i.key);
   // "onion" is still on the week (stays hidden); "chicken" came from a dish the
   // shopper has since dropped, so the memory of removing it must not linger.
-  assert.deepEqual(pruneRemoved(['onion', 'chicken'], liveKeys), ['onion']);
+  const removed = [
+    { key: 'onion', sources: ['A'] },
+    { key: 'chicken', sources: ['Gone'] },
+  ];
+  assert.deepEqual(pruneRemoved(removed, liveKeys), [{ key: 'onion', sources: ['A'] }]);
 });
 
 test('pruneRemoved: returns the SAME array when nothing changed (no needless re-render)', () => {
-  const removed = ['onion'];
+  const removed = [{ key: 'onion', sources: ['A'] }];
   assert.equal(pruneRemoved(removed, ['onion', 'flour']), removed); // identity, not just equality
   const empty = [];
   assert.equal(pruneRemoved(empty, []), empty);
+});
+
+test('isRemoved: same key + same sources stays hidden (the removal the shopper made)', () => {
+  const [onion] = buildShoppingList([
+    { title: 'Soup', ingredients: [ing('onion', { grams: 100 })] },
+  ]);
+  assert.equal(isRemoved(onion, [{ key: 'onion', sources: ['Soup'] }]), true);
+  // order of the source set must not matter
+  const [shared] = buildShoppingList([
+    { title: 'Soup', ingredients: [ing('onion', { grams: 100 })] },
+    { title: 'Stew', ingredients: [ing('onion', { grams: 50 })] },
+  ]);
+  assert.equal(isRemoved(shared, [{ key: 'onion', sources: ['Stew', 'Soup'] }]), true);
+});
+
+test('isRemoved: same key from a DIFFERENT dish reappears (no global name suppression)', () => {
+  // Removed 100 g of onion that came from Soup…
+  const removed = [{ key: 'onion', sources: ['Soup'] }];
+  // …now the week is an onion-heavy party dish instead. 3 kg of onion MUST show.
+  const [party] = buildShoppingList([
+    { title: 'Onion Bhaji Party', ingredients: [ing('onions', { grams: 3000 })] },
+  ]);
+  assert.equal(party.amount, '3 kg');
+  assert.equal(isRemoved(party, removed), false);
+});
+
+test('isRemoved: the same ingredient arriving from one MORE dish reappears', () => {
+  const removed = [{ key: 'onion', sources: ['Soup'] }];
+  const [both] = buildShoppingList([
+    { title: 'Soup', ingredients: [ing('onion', { grams: 100 })] },
+    { title: 'Stew', ingredients: [ing('onion', { grams: 400 })] },
+  ]);
+  assert.deepEqual(both.sources, ['Soup', 'Stew']);
+  assert.equal(both.amount, '500 g'); // the new, bigger amount is not suppressed
+  assert.equal(isRemoved(both, removed), false);
+});
+
+test('sameSources: order-insensitive, length-sensitive', () => {
+  assert.equal(sameSources(['A', 'B'], ['B', 'A']), true);
+  assert.equal(sameSources([], []), true);
+  assert.equal(sameSources(['A'], ['A', 'B']), false);
+  assert.equal(sameSources(['A', 'B'], ['A']), false);
+  assert.equal(sameSources(['A'], ['B']), false);
+});
+
+test('normalizeRemoved: tolerates the old string[] blob (ignores it) and junk', () => {
+  assert.deepEqual(normalizeRemoved(['onion', 'salt']), []); // legacy shape → dropped, no crash
+  assert.deepEqual(normalizeRemoved(undefined), []);
+  assert.deepEqual(normalizeRemoved(null), []);
+  assert.deepEqual(normalizeRemoved('nope'), []);
+  assert.deepEqual(normalizeRemoved([null, 42, { key: '' }, { key: 'x' }, { sources: [] }]), []);
+  assert.deepEqual(normalizeRemoved([{ key: 'onion', sources: ['Soup', 7] }]), [
+    { key: 'onion', sources: ['Soup'] },
+  ]);
 });

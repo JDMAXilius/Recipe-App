@@ -207,14 +207,67 @@ export function buildShoppingList(recipes: RecipeForList[]): ShoppingItem[] {
   return items;
 }
 
-// Hand-removed rows (hold-then-drag on the list) are remembered by item key.
-// They must be pruned the same way dropped dishes are: once the week no longer
-// produces that ingredient, the memory has to go, or a re-planned dish would
-// come back invisible forever. Returns the SAME array when nothing changed so
-// a setState(prev => …) can no-op instead of re-rendering the list.
-export function pruneRemoved(removed: string[], liveKeys: string[]): string[] {
+// ─── Hand-removed rows ──────────────────────────────────────────────────────
+// Hold-then-drag throws ONE ingredient off the list. What we remember must be
+// the removal the shopper actually made, not the ingredient's NAME forever:
+// `key` is the bare normalized name ("onion"), so a key-only memory suppressed
+// every future onion — remove 100 g of onion from Soup one week and the 3 kg
+// for next week's Onion Bhaji Party never renders. Silent under-buying, i.e.
+// the exact failure this feature exists to prevent, inverted.
+//
+// So a removal also remembers WHAT it was removing: the row's `sources` (the
+// dishes the amount came from). A row is hidden only when a remembered removal
+// has the same key AND the same set of sources. Same dish still on the week →
+// still hidden (what the shopper meant). The ingredient turning up from a
+// different dish, or from one more dish, is a DIFFERENT shopping decision, so
+// the row comes back with its new amount.
+export interface RemovedEntry {
+  key: string;
+  sources: string[];
+}
+
+// Order-insensitive set compare. `sources` is built deduped (buildShoppingList
+// pushes a title once), so length + membership is a true set comparison here.
+export function sameSources(a: string[], b: string[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  const seen = new Set(b);
+  return a.every((s) => seen.has(s));
+}
+
+// Is this row one the shopper threw off — for THIS set of dishes?
+export function isRemoved(item: ShoppingItem, removed: RemovedEntry[]): boolean {
+  return removed.some((r) => r.key === item.key && sameSources(r.sources, item.sources));
+}
+
+// Hydration guard for the kv blob. The field has never shipped in a build, so
+// there is no stored data to migrate — but a hand-edited or legacy `string[]`
+// blob must not crash the screen: anything that isn't a well-formed entry is
+// dropped rather than guessed at (a bare string carries no source set, and
+// inventing one would re-create the global-suppression bug).
+export function normalizeRemoved(raw: unknown): RemovedEntry[] {
+  if (!Array.isArray(raw)) return [];
+  const out: RemovedEntry[] = [];
+  for (const entry of raw) {
+    if (!entry || typeof entry !== 'object') continue; // legacy plain string → ignored
+    const { key, sources } = entry as { key?: unknown; sources?: unknown };
+    if (typeof key !== 'string' || !key) continue;
+    if (!Array.isArray(sources)) continue;
+    out.push({ key, sources: sources.filter((s): s is string => typeof s === 'string') });
+  }
+  return out;
+}
+
+// Removals must be pruned the same way dropped dishes are: once the week no
+// longer produces that ingredient at all, the memory has to go, or a re-planned
+// dish would come back invisible forever. Keyed on the ingredient being live —
+// a live key whose sources changed is handled by isRemoved (it simply stops
+// matching), so it can stay until the ingredient itself leaves the week.
+// Returns the SAME array when nothing changed so a setState(prev => …) can
+// no-op instead of re-rendering the list.
+export function pruneRemoved(removed: RemovedEntry[], liveKeys: string[]): RemovedEntry[] {
   if (removed.length === 0) return removed;
   const live = new Set(liveKeys);
-  const next = removed.filter((key) => live.has(key));
+  const next = removed.filter((r) => live.has(r.key));
   return next.length === removed.length ? removed : next;
 }

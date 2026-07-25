@@ -14,7 +14,7 @@
 // values, which ride fine on web. Reduced motion drops the flourish (no lift,
 // no fade, no fly-out) and removes instantly; the gesture itself still works,
 // and VoiceOver never needs it at all (accessibilityActions below).
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, type ViewStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -49,7 +49,7 @@ export interface HoldToRemoveRowProps {
   children: React.ReactNode;
 }
 
-export function HoldToRemoveRow({
+function HoldToRemoveRowBase({
   onPress,
   onRemove,
   checked,
@@ -70,56 +70,75 @@ export function HoldToRemoveRow({
   // does not — this ref is the platform-proof guard.
   const heldRef = useRef(false);
 
-  const held = () => {
+  // Latest-prop refs. The gesture below is built ONCE (useMemo, stable deps):
+  // rebuilding it pushed a new handler config to the native side on every
+  // render — including mid-hold, when setLifted(true) re-renders the row, and
+  // ~6× per row per keystroke in the screen's "Something else?" field. The
+  // gesture must therefore never close over a prop directly.
+  const onRemoveRef = useRef(onRemove);
+  onRemoveRef.current = onRemove;
+
+  const held = useCallback(() => {
     heldRef.current = true;
     setLifted(true);
     haptics.impact('medium'); // the "it's in your hand now" beat
-  };
-  const released = () => setLifted(false);
+  }, []);
+  const released = useCallback(() => setLifted(false), []);
   // New touch — clear the last press's guard so a plain tap still checks off.
-  const clearHeld = () => {
+  const clearHeld = useCallback(() => {
     heldRef.current = false;
-  };
+  }, []);
+  const commitRemove = useCallback(() => {
+    onRemoveRef.current();
+  }, []);
 
-  const pan = Gesture.Pan()
-    .activateAfterLongPress(HOLD_MS)
-    .onBegin(() => {
-      runOnJS(clearHeld)();
-    })
-    .onStart(() => {
-      lift.value = reduced ? 0 : withSpring(1, spring.snappy);
-      runOnJS(held)();
-    })
-    .onUpdate((e) => {
-      x.value = e.translationX;
-    })
-    .onEnd((e) => {
-      const limit = (width.value || COMMIT_FALLBACK) * COMMIT_RATIO;
-      if (Math.abs(e.translationX) < limit) return; // under the threshold → onFinalize springs it back
-      removing.value = true;
-      if (reduced) {
-        runOnJS(onRemove)();
-        return;
-      }
-      // Fly it off the way the finger was going, THEN tell the list — so the
-      // row leaves under the drag instead of blinking out mid-gesture.
-      const dir = e.translationX > 0 ? 1 : -1;
-      x.value = withTiming(
-        dir * (width.value || COMMIT_FALLBACK) * 1.2,
-        { duration: timing.fade },
-        (finished) => {
-          if (finished) runOnJS(onRemove)();
-        },
-      );
-    })
-    .onFinalize(() => {
-      // Runs after onEnd and after a cancel (e.g. the ScrollView taking the
-      // touch), so the spring-back lives here once instead of in both paths.
-      if (removing.value) return;
-      x.value = withSpring(0, spring.snappy);
-      lift.value = reduced ? 0 : withSpring(0, spring.snappy);
-      runOnJS(released)();
-    });
+  const pan = useMemo(
+    () =>
+      Gesture.Pan()
+        .activateAfterLongPress(HOLD_MS)
+        .onBegin(() => {
+          removing.value = false;
+          runOnJS(clearHeld)();
+        })
+        .onStart(() => {
+          lift.value = reduced ? 0 : withSpring(1, spring.snappy);
+          runOnJS(held)();
+        })
+        .onUpdate((e) => {
+          x.value = e.translationX;
+        })
+        .onEnd((e, success) => {
+          // success === false means CANCELLED, not released: backgrounded app,
+          // an incoming call, a web pointercancel. The finger never came up, so
+          // nothing may be removed — onFinalize still springs the row back.
+          if (!success) return;
+          const limit = (width.value || COMMIT_FALLBACK) * COMMIT_RATIO;
+          if (Math.abs(e.translationX) < limit) return; // under the threshold → onFinalize springs it back
+          removing.value = true;
+          // Commit HERE, on release — the fly-out is purely decorative. Driving
+          // the removal from the animation's completion callback lost it
+          // whenever the row unmounted mid-flight (reanimated cancels on
+          // unmount and calls back with finished === false), and left a
+          // 200 ms window where a share still contained the removed row.
+          runOnJS(commitRemove)();
+          if (reduced) return;
+          // Fly it off the way the finger was going, so the row leaves under
+          // the drag for whatever frames it has left instead of blinking out.
+          const dir = e.translationX > 0 ? 1 : -1;
+          x.value = withTiming(dir * (width.value || COMMIT_FALLBACK) * 1.2, {
+            duration: timing.fade,
+          });
+        })
+        .onFinalize(() => {
+          // Runs after onEnd and after a cancel (e.g. the ScrollView taking the
+          // touch), so the spring-back lives here once instead of in both paths.
+          if (removing.value) return;
+          x.value = withSpring(0, spring.snappy);
+          lift.value = reduced ? 0 : withSpring(0, spring.snappy);
+          runOnJS(released)();
+        }),
+    [reduced, clearHeld, held, released, commitRemove, lift, removing, width, x],
+  );
 
   const animStyle = useAnimatedStyle(() => {
     const travel = Math.abs(x.value) / (width.value || COMMIT_FALLBACK);
@@ -157,7 +176,11 @@ export function HoldToRemoveRow({
           accessibilityRole="checkbox"
           accessibilityState={{ checked }}
           accessibilityLabel={accessibilityLabel}
-          accessibilityHint="Hold, then swipe sideways to take it off the list"
+          // Describe the path this user actually HAS. "Hold, then swipe
+          // sideways" is the one interaction a screen-reader user cannot
+          // perform (the gesture layer owns the touch), so the hint names the
+          // rotor action instead — and the tap that is always available.
+          accessibilityHint="Double tap to check it off, or use the Remove from list action to take it off"
           // Hold-and-drag is unreachable with VoiceOver and hard with a motor
           // impairment — the rotor action is the equal path to removal.
           accessibilityActions={[{ name: 'remove', label: 'Remove from list' }]}
@@ -178,3 +201,11 @@ export function HoldToRemoveRow({
     </GestureDetector>
   );
 }
+
+// Memoized: typing in the screen's "Something else?" field re-renders the
+// screen, and a 40-row list re-rendering every row per keystroke re-ran every
+// row's animated style and children for nothing. The screen passes stable
+// callbacks (useCallback) and stable item objects, so a keystroke now re-renders
+// nothing below it.
+export const HoldToRemoveRow = React.memo(HoldToRemoveRowBase);
+HoldToRemoveRow.displayName = 'HoldToRemoveRow';
