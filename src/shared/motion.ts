@@ -55,7 +55,7 @@ export function usePressSpring() {
 // 2. Fire it from onPressIn and the whole beat lands on TOUCH, not on release.
 //    Waiting for the release is most of what made this feel sluggish.
 //
-// spring.press puts the dip and the return inside ~200ms with a hair of
+// spring.press puts the dip and the return inside ~100ms with a hair of
 // overshoot — a snap, not a wobble. Reduced motion gets the same beat as a
 // quick opacity flash: feedback either way, movement only when it's welcome.
 export function usePressPop() {

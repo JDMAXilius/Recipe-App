@@ -38,7 +38,7 @@ Springs are role-named too:
 | `snappy` | quick, damped | press feedback (`usePressSpring`, scale 0.97) |
 | `pop` | bouncy | the paw / OttoIdle signature — a flourish, not a button |
 | `sheet` | heavy, controlled | sheet present/dismiss |
-| `press` | crisp, ~200ms, <2% overshoot | a button that MOVES YOU — the raised ＋ (`usePressPop`) |
+| `press` | crisp, ~100ms, <2% overshoot | a button that MOVES YOU — the raised ＋ (`usePressPop`) |
 
 `press` was added 2026-07-25 (founder: the ＋ should feel good and quick).
 `pop` settles too slowly to read as a button, which is what made the ＋ feel
