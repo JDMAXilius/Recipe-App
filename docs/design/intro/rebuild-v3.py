@@ -44,8 +44,11 @@ work = im.copy()
 
 # --- panel 3: erase the wordmark ------------------------------------------
 p3 = PAN[3]
-t3 = ink_bbox(im, (p3[0] + 4, p3[1] + 80, p3[0] + 175, p3[1] + 175))
-t3 = (t3[0] - 8, t3[1] - 8, t3[2] + 8, t3[3] + 8)
+# HAND-MEASURED to the glyphs. Auto-detection merged the wordmark with the
+# motion ticks by the hat and the top of the tail, and the generous margin then
+# ate the apron bow and clipped the tail — the character must not be touched.
+# Nearest character ink: tail top ~x1004/y210, bow ~x1097 — both outside.
+t3 = (994, 156, 1090, 199)
 patch_from_above(work, t3, im, p3)
 print('panel3 wordmark erased', t3)
 
