@@ -11,6 +11,7 @@ export type StoreKey =
   | 'prefs'
   | 'notifPrefs'
   | 'firstSaveCelebrated'
+  | 'soundsEnabled'
   | 'shoppingState'
   | 'household'
   | 'householdRecent'

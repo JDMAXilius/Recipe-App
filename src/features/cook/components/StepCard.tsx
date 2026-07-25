@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { ScrollView, Text as RNText, View } from 'react-native';
 import Animated, {
-  Easing,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { OttoArt, Text } from '@/shared/ui';
-import { colors, radii, space } from '@/shared/theme/tokens';
+import { colors, radii, space, timing } from '@/shared/theme/tokens';
+import { easings } from '@/shared/motion';
 import { segmentStep } from '../stepEnrich';
 import { stepActionArt } from '../stepAction';
 import type { IngredientPair } from '../session';
@@ -38,7 +38,8 @@ export function StepCard({ stepIndex, text, ingredients, onStartTimer }: Props) 
       return;
     }
     enter.value = 0;
-    enter.value = withTiming(1, { duration: 220, easing: Easing.out(Easing.quad) });
+    // Role-named (motion.md §1): a step arriving is an `enter`.
+    enter.value = withTiming(1, { duration: timing.enter, easing: easings.enter });
   }, [stepIndex, reduced, enter]);
   const enterStyle = useAnimatedStyle(() => ({
     opacity: enter.value,

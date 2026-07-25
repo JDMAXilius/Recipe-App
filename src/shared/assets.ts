@@ -141,3 +141,14 @@ export const paw = {
 
 // Player dep (expo-audio) lands with cook (P3); the source require is here now.
 export const alarmSound = require('../../assets/sounds/timer-alarm.wav');
+
+// The delight palette (contract: motion.md §3) — consumed ONLY by
+// shared/sound.ts. Synthesized in-repo 2026-07-25 (original, licence ours),
+// peaks well under timer-alarm by design.
+export const soundKit = {
+  save: require('../../assets/sounds/save.wav'),
+  send: require('../../assets/sounds/send.wav'),
+  stepDone: require('../../assets/sounds/step-done.wav'),
+  allDone: require('../../assets/sounds/all-done.wav'),
+  gentleError: require('../../assets/sounds/gentle-error.wav'),
+} as const;

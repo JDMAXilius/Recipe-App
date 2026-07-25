@@ -1,8 +1,8 @@
-import { Platform, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
+import { haptics } from '@/shared/haptics';
 import { usePressSpring } from '@/shared/motion';
 import { colors, shadow } from '@/shared/theme/tokens';
 
@@ -19,9 +19,7 @@ export function TabBarCreateButton({ onPress, accessibilityState }: BottomTabBar
         accessibilityLabel="Create recipe"
         accessibilityState={accessibilityState}
         onPress={(e) => {
-          if (Platform.OS !== 'web') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-          }
+          haptics.impact('light'); // kit is already web-safe + fire-and-forget
           onPress?.(e);
         }}
         onPressIn={onPressIn}

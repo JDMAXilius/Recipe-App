@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Linking,
   Platform,
   Pressable,
   ScrollView,
   Share,
+  Switch,
   Text as RNText,
   TextInput,
   View,
@@ -20,6 +21,7 @@ import type { User } from '@supabase/supabase-js';
 import { Text, SegmentBar, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
+import { sound } from '@/shared/sound';
 import { useAuth, displayNameFor, hasUsername, cleanUsername, MAX_USERNAME } from '@/features/auth';
 import { useSaved, useMyRecipes } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
@@ -55,6 +57,9 @@ export function ProfileScreen() {
   const { entries } = usePlan();
   const { count: yoursCount } = useMyRecipes();
   const { unitSystem, setUnitSystem } = usePrefs();
+  // The Sounds off-ramp (motion.md §3): kit-owned state, default ON.
+  const [soundsOn, setSoundsOn] = useState(sound.isEnabled());
+  useEffect(() => sound.subscribe(() => setSoundsOn(sound.isEnabled())), []);
 
   // cooked from usePlan(), saved from useSaved(), yours from useMyRecipes()
   // (allowlisted — one source shared with cookbook's My-recipes segment).
@@ -270,6 +275,25 @@ export function ProfileScreen() {
           <SettingsRow icon="restaurant-outline" label="Food preferences" onPress={() => router.push('/preferences')} divided={hasPasswordLogin(user)} />
           <SettingsRow icon="notifications-outline" label="Reminders" onPress={() => router.push('/notifications')} divided />
           <SettingsRow icon="people-outline" label="Our shared list" onPress={() => router.push('/household')} divided />
+          {/* Honest copy: the toggle governs Otto's soft feedback sounds only —
+              the cook timer alarm keeps its job either way. */}
+          <View style={[styles.unitRow, styles.rowDivider]}>
+            <Ionicons name="musical-notes-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
+            <View style={{ flex: 1 }}>
+              <Text role="body">Sounds</Text>
+              <Text role="caption">Soft chimes on saves and finishes. Timers always ring.</Text>
+            </View>
+            <Switch
+              value={soundsOn}
+              onValueChange={(v) => {
+                haptics.select();
+                sound.setEnabled(v);
+                if (v) sound.play('save'); // let the choice answer itself
+              }}
+              trackColor={{ true: colors.terracotta, false: colors.border }}
+              accessibilityLabel="Sounds"
+            />
+          </View>
           <View style={[styles.unitRow, styles.rowDivider]}>
             <Ionicons name="scale-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
             <Text role="body">Units</Text>
