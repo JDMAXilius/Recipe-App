@@ -30,9 +30,21 @@ consume BOTH only through `motion.ts` hooks — an inline `withTiming(x, {durati
 | `celebrate` | `timing.celebrate` = 900 | sequence (pop spring → settle) | The envelope of a registered moment (see §4). Not a curve so much as a budget: the whole beat fits inside it. |
 | (existing) | `timing.sweep` = 500, `timing.fade` = 200 | ring count-up / fades | unchanged |
 
-Springs are unchanged (`spring.gentle/snappy/pop/sheet`) — they are already
-role-named. New motion picks the closest role; inventing a fifth spring needs a
-contract edit, not a component edit.
+Springs are role-named too:
+
+| Spring | Feel | Use |
+|---|---|---|
+| `gentle` | soft, slow settle | ambient movement |
+| `snappy` | quick, damped | press feedback (`usePressSpring`, scale 0.97) |
+| `pop` | bouncy | the paw / OttoIdle signature — a flourish, not a button |
+| `sheet` | heavy, controlled | sheet present/dismiss |
+| `press` | crisp, ~200ms, <2% overshoot | a button that MOVES YOU — the raised ＋ (`usePressPop`) |
+
+`press` was added 2026-07-25 (founder: the ＋ should feel good and quick).
+`pop` settles too slowly to read as a button, which is what made the ＋ feel
+sluggish; the other half of that fix was moving the beat to `onPressIn` so it
+lands on the touch instead of the release. New motion picks the closest role;
+inventing a sixth spring needs a contract edit, not a component edit.
 
 **Screen transitions** (Phase 4): push = `enter`, pop = `exit`, sheets =
 `spring.sheet`. The navigator's defaults are not "chosen" — replacing them is

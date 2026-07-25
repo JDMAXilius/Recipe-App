@@ -81,6 +81,11 @@ export const spring = {
   snappy: { damping: 15, stiffness: 220, mass: 0.8 }, // press feedback → scale 0.97
   pop: { damping: 12, stiffness: 320, mass: 0.7 }, // paw / OttoIdle signature
   sheet: { damping: 22, stiffness: 260, mass: 1 },
+  // The crisp one: a button that MOVES YOU (the raised ＋). Light mass + high
+  // stiffness puts the whole dip-and-return inside ~200ms, and ζ≈0.47 leaves
+  // just under 2% overshoot on the way back — enough to read as a snap, far
+  // too little to wobble. `pop` settles too slowly to feel like a button.
+  press: { damping: 15, stiffness: 500, mass: 0.5 },
 } as const;
 
 // Durations are role-named (contract: motion.md §1 — "intentional easing").

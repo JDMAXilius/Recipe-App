@@ -47,12 +47,17 @@ export function usePressSpring() {
 }
 
 // A one-shot press pop for a control that NAVIGATES AWAY on tap (the raised ＋).
-// press-in/press-out pairs get orphaned when navigation steals the touch — the
-// out never fires and the control stays stuck at its pressed scale, which is
-// why the ＋ came back from a screen looking smaller than it left. This runs the
-// whole down-and-back beat from onPress, so it always returns to rest, and it
-// dips harder than usePressSpring because this button is meant to be felt.
-// Reduced motion gets the same beat as an opacity flash — feedback, not scale.
+//
+// Two reasons it is one shot rather than a press-in/press-out pair:
+// 1. The pair gets orphaned when navigation steals the touch — the `out` never
+//    fires and the control stays stuck at its pressed scale, which is why the
+//    ＋ came back from a screen looking smaller than it left.
+// 2. Fire it from onPressIn and the whole beat lands on TOUCH, not on release.
+//    Waiting for the release is most of what made this feel sluggish.
+//
+// spring.press puts the dip and the return inside ~200ms with a hair of
+// overshoot — a snap, not a wobble. Reduced motion gets the same beat as a
+// quick opacity flash: feedback either way, movement only when it's welcome.
 export function usePressPop() {
   const reduced = useReducedMotion();
   const scale = useSharedValue(1);
@@ -62,10 +67,13 @@ export function usePressPop() {
   );
   const pop = () => {
     if (reduced) {
-      dim.value = withSequence(withTiming(1, { duration: timing.fade }), withTiming(0, { duration: timing.fade }));
+      dim.value = withSequence(
+        withTiming(1, { duration: timing.fade }),
+        withTiming(0, { duration: timing.fade }),
+      );
       return;
     }
-    scale.value = withSequence(withSpring(0.86, spring.pop), withSpring(1, spring.pop));
+    scale.value = withSequence(withSpring(0.88, spring.press), withSpring(1, spring.press));
   };
   return { style, pop };
 }

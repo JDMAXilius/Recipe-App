@@ -30,10 +30,15 @@ export function TabBarCreateButton({ onPress, accessibilityState }: BottomTabBar
         accessibilityRole="button"
         accessibilityLabel="Create recipe"
         accessibilityState={accessibilityState}
-        onPress={(e) => {
-          if (isOnScreen) return; // already here — nothing to do
+        // Feedback rides the TOUCH, not the release — waiting for onPress put
+        // the whole animation a finger-lift late, which is what read as slow.
+        onPressIn={() => {
+          if (isOnScreen) return;
           haptics.impact('medium'); // heavier than a tab tick: this one moves you
           pop();
+        }}
+        onPress={(e) => {
+          if (isOnScreen) return; // already here — nothing to do
           onPress?.(e);
         }}
       >
