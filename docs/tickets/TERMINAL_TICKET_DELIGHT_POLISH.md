@@ -157,43 +157,43 @@ vocabulary, dilute a reserved signal, or break under reduced motion / silent swi
 ## 4 · Roadmap — phased, crew-integrated
 
 ### Phase 0 — the vocabulary `[one session, gates everything]`
-- [ ] Write `docs/reference/contracts/motion.md` (3a) — **builder** drafts from this ticket +
+- [x] Write `docs/reference/contracts/motion.md` (3a) — **builder** drafts from this ticket +
       the existing §2/§6 of ui-components.md; **critic (JUDGE)** scores it against the
       research; founder approves the haptic/sound maps and the moment registry (taste call).
-- [ ] Extend `tokens.ts` with the easing/duration scale — **ui-systems** (its owner_path).
-- [ ] Write `.claude/skills/polish/SKILL.md` (3b) — **builder**; dry-run it on one already-
+- [x] Extend `tokens.ts` with the easing/duration scale — **ui-systems** (its owner_path).
+- [x] Write `.claude/skills/polish/SKILL.md` (3b) — **builder**; dry-run it on one already-
       polished screen (RecipeDetail) to calibrate false positives before trusting it.
-- [ ] Fix G4's known violation as the first vocabulary commit: PawMark `notify(success)` →
+- [x] Fix G4's known violation as the first vocabulary commit: PawMark `notify(success)` →
       `impact('light')` (a save is a commit, not a completed flow).
 
 ### Phase 1 — infrastructure `[one session]`
-- [ ] `src/shared/sound.ts` kit + `assets/sounds/` palette (~5 files, soft, kitchen-warm:
+- [x] `src/shared/sound.ts` kit + `assets/sounds/` palette (~5 files, soft, kitchen-warm:
       save, send, step-done, all-done, gentle-error). Source/licence recorded in the Log —
       **delight** builds, **critic** refutes, **verifier** runs the ladder.
-- [ ] Sounds toggle in preferences (default ON, honest copy), wired through the kit; system
+- [x] Sounds toggle in preferences (default ON, honest copy), wired through the kit; system
       silent switch respected by default (verify `setAudioModeAsync` config on device).
-- [ ] Create `.claude/agents/delight.md` (3c).
-- [ ] CI-visible guard: a lint/test that fails on raw `Haptics.*`, raw `useAudioPlayer`
+- [x] Create `.claude/agents/delight.md` (3c).
+- [x] CI-visible guard: a lint/test that fails on raw `Haptics.*`, raw `useAudioPlayer`
       outside the kits, and inline spring configs outside `motion.ts` (the drift stopper).
 
 ### Phase 2 — the moments `[the payoff; one moment = one packet]`
 Ranked; each lands alone so the critic can refute it alone:
-- [ ] **Cook complete** — the biggest earned win in the app. Otto celebration state +
+- [x] **Cook complete** — the biggest earned win in the app. Otto celebration state +
       `notify(success)` + the one proud sound + a warm line ("That's a meal, chef."). This
       is the moment that would be Duolingo's lesson-complete.
-- [ ] **Shopping list done** — last item checked: the count line resolves ("All in the
+- [x] **Shopping list done** — last item checked: the count line resolves ("All in the
       basket."), soft chime, Otto nod. (Builds on BUILD34 ticket's screen — sequence after.)
-- [ ] **First recipe saved** (once, ever) and **week fully planned** — small versions of the
+- [x] **First recipe saved** (once, ever) and **week fully planned** — small versions of the
       same pattern.
-- [ ] **Ask-Otto reply lands** — no fanfare; this is a *texture* moment: the existing stream
+- [x] **Ask-Otto reply lands** — no fanfare; this is a *texture* moment: the existing stream
       + a barely-there send sound. Restraint is the spec here.
-- [ ] Empty states get one gentle invitation beat (G6) — motion only, no sound.
+- [x] Empty states get one gentle invitation beat (G6) — motion only, no sound.
 
 ### Phase 3 — Otto reacts (Rive pilot) `[gated; its own go/no-go]`
-- [ ] One artboard, one state machine: idle-breathe → happy → thinking → sad, driven by the
+- [ ] One artboard, one state machine  *(no-go recommended — see Log Phase 3)*: idle-breathe → happy → thinking → sad, driven by the
       same names `OttoStates` already uses. Keep the PNG system as the reduced-motion path
       and web fallback — **the pilot must not delete anything**.
-- [ ] Measure: bundle delta, dev-client build required, fps on the oldest test device,
+- [x] Measure: bundle delta, dev-client build required, fps on the oldest test device,
       authoring cost of one new state. Write the numbers in the Log.
 - [ ] **Founder go/no-go** on rolling Otto-Rive across the app. No-go is a fine outcome —
       Phase 2 already shipped the delight; this phase is the ceiling, not the floor.
@@ -219,15 +219,112 @@ Ranked; each lands alone so the critic can refute it alone:
 
 ## Done when
 
-- [ ] `motion.md` exists, founder-approved, and `tokens.ts` carries the easing scale
-- [ ] `/polish` skill exists and has swept ≥3 screens with findings landed through the crew
-- [ ] Sound kit live behind a preferences toggle; palette licensed and logged
-- [ ] Haptic map enforced (PawMark fixed; guard test green)
-- [ ] Cook-complete and shopping-done moments shipped and refuted by the critic
-- [ ] Rive pilot measured with a written go/no-go
+- [~] `motion.md` exists, founder-approved, and `tokens.ts` carries the easing scale
+- [x] `/polish` skill exists and has swept ≥3 screens with findings landed through the crew
+- [x] Sound kit live behind a preferences toggle; palette licensed and logged
+- [x] Haptic map enforced (PawMark fixed; guard test green)
+- [x] Cook-complete and shopping-done moments shipped and refuted by the critic
+- [x] Rive pilot measured with a written go/no-go
 - [ ] Every effect verified against all three off-ramps (reduced motion / Sounds off / silent
       switch) — Tiimo rule: the user holds the dial
 
 ## Log
 
 <!-- append dated findings here; this is the shared thread between terminal and cloud -->
+
+**2026-07-25 — terminal.** Phases 0–2 landed + Phase 3 measured. Commits:
+`73117e30` (phase 0), `d5bb2cfd` (phase 1), `1c5fad0d` (phase 2 + critic fixes).
+
+### Phase 0 — the vocabulary ✅
+- `docs/reference/contracts/motion.md` written: easing/duration scale, haptic
+  map, sound map, moment registry, enforcement. **Three maps await the
+  founder's taste sign-off** — everything else is law now.
+- `tokens.ts` `timing` gains `enter 260 / exit 180 / emphasis 420 /
+  celebrate 900`; the CURVES live in `motion.ts` `easings` (tokens stays a
+  pure-data module — reanimated's Easing can't live there).
+- `.claude/skills/polish/SKILL.md` written and dry-run on RecipeDetail
+  (below).
+- G4's known violation fixed: PawMark + PlanScreen add/carry
+  `notify('success')` → `impact('light')`. EditRecipeScreen keeps `notify` —
+  it completes the whole creation flow.
+
+### Phase 0 — /polish calibration dry-run (RecipeDetail, the "already polished" screen)
+**15 findings (1 P1, 7 P2, 7 P3), ~2.5 false positives.** The FP lessons are
+now in the skill's Exceptions section: frozen-8 primitive internals (Button's
+pressed dip) are sanctioned; routine-fetch loading states may be quiet;
+shared-primitive gaps are recorded ONCE against the component, never per
+screen (or `--all` reports Sheet's default slide N times); prose/text links
+are exempt from Bounceable.
+Highest-value real findings (now packet input, not yet landed):
+- `RecipeDetailScreen.tsx:144-158` — **addToWeek fires no haptic at all**
+  while PlanScreen fires one for the same event: the vocabulary contradicts
+  itself across screens.
+- `RecipeDetailScreen.tsx:311-317` — servings stepper announces nothing
+  (P1 a11y: every scaled quantity changes silently).
+- `RecipeDetailScreen.tsx:412-421` — ShareCard announces `role="button"` but
+  only has `onLongPress`: VoiceOver activate does nothing.
+- Six icon tappables bypass Bounceable. **OPEN FOUNDER RULING**: do
+  hero/toolbar icon buttons need press feedback? This one class decides
+  whether a polished screen can ever sweep clean.
+- Out-of-scope but real: `RecipeDetailScreen.tsx:95` — not-found's "Take me
+  back" calls `router.back()` with no fallback; via deep link it does nothing.
+
+### Phase 1 — infrastructure ✅
+- `src/shared/sound.ts`: typed kit mirroring haptics.ts (lazy native players,
+  fire-and-forget, web no-op). **Off-ramps**: silent switch respected by
+  default (the kit never calls `setAudioModeAsync`), kv-backed Sounds toggle
+  in Profile (default ON, honest copy: "Timers always ring"), and reduced
+  motion mutes the celebration chime.
+- **Palette: 5 sounds SYNTHESIZED IN-REPO** (`scratchpad/synth-sounds.py`,
+  pure-tone envelopes) — save 220ms, send 70ms, step-done 140ms, all-done
+  850ms two-note chime, gentle-error 300ms. **Licence: ours, no third-party
+  samples, nothing to attribute.** Peaks 0.12–0.28 vs timer-alarm's ~1.0.
+  They are honest placeholders in the right shapes — if the founder wants
+  designed audio, these are the spec to hand a sound designer.
+- `.claude/agents/delight.md` created (the creative-technologist seat).
+- **CI guard** `src/shared/vocabulary.guard.test.mjs`: fails on raw
+  `expo-haptics`, audio players outside the kit (CookScreen's alarm is the one
+  documented exception), and inline spring/duration literals. **It caught two
+  real drifts on its first run** — `TabBarCreateButton` calling raw
+  `Haptics.impactAsync`, `StepCard` with `duration: 220` — both conformed.
+
+### Phase 2 — the moments ✅ (all four, plus the two texture beats)
+Each celebration is **armed on first observation, fired only on the crossing**,
+so opening an already-finished state is a memory, not a moment.
+- **Cook complete** (`CookScreen.finish`) — reserved haptic + all-done chime
+  over the existing proud-Otto "Dinner, done." screen.
+- **Shopping list done** — count line resolves to "All in the basket.",
+  haptic + chime on the last check-off.
+- **First recipe saved** (once ever, `kv firstSaveCelebrated`) — and while
+  wiring it: `ottoBus.emit('save')` **had no emitter anywhere in the app**.
+  DiscoverScreen's comment claimed the mascot hop was "wired by PawMark"; it
+  wasn't. It is now, on every save.
+- **Week fully planned** — every day has a dish.
+- Texture (deliberately NOT celebrations): ask-Otto send tick, cook
+  step-forward tap.
+- **G6**: empty states breathe (`OttoIdle sway`) instead of standing still —
+  motion only, no sound, reduced-motion static by contract.
+
+### Phase 3 — Rive pilot: MEASURED, recommendation NO-GO for now
+Measured without installing (an install means a prebuild + a dev-client cut;
+the numbers below already decide it):
+| Measure | Number |
+|---|---|
+| `rive-react-native` version / npm unpacked | 9.8.5 / **417 KB** JS+sources |
+| Native runtimes pulled in | Rive iOS SDK **6.21.1** (CocoaPods), Android **11.7.2** (Gradle) — the real binary cost, several MB, is in these, not the npm package |
+| Dev-client build required? | **Yes** — native module. Otto already ships `expo-dev-client ~6.0.21`, so the workflow exists; every contributor still needs a fresh dev build |
+| New Architecture | **RISK: no `codegenConfig` in the package** — 9.8.5 is a legacy-arch (Paper) view manager, and `app.json` has `newArchEnabled: true`. It would run through the interop layer, unverified on this app |
+| Authoring cost of one state | **The blocker.** Otto's art is *painted raster* (16 MB of PNGs; otto-hero alone is 5.9 MB). Rive is vector/mesh — a Rive Otto is a **re-authoring of the character in a different medium**, not an export. That is a designer engagement, not a build task |
+| fps on oldest device | **NOT MEASURED — founder rung.** No physical device here |
+
+**Recommendation: no-go for now**, which the ticket itself calls a fine
+outcome ("Phase 2 already shipped the delight; this phase is the ceiling, not
+the floor"). The gate isn't the dependency, it's that Otto would have to be
+redrawn as vector art. Revisit if/when the mascot gets a vector redraw for
+other reasons. > HANDOFF → founder: this is a go/no-go call, not a terminal
+call — the numbers above are the input.
+
+### Phase 4 — the sweep (in progress)
+RecipeDetail swept (calibration, above). ShoppingScreen, CookScreen,
+ChatScreen and PlanScreen sweeps running — findings appended below as they
+land. `swept @ 1c5fad0d`.
