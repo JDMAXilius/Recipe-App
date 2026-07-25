@@ -44,9 +44,16 @@ const myBubble: ViewStyle = {
   backgroundColor: colors.creamDeep,
 };
 
+// Alignment and colour are the only cues to who is speaking, and VoiceOver
+// reads neither — so the bubble is one element that names the speaker first.
 function Bubble({ message }: { message: StoredMessage }) {
+  const mine = message.role === 'user';
   return (
-    <View style={message.role === 'user' ? myBubble : ottoBubble}>
+    <View
+      accessible
+      accessibilityLabel={`${mine ? 'You' : 'Otto'} said: ${message.content}`}
+      style={mine ? myBubble : ottoBubble}
+    >
       <Text role="body">{message.content}</Text>
     </View>
   );
@@ -62,6 +69,11 @@ function OptionChips({ options, onPick }: { options: string[]; onPick: (o: strin
           onPress={() => onPick(option)}
           accessibilityRole="button"
           accessibilityLabel={option}
+          // 22pt line + space[2] padding + borders = 40pt tall; 4pt top/bottom
+          // takes it to 48 and clears the 44pt floor (§7.1) without touching the
+          // pill. Vertical only, and exactly the row gap (space[2]) — more would
+          // overlap the chips on the next wrapped line.
+          hitSlop={{ top: 4, bottom: 4 }}
           style={{
             borderWidth: 1,
             borderColor: colors.terracotta,

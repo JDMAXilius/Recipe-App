@@ -43,6 +43,13 @@ export type OttoArtName =
 export interface OttoArtProps {
   name: OttoArtName;
   size?: number;
+  /**
+   * A human sentence for the rare place where the art itself carries meaning
+   * ("Otto asleep in an empty kitchen"). Leave it off — the default — and the
+   * mascot is decorative: every call site today pairs it with real text, so
+   * announcing it would only put furniture in front of the words.
+   */
+  label?: string;
 }
 
 function resolve(name: OttoArtName): ImageSourcePropType {
@@ -53,12 +60,15 @@ function resolve(name: OttoArtName): ImageSourcePropType {
 
 // Real painted art (contract §6). Static image — OttoIdle wraps this for the
 // living/breathing mascot; every other site renders it plain.
-export function OttoArt({ name, size = 96 }: OttoArtProps) {
+// Decorative unless a caller says otherwise: an Image that isn't an
+// accessibility element has no children to hide, so `accessible={false}` is the
+// whole of it on both platforms — VoiceOver walks straight past to the text.
+export function OttoArt({ name, size = 96, label }: OttoArtProps) {
   return (
     <Image
       source={resolve(name)}
-      accessible
-      accessibilityLabel={`Otto illustration: ${name}`}
+      accessible={label != null}
+      accessibilityLabel={label}
       style={{ width: size, height: size }}
       contentFit="contain"
       transition={200}

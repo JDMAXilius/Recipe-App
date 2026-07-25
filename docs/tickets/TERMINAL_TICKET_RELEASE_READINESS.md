@@ -324,6 +324,38 @@ Performance advisors: **0 ERROR.** Triage:
 | 2× multiple permissive policies (`plan_entries`, `recipes` — `*_select_own` + `*_household_read`) | **BY DESIGN — accepted.** Two readers, two reasons: your own rows, and a co-member's rows in a shared kitchen. Merging them into one policy would save a policy evaluation and cost clarity in the exact place clarity protects people. |
 | Unused index `favorites_user_id_idx` | **Accepted, leave.** "Never used" reflects a two-tester dataset, not a useless index. |
 
+**2026-07-25 — terminal. A3 (privacy manifest) — verified against the real prebuild output, one gap found.**
+
+Verified rather than assumed, per the item. `expo prebuild` DOES emit an
+app-level manifest: **`ios/Otto/PrivacyInfo.xcprivacy` exists** (ios/ is
+gitignored — CNG, so this is generated, not committed). 28 manifests in the
+tree; the third-party SDKs that matter ship their own (`RevenueCat`,
+`SDWebImage`).
+
+What the app manifest declares today:
+
+| Key | Value | Verdict |
+|---|---|---|
+| `NSPrivacyAccessedAPICategoryUserDefaults` | `CA92.1` | ✅ present — this is the AsyncStorage one the ticket named as always-applicable |
+| `…FileTimestamp` | `C617.1, 0A2A.1, 3B52.1` | ✅ |
+| `…DiskSpace` | `E174.1, 85F4.1` | ✅ |
+| `…SystemBootTime` | `35F9.1` | ✅ |
+| `NSPrivacyTracking` | `false` | ✅ matches reality — no ATT, no ad SDK |
+| **`NSPrivacyCollectedDataTypes`** | **empty array** | ⚠️ **THE GAP** |
+
+**The gap:** the required-reason API declarations are complete, but the
+collected-data-types array is empty while Otto plainly collects email, user
+content (recipes, photos, chat) and purchase data. Expo generates the array
+empty by design — it cannot know what your app collects; the developer fills
+it. So A3 is **blocked on A2**: the truth table is exactly the input needed,
+and filling this from anything else would be guessing.
+
+Close-out when A2 lands: declare `expo.ios.privacyManifests` in `app.json`
+(so it survives every prebuild rather than being hand-edited into generated
+output), with the collected types copied from the A2 table — same source of
+truth as the App Store Connect label, which is the whole point of doing them
+in that order.
+
 > HANDOFF → founder (D1, 2 min): enable leaked-password protection.
 > 1. Open https://supabase.com/dashboard/project/mepzfdefanfpnrvydyty/auth/providers
 > 2. Under **Email** → find **Prevent use of leaked passwords** → turn it ON. Save.
