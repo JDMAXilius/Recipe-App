@@ -38,21 +38,28 @@ function HeaderButton({
   onPress: () => void;
 }) {
   return (
+    // A REAL 44pt box around the 40pt disc, not hitSlop. The header row's frame
+    // hugged this button, so Fabric clipped the touch before the button's own
+    // slop was consulted (overflowInset {0,0,0,0}) — the slop was decoration.
+    // The visible circle is unchanged; only the tappable box grew.
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={label}
-      hitSlop={4} // 40pt circle → 48pt target, clearing the 44pt floor (§7.1)
-      style={{
-        width: 40,
-        height: 40,
-        borderRadius: radii.pill,
-        backgroundColor: colors.creamDeep,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
     >
-      <Ionicons name={icon} size={20} color={colors.ink} />
+      <View
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: radii.pill,
+          backgroundColor: colors.creamDeep,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Ionicons name={icon} size={20} color={colors.ink} />
+      </View>
     </Pressable>
   );
 }

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, View, type ViewStyle } from 'react-native';
+import React, { useEffect } from 'react';
+import { AccessibilityInfo, Pressable, View, type ViewStyle } from 'react-native';
 import { Button, OttoIdle, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import type { ChatRecipe, ChatResponse, StoredMessage } from '../chat.types';
@@ -21,6 +21,8 @@ export interface TranscriptProps {
 }
 
 const PRESENCE = 72;
+// The 44pt touch floor (ui-components.md §7.1) — a target size, not a spacing step.
+const TAP = 44;
 
 const bubbleBase: ViewStyle = {
   maxWidth: '82%',
@@ -69,12 +71,16 @@ function OptionChips({ options, onPick }: { options: string[]; onPick: (o: strin
           onPress={() => onPick(option)}
           accessibilityRole="button"
           accessibilityLabel={option}
-          // 22pt line + space[2] padding + borders = 40pt tall; 4pt top/bottom
-          // takes it to 48 and clears the 44pt floor (§7.1) without touching the
-          // pill. Vertical only, and exactly the row gap (space[2]) — more would
-          // overlap the chips on the next wrapped line.
-          hitSlop={{ top: 4, bottom: 4 }}
+          // REAL height, not hitSlop. 22pt line + space[2] padding + borders =
+          // 40pt, and `hitSlop` here was INERT: this row is a plain View whose
+          // frame matches the chips exactly, so Fabric computes overflowInset
+          // {0,0,0,0}, treats the parent as clipping, and returns nil before the
+          // chip's own hitTestEdgeInsets are ever consulted. Slop only reaches a
+          // child when an ANCESTOR's bounds already contain the touch. minHeight
+          // grows the box itself, which nothing can clip away.
           style={{
+            minHeight: TAP,
+            justifyContent: 'center',
             borderWidth: 1,
             borderColor: colors.terracotta,
             borderRadius: radii.pill,
@@ -124,6 +130,20 @@ function RecipePreview({ recipe, onReview }: { recipe: ChatRecipe; onReview: () 
   );
 }
 
+// accessibilityRole="alert" maps to NO iOS trait, so a failed send was silent
+// to VoiceOver: focus stayed on Send and the user believed the message went.
+// Announce it, the same way Toast does and for the same reason.
+function ErrorRow({ message }: { message: string }) {
+  useEffect(() => {
+    AccessibilityInfo.announceForAccessibility(message);
+  }, [message]);
+  return (
+    <View accessibilityRole="alert" style={{ marginBottom: space[3] }}>
+      <Text role="computed">{message}</Text>
+    </View>
+  );
+}
+
 export const Transcript = React.memo(function Transcript({
   messages,
   response,
@@ -152,7 +172,17 @@ export const Transcript = React.memo(function Transcript({
       )}
 
       {isSending && (
-        <View style={ottoBubble}>
+        // Attribution must NOT flicker: the settled bubble says "Otto said:",
+        // so the live one has to as well — otherwise the reply is anonymous for
+        // the whole time it is actually being read, and gains a speaker only
+        // once the turn persists.
+        <View
+          accessible
+          accessibilityLabel={
+            streamingText ? `Otto said: ${streamingText}` : 'Otto is thinking'
+          }
+          style={ottoBubble}
+        >
           {/* Streamed prose fills this bubble live; before the first delta (or on
               the non-streaming fallback) it's the thinking line. Scroll keeps up
               via the ScrollView's onContentSizeChange. */}
@@ -164,11 +194,7 @@ export const Transcript = React.memo(function Transcript({
         </View>
       )}
 
-      {error != null && (
-        <View accessibilityRole="alert" style={{ marginBottom: space[3] }}>
-          <Text role="computed">{error}</Text>
-        </View>
-      )}
+      {error != null && <ErrorRow message={error} />}
     </View>
   );
 });

@@ -315,6 +315,16 @@ const styles: Record<string, ViewStyle> = {
   },
   entryMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space[3] },
   thumb: { width: 40, height: 40, borderRadius: radii.button, backgroundColor: colors.creamDeep },
-  entryIcons: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  // paddingVertical is what MAKES the children's hitSlop work. This row used to
+  // hug the 18pt icons, so Fabric clipped every touch at the row's edge and the
+  // 13pt slop below each icon — including the destructive remove — was dead.
+  // Giving the parent 13pt of its own slack puts the slop inside the row's
+  // bounds, so the effective target is a real 44pt tall without moving an icon.
+  entryIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[4],
+    paddingVertical: 13,
+  },
   emptyWeek: { alignItems: 'center', gap: space[3], marginTop: space[5] },
 };
