@@ -35,7 +35,11 @@ import { deleteAccount } from './profile.queries';
 // dungeon. Quiet exits: sign out plain at the bottom, delete account visible
 // right below it — never buried under Privacy.
 
-const SUPPORT_EMAIL = 'juandiego@ottosapp.com';
+// A monitored role address, not the founder's personal inbox — the app, the
+// support page, the Terms and the Privacy Policy must all name the SAME
+// mailbox, or a reviewer emailing the one printed on your own support page
+// gets a bounce (A9). support@ is the one the founder confirmed exists.
+const SUPPORT_EMAIL = 'support@ottosapp.com';
 const PRIVACY_URL = 'https://ottosapp.com/privacy';
 const TERMS_URL = 'https://ottosapp.com/terms';
 // ponytail: no App Store listing yet — Rate Otto toasts until this URL is set.

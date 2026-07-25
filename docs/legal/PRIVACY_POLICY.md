@@ -84,7 +84,7 @@ uses **Resend** (an email delivery provider), which processes it to deliver it t
 server also briefly processes your **IP address** to limit abuse of the form (rate limiting); it is
 not stored with your message. We keep contact messages like ordinary email correspondence — as long
 as needed to handle your request and a reasonable period after — and you can ask us to delete them at
-**hello@ottosapp.com**. The form sets no cookies and uses no CAPTCHA or tracking.
+**support@ottosapp.com**. The form sets no cookies and uses no CAPTCHA or tracking.
 
 ---
 
@@ -164,7 +164,7 @@ invitation.
 Depending on where you live, you may have the right to **access, correct, delete, or export** your
 personal information, and to object to or restrict certain processing. You can exercise the core of
 these directly — view and edit your content in the App, and delete your account — or contact us at
-**hello@ottosapp.com** and we'll help.
+**support@ottosapp.com** and we'll help.
 
 - **California (CCPA/CPRA):** We do not sell or "share" personal information for cross-context
   behavioral advertising, and we don't use it for targeted advertising.
@@ -191,7 +191,7 @@ promptly.
 
 Otto is not directed to children under 13 (or the minimum age required in your country), and we do
 not knowingly collect personal information from them. If you believe a child has provided us personal
-information, contact us at **hello@ottosapp.com** and we'll delete it.
+information, contact us at **support@ottosapp.com** and we'll delete it.
 
 ## 12. Changes to this policy
 
@@ -204,7 +204,7 @@ an update means you accept the revised policy.
 Questions or requests about your privacy? Reach us at:
 
 **Juan Diego Lugo**
-Email: **hello@ottosapp.com**
+Email: **support@ottosapp.com**
 https://ottosapp.com
 
 Governed by the laws of **the State of Florida, United States**, without regard to conflict-of-laws principles.

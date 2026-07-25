@@ -29,7 +29,7 @@ parent or guardian. By using the App, you confirm you meet these requirements.
 - You're responsible for keeping your account credentials secure and for activity that happens under
   your account.
 - Provide accurate information and keep it current.
-- Tell us promptly at **hello@ottosapp.com** if you believe your account has been compromised.
+- Tell us promptly at **support@ottosapp.com** if you believe your account has been compromised.
 - You may sign in using email or a third-party provider (Apple, Google, Facebook); your use of those
   is also subject to their terms.
 
@@ -171,5 +171,5 @@ Nothing here limits any non-waivable consumer rights you have where you live.
 Questions about these Terms?
 
 **Juan Diego Lugo**
-Email: **hello@ottosapp.com**
+Email: **support@ottosapp.com**
 https://ottosapp.com

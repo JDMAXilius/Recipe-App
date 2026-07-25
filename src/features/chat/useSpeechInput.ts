@@ -1,6 +1,18 @@
-// Voice into the composer (SPEAK_TO_OTTO.md Phase 1). On-device STT via
+// Voice into the composer (SPEAK_TO_OTTO.md Phase 1) via
 // expo-speech-recognition: interim transcripts stream to onTranscript, the
 // caller owns the TextInput state and every toast — this hook is UI-free.
+//
+// PRIVACY, stated correctly (the A2 audit caught this comment asserting the
+// opposite): recognition is **NOT on-device**. `requiresOnDeviceRecognition`
+// defaults to false in the library and is not set here or in app.json, so on
+// iOS the AUDIO is streamed to Apple's speech service and Otto receives only
+// the transcript. Apple is therefore a recipient of voice data and must appear
+// as such in the App Privacy label and the privacy policy.
+//
+// Founder call pending: flip `requiresOnDeviceRecognition: true` (keeps audio
+// on the phone; costs accuracy and is unavailable on older devices) or keep
+// server recognition and disclose it. Do NOT "fix" this by editing the comment
+// back — the label and the code have to say the same thing.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { joinTranscript, mapSpeechError, type SpeechInputError } from './speech.logic';
 
