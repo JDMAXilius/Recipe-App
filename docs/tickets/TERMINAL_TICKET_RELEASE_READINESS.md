@@ -69,6 +69,28 @@ Confirmed in the repo; spend no session time here unless something below contrad
 
 ---
 
+## Section A′ — the decided path (founder calls, 2026-07-28)
+
+Four questions that changed the shape of Section A were answered on 2026-07-28. Recorded here
+because each one closes or reopens boxes below, and a later reader needs the *why*, not just the
+tick.
+
+| Decision | Call | What it does to this ticket |
+|---|---|---|
+| **Otto Club in 1.0** | **Ship it live.** Not a free 1.0. | A6 stays a blocker in full, and it is now the **long pole** — the Paid Applications Agreement is signed by the Account Holder (jdmaxinius@gmail.com) and nothing else in the chain can start until it is active. Feature gating is real work: `useClub()` is referenced by exactly one screen today (the paywall), so **no Club feature is gated anywhere**. |
+| **iPad** | **iPhone only for 1.0.** | A5 **closed** — `app.json` now sets `supportsTablet: false` (2026-07-28). Takes the iPad device matrix, the 13" screenshot set, and the stretched-layout rejection risk off the table in one line. Revisit as a deliberate release. |
+| **Support mailbox** | **`juandiego@ottosapp.com`** everywhere. | The only address with verified live DNS and a real sending path. `support@` and `hello@` were both aspirational, and an aspirational support address is a bounce in front of a reviewer. `ProfileScreen.tsx` and all 8 references across Otto_Website + both legal documents were changed to match on 2026-07-28. |
+| **Crash reporting** | **Sentry before the external beta.** | B1 is in scope for 1.0. It lands **after** the App Privacy label (A2) is filled, because it adds Diagnostics as a collected type and a new data recipient — the label and `app.json`'s privacy manifest must both be updated when it does. |
+
+**One conflict this audit surfaced and closed:** the website advertised Otto Club at **$45/year**
+(copy written 2026-07-20) while the app's launch pricing is **$34.99/year** (`e8ffae2a`,
+2026-07-24). A price on the marketing site that disagrees with the price in the purchase sheet is
+a 3.1.2 problem and an honesty-law problem. The site was corrected to $34.99 on 2026-07-28 — the
+app was already right. **The ASC products must be created at $4.99/mo and $34.99/yr**, or all
+three disagree again.
+
+---
+
 ## Section A — submission blockers `[gates everything]`
 
 - [x] **A1. The policy URLs must actually resolve.** *(2026-07-25: all four 200 with real content; /support exists — see Log.)* `ProfileScreen.tsx:37-38` and
@@ -86,7 +108,13 @@ Confirmed in the repo; spend no session time here unless something below contrad
       functions (`generate-recipe`, `import-recipe`, `canonicalize`) and what leaves the device in
       a prompt. Cross-check the finished table against `docs/legal/PRIVACY_POLICY.md` — where they
       disagree, one of them is wrong and both get fixed.
-- [ ] **A3. Privacy manifest.** There is no `PrivacyInfo.xcprivacy` in the repo and no
+- [x] **A3. Privacy manifest.** *(2026-07-28: `expo.ios.privacyManifests` now declared in `app.json`
+      with all seven collected data types copied from the A2 truth table — email, name, user id,
+      device id, purchase history, photos/videos, other user content; every one Linked, none
+      Tracking, all App Functionality. Verified through `expo config --type public`. Takes effect
+      on the next prebuild. **Two things still gate it:** Location is deliberately absent pending
+      the EXIF test (truth-table row 9), and Diagnostics must be added the day Sentry lands.)*
+      There is no `PrivacyInfo.xcprivacy` in the repo and no
       `expo.ios.privacyManifests` in `app.json`. This is expected under CNG — `@expo/config-plugins`
       writes one during prebuild on SDK 50+ — but Apple does not always parse manifests supplied by
       static pods, so **verify rather than assume**: unzip the built `.ipa` (or inspect the prebuild
@@ -100,7 +128,9 @@ Confirmed in the repo; spend no session time here unless something below contrad
       recipes, a week plan and a shopping list so the reviewed app isn't all empty states, and put
       the credentials plus a short walkthrough in App Review Notes. Include how to reach the paid
       tier for review (see A6). Record the account in the Log — not the password.
-- [ ] **A5. iPad.** `app.json` sets `"supportsTablet": true`, which means **App Review will test on
+- [x] **A5. iPad.** *(2026-07-28: founder call — iPhone only for 1.0. `app.json` now sets
+      `supportsTablet: false`. No iPad screenshots, no iPad device matrix, no stretched-layout
+      rejection. Takes effect on the next prebuild.)* `app.json` set `"supportsTablet": true`, which means **App Review will test on
       an iPad and iPad screenshots are required**. Either run the whole app on an iPad and fix what
       breaks (the recipe grid is `maxWidth: '50%'` per card — on a 1024pt-wide canvas that's two
       enormous tiles), or set `supportsTablet: false` and ship iPhone-only. This is a founder call
@@ -397,3 +427,99 @@ in that order.
 > 2. Under **Email** → find **Prevent use of leaked passwords** → turn it ON. Save.
 > Nothing in the app changes; Supabase starts rejecting passwords that appear in
 > known breach corpora at sign-up and password-change.
+
+**2026-07-28 — cloud. Section A′ decisions executed in code; the console work that is left, in order.**
+
+Landed in code today (all verified, none of it needs a decision from anyone):
+
+| Change | Where | Verified by |
+|---|---|---|
+| `supportsTablet: false` (A5) | `app.json` | `expo config --type public` |
+| Privacy manifest, 7 collected types (A3) | `app.json` → `ios.privacyManifests` | `expo config --type public`; key spellings checked against RevenueCat's own shipped `PrivacyInfo.xcprivacy`, not from memory |
+| Support mailbox unified on `juandiego@ottosapp.com` | `ProfileScreen.tsx`, and 8 references + both legal docs in `Otto_Website` | grep, and `npm run build` on the site |
+| Otto Club yearly price corrected to $34.99 site-wide | `Otto_Website` (10 places) | `npm run build`, `npm run seo:check` |
+
+**Both changes to `app.json` are inert until the next prebuild + build.** Nothing in TestFlight
+build 36 has them.
+
+---
+
+### What is actually left, in the order it has to happen
+
+**The long pole is money, and it is not code.** Steps 1→3 are Apple's and RevenueCat's clocks, not
+ours; everything else can happen in parallel with them.
+
+**1. [You · blocks everything paid] Paid Applications Agreement + banking + tax.**
+Only the Account Holder (jdmaxinius@gmail.com) can sign. Nothing charges, and no subscription
+product can even be created, until it reads **Active**.
+→ https://appstoreconnect.apple.com/business
+Sign the agreement, then complete **Bank Account** and **Tax Forms** (US W-9 at minimum). Expect
+Apple to take 24–48h to flip it to Active, longer if banking details need verifying.
+
+**2. [You · after 1 is Active] Create the subscription products.**
+→ https://appstoreconnect.apple.com/apps → Otto → **Monetization → Subscriptions**
+Create one group (suggested reference name `Otto Club`), then two products **at exactly these
+prices — the app and the website both now say them out loud**:
+
+```
+Otto Club Monthly   product id: otto.club.monthly   $4.99 / month
+Otto Club Yearly    product id: otto.club.yearly    $34.99 / year
+Introductory offer: Free trial, 5 days, on BOTH products, for new subscribers
+Localization (both): display name "Otto Club", description of what it unlocks
+Review screenshot: the paywall (OttoClubScreen) — Apple rejects products without one
+```
+
+**3. [You · after 2] Connect RevenueCat to App Store Connect.**
+→ https://app.revenuecat.com/projects/proj68c735d9
+Upload the In-App Purchase key `SubscriptionKey_HTA6549CWG.p8` (Key ID `HTA6549CWG`, in
+`~/Downloads`), import both products, attach them to an entitlement whose identifier is **exactly**
+`club` (the app checks that string), put both in an Offering marked **Current**, then copy the
+**public Apple SDK key** — it starts `appl_`.
+
+**4. [You · 2 min, unrelated to money, still open from 2026-07-25] Leaked-password protection.**
+→ https://supabase.com/dashboard/project/mepzfdefanfpnrvydyty/auth/providers
+**Email** → **Prevent use of leaked passwords** → ON → Save.
+
+**5. [You · 2 min] Supabase function secrets for the RevenueCat webhook.**
+→ https://supabase.com/dashboard/project/mepzfdefanfpnrvydyty/settings/functions
+Add both, or the webhook rejects every event and memberships never sync:
+
+```
+RC_WEBHOOK_SECRET=6b7978fdb54ba6333bf32285c57612a1ac4068eb051dc47f
+REVENUECAT_SECRET_KEY=<the sk_… key from RevenueCat → API keys>
+```
+
+**6. [You · 5 min] Vercel env for the website contact form.**
+Today `lib/contact.ts` logs submissions and drops them — the sender still sees a thank-you. Resend's
+free tier only has `juandlugo.com` verified, so the **From** must use that domain while the **To**
+is the Otto mailbox. That combination is allowed.
+→ https://vercel.com/dashboard → Otto_Website → **Settings → Environment Variables** → Production:
+
+```
+RESEND_API_KEY=<from https://resend.com/api-keys>
+CONTACT_TO_EMAIL=juandiego@ottosapp.com
+CONTACT_FROM_EMAIL=Otto Website <otto@juandlugo.com>
+```
+Then redeploy and send yourself one message through https://ottosapp.com/contact.
+
+**7. [You · 10 min] App Privacy label (A2).** The truth table in
+`docs/legal/APP_PRIVACY_TRUTH_TABLE.md` is the input; the manifest landed today declares the same
+seven types. Answer the label to match it exactly — every mismatch is a rejection waiting.
+→ App Store Connect → Otto → **App Privacy**. Data Used to Track You: **none**. Data Linked to You:
+Email Address, Name, User ID, Device ID, Purchase History, Photos or Videos, Other User Content —
+all **App Functionality** only. Do **not** tick Diagnostics until Sentry actually ships.
+
+---
+
+### Code packets still open (terminal/crew work, not console)
+
+| # | Packet | Why it blocks |
+|---|---|---|
+| P1 | **Swap `RC_API_KEY` test_ → appl_** (`club.purchases.ts:16`, one line) plus flip the paywall's "you'd be charged" copy to "you'll" | Shipping the Test Store key in a release build is a paid tier that cannot take money |
+| P2 | **Gate Club features on the entitlement.** `useClub()` is imported by one screen today. Unlimited imports, unlimited saves/collections, meal plan + smart list, unlimited Ask Otto, offline cookbook — none are gated | A subscription that unlocks nothing is 3.1.2 *and* a refund queue |
+| P3 | **`resolved_ingredients` survives account deletion** (truth-table row 13) — a free-text ingredient name a user typed becomes a globally readable row that `delete-account` never touches | Not a hard blocker, but it contradicts "delete removes everything", which the Privacy Policy says out loud. Either scrub it on delete or stop storing the raw typed string |
+| P4 | **Sentry** (config plugin, rebuild), then update the label + `privacyManifests` with Diagnostics | B1; gates the external beta |
+| P5 | **EXIF test, then strip if it survives** (truth-table row 9) | A geotagged HEIC lands in a **public** bucket. Test first: upload a geotagged photo, `curl` the public URL, `exiftool` it. Only add a dependency if GPS actually survives |
+| P6 | **Demo account for review (A4)** — stable, seeded with recipes + a week plan + a list, credentials in Review Notes, and a note on how to see the paid tier | A reviewer who cannot sign in files a 2.1 |
+| P7 | **Screenshots (A9)** — 6.9" and 6.5" iPhone sets, cook flow + shopping list + import. Copy is drafted in `docs/release/STORE_METADATA.md`; the images are not shot | Cannot submit without them |
+| P8 | **TheMealDB attribution (A7)** and **health/AI disclaimers (A8)** | Content rights and 1.4.1 |
