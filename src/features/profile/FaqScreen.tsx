@@ -12,7 +12,15 @@ import { colors, radii, space } from '@/shared/theme/tokens';
 const FAQS = [
   {
     q: 'Where do Otto’s recipes come from?',
-    a: 'Three shelves: a free community cookbook Otto browses for you, recipes you write yourself, and recipes you import from links. Imported ones keep their source. The credit and the live link travel with the recipe, always.',
+    a: 'Three shelves: a free community cookbook, recipes you write yourself, and recipes you import from links. The community cookbook is TheMealDB, an open recipe database — every recipe from it is credited on the recipe itself, and where TheMealDB knows the original page, that link travels too. Imported recipes keep their source the same way. The credit is part of the recipe and can’t be removed.',
+  },
+  {
+    q: 'How accurate is the nutrition?',
+    a: 'It’s an estimate, and Otto says which kind. When he can work it out from the ingredients he does, using USDA FoodData Central — a public database that Otto is not endorsed by. When he can’t, you get a rough figure from the kind of dish, marked with a tilde. When he has nothing honest to show, he says that instead of inventing a number. None of it is dietary or medical advice: if a number has to be right for a medical reason, weigh it yourself.',
+  },
+  {
+    q: 'Otto wrote this recipe. Should I trust it?',
+    a: 'Read it first — that’s why an imported or generated recipe opens as a draft for you to check rather than landing on your shelf. Otto can misread a temperature, drop an ingredient or miss that something contains nuts. Allergies, raw eggs and cooking temperatures are yours to check, every time.',
   },
   {
     q: 'How do I import a recipe from a link?',

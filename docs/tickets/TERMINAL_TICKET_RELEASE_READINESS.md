@@ -142,7 +142,7 @@ three disagree again.
       subscription metadata Apple requires, and a reviewer path to test it. Work
       `docs/tickets/OTTO_CLUB_GOLIVE.md` to completion — **or** ship v1 with the club hidden. Both
       are legitimate; shipping a half-live paywall is not.
-- [ ] **A7. Content rights.** Recipe text, images and video links still come from TheMealDB.
+- [x] **A7. Content rights.** *(2026-07-28: TheMealDB is now credited in the UI — a linked "Recipe data from TheMealDB" line on every seed recipe's detail, plus a rewritten FAQ answer naming them. USDA attribution + the non-endorsement wording render under every nutrition card. Still open: the Phase 0 terms/image-re-hosting answers in TERMINAL_TICKET_OTTO_RECIPES_KICKOFF.md.)* Recipe text, images and video links still come from TheMealDB.
       `docs/tickets/TERMINAL_TICKET_OTTO_RECIPES_KICKOFF.md` **Phase 0** (terms + attribution +
       image re-hosting answers) is a *launch* gate, not just a migration gate — an app store
       listing is a commercial distribution of that content. Also confirm the in-app attribution
@@ -150,7 +150,7 @@ three disagree again.
       mention of TheMealDB in the UI layer is a code comment in `CookScreen.tsx:294`). USDA data
       is public domain but its **attribution and "not endorsed" wording** should still appear
       wherever nutrition is explained.
-- [ ] **A8. Health and AI disclaimers.** Otto prints calorie and macro numbers and generates
+- [x] **A8. Health and AI disclaimers.** *(2026-07-28: nutrition card carries "an estimate isn't dietary or medical advice"; the import/generate review screen carries the allergen + temperature line where the AI's work is actually reviewed; two new FAQ answers cover both. Wording kept in Otto's voice, and the engine's null-beats-a-guess rule is untouched.)* Otto prints calorie and macro numbers and generates
       recipes with an LLM. Add, in the app (not only in the ToS): nutrition figures are estimates,
       not dietary or medical advice; AI-generated recipes are suggestions a human must judge —
       **allergens and food safety are the cook's call**. This protects the listing under 1.4.1

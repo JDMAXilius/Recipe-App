@@ -268,11 +268,19 @@ export function EditRecipeScreen() {
         )}
 
         {form.mode === 'import' && (
-          <View style={{ marginBottom: space[4] }}>
+          <View style={{ marginBottom: space[4], gap: space[2] }}>
             <Text role="body">
               {form.source === 'otto'
                 ? 'Otto dreamed this one up. Tweak anything, then save it to the shelf.'
                 : 'Did Otto get this right? Fix anything that reads oddly, then save it.'}
+            </Text>
+            {/* A8 (ticket §Section A): every recipe on this screen was written
+                or read by a machine. Allergens and food safety are the cook's
+                call, and that has to be said here — where the AI's work is
+                being reviewed — not only in the Terms nobody opens. */}
+            <Text role="caption">
+              Otto can misread an ingredient or a temperature. Check anything that matters —
+              allergies, raw eggs, cooking temperatures — before you cook it.
             </Text>
           </View>
         )}

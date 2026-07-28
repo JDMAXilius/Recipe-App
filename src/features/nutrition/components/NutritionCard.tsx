@@ -180,6 +180,20 @@ export function NutritionCard({
 
       {/* The ONE place nutrition is qualified. */}
       <Text role="caption">{isLoading ? "Estimating…" : estimateCaption(kind)}</Text>
+
+      {/* A7 + A8 (ticket §Section A). USDA data is public domain, but the
+          attribution and the "not endorsed" wording still have to appear
+          wherever nutrition is explained — and an app that prints calorie
+          numbers has to say out loud that they are not dietary advice. This
+          card is the only surface that shows macros, so this is the only
+          place it needs saying. Hidden while loading: a disclaimer under a
+          spinner qualifies nothing. */}
+      {isLoading || kind === "none" ? null : (
+        <Text role="caption">
+          Numbers are worked out from USDA FoodData Central, a public database. Otto isn’t
+          endorsed by the USDA, and an estimate isn’t dietary or medical advice.
+        </Text>
+      )}
     </View>
   );
 }
