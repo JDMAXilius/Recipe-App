@@ -523,3 +523,36 @@ all **App Functionality** only. Do **not** tick Diagnostics until Sentry actuall
 | P6 | **Demo account for review (A4)** — stable, seeded with recipes + a week plan + a list, credentials in Review Notes, and a note on how to see the paid tier | A reviewer who cannot sign in files a 2.1 |
 | P7 | **Screenshots (A9)** — 6.9" and 6.5" iPhone sets, cook flow + shopping list + import. Copy is drafted in `docs/release/STORE_METADATA.md`; the images are not shot | Cannot submit without them |
 | P8 | **TheMealDB attribution (A7)** and **health/AI disclaimers (A8)** | Content rights and 1.4.1 |
+
+**2026-07-28 — cloud. A7 reopened by a founder call, and two facts that decide it.**
+
+Founder call: **the app never names TheMealDB — the shelf is Otto's own recipe database, with
+nutrition verified against USDA.** The credit line added earlier today was reverted and the FAQ
+answer rewritten accordingly (`0ffb8a20`).
+
+Queried production before touching the copy, because "we own the data now" is a claim with two
+halves and only one of them is true today:
+
+| Checked | Result |
+|---|---|
+| `otto_recipes` rows | **795**, every one carrying a `canonical` record |
+| ingredient rows | **8,212**, `missing_name: 0` — the ingredient-split contract_gap that gated the cutover flag reads **closed** |
+| ingredients with no USDA key | **42** (0.5%) |
+| records whose image is hotlinked from `themealdb.com` | **792 of 795** |
+| records with `media.image_storage_path` (re-hosted) | **0** |
+
+**So: the recipe TEXT is Otto's. The PHOTOGRAPHS are still being served from TheMealDB's
+servers, on every screen, in a paid app.** That is the exact thing the kickoff ticket's Phase 0
+gate exists to answer and Phase 0 has never been logged — the terms were 403 through the cloud
+proxy and were never actually read. Removing the credit does not remove the dependency; it only
+removes the disclosure of it. **Before submission, one of three:** (a) log the Phase 0 terms
+answer and confirm hotlinking + no-attribution is permitted, (b) re-host the images with whatever
+attribution the terms require, or (c) replace the images with Otto's own.
+
+**Second fact: release builds are not on the new database at all.**
+`EXPO_PUBLIC_USE_OTTO_RECIPES` is set in `.env.development` only; `canonical.transform.ts:23`
+defaults the flag OFF, so `preview` and `production` EAS builds still query TheMealDB live through
+the `content` edge function at runtime. The FAQ now describes a database those builds do not read.
+Flipping it is a one-line `eas.json` env addition per profile, but it changes what Discover serves
+and wants a build + a smoke test of Discover, search, detail and nutrition — a packet, not a
+drive-by, and it is now on the critical path to making the shipped copy true.
