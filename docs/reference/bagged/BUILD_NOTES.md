@@ -44,6 +44,73 @@ not exist, because "no shadow" is the default, not a style), 25 components/varia
 
 ---
 
+## Accessibility audit — 1,315 text nodes measured against rendered pixels
+
+**Verdict: does not conform** (WCAG 2.2 AA). 8 serious, 7 moderate. Every contrast ratio
+claimed in `VISUAL_DIRECTION.md` §1.2–1.4 was verified against actual rendered pixels and
+**all of them are correct**. `brand.mark` never lands on ink anywhere, so the 2.29:1 trap is
+avoided in all 57 screens. Type floor holds absolutely — nothing below 11px, zero mixed-size
+runs.
+
+### Fixed in this pass
+
+| Node | Was | Now |
+|---|---|---|
+| `75:45` StatTile overline | `ink/muted` on `bg/sunk` = **4.43:1** | `ink/secondary` = 6.38:1 — propagates to 10 tiles on 5 screens |
+| `76:436` F1 second `✕` | `#F5F1E8` on `#F5F1E8` = **1.00:1**, invisible but present to VoiceOver at the exact top-right dismiss position | deleted |
+| `77:817`, `77:827` D5 | empty TEXT nodes, announced as unlabelled elements | deleted |
+| `76:296`, `76:2044` search placeholders | 4.43:1 | `ink/secondary` |
+| `77:754` B6 "empty" | `ink/tint` used as text = 3.69:1 | `ink/muted` 5.33:1 |
+| `76:789` D1 chevron | 4.40:1 on `clay/100` | `ink/secondary` |
+| `77:626` E3 "over" tag | `clay/500` on `clay/100` = **4.25:1** — the redundant channel that saves the chart's colour encoding was itself failing | new `clay/600` `#8F4429` = 5.2:1 |
+| B1, B7, F2 tab bars | y = 764 / 764 / 776 | y = 746, the §4.10 value |
+
+### Not fixed — build-time acceptance criteria, not mockup defects
+
+- **96pt bottom content inset** (`space.14` + gutter + safe area) on all 15 tab-bar screens.
+  Without it the floating pill buries live rows: B1 covers **36pt of a 56pt row** (Avocados),
+  E4 clips its insight card by 18pt, H1 loses 5pt. A static frame cannot express `contentInset`
+  — this must be an engineering acceptance criterion. **WCAG 2.4.11 Focus Not Obscured.**
+- **Tab slots are 20–35 × 38pt**, below even the 24×24 AA minimum (2.5.8). Each needs a fixed
+  56×56 hit frame inside the pill — 5 × 56 = 280 fits the 358 pill with room to spare.
+- **16 icon-only controls** (`⋯` at 13×22, `✕` at 12×18) need 44×44 wrappers. The nav/header
+  parents are full-width but only 22–27pt tall, so **height is the failing axis** — widening
+  does nothing. F1's `⋯` overflow is fine; its parent is already ≥44.
+- **Checkbox sizes are inconsistent** — 22×22 in D1's rows but 20×20 in D1's collapsed row and
+  D7. Normalise to 22.
+- **47 freshness rails, 81 glyph TEXT nodes, 62 placeholder icon ellipses** need
+  `isAccessibilityElement = false` with the label on the wrapper. As TEXT, `›` and `⋯` are
+  announced literally ("greater-than sign", "horizontal ellipsis").
+- **Tab bar Dynamic Type**: a fixed 358×56 pill with 11px labels sitting exactly on the type
+  floor. At 1.6× the labels clip *vertically* because the height cannot grow. Either let the
+  pill grow, or drop to icon-only above ~1.3× with the label moved to `accessibilityLabel`.
+- **H (5 screens) and D (2 screens) use their own tab-bar wrappers** (390×80 and 390×72) rather
+  than the `TabBar` component. One component, one y.
+
+### Blocked until the SF Symbol set lands
+
+**The active tab is signalled by colour alone.** Every tab icon is an identical 20×20
+placeholder ellipse and the labels differ only in fill, so a deuteranope sees five identical
+grey circles. §4.10 already specifies a *filled* icon for the active state — when the symbols
+arrive, active must use the `.fill` variant **and** weight 600 on the label. Two channels.
+This cannot be validated while the placeholders are in place.
+
+### What the audit confirmed is genuinely good
+
+- **23 of 23 `ShelfRow`s** carry state as a word, and the sub-label ink tracks the rail state in
+  every case. Colour is never the sole channel on the home screen.
+- **24 of 24 price deltas** carry `▲`/`▼` *and* an explicit sign. No bare coloured number anywhere.
+- **Money is never coloured** — every price node is `#231F1A`.
+- **C3's confidence is words** (`no match` / `sure` / `not sure`) plus the `~` prefix.
+- **B1's "Peanut butter" renders no filled rail** — §7's "worst possible failure" is avoided.
+- **Zero text nodes use `TRUNCATE` or fixed sizing** across all 57 screens. The Dynamic Type
+  clipping risk I expected is simply not present.
+- **E1 encodes "latest" as opacity 0.16 vs 1.0 on one hue** — a pure lightness channel, fully
+  colourblind-safe. That is the pattern; **E3's over-budget bars should copy it** rather than
+  relying on hue at 2.15:1 bar-to-bar separation.
+
+---
+
 ## Component debt — all one root cause
 
 **Figma will not let you `appendChild` into an instance** (`Cannot move node. New parent is
