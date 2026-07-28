@@ -154,6 +154,56 @@ ways.**
 D1 and D7 needed `layoutPositioning = 'ABSOLUTE'` first — their wrappers are auto-layout
 children, so `y` was layout-controlled and silently ignored.
 
+### P0 remediation — done
+
+**The canonical dataset, now propagated across all bands:**
+
+| | |
+|---|---|
+| Receipt | Trader Joe's · Cesar Chavez · 26 Jul 2026 · 14 lines · 12 matched · 2 unmatched · **$67.31** |
+| July | 4 trips · 3 stores · **$284.60** — 26 Jul TJ $67.31 · 19 Jul Safeway $71.40 · 12 Jul Costco $65.00 · 5 Jul TJ $80.89 (over) |
+| Roster | Trader Joe's · Cesar Chavez 24 · Costco · Novato 9 · Safeway · Church St 5 = **38** |
+| Weekly shop | 7 things · **5 left** · **≈ $30.40** |
+| Whole milk | 5 Jul TJ $4.29 → 12 Jul Costco ~$4.39 `seed` → 19 Jul Safeway $4.29 `typed` → 26 Jul TJ **$4.49** `receipt`; usual $4.42, range $4.29–$5.19 |
+
+**H1 rebuilt with all 12 rows** — every one of G1, G2, G3, G4, G5, G6, G7, H3, H4, H5, H6 and
+F2 now has a forward link. G4's back link retargeted to `‹ Setup`. Body hugs at 969pt inside
+the 844 frame, the same overflow pattern E4 uses.
+
+**Also fixed:** `$` on every row price, subtotal and delta across D1, D2, D3, D6, D7, F4, G4,
+G7 (the only bare numbers left are receipt-facsimile lines, which are correct); 7 tab bars
+retargeted to the right active tab; **I5 split into three screens** (`I5` camera, `I5b`
+location, `I5c` notification), clearing the only §7.21 violation; C3's `NEEDS YOU` header to
+`ink/muted`; C7's `~7 days` rail to `fresh/soon`; H2's fourth benefit row added; D2's
+self-contradicting footnote fixed; C1's facsimile re-dated to 28 Jun so it reads as a prior
+trip.
+
+**A regression I introduced and then fixed.** Normalising the tab bar to y=746 pushed it up
+into D1's sticky footer, half-hiding `≈ $30.40`. D1's scroll region is now 618pt so the
+footer (618–674) and input bar (674–738) clear the pill with an 8pt gap. **Every other
+tab-bar screen still needs the same treatment** — this is the 96pt bottom reserve, and D1 is
+now the worked example.
+
+**A claim that did not survive checking.** The fixer reported E3 rounds its bar corners at the
+baseline (§7.16). All 12 bars measure `bl:0, br:0`. The certification review was right: no
+builder rounded a baseline anywhere in the file. E3's actual defect is different — all 12 bars
+render at opacity 1 where E1/E2/E6 correctly use 16% for idle.
+
+### Still open after remediation
+
+- **`I1 · Generic empty`** still highlights Shelf. No target tab was ever specified and its copy
+  is Shelf language. Needs a decision, not a fix.
+- **H1's `Language` and `Read the list aloud` rows were folded into a single `Voice ›`** that
+  opens H3, which owns both. Restore them under the promise row if you want the old shape.
+- **`D6`'s hero says `≈ $24.20` while its item rows sum to $14.39**, and its fourth cheaper item
+  is `Rolled oats`, which is not one of the canonical 7.
+- **`E3`'s header stats still disagree with themselves** — this is the contract bug below, not a
+  build error.
+- **`E2` draws 11 bars for "12 observations"** and does not hatch the estimated one.
+- **The 96pt bottom reserve** on the remaining 14 tab-bar screens.
+- **`×n` carries four meanings**, apostrophes are mixed, and "yoghurt"/"yogurt" both appear.
+- **The 40 ItemMark glyphs** — still the largest genuinely new piece of design work.
+
 ### Contract bugs — fix the documents, not the screens
 
 - **`SCREEN_MAP.md` §E3 specifies both "38 trips · $2,940 tracked" and "AVERAGE TRIP $79.20".**
