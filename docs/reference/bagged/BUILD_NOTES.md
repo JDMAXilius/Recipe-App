@@ -111,6 +111,87 @@ This cannot be validated while the placeholders are in place.
 
 ---
 
+## Certification review — verdict: NEEDS WORK
+
+3,205 nodes scanned. **20 of the 22 §7 prohibitions are clean** — zero off-palette colours,
+zero text below 11px, zero non-system fonts, zero gradients, no second page background, no
+teal, no indigo, no terracotta. Six builders working blind and not one invented a colour.
+That is why this is NEEDS WORK and not NOT CLOSE.
+
+It fails on the three things a token audit cannot see: **navigation that dead-ends**, **data
+that contradicts itself across bands**, and **six builders rendering the same component six
+ways.**
+
+### P0
+
+1. **`H1 · Setup` is missing 6 of its 9 rows, which dead-ends 10 screens** — G1, G2, G3, G4,
+   G5, G7, H3, H4, H5, H6 all have a back link to H1 and no forward link from it. G4's back
+   link points at `‹ Surfaces`, which is a section header, not a screen.
+2. **The 26 Jul receipt has two totals.** C says $67.31 (and C2→C3→C7 actually computes it);
+   E5 and E3 say $78.40, with a line list that includes an olive oil appearing on no other
+   screen. C1's facsimile carries the *same store, branch and date* with a third total, $30.96.
+3. **I4 breaks the count mid-flow** — "12 found / 8 of 12" between C2's 14-found and C3's
+   14-lines.
+4. **E3 and E4 describe the same four July trips with different numbers.** E4 is internally
+   consistent ($148.20 + $71.40 + $65.00 = $284.60, treemap sums exactly); E3 totals $303.30.
+5. **Three different store rosters**, all claiming "3 stores": D5 has Safeway·Church St,
+   G2 has Whole Foods·Silver Lake, E7 compares Walmart with no Costco.
+6. **The Weekly shop list exists in three incompatible versions** — "4 of 9 left" (D1),
+   "5 of 7 left" (F4, which then contradicts itself), "8 LEFT" (ambient). G7 says `8 LEFT`
+   in its header and `7 to go` in its footer.
+7. **Whole milk has four different current prices** across E1, E2 and B2.
+
+### Fixed in this pass
+
+| Finding | Fix |
+|---|---|
+| G8 printed an internal spec annotation as UI copy, including the screen ID "G1" | deleted |
+| D4 showed the user the word `HOUSEHOLD` | → `KITCHEN` |
+| C3 tagged a line lifted from a scanned receipt as `typed` | → `receipt` (this is the honesty channel; the one thing the product is about) |
+| H2 "Restore purchase" | → "Restore purchases" |
+| Tab bar at four different heights (746 / 764 / 772 / 776) | all 15 normalised to **y = 746** (§4.10: 358×56, 8pt above a 34pt safe area) |
+
+D1 and D7 needed `layoutPositioning = 'ABSOLUTE'` first — their wrappers are auto-layout
+children, so `y` was layout-controlled and silently ignored.
+
+### Contract bugs — fix the documents, not the screens
+
+- **`SCREEN_MAP.md` §E3 specifies both "38 trips · $2,940 tracked" and "AVERAGE TRIP $79.20".**
+  $2,940 ÷ 38 = $77.37. The builder rendered both faithfully.
+- **E1's footnote is specified two ways.** `SCREEN_MAP.md` says "**This is** what you paid";
+  `VISUAL_DIRECTION.md` §4.6 says "**It is** what you paid". A followed the map, E followed
+  §4.6. Reconcile the documents first.
+- **§4.9 section spacing** computes to a 28pt gap; only the E band matches. B and D render 16,
+  H and G render 20, C and F render 22. Pick one and put it in the component.
+
+### Also outstanding
+
+- **`×n` carries four different meanings** in one visual slot: quantity (D1), units on a
+  receipt line (E5), number of purchases (E6), trip count (E4).
+- **Apostrophes split 18 straight / 13 curly / 3 mixed on the same screen** (D4, D5, B2).
+- **"Greek yoghurt" vs "Greek yogurt"** — same product, two spellings.
+- **F4 renders D1's states differently**: strikes the name but not the price (§4.3 says both),
+  and draws the collapsed aisle as a 12px overline on bare paper rather than D1's white card.
+- **E3's chart bars are 6× too bright** — all 12 at 100% where E1/E2/E6 correctly use 16% idle.
+- **E2 draws 11 bars for "12 observations"** and doesn't hatch the estimated one, though E4
+  does exactly that hatch correctly two screens away.
+
+### What the review said not to touch
+
+- **`E4`'s measured-vs-estimated bar is exactly §1.7** — one control, hue-free, 45° hatch,
+  labelled at each end. "The hardest instruction in the document, executed literally." Ship it
+  as the reference implementation and make E2's chart match it.
+- **Bar geometry is unanimously correct** — all 47 bars are `TL8 / TR8 / BR0 / BL0`. Not one
+  builder rounded a baseline.
+- **`D6` is arithmetically perfect and agrees with D1**: −1.39 −1.35 −1.40 −2.06 = exactly the
+  −$6.20 D1's callout claims, against "four of your nine things". The one cross-screen data
+  chain that holds.
+- **`E4`'s treemap reconciles to the cent** and E6's "SHARE OF MONTH 32%" = 92.40 / 284.60.
+- **The `promise` ToggleRow variant is used correctly and only correctly** — never borrowed by
+  an ordinary setting.
+
+---
+
 ## Component debt — all one root cause
 
 **Figma will not let you `appendChild` into an instance** (`Cannot move node. New parent is
