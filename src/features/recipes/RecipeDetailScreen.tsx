@@ -270,26 +270,6 @@ export function RecipeDetailScreen() {
               )
             ) : null}
 
-            {/* A7 (ticket §Section A): the community shelf IS TheMealDB, and
-                shipping their recipes and photographs in a store listing is
-                commercial distribution of someone else's content. Their credit
-                has to render somewhere a person can actually find it — until
-                now the only mention of them in the whole UI was a code
-                comment. `sourceUrl` above, when present, points at the
-                ORIGINAL publisher, which is a different claim: this line is
-                the database, that link is the page it came from. */}
-            {recipe.source === 'themealdb' ? (
-              <Pressable
-                accessibilityRole="link"
-                accessibilityLabel="Open TheMealDB, the recipe database Otto browses"
-                onPress={() => void WebBrowser.openBrowserAsync('https://www.themealdb.com')}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: space[1] }}
-              >
-                <Text role="caption">Recipe data from TheMealDB</Text>
-                <Ionicons name="open-outline" size={13} color={colors.terracotta} />
-              </Pressable>
-            ) : null}
-
             {/* Computed meta */}
             <View style={{ flexDirection: 'row', gap: space[5], marginTop: space[2] }}>
               {[

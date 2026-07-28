@@ -12,7 +12,7 @@ import { colors, radii, space } from '@/shared/theme/tokens';
 const FAQS = [
   {
     q: 'Where do Otto’s recipes come from?',
-    a: 'Three shelves: a free community cookbook, recipes you write yourself, and recipes you import from links. The community cookbook is TheMealDB, an open recipe database — every recipe from it is credited on the recipe itself, and where TheMealDB knows the original page, that link travels too. Imported recipes keep their source the same way. The credit is part of the recipe and can’t be removed.',
+    a: 'Three shelves: Otto’s own recipe database, recipes you write yourself, and recipes you import from links. Otto’s database is curated in-house — every recipe is read line by line, its ingredients broken into amount and food, and its nutrition matched against USDA FoodData Central rather than guessed. Where a recipe has an original page behind it, that link travels with it and can’t be removed. Imported recipes keep their source the same way.',
   },
   {
     q: 'How accurate is the nutrition?',
