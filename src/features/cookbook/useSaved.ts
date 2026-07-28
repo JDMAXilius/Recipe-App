@@ -5,10 +5,14 @@
 
 import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
 import { useAuth } from '@/features/auth';
+import { useMembership } from '@/features/profile';
+import { allowed, blockedMessage, emptyUsage } from '@/features/profile/club.limits';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { kv } from '@/shared/storage';
+import { useToast } from '@/shared/ui';
 import { ottoBus } from '@/shared/bus';
 import { deleteFavorite, fetchFavorites, insertFavorite } from './saved.queries';
 import { applyOptimisticToggle, deriveSavedIds } from './cookbook.logic';
@@ -22,6 +26,14 @@ export function useSaved() {
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const qc = useQueryClient();
+  // The free shelf is capped, and this is the one place in the app a save is
+  // made — every PawMark, card and detail screen calls toggle() below. Gating
+  // here rather than at the call sites is what keeps the cap from being
+  // enforced on three screens and forgotten on the fourth. UNSAVING is never
+  // gated: a full shelf must still be emptiable.
+  const { member } = useMembership();
+  const router = useRouter();
+  const toast = useToast();
 
   const query = useQuery({
     queryKey: savedKey(userId),
@@ -77,9 +89,23 @@ export function useSaved() {
       // Read current truth from the cache at click time (fresh — works for the
       // toast Undo, a long-lived closure, too) and pass it so mutationFn doesn't
       // depend on the cache onMutate has already flipped.
-      const wasSaved = deriveSavedIds(
-        qc.getQueryData<SavedRecipe[]>(savedKey(userId)) ?? [],
-      ).has(recipe.recipeId);
+      const current = qc.getQueryData<SavedRecipe[]>(savedKey(userId)) ?? [];
+      const wasSaved = deriveSavedIds(current).has(recipe.recipeId);
+      if (
+        !wasSaved &&
+        !allowed('save', {
+          member,
+          usage: emptyUsage, // saves keep no counter — the rows ARE the count
+          savedCount: current.length,
+          now: new Date(),
+        })
+      ) {
+        toast.show(blockedMessage('save'), 'info', {
+          actionLabel: 'See Otto Club',
+          onAction: () => router.push('/otto-club'),
+        });
+        return;
+      }
       mutation.mutate({ recipe, wasSaved });
       // MOMENT 3 (motion.md §4): the FIRST recipe ever saved — once, ever.
       // PawMark's own feedback (pop + light impact + save sound) covers every
@@ -94,7 +120,7 @@ export function useSaved() {
         ottoBus.emit('save');
       }
     },
-    [mutation, qc, userId],
+    [mutation, qc, userId, member, router, toast],
   );
 
   return {

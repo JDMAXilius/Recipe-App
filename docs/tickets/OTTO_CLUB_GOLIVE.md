@@ -67,3 +67,52 @@ The contract lives on the AI calls themselves, not on a monthly user allowance:
 - Never advertise a trial the store's intro offer doesn't grant.
 - Savings % computed only against our own real monthly price — no fake anchors.
 - Store unavailable → "opens soon" fallback, never a dead buy button.
+
+---
+
+## Step 5 — feature gating: LANDED 2026-07-28 (partially; read the gap)
+
+`useClub()` was imported by exactly one screen (the paywall) until today, which meant Otto Club
+sold nothing: every "Club feature" was already free to everyone. Now:
+
+**The numbers live in one file** — `src/features/profile/club.limits.ts`. They are a founder call
+and are trivially tunable:
+
+| Free tier | Value | Counted how |
+|---|---|---|
+| AI-backed imports (link, photo, pasted text) | **5 / calendar month** | counter in `kv('clubUsage')`, rolls on the local month |
+| Saved recipes from Discover | **25** | the saved ROWS themselves — unsaving gives the slot back |
+| Questions to Otto (typed turns + clarify chips) | **5 / day** | counter in `kv('clubUsage')`, rolls on the local day |
+
+Free forever, never counted: browse, search, cook any recipe, **write a recipe out by hand**,
+Otto's personality. Manual entry is deliberately the escape hatch offered when an import gate
+closes.
+
+**Enforcement points** (each is the one place all callers route through, not a per-screen patch):
+
+- `AddSheet` — all three AI paths. `check()` before, `spend()` only after a SUCCESSFUL import, so
+  a dead link or an unreadable photo never costs someone one of their five. The photo path checks
+  before the camera opens.
+- `useSaved().toggle()` — every PawMark, card and detail screen in the app already routes through
+  it. Unsaving is never gated; a full shelf must stay emptiable.
+- `ChatScreen` — `onSend` and `onPickChip` both, because a clarify chip is a full turn and would
+  otherwise be the loophole.
+
+A closed gate **toasts with a "See Otto Club" action**; it does not hijack the screen to the
+paywall. Freemium, not a hard gate — that was the locked decision, and a forced redirect is how
+one turns into the other.
+
+Tests: `src/features/profile/club.limits.test.mjs`, 7 cases (period rollover, the off-by-one at
+each cap, no negative debt, member = unlimited). Suite: 316/316.
+
+### The two gaps this does NOT close — read before calling step 5 done
+
+1. **Enforcement is client-side only.** A determined user can clear app storage and reset the
+   import and ask counters. That is a *cost* exposure (AI calls), not a revenue one, and the AI
+   functions already carry a 20-call/15-min per-user abuse guard. The real fix is counting spend
+   server-side in the edge functions against `public.memberships` — a backend packet, worth doing
+   before the free tier is public, not before TestFlight.
+2. **The planner and the smart shopping list are NOT gated**, though §5 above lists them as Club
+   features. Gating them is not a limit, it is removing a whole tab from a free user, and that is
+   a product decision with a design attached (locked state? current week free? read-only?). It was
+   left deliberately rather than invented in a code packet. **Founder call needed.**

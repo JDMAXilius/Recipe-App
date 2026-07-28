@@ -8,6 +8,7 @@ import { RecipeInput } from './components/RecipeInput';
 import { useGenerateRecipe, useImportFromUrl, useImportFromPhoto } from './import.queries';
 import { emptyDraft, setDraft } from './draft';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
+import { useClubGate } from '@/features/profile';
 
 // "Bring in a recipe" — a pushed full SCREEN with a back button (founder call:
 // no longer a bottom modal). Matches the Figma master (213:1667): a 2×2 tile
@@ -49,6 +50,10 @@ export function AddSheet({ onClose }: AddSheetProps) {
   const importMut = useImportFromUrl();
   const photoMut = useImportFromPhoto();
   const generateMut = useGenerateRecipe();
+  // Free tier: the three AI-backed paths below are counted. "Write it myself"
+  // is not, and must never be — manual entry is free forever, and it is also
+  // the honest fallback we offer when a gate closes.
+  const gate = useClubGate();
   const busy = importMut.isPending || photoMut.isPending || generateMut.isPending;
 
   // Hand a draft to the editor and open it. Reset local state so a re-opened
@@ -72,8 +77,11 @@ export function AddSheet({ onClose }: AddSheetProps) {
       return;
     }
     setError(null);
+    if (!(await gate.check('import'))) return;
     try {
-      openEditor(await importMut.mutateAsync(target));
+      const draft = await importMut.mutateAsync(target);
+      await gate.spend('import'); // only a successful import costs one
+      openEditor(draft);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Otto couldn't read that page.");
     }
@@ -91,8 +99,10 @@ export function AddSheet({ onClose }: AddSheetProps) {
       return;
     }
     setError(null);
+    if (!(await gate.check('import'))) return;
     try {
       const draft = await generateMut.mutateAsync({ prompt: body });
+      await gate.spend('import');
       openEditor({ ...draft, source: 'manual' });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Otto couldn't sort that into a recipe.");
@@ -104,6 +114,9 @@ export function AddSheet({ onClose }: AddSheetProps) {
   // just backs out — the ＋ never dead-ends.
   const snapRecipe = async () => {
     setError(null);
+    // Checked BEFORE the camera opens: making someone frame a shot and then
+    // telling them they're out of imports is worse than telling them now.
+    if (!(await gate.check('import'))) return;
     const picked = (await takePhoto({ base64: true })) ?? (await pickFromLibrary({ base64: true }));
     if (!picked) return;
     if (!picked.base64) {
@@ -115,6 +128,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
         image: picked.base64,
         mimeType: picked.mimeType ?? 'image/jpeg',
       });
+      await gate.spend('import');
       openEditor(draft);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Otto couldn't read that photo. Try a clearer shot.");

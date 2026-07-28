@@ -17,7 +17,8 @@ export type StoreKey =
   | 'householdRecent'
   | 'journal'
   | 'chats'
-  | 'cookRatings';
+  | 'cookRatings'
+  | 'clubUsage';
 
 // One namespace + version. Bump the version suffix to invalidate a shape.
 const NS = 'otto.v2';

@@ -10,6 +10,7 @@ import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { useAuth } from '@/features/auth';
 import { stageOttoRecipe, takeOttoAsk } from '@/features/import';
+import { useClubGate } from '@/features/profile';
 import { ChatEmptyState } from './components/ChatEmptyState';
 import { Composer } from './components/Composer';
 import { Transcript } from './components/Transcript';
@@ -81,6 +82,7 @@ export function ChatScreen() {
   // hooks' objects are new every render): that keeps the memoized Transcript
   // out of the keystroke path.
   const { send, pickOption, isSending } = chat;
+  const gate = useClubGate();
 
   // The recipe editor's Ask-Otto hand-off: arriving with a part-filled form,
   // its rendered ask lands in the composer — visible and editable, so the cook
@@ -111,9 +113,13 @@ export function ChatScreen() {
   });
   const { listening, available: canSpeak, stop: stopSpeech, toggle: toggleSpeech } = speech;
 
-  const onSend = useCallback(() => {
+  const onSend = useCallback(async () => {
     const text = draft.trim();
     if (!text) return;
+    // Free tier: a turn to Otto is counted. Checked before the draft is
+    // cleared, so a blocked question is still sitting there to send tomorrow
+    // — or to send now, after joining.
+    if (!(await gate.check('ask'))) return;
     // Send can land mid-dictation (the Speak pill now stays put beside it): stop
     // the session first so trailing results can't repopulate the sent text.
     if (listening) stopSpeech();
@@ -123,8 +129,9 @@ export function ChatScreen() {
     sound.play('send');
     setDraft('');
     send(text);
+    void gate.spend('ask');
     toBottom();
-  }, [draft, listening, stopSpeech, send, toBottom]);
+  }, [draft, listening, stopSpeech, send, toBottom, gate]);
 
   const onSpeak = useCallback(() => {
     if (!canSpeak) {
@@ -140,12 +147,16 @@ export function ChatScreen() {
   // A clarify chip sends a full turn, so it gets the same beat as Send —
   // otherwise the same user act feels different depending on where it started.
   const onPickChip = useCallback(
-    (option: string) => {
+    async (option: string) => {
+      // A clarify chip is a full turn to Otto, so it costs what typing one
+      // costs. Anything else would make the cheap-looking path the loophole.
+      if (!(await gate.check('ask'))) return;
       haptics.select();
       sound.play('send');
       pickOption(option);
+      void gate.spend('ask');
     },
-    [pickOption],
+    [pickOption, gate],
   );
 
   // Review-first (founder call 2026-07-24): Otto's recipe opens in the editor

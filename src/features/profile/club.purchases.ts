@@ -16,6 +16,32 @@ export type BuyResult = 'ok' | 'cancelled' | 'error';
 export const RC_API_KEY = 'test_oSJcFKqwFPgFgcamzVtQcfdrYrV';
 export const RC_TEST_STORE = RC_API_KEY.startsWith('test_');
 
+/**
+ * Membership alone — no offerings fetch. Every gated screen in the app mounts
+ * this, and `getOfferings()` is a network call the gates have no use for: they
+ * ask one question, "is this person a member?", which the customer-info
+ * listener already answers locally and keeps fresh after a purchase or a
+ * restore. `useClub()` (the paywall's hook) is the one that needs products.
+ */
+export function useMembership(): { member: boolean } {
+  const [info, setInfo] = useState<CustomerInfo | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    Purchases.getCustomerInfo()
+      .then((i) => alive && setInfo(i))
+      .catch(() => {}); // offline / not configured → treat as not a member
+    const listener = (i: CustomerInfo) => setInfo(i);
+    Purchases.addCustomerInfoUpdateListener(listener);
+    return () => {
+      alive = false;
+      Purchases.removeCustomerInfoUpdateListener(listener);
+    };
+  }, []);
+
+  return { member: hasClubEntitlement(info) };
+}
+
 export function useClub() {
   const [yearly, setYearly] = useState<PurchasesPackage | null>(null);
   const [monthly, setMonthly] = useState<PurchasesPackage | null>(null);
