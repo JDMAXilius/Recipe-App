@@ -375,15 +375,35 @@ Overline · spacer · right meta. Height 32, `space.5` below, `space.6` above.
 **The right-meta slot is where Bagged discloses its own axes** — "newest first", "tile = spend",
 "vs your own average". Every section header showing derived data must fill it.
 
-### 4.10 TabBar — resolves the four competing bars into one
-`Shelf · List · ⊕ · Prices · Me`. Floating pill **358 × 56**, `radius.pill`, `surface.card`,
-`elev.2`, 8pt above the safe area. Outer slots 24pt icon + `type.micro`. Centre = 44pt
-`surface.ink` circle with a 20pt `⊕` in `ink.onInk`.
-Active = filled icon + `brand.mark`. Badged = 6pt `clay.500` dot, **List only**, when auto-add has
-queued items.
-Takes F's floating pill (most distinctive of the four), G's icon+label (5 destinations need
-icons), and drops F's 10px uppercase labels — an accessibility liability that doesn't survive
-Dynamic Type.
+### 4.10 NavBar + CaptureButton — **decided: V2, split pill with detached capture**
+
+Replaces the five-slot centre-capture bar. Full spec and flows in `NAV_WORKFLOW.md`.
+
+**NavBar** — 280×56 pill, `surface/card`, `radius/pill`, `elev/2`, at x=16, y=746. Four
+**64×48** slots, icon-only, `active = shelf | list | prices | me`.
+
+**CaptureButton** — a detached 56×56 `surface/ink` disc at x=318, y=746. Capture is *not* a
+destination: it opens C1 as a sheet from anywhere, never changes the active slot, never enters
+the back stack.
+
+**The active state carries three channels and may not drop two of them:**
+1. **Shape** — `brand/markTint` chip behind the slot
+2. **Weight** — the icon swaps `outline` → `filled`
+3. Colour — `brand/mark` vs `ink/muted`
+
+The old bar signalled active by hue alone, which the accessibility audit flagged as unusable for
+deuteranopes. Chip and fill both survive greyscale; colour is the third channel, not the only one.
+
+**Labels are gone.** They sat exactly on the 11px type floor and clipped *vertically* at 1.6×
+Dynamic Type because the pill height could not grow. The label moves to the screen title in
+`type/display` — "Your shelf", "Weekly shop", "Prices", "Setup" — and to `accessibilityLabel` on
+each slot.
+
+**Badging:** the List slot only, a 6pt `clay/500` dot when auto-add has queued something unseen.
+Prices must never badge — manufacturing urgency about someone's own spending is the opposite of
+what this app claims about itself.
+
+**Bottom reserve:** content ends at y ≤ 738 on every tab-level screen.
 
 ### 4.11 CaptureSheet (C1)
 Handle · Close/title/Help · receipt hero · option rows · primary. ~78% height, `surface.ink`,
