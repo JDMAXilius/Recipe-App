@@ -1,0 +1,19 @@
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: "0 9 */3 * *" # every 3 days; free-tier pause kicks in at ~7 days idle
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query database so the project counts as active
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "https://mepzfdefanfpnrvydyty.supabase.co/rest/v1/recipes?select=id&limit=1")
+          echo "HTTP $code"
+          [ "$code" = "200" ] || exit 1
