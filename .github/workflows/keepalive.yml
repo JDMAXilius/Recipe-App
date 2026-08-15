@@ -9,11 +9,16 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Query database so the project counts as active
+        # Reads the publishable anon key from .env.development (committed by
+        # founder decision — RLS is the security boundary, not key secrecy).
         run: |
+          key=$(grep '^EXPO_PUBLIC_SUPABASE_ANON_KEY=' .env.development | cut -d= -f2)
+          url=$(grep '^EXPO_PUBLIC_SUPABASE_URL=' .env.development | cut -d= -f2)
           code=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            "https://mepzfdefanfpnrvydyty.supabase.co/rest/v1/seed_nutrition?select=*&limit=1")
+            -H "apikey: $key" \
+            -H "Authorization: Bearer $key" \
+            "$url/rest/v1/seed_nutrition?select=*&limit=1")
           echo "HTTP $code"
           [ "$code" = "200" ] || exit 1
