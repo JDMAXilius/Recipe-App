@@ -33,7 +33,7 @@ Apple's definition used throughout:
 | 12 | Chat / prompt text typed to Otto | User Content → **Other User Content** | **YES** | YES (JWT-authenticated, rate-limited per user) | No | `src/features/chat/chat.queries.ts:81-97` and `:117-130` → `supabase/functions/generate-recipe/index.ts:340-375` → Anthropic `:176-192` / `:242-259`. Paste-a-recipe import uses the same one-shot path (`src/features/import/AddSheet.tsx:87-100` → `index.ts:404-413`). Cap 600 chars/turn, ≤20 turns (`:22, :29-32`) | **Anthropic**, model `claude-sonnet-5` (`generate-recipe/index.ts:11`) |
 | 13 | Ingredient names from your recipes (nutrition resolution) | User Content → **Other User Content** | **YES** | Request is authenticated; **the stored row is not** | No | `src/features/nutrition/resolve.queries.ts:31-49` → `supabase/functions/resolve-nutrition/index.ts:189-248`. Names go to **USDA** search (`:129-141`, `https://api.nal.usda.gov/fdc/v1/foods/search`) and to **Anthropic** (`:62-79`, `claude-haiku-4-5` `:20`), then are **persisted forever** into `public.resolved_ingredients` (`:238-243`), a table with `select to anon, authenticated using (true)` (`…090008_resolved_ingredients.sql:17-19`) | **Anthropic**, **USDA FoodData Central** (US Government), **Supabase**. Note: the free-text name a user typed becomes a globally readable row, un-deleted by account deletion (`…090009:182-203` does not touch it) |
 | 14 | Voice / audio (mic dictation) | User Content → **Audio Data** | **NO by Otto — but the audio DOES leave the device to Apple** | No | No | `src/features/chat/useSpeechInput.ts:90` calls `speech.start({ lang:'en-US', interimResults:true })` and **does not set `requiresOnDeviceRecognition`**, which defaults to `false` (`node_modules/expo-speech-recognition/ios/SpeechRecognitionOptions.swift:21`) and is passed straight to `SFSpeechAudioBufferRecognitionRequest` (`ios/ExpoSpeechRecognizer.swift:580`); `app.json:46-52` sets no on-device flag either. Only the resulting **text** reaches Otto (`useSpeechInput.ts:53-57`) | **Apple** (server-side speech recognition). Otto's servers never receive audio |
-| 15 | Recipe search terms / browsing of the built-in catalogue | **Search History** / **Browsing History** | **UNKNOWN — likely YES in logs** | Probably (the call carries the session JWT) | No | `src/features/recipes/recipe.queries.ts:32-38` — the search term is in the **URL query string** of a `supabase.functions.invoke('content/search.php?s=…')`; forwarded verbatim by `supabase/functions/content/index.ts:47-71` to TheMealDB. Our code stores nothing, but Supabase's edge-function request log records path+query. *Settles it:* read Supabase Edge Function logs for a `search.php?s=` request and check whether query string and caller identity are retained, and for how long | **TheMealDB** (receives the term); **Supabase** (platform request logs) |
+| 15 | Recipe search terms / browsing of the built-in catalogue | **Search History** / **Browsing History** | **CONFIRMED YES — 2026-09-24, `function_edge_logs`** | **YES, confirmed** — `request.sb.auth_user` and `request.sb.jwt.authorization.payload.subject` (the Supabase user UUID) are on every log line | No | `src/features/recipes/recipe.queries.ts:32-38` — the search term is in the **URL query string** (`request.search`, e.g. `?i=52772`; a real search carries `?s=<term>`) of a `supabase.functions.invoke('content/search.php?s=…')`; forwarded verbatim by `supabase/functions/content/index.ts:47-71` to TheMealDB. Our code stores nothing, but Supabase's platform edge-function log records the full request line **plus** the caller's user id, IP (`request.headers.cf_connecting_ip`), and precise geolocation (`request.cf.city`, `request.cf.postalCode`, `request.cf.region`, `request.cf.timezone`) on every call. Retention window not yet confirmed — check the plan's log-retention setting in Supabase Studio. | **TheMealDB** (receives the term); **Supabase** (platform request logs — linked to identity, IP and precise location, not just the term) |
 | 16 | Pasted import URL | **Browsing History** (arguable) / Other Data | **YES, transiently** | Request authenticated | No | `src/features/import/import.queries.ts:72-75` → `supabase/functions/import-recipe/index.ts:10` (zod-validated), fetched with a resolve-then-connect SSRF guard (`:16-82`). No DB write of the URL by the function; the URL is persisted only if the user saves the draft (`recipes.source_url`, `…090002:9`) | The **website the user pasted** (it sees our server's request), **Supabase** logs |
 | 17 | Dietary preference + favourite cuisines | **Sensitive Info** (diet can imply religion/health) | **NO today** | n/a | No | Stored device-only: `src/features/profile/usePrefs.ts:41` → `kv 'prefs'` (`src/shared/storage.ts:11`). **Fragile:** the wire and the server already forward them to Anthropic (`chat.queries.ts:64-67, 86`; `import.queries.ts:80-81`; `generate-recipe/index.ts:328-338` builds `Dietary preference: …` into the prompt) — **no caller passes them today** (`ChatScreen.tsx:70` passes only `threadId`; `AddSheet.tsx:95` passes only `prompt`). The day one does, this row flips to YES/Anthropic | none today |
 | 18 | Reminder settings, onboarding state, cook ratings, chat transcripts, shopping check-state, unit system, sounds | Other Data | **NO** | n/a | No | All device-local AsyncStorage keys: `src/shared/storage.ts:8-20`; reminders `src/features/notifications/useNotifPrefs.ts:27, 34`; notifications are **scheduled locally**, never pushed (`src/features/notifications/notifications.queries.ts:43-57`) | none |
@@ -147,24 +147,36 @@ Either create `hello@` or change the policy to `support@ottosapp.com`. The URLs 
 (`https://ottosapp.com`, `/privacy`, `/terms`) do match what the app links to
 (`ProfileScreen.tsx:39-40`, `OttoClubScreen.tsx:30-31`) — that part is consistent.
 
-### D9 — THE POLICY IS OPTIMISTIC (moderate). "Limited technical/diagnostic data" undersells search terms.
+### D9 — THE POLICY IS WRONG (confirmed 2026-09-24), not just optimistic. It undersells search terms.
 Policy §1(b) describes automatic collection as "a request's time and the operating system type" plus
-error logs. Recipe searches are carried **in the URL query string** of an authenticated edge-function
-call (`recipe.queries.ts:32-38`), so the platform request log plausibly holds `?s=<what the user
-searched>` alongside the caller's token. Policy §3 promises only that browsing isn't used for ad
-profiling — it does not admit the term is logged at all.
-**What settles it:** inspect Supabase Edge Function logs for a `content/search.php?s=` request and
-confirm whether the query string and caller identity are retained, and the retention window.
+error logs. Confirmed by reading live `function_edge_logs`: every recipe-search call to the `content`
+edge function is logged with the **full query string** (so a real search logs `?s=<what the user
+searched>`), the **caller's Supabase user id** (`request.sb.auth_user`), their **IP address**, and
+**precise geolocation** (city, postal code, region, timezone) — all on one log line, all tied
+together. Policy §3 promises only that browsing isn't used for ad profiling — it does not admit the
+term is logged at all, let alone linked to identity and location. This needs a policy rewrite
+(LEG-2), and possibly a look at whether "Search History" / "Precise Location" belong on the App
+Privacy label — today neither is declared. Retention window still open: check the project's log
+retention setting in Supabase Studio (Project Settings → Log Drains / plan limits).
 
 ### D10 — Small factual gaps (over-disclosure or harmless, listed for completeness)
 - §1(c)'s on-device list ("journal photos, food preferences, reminder settings, onboarding state") is
   **incomplete but in the safe direction**: chat transcripts, cook ratings, shopping check-state,
   unit system, sound setting and the household cache are also device-only
   (`src/shared/storage.ts:8-20`). Nothing is wrongly claimed as collected.
-- §1(a) says a provider identifier is received. True, and Supabase also stores whatever profile
-  metadata the provider returns (name, avatar URL) in `auth.users`. Otto's code never reads an
-  avatar (grep: no `avatar_url` usage), but it is stored. **UNKNOWN which fields land per provider;**
-  settles by reading one real `auth.users.raw_user_meta_data` row per provider.
+- §1(a) says a provider identifier is received. True, and confirmed by reading real
+  `auth.users.raw_user_meta_data` rows (2026-09-24), Supabase also stores whatever profile metadata
+  the provider returns: **email** password sign-in stores only `email`, `email_verified`,
+  `phone_verified` — no name, no photo. **Apple** additionally stores `username` (the name Apple's
+  private-relay flow passed at first sign-in) and `custom_claims.is_private_email`. **Google**
+  additionally stores `name`, `full_name`, **and a profile photo URL** in both `picture` and
+  `avatar_url` — a Google-hosted image link, not a file Otto uploads or hosts. Otto's own code never
+  reads `avatar_url`/`picture` (grep: no usage), but the field is stored by Supabase auth regardless.
+  This is a genuinely new finding, not previously in this table: the Photos-or-Videos row (row 6)
+  covers user-uploaded recipe photos, not this incidental avatar-URL field from Google sign-in — the
+  privacy policy and/or label should decide whether to mention it. No Facebook sign-in row exists yet
+  in production to confirm that provider's fields; treat as likely similar to Google (name + photo)
+  until one is observed.
 - §6 "Collaborative shopping lists … the first names/labels" is accurate — `collab_items.added_by_name`
   / `checked_by_name` (`…090009:110-112, 140-141`), capped at 40 chars (`:99, :129`).
 - §7 "content you chose to share may persist" is accurate and honest: `admin_delete_user_data` deletes
