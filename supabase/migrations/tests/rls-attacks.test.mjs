@@ -1,7 +1,7 @@
 // RLS attack tests (testing.md §RLS attacks; database.md §RLS stance).
 // Plain node script — no framework, no secrets: committed anon key + two
 // throwaway sign-ups. User B attempts CRUD on user A's rows across EVERY
-// table, and tries to enumerate shares/collab with bare selects. The attack
+// table, and tries to enumerate shares and kitchens with bare selects. The attack
 // FAILING is the acceptance criterion.
 //
 // Run:   node supabase/migrations/tests/rls-attacks.test.mjs
@@ -85,7 +85,6 @@ const OWNER_TABLES = [
   ["plan_entries", "user_id", () => ({ day: "2026-07-21", title: "RLS seed plan row" })],
   // recipe_shares seeded separately (needs an owned recipe id)
   ["list_shares", "user_id", () => ({ token: tok(), payload: { items: [] } })],
-  ["collab_lists", "owner_user_id", () => ({ token: tok() })],
 ];
 
 const tok = () => randomBytes(9).toString("base64url");
@@ -104,19 +103,30 @@ async function seedAsA(A) {
   const r = await rest("/rest/v1/recipe_shares", { method: "POST", token: A.token, body: shareBody, headers: REP });
   check("seed: A shares own recipe", r.status === 201 && rows(r).length === 1, JSON.stringify(r.data));
   A_ROWS.recipe_shares = rows(r)[0];
-  // one collab item on A's list, via the DEFINER function (the only path)
-  const item = await rest("/rest/v1/rpc/add_collab_item", {
-    method: "POST",
-    token: A.token,
-    body: { p_token: A_ROWS.collab_lists.token, p_name: "milk", p_amount: "1 l", p_display_name: "Ana" },
+  // a kitchen (household) A owns, A as its member, one shared list row
+  const hh = await rest("/rest/v1/households", {
+    method: "POST", token: A.token, headers: REP,
+    body: { name: "RLS seed kitchen", invite_code: tok(), created_by: A.id },
   });
-  check("seed: A adds collab item via rpc", item.status === 200 && item.data?.id, JSON.stringify(item.data));
-  A_ROWS.collab_item = item.data;
+  check("seed: A creates own household", hh.status === 201 && rows(hh).length === 1, JSON.stringify(hh.data));
+  A_ROWS.households = rows(hh)[0];
+  // No return=representation here, same as the app: the read-back would run
+  // the member SELECT policy before this very row makes A a member.
+  const hm = await rest("/rest/v1/household_members", {
+    method: "POST", token: A.token,
+    body: { household_id: A_ROWS.households?.id, user_id: A.id, display_name: "Ana" },
+  });
+  check("seed: A joins own household", hm.status === 201, JSON.stringify(hm.data));
+  const ls = await rest("/rest/v1/household_list_state", {
+    method: "POST", token: A.token, headers: REP,
+    body: { household_id: A_ROWS.households?.id, item_key: "milk", checked: false },
+  });
+  check("seed: A writes shared list state", ls.status === 201, JSON.stringify(ls.data));
 }
 
 function pkFilter(table, row) {
   if (table === "recipe_shares") return `slug=eq.${row.slug}`;
-  if (table === "list_shares" || table === "collab_lists") return `token=eq.${row.token}`;
+  if (table === "list_shares") return `token=eq.${row.token}`;
   return `id=eq.${row.id}`;
 }
 
@@ -178,15 +188,42 @@ async function attackAsB(A, B) {
   });
   check("attack: B cannot mint a share for A's recipe", r.status >= 400, `status ${r.status}`);
 
-  // collab_items has NO policies — even an authed bare select must be empty
-  const items = await rest("/rest/v1/collab_items?select=*", { token: B.token });
-  check("attack: B's bare SELECT on collab_items is empty", items.status === 200 && rows(items).length === 0, `got ${rows(items).length}`);
+  // Kitchens: B is not a member of A's household, so every read is empty and
+  // B cannot add himself (hm_insert_self: only the creator inserts directly;
+  // everyone else goes through join_household with the invite code).
+  const hid = A_ROWS.households?.id;
+  for (const [table, filter] of [
+    ["households", `id=eq.${hid}`],
+    ["household_members", `household_id=eq.${hid}`],
+    ["household_list_state", `household_id=eq.${hid}`],
+  ]) {
+    const got = await rest(`/rest/v1/${table}?${filter}`, { token: B.token });
+    check(`attack: B cannot SELECT A's ${table}`, rows(got).length === 0, `got ${rows(got).length}`);
+  }
+  let h = await rest("/rest/v1/household_members", {
+    method: "POST", token: B.token, headers: REP,
+    body: { household_id: hid, user_id: B.id, display_name: "Ben" },
+  });
+  check("attack: B cannot insert himself into A's household", h.status >= 400, `status ${h.status}`);
+  h = await rest("/rest/v1/household_list_state", {
+    method: "POST", token: B.token, headers: REP,
+    body: { household_id: hid, item_key: "hacked", checked: true },
+  });
+  check("attack: B cannot write A's shared list", h.status >= 400, `status ${h.status}`);
+
+  // memberships are written only by the RevenueCat webhook (service role).
+  // A signed-in user granting himself Otto Club is the attack that costs money.
+  h = await rest("/rest/v1/memberships", {
+    method: "POST", token: B.token, headers: REP,
+    body: { user_id: B.id, expires_at: "2099-01-01T00:00:00Z", product_id: "otto_club_yearly" },
+  });
+  check("attack: B cannot grant himself a membership", h.status >= 400, `status ${h.status}`);
 }
 
 async function enumerationAsAnon(B) {
   const B_TOKEN = B.token;
-  // shares/collab: NO anon table SELECT — a bare select must never dump tokens
-  for (const table of ["recipe_shares", "list_shares", "collab_lists", "collab_items"]) {
+  // shares/kitchens/memberships: NO anon table SELECT — a bare select must never dump tokens
+  for (const table of ["recipe_shares", "list_shares", "households", "household_members", "household_list_state", "memberships"]) {
     const r = await rest(`/rest/v1/${table}?select=*`);
     check(`enum: anon bare SELECT on ${table} yields nothing`, rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
   }
@@ -206,14 +243,6 @@ async function enumerationAsAnon(B) {
     r = await rest("/rest/v1/resolved_ingredients", { method: "POST", body: { name: `x-${tok()}`, tier: "miss" }, ...hdr });
     check(`enum: ${who} cannot write resolved_ingredients`, r.status === 401 || r.status === 403, `status ${r.status}`);
   }
-  // collab_items: RLS-on, zero policies → no direct REST write path at all.
-  // Bypassing the DEFINER functions must fail (contract: B attempts CRUD on every table).
-  for (const method of ["POST", "PATCH", "DELETE"]) {
-    r = await rest(`/rest/v1/collab_items${method === "POST" ? "" : "?id=eq.1"}`, {
-      method, token: B_TOKEN, body: method === "DELETE" ? undefined : { name: "x", token: "x", added_by_name: "x" }, headers: REP,
-    });
-    check(`enum: authed B cannot ${method} collab_items directly`, r.status === 401 || r.status === 403 || rows(r).length === 0, `status ${r.status}`);
-  }
 }
 
 async function definerFunctions(A, B) {
@@ -228,44 +257,6 @@ async function definerFunctions(A, B) {
   r = await rest("/rest/v1/rpc/get_list_share", { method: "POST", body: { p_token: A_ROWS.list_shares.token } });
   check("fn: anon get_list_share(token) returns the snapshot", r.status === 200 && rows(r)[0]?.status === "ok", JSON.stringify(r.data));
 
-  // collab: authenticated-only; possession = membership (B holds A's token → allowed BY DESIGN)
-  r = await rest("/rest/v1/rpc/get_collab_list", { method: "POST", body: { p_token: A_ROWS.collab_lists.token } });
-  check("fn: anon cannot call get_collab_list", r.status >= 400, `status ${r.status}`);
-
-  r = await rest("/rest/v1/rpc/get_collab_list", { method: "POST", token: B.token, body: { p_token: A_ROWS.collab_lists.token } });
-  check("fn: B with the token CAN read the collab list (possession = membership)", r.status === 200 && rows(r)[0]?.status === "ok", JSON.stringify(r.data));
-
-  const add = await rest("/rest/v1/rpc/add_collab_item", {
-    method: "POST",
-    token: B.token,
-    body: { p_token: A_ROWS.collab_lists.token, p_name: "eggs", p_amount: null, p_display_name: "Ben" },
-  });
-  check("fn: B with the token can add an item", add.status === 200 && add.data?.id, JSON.stringify(add.data));
-
-  r = await rest("/rest/v1/rpc/set_collab_item_checked", {
-    method: "POST",
-    token: B.token,
-    body: { p_token: A_ROWS.collab_lists.token, p_id: add.data?.id, p_checked: true, p_display_name: "Ben" },
-  });
-  check("fn: B can check an item", r.status === 200 && r.data?.checked === true, JSON.stringify(r.data));
-
-  // wrong token → nothing (functions never confirm other lists' items)
-  r = await rest("/rest/v1/rpc/set_collab_item_checked", {
-    method: "POST",
-    token: B.token,
-    body: { p_token: tok(), p_id: A_ROWS.collab_item?.id, p_checked: true, p_display_name: "Ben" },
-  });
-  check("fn: a wrong collab token is rejected", r.status >= 400, `status ${r.status}`);
-
-  // only the owner can revoke the list (table RLS)
-  r = await rest(`/rest/v1/collab_lists?token=eq.${A_ROWS.collab_lists.token}`, {
-    method: "PATCH",
-    token: B.token,
-    body: { revoked_at: new Date().toISOString() },
-    headers: REP,
-  });
-  check("fn: B cannot revoke A's collab list", r.status < 300 ? rows(r).length === 0 : true, JSON.stringify(r.data));
-
   // admin function is service-role only — must be DENIED (403), not MISSING (404).
   // A 404 would mean the account-deletion function was never created yet still
   // "pass" a status>=400 check, so distinguish the two explicitly.
@@ -279,12 +270,19 @@ async function definerFunctions(A, B) {
 
 const A = await signUp("a");
 const B = await signUp("b");
-console.log(`Signed up throwaway users A=${A.email} B=${B.email} (disposable; cleanup is manual/service-role)`);
+console.log(`Signed up throwaway users A=${A.email} B=${B.email} (deleted at the end via delete-account)`);
 
 await seedAsA(A);
 await attackAsB(A, B);
 await enumerationAsAnon(B);
 await definerFunctions(A, B);
+
+// Clean up through the real account-deletion path, so the run leaves nothing
+// behind in prod AND exercises delete-account end to end.
+for (const u of [A, B]) {
+  const r = await rest("/functions/v1/delete-account", { method: "POST", token: u.token });
+  check(`cleanup: delete-account removes ${u.email}`, r.status === 200, `status ${r.status} ${JSON.stringify(r.data)}`);
+}
 
 console.log(`\nRLS attack run: ${pass} passed, ${fail} failed`);
 for (const f of failures) console.error(`  FAIL ${f}`);

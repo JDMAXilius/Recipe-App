@@ -211,3 +211,8 @@ in the way today. Archived reasoning in `docs/history/`.
 - 2026-09-24 (terminal, later) — Build 37 is on internal TestFlight (Otto Insiders) and the
   founder confirmed it installs. APP-7 (EXIF strip for library photos) is in the code, **not in build 37**.
   It needs build 38+ before LEG-3 can pass. APP-11: generate-recipe v14 logs token usage per call.
+- 2026-09-24 (terminal, late) — **Account deletion was broken in production and is now fixed.**
+  `admin_delete_user_data` referenced the dropped collab tables, so delete-account returned 500.
+  Fixed with a DB migration (server-side, so build 37 works now). Verified end to end by the RLS
+  attack script (69/0), which deletes its own throwaway users through delete-account. Apple's
+  reviewer will test account deletion, so re-test it once on TestFlight before submitting.
