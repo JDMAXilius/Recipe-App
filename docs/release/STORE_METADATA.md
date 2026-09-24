@@ -80,7 +80,7 @@ account, and everything in it, from inside the app.
 
 Otto Club
 Otto's core features are free and stay free. Otto Club is an optional membership that unlocks
-the heavier features, $4.99 a month or $34.99 a year, with a 5-day free trial. Everything Otto
+the heavier features, $4.99 a month or $39.99 a year, with a 1-week free trial. Everything Otto
 does today stays available whether or not you join.
 
 Recipe data and photography from TheMealDB. Nutrition figures are computed from USDA FoodData
@@ -102,7 +102,7 @@ Otto needs iOS 15.1 or later.
 | ask by typing or voice | `src/features/chat/{ChatScreen.tsx,useSpeechInput.ts}` |
 | nutrition is an estimate | `src/features/nutrition/{estimates.ts,engine/}` |
 | no ads, no tracking, delete account | `supabase/functions/delete-account`; live policy at ottosapp.com/privacy |
-| club pricing | `src/features/profile/OttoClubScreen.tsx:27-28` (`PRICE_YEAR = 34.99`, `PRICE_MONTH = 4.99`) |
+| club pricing | `src/features/profile/OttoClubScreen.tsx:27-28` (`PRICE_YEAR = 39.99`, `PRICE_MONTH = 4.99`) |
 | iOS 15.1 | matches the deployment target on the live site |
 
 **Deliberately absent** (do not add them back): offline use, "AI meal planning", accurate or

@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
-import { RC_TEST_STORE, useClub } from './club.purchases';
+import { useClub } from './club.purchases';
 
 // Otto Club paywall. Three states, decided by RevenueCat at runtime:
 //  · member  — already subscribed: thank-you card + manage link, no sell.
@@ -24,9 +24,9 @@ import { RC_TEST_STORE, useClub } from './club.purchases';
 // Every date is computed from real "now" — never hardcoded. The constants are
 // display placeholders for the fallback only; live mode prices come from the
 // store.
-const PRICE_YEAR = 34.99;
+const PRICE_YEAR = 39.99;
 const PRICE_MONTH = 4.99;
-const TRIAL_DAYS = 5;
+const TRIAL_DAYS = 7;
 const TERMS_URL = 'https://ottosapp.com/terms';
 const PRIVACY_URL = 'https://ottosapp.com/privacy';
 const MANAGE_URL = 'https://apps.apple.com/account/subscriptions';
@@ -44,10 +44,7 @@ export function OttoClubScreen() {
   // Live mode reads price/trial from the store; fallback keeps the placeholders.
   // In live mode the trial is ONLY what the store's intro offer says — if the
   // product has no free trial we must not advertise one (trust + App Review).
-  // Test Store exception: its canned demo products carry fake prices and no
-  // intro offer, so while RC_TEST_STORE we display the known launch numbers
-  // (the real appl_ key flips this back to store-authoritative automatically).
-  const storePrices = club.live && !RC_TEST_STORE;
+  const storePrices = club.live;
   const priceYear = storePrices ? (club.yearly?.product.price ?? PRICE_YEAR) : PRICE_YEAR;
   const priceMonth = storePrices ? (club.monthly?.product.price ?? PRICE_MONTH) : PRICE_MONTH;
   const priceYearText = storePrices

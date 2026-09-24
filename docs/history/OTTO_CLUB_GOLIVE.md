@@ -3,7 +3,17 @@
 **Goal:** a tester on TestFlight (and later the App Store) pays real money through Apple and the
 `club` entitlement unlocks — no Test Store sheet, no placeholder prices anywhere.
 
-**Pricing (founder call 2026-07-24): $34.99/year · $4.99/month · 5-day free trial · one tier.**
+**Pricing (founder call 2026-07-24, revised 2026-09-24): $39.99/year · $4.99/month · 1-week free
+trial · one tier.** (Apple has no 5-day intro duration; 1 week chosen. The yearly was already live
+at $39.99 in ASC and the founder kept it.)
+
+**Status 2026-09-24:** ASC group "Otto Club" has `otto_club_yearly` + `otto_club_monthly`, both with
+the 1-week free intro offer, all 175 countries. RevenueCat: App Store app (com.otto.recipes, IAP
+key HTA6549CWG) added; both products attached to a NEW `club` entitlement (the old entitlement's
+identifier was "Otto: recepies & Meal Plans Pro", which the app/webhook never matched); default
+offering `$rc_annual`/`$rc_monthly` point at them. `RC_API_KEY` swapped to the `appl_` key.
+Remaining: Paid Apps Agreement (bank + W-9 + DSA + updated DPLA), review screenshots on both
+products, submit the subscriptions with the next app version.
 
 ## Where we are (shipped in v1.0.15 / build 31)
 
