@@ -101,7 +101,7 @@ would ship as an iPad app with no declared manifest.
 | --- | --- | --- | --- | --- |
 | RC-1 | See the sandbox purchase (APP-4) arrive in RevenueCat → Customers with the `club` entitlement active, and the webhook event delivered (Integrations → Webhooks → event log). The products' "Could not check" status clears after the subscriptions are submitted with the app. | Claude | P0 | blocked |
 | RC-2 | Checked RevenueCat's bundled `PrivacyInfo.xcprivacy`: it declares only Purchase History, no Device ID. Removed Device ID from the (unpublished) privacy label — now 6 types, not 7. | Claude | P1 | done |
-| RC-3 | Account deletion: the `delete-account` function removes Supabase data but leaves the RevenueCat subscriber. Add a `DELETE /v1/subscribers/{app_user_id}` call. | Claude | P2 | todo |
+| RC-3 | Done: `delete-account` now also calls `DELETE /v1/subscribers/{uid}` on RevenueCat, best-effort, before the auth user is dropped. Deployed as delete-account v8. | Claude | P2 | done |
 | RC-4 | Once ASC-16 is approved, turn on "Apple Small Business Program" in the RevenueCat app settings so revenue reporting uses 15%. | Claude | P2 | todo |
 | RC-5 | Webhook signing: HMAC signing is off; the shared Authorization header is the only check. Turning it on needs a small change in `revenuecat-webhook/index.ts`. | Claude | P2 | todo |
 | RC-6 | Optional: a RevenueCat Paywall or Experiment for the annual-vs-monthly price test in the ASO plan. Not before the first real cohort. | Juan (decision) | P2 | todo |
@@ -146,7 +146,7 @@ is listing-day work that needs the App Store ID, which only exists after approva
 | ID | Ticket | Owner | Priority | Status |
 | --- | --- | --- | --- | --- |
 | LEG-1 | Publish the App Privacy label (same as ASC-6). Seven types: Name, Email, User ID, Device ID, Purchase History, Photos or Videos, Other User Content; all App Functionality, linked, no tracking. | Juan | P0 | todo |
-| LEG-2 | Privacy policy text: name Anthropic (chat, recipe generation, photo transcription), RevenueCat (purchases), USDA FoodData Central (nutrition lookups); mention uploaded recipe photos and Apple server-side speech recognition; remove Railway, which is not a provider. Check the live text first, then edit `legal/` in the website repo. | Claude | P1 | todo |
+| LEG-2 | Done: rewrote `legal/PRIVACY_POLICY.md` — named Anthropic/RevenueCat/USDA, added uploaded-photo and voice-input disclosure, added the confirmed search-log retention finding (SB-3), removed Railway, updated §7 to reflect RC-3. Live on ottosapp.com/privacy. | Claude | P1 | done |
 | LEG-3 | EXIF/GPS test: upload a geotagged HEIC as a recipe photo, `curl` the public URL, run `exiftool -gps:all`. If GPS survives, ship APP-7 and add Precise Location to the label until it does. | Claude | P1 | todo |
 | LEG-4 | EU Digital Services Act trader declaration (same as ASC-4). | Juan | P0 | todo |
 | LEG-5 | Terms set a 13+ minimum; Apple computed a 13+ rating. Consistent; nothing to change. | — | — | done |
