@@ -65,12 +65,12 @@ flowchart LR
 | ASC-5 | Fix the legal address on file: it reads "4726 e michign st" and ZIP "32812-52". Tax forms are checked against it. | Juan | P0 | todo |
 | ASC-6 | App Privacy → Publish. The seven data types are saved; the click attests they are accurate. | Juan | P0 | todo |
 | ASC-7 | App Review Information: phone number, demo account email and password. Apple will not save the section without the phone. Needs APP-2. | Juan | P0 | blocked |
-| ASC-8 | Upload six 6.9" screenshots (1320×2868) to the version page, in the shot-list order: import, cook mode, week plan, shopping list, Discover or recipe detail, Ask Otto. | Claude | P0 | todo |
-| ASC-9 | Add a paywall screenshot to Review Information on `otto_club_yearly` and `otto_club_monthly`. Apple rejects a product without one. | Claude | P0 | todo |
-| ASC-10 | Set the App Store version string to 1.0.19 so build 37 can be attached (the version page currently says 1.0; TestFlight builds carry 1.0.x). | Claude | P0 | todo |
-| ASC-11 | Pricing and Availability: confirm Free, all countries (minus the EU if ASC-4 says non-trader and excludes them). Not yet checked. | Claude | P0 | todo |
-| ASC-12 | App Information → Content Rights: declare that the app shows third-party content (TheMealDB recipes and photos) and that rights are held. Not yet checked. | Claude | P0 | todo |
-| ASC-13 | Attach build 37 and add both subscriptions to the version, then Submit for Review with "Automatically release after review". | Juan | P0 | blocked |
+| ASC-8 | Upload six 6.9" screenshots (1320×2868) to the version page, in the shot-list order: import, cook mode, week plan, shopping list, Discover or recipe detail, Ask Otto. | Claude | P0 | done |
+| ASC-9 | Add a paywall screenshot to Review Information on `otto_club_yearly` and `otto_club_monthly`. Apple rejects a product without one. | Claude | P0 | done |
+| ASC-10 | Set the App Store version string to 1.0.19 so build 37 can be attached (the version page currently says 1.0; TestFlight builds carry 1.0.x). | Claude | P0 | done |
+| ASC-11 | Pricing and Availability: confirmed Free, 175 countries; Mac App Store and Apple Vision Pro availability unchecked (app is iPhone-only). | Claude | P0 | done |
+| ASC-12 | App Information → Content Rights: declared third-party content (TheMealDB), rights held. | Claude | P0 | done |
+| ASC-13 | Build 37 attached to version 1.0.19. Adding both subscriptions + Submit for Review is next, once ASC-1–6 clear. | Juan | P0 | blocked |
 | ASC-14 | Users and Access → Sandbox: create one Sandbox Apple ID for the test purchase. | Juan | P1 | todo |
 | ASC-15 | Re-measure text lengths against the live limits. Entered today and accepted: subtitle 26/30, promo 144/170, keywords 92/100, description 1,597/4,000. | Claude | P1 | done |
 | ASC-16 | Enroll in the Apple Small Business Program (15% commission instead of 30% under $1M/yr). Requires the Paid Apps Agreement to be Active first. | Juan | P1 | todo |
@@ -82,7 +82,7 @@ would ship as an iPad app with no declared manifest.
 
 | ID | Ticket | Owner | Priority | Status |
 | --- | --- | --- | --- | --- |
-| APP-1 | Build 37: bump `expo.version` 1.0.18 → 1.0.19 and `ios.buildNumber` 36 → 37 in `app.json`, prebuild, `eas build --platform ios --profile production`, `eas submit`. About 30 minutes on EAS. | Claude | P0 | todo |
+| APP-1 | Build 37: bumped to 1.0.19/37, built on EAS, submitted to App Store Connect — processed and "Ready to Submit" in TestFlight. | Claude | P0 | done |
 | APP-2 | Demo review account: Juan creates a non-founder account in the app (password stays with Juan); Claude seeds it through Supabase with saved recipes, a week plan and a shopping list so no screen is empty. Account name goes in the ticket log, never the password. | Juan + Claude | P0 | todo |
 | APP-3 | `eas.json`: add `EXPO_PUBLIC_USE_OTTO_RECIPES=true` to the `production` and `preview` profiles. It exists only in `.env.development`, so release builds still query TheMealDB live while the app's copy says "Otto's own recipe database". Smoke-test Discover, search, detail, related and nutrition after. | Claude | P0 | todo |
 | APP-4 | Sandbox purchase on the TestFlight build: buy, confirm `club` unlocks, confirm the paywall timeline reads "You'll be charged", Restore, and check the `memberships` row. | Juan (device) + Claude (verify) | P0 | blocked |
@@ -100,7 +100,7 @@ would ship as an iPad app with no declared manifest.
 | ID | Ticket | Owner | Priority | Status |
 | --- | --- | --- | --- | --- |
 | RC-1 | See the sandbox purchase (APP-4) arrive in RevenueCat → Customers with the `club` entitlement active, and the webhook event delivered (Integrations → Webhooks → event log). The products' "Could not check" status clears after the subscriptions are submitted with the app. | Claude | P0 | blocked |
-| RC-2 | Confirm what the `react-native-purchases` SDK collects (Device ID / IDFV) from RevenueCat's published disclosure for the pinned version, and adjust the privacy label if it names more than Device ID. | Claude | P1 | todo |
+| RC-2 | Checked RevenueCat's bundled `PrivacyInfo.xcprivacy`: it declares only Purchase History, no Device ID. Removed Device ID from the (unpublished) privacy label — now 6 types, not 7. | Claude | P1 | done |
 | RC-3 | Account deletion: the `delete-account` function removes Supabase data but leaves the RevenueCat subscriber. Add a `DELETE /v1/subscribers/{app_user_id}` call. | Claude | P2 | todo |
 | RC-4 | Once ASC-16 is approved, turn on "Apple Small Business Program" in the RevenueCat app settings so revenue reporting uses 15%. | Claude | P2 | todo |
 | RC-5 | Webhook signing: HMAC signing is off; the shared Authorization header is the only check. Turning it on needs a small change in `revenuecat-webhook/index.ts`. | Claude | P2 | todo |
