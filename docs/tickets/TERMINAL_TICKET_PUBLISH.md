@@ -194,3 +194,14 @@ in the way today. Archived reasoning in `docs/history/`.
 ## Log
 
 <!-- append: date, what happened, Apple's response. This is the only thread that matters now. -->
+
+- 2026-09-24 (terminal) — **Path B chosen** (ship with Otto Club). F8 done with founder changes:
+  ASC products are `otto_club_yearly` **$39.99** + `otto_club_monthly` **$4.99** (underscores, not
+  dots), **1-week** free intro on both (Apple has no 5-day duration). F9 done: RC App Store app,
+  `club` entitlement, default offering; old "…Pro" entitlement deleted, Test Store products
+  inactive. T2 done (`appl_` key, Test Store branches removed). ASC Server Notifications → RC.
+  F2 answered (Apple computed **13+**). F4 filled: subtitle, categories, promo, description,
+  keywords, URLs, copyright, review notes. F3 answers saved (the seven types) — **founder must
+  click Publish** (it is an accuracy attestation). Website pricing fixed + pushed.
+  Still open: F1, F7, review contact phone + demo account (F6/T4), screenshots (T5 + one per
+  subscription), build 37 (T6), sandbox purchase, submit (T7).
