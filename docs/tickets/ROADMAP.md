@@ -115,13 +115,13 @@ performance advisor 14 (2026-09-24).
 | --- | --- | --- | --- | --- |
 | SB-1 | Decide on the plan before launch: the free tier auto-pauses when idle (`keepalive.yml` prevents it today) and has no daily backups. Pro is $25/month and adds backups and no pause. | Juan (decision) | P1 | todo |
 | SB-2 | Auth → enable leaked-password protection (HaveIBeenPwned check). One toggle; advisor warning. | Claude | P1 | todo |
-| SB-3 | Settle privacy row 15: read edge-function logs for a `content/search.php?s=` request and record whether the search term and caller identity are retained, and for how long. Update the label if search history is kept. | Claude | P1 | todo |
-| SB-4 | Settle privacy row D10: read one `auth.users.raw_user_meta_data` row per sign-in provider (Apple, Google, Facebook, password) and list which fields land. | Claude | P1 | todo |
-| SB-5 | Advisor: `get_list_share`, `get_recipe_share` (anon) and `join_household` (authenticated) are SECURITY DEFINER and callable. Intentional for share links and invites; write that down in the migration comments so the warning is a known one. | Claude | P2 | todo |
-| SB-6 | Advisor: five RLS policies on `households` and `household_members` re-evaluate `auth.uid()` per row; wrap as `(select auth.uid())`. `recipes` and `plan_entries` have duplicate permissive SELECT policies; merge. | Claude | P2 | todo |
-| SB-7 | `recipe-photos` bucket is public-read with guessable `<uid>/<epoch_ms>` paths. Move to random object names or signed URLs. | Claude | P2 | todo |
+| SB-3 | Settled: read live `function_edge_logs`. Confirmed — every search call logs the full query string, the caller's user id, IP, and precise city/postal-code location together. Policy text needs a rewrite (LEG-2); label may need Search History/Precise Location. | Claude | P1 | done |
+| SB-4 | Settled: read real rows. Email/password stores no name; Apple stores `username`; Google additionally stores a profile photo URL (`picture`/`avatar_url`) — a new finding, not previously in the truth table. No Facebook user yet observed. | Claude | P1 | done |
+| SB-5 | Advisor: `get_list_share`, `get_recipe_share` (anon) and `join_household` (authenticated) are SECURITY DEFINER and callable. Documented as intentional with `COMMENT ON FUNCTION` — verified each strips or never stores owner user_id before commenting. | Claude | P2 | done |
+| SB-6 | Done: wrapped `auth.uid()` in `(select …)` on 5 policies; merged the duplicate permissive SELECT policies on `plan_entries` and `recipes` into one each (verified `private.shares_household()` always returns false for anon, so merging to `authenticated`-only is not a narrowing). Both advisor warnings now clear. | Claude | P2 | done |
+| SB-7 | Done, minimal fix: `uploadRecipePhoto` now names files `<uid>/<uuid>.<ext>` instead of `<uid>/<timestamp>.<ext>`. Bucket stays public (by design, no list policy) — removes guessability without a signed-URL rework. | Claude | P2 | done |
 | SB-8 | `resolved_ingredients` is readable by anon and is not cleared by account deletion; the free-text ingredient names a user typed become globally readable rows. Decide: keep (shared cache) or scope it. | Juan (decision) | P2 | todo |
-| SB-9 | Rotate to the new publishable/secret API keys; the anon and service-role keys in use are marked deprecated in the dashboard. Touches the app's `.env` files, `keepalive.yml` and the edge functions. | Claude | P2 | todo |
+| SB-9 | Deliberately held, not attempted: build 37 has the current anon key baked in and is mid-flight to Apple review right now. Rotating keys before that resolves risks breaking the submitted build. Revisit after build 37 is either live or superseded. | Claude | P2 | todo |
 | SB-10 | Seven unused indexes reported by the advisor. Leave until there is traffic to judge by. | Claude | P2 | todo |
 
 ## Website and Vercel

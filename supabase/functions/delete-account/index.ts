@@ -2,8 +2,9 @@
 // verified access token, never from the body. Order matters and is kept from
 // v1: rows first (one transaction via admin_delete_user_data — the v1
 // half-deleted-account incident is why it's a single DB function), then
-// storage photos, then the auth user — the reverse order would strand data no
-// one can sign in to reach. Service-role key only via Deno.env; never logged.
+// storage photos, then RevenueCat, then the auth user last — the reverse
+// order would strand data no one can sign in to reach. Service-role key only
+// via Deno.env; never logged.
 import { getUserId, json, preflight, rateLimited, serviceClient } from "../_shared/http.ts";
 
 const PHOTO_BUCKET = "recipe-photos";
@@ -39,6 +40,31 @@ async function deleteUserPhotos(admin: any, userId: string): Promise<number> {
   return removed;
 }
 
+// RevenueCat's app_user_id IS the Supabase uid (AuthProvider.tsx Purchases.logIn).
+// Best-effort, like photo cleanup: the account is already gone from our side
+// by this point, so a RevenueCat hiccup must not turn into a 500 — it's their
+// record of a subscription, not ours.
+async function deleteRevenueCatSubscriber(userId: string): Promise<boolean> {
+  const key = Deno.env.get("REVENUECAT_SECRET_KEY");
+  if (!key) return false; // not configured — nothing to clean up against
+  try {
+    const res = await fetch(`https://api.revenuecat.com/v1/subscribers/${userId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout(8000),
+    });
+    // 404 = RevenueCat never saw this user (no purchase attempt) — not an error.
+    if (!res.ok && res.status !== 404) {
+      console.error("revenuecat cleanup failed", res.status);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("revenuecat cleanup failed", (error as Error).message);
+    return false;
+  }
+}
+
 Deno.serve(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
@@ -64,10 +90,15 @@ Deno.serve(async (req) => {
     // reason the auth user goes.
     const photosDeleted = await deleteUserPhotos(admin, userId);
 
+    // RevenueCat holds its own subscriber record (purchase/entitlement
+    // history) keyed on this same uid — clear it before the auth user goes,
+    // same reasoning as photos: after deleteUser, nothing can re-derive the id.
+    const revenueCatDeleted = await deleteRevenueCatSubscriber(userId);
+
     // Only once the data is safely gone do we drop the login.
     const { error: authError } = await admin.auth.admin.deleteUser(userId);
 
-    return json(200, { dataDeleted: true, authUserDeleted: !authError, photosDeleted });
+    return json(200, { dataDeleted: true, authUserDeleted: !authError, photosDeleted, revenueCatDeleted });
   } catch (error) {
     console.error("delete account failed", (error as Error).message);
     return json(500, { error: "Something went wrong" });
