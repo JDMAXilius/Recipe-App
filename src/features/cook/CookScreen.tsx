@@ -30,6 +30,7 @@ import { segmentStep } from './stepEnrich';
 import { StepCard } from './components/StepCard';
 import { TimerHub, type AvailableTimer } from './components/TimerHub';
 import type { CookTimer } from './cook.types';
+import { noteFinishedCook } from './reviewPrompt';
 
 type Phase = 'prep' | 'steps' | 'done';
 type OpenSheet = null | 'ingredients' | 'timers' | 'jump';
@@ -237,6 +238,7 @@ export function CookScreen() {
     haptics.notify('success');
     sound.play('allDone');
     setPhase('done');
+    void noteFinishedCook();
     // Cook-completion (planner allowlist): mark every plan entry for this recipe
     // cooked. usePlan invalidates ['plan', userId] → useCookedState updates.
     entries

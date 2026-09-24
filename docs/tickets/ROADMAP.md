@@ -86,7 +86,7 @@ would ship as an iPad app with no declared manifest.
 | APP-2 | Demo review account. **Shortcut available:** the e2e account `claude-e2e-a@example.com` is already non-founder, seeded (3 favorites, 3 planned dishes, shopping list builds from them) and its password is in `.claude/skills/otto-lead/SKILL.md`. Juan can paste it into App Review Information as-is, or create a fresh one and I seed it the same way. | Juan | P0 | todo |
 | APP-3 | `EXPO_PUBLIC_USE_OTTO_RECIPES=true` is set as an EAS environment variable on `production` and `preview` (checked with `eas env:list` 2026-09-24), so build 37 was built with it. `eas.json` needs nothing. Smoke-check on TestFlight: Discover, search, a recipe detail and its nutrition should load. | Claude | P0 | done |
 | APP-4 | Sandbox purchase on the TestFlight build: buy, confirm `club` unlocks, confirm the paywall timeline reads "You'll be charged", Restore, and check the `memberships` row. **Build 37 is now in the Otto Insiders TestFlight group** — install the update on your phone; the test can start the moment the Paid Apps Agreement is Active. | Juan (device) + Claude (verify) | P0 | blocked |
-| APP-5 | `ProfileScreen.tsx:48` `RATE_APP_URL = null`: set the write-review deep link once the App Store ID exists. Until then "Rate Otto" only shows a toast. | Claude | P1 | blocked |
+| APP-5 | `ProfileScreen.tsx` "Rate Otto" now opens `https://apps.apple.com/app/id6792195637?action=write-review` (the App Store id already exists). Resolves once the listing is live. Ships in build 38+. | Claude | P1 | done |
 | APP-6 | Speech input goes to Apple's servers (`requiresOnDeviceRecognition` unset). The code comment now says so correctly, and the privacy policy discloses it (LEG-2, live). Remaining decision only: force on-device (fewer languages, works offline) or keep as is. | Juan (decision) | P2 | todo |
 | APP-7 | Strip EXIF/GPS from uploaded recipe photos (HEIC library picks are uploaded untouched). **Done 2026-09-24:** `preferredAssetRepresentationMode: Compatible` in `src/shared/imagePicker.ts`. iOS transcodes HEIC to JPEG and the picker re-encodes it, which drops EXIF. No new dependency. **Ships in the next build (38+). Build 37 still uploads HEIC untouched.** LEG-3 verifies it on a device. | Claude | P1 | done |
 | APP-8 | Add Sentry crash reporting, then tick Diagnostics on the privacy label. Needs a native rebuild, so it rides with 1.0.19 or later. | Claude | P2 | todo |
@@ -103,7 +103,7 @@ would ship as an iPad app with no declared manifest.
 | RC-2 | Checked RevenueCat's bundled `PrivacyInfo.xcprivacy`: it declares only Purchase History, no Device ID. Removed Device ID from the (unpublished) privacy label — now 6 types, not 7. | Claude | P1 | done |
 | RC-3 | Done: `delete-account` now also calls `DELETE /v1/subscribers/{uid}` on RevenueCat, best-effort, before the auth user is dropped. Deployed as delete-account v8. | Claude | P2 | done |
 | RC-4 | Once ASC-16 is approved, turn on "Apple Small Business Program" in the RevenueCat app settings so revenue reporting uses 15%. | Claude | P2 | todo |
-| RC-5 | Webhook signing: HMAC signing is off; the shared Authorization header is the only check. Turning it on needs a small change in `revenuecat-webhook/index.ts`. | Claude | P2 | todo |
+| RC-5 | Webhook signing: **closed, not needed.** The handler never trusts the event payload. Every call re-fetches the subscriber from the RevenueCat API with the secret key and mirrors that. A forged call with a leaked header can only trigger a correct re-sync. The shared Authorization header stays as the gate. | Claude | P2 | done |
 | RC-6 | Optional: a RevenueCat Paywall or Experiment for the annual-vs-monthly price test in the ASO plan. Not before the first real cohort. | Juan (decision) | P2 | todo |
 
 ## Supabase and backend
@@ -135,7 +135,7 @@ is listing-day work that needs the App Store ID, which only exists after approva
 | WEB-2 | Send a test email from an outside account to `juandiego@ottosapp.com` and confirm it arrives. Apple's reviewer may write to it. | Juan | P1 | todo |
 | WEB-3 | Contact form: without `RESEND_API_KEY` and `CONTACT_TO_EMAIL` on Vercel, a message is only logged and the sender still sees success. Either add the two env vars (needs a Resend account) or replace the form with a mailto link. | Juan (decision) + Claude | P1 | todo |
 | WEB-4 | Decide whether `/careers` stays. The self-audit flags it as P1; it is still in the nav and footer. | Juan (decision) | P1 | todo |
-| WEB-5 | Doc hygiene: `app/support/page.tsx:14-15` still says the support email is "undecided"; `brief/ASO_PLAN.md` appendix still says $45/yr and a 5-day trial; the publish ticket's F8 text still says `otto.club.*`, $34.99 and 5 days. | Claude | P1 | todo |
+| WEB-5 | Doc hygiene: `app/support/page.tsx:14-15` still says the support email is "undecided"; `brief/ASO_PLAN.md` appendix still says $45/yr and a 5-day trial; the publish ticket's F8 text still says `otto.club.*`, $34.99 and 5 days. | Claude | P1 | done |
 | WEB-6 | Done: real shopping-list capture (from the store-screenshot session) added as `public/app/app--shopping.png`; "See it" section restored to five steps. | Claude | P2 | done |
 | WEB-7 | SEO content pages: 4 of 15 exist. Next in the plan's order: `/alternatives/crouton`, `/guides/private-recipe-app`, then the remaining nine. | Claude | P2 | todo |
 | WEB-8 | Self-audit design findings #5–8, #10–12, #14–18 have no resolution note. Re-check each against the live site and close or fix. | Claude | P2 | todo |
@@ -162,7 +162,7 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 | MKT-1 | App name is entered as "Otto: Recipes & Meal Plans" (store metadata doc). The ASO plan prefers "Otto: Recipe Keeper & Planner". Keep the entered name for v1; test the other in the v1.1 metadata release. | Juan (decision) | P1 | todo |
 | MKT-2 | Launch-day announcement: store badges and QR live on the site (WEB-1), a launch post, and outreach with the press kit (WEB-9). Channels and copy per the brand brief. | Juan + Claude | P1 | blocked |
 | MKT-3 | 30-second App Preview video for the listing (ASO plan §6). Optional for v1. | Claude | P2 | todo |
-| MKT-4 | Ratings prompt: `expo-store-review` with the triggers in ASO plan §8 (after a finished cook, after a saved import), capped at Apple's 3 prompts per user per year. Needs APP-5. | Claude | P2 | todo |
+| MKT-4 | Ratings prompt: `expo-store-review`, Trigger A from ASO plan §8. It fires ~1.5s after the **3rd** finished cook, with a 90-day cooldown (`src/features/cook/reviewPrompt.ts`, rule unit-tested). Triggers B/C and the suppression windows wait for real ratings data. Native module, so it ships in build 38+. | Claude | P2 | done |
 | MKT-5 | Apple Search Ads Discovery campaign, small daily budget, once ratings exist. | Juan | P2 | todo |
 | MKT-6 | Localization: es-MX, en-GB, de-DE metadata and screenshots (ASO plan §9). | Claude | P2 | todo |
 | MKT-7 | Product page tests: the five A/B tests and Custom Product Pages in ASO plan §10, following the v1.0 → v1.1 → v1.2 metadata sequence. | Both | P2 | todo |
