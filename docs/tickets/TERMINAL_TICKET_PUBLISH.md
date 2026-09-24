@@ -94,10 +94,13 @@ automatically.** In the notes field: the demo credentials from T4, three lines o
 ### F7–F9. **Path B only** — the membership
 - **F7.** Paid Applications Agreement signed and **Active** (only the Account Holder,
   jdmaxinius@gmail.com, can sign) + Bank Account + Tax forms.
-- **F8.** Subscriptions → group **Otto Club**, two products at exactly the prices the app and the
-  website both print: `otto.club.monthly` **$4.99/mo** · `otto.club.yearly` **$34.99/yr**,
-  introductory offer **5-day free trial on both, new subscribers**. Localized display name +
-  description on both. **Attach a review screenshot of the paywall** — Apple rejects a product
+- **F8.** ~~Subscriptions → group **Otto Club**, two products at exactly the prices the app and the
+  website both print: `otto.club.monthly` $4.99/mo · `otto.club.yearly` $34.99/yr,
+  introductory offer 5-day free trial on both, new subscribers.~~ **Done 2026-09-24, revised:**
+  Apple's product IDs use underscores, not dots — `otto_club_monthly` **$4.99/mo** ·
+  `otto_club_yearly` **$39.99/yr** (the yearly was already live at $39.99; founder kept it).
+  Apple has no 5-day intro duration, so the free trial is **1 week on both**, new subscribers.
+  Localized display name + description on both. **Attach a review screenshot of the paywall** — Apple rejects a product
   without one.
 - **F9.** RevenueCat → upload the In-App Purchase key `SubscriptionKey_HTA6549CWG.p8`, import both
   products, entitlement identifier exactly **`club`**, both products in an Offering marked
