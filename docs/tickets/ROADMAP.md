@@ -164,7 +164,7 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 | MKT-3 | 30-second App Preview video for the listing (ASO plan §6). Optional for v1. | Claude | P2 | todo |
 | MKT-4 | Ratings prompt: `expo-store-review`, Trigger A from ASO plan §8. It fires ~1.5s after the **3rd** finished cook, with a 90-day cooldown (`src/features/cook/reviewPrompt.ts`, rule unit-tested). Triggers B/C and the suppression windows wait for real ratings data. Native module, so it ships in build 38+. | Claude | P2 | done |
 | MKT-5 | Apple Search Ads Discovery campaign, small daily budget, once ratings exist. | Juan | P2 | todo |
-| MKT-6 | Localization: es-MX, en-GB, de-DE metadata and screenshots (ASO plan §9). | Claude | P2 | todo |
+| MKT-6 | Localization: **es-MX and en-GB metadata drafted** in `docs/release/STORE_METADATA_LOCALIZED.md` (name, subtitle, keywords, promo, description; lengths measured; no prices, so each storefront shows its own currency; es-MX says the app is in English). Juan reviews the Spanish, then pastes it into App Store Connect. de-DE waits for real translation and importer testing. | Claude | P2 | in progress |
 | MKT-7 | Product page tests: the five A/B tests and Custom Product Pages in ASO plan §10, following the v1.0 → v1.1 → v1.2 metadata sequence. | Both | P2 | todo |
 | MKT-8 | In-App Events in App Store Connect for seasonal moments (first one after launch, not before). | Juan | P2 | todo |
 | MKT-9 | Day 30: re-set the ASO targets against real installs, conversion and ratings; fix the plan's appendix pricing ($45 → $39.99, 5-day → 1-week). | Both | P2 | todo |

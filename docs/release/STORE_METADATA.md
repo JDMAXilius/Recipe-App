@@ -109,10 +109,8 @@ Otto needs iOS 15.1 or later.
 guaranteed nutrition, "thousands of recipes" or any count, personalisation the app does not do,
 any number of users.
 
-⚠️ **Pricing conflict to resolve before submission.** ottosapp.com's home page **and its
-`/support` FAQ** both currently advertise **"$45 a year"**; the app charges **$34.99**
-(`OttoClubScreen.tsx:27`). The store description, the paywall, and the website must all say the
-same number, or the listing contradicts the product. Fix the site (two pages), not the app.
+**Pricing: resolved 2026-09-24.** App, paywall, App Store Connect products and ottosapp.com all say
+$39.99 a year, $4.99 a month, 1-week free trial. Localized listings: `STORE_METADATA_LOCALIZED.md`.
 
 ---
 
