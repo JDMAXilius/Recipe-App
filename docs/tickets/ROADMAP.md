@@ -137,8 +137,8 @@ is listing-day work that needs the App Store ID, which only exists after approva
 | WEB-4 | Decide whether `/careers` stays. The self-audit flags it as P1; it is still in the nav and footer. | Juan (decision) | P1 | todo |
 | WEB-5 | Doc hygiene: `app/support/page.tsx:14-15` still says the support email is "undecided"; `brief/ASO_PLAN.md` appendix still says $45/yr and a 5-day trial; the publish ticket's F8 text still says `otto.club.*`, $34.99 and 5 days. | Claude | P1 | done |
 | WEB-6 | Done: real shopping-list capture (from the store-screenshot session) added as `public/app/app--shopping.png`; "See it" section restored to five steps. | Claude | P2 | done |
-| WEB-7 | SEO content pages: 4 of 15 exist. Next in the plan's order: `/alternatives/crouton`, `/guides/private-recipe-app`, then the remaining nine. | Claude | P2 | todo |
-| WEB-8 | Self-audit design findings #5–8, #10–12, #14–18 have no resolution note. Re-check each against the live site and close or fix. | Claude | P2 | todo |
+| WEB-7 | SEO content pages: **6 of 15 live** (2026-09-24 added `/alternatives/crouton` and `/guides/private-recipe-app`, both in the sitemap, footer and llms.txt; Crouton facts sourced from its listing and Apple Newsroom). Next nine follow `brief/SEO_KEYWORD_RESEARCH.md` order. | Claude | P2 | in progress |
+| WEB-8 | Self-audit re-check done 2026-09-24 (notes in `brief/AUDIT_SELF.md`). Fixed: #16 OttoMoment line at display scale, #11 sad otter on the 404. Resolved: #10, #14, #17. Won't fix: #18 (TheMealDB labels shown as recorded). **Open, founder design calls:** #5 hero, #6 section rhythm, #7 motion, #8 recipe grid, #12 phone size, #15 import sequence. | Claude | P2 | done |
 | WEB-9 | Optional pages: `/press` (press kit: icon, screenshots, one-paragraph description) for launch outreach; a `/delete-account` explainer is not required since deletion is in-app. | Claude | P2 | todo |
 
 ## Legal and privacy
