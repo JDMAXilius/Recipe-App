@@ -8,6 +8,7 @@
 //     writes here directly; no backend REST hop (v1's /recipes is gone).
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FunctionsHttpError } from '@supabase/supabase-js';
+import * as Crypto from 'expo-crypto';
 import { z } from 'zod';
 import { supabase } from '@/shared/supabase/client';
 import { resolveNutrition, type NutritionValue } from '@/features/nutrition';
@@ -145,7 +146,11 @@ export async function uploadRecipePhoto(base64: string, mimeType?: string | null
         ? 'heic'
         : 'jpg';
   const contentType = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
-  const path = `${user.id}/${Date.now()}.${ext}`;
+  // SB-7: a random name, not Date.now() — the bucket is public with no list
+  // policy, so the file name is the only thing standing between "you have the
+  // link" and "you can guess it". A timestamp is guessable within a session;
+  // a UUID isn't.
+  const path = `${user.id}/${Crypto.randomUUID()}.${ext}`;
 
   const { error } = await supabase.storage
     .from(PHOTO_BUCKET)
