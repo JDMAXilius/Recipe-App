@@ -114,7 +114,7 @@ performance advisor 14 (2026-09-24).
 | ID | Ticket | Owner | Priority | Status |
 | --- | --- | --- | --- | --- |
 | SB-1 | Decide on the plan before launch: the free tier auto-pauses when idle (`keepalive.yml` prevents it today) and has no daily backups. Pro is $25/month and adds backups and no pause. | Juan (decision) | P1 | todo |
-| SB-2 | Auth → enable leaked-password protection (HaveIBeenPwned check). One toggle; advisor warning. | Claude | P1 | todo |
+| SB-2 | Auth → enable leaked-password protection (HaveIBeenPwned check). One toggle: Dashboard → Authentication → **Attack Protection** → "Prevent use of leaked passwords" → Save. Claude cannot do it: the dashboard session in Chrome needs a sign-in. | Juan | P1 | todo |
 | SB-3 | Settled: read live `function_edge_logs`. Confirmed — every search call logs the full query string, the caller's user id, IP, and precise city/postal-code location together. Policy text needs a rewrite (LEG-2); label may need Search History/Precise Location. | Claude | P1 | done |
 | SB-4 | Settled: read real rows. Email/password stores no name; Apple stores `username`; Google additionally stores a profile photo URL (`picture`/`avatar_url`) — a new finding, not previously in the truth table. No Facebook user yet observed. | Claude | P1 | done |
 | SB-5 | Advisor: `get_list_share`, `get_recipe_share` (anon) and `join_household` (authenticated) are SECURITY DEFINER and callable. Documented as intentional with `COMMENT ON FUNCTION` — verified each strips or never stores owner user_id before commenting. | Claude | P2 | done |
