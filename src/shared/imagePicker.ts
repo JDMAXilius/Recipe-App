@@ -24,6 +24,13 @@ export async function pickFromLibrary(opts: { base64?: boolean } = {}): Promise<
     mediaTypes: ['images'],
     quality: 0.7,
     base64: opts.base64 ?? false,
+    // APP-7: iPhone library photos are HEIC, and expo-image-picker hands HEIC
+    // (and TIFF/AVIF/WebP) back as the untouched original — GPS tags included
+    // (ImageUtils.swift readDataAndFileExtension). "Compatible" makes iOS
+    // transcode to JPEG first, which then takes the re-encode path through
+    // UIImage.jpegData — and that drops EXIF. Camera captures already do.
+    preferredAssetRepresentationMode:
+      ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
   });
   return toPicked(result);
 }

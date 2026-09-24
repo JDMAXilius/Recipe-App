@@ -157,15 +157,29 @@ type Message = Turn | { role: "user"; content: VisionContent };
 
 // System goes as blocks: the static prompt carries a cache_control breakpoint;
 // any per-user context rides in a second, uncached block so it never breaks
-// the cacheable prefix. HONEST CEILING (critic 2026-07-24): Anthropic ignores
-// breakpoints below a ~1024-token prefix and our prompts sit under that, so
-// today this earns no discount (harmless; it self-activates if the prompt
-// grows). Confirm via usage.cache_creation_input_tokens on a live call.
+// the cacheable prefix. Measured live 2026-09-24 (APP-11 usage log): the chat
+// prefix is 1472 tokens and a repeat call reads all of it from cache, so the
+// July worry that it sat under the ~1024-token floor no longer holds.
 type SystemBlock = { type: "text"; text: string; cache_control?: { type: "ephemeral" } };
 function systemBlocks(staticPrompt: string, context?: string): SystemBlock[] {
   const blocks: SystemBlock[] = [{ type: "text", text: staticPrompt, cache_control: { type: "ephemeral" } }];
   if (context) blocks.push({ type: "text", text: context });
   return blocks;
+}
+
+// APP-11: token counts only — never prompt or output content — so spend per
+// call is readable in function_edge_logs.
+// deno-lint-ignore no-explicit-any
+function logUsage(model: string, usage: any, stopReason: string | null) {
+  console.log(JSON.stringify({
+    event: "anthropic_usage",
+    model,
+    input_tokens: usage?.input_tokens ?? null,
+    output_tokens: usage?.output_tokens ?? null,
+    cache_read_input_tokens: usage?.cache_read_input_tokens ?? null,
+    cache_creation_input_tokens: usage?.cache_creation_input_tokens ?? null,
+    stop_reason: stopReason,
+  }));
 }
 
 // effort: the latency knob (docs: sonnet-5 at "medium" ≈ prior-gen "high").
@@ -192,6 +206,7 @@ async function askClaude(model: string, system: SystemBlock[], schema: unknown, 
   });
   if (!response.ok) throw new Error(`Anthropic answered ${response.status}`);
   const data = await response.json();
+  logUsage(model, data.usage, data.stop_reason);
   if (data.stop_reason === "max_tokens" || data.stop_reason === "refusal") return null;
   // deno-lint-ignore no-explicit-any
   const textBlock = (data.content || []).find((b: any) => b.type === "text");
@@ -265,6 +280,8 @@ function streamChat(system: SystemBlock[], turns: Turn[]): Response {
         let buffer = "";
         let sent = "";
         let stopReason: string | null = null;
+        // deno-lint-ignore no-explicit-any
+        let usage: any = {};
         try {
           while (true) {
             const { done, value } = await reader.read();
@@ -286,8 +303,11 @@ function streamChat(system: SystemBlock[], turns: Turn[]): Response {
                   send({ type: "delta", text: prefix.slice(sent.length) });
                   sent = prefix;
                 }
+              } else if (event.type === "message_start") {
+                usage = { ...event.message?.usage }; // input + cache counts
               } else if (event.type === "message_delta") {
                 stopReason = event.delta?.stop_reason ?? stopReason;
+                usage = { ...usage, ...event.usage }; // cumulative output_tokens
               }
               // thinking deltas and every other event type: ignored
             }
@@ -295,6 +315,7 @@ function streamChat(system: SystemBlock[], turns: Turn[]): Response {
         } finally {
           reader.cancel().catch(() => {}); // client gone or loop done: stop upstream
         }
+        logUsage(MODEL_TEXT, usage, stopReason);
 
         let payload = null;
         if (stopReason !== "max_tokens" && stopReason !== "refusal") {

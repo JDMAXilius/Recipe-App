@@ -208,3 +208,6 @@ in the way today. Archived reasoning in `docs/history/`.
   click Publish** (it is an accuracy attestation). Website pricing fixed + pushed.
   Still open: F1, F7, review contact phone + demo account (F6/T4), screenshots (T5 + one per
   subscription), build 37 (T6), sandbox purchase, submit (T7).
+- 2026-09-24 (terminal, later) — Build 37 is on internal TestFlight (Otto Insiders) and the
+  founder confirmed it installs. APP-7 (EXIF strip for library photos) is in the code, **not in build 37**.
+  It needs build 38+ before LEG-3 can pass. APP-11: generate-recipe v14 logs token usage per call.
