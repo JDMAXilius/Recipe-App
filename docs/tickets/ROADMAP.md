@@ -138,9 +138,9 @@ is listing-day work that needs the App Store ID, which only exists after approva
 | WEB-4 | Decide whether `/careers` stays. The self-audit flags it as P1; it is still in the nav and footer. | Juan (decision) | P1 | todo |
 | WEB-5 | Doc hygiene: `app/support/page.tsx:14-15` still says the support email is "undecided"; `brief/ASO_PLAN.md` appendix still says $45/yr and a 5-day trial; the publish ticket's F8 text still says `otto.club.*`, $34.99 and 5 days. | Claude | P1 | done |
 | WEB-6 | Done: real shopping-list capture (from the store-screenshot session) added as `public/app/app--shopping.png`; "See it" section restored to five steps. | Claude | P2 | done |
-| WEB-7 | SEO content pages: **6 of 15 live** (2026-09-24 added `/alternatives/crouton` and `/guides/private-recipe-app`, both in the sitemap, footer and llms.txt; Crouton facts sourced from its listing and Apple Newsroom). Next nine follow `brief/SEO_KEYWORD_RESEARCH.md` order. | Claude | P2 | in progress |
+| WEB-7 | SEO content pages: **8 of 15 live.** Added 2026-09-24: `/alternatives/crouton`, `/guides/private-recipe-app`, `/guides/import-a-recipe-from-any-website`, `/alternatives/samsung-food` (all in the sitemap, footer and llms.txt, competitor facts sourced from their own pages). Next: #10 Instagram, #11 Facebook Reels, #12 TikTok guides, #13 Mealime, #14 organize hub, #15 alternatives hub (only once 8+ children exist). | Claude | P2 | in progress |
 | WEB-8 | Self-audit re-check done 2026-09-24 (notes in `brief/AUDIT_SELF.md`). Fixed: #16 OttoMoment line at display scale, #11 sad otter on the 404. Resolved: #10, #14, #17. Won't fix: #18 (TheMealDB labels shown as recorded). **Open, founder design calls:** #5 hero, #6 section rhythm, #7 motion, #8 recipe grid, #12 phone size, #15 import sequence. | Claude | P2 | done |
-| WEB-9 | Optional pages: `/press` (press kit: icon, screenshots, one-paragraph description) for launch outreach; a `/delete-account` explainer is not required since deletion is in-app. | Claude | P2 | todo |
+| WEB-9 | `/press` is live: description, key facts, icon and 4 real captures with downloads. Launch status switches automatically when `APP_STORE_URL` is set. The cook and plan captures are only 415×900. Swap in the 1320×2868 store shots if press asks. | Claude | P2 | done |
 
 ## Legal and privacy
 
