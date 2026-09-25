@@ -80,14 +80,24 @@ account, and everything in it, from inside the app.
 
 Otto Club
 Otto's core features are free and stay free. Otto Club is an optional membership that unlocks
-the heavier features, $4.99 a month or $39.99 a year, with a 1-week free trial. Everything Otto
-does today stays available whether or not you join.
+the heavier features, $4.99 a month or $39.99 a year, with a 1-week free trial. Payment is
+charged to your Apple ID. The subscription renews automatically unless you cancel at least
+24 hours before the end of the current period; manage or cancel it in your App Store account
+settings. Everything Otto does today stays available whether or not you join.
 
 Recipe data and photography from TheMealDB. Nutrition figures are computed from USDA FoodData
 Central, which does not endorse Otto.
 
 Otto needs iOS 15.1 or later.
+
+Terms of Use: https://ottosapp.com/terms
+Privacy Policy: https://ottosapp.com/privacy
 ```
+
+**App Review 3.1.2 (2026-09-24):** an app with auto-renewing subscriptions needs a working Terms
+of Use (EULA) link in the listing itself (this description, or App Information → License
+Agreement) and the auto-renew terms stated. Both are in the text above. The paywall in build 38+
+also states auto-renewal on the purchase screen. Build 37 does not, so submit build 38.
 
 **Claims audit** — every sentence above maps to shipping code:
 
@@ -123,7 +133,7 @@ $39.99 a year, $4.99 a month, 1-week free trial. Localized listings: `STORE_META
 | Marketing URL | `https://ottosapp.com` | verified 2026-07-25: 200, real site |
 | **Support URL** | `https://ottosapp.com/support` | verified 2026-07-25: **200, real FAQ page** with ~15 answered questions and a contact address. Use this. |
 | Privacy Policy URL | `https://ottosapp.com/privacy` | verified 2026-07-25: 200, real policy |
-| User-facing support address | `support@ottosapp.com` | goes in the app and on the support page |
+| User-facing support address | `juandiego@ottosapp.com` | decided 2026-09-24 (APP-12): in the app, on the support page, in the policy |
 | Copyright | `2026 Juan Diego Lugo` | matches the provider named in the policy and terms |
 | Export compliance | `ITSAppUsesNonExemptEncryption: false` | already declared in `app.json` |
 | Price tier | Free, with auto-renewable subscriptions | |

@@ -220,13 +220,19 @@ export function OttoClubScreen() {
         </View>
 
         <Text role="caption">
+          {/* App Review 3.1.2: price, period, and that it auto-renews, on the
+              purchase screen itself. */}
           {hasTrial
             ? `No charge today. ${trialDays} days free, then ${
                 plan === 'year' ? `${priceYearText}/year` : `${priceMonthText}/month`
-              } starting ${prettyDate(chargeDay)}. That's the whole price. One tier, no add-ons.`
+              } starting ${prettyDate(chargeDay)}, billed through your Apple ID. Renews automatically every ${
+                plan === 'year' ? 'year' : 'month'
+              } until you cancel. One tier, no add-ons.`
             : `${
                 plan === 'year' ? `${priceYearText}/year` : `${priceMonthText}/month`
-              }, billed through your Apple ID. That's the whole price. One tier, no add-ons.`}
+              }, billed through your Apple ID. Renews automatically every ${
+                plan === 'year' ? 'year' : 'month'
+              } until you cancel. One tier, no add-ons.`}
         </Text>
 
         {club.member ? (
@@ -302,8 +308,8 @@ export function OttoClubScreen() {
           <Text role="title">How do I cancel?</Text>
           <Text role="caption">
             {hasTrial
-              ? `Open Settings on your iPhone → tap your name → Subscriptions → Otto → Cancel. Do it any time before ${prettyDate(chargeDay)} and you pay nothing. You keep access for all ${trialDays} days either way.`
-              : 'Open Settings on your iPhone → tap your name → Subscriptions → Otto → Cancel. You keep access until the end of the period you already paid for.'}
+              ? `Open Settings on your iPhone → tap your name → Subscriptions → Otto → Cancel. Do it at least a day before ${prettyDate(chargeDay)} and you pay nothing. You keep access for all ${trialDays} days either way.`
+              : 'Open Settings on your iPhone → tap your name → Subscriptions → Otto → Cancel. Cancel at least a day before it renews. You keep access until the end of the period you already paid for.'}
           </Text>
         </View>
       </ScrollView>
