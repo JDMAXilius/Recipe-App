@@ -43,3 +43,4 @@ supabase/otto-recipes/canonical/_*
 # Web export output (expo export --platform web) — a build artifact, never committed
 dist/
 docs/history/captures/store-screenshots/session.json
+supabase/.temp/
