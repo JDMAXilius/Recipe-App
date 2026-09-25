@@ -230,9 +230,13 @@ Otto requires an account to show anything, so please sign in with the demo crede
 Demo Account fields above. The account is seeded with saved recipes, a week plan, and a
 shopping list, so no screen will be empty.
 
-Otto Club (auto-renewable subscription) is reachable from Profile > Otto Club. [TODO: reviewer
-path to the sandbox purchase, filled from A6 once Otto Club is live. Delete this paragraph if
-the club ships hidden.]
+Otto Club (auto-renewable subscription) is reachable from Profile > Otto Club: yearly
+$39.99 or monthly $4.99, each with a 1-week free trial. Otto's core features stay free.
+
+To try an import, tap + and paste a recipe link, for example
+https://www.bbcgoodfood.com/recipes/easy-pancakes . A TikTok or Instagram recipe post also
+works: Otto reads the post's caption. You can also paste recipe text or take a photo of a
+recipe card. Every import opens in an editor for review before anything is saved.
 
 Web access: Otto has no in-app browser. Recipe videos play in an embedded YouTube player inside
 the recipe card, and a recipe's original source link opens in the system browser sheet. There
@@ -242,8 +246,9 @@ AI: recipe generation and the in-app chat use a large language model on our serv
 states in-product that AI recipes are suggestions and that nutrition figures are estimates,
 not dietary or medical advice.
 
-Sharing: a shopping list can be shared with people the user invites by code. Nothing in Otto
-is publicly visible; there is no public feed, no comments, and no user profiles.
+Sharing: a shopping list can be shared with people the user invites by code, and a recipe or
+list can be sent as a private link. Nothing is listed publicly: there is no public feed, no
+comments, and no user profiles.
 
 Account deletion is in Profile > Delete account and removes all server-side data.
 ```
