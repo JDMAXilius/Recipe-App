@@ -220,3 +220,10 @@ in the way today. Archived reasoning in `docs/history/`.
   links import from the caption (credited to the creator), and long pasted recipes work (they used
   to fail over 600 characters). Server-side, so it's live on build 37. Worth one try on TestFlight:
   paste a TikTok recipe link into Add.
+- 2026-09-24 (terminal, night) — **Build 38 built on EAS** and auto-submitted to TestFlight (build
+  number 38, version 1.0.19). Carries APP-5/7/13/14 and MKT-4, including the paywall's auto-renewal
+  disclosure. **App Store description updated via the ASC API**: renewal terms plus Terms of Use and
+  Privacy links (1,889 chars). Subscriptions checked via API: both READY_TO_SUBMIT, US $39.99/yr
+  and $4.99/mo, 1-week free trial in 175 territories. **Review notes are blocked**: ASC requires the
+  review-contact block (name, email, phone in +1 format) in the same save. Waiting on the founder's
+  phone number and an OK to use the e2e demo account.
