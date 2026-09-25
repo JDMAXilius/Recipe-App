@@ -44,11 +44,11 @@ const FAQS = [
   },
   {
     q: 'Where does my data live?',
-    a: 'Your recipes, cooking journal and weekly plan live in your account. Your shopping list and food preferences stay on this phone and never leave it.',
+    a: 'Your recipes, saved recipes and weekly plan live in your account. Your cooking journal photos, food preferences and your own shopping list stay on this phone. A list you share with your kitchen is kept in your account so everyone sees the same one.',
   },
   {
     q: 'What is Otto Club?',
-    a: 'One simple membership for everything Otto can do. It’s opening soon, and the free kitchen stays a real kitchen either way.',
+    a: 'An optional membership, yearly or monthly, with a free week to try it. It lifts the free limits on imports, saved recipes and questions to Otto. The free kitchen stays a real kitchen either way.',
   },
   {
     q: 'How do I leave?',

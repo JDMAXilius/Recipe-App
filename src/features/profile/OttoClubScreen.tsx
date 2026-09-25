@@ -58,15 +58,24 @@ export function OttoClubScreen() {
 
   const now = new Date();
   const chargeDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (trialDays ?? 0));
-  // reminder lands the day before the charge — "your trial ends tomorrow"
+  // the day before the charge. ponytail: a date on the timeline, not a push —
+  // syncNotifications cancels ALL scheduled notifications on every plan
+  // change, so a trial reminder needs per-id cancel there before it can ship.
   const reminderDay = new Date(
     now.getFullYear(),
     now.getMonth(),
     now.getDate() + (trialDays ?? 0) - 1,
   );
 
-  const monthlyEquivalent = (priceYear / 12).toFixed(2);
-  const yearlyIfMonthly = (priceMonth * 12).toFixed(2);
+  // The derived math speaks the storefront's currency too: priceString is
+  // already localized, a hard-coded "$" beside it would read "$399.99" in pesos.
+  const currency = storePrices ? club.yearly?.product.currencyCode : undefined;
+  const money = (n: number) =>
+    currency
+      ? new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(n)
+      : `$${n.toFixed(2)}`;
+  const monthlyEquivalent = money(priceYear / 12);
+  const yearlyIfMonthly = money(priceMonth * 12);
   // savings computed ONLY against our own real monthly price — no fake anchors
   const savePct = Math.round((1 - priceYear / (priceMonth * 12)) * 100);
 
@@ -91,9 +100,11 @@ export function OttoClubScreen() {
   };
 
   const BENEFITS: { icon: keyof typeof Ionicons.glyphMap; text: string }[] = [
+    // Exactly the three limits club.limits.ts lifts — nothing free users
+    // already get (planner/list are ungated until APP-10 says otherwise).
     { icon: 'bookmark', text: 'Unlimited saved recipes, no caps on your collection' },
-    { icon: 'link', text: 'Import recipes from anywhere on the web' },
-    { icon: 'calendar', text: 'Smart weekly plans and shopping lists' },
+    { icon: 'link', text: 'Unlimited imports: links, photos and pasted recipes' },
+    { icon: 'chatbubble-ellipses', text: 'Ask Otto as often as you like' },
     { icon: 'paw', text: 'Keeps the lights on. The Club is how Otto pays the cooks and the servers' },
   ];
 
@@ -102,7 +113,7 @@ export function OttoClubScreen() {
     {
       icon: 'notifications',
       date: prettyDate(reminderDay),
-      body: "We'll send you a reminder that your trial ends tomorrow.",
+      body: 'Your trial ends tomorrow. Cancel today in Settings if Otto isn’t for you.',
     },
     {
       icon: 'star',
@@ -193,7 +204,7 @@ export function OttoClubScreen() {
             name="Yearly"
             price={priceYearText}
             per="year"
-            math={`$${monthlyEquivalent} a month. Save ${savePct}% vs monthly.`}
+            math={`${monthlyEquivalent} a month. Save ${savePct}% vs monthly.`}
             badge={`SAVE ${savePct}%`}
             note={hasTrial ? `${trialDays} days free first · Cancel anytime` : 'Cancel anytime'}
           />
@@ -203,7 +214,7 @@ export function OttoClubScreen() {
             name="Monthly"
             price={priceMonthText}
             per="month"
-            math={`$${yearlyIfMonthly} a year if you stay all 12 months.`}
+            math={`${yearlyIfMonthly} a year if you stay all 12 months.`}
             note={hasTrial ? `${trialDays} days free first · Cancel anytime` : 'Cancel anytime'}
           />
         </View>
