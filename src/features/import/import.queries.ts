@@ -88,6 +88,14 @@ export async function generateRecipe(input: GenerateInput): Promise<Draft> {
   return toDraft(DraftResponseSchema.parse(data), 'otto');
 }
 
+// Pasted recipe text (a note, a message, a caption) → generate-recipe's {text}
+// mode, which transcribes it faithfully instead of treating it as a request to
+// invent something. 'manual': the words are someone else's, Otto tidied them.
+export async function importFromText(text: string): Promise<Draft> {
+  const data = await invokeEdge('generate-recipe', { text });
+  return toDraft(DraftResponseSchema.parse(data), 'manual');
+}
+
 // Photo → review-ready draft. Claude reads the shot (cookbook page, card,
 // screenshot) via generate-recipe's vision mode; the user reviews the
 // transcription in the editor before any save. 'imported' (not 'otto') — Otto
@@ -270,6 +278,10 @@ export function useImportFromUrl() {
 
 export function useGenerateRecipe() {
   return useMutation({ mutationFn: (input: GenerateInput) => generateRecipe(input) });
+}
+
+export function useImportFromText() {
+  return useMutation({ mutationFn: (text: string) => importFromText(text) });
 }
 
 export function useImportFromPhoto() {

@@ -31,3 +31,18 @@ export const VISION_INSTRUCTION =
   `weight-first (grams for solids, millilitres for thin liquids, tsp/tbsp with decimals for small amounts); ` +
   `leave measure "" for anything unmeasured. If the image isn't a readable recipe — not a recipe at all, or ` +
   `too blurry to read — set is_possible to false with a short, kind decline_reason.`;
+
+// Pasted text (a note, an email, a TikTok/Instagram caption) → the same
+// faithful transcription the photo path does, never a fresh invention. The
+// one-shot {prompt} path frames its input as a *request* ("make me…"), which
+// is wrong for someone else's recipe.
+export const MAX_TEXT_CHARS = 8000;
+export const TEXT_INSTRUCTION =
+  `Below is recipe text someone pasted or shared: a note, a message, or a social media caption. ` +
+  `Transcribe it faithfully into the schema: keep the cook's own ingredients, quantities, and steps. ` +
+  `Don't invent, pad, or "improve" anything the text doesn't say. Ignore hashtags, emoji, and ` +
+  `chatter that isn't part of the recipe. Where an amount is written, express it weight-first ` +
+  `(grams for solids, millilitres for thin liquids, tsp/tbsp with decimals for small amounts); ` +
+  `leave measure "" for anything unmeasured. If the method is only implied (a caption that lists ` +
+  `ingredients and says "mix and bake"), write only the steps the text supports. If there is no ` +
+  `recipe in it at all, set is_possible to false with a short, kind decline_reason.`;

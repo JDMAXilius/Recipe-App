@@ -1,11 +1,15 @@
 // import-recipe — URL → recipe draft via schema.org JSON-LD. Deterministic, no
-// LLM. Faithful port of backend/src/lib/importRecipe.js including the SSRF
-// guard: the endpoint fetches arbitrary user URLs and must never reach private
-// address space (cloud metadata, localhost, LAN) — directly or via redirect.
+// LLM on that path. Pages with no Recipe data (TikTok, Instagram, YouTube…)
+// fall back to the post's caption, transcribed by generate-recipe's {text}
+// mode (see transcribeCaption below). Faithful port of
+// backend/src/lib/importRecipe.js including the SSRF guard: the endpoint
+// fetches arbitrary user URLs and must never reach private address space
+// (cloud metadata, localhost, LAN) — directly or via redirect.
 // Resolve-then-connect: every hop's hostname is DNS-resolved and every
 // resolved address checked against private/reserved ranges before fetching.
 import { z } from "npm:zod@4";
 import { getUserId, json, preflight } from "../_shared/http.ts";
+import { captionFromHtml, decodeEntities } from "./caption.ts";
 
 const bodySchema = z.object({ url: z.string().trim().url().max(2000) });
 
@@ -143,17 +147,6 @@ async function fetchPublicHtml(startUrl: URL): Promise<{ html: string; finalUrl:
 const UNIT_WORDS =
   "cups?|cup|tablespoons?|tbsps?|tbsp|tbls?p?|tbs|teaspoons?|tsps?|tsp|grams?|g|kgs?|kg|milliliters?|mls?|ml|liters?|litres?|l|ounces?|oz|pounds?|lbs?|lb|quarts?|qts?|pints?|pts?|cloves?|cans?|tins?|slices?|rashers?|sticks?|leaf|leaves|pinch(?:es)?|dash(?:es)?|handfulls?|handfuls?|pieces?|sprigs?|bunch(?:es)?|packets?|packages?|jars?|heads?|stalks?|fillets?|knobs?|drops?|splash(?:es)?";
 
-function decodeEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;|&apos;|&#x27;/gi, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
-}
-
 // "2 1/2 cups plain flour" → { measure: "2 1/2 cups", name: "plain flour" }
 export function splitIngredientLine(line: unknown): { measure: string; name: string } {
   const text = decodeEntities(String(line)).replace(/\s+/g, " ").trim();
@@ -240,8 +233,72 @@ function splitOversizedStep(step: string, max = 2000): string[] {
   return out;
 }
 
-async function importRecipeFromUrl(url: string) {
+// ---- caption fallback ------------------------------------------------------
+// Social posts publish no schema.org Recipe; the recipe lives in the caption.
+// TikTok: its official oEmbed API (title = full caption). Everything else: the
+// page's og:description / description meta, which Instagram fills with the
+// caption ("11 likes, 2 comments - user on June 17, 2024: "…"").
+const MIN_CAPTION_CHARS = 60;
+
+async function tiktokCaption(url: URL): Promise<{ text: string; author: string | null } | null> {
+  try {
+    const res = await fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url.href)}`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (typeof data?.title !== "string") return null;
+    return { text: data.title, author: data.author_unique_id ?? null };
+  } catch {
+    return null;
+  }
+}
+
+const isTikTok = (url: URL) => /(^|\.)tiktok\.com$/i.test(url.hostname);
+
+// Hands the caption to generate-recipe's {text} transcription with the
+// caller's own token, so its rate limit, model choice and usage log apply.
+async function transcribeCaption(
+  req: Request,
+  target: URL,
+  caption: { text: string; author: string | null } | null,
+) {
+  if (!caption || caption.text.length < MIN_CAPTION_CHARS) return null;
+  const res = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/generate-recipe`, {
+    method: "POST",
+    headers: {
+      authorization: req.headers.get("authorization") ?? "",
+      apikey: Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ text: caption.text.slice(0, 8000) }),
+    signal: AbortSignal.timeout(90000),
+  });
+  if (!res.ok) return null; // 422 = no recipe in the caption; the caller says so
+  const r = await res.json();
+  const host = target.hostname.replace(/^www\./, "");
+  return {
+    title: r.title,
+    image: null, // social CDN image URLs expire; no photo beats one that breaks next week
+    servings: r.servings,
+    category: r.category,
+    area: r.area,
+    ingredients: r.ingredients,
+    steps: r.steps,
+    sourceUrl: target.href.slice(0, 2000),
+    sourceName: (caption.author ? `@${caption.author}` : host).slice(0, 200),
+  };
+}
+
+async function importRecipeFromUrl(req: Request, url: string) {
   const start = new URL(url);
+  // TikTok often refuses server fetches of the page itself; its oEmbed API is
+  // the reliable door, so try it before touching the HTML. (Short vm.tiktok.com
+  // links fall through: the page fetch follows the redirect, then oEmbed again.)
+  if (isTikTok(start)) {
+    const caption = await tiktokCaption(start);
+    if (caption) return await transcribeCaption(req, start, caption); // one AI call, win or lose
+  }
   const { html, finalUrl } = await fetchPublicHtml(start);
   const target = finalUrl;
 
@@ -258,7 +315,10 @@ async function importRecipeFromUrl(url: string) {
     }
     if (recipe) break;
   }
-  if (!recipe) return null;
+  if (!recipe) {
+    const caption = (isTikTok(target) ? await tiktokCaption(target) : null) ?? captionFromHtml(html);
+    return await transcribeCaption(req, target, caption);
+  }
 
   // Clamp to the save schema's limits — the import must never hand the editor
   // a draft the recipes INSERT would reject.
@@ -305,8 +365,16 @@ Deno.serve(async (req) => {
   if (!parsed.success) return json(400, { error: "Invalid url" });
 
   try {
-    const draft = await importRecipeFromUrl(parsed.data.url);
-    if (!draft) return json(422, { error: "No recipe found on that page" });
+    const draft = await importRecipeFromUrl(req, parsed.data.url);
+    if (!draft) {
+      const social = /(^|\.)(tiktok|instagram|facebook|youtube)\.com$|(^|\.)(fb\.watch|youtu\.be)$/i
+        .test(new URL(parsed.data.url).hostname);
+      return json(422, {
+        error: social
+          ? "Otto couldn't find a written recipe in that post. If it's only in the video, snap a screenshot instead."
+          : "No recipe found on that page",
+      });
+    }
     return json(200, draft);
   } catch (error) {
     console.warn("import failed", (error as Error).message); // message only — never the key material

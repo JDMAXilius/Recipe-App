@@ -5,7 +5,7 @@
 // never logged or echoed. Per-user rate limit: this is the most expensive path.
 import { z } from "npm:zod@4";
 import { corsHeaders, getUserId, json, preflight, rateLimited } from "../_shared/http.ts";
-import { checkImage, VISION_INSTRUCTION } from "./imageMode.ts";
+import { checkImage, MAX_TEXT_CHARS, TEXT_INSTRUCTION, VISION_INSTRUCTION } from "./imageMode.ts";
 import { extractMessagePrefix, parseSseLines } from "./streamParse.ts";
 
 const MODEL_TEXT = "claude-sonnet-5"; // chat + one-shot: schema-constrained work, ~5x cheaper
@@ -22,6 +22,8 @@ const generateBody = z.object({
   prompt: z.string().trim().min(3).max(MAX_PROMPT_CHARS),
   ...commonFields,
 });
+// {text}: someone else's recipe to transcribe (paste import, social captions).
+const textBody = z.object({ text: z.string().trim().min(40).max(MAX_TEXT_CHARS) });
 const chatBody = z.object({
   messages: z
     .array(z.object({
@@ -346,6 +348,16 @@ function streamChat(system: SystemBlock[], turns: Turn[]): Response {
   });
 }
 
+// The text to transcribe, if this body is a paste: {text}, or a {prompt} too
+// long to be a request (build 37's paste import).
+function pastedText(raw: unknown): unknown {
+  if (!raw || typeof raw !== "object") return undefined;
+  const body = raw as { text?: unknown; prompt?: unknown };
+  if ("text" in body) return body.text;
+  if (typeof body.prompt === "string" && body.prompt.trim().length > MAX_PROMPT_CHARS) return body.prompt;
+  return undefined;
+}
+
 function contextLines(body: z.infer<typeof generateBody> | z.infer<typeof chatBody>): string[] {
   const context: string[] = [];
   if (Number.isInteger(body.servings) && body.servings! > 0) {
@@ -419,6 +431,28 @@ Deno.serve(async (req) => {
       }
       const recipe = shapeGeneratedRecipe(data);
       if (!recipe) return json(502, { error: "Otto couldn't read that photo. Try a clearer shot." });
+      return json(200, { ...recipe, image: null, source: "otto", sourceUrl: null, sourceName: null });
+    }
+
+    // -------- text mode (pasted recipe / caption → transcribed recipe) --------
+    // Build 37 sends paste-import as {prompt}; a prompt past the request cap
+    // is a pasted recipe, not a request, so it takes this path too.
+    const pasted = pastedText(raw);
+    if (pasted !== undefined) {
+      const parsedText = textBody.safeParse({ text: pasted });
+      if (!parsedText.success) return json(400, { error: "Paste the whole recipe, up to about a page of text." });
+      const data = await askClaude(MODEL_TEXT, systemBlocks(SYSTEM), SCHEMA, [{
+        role: "user",
+        content: `${TEXT_INSTRUCTION}\n\n---\n${parsedText.data.text}`,
+      }], "medium");
+      if (!data) return json(502, { error: "Otto couldn't sort that into a recipe. Try again in a moment." });
+      if (data.is_possible !== true) {
+        return json(422, {
+          error: String(data.decline_reason || "Otto couldn't find a recipe in that text.").slice(0, 300),
+        });
+      }
+      const recipe = shapeGeneratedRecipe(data);
+      if (!recipe) return json(502, { error: "Otto couldn't sort that into a recipe. Try again in a moment." });
       return json(200, { ...recipe, image: null, source: "otto", sourceUrl: null, sourceName: null });
     }
 

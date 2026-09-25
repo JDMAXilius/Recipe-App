@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Button, OttoArt, Screen, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { RecipeInput } from './components/RecipeInput';
-import { useGenerateRecipe, useImportFromUrl, useImportFromPhoto } from './import.queries';
+import { useImportFromText, useImportFromUrl, useImportFromPhoto } from './import.queries';
 import { emptyDraft, setDraft } from './draft';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
 import { useClubGate } from '@/features/profile';
@@ -49,12 +49,12 @@ export function AddSheet({ onClose }: AddSheetProps) {
   const [error, setError] = useState<string | null>(null);
   const importMut = useImportFromUrl();
   const photoMut = useImportFromPhoto();
-  const generateMut = useGenerateRecipe();
+  const textMut = useImportFromText();
   // Free tier: the three AI-backed paths below are counted. "Write it myself"
   // is not, and must never be — manual entry is free forever, and it is also
   // the honest fallback we offer when a gate closes.
   const gate = useClubGate();
-  const busy = importMut.isPending || photoMut.isPending || generateMut.isPending;
+  const busy = importMut.isPending || photoMut.isPending || textMut.isPending;
 
   // Hand a draft to the editor and open it. Reset local state so a re-opened
   // sheet starts clean.
@@ -87,11 +87,11 @@ export function AddSheet({ onClose }: AddSheetProps) {
     }
   };
 
-  // Paste-text import: reuse generate-recipe's one-shot {prompt} path — feed the
-  // pasted block (a DM, a note, an email) as the prompt and let Otto sort it into
-  // a recipe, landing in the same review-first editor. Source is 'manual' (not
-  // 'otto'): the words are someone else's, Otto just tidied them, so the editor
-  // shows "Did Otto get this right?" not "Otto dreamed this up".
+  // Paste-text import: generate-recipe's {text} mode transcribes the pasted
+  // block (a DM, a note, a caption) as written, landing in the same
+  // review-first editor. Source is 'manual' (not 'otto'): the words are someone
+  // else's, Otto just tidied them, so the editor shows "Did Otto get this
+  // right?" not "Otto dreamed this up".
   const startTextImport = async () => {
     const body = text.trim();
     if (body.length < 40) {
@@ -101,9 +101,9 @@ export function AddSheet({ onClose }: AddSheetProps) {
     setError(null);
     if (!(await gate.check('import'))) return;
     try {
-      const draft = await generateMut.mutateAsync({ prompt: body });
+      const draft = await textMut.mutateAsync(body);
       await gate.spend('import');
-      openEditor({ ...draft, source: 'manual' });
+      openEditor(draft);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Otto couldn't sort that into a recipe.");
     }

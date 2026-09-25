@@ -216,3 +216,7 @@ in the way today. Archived reasoning in `docs/history/`.
   Fixed with a DB migration (server-side, so build 37 works now). Verified end to end by the RLS
   attack script (69/0), which deletes its own throwaway users through delete-account. Apple's
   reviewer will test account deletion, so re-test it once on TestFlight before submitting.
+- 2026-09-24 (terminal, late) — **Import now does what the listing says.** TikTok and Instagram
+  links import from the caption (credited to the creator), and long pasted recipes work (they used
+  to fail over 600 characters). Server-side, so it's live on build 37. Worth one try on TestFlight:
+  paste a TikTok recipe link into Add.
