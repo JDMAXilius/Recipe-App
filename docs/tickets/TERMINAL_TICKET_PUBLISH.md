@@ -227,3 +227,30 @@ in the way today. Archived reasoning in `docs/history/`.
   and $4.99/mo, 1-week free trial in 175 territories. **Review notes are blocked**: ASC requires the
   review-contact block (name, email, phone in +1 format) in the same save. Waiting on the founder's
   phone number and an OK to use the e2e demo account.
+- 2026-09-28 (cloud) — **Guideline 5.1.2(i) gap: the AI data-sharing disclosure is only in the
+  privacy policy.** Apple's current rule (tightened 2025, enforced through 2026) is that an app
+  must clearly disclose where personal data is shared with third parties **including third-party
+  AI**, and obtain explicit permission — and Apple states the disclosure may **not** live only in
+  the terms or privacy policy. Otto's position today: the published policy names Anthropic
+  (LEG-2, done), and the app carries *accuracy* disclaimers (A8 — "Otto can misread an
+  ingredient", allergen/temperature line on the review screen, nutrition estimate caption). What
+  the app does **not** have is a visible statement, at the point of use, that what you paste,
+  photograph or say goes to an AI provider — `grep` over `src/` returns no mention of Anthropic,
+  "AI provider" or any data-sharing line, and the FAQ's "Where does my data live?" answer does not
+  mention it either. Accuracy disclaimers satisfy 1.4.1; they do not satisfy 5.1.2(i), which is
+  about *where the data goes*.
+  **Minimum fix (recommended before submit, ~1 packet):** one line at each AI entry point — the
+  Ask Otto composer, the import/paste screen, the photo-import picker and voice input — naming the
+  provider and what leaves the device, plus the same sentence added to the "Where does my data
+  live?" FAQ answer. **Belt-and-braces (only if a reviewer pushes back):** a first-use consent
+  sheet before the first AI call, since the guideline's wording is "obtain explicit permission."
+  Not a blocker for a US-only launch decision, but it is the live AI-specific rejection vector.
+- 2026-09-28 (cloud) — **Repo hygiene:** `docs/legal/PRIVACY_POLICY.md` here is the pre-LEG-2
+  draft (names Railway, no AI section). The authoritative copy is the website repo's
+  `legal/PRIVACY_POLICY.md`, live at ottosapp.com/privacy. Either sync or delete the stale one so
+  nobody audits against the wrong document.
+- 2026-09-28 (cloud) — **ASC-4 correction:** dropping EU availability is not the only way to avoid
+  publishing a home address. Apple's individual-trader flow accepts "Address or **P.O. Box**" with
+  documentation associating you to it. And the publication itself is tied to distribution: the
+  trader details render on the product page "when your app is distributed in any of the 27
+  territories of the EU" — so a US-only v1 declares trader truthfully and publishes nothing.
