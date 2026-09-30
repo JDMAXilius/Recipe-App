@@ -95,3 +95,10 @@ any new dialog about encryption, ads, or content rights without checking: build 
 
 ## Log
 <!-- append: date, step, result, screenshot/response notes -->
+
+- 2026-09-29 21:18 EDT: all steps done, submitted. Findings vs. the runbook:
+  - Step 1: availability had never been set ("Set Up Availability"); set to 148 = all minus the 27 EU. Declaring "not a trader" does NOT remove the EU by itself.
+  - Step 2: App Privacy published after checking it against the truth table.
+  - Step 3: W-9 Active.
+  - Step 4: contact + demo account PATCHed (200); the existing notes were kept. Demo login verified against prod Supabase.
+  - Step 6: the version page has NO In-App Purchases section. The flow is: **Add for Review** on each subscription, on the **subscription group** page (otherwise "must be submitted with its subscription group"), and on the version, then Submit. 4 items submitted; version + both subs WAITING_FOR_REVIEW via API.

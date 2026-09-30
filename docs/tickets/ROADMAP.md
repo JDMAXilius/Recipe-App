@@ -70,7 +70,7 @@ flowchart LR
 | ASC-10 | Set the App Store version string to 1.0.19 so build 37 can be attached (the version page currently says 1.0; TestFlight builds carry 1.0.x). | Claude | P0 | done |
 | ASC-11 | Pricing and Availability: confirmed Free, 175 countries; Mac App Store and Apple Vision Pro availability unchecked (app is iPhone-only). | Claude | P0 | done |
 | ASC-12 | App Information → Content Rights: declared third-party content (TheMealDB), rights held. | Claude | P0 | done |
-| ASC-13 | **Build 38 is attached to 1.0.19 (done via ASC API, 2026-09-24)**, and the listing description is updated (Terms/Privacy links, renewal terms). Build 38 is on TestFlight for Otto Insiders with What to Test notes. Left: review notes + contact (needs Juan's phone and demo-account OK), then Submit for Review with both subscriptions, once ASC-1–6 clear. **Runbook: `docs/tickets/TERMINAL_TICKET_SUBMIT.md`** (Chrome MCP + ASC API, for a terminal session). | Juan | P0 | blocked |
+| ASC-13 | **Submitted 2026-09-29 21:18 EDT: 1.0.19 (build 38) + Otto Club group + both subscriptions, all WAITING_FOR_REVIEW.** Availability 148 (EU excluded, not a trader), App Privacy published, review contact + demo account set. Runbook: `docs/tickets/TERMINAL_TICKET_SUBMIT.md`. | Juan | P0 | done |
 | ASC-14 | Users and Access → Sandbox: create one Sandbox Apple ID for the test purchase. | Juan | P1 | todo |
 | ASC-15 | Re-measure text lengths against the live limits. Entered today and accepted: subtitle 26/30, promo 144/170, keywords 92/100, description 1,597/4,000. | Claude | P1 | done |
 | ASC-16 | Enroll in the Apple Small Business Program (15% commission instead of 30% under $1M/yr). Requires the Paid Apps Agreement to be Active first. | Juan | P1 | todo |

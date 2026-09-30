@@ -198,6 +198,8 @@ in the way today. Archived reasoning in `docs/history/`.
 
 <!-- append: date, what happened, Apple's response. This is the only thread that matters now. -->
 
+- 2026-09-29 21:18 EDT: **1.0.19 (build 38) submitted to App Review, subscriptions included** (Otto Club group, yearly and monthly). State WAITING_FOR_REVIEW. Availability: 148 countries, EU excluded. Details are in TERMINAL_TICKET_SUBMIT.md.
+
 - 2026-09-24 (terminal) — **Path B chosen** (ship with Otto Club). F8 done with founder changes:
   ASC products are `otto_club_yearly` **$39.99** + `otto_club_monthly` **$4.99** (underscores, not
   dots), **1-week** free intro on both (Apple has no 5-day duration). F9 done: RC App Store app,
