@@ -61,7 +61,7 @@ flowchart LR
 | ASC-1 | Accept the updated Apple Developer Program License Agreement (Account Holder only). Until accepted, Apple refuses new builds. | Juan | P0 | todo |
 | ASC-2 | Business → Add Bank Account. | Juan | P0 | todo |
 | ASC-3 | Business → Tax Forms → U.S. W-9 (required for any paid content, individual or not). | Juan | P0 | todo |
-| ASC-4 | Business → Digital Services Act: declare trader or non-trader. Trader status publishes name, address, phone and email on the EU App Store. Alternative: remove EU countries from availability for v1. | Juan (decision) | P0 | todo |
+| ASC-4 | DSA: **answered "not a trader" on 2026-09-29.** The EU must come off availability (step 1 of `TERMINAL_TICKET_SUBMIT.md`). Re-adding the EU later needs trader registration with a public address, phone and email. | Juan (decision) | P0 | done |
 | ASC-5 | Fix the legal address on file: it reads "4726 e michign st" and ZIP "32812-52". Tax forms are checked against it. | Juan | P0 | todo |
 | ASC-6 | App Privacy → Publish. The seven data types are saved; the click attests they are accurate. | Juan | P0 | todo |
 | ASC-7 | App Review Information: phone number, demo account email and password. Apple will not save the section without the phone. Needs APP-2. | Juan | P0 | blocked |
@@ -70,7 +70,7 @@ flowchart LR
 | ASC-10 | Set the App Store version string to 1.0.19 so build 37 can be attached (the version page currently says 1.0; TestFlight builds carry 1.0.x). | Claude | P0 | done |
 | ASC-11 | Pricing and Availability: confirmed Free, 175 countries; Mac App Store and Apple Vision Pro availability unchecked (app is iPhone-only). | Claude | P0 | done |
 | ASC-12 | App Information → Content Rights: declared third-party content (TheMealDB), rights held. | Claude | P0 | done |
-| ASC-13 | **Build 38 is attached to 1.0.19 (done via ASC API, 2026-09-24)**, and the listing description is updated (Terms/Privacy links, renewal terms). Build 38 is on TestFlight for Otto Insiders with What to Test notes. Left: review notes + contact (needs Juan's phone and demo-account OK), then Submit for Review with both subscriptions, once ASC-1–6 clear. | Juan | P0 | blocked |
+| ASC-13 | **Build 38 is attached to 1.0.19 (done via ASC API, 2026-09-24)**, and the listing description is updated (Terms/Privacy links, renewal terms). Build 38 is on TestFlight for Otto Insiders with What to Test notes. Left: review notes + contact (needs Juan's phone and demo-account OK), then Submit for Review with both subscriptions, once ASC-1–6 clear. **Runbook: `docs/tickets/TERMINAL_TICKET_SUBMIT.md`** (Chrome MCP + ASC API, for a terminal session). | Juan | P0 | blocked |
 | ASC-14 | Users and Access → Sandbox: create one Sandbox Apple ID for the test purchase. | Juan | P1 | todo |
 | ASC-15 | Re-measure text lengths against the live limits. Entered today and accepted: subtitle 26/30, promo 144/170, keywords 92/100, description 1,597/4,000. | Claude | P1 | done |
 | ASC-16 | Enroll in the Apple Small Business Program (15% commission instead of 30% under $1M/yr). Requires the Paid Apps Agreement to be Active first. | Juan | P1 | todo |
