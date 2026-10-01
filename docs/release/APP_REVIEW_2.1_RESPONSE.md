@@ -146,9 +146,12 @@ closes a real gap), **Later** (not a review blocker).
 - The free-gate toasts (`club.limits.ts` `blockedMessage`) name Otto Club but not the path to it; add "Account > Otto Club".
 - Voice: if you ever flip to on-device recognition, delete the M2 caption — the two must agree.
 
+### WEBSITE — handed to the terminal: `docs/tickets/TERMINAL_TICKET_WEBSITE_REVIEW_2_1.md`
+(contact address, contact form, legal-page claims, repo legal sync, and the consent copy for build 39)
+
 ### VERIFY FROM YOUR PHONE (this session cannot reach ottosapp.com)
 - **ottosapp.com/privacy** names **Anthropic, RevenueCat, Supabase, USDA FoodData Central, TheMealDB, Apple speech recognition** — answers #4 and #6 say so.
-- **/privacy, /terms, /support contact address is a mailbox that receives mail** (`juandiego@ottosapp.com` or `support@`). The July audit found `hello@ottosapp.com` published on all three and **not** a real mailbox. A reviewer who emails your support address and bounces is a rejection with the evidence in hand. Website repo, not this one.
+- **/privacy, /terms, /support contact address is a mailbox that receives mail** (**`juandiego@ottosapp.com`** — decided in APP-12). The July audit found `hello@ottosapp.com` published on all three and **not** a real mailbox. A reviewer who emails your support address and bounces is a rejection with the evidence in hand. Website repo, not this one.
 - **/terms** says 13+ and states the Otto Club price, trial, auto-renewal and cancellation.
 - Demo account signs in with saved recipes, plan and list present.
 - Build 39 on TestFlight: consent sheet appears on first Send; **Not now** leaves Discover/Cookbook/Plan/List working; the Account toggle flips it back; the video shows all of it.
@@ -239,7 +242,7 @@ An account is required. Please use the demo account in the Demo Account fields; 
 - Cookbook: saved and imported recipes.
 - Plan: put recipes on days; the shopping list builds from the plan.
 - Account: Otto Club, Our shared list, Otto and AI, preferences, Delete my account.
-User content: users write their own recipes and can share a shopping list only with people they invite by code, or send a private link. Nothing is public: no feed, profiles, comments or discovery of other users. Members can leave a shared list anytime (Account > Our shared list > Leave this kitchen). Contact: support@ottosapp.com.
+User content: users write their own recipes and can share a shopping list only with people they invite by code, or send a private link. Nothing is public: no feed, profiles, comments or discovery of other users. Members can leave a shared list anytime (Account > Our shared list > Leave this kitchen). Contact: juandiego@ottosapp.com.
 Web: no in-app browser. Recipe videos play in an embedded YouTube player; a source link opens in the system browser sheet.
 
 4. EXTERNAL SERVICES
