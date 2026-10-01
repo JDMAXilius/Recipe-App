@@ -85,6 +85,31 @@ be accurate"). None of these name where the data goes, in the app.
 | [Perplexity Health](https://mobbin.com/screens/4597c7ea-99cf-40b1-81fa-9b0546b885db) | "Your queries are securely sent to trusted AI providers, contractually bound not to use your data for training" | one screen, **I consent** |
 | [Meta AI](https://mobbin.com/screens/16d21c24-a888-4344-b561-338efbcc16f4) · [Gemini](https://mobbin.com/screens/0af6cc92-c3b9-460f-9a56-9049ed7cded0) · [CapCut](https://mobbin.com/screens/fb57f6f1-ea76-4b26-a5b6-2b6c073a0beb) | name the provider, say what's captured, link the privacy notice | **Enable / Don't enable** |
 
+**The category, app by app (Mobbin sweep, 2026-10-01 — what each shows *in the app* about user
+content going to an AI provider):**
+
+| App | What the user actually sees | Names provider? | Real consent? |
+|---|---|---|---|
+| [Cal AI](https://mobbin.com/flows/579da5dd-453a-4e7c-9c11-d20708a4db82) | "Your privacy and security matter to us" card; Terms/Privacy line at sign-in | No | No |
+| [MyFitnessPal](https://mobbin.com/screens/e8cac0cb-8702-4d5c-909d-11d2accb606e) | Meal Scan / Voice Log tiles; nothing about where the photo or audio goes | No | No |
+| [Yazio](https://mobbin.com/screens/c8884255-7bd7-4a5a-8dd4-23fb7aa40f8d) | "Get accurate tracking anywhere with AI" marketing card; "Quick photo tips"; "Analyzing…" | No | No |
+| [Noom](https://mobbin.com/screens/8181d60f-d89d-4b57-a7c9-b610b4fdd59a) | Chat footer: "virtual assistant uses an AI-based system… your chat session is recorded and may be monitored"; photo: "we'll break it down and analyze it" | No | Passive notice only |
+| [Lifesum](https://mobbin.com/screens/031aee24-95f3-4e34-9c4b-7e3c34e8f62c) | "Try AI food tracking" banner; a **Track with AI** toggle in Diary Settings | No | No (but revocable) |
+| [MacroFactor](https://mobbin.com/screens/ba123d07-7dc0-469f-ad8a-e02a4e660623) | First-use "Welcome to MacroFactor AI" sheet: photo tips + "Only upload content you have permission to use"; persistent "can make mistakes, always verify" | No | OK button only |
+| [Wabi](https://mobbin.com/screens/bbd6abe7-cdfd-42bd-8361-99bf36e694c8) | Nothing | No | No |
+| [Oura meals](https://mobbin.com/screens/15ea5364-e8dd-4c98-8144-d52f9975c671) | "Take a photo. Your meal items will be analyzed." | No | No |
+| BitePal · Postmates · Ultrahuman | Accuracy/medical disclaimers; "Powered by ChatGPT" footer | Ultrahuman only, in a footer | No |
+| [Garmin Connect](https://mobbin.com/screens/4b629844-7fde-4f09-87da-49974b4cfd0b) | Full AI agreement: data use, retention, opt-out, **Agree / Do Not Agree** | Own model | **Yes** |
+| [Structured](https://mobbin.com/screens/fd506bc7-2c02-4ba0-ab7c-85f42d286c8e) | "Structured AI uses OpenAI's ChatGPT… data that may be sent" list, **Accept** | **Yes** | **Yes** |
+| Runna · Liven · Perplexity · Meta AI · Gemini · CapCut | One card naming the provider/partner and the data, Accept / Decline | Yes (Liven: "AI partner") | **Yes** |
+
+**Read of the category:** the calorie/recipe apps mostly show *nothing* or an accuracy line; the
+apps with real consent are mostly outside the category (fitness, productivity, assistants) — i.e.
+the ones that have been scrutinised. Lifesum's toggle and MacroFactor's first-use sheet are the
+closest in-category patterns; neither names a provider. **The lightest version that actually
+counts is "MacroFactor's welcome sheet, naming Anthropic, with a Not now"** — which is the Liven
+card. That is the recommendation.
+
 **Apple's own bar:** Siri asks permission before sending a request to ChatGPT (every time by
 default; always for files). That is the standard a reviewer carries into your app.
 
