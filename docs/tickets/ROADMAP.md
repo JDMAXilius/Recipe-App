@@ -58,9 +58,9 @@ flowchart LR
 
 | ID | Ticket | Owner | Priority | Status |
 | --- | --- | --- | --- | --- |
-| ASC-1 | Accept the updated Apple Developer Program License Agreement (Account Holder only). Until accepted, Apple refuses new builds. | Juan | P0 | todo |
-| ASC-2 | Business → Add Bank Account. | Juan | P0 | todo |
-| ASC-3 | Business → Tax Forms → U.S. W-9 (required for any paid content, individual or not). | Juan | P0 | todo |
+| ASC-1 | Apple Developer Program License / agreements: **verified 2026-09-30 on the Business page: Paid Apps (to Jul 18, 2027) and Free Apps Active.** | Juan | P0 | done |
+| ASC-2 | Business → Bank Account: **Active (USD), verified 2026-09-30.** | Juan | P0 | done |
+| ASC-3 | Business → Tax Forms → U.S. W-9: **Active (submitted Sep 28), verified 2026-09-30.** | Juan | P0 | done |
 | ASC-4 | DSA: **answered "not a trader" on 2026-09-29.** The EU must come off availability (step 1 of `TERMINAL_TICKET_SUBMIT.md`). Re-adding the EU later needs trader registration with a public address, phone and email. | Juan (decision) | P0 | done |
 | ASC-5 | Fix the legal address on file: it reads "4726 e michign st" and ZIP "32812-52". Tax forms are checked against it. | Juan | P0 | todo |
 | ASC-6 | App Privacy → Publish. The seven data types are saved; the click attests they are accurate. | Juan | P0 | todo |
@@ -136,7 +136,7 @@ is listing-day work that needs the App Store ID, which only exists after approva
 | --- | --- | --- | --- | --- |
 | WEB-1 | Approval day: set `APP_STORE_URL` and `APP_STORE_ID` in `lib/metadata.ts`. That links the store badge on seven pages, turns on the Smart App Banner and `downloadUrl`, and replaces the "App Store link pending" QR box in the hero and download sections. | Claude | P0 (after approval) | blocked |
 | WEB-2 | Send a test email from an outside account to `juandiego@ottosapp.com` and confirm it arrives. Apple's reviewer may write to it. | Juan | P1 | todo |
-| WEB-3 | Contact form: without `RESEND_API_KEY` and `CONTACT_TO_EMAIL` on Vercel, a message is only logged and the sender still sees success. Either add the two env vars (needs a Resend account) or replace the form with a mailto link. | Juan (decision) + Claude | P1 | todo |
+| WEB-3 | Contact form no longer fakes success: if Resend isn't configured or refuses, it shows an error with juandiego@ottosapp.com (website `1d29a23`, live 2026-09-30). Whether Resend env vars exist on Vercel is unknown (the Vercel connector can't read env); one test message through /contact tells. | Claude | P1 | done |
 | WEB-4 | Decide whether `/careers` stays. The self-audit flags it as P1; it is still in the nav and footer. | Juan (decision) | P1 | todo |
 | WEB-5 | Doc hygiene: `app/support/page.tsx:14-15` still says the support email is "undecided"; `brief/ASO_PLAN.md` appendix still says $45/yr and a 5-day trial; the publish ticket's F8 text still says `otto.club.*`, $34.99 and 5 days. | Claude | P1 | done |
 | WEB-6 | Done: real shopping-list capture (from the store-screenshot session) added as `public/app/app--shopping.png`; "See it" section restored to five steps. | Claude | P2 | done |

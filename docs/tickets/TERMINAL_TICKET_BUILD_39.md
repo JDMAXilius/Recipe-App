@@ -109,3 +109,13 @@ Terms "AI features" + FAQ) on a branch; it is deployed in the resubmit ticket, s
 
 ## Log
 <!-- append: date/time, step, result, build id / URLs -->
+
+- 2026-09-30 (terminal, Juan's Mac). All steps done; stopped before the video.
+  - B0: version 1.0.19 / build 39; `tsc` clean, lint clean, 324/324 tests.
+  - B1: EAS production has EXPO_PUBLIC_SUPABASE_URL, _ANON_KEY, _USE_OTTO_RECIPES=true. The RevenueCat `appl_` key isn't an EAS var; it's the public SDK key hard-coded in `src/features/profile/club.purchases.ts` (fine for a public key).
+  - B2: EAS build https://expo.dev/accounts/black-360/projects/otto/builds/39fc013b-3b33-4044-9fe5-d614afa14979, auto-submitted.
+  - B3: build id `cdaff286-5e99-41ca-85f2-526acae207f6`, VALID, usesNonExemptEncryption=false.
+  - B4: attached to Otto Insiders (2 testers), internalBuildState IN_BETA_TESTING, What to Test set (PATCH; POST 409s because a localization already exists).
+  - B5: attached to 1.0.19 via API (204); GET confirms build 39. Not submitted, no reply sent.
+  - B6: Business page: Paid + Free Apps Active, bank Active, W-9 Active, DSA Active. ROADMAP ASC-1/2/3 → done.
+  - B7: website W1 already clean live (only juandiego@); W2 + W3 fixes live (`Otto_Website` 1d29a23); W4 mirrors synced here; W5 on branch `w5-ai-consent` (22df8b9), deploys in R6.

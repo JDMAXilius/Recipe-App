@@ -115,3 +115,9 @@ matches the text.
 
 ## Log
 <!-- append: date, step, result, commit, live-page check -->
+
+- 2026-09-30 (terminal). W1: source + live /support /terms /privacy show only juandiego@ottosapp.com (hello@ only in internal README/brief notes). Test email from outside account: **pending, Juan** (WEB-2).
+  W2: the form now returns an error with juandiego@ when Resend is unconfigured or fails (no fake "sent"). Vercel env unreadable via connector (403), so whether Resend is configured is unknown; a test message through /contact tells. Website 1d29a23, live.
+  W3: /privacy /terms /support 200. Terms lacked the explicit prices → added $4.99/mo, $39.99/yr, 1-week trial to §4. Privacy lacked YouTube → added to §4. Voice section already says Apple processes audio, Otto gets text. TheMealDB credit present. Live-verified.
+  W4: app repo docs/legal/*.md replaced with website mirrors + header. The .html copies are hand-made, already marked "not the published version"; left as is.
+  W5: prepared on branch `w5-ai-consent` (22df8b9): Privacy §1(g) consent + what is sent, Terms §3 "AI features", Support FAQ "Does Otto use AI?". Not deployed; merge in R6.

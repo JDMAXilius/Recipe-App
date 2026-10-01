@@ -1,3 +1,5 @@
+> Mirror of the ottosapp.com website repo's legal/PRIVACY_POLICY.md, synced 2026-09-30. Edit there, not here.
+
 # Otto — Privacy Policy
 
 > **⚠️ DRAFT — starting point, not legal advice.** This is written to be accurate to what the Otto
@@ -8,7 +10,7 @@
 
 ---
 
-**Effective date:** July 20, 2026
+**Effective date:** September 30, 2026
 **App:** Otto (the "App")
 **Website:** https://ottosapp.com (the "Site")
 **Provider:** Juan Diego Lugo ("we", "us", "our")
@@ -37,19 +39,35 @@ and the choices you have. We've tried to write it plainly.
 ### a) Information you give us
 - **Account information.** When you create an account, we receive your **email address**. If you sign
   in with Apple, Google, or Facebook, we receive your email and, if the provider supplies it, your
-  **name** and a provider account identifier. We use a third-party authentication provider (see §4)
-  to manage sign-in and passwords; we do not store your password ourselves.
+  **name** and a provider account identifier; signing in with Google also gives us a **profile photo
+  URL** the provider hosts (we don't otherwise use or display it). We use a third-party authentication
+  provider (see §4) to manage sign-in and passwords; we do not store your password ourselves.
 - **Your content.** Recipes you save or import, meal plans, and shopping list items — including items
-  on lists you choose to **share with people you invite**.
+  on lists you choose to **share with people you invite**. If you add a photo to a recipe, that photo
+  is uploaded and stored so it can display in the App; see "Recipe photos" below.
+- **Recipe photos you upload.** A photo you attach to a recipe (as opposed to a cooking-journal photo,
+  which stays on your device — see §1(c)) is uploaded to our storage provider and served by a direct
+  link. Choose photos you're comfortable being reachable by anyone who has that link.
+- **Membership and purchases.** If you join Otto Club, our payment processor (see §4) manages the
+  purchase and tells us your membership status and its expiration date, so the App can unlock what
+  you paid for. We never see or store your card details — Apple's App Store handles payment directly.
 - **Messages you send us.** If you email support or send feedback or a bug report from the App, we
   receive what you write and basic context you include (such as the App version and your device's
   operating system).
 
 ### b) Information collected automatically
 - **Limited technical/diagnostic data.** To keep the service reliable, our servers process routine
-  request information (such as a request's time and the operating system type) and **error/diagnostic
-  logs** when something goes wrong. We use this to fix bugs and protect the service, not to profile
-  you. The App does **not** include third-party advertising or analytics SDKs.
+  request information (such as a request's time, the operating system type, IP address, and
+  approximate location derived from it) and **error/diagnostic logs** when something goes wrong. This
+  includes what you search for in Otto's recipe catalogue: our infrastructure provider's request logs
+  record the search term alongside your account and the request's IP address and approximate location,
+  for a limited retention window, to keep the service reliable and secure. We use this to fix bugs,
+  protect the service, and understand load — not to build an advertising profile, and not shared with
+  advertisers. The App does **not** include third-party advertising or analytics SDKs.
+- **Voice input.** If you use the microphone to talk to Otto instead of typing, your speech is
+  processed by Apple's on-device or server-side speech recognition (depending on your settings and
+  connectivity) to produce a text transcript. Otto receives only that transcript, never the audio
+  itself.
 
 ### c) Information that stays on your device (we do **not** collect it)
 - **Cooking-journal photos** of your finished plates, your **food preferences** (diet and cuisines),
@@ -84,9 +102,25 @@ uses **Resend** (an email delivery provider), which processes it to deliver it t
 server also briefly processes your **IP address** to limit abuse of the form (rate limiting); it is
 not stored with your message. We keep contact messages like ordinary email correspondence — as long
 as needed to handle your request and a reasonable period after — and you can ask us to delete them at
-**support@ottosapp.com**. The form sets no cookies and uses no CAPTCHA or tracking.
+**juandiego@ottosapp.com**. The form sets no cookies and uses no CAPTCHA or tracking.
 
----
+### g) How Otto uses AI
+Several App features are powered by a third-party AI provider (**Anthropic**). We send it only what a
+feature needs to do its job:
+- what you type when you **chat with Otto** or **paste recipe text** to import it;
+- **the photo itself**, if you import a recipe by taking or choosing a picture of it;
+- the **public caption of a post** (for example on TikTok or Instagram), when you import it by link
+  and the page doesn't publish the recipe in a standard format, so Otto can read the recipe from it;
+- an **ingredient name**, when our own nutrition data doesn't already have it, so Otto can estimate
+  its nutrition.
+
+Ingredient names that reach this step are also checked against **USDA FoodData Central**, a public
+U.S. government nutrition database, and the matched result is kept in a shared lookup table so the
+next person who cooks with the same ingredient doesn't need a fresh lookup — see §7 for how that
+table relates to your account.
+
+Anthropic processes this content to generate the response Otto shows you (a recipe, a chat reply, a
+nutrition estimate); we don't use it to train models, and it is not sold or used for advertising.
 
 ## 2. How we use information
 
@@ -114,12 +148,19 @@ advertising profile.
 We do **not sell** your personal information. We share it only with service providers that help us
 run the App, and only as needed:
 
-- **Authentication & database provider (Supabase).** Manages sign-in and stores your account and
-  content.
-- **Hosting/backend provider (Railway).** Runs our server that the App talks to.
+- **Authentication & database provider (Supabase).** Manages sign-in, runs the servers the App talks
+  to, and stores your account and content.
 - **Sign-in providers you choose (Apple / Google / Facebook).** Only when you use social sign-in, and
   only to authenticate you.
+- **AI provider (Anthropic).** Powers chat, recipe import, and nutrition-matching — see §1(g) for
+  exactly what we send it.
+- **Payment processor (RevenueCat).** Manages Otto Club subscriptions and tells us your membership
+  status; Apple's App Store handles the actual payment.
 - **Recipe data provider (TheMealDB).** For browsing built-in recipes.
+- **Nutrition data provider (USDA FoodData Central).** For ingredient nutrition lookups — see §1(g).
+- **Video provider (YouTube).** Some recipes include a cooking video. It plays in YouTube's embedded
+  player only when you open it, and YouTube (Google) receives that request, including your IP address
+  and device information, under Google's privacy policy. We don't send YouTube your account details.
 
 We may also disclose information if required by law, to protect our rights or users' safety, or in
 connection with a business transfer (e.g., a merger or acquisition), in which case we'll honor the
@@ -148,7 +189,7 @@ invitation.
 - We keep your account and content for as long as your account is active.
 - **You can delete your account** at any time from the App (Profile → delete account). Deleting your
   account removes your account and the **recipes, meal plans, and favorites** associated with it from
-  our systems.
+  our systems, along with your **membership record** at our payment processor (RevenueCat).
 - **Please note:** content you chose to share may persist after deletion — for example, a **public
   share link** you created or an item on a **shared list** may remain visible to others until it is
   separately revoked or removed. Revoke share links and leave/clear shared lists before deleting if
@@ -156,6 +197,12 @@ invitation.
   automatically; until then, this is the honest state.)*
 - On-device information (journal photos, preferences) is removed when you delete the App from your
   device.
+- **One thing survives deletion, and it isn't yours:** when Otto works out nutrition for an
+  ingredient, it keeps the *ingredient name* and what it matched to in a shared lookup table — so
+  the next person who cooks with "smoked paprika" doesn't cost anyone another lookup. Those rows
+  carry no account, no user ID and nothing linking them to you, and they are not deleted with your
+  account because after deletion there is nothing to connect them to. Your recipes, plans and
+  favorites are deleted as described above.
 - We may retain limited records where we're required to for legal, security, or fraud-prevention
   reasons.
 
@@ -164,7 +211,7 @@ invitation.
 Depending on where you live, you may have the right to **access, correct, delete, or export** your
 personal information, and to object to or restrict certain processing. You can exercise the core of
 these directly — view and edit your content in the App, and delete your account — or contact us at
-**support@ottosapp.com** and we'll help.
+**juandiego@ottosapp.com** and we'll help.
 
 - **California (CCPA/CPRA):** We do not sell or "share" personal information for cross-context
   behavioral advertising, and we don't use it for targeted advertising.
@@ -191,7 +238,7 @@ promptly.
 
 Otto is not directed to children under 13 (or the minimum age required in your country), and we do
 not knowingly collect personal information from them. If you believe a child has provided us personal
-information, contact us at **support@ottosapp.com** and we'll delete it.
+information, contact us at **juandiego@ottosapp.com** and we'll delete it.
 
 ## 12. Changes to this policy
 
@@ -204,7 +251,7 @@ an update means you accept the revised policy.
 Questions or requests about your privacy? Reach us at:
 
 **Juan Diego Lugo**
-Email: **support@ottosapp.com**
+Email: **juandiego@ottosapp.com**
 https://ottosapp.com
 
 Governed by the laws of **the State of Florida, United States**, without regard to conflict-of-laws principles.
