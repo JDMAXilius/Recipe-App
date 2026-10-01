@@ -58,6 +58,20 @@ written down in advance.
 > **Fastest alternative:** reply today with build 38. Honest risk: a 5.1.2(i) rejection after
 > the real review starts, which is the same day of work plus another queue wait.
 
+### Asked 2026-10-01: "Can the AI permission live in the Terms of Service instead of the app?"
+**No, not on its own. Keep the in-app sheet, and put the AI section in the Terms as well.**
+- Apple's rule asks for **explicit permission before** the data is shared with third-party AI.
+  Accepting the Terms at sign-up is bundled consent to everything at once, so it isn't explicit
+  permission for this. A reviewer reading answer #4 looks for a prompt *in the app*.
+- The precedent is the same provider. GymFusion had consent in its legal text and logic, and
+  was rejected eight times with *"We were not presented with the consent prompt on launch or
+  anywhere else in the app."*
+- Sign in with Apple users never see a Terms checkbox, so a Terms-only approach misses them
+  entirely.
+- **What we do instead:** the website Terms get an "AI features" section too (website ticket W5),
+  so the Terms, the Privacy Policy, the FAQ and the sheet all say the same thing. The sheet stays
+  as light as Runna and Liven: once, at first use, one tap.
+
 ---
 
 ## 1b. "But Cal AI doesn't show any AI prompt" — what other apps actually do (Mobbin, 2026-10-01)
@@ -202,49 +216,58 @@ Screens: the consent sheet on Ask Otto and on Import it; the toast after **Not n
 | 5 | **Version drift** | ✅ | `app.json` 1.0.19 = ASC 1.0.19. |
 | 6 | **Paywall shows everything** (3.1.2 / Schedule 2) | ✅ build 38+ | Title, period, price, 1-week trial, auto-renew line, working **Terms** and **Privacy** links, **Restore** — all on `OttoClubScreen`. Listing has Terms link + renewal terms. Linger on this screen in the video. |
 | 7 | **Free limits are visible to the reviewer** (2.1(b)) | ✅ by stating it | Free tier: 5 imports/month, 25 saved recipes, 5 asks/day. Answer #7 says so, so the gate reads as designed, not broken. |
-| 8 | **A sandbox purchase has never completed** (2.1(b), 3.1.1) | ❌ Do before recording | `memberships` has **0 rows** (checked 2026-10-01), and APP-4 is still open. Reviewers buy Otto Club with a sandbox account during review; a purchase that errors, or goes through without unlocking the Club, is one of the most common IAP rejections. On build 39 from TestFlight: Settings → App Store → Sandbox Account (create one in ASC → Users and Access → Sandbox if needed) → Account › Otto Club → Start free trial → confirm the Club unlocks → kill and relaunch → still unlocked → Restore works. Then check that RevenueCat → Customers shows the purchase and a `memberships` row exists. If the row doesn't land, the webhook is broken: fix it before resubmitting. |
+| 8 | **A sandbox purchase has never completed** (2.1(b), 3.1.1) | ⏳ Covered by shot 4 of the recording | `memberships` has **0 rows** (checked 2026-10-01), and APP-4 is still open. Reviewers buy Otto Club with a sandbox account during review; a purchase that errors, or goes through without unlocking the Club, is one of the most common IAP rejections. On build 39 from TestFlight: Settings → App Store → Sandbox Account (create one in ASC → Users and Access → Sandbox if needed) → Account › Otto Club → Start free trial → confirm the Club unlocks → kill and relaunch → still unlocked → Restore works. Then check that RevenueCat → Customers shows the purchase and a `memberships` row exists. If the row doesn't land, the webhook is broken: fix it before resubmitting. |
 
 ---
 
 ## 3. The screen recording — script
 
-**Setup (5 min):** physical iPhone on the **latest iOS**; install build 39 from TestFlight;
-**Do Not Disturb on**; delete any prior Otto data (or use a fresh device); force-quit Otto;
-Control Center → Screen Recording (mic off is fine — narration is optional). One continuous take
-is ideal; two takes stitched are acceptable. Target **4–6 minutes**. You will use **two accounts**:
-a throwaway you create on camera and then delete, and the demo account for the walkthrough.
+**Setup (5 min):** physical iPhone on the **latest iOS**. Install **build 39** from TestFlight
+(the Otto Insiders invite; the terminal ticket puts it there). Turn on **Do Not Disturb**. Delete
+Otto first if it's installed, so the consent sheet and first-run screens appear. Then Control
+Center → Screen Recording (mic off is fine; narration is optional). One continuous take is ideal;
+two takes stitched are acceptable. Target **5–6 minutes**. You use **two accounts**: a throwaway
+you create on camera, subscribe and then delete, and the demo account for the walkthrough.
+
+**This take is also the purchase test (APP-4).** Purchases in a TestFlight build are sandbox
+purchases: Apple's sheet says so, and **nothing is charged**. Buying Otto Club on the throwaway
+account proves the purchase works end to end, shows Apple the whole subscription flow, and then
+shows account deletion telling a subscriber how to cancel. Do it on the **throwaway**, never on the
+demo account, so the reviewer can still buy it themselves.
 
 > **Read-aloud overview (if you narrate, say this at the start — or paste it as the first line of
 > the reply):**
 > "This is Otto, a cookbook and weekly meal planner for home cooks, recorded on a physical iPhone
-> running the current iOS. I'll start from the Home Screen, create an account and then delete it,
-> sign in with the demo account, and walk through the main features: discovering and cooking a
-> recipe, asking Otto to write one, importing a recipe from a link, planning the week into a
-> shopping list, the shared list, and the Otto Club subscription screen with its prices, trial,
-> renewal terms, and links to the Terms of Use and Privacy Policy."
+> running the current iOS. I'll start from the Home Screen, create an account, subscribe to Otto
+> Club, and then delete the account. Then I'll sign in with the demo account and walk through the
+> main features: discovering and cooking a recipe, asking Otto to write one (including the AI
+> consent prompt), importing a recipe from a link, and planning the week into a shopping list."
 
 | # | Time | On screen — do exactly this | Why Apple wants it |
 |---|---|---|---|
 | 1 | 0:00 | Home Screen → tap the **Otto** icon. Let the splash finish. | "must begin with launching the app" |
 | 2 | 0:10 | Onboarding: swipe the 3 cards → **Start cooking** | first-run flow |
 | 3 | 0:25 | **Sign up** with a throwaway email + password → land on Discover | account registration |
-| 4 | 0:45 | **Account** tab → scroll to the bottom → **Delete my account** → tap again ("Tap again. This is forever") → you're back at sign-in | account deletion (required). Never do this on the demo account. |
-| 5 | 1:05 | **Sign in** with the demo account | login flow |
-| 6 | 1:20 | **Discover**: scroll the categories → open a recipe → tap the serving **+** once (quantities change) → scroll to the nutrition card → **Start cooking** → swipe through 2 steps → back out | core: browse, scale, nutrition estimate, cook mode |
-| 7 | 2:00 | **Create (＋)**: type *"a quick tomato pasta for two"* → Send → **the AI consent sheet appears; hold 3 s so it can be read, with Anthropic, the data and the Privacy Policy link on screen → tap Allow** → Otto writes the recipe → **Save to cookbook** → review editor → Save | AI feature **and** the 5.1.2(i) consent on camera |
-| 8 | 2:45 | Still on Create: tap **Speak** once → iOS mic/speech prompts (pause on them; the speech prompt says Apple processes the voice) → Allow → say "pancakes" → stop. | voice input disclosure |
-| 9 | 3:00 | Create → **import icon** (top) → **Paste a link** → paste `https://www.bbcgoodfood.com/recipes/easy-pancakes` → **Import it** → review → Save | import flow, review-before-save |
-| 10 | 3:30 | **Cookbook** tab: show the two saved recipes | |
-| 11 | 3:40 | **Plan** tab: drop a recipe on a day → open the **shopping list** → check one item off | plan → list |
-| 12 | 4:00 | **Account** → **Our shared list**: show the invite code and the **Leave this kitchen** button (don't tap) | user content is invite-only; members control membership |
-| 13 | 4:15 | **Account** → **Otto and AI** row: show the toggle (don't change it) | consent is revocable |
-| 14 | 4:25 | **Account** → **Otto Club**: hold 3 s on the plans (**Monthly $4.99 / Yearly $39.99**, 1-week free trial, "then … /year", auto-renews) → tap **Terms** (page opens) → back → tap **Privacy** → back → show **Restore purchases** → tap **Start free trial** → Apple's sheet appears → **Cancel** | subscription: title, length, price, trial, renewal, Terms of Use + Privacy links, Restore |
-| 15 | 5:10 | Stop recording. | |
+| 4 | 0:45 | **Account** → **Otto Club**: hold 3 s on the plans (**Monthly $4.99 / Yearly $39.99**, 1-week free trial, "then … /year", auto-renews) → tap **Terms** (page opens) → back → tap **Privacy** → back → point at **Restore purchases** (don't tap) → **Start free trial** → Apple's sheet (shows "Sandbox", no charge) → confirm → Otto shows you're in the Club. **If it doesn't unlock within ~10 s, stop and tell Claude**, because the purchase test failed. | subscription: title, length, price, trial, renewal, Terms of Use + Privacy links, Restore, a working purchase |
+| 5 | 1:40 | **Account** → scroll to the bottom → **Delete my account** → the note appears ("Apple bills it… cancel it there too", **Manage subscription**); hold 2 s → tap again → back at sign-in | account deletion (5.1.1(v)), including the subscription notice. Never on the demo account. |
+| 6 | 2:00 | **Sign in** with the demo account | login flow |
+| 7 | 2:15 | **Discover**: scroll the categories → open a recipe → tap the serving **+** once (quantities change) → scroll to the nutrition card → **Start cooking** → swipe through 2 steps → back out | core: browse, scale, nutrition estimate, cook mode |
+| 8 | 2:55 | **Create (＋)**: type *"a quick tomato pasta for two"* → Send → **the AI consent sheet appears; hold 3 s so Anthropic, the data and the Privacy Policy link can be read → tap Allow** → Otto writes the recipe → **Save to cookbook** → review editor → Save | AI feature **and** the 5.1.2(i) consent on camera |
+| 9 | 3:40 | Still on Create: tap **Speak** once → iOS mic/speech prompts (pause on them; the speech prompt says Apple processes the voice) → Allow → say "pancakes" → stop | voice input disclosure |
+| 10 | 3:55 | Create → **import icon** (top) → **Paste a link** → paste `https://www.bbcgoodfood.com/recipes/easy-pancakes` → **Import it** → review → Save | import flow, review-before-save |
+| 11 | 4:25 | **Cookbook** tab: show the two saved recipes | |
+| 12 | 4:35 | **Plan** tab: drop a recipe on a day → open the **shopping list** → check one item off | plan → list |
+| 13 | 4:55 | **Account** → **Our shared list**: show the invite code and the **Leave this kitchen** button (don't tap) | user content is invite-only; members control membership |
+| 14 | 5:10 | **Account** → **Otto and AI** row: show the switch (don't change it) | consent is revocable |
+| 15 | 5:20 | Stop recording. | |
 
-**Deliver:** Apple's reply form accepts `.mp4`/`.mov` attachments. If the file is under a few
-hundred MB attach it; otherwise upload to iCloud Drive / Google Drive / Dropbox / unlisted YouTube
-as a **link that opens without signing in**, and put the link in both the reply and the Notes.
-Test the link from a browser where you're logged out.
+After recording: the TestFlight subscription stays on your Apple ID and renews in sandbox at no
+cost. Cancel it anytime in Settings › your name › Subscriptions; it doesn't matter for review.
+
+**Deliver — your only step:** AirDrop the recording to the Mac and save it as
+`~/Desktop/otto-review-1.0.19.mov`, then tell either session "video ready". Nothing else. The
+terminal ticket `TERMINAL_TICKET_RESUBMIT_2_1.md` takes it from there: it compresses the video,
+attaches it and hosts a link, fills in the reply, posts it and resubmits.
 
 ---
 
@@ -257,20 +280,20 @@ Plain text; ASC renders no markdown. Fill the `[brackets]`. Measured **under 4,0
 Answers below; the same text is in the Notes.
 
 1. SCREEN RECORDING
-[LINK or "attached"]. iPhone [model], iOS [version], build 1.0.19 (39). Starts at launch; shows registration, deletion, sign-in, the main features, the AI consent prompt, and the Otto Club screen (plan names, lengths, prices, trial, auto-renewal terms, Terms of Use and Privacy links, Restore).
+[LINK or "attached"]. iPhone [model], iOS [version], build 1.0.19 (39). Starts at launch; shows registration, the Otto Club screen (plan names, lengths, prices, trial, auto-renewal terms, Terms of Use and Privacy links, Restore) and a sandbox purchase, account deletion, sign-in, the main features and the AI consent prompt.
 
 2. PURPOSE AND AUDIENCE
 Otto is a personal cookbook and weekly meal planner for home cooks (13+). Recipes end up scattered across websites, videos and screenshots, and people still have to decide what to cook and buy. Otto keeps recipes in one place, cooks them step by step with scaling quantities, turns the week's plan into an aisle-grouped shopping list, and estimates nutrition per serving. No ads, no public feed, no tracking.
 
 3. SETUP AND ACCESS
-An account is required. Please use the demo account in the Demo Account fields; it has saved recipes, a week plan and a shopping list. New accounts: email and password, or Sign in with Apple. No sample files needed.
+An account is required. Please use the demo account in the Demo Account fields; it has saved recipes, a week plan and a shopping list. New accounts: email/password or Sign in with Apple.
 - Discover: browse and search; a recipe shows ingredients, steps and a nutrition estimate; Start cooking opens cook mode.
 - Create (the + tab): ask Otto for a recipe or a cooking question, typed or by voice. First use shows a consent prompt naming Anthropic; it can be switched off in Account > Otto and AI. The import icon at the top brings in an existing recipe: paste a link (e.g. https://www.bbcgoodfood.com/recipes/easy-pancakes), paste text, or photograph a recipe card. Every import and AI recipe opens in an editor for review before saving.
 - Cookbook: saved and imported recipes.
 - Plan: recipes on days; the shopping list builds from it.
 - Account: Otto Club, Our shared list, Otto and AI, preferences, Delete my account.
 User content: users write their own recipes and share a list only with people they invite by code, or by private link. Nothing is public: no feed, profiles, comments or discovery of other users. Members can leave a shared list anytime (Account > Our shared list > Leave this kitchen). Contact: juandiego@ottosapp.com.
-Web: no in-app browser. Videos play in an embedded YouTube player; source links open in the system browser sheet.
+Web: no in-app browser; YouTube videos play embedded, source links open in the system browser sheet.
 
 4. EXTERNAL SERVICES
 - Supabase: authentication (email/password), database, file storage, server functions.
@@ -299,6 +322,11 @@ to "(38)" — never describe a prompt the build doesn't show.
 ---
 
 ## 5. Send and resubmit (App Store Connect)
+
+> **Who does what (decided 2026-10-01):** Juan records the video, and that's his only step. The
+> terminal does everything else: `docs/tickets/TERMINAL_TICKET_BUILD_39.md` (build, TestFlight,
+> attach 39, website W1–W4), then `docs/tickets/TERMINAL_TICKET_RESUBMIT_2_1.md` once the video
+> exists (check it, host it, reply, Notes, website W5, resubmit). The steps below are the reference.
 
 1. **Reply:** ASC → Otto → **App Review** (messages) → Apple's message → paste §4 → attach the
    video or paste the link → **Send**. (Apple's help page calls this "corresponding in App Store

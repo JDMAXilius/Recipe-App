@@ -1,0 +1,115 @@
+# Terminal ticket: answer App Review 2.1 and resubmit 1.0.19 (build 39)
+
+> For a Claude Code terminal session on Juan's Mac (Recipe-App repo + website repo), with the
+> **Chrome MCP** signed in to App Store Connect. Written 2026-10-01 by the cloud session.
+> **Starts only when Juan says "video ready"** and `~/Desktop/otto-review-1.0.19.mov` exists.
+> `TERMINAL_TICKET_BUILD_39.md` must be done first (build 39 VALID, attached to 1.0.19).
+> Read the whole ticket first. Work top to bottom, verify each step, log at the bottom.
+
+The video is the **only** thing Juan provides. Everything below is yours.
+
+Source of truth for every word sent to Apple: `docs/release/APP_REVIEW_2.1_RESPONSE.md`
+(§3 the video script, §4 the reply, §5 send/resubmit, §6 don'ts).
+
+## Steps
+
+### R0. Check the video before anything is sent
+1. `ffprobe -v error -show_entries format=duration:stream=width,height -of default=nw=1 ~/Desktop/otto-review-1.0.19.mov`
+   → expect roughly 4–7 min, portrait (`brew install ffmpeg` if missing).
+2. Pull one frame every 10 s
+   (`mkdir -p /tmp/otto-frames && ffmpeg -i ~/Desktop/otto-review-1.0.19.mov -vf fps=1/10,scale=-2:900 /tmp/otto-frames/f%03d.jpg`)
+   and **look at them**. Confirm each §3 beat is on screen:
+   - launch from the Home Screen
+   - sign-up
+   - the **Otto Club** screen (prices, trial, Terms/Privacy, Restore)
+   - Apple's purchase sheet, then Club unlocked
+   - the **delete note** ("Apple bills it… Manage subscription")
+   - back at sign-in
+   - demo sign-in
+   - Discover → cook mode
+   - the **"Otto uses AI for this"** sheet
+   - the iOS speech prompt
+   - import → review
+   - the Plan → shopping list
+   - the shared list
+   - the **Otto and AI** switch
+
+   Extract denser frames (`fps=1/3`) around any beat you can't find.
+3. Privacy pass: no password is readable, and no notification banners show personal content.
+4. If a **required** beat is missing (launch, registration, deletion, the Otto Club screen with
+   its links, the AI consent sheet), stop and tell Juan exactly which shot to re-record. Otherwise go on.
+5. If the frames show the purchase **failed** or the Club **didn't unlock**, stop. That's a bug,
+   not a re-record: tell Juan and log it for the cloud session.
+
+### R1. Purchase plumbing check (doesn't block resubmit)
+RevenueCat dashboard (Chrome) → Customers, sandbox: find the throwaway user's purchase from
+today, then Integrations → Webhooks → event log: the `INITIAL_PURCHASE` delivery should be 2xx.
+Log what you see. If the webhook failed, log it for the cloud session (`revenuecat-webhook` edge
+function). The app's Club unlock comes from RevenueCat directly and free-tier limits are
+client-side, so this doesn't block the resubmit.
+
+### R2. Make a shareable copy
+`ffmpeg -i ~/Desktop/otto-review-1.0.19.mov -vf "scale=-2:1280" -c:v libx264 -crf 26 -preset slow -c:a aac -b:a 96k -movflags +faststart ~/Desktop/otto-review-1.0.19.mp4`
+Aim for under 100 MB (raise `-crf` to 28 if it's bigger).
+
+### R3. Host a link that opens without signing in
+In this order, use the first that works:
+1. **Website repo:** put the mp4 at `public/review/<16 random hex chars>/otto-review-1.0.19.mp4`
+   (generate with `openssl rand -hex 8`). Add an `X-Robots-Tag: noindex` header for `/review/*`, and
+   don't link it from any page. Deploy.
+2. **GitHub release** on the app repo:
+   `gh release create app-review-1.0.19 ~/Desktop/otto-review-1.0.19.mp4 --prerelease --title "App Review video 1.0.19" --notes "Screen recording for Apple App Review."`
+   Use this only if the repo is public. Otherwise the link needs a sign-in, which is useless to Apple.
+
+Verify from a logged-out context: `curl -sI <url>` → `200` with a `video/mp4` content type, and the
+video plays in a Chrome incognito tab. Record the URL. Remove the hosted copy after approval
+(logged as a follow-up).
+
+### R4. Fill in the reply (§4)
+Copy the §4 block exactly and replace:
+- `[LINK or "attached"]` → the URL from R3 (add " (also attached)" if R5 attaches the file).
+- `[model]`, `[version]` → Juan's iPhone model and iOS version. Read them from the video metadata
+  (`ffprobe -show_format` may carry `com.apple.quicktime.model` and `software`). If that's absent,
+  use ASC → TestFlight → Otto Insiders → Juan → device and OS for build 39.
+
+Measure the final text: it must be **≤ 4,000 characters**. Plain text, no markdown.
+
+### R5. Send it to Apple (Chrome)
+1. **Reply in App Review:** App Store Connect → the app → **App Review** (the 1.0.19 submission's
+   message from Apple) → Reply → paste the R4 text. Attach the mp4 if the form accepts it and the
+   Chrome tools can set the file input; the link covers it if not. → **Send**. Screenshot the sent message.
+2. **App Review Information → Notes:** the same R4 text. Via API:
+   - `GET /v1/appStoreReviewDetails/5f6b1060-346b-4ca7-80a3-5d7f4d546459` first.
+   - `PATCH` it with `notes` plus the existing contact fields (`contactFirstName`, `contactLastName`,
+     `contactEmail`, `contactPhone`, `demoAccountRequired`, `demoAccountName`). ASC 409s a notes-only
+     PATCH. Include `demoAccountPassword` only if the GET returned it.
+   - Never print or log the password.
+   - GET it back and confirm the notes saved.
+   - Also attach the mp4 under App Review Information → **Attachment** in Chrome, if possible.
+
+### R6. Website copy for build 39 (website repo)
+Deploy W5 from `TERMINAL_TICKET_WEBSITE_REVIEW_2_1.md`: Privacy Policy consent section, Terms
+"AI features" section, FAQ answer. Verify live.
+
+### R7. Resubmit (Chrome)
+1. Version 1.0.19 shows **build 39** (fix it if not, as in BUILD_39 step B5).
+2. Subscriptions: on the **Otto Club group page**, make sure both are in the submission (**Add for
+   Review** if they aren't). Learned 2026-09-29: the version page has no IAP section, and each
+   sub must be added from its group page.
+3. Resubmit / **Submit for Review**. Release option stays "Automatically release after review".
+4. Verify via API: the version and both subscriptions are `WAITING_FOR_REVIEW`. Screenshot it.
+
+### R8. Close out
+1. Tell Juan: submitted, plus the date/time and what Apple now has.
+2. Log below. Update `ROADMAP.md`: ASC row for the resubmission, APP-4 (sandbox purchase on
+   camera, plus the R1 result), and the follow-up "remove the hosted review video after approval".
+3. Commit with the session attribution lines, `git fetch` + rebase, push `main` (fast-forward only).
+
+## Don'ts (from the pack §6)
+- Don't describe anything the build doesn't do. The reply and build 39 must agree.
+- Don't paste markdown into ASC, and don't go over 4,000 characters in the Notes.
+- Don't use the demo account for the purchase or deletion shots (Juan's script already avoids it).
+- Never type or print the demo password. No account creation, no real purchases, no force-push.
+
+## Log
+<!-- append: date/time, step, result, URLs, screenshots -->

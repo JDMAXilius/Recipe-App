@@ -221,7 +221,12 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
   - **Already done:** M4 (APP-3) and EXIF stripping (APP-7).
   - **Open:** `resolved_ingredients` anon read is a founder call. Repo privacy policy refresh → website ticket W4.
 - **Website:** `docs/tickets/TERMINAL_TICKET_WEBSITE_REVIEW_2_1.md` (contact address, contact form, claims pass, legal sync, consent copy W5 after build 39 is confirmed).
-- **Next:** `eas build` 39 → TestFlight checks in the pack §1c "Verify from your phone" → **APP-4 sandbox purchase on 39** (`memberships` has 0 rows as of 2026-10-01: no purchase has ever completed end to end) → record → reply → resubmit.
+- **Next (decided 2026-10-01; Juan's only step is the video):**
+  1. Terminal: `TERMINAL_TICKET_BUILD_39.md` (build 39 → TestFlight → attach to 1.0.19, Business-page check, website W1–W4).
+  2. Juan: record per pack §3 on build 39. The take includes a sandbox Otto Club purchase on the throwaway account (APP-4), then deleting that account. AirDrop it as `~/Desktop/otto-review-1.0.19.mov`.
+  3. Terminal: `TERMINAL_TICKET_RESUBMIT_2_1.md` (check frames → host link → reply + Notes → website W5 → resubmit).
+- Also in build 39: account deletion tells subscribers Apple keeps billing until they cancel, with a Manage subscription link (Apple's deletion guidance).
+- Terms of Service: asked whether AI consent could live only there. **No**: 5.1.2(i) needs explicit in-app permission. The Terms get an AI section as well (website W5).
 - Stale rows: the submit ticket records Paid Apps, Free Apps and the bank account as **Active**, so ASC-1/2/3 are effectively done. Juan to confirm, then mark them.
 - Consent sheet v2: adds `More in our Privacy Policy` and "Anthropic doesn’t train its AI on what you send" (matching Runna, Liven, Starling and Structured).
 - Then: record on 39 → reply + Notes → resubmit with the three Otto Club items.

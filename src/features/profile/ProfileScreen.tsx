@@ -46,6 +46,10 @@ import { deleteAccount } from './profile.queries';
 const SUPPORT_EMAIL = 'juandiego@ottosapp.com';
 const PRIVACY_URL = 'https://ottosapp.com/privacy';
 const TERMS_URL = 'https://ottosapp.com/terms';
+// Apple's account-deletion rule for subscription apps: say billing continues
+// through Apple until cancelled, and show where to cancel. Same link as the
+// paywall's member card (OttoClubScreen MANAGE_URL).
+const MANAGE_SUBSCRIPTIONS_URL = 'https://apps.apple.com/account/subscriptions';
 // App Store id 6792195637 (ASC). The write-review page only resolves once the
 // listing is live; every build carrying this ships after approval anyway.
 const RATE_APP_URL = 'https://apps.apple.com/app/id6792195637?action=write-review';
@@ -404,6 +408,21 @@ export function ProfileScreen() {
           {armDelete ? 'Tap again. This is forever' : 'Delete my account'}
         </Text>
       </Pressable>
+      {armDelete && (
+        <View style={styles.deleteNote}>
+          <Text role="caption">
+            Have Otto Club? Apple bills it, so it keeps renewing until you cancel it there too.
+          </Text>
+          <Pressable
+            onPress={() => void Linking.openURL(MANAGE_SUBSCRIPTIONS_URL).catch(() => {})}
+            accessibilityRole="link"
+            accessibilityLabel="Manage subscription"
+            hitSlop={8}
+          >
+            <Text role="computed">Manage subscription</Text>
+          </Pressable>
+        </View>
+      )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -493,6 +512,7 @@ const styles: Record<string, ViewStyle> = {
   statCell: { flex: 1, alignItems: 'center', gap: space[1] },
   statCellDivider: { borderLeftWidth: 1, borderLeftColor: colors.creamDeep },
   deleteRow: { alignItems: 'center', paddingVertical: space[4] },
+  deleteNote: { alignItems: 'center', gap: space[2], paddingHorizontal: space[4], paddingBottom: space[4] },
 };
 
 // Inline name field — styled to sit where the title Text was, no bordered box.

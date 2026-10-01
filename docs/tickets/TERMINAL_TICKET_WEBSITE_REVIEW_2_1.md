@@ -14,8 +14,10 @@ email the address printed there. **Build 39 adds an in-app AI consent sheet** (G
 and the legal pages must describe exactly what that build does. App, answers and website must say
 the same thing — a mismatch is a rejection.
 
-**Order:** do W1–W4 now. W5 waits until build 39's behaviour is confirmed on TestFlight (the cloud
-session is building it), but write the copy now so it ships the same day.
+**Order:** do W1–W4 now. Prepare W5 on a branch now and deploy it in step R6 of
+`TERMINAL_TICKET_RESUBMIT_2_1.md` (the same day build 39 is submitted), because the live site must
+never describe behaviour the build under review lacks. Build 39 (consent sheet, Privacy Policy link,
+no-training line) is built by `TERMINAL_TICKET_BUILD_39.md`.
 
 ## W1. Contact address — P0, 10 min
 
@@ -84,6 +86,13 @@ Add to the Privacy Policy's AI section (adapt to its voice; keep the facts):
 
 The app's own wording is in `src/shared/aiConsent.logic.ts` (`AI_CONSENT_COPY`). If the site and
 the app ever differ, change the site to match the app.
+
+Add to the **Terms of Service** a short "AI features" section with the same facts (who
+processes it: Anthropic; what is sent; that it only happens after the user allows it in the app;
+that it can be switched off in Account > Otto and AI; that AI recipes and nutrition are suggestions
+and estimates, not dietary or medical advice). This complements the in-app prompt; **it does not
+replace it**. Apple requires explicit in-app permission (see `docs/release/APP_REVIEW_2.1_RESPONSE.md`
+§1, "Asked 2026-10-01").
 
 Also, on `/support` (the FAQ), add or update a "Does Otto use AI?" answer with the same two facts
 and the Account > Otto and AI path.
