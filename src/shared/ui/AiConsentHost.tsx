@@ -6,6 +6,7 @@ import { AI_CONSENT_COPY, onAiConsentRequest, setAiConsent } from '../aiConsent'
 import { Button } from './Button';
 import { Sheet } from './Sheet';
 import { Text } from './Text';
+import { useToast } from './Toast';
 
 // The AI consent sheet (Guideline 5.1.2(i)). Mounted once at the root, like
 // ToastHost: ensureAiConsent() asks, this shows the sheet, the answer resolves
@@ -14,6 +15,7 @@ import { Text } from './Text';
 export function AiConsentHost() {
   const waiting = useRef<((allowed: boolean) => void)[]>([]);
   const [visible, setVisible] = useState(false);
+  const toast = useToast();
 
   useEffect(
     () =>
@@ -33,6 +35,9 @@ export function AiConsentHost() {
     const resolvers = waiting.current;
     waiting.current = [];
     resolvers.forEach((r) => r(allowed));
+    // An explicit "Not now" says where the switch is, so the action that just
+    // did nothing doesn't look broken.
+    if (remember && !allowed) toast.show(AI_CONSENT_COPY.offToast, 'info');
   };
 
   return (

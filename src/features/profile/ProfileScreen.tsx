@@ -286,7 +286,7 @@ export function ProfileScreen() {
               the cook timer alarm keeps its job either way. */}
           <View style={[styles.unitRow, styles.rowDivider]}>
             <Ionicons name="musical-notes-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, marginRight: space[3] }}>
               <Text role="body">Sounds</Text>
               <Text role="caption">Soft chimes on saves and finishes. Timers always ring.</Text>
             </View>
@@ -306,7 +306,7 @@ export function ProfileScreen() {
               Anthropic; the rest of Otto is unchanged. */}
           <View style={[styles.unitRow, styles.rowDivider]}>
             <Ionicons name="sparkles-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, marginRight: space[3] }}>
               <Text role="body">{AI_CONSENT_COPY.settingsLabel}</Text>
               <Text role="caption">{AI_CONSENT_COPY.settingsCaption}</Text>
             </View>

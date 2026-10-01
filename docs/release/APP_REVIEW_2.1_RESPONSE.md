@@ -42,7 +42,7 @@ mounted once in `app/_layout.tsx`.
 | **Title** | `Otto uses AI for this` |
 | **Body** | `To write recipes, read what you paste or photograph, answer your questions and match ingredients to nutrition data, Otto sends that content through our server to Anthropic, the company that makes the Claude AI model.` / `Only what you give the feature goes: the words you type, the link, text or photo you share, and the ingredient names in your recipes. Your email and the rest of your account stay with us.` / `Change this anytime in Account › Otto and AI. Your cookbook, cook mode, plan and shopping list work either way.` |
 | **Buttons** | `Allow` (primary) · `Not now` (ghost). Both are stored. Tapping outside the sheet is **not** a decision: nothing is stored, nothing is sent, and the next AI action asks again. |
-| **Not now** | Stored as declined. That action stops and nothing leaves the phone. The next AI action asks again, so the way back is one tap, and Account › Otto and AI also turns it on. Browse, cookbook, cook mode, plan and list all keep working. |
+| **Not now** | Stored as declined. That action stops, nothing leaves the phone, and what they typed stays in the box. A toast says `Otto's AI is off. Turn it on in Account › Otto and AI.` The next AI action asks again, so the way back is one tap, and Account › Otto and AI also turns it on. Browse, cookbook, cook mode, plan and list all keep working. |
 | **Background AI** | Nutrition matching (`resolve-nutrition` sends **ingredient names** to Claude) never prompts. It runs only once consent is granted. Without consent, nutrition uses the on-device table only, so a few unusual ingredients may go unmatched. |
 | **Revoke** | Account › Preferences › **Otto and AI**, a switch with the caption `Ask Otto, imports and nutrition matching use Anthropic's Claude.` |
 | **Voice** | No extra caption. The disclosure is iOS's own speech prompt, whose string now reads: `Apple's speech recognition turns your words into text for Otto. Your voice is processed by Apple; Otto receives only the text.` Mic: `Otto listens only while Speak is on, to write down what you say.` Apple is first-party, not third-party AI. |
@@ -154,6 +154,16 @@ closes a real gap), **Later** (not a review blocker).
 - Without consent, a user recipe's nutrition is saved from the on-device table only. If they allow AI later, recipes saved earlier keep their first estimate until edited. Fine for review; revisit if anyone notices.
 - Dev only: the web target crashes at start because RevenueCat rejects the `appl_` key on web. This has no effect on iOS; noted so nobody chases it during review.
 - Free-tier gating could show the consent sheet first and then the limit toast. Order today: consent, then limit. That is deliberate (consent is about data, the limit is about plan) but worth a look on TestFlight.
+
+### CHECKED IN A BROWSER — 2026-10-01 (web build, signed-in session faked, AI calls stubbed and counted)
+Screens: the consent sheet on Ask Otto and on Import it; the toast after **Not now**; the Account switch on and off; the FAQ answer; Banana Bread detail, cook mode and shopping list. Results:
+- No AI request while the sheet is up, and none after **Not now**. The draft is kept, and "declined" is stored.
+- The next Send asks again. **Allow** sends exactly one `generate-recipe` call and stores "granted". The Account switch stores "declined".
+- Import asks too, and sends nothing on **Not now**.
+- Cook mode opens Banana Bread (10 ingredients), and the list builds from it.
+- Fixed from the screenshots: the Account switch captions ran into the switch, so there's now a gap. "Not now" now shows the off toast.
+- Noted, not changed: Discover's **category names and cuisine list** still come from TheMealDB (`categories.php`, `list.php` through the `content` function, with the paid key). Recipes come from `otto_recipes`. The tile art is Otto's own. This is consistent with answer #6 (photos credited, catalogue is Otto's).
+- Recipe pages open at 1 serving by design (a founder decision), so the nutrition ring shows one serving.
 
 ### WEBSITE — handed to the terminal: `docs/tickets/TERMINAL_TICKET_WEBSITE_REVIEW_2_1.md`
 (contact address, contact form, legal-page claims, repo legal sync, and the consent copy for build 39)
