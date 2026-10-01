@@ -210,3 +210,8 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 - Recipe-App: `docs/tickets/TERMINAL_TICKET_PUBLISH.md`, `docs/history/OTTO_CLUB_GOLIVE.md`, `docs/release/STORE_METADATA.md`, `docs/legal/APP_PRIVACY_TRUTH_TABLE.md`, `docs/history/AI_COST_DIET.md`
 - Otto_Website: `README.md`, `brief/AUDIT_SELF.md`, `brief/ASO_PLAN.md`, `brief/PRE_LAUNCH_CHECKLIST.md`, `lib/metadata.ts`, `lib/contact.ts`
 - App Store Connect, RevenueCat and Supabase dashboards read on 2026-09-24; Supabase security and performance advisors
+
+## 2026-10-01 — App Review 2.1 (Information Needed) on 1.0.19 build 38
+- Not a defect: Apple's new-account information request (video + 7 answers). Pack: `docs/release/APP_REVIEW_2.1_RESPONSE.md`.
+- **Build 39 before resubmitting:** AI consent sheet + Account "Otto and AI" toggle, voice caption, FAQ copy (5.1.2(i)). Decide M2 (speech) and M4 (recipe source). Should: strip EXIF on photo upload, refresh repo privacy policy, restrict `resolved_ingredients` read to authenticated.
+- Then: record on 39 → reply + Notes → resubmit with the three Otto Club items.

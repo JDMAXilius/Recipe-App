@@ -121,6 +121,47 @@ the rule and would be the worst of both: a prompt the user sees, with none of th
 Onboarding placement also passes, but onboarding is skippable — the first-use sheet is the one a
 reviewer cannot miss.
 
+## 1c. What to change in the app itself (verified against the code, 2026-10-01)
+
+Everything below was re-checked in `src/`, `app.json` and `supabase/` today — not inherited from the
+July audit. Three tiers: **Must** (do in build 39 or the review can fail on it), **Should** (cheap,
+closes a real gap), **Later** (not a review blocker).
+
+### MUST — build 39
+| # | Change | Where | Why |
+|---|---|---|---|
+| M1 | **AI consent sheet + "Otto and AI" row** — the §1 spec. One `useAiConsent()` hook (stored in `kv`, `src/shared/storage.ts`) gating four actions: Ask Otto **Send** (`ChatScreen.tsx` `onSend`), **Import it** / **Draft it** / **Snap a photo** (`AddSheet.tsx`). Decline → those four show a toast, everything else works. Account tab gets an **Otto and AI** row with the same text and a toggle. | `src/features/chat`, `src/features/import`, `src/features/profile/ProfileScreen.tsx` | 5.1.2(i); the reply names Anthropic, the app must show it. Nothing exists today (`grep -ri anthropic src` → no UI hit). |
+| M2 | **Voice caption** — under the Speak pill on first use: `Your voice is transcribed by Apple's speech service; Otto only receives the words.` And tighten the permission string in `app.json` → `speechRecognitionPermission`: `Speech recognition turns your words into text for Otto. Audio may be processed by Apple.` | `src/features/chat` (Composer), `app.json` plugins | `useSpeechInput.ts:1-14`: `requiresOnDeviceRecognition` is unset → audio streams to Apple. Reviewers read permission strings. **Founder call:** keep server recognition and disclose (recommended — better accuracy, works on older devices; Apple is first-party, not "third-party AI"), or set `requiresOnDeviceRecognition: true`. |
+| M3 | **FAQ copy** — "Where does my data live?" add: `What you type, paste or photograph for Otto's AI features is sent to Anthropic to produce the answer; see Account > Otto and AI.` Replace the two "your profile" mentions (`FaqScreen.tsx:55`, `:94`) with "the Account tab". | `src/features/profile/FaqScreen.tsx` | Policy-in-app consistency; the tab is **Account**, which is what the reply tells the reviewer to open. |
+| M4 | **Recipe source flag** — decide before answer #6. Either add `EXPO_PUBLIC_USE_OTTO_RECIPES=true` to `eas.json` (`preview` + `production`) so the app serves Otto's own canonical catalogue (795 recipes; makes the FAQ/listing copy true), **and/or** confirm a paid TheMealDB supporter key. Photos stay hotlinked from themealdb.com either way — keep the credit. Smoke-test Discover, search, detail, related, nutrition after flipping. | `eas.json`, `src/features/recipes/canonical.transform.ts:23` | Answer #6 says you're authorized. Today release builds read TheMealDB live (`eas.json` has no flag). |
+
+### SHOULD — same build if cheap, otherwise the one after
+| # | Change | Where | Why |
+|---|---|---|---|
+| S1 | **Strip EXIF/GPS before uploading recipe photos** — re-encode to JPEG via `expo-image-manipulator` in `uploadRecipePhoto` (≈10 lines). | `src/features/import/import.queries.ts:131-157`, `src/shared/imagePicker.ts` | The `recipe-photos` bucket is **public-read by design** (share pages). HEIC library picks can carry GPS through untouched (`imagePicker.ts` passes `quality:0.7`, no re-encode). A public photo with location in it is a privacy finding waiting to happen. |
+| S2 | **Repo privacy policy is stale** — `docs/legal/PRIVACY_POLICY.md` names Railway and has **zero** mentions of Anthropic, RevenueCat, USDA or Apple speech. The live site is the authoritative copy (per the publish ticket) but could not be fetched from this session. Replace the repo file with the live text, or delete it. | `docs/legal/PRIVACY_POLICY.md` | Nobody should audit against the wrong document; the consent sheet relies on the policy backing it. |
+| S3 | **`resolved_ingredients` is readable by `anon` and never deleted** — ingredient names users type become globally readable rows (`…_resolved_ingredients.sql:17-19`) that account deletion does not touch. Change the read policy to `authenticated` (one line). | `supabase/migrations` (new) | Ingredient names are rarely personal, but a user can type anything; "anyone can read it forever" is not what the policy promises. |
+
+### LATER — not a review blocker
+- The free-gate toasts (`club.limits.ts` `blockedMessage`) name Otto Club but not the path to it; add "Account > Otto Club".
+- Voice: if you ever flip to on-device recognition, delete the M2 caption — the two must agree.
+
+### VERIFY FROM YOUR PHONE (this session cannot reach ottosapp.com)
+- **ottosapp.com/privacy** names **Anthropic, RevenueCat, Supabase, USDA FoodData Central, TheMealDB, Apple speech recognition** — answers #4 and #6 say so.
+- **/privacy, /terms, /support contact address is a mailbox that receives mail** (`juandiego@ottosapp.com` or `support@`). The July audit found `hello@ottosapp.com` published on all three and **not** a real mailbox. A reviewer who emails your support address and bounces is a rejection with the evidence in hand. Website repo, not this one.
+- **/terms** says 13+ and states the Otto Club price, trial, auto-renewal and cancellation.
+- Demo account signs in with saved recipes, plan and list present.
+- Build 39 on TestFlight: consent sheet appears on first Send; **Not now** leaves Discover/Cookbook/Plan/List working; the Account toggle flips it back; the video shows all of it.
+
+### NO CHANGE NEEDED — verified today
+- Paywall carries every 3.1.2 element: titles, periods, prices, trial, auto-renew line, working Terms + Privacy links, Restore (`OttoClubScreen.tsx`).
+- Account deletion is real and complete: two-tap in Account → `admin_delete_user_data` (favorites, recipes, plan entries, shares; kitchens and memberships cascade from the auth user) → storage photos paged and removed → RevenueCat subscriber deleted → auth user last. Fixed 2026-09-24 after a production 500.
+- Permission strings are honest and specific (camera, photos, mic, speech) — `app.json` plugins.
+- Privacy manifest = the published App Privacy label: Email, Name, User ID, Device ID, Purchase History, Photos/Videos, Other User Content; tracking **false**.
+- Export compliance declared; screenshots don't lead with sign-in; `app.json` 1.0.19 = ASC.
+- Published contact routes exist: support page + in-app "Report a bug" / "Send a thought" (mailto).
+- No in-app browser: YouTube embed + system browser sheet only.
+
 ## 2. The rest of the gate — do before recording
 
 | # | Check | Status | What to do |
