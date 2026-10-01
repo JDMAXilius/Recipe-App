@@ -44,7 +44,7 @@ const FAQS = [
   },
   {
     q: 'Where does my data live?',
-    a: 'Your recipes, saved recipes and weekly plan live in your account. Your cooking journal photos, food preferences and your own shopping list stay on this phone. A list you share with your kitchen is kept in your account so everyone sees the same one.',
+    a: 'Your recipes, saved recipes and weekly plan live in your account. Your cooking journal photos, food preferences and your own shopping list stay on this phone. A list you share with your kitchen is kept in your account so everyone sees the same one. When you use Otto’s AI (asking Otto, importing, nutrition matching), what you give it is sent to Anthropic to produce the answer — only after you allow it, and you can switch it off in Account › Otto and AI. Voice input is turned into text by Apple.',
   },
   {
     q: 'What is Otto Club?',
@@ -52,7 +52,7 @@ const FAQS = [
   },
   {
     q: 'How do I leave?',
-    a: 'Sign out anytime from your profile, or choose Delete my account to remove everything, for real. No guilt trip, and Otto will keep the stove warm.',
+    a: 'Sign out anytime from the Account tab, or choose Delete my account to remove everything, for real. No guilt trip, and Otto will keep the stove warm.',
   },
 ];
 
@@ -91,7 +91,7 @@ export function FaqScreen() {
           );
         })}
         <Text role="caption">
-          Something else on your mind? Send a thought from your profile. A human reads every one.
+          Something else on your mind? Send a thought from the Account tab. A human reads every one.
         </Text>
       </ScrollView>
     </Screen>

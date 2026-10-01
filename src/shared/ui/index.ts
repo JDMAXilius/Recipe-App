@@ -22,3 +22,4 @@ export {
   type OttoErrorProps,
 } from './OttoStates';
 export { Screen, type ScreenProps } from './Screen';
+export { AiConsentHost } from './AiConsentHost';

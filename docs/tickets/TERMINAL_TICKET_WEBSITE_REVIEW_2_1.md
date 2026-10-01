@@ -72,13 +72,18 @@ Add to the Privacy Policy's AI section (adapt to its voice; keep the facts):
 
 > **Asking before AI is used.** The first time you use one of Otto's AI features (Ask Otto, importing
 > a recipe from a link, pasted text or a photo), Otto shows you what will be sent and to whom, and
-> asks your permission. If you choose "Not now", those features stay off and the rest of Otto works
-> as usual. You can change your choice any time in the app under **Account > Otto and AI**.
+> asks your permission. If you choose "Not now", nothing is sent, the AI features stay off and the
+> rest of Otto works as usual. You can change your choice any time in the app under
+> **Account > Otto and AI**.
 >
-> **What is sent.** Only the content you give that feature: the text you type, the link or recipe
-> text you paste, or the photo you take. It is sent through our server to Anthropic, the company that
-> makes the Claude AI model, to produce the answer. Your email, name and the rest of your account are
-> not sent with it.
+> **What is sent.** Only the content you give that feature: the words you type, the link, text or
+> photo you share, and the ingredient names in your recipes (used to match them to nutrition data).
+> It is sent through our server to Anthropic, the company that makes the Claude AI model, to produce
+> the answer. Your email, name and the rest of your account are not sent with it. Ingredient names
+> are only sent after you allow it. Until then, nutrition is estimated from Otto's built-in table.
+
+The app's own wording is in `src/shared/aiConsent.logic.ts` (`AI_CONSENT_COPY`). If the site and
+the app ever differ, change the site to match the app.
 
 Also, on `/support` (the FAQ), add or update a "Does Otto use AI?" answer with the same two facts
 and the Account > Otto and AI path.

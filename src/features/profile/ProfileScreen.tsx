@@ -22,6 +22,7 @@ import { Text, SegmentBar, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
+import { AI_CONSENT_COPY, useAiConsent } from '@/shared/aiConsent';
 import { useAuth, displayNameFor, hasUsername, cleanUsername, MAX_USERNAME } from '@/features/auth';
 import { useSaved, useMyRecipes } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
@@ -60,6 +61,8 @@ function hasPasswordLogin(user: User | null): boolean {
 export function ProfileScreen() {
   const router = useRouter();
   const { show } = useToast();
+  // Third-party AI consent (5.1.2(i)) — the revocable half of the consent sheet.
+  const aiConsent = useAiConsent();
   const { user, signOut, saveUsername } = useAuth();
   const { saved } = useSaved();
   const { entries } = usePlan();
@@ -296,6 +299,25 @@ export function ProfileScreen() {
               }}
               trackColor={{ true: colors.terracotta, false: colors.border }}
               accessibilityLabel="Sounds"
+            />
+          </View>
+          {/* Otto and AI — the switch behind the consent sheet. Off means
+              Ask Otto, imports and nutrition matching send nothing to
+              Anthropic; the rest of Otto is unchanged. */}
+          <View style={[styles.unitRow, styles.rowDivider]}>
+            <Ionicons name="sparkles-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
+            <View style={{ flex: 1 }}>
+              <Text role="body">{AI_CONSENT_COPY.settingsLabel}</Text>
+              <Text role="caption">{AI_CONSENT_COPY.settingsCaption}</Text>
+            </View>
+            <Switch
+              value={aiConsent.granted}
+              onValueChange={(v) => {
+                haptics.select();
+                void aiConsent.set(v ? 'granted' : 'declined');
+              }}
+              trackColor={{ true: colors.terracotta, false: colors.border }}
+              accessibilityLabel={AI_CONSENT_COPY.settingsLabel}
             />
           </View>
           <View style={[styles.unitRow, styles.rowDivider]}>

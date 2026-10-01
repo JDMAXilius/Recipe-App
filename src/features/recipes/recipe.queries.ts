@@ -19,23 +19,12 @@ import {
 } from './mealdb.transform';
 import {
   USE_OTTO_RECIPES,
-  canonicalToRecipe,
   canonicalToSummary,
   parseCanonical,
 } from './canonical.transform';
-import { choosePickSource } from './recipe.pick';
+import { choosePickSource, type PickSource } from './recipe.pick';
+import { content, fetchSeedRecipe } from './seed.loader';
 import type { Recipe, RecipeCategory, RecipeSummary } from './recipe.types';
-
-// One call into the content passthrough. supabase.functions.invoke attaches the
-// anon apikey/JWT the function's verify_jwt needs (Discover works before signup)
-// and returns the JSON body verbatim in `data`. GET only — the function 405s POST.
-async function content(endpoint: string, params: Record<string, string> = {}): Promise<unknown> {
-  const qs = new URLSearchParams(params).toString();
-  const name = `content/${endpoint}${qs ? `?${qs}` : ''}`;
-  const { data, error } = await supabase.functions.invoke(name, { method: 'GET' });
-  if (error) throw error;
-  return data;
-}
 
 // A route param routes to a source: "u-12" → user recipe (DB), else a seed id.
 export function isUserRecipeRef(id: string): boolean {
@@ -47,15 +36,6 @@ export function isUserRecipeRef(id: string): boolean {
 // category/area grids. Public SELECT on otto_recipes (RLS), so they work before
 // signup exactly like the content path. OFF (the default) skips all of this.
 
-async function ottoRecipeById(id: string): Promise<Recipe | null> {
-  const { data, error } = await supabase
-    .from('otto_recipes')
-    .select('canonical')
-    .eq('id', id)
-    .maybeSingle();
-  if (error) throw error;
-  return data ? canonicalToRecipe(parseCanonical(data.canonical)) : null;
-}
 
 // Category × areas grid. TheMealDB needs a fetch per filter + a client intersect;
 // the canonical record carries both, so one filtered SELECT does it. category is
@@ -137,6 +117,27 @@ async function randomPick(): Promise<Recipe | null> {
   return meals[0] ? mealToRecipe(meals[0]) : null;
 }
 
+// Otto's pick from Otto's own table (flag on). Pick an id from the matching
+// slice, then load it through the shared seed loader — so the hero is the same
+// record its detail page opens. Before this, the hero came from TheMealDB's
+// random.php while detail read otto_recipes, so a meal TheMealDB has and the
+// table doesn't would open to "not found" on the first screen anyone sees.
+// An empty slice (a cuisine with no recipes) falls back to the whole shelf.
+async function ottoPick(source: PickSource): Promise<Recipe | null> {
+  const pickFrom = async (filter: PickSource): Promise<string[]> => {
+    let q = supabase.from('otto_recipes').select('id');
+    if (filter.kind === 'area') q = q.eq('canonical->>area', filter.value);
+    if (filter.kind === 'category') q = q.eq('canonical->>category', filter.value);
+    const { data, error } = await q;
+    if (error) throw error;
+    return (data ?? []).map((r) => r.id);
+  };
+  let ids = await pickFrom(source);
+  if (ids.length === 0 && source.kind !== 'random') ids = await pickFrom({ kind: 'random' });
+  const id = ids[Math.floor(Math.random() * ids.length)];
+  return id ? fetchSeedRecipe(id) : null;
+}
+
 export function useFeatured() {
   const { diet, cuisines } = usePrefs();
   return useQuery<Recipe | null>({
@@ -144,6 +145,7 @@ export function useFeatured() {
     queryKey: ['featured', diet, [...cuisines].sort().join(',')],
     queryFn: async () => {
       const source = choosePickSource({ diet, cuisines });
+      if (USE_OTTO_RECIPES) return ottoPick(source);
       if (source.kind === 'random') return randomPick();
 
       // filter.php returns lean id/name/thumb rows — pick one, then lookup the
@@ -235,8 +237,20 @@ export function useSearch(query: string) {
         // empty → the ingredient fallback below, unchanged.
         const hits = await ottoSearchByTitle(q);
         if (hits.length > 0) return hits;
+        // Ingredient search still asks TheMealDB, but only results that exist
+        // in Otto's table are shown — every result has to open to a recipe.
         const meals = parseMeals(await content('filter.php', { i: q }));
-        return meals.slice(0, 24).map((m) => mealToSummary(m));
+        if (meals.length === 0) return [];
+        const { data, error } = await supabase
+          .from('otto_recipes')
+          .select('id')
+          .in('id', meals.map((m) => m.idMeal));
+        if (error) throw error;
+        const served = new Set((data ?? []).map((r) => r.id));
+        return meals
+          .filter((m) => served.has(m.idMeal))
+          .slice(0, 24)
+          .map((m) => mealToSummary(m));
       }
       let meals = parseMeals(await content('search.php', { s: q }));
       if (meals.length === 0) meals = parseMeals(await content('filter.php', { i: q }));
@@ -299,9 +313,7 @@ export function useRecipe(id: string) {
         if (error) throw error;
         return data ? rowToRecipe(data) : null;
       }
-      if (USE_OTTO_RECIPES) return ottoRecipeById(id);
-      const meals = parseMeals(await content('lookup.php', { i: id }));
-      return meals[0] ? mealToRecipe(meals[0]) : null;
+      return fetchSeedRecipe(id);
     },
   });
 }

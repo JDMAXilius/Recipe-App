@@ -123,7 +123,7 @@ derives from the prefix, so the paywall's "you'd be charged" flips to "you'll" o
 make one **real sandbox purchase** and confirm the `club` entitlement unlocks before submitting.
 
 ### T3. Serve recipes from Otto's own database `[makes the app's copy true]`
-`EXPO_PUBLIC_USE_OTTO_RECIPES` exists only in `.env.development` and defaults **off**
+*(Superseded 2026-10-01: set in the EAS production environment since 2026-09-24 — ROADMAP APP-3 — and confirmed live in Supabase logs; this note is historical.)* `EXPO_PUBLIC_USE_OTTO_RECIPES` exists only in `.env.development` and defaults **off**
 (`canonical.transform.ts:23`), so release builds still query TheMealDB live — while the app's FAQ
 and copy now say "Otto's own recipe database." Add the env to `eas.json` for `preview` and
 `production`, then smoke-test Discover, search, detail, related and nutrition against the new path.

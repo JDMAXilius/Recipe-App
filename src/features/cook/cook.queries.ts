@@ -2,11 +2,10 @@
 // goes through fetchCookRecipe(); it never imports supabase-js directly.
 import { supabase } from '@/shared/supabase/client';
 // Seed recipes never land in the `recipes` table (user-owned rows only), so a
-// seed id is loaded through the same `content` passthrough + transform the
-// detail screen uses — keeps cook's steps/ingredients identical to what the
-// user just read. contract_gap: mealdb.transform is recipes-feature-private;
-// a public seed loader on @/features/recipes would be the clean seam.
-import { mealToRecipe, parseMeals } from '@/features/recipes/mealdb.transform';
+// seed id is loaded through the SAME loader the detail screen uses — cook's
+// steps and ingredients are the record the user just read, from whichever
+// catalogue the app serves (Otto originals included).
+import { fetchSeedRecipe } from '@/features/recipes/seed.loader';
 import type { Json } from '@/types/database';
 import type { IngredientPair } from './session';
 import type { CookRecipe } from './cook.types';
@@ -30,8 +29,8 @@ function toSteps(steps: Json): string[] {
 // resolve (user-created + stored seeds). A TheMealDB-only seed not persisted
 // there returns null — same reach limit the planner packet documents.
 export async function fetchCookRecipe(id: string): Promise<CookRecipe | null> {
-  // A "u-<id>" ref is a user recipe (recipes table); anything else is a seed id
-  // reached through the content edge function (TheMealDB — never in `recipes`).
+  // A "u-<id>" ref is a user recipe (recipes table); anything else is a seed id,
+  // loaded through the shared seed loader (never in `recipes`).
   if (!/^u-/.test(id)) return fetchSeedCookRecipe(id);
 
   const numericId = Number(id.slice(2));
@@ -55,20 +54,11 @@ export async function fetchCookRecipe(id: string): Promise<CookRecipe | null> {
   };
 }
 
-// A seed id → the TheMealDB meal via the `content` passthrough (GET only; the
-// function 405s POST — same seam recipe.queries uses). mealToRecipe already
-// zod-parses the untrusted meal and does the ingredient-pair + step-label scrub,
-// so cook cooks exactly the steps the detail screen showed.
+// A seed id → the recipe the detail screen showed, via the shared seed loader.
 async function fetchSeedCookRecipe(id: string): Promise<CookRecipe | null> {
   if (!/^\d+$/.test(id)) return null;
-  const { data, error } = await supabase.functions.invoke(
-    `content/lookup.php?i=${encodeURIComponent(id)}`,
-    { method: 'GET' },
-  );
-  if (error) throw error;
-  const meal = parseMeals(data)[0];
-  if (!meal) return null;
-  const r = mealToRecipe(meal);
+  const r = await fetchSeedRecipe(id);
+  if (!r) return null;
   return {
     id: String(r.id),
     title: r.title,

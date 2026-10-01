@@ -9,7 +9,7 @@ import { AuthProvider } from '@/features/auth';
 import { Splash } from '@/features/onboarding';
 import { NotifSync } from '@/features/notifications';
 import { RC_API_KEY } from '@/features/profile/club.purchases';
-import { ErrorBoundary, ToastHost } from '@/shared/ui';
+import { AiConsentHost, ErrorBoundary, ToastHost } from '@/shared/ui';
 import { timing } from '@/shared/theme/tokens';
 
 // The provider stack: gesture root → error boundary → server state (TanStack
@@ -65,6 +65,8 @@ export default function RootLayout() {
                 <Stack.Screen name="recipe/cook/[id]" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
               </Stack>
               <ToastHost />
+              {/* Asks before anything leaves for a third-party AI (5.1.2(i)). */}
+              <AiConsentHost />
               {/* Keeps OS reminders in step with the week + prefs from anywhere. */}
               <NotifSync />
             </AuthProvider>

@@ -34,6 +34,7 @@ export type StoreKey =
   | 'householdRecent'  // rejoin history (≤3)    (v1 otto.household.recent.v1)
   | 'journal'          // plate-photo entries    (v1 otto.journal.<id> → one map here)
   | 'chats'            // Ask-Otto history (30-day/50-cap)
+  | 'aiConsent'        // 'granted' | 'declined' — third-party AI consent (5.1.2(i))
 ```
 
 Rules: values are JSON-serializable and **schema-validated with zod on read**
@@ -80,6 +81,7 @@ scope** (YAGNI — v1 never did it); revisit only if offline-first is requested.
 | household* | planner (Household) | planner (Household) |
 | journal | cook (plate capture) | profile (Journal grid) |
 | chats | chat (Ask-Otto) | chat (recent chats) |
+| aiConsent | shared/aiConsent (sheet + Account toggle) | chat, import, nutrition, profile |
 | firstSaveCelebrated | PawMark | PawMark |
 
 Each key has exactly one writer feature (above). A second writer = `contract_gap`.

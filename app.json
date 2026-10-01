@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.otto.recipes",
-      "buildNumber": "38",
+      "buildNumber": "39",
       "supportsTablet": false,
       "usesAppleSignIn": true,
       "infoPlist": {
@@ -108,8 +108,8 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Otto listens only while you hold the mic, to write down what you said.",
-          "speechRecognitionPermission": "Speech recognition turns your words into text for Otto."
+          "microphonePermission": "Otto listens only while Speak is on, to write down what you say.",
+          "speechRecognitionPermission": "Apple's speech recognition turns your words into text for Otto. Your voice is processed by Apple; Otto receives only the text."
         }
       ]
     ],

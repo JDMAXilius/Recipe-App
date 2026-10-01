@@ -12,6 +12,7 @@ import { supabase } from "@/shared/supabase/client";
 import { computeNutrition, unmatchedNames } from "./engine/compute";
 import type { ComputeNutritionInput } from "./engine/compute";
 import { resolveIngredients } from "./resolve.queries";
+import { aiConsentGranted } from "@/shared/aiConsent";
 import { NutritionResultSchema } from "./engine/schemas";
 import type { NutritionRecipe } from "./nutrition.types";
 
@@ -56,6 +57,11 @@ export async function resolveNutrition(
   const local = computeNutrition(input);
   const missing = unmatchedNames(input);
   if (!missing.length) return local;
+  // The resolver matches names with Anthropic's model, so it runs only after
+  // the person has said yes (5.1.2(i)). Silent check, never a prompt over a
+  // recipe card: without consent the local USDA table stands, and below the
+  // coverage floor the card shows its labelled `~` estimate, as it always has.
+  if (!(await aiConsentGranted())) return local;
   const resolved = await resolveIngredients(missing);
   if (!resolved.size) return local;
   // Prefer the improved figure; if the richer match set somehow trips a

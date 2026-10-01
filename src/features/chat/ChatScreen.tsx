@@ -7,6 +7,7 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Button, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
+import { ensureAiConsent } from '@/shared/aiConsent';
 import { sound } from '@/shared/sound';
 import { useAuth } from '@/features/auth';
 import { stageOttoRecipe, takeOttoAsk } from '@/features/import';
@@ -116,6 +117,10 @@ export function ChatScreen() {
   const onSend = useCallback(async () => {
     const text = draft.trim();
     if (!text) return;
+    // Consent first (5.1.2(i)): nothing goes to Anthropic until they've said
+    // yes. Before the club check, so "Not now" never costs a question, and
+    // before the draft clears, so the words are still there if they allow.
+    if (!(await ensureAiConsent())) return;
     // Free tier: a turn to Otto is counted. Checked before the draft is
     // cleared, so a blocked question is still sitting there to send tomorrow
     // — or to send now, after joining.
@@ -150,6 +155,7 @@ export function ChatScreen() {
     async (option: string) => {
       // A clarify chip is a full turn to Otto, so it costs what typing one
       // costs. Anything else would make the cheap-looking path the loophole.
+      if (!(await ensureAiConsent())) return;
       if (!(await gate.check('ask'))) return;
       haptics.select();
       sound.play('send');

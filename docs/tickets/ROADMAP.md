@@ -48,7 +48,7 @@ flowchart LR
 | 3 | Demo account: create a non-founder account in the app; Claude seeds it (saved recipes, week plan, shopping list); Juan types the email + password and his phone number into App Review Information and saves. | Juan + Claude | — | todo |
 | 4 | Screenshots: six 6.9" store shots (iPhone 17 Pro Max simulator) + one paywall shot per subscription, uploaded to the version page and to each product's Review Information. | Claude | — | todo |
 | 5 | Build 37: bump `expo.version` to 1.0.19 and `ios.buildNumber` to 37, set the ASC version string to match, `eas build` + `eas submit`, attach to the version. Build 36 must not ship (missing iPhone-only flag + privacy manifest). | Claude | — | todo |
-| 6 | Set `EXPO_PUBLIC_USE_OTTO_RECIPES=true` for the `production` profile in `eas.json` before building 37, so the shipped app reads Otto's own recipe database as its copy claims. Smoke-test Discover, search, detail, nutrition. | Claude | — | todo |
+| 6 | Set `EXPO_PUBLIC_USE_OTTO_RECIPES=true` for production. **Done via EAS environment (APP-3)**, not `eas.json`; confirmed live 2026-10-01: build 38 reads `otto_recipes`, no TheMealDB-proxy calls. | Claude | — | done |
 | 7 | Sandbox purchase: create a Sandbox Apple ID (Users and Access → Sandbox), buy Otto Club in the TestFlight build, confirm the `club` entitlement unlocks and a row lands in `memberships`. Then Restore. | Juan (device) + Claude (verify) | 1, 5 | blocked |
 | 8 | Attach the two subscriptions to the version and **Submit for Review**, release option "Automatically release after review". Log date + build in the publish ticket. | Juan | 1–7 | blocked |
 | 9 | Apple review: answer any rejection the same day. Roughly 40% of first submissions are rejected; the usual causes (dead link, no demo login, privacy mismatch) are covered. | Both | 8 | blocked |
@@ -213,5 +213,13 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 
 ## 2026-10-01 — App Review 2.1 (Information Needed) on 1.0.19 build 38
 - Not a defect: Apple's new-account information request (video + 7 answers). Pack: `docs/release/APP_REVIEW_2.1_RESPONSE.md`.
-- **Build 39 before resubmitting:** AI consent sheet + Account "Otto and AI" toggle, voice caption, FAQ copy (5.1.2(i)). Decide M2 (speech) and M4 (recipe source). Should: strip EXIF on photo upload, refresh repo privacy policy, restrict `resolved_ingredients` read to authenticated.
+- **Build 39 before resubmitting — code DONE 2026-10-01 (tsc/lint clean, 324/324 tests):**
+  - **AI consent sheet + Account "Otto and AI" switch (5.1.2(i)).** It gates Ask Otto, link, text and photo imports, and silently gates nutrition matching.
+  - **Mic and speech permission strings rewritten.** No separate caption: keep Apple's server speech recognition and disclose it in the permission string.
+  - **FAQ copy** updated.
+  - **Bug fixed: one seed loader for recipe detail, cook mode and the shopping list.** Cook mode and the list were reading TheMealDB, so Otto's originals 900001–900003 couldn't be cooked or listed.
+  - **Already done:** M4 (APP-3) and EXIF stripping (APP-7).
+  - **Open:** `resolved_ingredients` anon read is a founder call. Repo privacy policy refresh → website ticket W4.
+- **Website:** `docs/tickets/TERMINAL_TICKET_WEBSITE_REVIEW_2_1.md` (contact address, contact form, claims pass, legal sync, consent copy W5 after build 39 is confirmed).
+- **Next:** `eas build` 39 → TestFlight checks in the pack §1c "Verify from your phone".
 - Then: record on 39 → reply + Notes → resubmit with the three Otto Club items.

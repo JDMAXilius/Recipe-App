@@ -9,6 +9,7 @@ import { useImportFromText, useImportFromUrl, useImportFromPhoto } from './impor
 import { emptyDraft, setDraft } from './draft';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
 import { useClubGate } from '@/features/profile';
+import { ensureAiConsent } from '@/shared/aiConsent';
 
 // "Bring in a recipe" — a pushed full SCREEN with a back button (founder call:
 // no longer a bottom modal). Matches the Figma master (213:1667): a 2×2 tile
@@ -77,6 +78,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
       return;
     }
     setError(null);
+    if (!(await ensureAiConsent())) return;
     if (!(await gate.check('import'))) return;
     try {
       const draft = await importMut.mutateAsync(target);
@@ -99,6 +101,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
       return;
     }
     setError(null);
+    if (!(await ensureAiConsent())) return;
     if (!(await gate.check('import'))) return;
     try {
       const draft = await textMut.mutateAsync(body);
@@ -116,6 +119,8 @@ export function AddSheet({ onClose }: AddSheetProps) {
     setError(null);
     // Checked BEFORE the camera opens: making someone frame a shot and then
     // telling them they're out of imports is worse than telling them now.
+    // Same for consent: ask before the shutter, never after the shot.
+    if (!(await ensureAiConsent())) return;
     if (!(await gate.check('import'))) return;
     const picked = (await takePhoto({ base64: true })) ?? (await pickFromLibrary({ base64: true }));
     if (!picked) return;

@@ -2,7 +2,7 @@
 // never import supabase-js; they go through usePlan()/these functions.
 import { supabase } from '@/shared/supabase/client';
 import { parseIngredientLine, type IngredientPair } from '@/features/nutrition/engine/parse';
-import { parseMeals, mealToRecipe } from '@/features/recipes/mealdb.transform';
+import { fetchSeedRecipe } from '@/features/recipes/seed.loader';
 import type { PlanEntry, AddPlanInput } from './plan.types';
 import type { RecipeForList, ParsedIngredient } from './shoppingList';
 
@@ -79,19 +79,15 @@ function toParsed(pair: StoredPair): ParsedIngredient {
 // recipes — exactly backwards, so the shopping list lost the only rows it could
 // resolve. It also lacked a user_id filter (a kept seed id could collide with a
 // stranger's recipes.id). Now: keep u- ids, strip the prefix, scope to userId.
-// One seed (TheMealDB) recipe's ingredients, via the content passthrough — the
+// One seed recipe's ingredients, via the shared seed loader — the
 // same lookup the detail screen uses. Returns null on any failure so one bad
 // dish never sinks the whole list.
 async function getSeedRecipeForList(id: string): Promise<RecipeForList | null> {
   try {
-    const { data, error } = await supabase.functions.invoke(
-      `content/lookup.php?i=${encodeURIComponent(id)}`,
-      { method: 'GET' },
-    );
-    if (error || !data) return null;
-    const meal = parseMeals(data)[0];
-    if (!meal) return null;
-    const recipe = mealToRecipe(meal);
+    // Same loader as the detail screen, so the list shops the recipe the cook
+    // read — Otto originals included (they were silently dropped before).
+    const recipe = await fetchSeedRecipe(id);
+    if (!recipe) return null;
     return { id, title: recipe.title, ingredients: recipe.ingredients.map(toParsed) };
   } catch {
     return null;
@@ -102,7 +98,7 @@ async function getSeedRecipeForList(id: string): Promise<RecipeForList | null> {
 // shopping list must resolve BOTH — the old version only queried the user's
 // `recipes` table and returned nothing for a normal week of seed dishes (the
 // "shopping list stays empty" bug). User recipes need the signed-in user (RLS);
-// seed recipes resolve for anyone via the content function.
+// seed recipes resolve for anyone via the shared seed loader.
 export async function getListRecipes(recipeIds: string[]): Promise<RecipeForList[]> {
   const userRecipeIds = recipeIds
     .filter((id) => /^u-/.test(id))

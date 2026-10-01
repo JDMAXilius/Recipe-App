@@ -31,19 +31,24 @@ reply → §5 resubmit.
   go to Anthropic. A reviewer who reads that and then finds no consent in the app has a 5.1.2(i)
   rejection written for them. The reply and the binary must agree.
 
-**What to build (one-time consent sheet, the pattern other apps passed with):**
+**BUILT 2026-10-01 for build 39** — this is what shipped. The copy lives in one place,
+`src/shared/aiConsent.logic.ts` (`AI_CONSENT_COPY`, pinned by `aiConsent.logic.test.mjs`); the
+store and hook are in `src/shared/aiConsent.ts`, and the sheet is `src/shared/ui/AiConsentHost.tsx`,
+mounted once in `app/_layout.tsx`.
 
-| Element | Spec |
+| Element | As built |
 |---|---|
-| **Trigger** | First time the user starts any AI-backed action: send in Ask Otto, **Import it** (link), **Draft it** (pasted text), **Snap a photo**. Once accepted, never shown again. Voice has its own line (below). |
+| **Trigger** | The person's own AI action: **Send** or a suggestion chip in Ask Otto, **Import it** (link), **Draft it** (pasted text), **Snap a photo** (asked *before* the camera opens). Once allowed, it isn't shown again. |
 | **Title** | `Otto uses AI for this` |
-| **Body** | `To write recipes, read what you paste or photograph, and answer your questions, Otto sends that content to Anthropic, the company behind the Claude AI model, through our server. Only what you give that feature is sent: the text you type, the link or recipe text you paste, or the photo you take. Nothing else from your account goes with it. You can switch this off any time in Account. Your cookbook, cook mode, plan and shopping list work without it.` |
-| **Buttons** | `Allow` (primary) · `Not now` (secondary). Non-dismissible by swipe; a choice is required. |
-| **Decline** | Only AI actions are blocked (toast: "Otto's AI is off. Turn it on in Account to ask him or import."). Browse, cookbook, cook mode, plan, list all keep working — Apple requires that declining doesn't gut the app. |
-| **Revoke** | New Account-tab row **"Otto and AI"** with the same text and a toggle. Reviewer-visible, user-reversible. |
-| **Voice** | iOS already asks for mic + speech permission. Add one caption under the first Speak tap: `Your voice is transcribed by Apple's speech service; Otto only receives the words.` |
-| **FAQ** | Add to "Where does my data live?": `What you type, paste or photograph for Otto's AI features is sent to Anthropic to generate the answer; see Account > Otto and AI.` |
-| **Honesty rule** | Say it once, plainly. No "we take your privacy seriously." Name the company and the data, nothing vaguer. |
+| **Body** | `To write recipes, read what you paste or photograph, answer your questions and match ingredients to nutrition data, Otto sends that content through our server to Anthropic, the company that makes the Claude AI model.` / `Only what you give the feature goes: the words you type, the link, text or photo you share, and the ingredient names in your recipes. Your email and the rest of your account stay with us.` / `Change this anytime in Account › Otto and AI. Your cookbook, cook mode, plan and shopping list work either way.` |
+| **Buttons** | `Allow` (primary) · `Not now` (ghost). Both are stored. Tapping outside the sheet is **not** a decision: nothing is stored, nothing is sent, and the next AI action asks again. |
+| **Not now** | Stored as declined. That action stops and nothing leaves the phone. The next AI action asks again, so the way back is one tap, and Account › Otto and AI also turns it on. Browse, cookbook, cook mode, plan and list all keep working. |
+| **Background AI** | Nutrition matching (`resolve-nutrition` sends **ingredient names** to Claude) never prompts. It runs only once consent is granted. Without consent, nutrition uses the on-device table only, so a few unusual ingredients may go unmatched. |
+| **Revoke** | Account › Preferences › **Otto and AI**, a switch with the caption `Ask Otto, imports and nutrition matching use Anthropic's Claude.` |
+| **Voice** | No extra caption. The disclosure is iOS's own speech prompt, whose string now reads: `Apple's speech recognition turns your words into text for Otto. Your voice is processed by Apple; Otto receives only the text.` Mic: `Otto listens only while Speak is on, to write down what you say.` Apple is first-party, not third-party AI. |
+| **FAQ** | "Where does my data live?" now names Anthropic, the consent, the Account path, and Apple for voice. Both "your profile" mentions now say "the Account tab". |
+| **Fail-closed** | If the sheet isn't mounted, `ensureAiConsent()` returns false, so nothing is sent. |
+| **Honesty rule** | Say it once, plainly. Name the company and the data, nothing vaguer. |
 
 **Then:** build 39 → TestFlight → record the video on 39 (the sheet must appear on camera in the
 Ask Otto beat) → resubmit with 39. Cost: about a day. Saves: the one rejection cycle that is
@@ -130,21 +135,25 @@ closes a real gap), **Later** (not a review blocker).
 ### MUST — build 39
 | # | Change | Where | Why |
 |---|---|---|---|
-| M1 | **AI consent sheet + "Otto and AI" row** — the §1 spec. One `useAiConsent()` hook (stored in `kv`, `src/shared/storage.ts`) gating four actions: Ask Otto **Send** (`ChatScreen.tsx` `onSend`), **Import it** / **Draft it** / **Snap a photo** (`AddSheet.tsx`). Decline → those four show a toast, everything else works. Account tab gets an **Otto and AI** row with the same text and a toggle. | `src/features/chat`, `src/features/import`, `src/features/profile/ProfileScreen.tsx` | 5.1.2(i); the reply names Anthropic, the app must show it. Nothing exists today (`grep -ri anthropic src` → no UI hit). |
-| M2 | **Voice caption** — under the Speak pill on first use: `Your voice is transcribed by Apple's speech service; Otto only receives the words.` And tighten the permission string in `app.json` → `speechRecognitionPermission`: `Speech recognition turns your words into text for Otto. Audio may be processed by Apple.` | `src/features/chat` (Composer), `app.json` plugins | `useSpeechInput.ts:1-14`: `requiresOnDeviceRecognition` is unset → audio streams to Apple. Reviewers read permission strings. **Founder call:** keep server recognition and disclose (recommended — better accuracy, works on older devices; Apple is first-party, not "third-party AI"), or set `requiresOnDeviceRecognition: true`. |
-| M3 | **FAQ copy** — "Where does my data live?" add: `What you type, paste or photograph for Otto's AI features is sent to Anthropic to produce the answer; see Account > Otto and AI.` Replace the two "your profile" mentions (`FaqScreen.tsx:55`, `:94`) with "the Account tab". | `src/features/profile/FaqScreen.tsx` | Policy-in-app consistency; the tab is **Account**, which is what the reply tells the reviewer to open. |
-| M4 | **Recipe source flag** — decide before answer #6. Either add `EXPO_PUBLIC_USE_OTTO_RECIPES=true` to `eas.json` (`preview` + `production`) so the app serves Otto's own canonical catalogue (795 recipes; makes the FAQ/listing copy true), **and/or** confirm a paid TheMealDB supporter key. Photos stay hotlinked from themealdb.com either way — keep the credit. Smoke-test Discover, search, detail, related, nutrition after flipping. | `eas.json`, `src/features/recipes/canonical.transform.ts:23` | Answer #6 says you're authorized. Today release builds read TheMealDB live (`eas.json` has no flag). |
+| M1 | ✅ **DONE.** **AI consent sheet + "Otto and AI" row**, built as in §1. Gated: Ask Otto Send and chips (`ChatScreen.tsx`); Import it, Draft it and Snap a photo (`AddSheet.tsx`); nutrition matching silently (`nutrition.queries.ts`). The Account switch is in `ProfileScreen.tsx` Preferences. The store key `aiConsent` is registered in `storage.ts` and `contracts/persistence.md`. | `src/shared/aiConsent*.ts`, `src/shared/ui/AiConsentHost.tsx`, the features above | 5.1.2(i): the reply names Anthropic, so the app must show it. |
+| M2 | ✅ **DONE, as permission strings only.** The `app.json` mic and speech strings were rewritten (see §1 Voice). No in-app caption: iOS's own prompt carries the disclosure, and a second caption would only repeat it. Recognition stays server-side at Apple (`requiresOnDeviceRecognition` unset). | `app.json` plugins | Reviewers read permission strings. Apple is first-party, not third-party AI. |
+| M3 | ✅ **DONE.** The FAQ data answer names Anthropic, the consent, Account › Otto and AI, and Apple for voice. "Your profile" now reads "the Account tab" in both places. | `src/features/profile/FaqScreen.tsx` | Policy and app agree; the tab the reply points to is **Account**. |
+| M5 | ✅ **DONE — real bug found while checking M4.** In production, recipe detail read Otto's `otto_recipes`, but **cook mode, the shopping list, Otto's pick and ingredient search still looked ids up in TheMealDB**. Otto's own originals (900001 Chicken Tikka Masala, 900002 Classic Minestrone, 900003 Banana Bread) therefore could not be cooked and were dropped from the list. For every other recipe, cook mode showed TheMealDB's raw text instead of the curated record. Now there is one seed loader (`src/features/recipes/seed.loader.ts`) that detail, cook and list all read through. Otto's pick picks from `otto_recipes`, and ingredient search keeps only ids that exist there. Prod data checked: all 795 records have steps and ingredients, and the originals have 6–7 steps each. | `seed.loader.ts`, `recipe.queries.ts`, `cook.queries.ts`, `plan.queries.ts` | A reviewer who taps "Start cooking" on Banana Bread would have hit an error screen, which is 2.1(a). |
+| M4 | ~~**Recipe source flag**~~ **ALREADY DONE — no change.** `EXPO_PUBLIC_USE_OTTO_RECIPES=true` is set in EAS's `production` and `preview` environments since 2026-09-24 (ROADMAP APP-3, `eas env:list`), and Supabase logs on 2026-10-01 show build 38 (`Otto/38`) reading `otto_recipes` with zero TheMealDB-proxy calls. Prod catalogue: 795 recipes, 0 missing titles, 14 categories, public read policy. Original note, kept for the record: decide before answer #6. Either add `EXPO_PUBLIC_USE_OTTO_RECIPES=true` to `eas.json` (`preview` + `production`) so the app serves Otto's own canonical catalogue (795 recipes; makes the FAQ/listing copy true), **and/or** confirm a paid TheMealDB supporter key. Photos stay hotlinked from themealdb.com either way — keep the credit. Smoke-test Discover, search, detail, related, nutrition after flipping. | `eas.json`, `src/features/recipes/canonical.transform.ts:23` | Answer #6 says you're authorized. Today release builds read TheMealDB live (`eas.json` has no flag). |
 
 ### SHOULD — same build if cheap, otherwise the one after
 | # | Change | Where | Why |
 |---|---|---|---|
-| S1 | **Strip EXIF/GPS before uploading recipe photos** — re-encode to JPEG via `expo-image-manipulator` in `uploadRecipePhoto` (≈10 lines). | `src/features/import/import.queries.ts:131-157`, `src/shared/imagePicker.ts` | The `recipe-photos` bucket is **public-read by design** (share pages). HEIC library picks can carry GPS through untouched (`imagePicker.ts` passes `quality:0.7`, no re-encode). A public photo with location in it is a privacy finding waiting to happen. |
+| S1 | ✅ **ALREADY DONE (APP-7), no change.** `src/shared/imagePicker.ts` already re-encodes picks to JPEG, which strips EXIF and GPS before upload. The July audit note was stale. | `src/shared/imagePicker.ts` | — |
 | S2 | **Repo privacy policy is stale** — `docs/legal/PRIVACY_POLICY.md` names Railway and has **zero** mentions of Anthropic, RevenueCat, USDA or Apple speech. The live site is the authoritative copy (per the publish ticket) but could not be fetched from this session. Replace the repo file with the live text, or delete it. | `docs/legal/PRIVACY_POLICY.md` | Nobody should audit against the wrong document; the consent sheet relies on the policy backing it. |
-| S3 | **`resolved_ingredients` is readable by `anon` and never deleted** — ingredient names users type become globally readable rows (`…_resolved_ingredients.sql:17-19`) that account deletion does not touch. Change the read policy to `authenticated` (one line). | `supabase/migrations` (new) | Ingredient names are rarely personal, but a user can type anything; "anyone can read it forever" is not what the policy promises. |
+| S3 | **`resolved_ingredients` is readable by `anon` and never deleted** — ingredient names users type become globally readable rows (`…_resolved_ingredients.sql:17-19`) that account deletion does not touch. Change the read policy to `authenticated` (one line). **Founder call, not changed:** the anon read is a documented named exception, the table has no user column, and the client never reads it, so it is not a review blocker. | `supabase/migrations` (new) | Ingredient names are rarely personal, but a user can type anything; "anyone can read it forever" is not what the policy promises. |
 
 ### LATER — not a review blocker
 - The free-gate toasts (`club.limits.ts` `blockedMessage`) name Otto Club but not the path to it; add "Account > Otto Club".
-- Voice: if you ever flip to on-device recognition, delete the M2 caption — the two must agree.
+- Voice: if you ever flip to on-device recognition, rewrite the `app.json` speech string, because it says Apple processes the voice. The two must agree.
+- Without consent, a user recipe's nutrition is saved from the on-device table only. If they allow AI later, recipes saved earlier keep their first estimate until edited. Fine for review; revisit if anyone notices.
+- Dev only: the web target crashes at start because RevenueCat rejects the `appl_` key on web. This has no effect on iOS; noted so nobody chases it during review.
+- Free-tier gating could show the consent sheet first and then the limit toast. Order today: consent, then limit. That is deliberate (consent is about data, the limit is about plan) but worth a look on TestFlight.
 
 ### WEBSITE — handed to the terminal: `docs/tickets/TERMINAL_TICKET_WEBSITE_REVIEW_2_1.md`
 (contact address, contact form, legal-page claims, repo legal sync, and the consent copy for build 39)
@@ -154,7 +163,13 @@ closes a real gap), **Later** (not a review blocker).
 - **/privacy, /terms, /support contact address is a mailbox that receives mail** (**`juandiego@ottosapp.com`** — decided in APP-12). The July audit found `hello@ottosapp.com` published on all three and **not** a real mailbox. A reviewer who emails your support address and bounces is a rejection with the evidence in hand. Website repo, not this one.
 - **/terms** says 13+ and states the Otto Club price, trial, auto-renewal and cancellation.
 - Demo account signs in with saved recipes, plan and list present.
-- Build 39 on TestFlight: consent sheet appears on first Send; **Not now** leaves Discover/Cookbook/Plan/List working; the Account toggle flips it back; the video shows all of it.
+- Build 39 on TestFlight (the UI was not run in this session, so check it there):
+  1. The consent sheet appears on the first Send, and also on Import it, Draft it and Snap a photo (before the camera opens).
+  2. **Not now** stops the action and leaves Discover, Cookbook, Plan and List working.
+  3. Tapping outside the sheet asks again next time.
+  4. The Account › Otto and AI switch turns it on and off.
+  5. **Discover → search "Banana Bread" → Start cooking** works, and adding it to the plan puts its ingredients on the list (the M5 fix).
+  6. The iOS speech prompt shows the new string.
 
 ### NO CHANGE NEEDED — verified today
 - Paywall carries every 3.1.2 element: titles, periods, prices, trial, auto-renew line, working Terms + Privacy links, Restore (`OttoClubScreen.tsx`).
@@ -169,7 +184,7 @@ closes a real gap), **Later** (not a review blocker).
 
 | # | Check | Status | What to do |
 |---|---|---|---|
-| 1 | **TheMealDB authorization** (answer #6 claims it) | ⚠️ Unverified | Release builds don't set `EXPO_PUBLIC_USE_OTTO_RECIPES` (`eas.json`), so the catalogue still reads from TheMealDB live, and 792/795 photos are hotlinked from `themealdb.com` either way. Their terms require a paid **supporter** key to ship on an app store. Confirm you are one (or become one) **before** sending answer #6. Don't claim it otherwise — delete the clause. |
+| 1 | **TheMealDB photos** (answer #6 credits them) | ⚠️ Photos only | The catalogue is Otto's own (build 38 reads `otto_recipes`; verified in logs 2026-10-01), so no TheMealDB API key is used by the app. But 792/795 photos are still hotlinked from `themealdb.com`. Answer #6 now says only that the photos come from TheMealDB and are credited — true today. The open IP exposure is the hotlinked photos themselves (re-host or replace; a separate, non-review task). |
 | 2 | **Demo account** | ✅ Verified 2026-09-29 | Re-check on a phone the day you record: sign out → `claude-e2e-a@example.com` → saved recipes, week plan and shopping list present. Password lives only in the ASC field. |
 | 3 | **"Account", not "Profile"** | ⚠️ Current ASC notes wrong | The tab is **Account**. The notes in ASC say "Profile > …". Replace with §4 text. |
 | 4 | **Screenshots don't lead with sign-in** (2.3.3) | ✅ | First shot is "Bring in a recipe". A reviewer on this same request flagged another app for exactly this. |
@@ -205,7 +220,7 @@ a throwaway you create on camera and then delete, and the demo account for the w
 | 5 | 1:05 | **Sign in** with the demo account | login flow |
 | 6 | 1:20 | **Discover**: scroll the categories → open a recipe → tap the serving **+** once (quantities change) → scroll to the nutrition card → **Start cooking** → swipe through 2 steps → back out | core: browse, scale, nutrition estimate, cook mode |
 | 7 | 2:00 | **Create (＋)**: type *"a quick tomato pasta for two"* → Send → **the AI consent sheet appears → tap Allow** → Otto writes the recipe → **Save to cookbook** → review editor → Save | AI feature **and** the 5.1.2(i) consent on camera |
-| 8 | 2:45 | Still on Create: tap **Speak** once → iOS mic/speech prompts → say "pancakes" → stop. (Shows the voice caption.) | voice input disclosure |
+| 8 | 2:45 | Still on Create: tap **Speak** once → iOS mic/speech prompts (pause on them; the speech prompt says Apple processes the voice) → Allow → say "pancakes" → stop. | voice input disclosure |
 | 9 | 3:00 | Create → **import icon** (top) → **Paste a link** → paste `https://www.bbcgoodfood.com/recipes/easy-pancakes` → **Import it** → review → Save | import flow, review-before-save |
 | 10 | 3:30 | **Cookbook** tab: show the two saved recipes | |
 | 11 | 3:40 | **Plan** tab: drop a recipe on a day → open the **shopping list** → check one item off | plan → list |
@@ -227,23 +242,23 @@ Plain text; ASC renders no markdown. Fill the `[brackets]`. Measured **under 4,0
 (the Notes limit). The same text goes in both places so future submissions inherit it.
 
 ```
-Answers below; the same text is in App Review Notes.
+Answers below; the same text is in the Notes.
 
 1. SCREEN RECORDING
 [LINK or "attached"]. iPhone [model], iOS [version], build 1.0.19 (39). Starts at launch; shows registration, deletion, sign-in, the main features, the AI consent prompt, and the Otto Club screen (plan names, lengths, prices, trial, auto-renewal terms, Terms of Use and Privacy links, Restore).
 
 2. PURPOSE AND AUDIENCE
-Otto is a personal cookbook and weekly meal planner for home cooks (13+). Recipes end up scattered across websites, videos and screenshots, and people still have to decide what to cook and buy. Otto keeps recipes in one place, cooks them step by step with quantities that scale to the servings, turns the week's plan into a shopping list grouped by aisle, and estimates nutrition per serving. No ads, no public feed, no tracking.
+Otto is a personal cookbook and weekly meal planner for home cooks (13+). Recipes end up scattered across websites, videos and screenshots, and people still have to decide what to cook and buy. Otto keeps recipes in one place, cooks them step by step with scaling quantities, turns the week's plan into an aisle-grouped shopping list, and estimates nutrition per serving. No ads, no public feed, no tracking.
 
 3. SETUP AND ACCESS
 An account is required. Please use the demo account in the Demo Account fields; it has saved recipes, a week plan and a shopping list. New accounts: email and password, or Sign in with Apple. No sample files needed.
 - Discover: browse and search; a recipe shows ingredients, steps and a nutrition estimate; Start cooking opens cook mode.
 - Create (the + tab): ask Otto for a recipe or a cooking question, typed or by voice. First use shows a consent prompt naming Anthropic; it can be switched off in Account > Otto and AI. The import icon at the top brings in an existing recipe: paste a link (e.g. https://www.bbcgoodfood.com/recipes/easy-pancakes), paste text, or photograph a recipe card. Every import and AI recipe opens in an editor for review before saving.
 - Cookbook: saved and imported recipes.
-- Plan: put recipes on days; the shopping list builds from the plan.
+- Plan: recipes on days; the shopping list builds from it.
 - Account: Otto Club, Our shared list, Otto and AI, preferences, Delete my account.
-User content: users write their own recipes and can share a shopping list only with people they invite by code, or send a private link. Nothing is public: no feed, profiles, comments or discovery of other users. Members can leave a shared list anytime (Account > Our shared list > Leave this kitchen). Contact: juandiego@ottosapp.com.
-Web: no in-app browser. Recipe videos play in an embedded YouTube player; a source link opens in the system browser sheet.
+User content: users write their own recipes and share a list only with people they invite by code, or by private link. Nothing is public: no feed, profiles, comments or discovery of other users. Members can leave a shared list anytime (Account > Our shared list > Leave this kitchen). Contact: juandiego@ottosapp.com.
+Web: no in-app browser. Videos play in an embedded YouTube player; source links open in the system browser sheet.
 
 4. EXTERNAL SERVICES
 - Supabase: authentication (email/password), database, file storage, server functions.
@@ -252,15 +267,15 @@ Web: no in-app browser. Recipe videos play in an embedded YouTube player; a sour
 - Apple speech recognition: voice input is transcribed by Apple; Otto receives the text only.
 - Apple In-App Purchase, managed with RevenueCat: subscriptions.
 - USDA FoodData Central: nutrition reference data.
-- TheMealDB: recipe catalogue and photos.
+- TheMealDB: most recipe photos (the catalogue is Otto's own).
 - YouTube: embedded recipe videos.
-- Pasted links: our server fetches that public page or caption.
+- Pasted links: our server fetches that page or caption.
 
 5. REGIONS
-Features and content are identical in every territory offered. The interface is English; the App Store shows local prices.
+Features and content are identical in every territory. The interface is English; the App Store shows local prices.
 
 6. REGULATION AND THIRD-PARTY MATERIAL
-Not a regulated industry. Nutrition figures are estimates from USDA FoodData Central (public domain); the app says they are estimates, not dietary or medical advice, and that AI recipes are suggestions. Catalogue recipes and photos come from TheMealDB under its API terms, credited in the description, Terms and Privacy Policy. Imported recipes stay private to the user, with the creator's name and a permanent source link.
+Not a regulated industry. Nutrition figures are estimates from USDA FoodData Central (public domain); the app says so, and that AI recipes are suggestions, not dietary or medical advice. The recipe catalogue is Otto's own database; most photographs come from TheMealDB, credited in the description, Terms and Privacy Policy. Imported recipes stay private to the user, with the creator's name and a permanent source link.
 
 7. IN-APP PURCHASES
 Subscription group Otto Club: Monthly $4.99/month and Yearly $39.99/year, auto-renewable, each with a 1-week free trial. Free accounts get 5 imports a month, 25 saved recipes and 5 asks a day; the Club lifts those limits. Cookbook, cook mode, plan and list stay free. Purchase: Account > Otto Club > choose a plan > Start free trial. Restore, Terms of Use and Privacy Policy are on that screen.
@@ -293,7 +308,7 @@ normal fix-and-resubmit.
 - No user counts, recipe counts, ratings, "personalized", "AI meal planning", or any adjective
   the build can't prove.
 - Don't call nutrition accurate, verified or medical.
-- Don't claim TheMealDB authorization until §2.1 is settled.
+- Don't describe the recipe catalogue as TheMealDB's — it is Otto's own; only most photos are TheMealDB's.
 - Don't claim report/block mechanisms Otto doesn't have; describe the controls it does have
   (invite-only, leave kitchen, delete own content, contact address).
 - Don't describe the consent prompt unless the submitted build shows it.
