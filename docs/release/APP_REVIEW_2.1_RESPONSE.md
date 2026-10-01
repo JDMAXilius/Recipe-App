@@ -54,6 +54,48 @@ written down in advance.
 
 ---
 
+## 1b. "But Cal AI doesn't show any AI prompt" — what other apps actually do (Mobbin, 2026-10-01)
+
+**Correct: Cal AI shows none.** Its full 34-screen onboarding on Mobbin has no screen naming
+OpenAI or any AI provider. The closest things are a "Your privacy and security matter to us"
+reassurance card and the "By continuing you agree to Terms & Privacy" line at sign-in. The
+provider appears only in the privacy policy, and even there as "AI Analysis Service / service
+providers". Same tier: Yazio ("Get accurate tracking with AI" — marketing), BitePal (accuracy
+disclaimer only), Ultrahuman ("Powered by ChatGPT" footer), Postmates ("powered by AI and may not
+be accurate"). None of these name where the data goes, in the app.
+
+**Why they get away with it, and why Otto can't copy them:**
+1. Review happens only at submission, per reviewer. Apple's position is that guidelines apply to
+   new *and* existing apps, but a reviewer has to trigger the AI feature on a fresh install and
+   look for the consent. For an established app shipping routine updates that is a dice roll
+   they keep winning. The stated failure mode: *"If the API call fires before the consent screen
+   appears, the rejection is automatic."*
+2. They are established accounts. Otto is a **new** account under explicit extra scrutiny — that
+   is what the 2.1 request is.
+3. They never had to write "we send photos to OpenAI" to a reviewer. **We do** (answer #4 names
+   Anthropic). Cal AI's reviewer was never handed a sentence to go verify; ours will be, and then
+   open the app looking for it.
+
+**The apps that do it right don't use a legal wall — it's one friendly card, once:**
+| App | What it says | Shape |
+|---|---|---|
+| [Runna](https://mobbin.com/screens/5876fe0a-be7c-45ac-9760-a59e7a6af7ba) | "Activate Workout Insights — please consent to sharing your Workout Data with our trusted third party AI provider (e.g., OpenAI)… not used for training" | first-use dialog, **Accept / Decline** |
+| [Liven](https://mobbin.com/screens/af87d331-1fcd-438b-8573-07bc0dda2d7a) | "Get deeper guidance — Allow Liven's trusted AI partner to learn from your activity… You can continue without it" | one screen, **Yes, I consent / No, continue without** |
+| [Structured](https://mobbin.com/screens/fd506bc7-2c02-4ba0-ab7c-85f42d286c8e) | "Structured AI uses OpenAI's ChatGPT… The following data may be sent to Structured's and OpenAI's servers: AI prompts, scanned images…" | one screen, data list, **Accept Terms** |
+| [Perplexity Health](https://mobbin.com/screens/4597c7ea-99cf-40b1-81fa-9b0546b885db) | "Your queries are securely sent to trusted AI providers, contractually bound not to use your data for training" | one screen, **I consent** |
+| [Meta AI](https://mobbin.com/screens/16d21c24-a888-4344-b561-338efbcc16f4) · [Gemini](https://mobbin.com/screens/0af6cc92-c3b9-460f-9a56-9049ed7cded0) · [CapCut](https://mobbin.com/screens/fb57f6f1-ea76-4b26-a5b6-2b6c073a0beb) | name the provider, say what's captured, link the privacy notice | **Enable / Don't enable** |
+
+**Apple's own bar:** Siri asks permission before sending a request to ChatGPT (every time by
+default; always for files). That is the standard a reviewer carries into your app.
+
+**What "do it like them" means for Otto:** the Runna/Liven shape — one card, Otto's voice,
+Anthropic named, the three data types named, a real "Not now", shown the first time the
+reviewer taps Send in Ask Otto (they will; the notes send them there). Not a 3-checkbox wall.
+A Cal AI-style "we care about privacy" card that doesn't name the provider does **not** satisfy
+the rule and would be the worst of both: a prompt the user sees, with none of the protection.
+Onboarding placement also passes, but onboarding is skippable — the first-use sheet is the one a
+reviewer cannot miss.
+
 ## 2. The rest of the gate — do before recording
 
 | # | Check | Status | What to do |
