@@ -25,6 +25,9 @@ test('the sheet names the company, the data, the way out, and a real decline', (
   assert.match(text, /ingredient names/);
   assert.match(text, /Account › Otto and AI/);
   assert.match(text, /work either way/);
+  // Anthropic's commercial terms: no training on API customer content.
+  assert.match(text, /doesn’t train its AI/);
+  assert.equal(AI_CONSENT_COPY.privacyUrl, 'https://ottosapp.com/privacy');
   assert.equal(AI_CONSENT_COPY.decline, 'Not now');
   // The Account row is what the sheet points to — they must use the same name.
   assert.equal(AI_CONSENT_COPY.settingsLabel, 'Otto and AI');

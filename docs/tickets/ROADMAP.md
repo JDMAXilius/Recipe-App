@@ -221,5 +221,7 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
   - **Already done:** M4 (APP-3) and EXIF stripping (APP-7).
   - **Open:** `resolved_ingredients` anon read is a founder call. Repo privacy policy refresh → website ticket W4.
 - **Website:** `docs/tickets/TERMINAL_TICKET_WEBSITE_REVIEW_2_1.md` (contact address, contact form, claims pass, legal sync, consent copy W5 after build 39 is confirmed).
-- **Next:** `eas build` 39 → TestFlight checks in the pack §1c "Verify from your phone".
+- **Next:** `eas build` 39 → TestFlight checks in the pack §1c "Verify from your phone" → **APP-4 sandbox purchase on 39** (`memberships` has 0 rows as of 2026-10-01: no purchase has ever completed end to end) → record → reply → resubmit.
+- Stale rows: the submit ticket records Paid Apps, Free Apps and the bank account as **Active**, so ASC-1/2/3 are effectively done. Juan to confirm, then mark them.
+- Consent sheet v2: adds `More in our Privacy Policy` and "Anthropic doesn’t train its AI on what you send" (matching Runna, Liven, Starling and Structured).
 - Then: record on 39 → reply + Notes → resubmit with the three Otto Club items.

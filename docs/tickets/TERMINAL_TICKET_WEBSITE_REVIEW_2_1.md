@@ -79,7 +79,7 @@ Add to the Privacy Policy's AI section (adapt to its voice; keep the facts):
 > **What is sent.** Only the content you give that feature: the words you type, the link, text or
 > photo you share, and the ingredient names in your recipes (used to match them to nutrition data).
 > It is sent through our server to Anthropic, the company that makes the Claude AI model, to produce
-> the answer. Your email, name and the rest of your account are not sent with it. Ingredient names
+> the answer. Your email, name and the rest of your account are not sent with it. Under Anthropic's commercial terms, Anthropic does not use what Otto sends to train its models. Ingredient names
 > are only sent after you allow it. Until then, nutrition is estimated from Otto's built-in table.
 
 The app's own wording is in `src/shared/aiConsent.logic.ts` (`AI_CONSENT_COPY`). If the site and
@@ -88,7 +88,7 @@ the app ever differ, change the site to match the app.
 Also, on `/support` (the FAQ), add or update a "Does Otto use AI?" answer with the same two facts
 and the Account > Otto and AI path.
 
-**Done when:** the live Privacy Policy and Support page describe the consent and the toggle, using
+**Done when:** the live Privacy Policy (which the app's consent sheet now links to directly) and the Support page describe the consent, the toggle and the no-training point, using
 the same words the app uses ("Otto and AI", "Not now"), and the build-39 behaviour on TestFlight
 matches the text.
 

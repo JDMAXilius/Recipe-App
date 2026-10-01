@@ -27,12 +27,17 @@ export const AI_CONSENT_COPY = {
   title: 'Otto uses AI for this',
   body: [
     'To write recipes, read what you paste or photograph, answer your questions and match ingredients to nutrition data, Otto sends that content through our server to Anthropic, the company that makes the Claude AI model.',
-    'Only what you give the feature goes: the words you type, the link, text or photo you share, and the ingredient names in your recipes. Your email and the rest of your account stay with us.',
+    'Only what you give the feature goes: the words you type, the link, text or photo you share, and the ingredient names in your recipes. Your email and the rest of your account stay with us, and Anthropic doesn’t train its AI on what you send.',
     'Change this anytime in Account › Otto and AI. Your cookbook, cook mode, plan and shopping list work either way.',
   ],
   allow: 'Allow',
   decline: 'Not now',
   settingsLabel: 'Otto and AI',
   settingsCaption: 'Ask Otto, imports and nutrition matching use Anthropic’s Claude.',
+  // Runna, Liven, Starling, Structured: every consent card that passed links
+  // the policy behind it.
+  privacyLead: 'More in our',
+  privacyLink: 'Privacy Policy',
+  privacyUrl: 'https://ottosapp.com/privacy',
   offToast: 'Otto’s AI is off. Turn it on in Account › Otto and AI.',
 } as const;

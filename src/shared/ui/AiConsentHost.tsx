@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View } from 'react-native';
-import { space } from '../theme/tokens';
+import { Pressable, Text as RNText, View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import { colors, space, type } from '../theme/tokens';
 import { haptics } from '../haptics';
 import { AI_CONSENT_COPY, onAiConsentRequest, setAiConsent } from '../aiConsent';
 import { Button } from './Button';
@@ -53,6 +54,20 @@ export function AiConsentHost() {
         <Button title={AI_CONSENT_COPY.allow} variant="primary" size="lg" onPress={() => answer(true, true)} />
         <Button title={AI_CONSENT_COPY.decline} variant="ghost" onPress={() => answer(false, true)} />
       </View>
+      {/* Opening the policy is not an answer: the sheet stays up. */}
+      <Pressable
+        onPress={() => void WebBrowser.openBrowserAsync(AI_CONSENT_COPY.privacyUrl)}
+        accessibilityRole="link"
+        accessibilityLabel={AI_CONSENT_COPY.privacyLink}
+        hitSlop={8}
+        style={{ alignSelf: 'center', marginTop: space[2] }}
+      >
+        {/* Same treatment as the paywall's legal links (OttoClubScreen). */}
+        <RNText style={{ ...type.caption, color: colors.inkSoft }}>
+          {AI_CONSENT_COPY.privacyLead}{' '}
+          <RNText style={{ textDecorationLine: 'underline' }}>{AI_CONSENT_COPY.privacyLink}</RNText>
+        </RNText>
+      </Pressable>
     </Sheet>
   );
 }
