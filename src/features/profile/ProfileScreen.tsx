@@ -29,6 +29,7 @@ import { usePlan } from '@/features/planner';
 import { usePrefs } from './usePrefs';
 import { UNIT_SEGMENTS, cookedCount, earnedStats, statText } from './profile.logic';
 import { deleteAccount } from './profile.queries';
+import { useMembership } from './club.purchases';
 
 // "You" — Account (Mobbin account study, ported from v1). Warm header, cold
 // facts: Otto greeting + plain email. Stats only if EARNED, honest at zero,
@@ -68,6 +69,7 @@ export function ProfileScreen() {
   // Third-party AI consent (5.1.2(i)) — the revocable half of the consent sheet.
   const aiConsent = useAiConsent();
   const { user, signOut, saveUsername } = useAuth();
+  const { member } = useMembership();
   const { saved } = useSaved();
   const { entries } = usePlan();
   const { count: yoursCount } = useMyRecipes();
@@ -214,7 +216,7 @@ export function ProfileScreen() {
             <Ionicons name="ribbon-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
             <Text role="body">Current plan</Text>
             <View style={{ flex: 1 }} />
-            <Text role="computed">Free</Text>
+            <Text role="computed">{member ? 'Otto Club' : 'Free'}</Text>
           </View>
         </View>
         <Pressable
@@ -228,7 +230,9 @@ export function ProfileScreen() {
           </View>
           <View style={{ gap: space[1], paddingRight: 92 }}>
             <RNText style={clubTitle}>Otto Club</RNText>
-            <Text role="body">Everything Otto can do, one simple membership. Opening soon.</Text>
+            <Text role="body">
+              {member ? "You're in. Thanks for keeping Otto cooking." : 'Everything Otto can do, one simple membership.'}
+            </Text>
           </View>
           <View style={styles.clubButton}>
             <RNText style={clubButtonText}>See how it works</RNText>
