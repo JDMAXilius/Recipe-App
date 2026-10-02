@@ -119,3 +119,4 @@ Terms "AI features" + FAQ) on a branch; it is deployed in the resubmit ticket, s
   - B5: attached to 1.0.19 via API (204); GET confirms build 39. Not submitted, no reply sent.
   - B6: Business page: Paid + Free Apps Active, bank Active, W-9 Active, DSA Active. ROADMAP ASC-1/2/3 → done.
   - B7: website W1 already clean live (only juandiego@); W2 + W3 fixes live (`Otto_Website` 1d29a23); W4 mirrors synced here; W5 on branch `w5-ai-consent` (22df8b9), deploys in R6.
+- 2026-10-01: **build 40** (Account Club card fix, `15bf89d9`) built, auto-submitted, VALID (id `5ce89eff-c571-46f1-b589-cd08c68a0e69`, encryption false), in Otto Insiders (IN_BETA_TESTING, What to Test set), attached to 1.0.19 in place of 39. Not submitted.
