@@ -1,9 +1,10 @@
-# Terminal ticket: answer App Review 2.1 and resubmit 1.0.19 (build 39)
+# Terminal ticket: answer App Review 2.1 and resubmit 1.0.19 (build 40)
 
 > For a Claude Code terminal session on Juan's Mac (Recipe-App repo + website repo), with the
 > **Chrome MCP** signed in to App Store Connect. Written 2026-10-01 by the cloud session.
 > **Starts only when Juan says "video ready"** and `~/Desktop/otto-review-1.0.19.mov` exists.
 > `TERMINAL_TICKET_BUILD_39.md` must be done first (build 39 VALID, attached to 1.0.19).
+> **2026-10-01 update:** the first recording (on 39) exposed "Opening soon" on the Account Club card; **build 40** fixes it. Record and resubmit on **40**. Everything else in this ticket is unchanged.
 > Read the whole ticket first. Work top to bottom, verify each step, log at the bottom.
 
 The video is the **only** thing Juan provides. Everything below is yours.
@@ -70,7 +71,7 @@ Copy the §4 block exactly and replace:
 - `[LINK or "attached"]` → the URL from R3 (add " (also attached)" if R5 attaches the file).
 - `[model]`, `[version]` → Juan's iPhone model and iOS version. Read them from the video metadata
   (`ffprobe -show_format` may carry `com.apple.quicktime.model` and `software`). If that's absent,
-  use ASC → TestFlight → Otto Insiders → Juan → device and OS for build 39.
+  use ASC → TestFlight → Otto Insiders → Juan → device and OS for build 40.
 
 Measure the final text: it must be **≤ 4,000 characters**. Plain text, no markdown.
 
@@ -92,7 +93,7 @@ Deploy W5 from `TERMINAL_TICKET_WEBSITE_REVIEW_2_1.md`: Privacy Policy consent s
 "AI features" section, FAQ answer. Verify live.
 
 ### R7. Resubmit (Chrome)
-1. Version 1.0.19 shows **build 39** (fix it if not, as in BUILD_39 step B5).
+1. Version 1.0.19 shows **build 40** (fix it if not, as in BUILD_39 step B5).
 2. Subscriptions: on the **Otto Club group page**, make sure both are in the submission (**Add for
    Review** if they aren't). Learned 2026-09-29: the version page has no IAP section, and each
    sub must be added from its group page.
@@ -106,10 +107,15 @@ Deploy W5 from `TERMINAL_TICKET_WEBSITE_REVIEW_2_1.md`: Privacy Policy consent s
 3. Commit with the session attribution lines, `git fetch` + rebase, push `main` (fast-forward only).
 
 ## Don'ts (from the pack §6)
-- Don't describe anything the build doesn't do. The reply and build 39 must agree.
+- Don't describe anything the build doesn't do. The reply and build 40 must agree.
 - Don't paste markdown into ASC, and don't go over 4,000 characters in the Notes.
 - Don't use the demo account for the purchase or deletion shots (Juan's script already avoids it).
 - Never type or print the demo password. No account creation, no real purchases, no force-push.
 
 ## Log
 <!-- append: date/time, step, result, URLs, screenshots -->
+
+- 2026-10-01 R0 on Juan's first recording (`~/Downloads/Otto App Overview.mp4`, 7:17, 396×858, build 39): **not sendable.**
+  Missing required beats: launch from Home Screen (starts in the app switcher), registration (signed into Juan's own account), account deletion, and the AI consent sheet (consent was already granted on that device; it's device-local in AsyncStorage, so deleting the app resets it). The sandbox purchase sheet appeared but the Club didn't unlock and no error toast showed, so the sheet was most likely closed (the paywall toasts on 'error').
+  Privacy: Juan's Gmail in the Passwords autofill bar (0:10), contacts in a share sheet (6:00). Content: Toy Story images on two of Juan's own recipes (2:20).
+  Bug found: Account's Otto Club card said "Opening soon" and "Current plan: Free" was hard-coded → fixed in **build 40** (`15bf89d9`). Re-record on 40 per §3, from a fresh install, throwaway for sign-up/purchase/deletion, demo account for the walkthrough.

@@ -222,7 +222,7 @@ Screens: the consent sheet on Ask Otto and on Import it; the toast after **Not n
 
 ## 3. The screen recording — script
 
-**Setup (5 min):** physical iPhone on the **latest iOS**. Install **build 39** from TestFlight
+**Setup (5 min):** physical iPhone on the **latest iOS**. Install **build 40** from TestFlight
 (the Otto Insiders invite; the terminal ticket puts it there). Turn on **Do Not Disturb**. Delete
 Otto first if it's installed, so the consent sheet and first-run screens appear. Then Control
 Center → Screen Recording (mic off is fine; narration is optional). One continuous take is ideal;
@@ -280,7 +280,7 @@ Plain text; ASC renders no markdown. Fill the `[brackets]`. Measured **under 4,0
 Answers below; the same text is in the Notes.
 
 1. SCREEN RECORDING
-[LINK or "attached"]. iPhone [model], iOS [version], build 1.0.19 (39). Starts at launch; shows registration, the Otto Club screen (plan names, lengths, prices, trial, auto-renewal terms, Terms of Use and Privacy links, Restore) and a sandbox purchase, account deletion, sign-in, the main features and the AI consent prompt.
+[LINK or "attached"]. iPhone [model], iOS [version], build 1.0.19 (40). Starts at launch; shows registration, the Otto Club screen (plan names, lengths, prices, trial, auto-renewal terms, Terms of Use and Privacy links, Restore) and a sandbox purchase, account deletion, sign-in, the main features and the AI consent prompt.
 
 2. PURPOSE AND AUDIENCE
 Otto is a personal cookbook and weekly meal planner for home cooks (13+). Recipes end up scattered across websites, videos and screenshots, and people still have to decide what to cook and buy. Otto keeps recipes in one place, cooks them step by step with scaling quantities, turns the week's plan into an aisle-grouped shopping list, and estimates nutrition per serving. No ads, no public feed, no tracking.
