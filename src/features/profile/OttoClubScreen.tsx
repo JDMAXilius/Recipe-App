@@ -138,7 +138,7 @@ export function OttoClubScreen() {
             accessibilityRole="button"
             accessibilityLabel="Close"
             hitSlop={8}
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/profile'))}
+            onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))}
           >
             <Ionicons name="close" size={22} color={colors.ink} />
           </Pressable>
@@ -266,9 +266,9 @@ export function OttoClubScreen() {
               onPress={onBuy}
               loading={club.purchasing}
             />
-            {/* Shown right after sign-in (ClubOffer), so the way out is a word, not just the X. */}
+            {/* Opened at the end of first-run onboarding, so the way out is a word, not just the X. */}
             <Pressable
-              onPress={() => (router.canGoBack() ? router.back() : router.replace('/profile'))}
+              onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))}
               accessibilityRole="button"
               accessibilityLabel="Not now"
               style={styles.notify}

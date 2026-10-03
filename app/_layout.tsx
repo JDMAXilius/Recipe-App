@@ -9,7 +9,6 @@ import { AuthProvider } from '@/features/auth';
 import { Splash } from '@/features/onboarding';
 import { NotifSync } from '@/features/notifications';
 import { RC_API_KEY } from '@/features/profile/club.purchases';
-import { ClubOffer } from '@/features/profile';
 import { AiConsentHost, ErrorBoundary, ToastHost } from '@/shared/ui';
 import { timing } from '@/shared/theme/tokens';
 
@@ -70,8 +69,6 @@ export default function RootLayout() {
               <AiConsentHost />
               {/* Keeps OS reminders in step with the week + prefs from anywhere. */}
               <NotifSync />
-              {/* Offers the 7-day Otto Club trial once per account after sign-in. */}
-              <ClubOffer />
             </AuthProvider>
           </QueryClientProvider>
         </SafeAreaProvider>

@@ -8,7 +8,6 @@ export { PreferencesScreen } from './PreferencesScreen';
 export { usePrefs, type UsePrefs, type PrefsState } from './usePrefs';
 export { HouseholdScreen } from './HouseholdScreen';
 export { OttoClubScreen } from './OttoClubScreen';
-export { ClubOffer } from './ClubOffer';
 export { FaqScreen } from './FaqScreen';
 // Journal + Notifications now live in their own features (src/features/journal,
 // src/features/notifications); the old profile stubs were removed.

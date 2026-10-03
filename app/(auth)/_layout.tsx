@@ -9,6 +9,8 @@ import { useAuth } from '@/features/auth';
 // Symmetric with the (tabs) guard that bounces a signed-out user back here.
 export default function AuthLayout() {
   const { isLoaded, session } = useAuth();
-  if (isLoaded && session) return <Redirect href="/(tabs)" />;
+  // The launch gate (app/index) decides where a new session goes: onboarding the
+  // first time on this device, otherwise home.
+  if (isLoaded && session) return <Redirect href="/" />;
   return <Stack screenOptions={{ headerShown: false }} />;
 }
