@@ -7,7 +7,20 @@ import { useCallback, useEffect, useState } from 'react';
 import Purchases, { type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
 import { hasClubEntitlement, introTrialDays } from './club.logic';
 
-export type BuyResult = 'ok' | 'cancelled' | 'error';
+// 'unconfirmed' = Apple finished but RevenueCat hasn't granted `club` yet, even
+// after a sync. Never call that a success: the 2026-10-02 sandbox test charged a
+// trial and unlocked nothing, while the old code said "Welcome to the Club".
+export type BuyResult = 'ok' | 'unconfirmed' | 'pending' | 'cancelled' | { error: string };
+
+// A purchase can complete at Apple while RevenueCat's copy of it lags or failed to
+// post. Pull Apple's transactions into RevenueCat and re-read before giving up.
+async function syncedInfo(): Promise<CustomerInfo | null> {
+  try {
+    return (await Purchases.syncPurchasesForResult()).customerInfo;
+  } catch {
+    return null;
+  }
+}
 
 // The one place the RevenueCat key lives (_layout configures with it). Public
 // App Store SDK key — safe to ship in the binary.
@@ -66,11 +79,20 @@ export function useClub() {
   const buy = useCallback(async (pkg: PurchasesPackage): Promise<BuyResult> => {
     setPurchasing(true);
     try {
-      const { customerInfo } = await Purchases.purchasePackage(pkg);
+      let customerInfo: CustomerInfo | null = (await Purchases.purchasePackage(pkg)).customerInfo;
+      if (!hasClubEntitlement(customerInfo)) customerInfo = (await syncedInfo()) ?? customerInfo;
       setInfo(customerInfo);
-      return 'ok';
+      return hasClubEntitlement(customerInfo) ? 'ok' : 'unconfirmed';
     } catch (e) {
-      return (e as { userCancelled?: boolean }).userCancelled ? 'cancelled' : 'error';
+      const err = e as { userCancelled?: boolean; code?: string; readableErrorCode?: string; message?: string };
+      if (err.userCancelled) return 'cancelled';
+      if (err.code === Purchases.PURCHASES_ERROR_CODE.PAYMENT_PENDING_ERROR) return 'pending';
+      // The charge may have gone through even though the call failed: check once.
+      const synced = await syncedInfo();
+      if (synced) setInfo(synced);
+      if (hasClubEntitlement(synced)) return 'ok';
+      console.warn('[club] purchase failed', err.code, err.readableErrorCode, err.message);
+      return { error: err.readableErrorCode ?? err.code ?? 'unknown' };
     } finally {
       setPurchasing(false);
     }
@@ -78,7 +100,8 @@ export function useClub() {
 
   const restore = useCallback(async (): Promise<boolean> => {
     try {
-      const customerInfo = await Purchases.restorePurchases();
+      let customerInfo: CustomerInfo | null = await Purchases.restorePurchases();
+      if (!hasClubEntitlement(customerInfo)) customerInfo = (await syncedInfo()) ?? customerInfo;
       setInfo(customerInfo);
       return hasClubEntitlement(customerInfo);
     } catch {

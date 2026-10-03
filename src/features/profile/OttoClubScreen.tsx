@@ -87,8 +87,12 @@ export function OttoClubScreen() {
     if (!selectedPkg) return;
     const result = await club.buy(selectedPkg);
     if (result === 'ok') show('Welcome to the Club. Everything is unlocked.', 'success');
-    else if (result === 'error')
-      show("The purchase didn't go through. You weren't charged.", 'error');
+    else if (result === 'unconfirmed')
+      show("Apple confirmed it, but the Club hasn't unlocked yet. Tap Restore purchases.", 'info');
+    else if (result === 'pending')
+      show("Apple is still approving this purchase. The Club unlocks once it's done.", 'info');
+    else if (typeof result === 'object')
+      show(`The purchase didn't go through (${result.error}). If Apple charged you, tap Restore purchases.`, 'error');
     // cancelled: user closed the sheet on purpose, no toast nagging
   };
   const onRestore = async () => {
@@ -262,6 +266,15 @@ export function OttoClubScreen() {
               onPress={onBuy}
               loading={club.purchasing}
             />
+            {/* Shown right after sign-in (ClubOffer), so the way out is a word, not just the X. */}
+            <Pressable
+              onPress={() => (router.canGoBack() ? router.back() : router.replace('/profile'))}
+              accessibilityRole="button"
+              accessibilityLabel="Not now"
+              style={styles.notify}
+            >
+              <RNText style={styles.notifyText}>Not now</RNText>
+            </Pressable>
             <Pressable
               onPress={onRestore}
               accessibilityRole="button"
