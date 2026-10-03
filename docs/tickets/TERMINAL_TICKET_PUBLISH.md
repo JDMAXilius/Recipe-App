@@ -198,6 +198,8 @@ in the way today. Archived reasoning in `docs/history/`.
 
 <!-- append: date, what happened, Apple's response. This is the only thread that matters now. -->
 
+- 2026-10-02 22:28 EDT: **1.0.19 build 40 resubmitted** after the 2.1 information request: reply with 7 answers + recordings sent, notes updated, original recording attached. Version + Otto Club group + both subs WAITING_FOR_REVIEW.
+
 - 2026-09-29 21:18 EDT: **1.0.19 (build 38) submitted to App Review, subscriptions included** (Otto Club group, yearly and monthly). State WAITING_FOR_REVIEW. Availability: 148 countries, EU excluded. Details are in TERMINAL_TICKET_SUBMIT.md.
 
 - 2026-09-24 (terminal) — **Path B chosen** (ship with Otto Club). F8 done with founder changes:
