@@ -10,7 +10,7 @@ Everything below was **deliberately held** because 1.0.19 (build 41) in review h
 free tier and no inbox screen. Do these the day 1.0.20 is submitted / goes live.
 
 ## At submission (App Store Connect)
-- [ ] **Version string first.** Builds 43–44 were built as `1.0.19` (`app.json` `expo.version`).
+- [x] **Version string first.** DONE 2026-10-04: `1.0.20` build 45 (commit 2941d977). UX-audit work lands as 46+. Builds 43–44 were built as `1.0.19` (`app.json` `expo.version`).
       ASC only attaches a build whose version string matches, so set `expo.version` to
       **`1.0.20`** and cut a new build (45+) before creating/attaching version 1.0.20. Builds
       43–44 can't be used for 1.0.20.
@@ -40,7 +40,7 @@ and `resolve-nutrition` (`_shared/membership.ts` + `requireClub()` in `_shared/h
 until `REQUIRE_CLUB=on`**), a 500 from `delete-account` when the auth user survives, an import
 rate limit, and a constant-time webhook secret compare. Deploying is safe before 1.0.20 is live
 (the gate is off); **turning the gate on is not** — build 41's free tier calls these functions.
-- [ ] `deno check supabase/functions/*/index.ts` (no Deno in the cloud; must pass here).
+- [x] `deno check supabase/functions/*/index.ts` — passed 2026-10-04 (all five).
 - [ ] `supabase functions deploy generate-recipe import-recipe resolve-nutrition delete-account`
       and `supabase functions deploy revenuecat-webhook --no-verify-jwt`. Then one Ask Otto on
       TestFlight to confirm nothing changed with the gate off.
