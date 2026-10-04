@@ -7,6 +7,17 @@ Everything below was **deliberately held** because 1.0.19 (build 41) in review h
 free tier and no inbox screen. Do these the day 1.0.20 is submitted / goes live.
 
 ## At submission (App Store Connect)
+- [ ] **Version string first.** Builds 43–44 were built as `1.0.19` (`app.json` `expo.version`).
+      ASC only attaches a build whose version string matches, so set `expo.version` to
+      **`1.0.20`** and cut a new build (45+) before creating/attaching version 1.0.20. Builds
+      43–44 can't be used for 1.0.20.
+- [ ] **If the UX ticket's consent rework lands (item 10: "Account › AI features")**, rename
+      everywhere in the same release, because Apple compares the reply/notes with the app:
+      `AI_CONSENT_COPY.settingsLabel` and `offToast` (and `aiConsent.logic.test.mjs`, which pins
+      the label to the path in the body), the FAQ data answer, the review notes, and the
+      website Privacy Policy, Terms "AI features" section and FAQ (website W5 says
+      "Account > Otto and AI"). The provider name, the explicit Allow, and nothing sent before
+      it must stay (5.1.2(i)).
 - [ ] Create version 1.0.20, attach the newest VALID build.
 - [ ] **Description:** remove any "free" / "core features stay free" wording → "Start with a
       7-day free trial, then Otto Club $4.99/month or $39.99/year." Keep renewal terms +
