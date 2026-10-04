@@ -259,4 +259,4 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 ## 2026-10-04 — Resubmitted 1.0.19 with build 46 (Juan: replace 41)
 - Build 46 = hard paywall + UX audit + F1/F3; version string kept 1.0.19 so it replaced 41 in the open review. 4 items submitted (app + 2 subs + group).
 - Done: store description subscription-only, review notes updated (3,974 chars), RevenueCat demo `club` granted 1 year, Supabase Confirm email ON.
-- Open (Juan): `npx supabase login` → deploy 5 functions → `REQUIRE_CLUB=on` (verify 402/200); push Otto_Website main (W6 merged locally); leaked-password protection needs Pro plan.
+- Functions deployed 2026-10-04 (all 5, gate off; unauthenticated calls → 401). Open (Juan): `REQUIRE_CLUB=on` AFTER approval (verify 402/200); push Otto_Website main (W6 merged locally); leaked-password protection needs Pro plan.
