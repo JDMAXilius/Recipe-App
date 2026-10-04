@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.otto.recipes",
-      "buildNumber": "47",
+      "buildNumber": "48",
       "supportsTablet": false,
       "usesAppleSignIn": true,
       "infoPlist": {
