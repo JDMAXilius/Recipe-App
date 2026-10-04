@@ -52,7 +52,7 @@ export function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  const { markOnboarded } = useOnboarded(user?.id);
+  const { markOnboarded } = useOnboarded(user);
   const scroller = useRef<ScrollView>(null);
   const [page, setPage] = useState(0);
 

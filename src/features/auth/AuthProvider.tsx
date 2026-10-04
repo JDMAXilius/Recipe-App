@@ -7,6 +7,8 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import Purchases from 'react-native-purchases';
 import { hasClubEntitlement } from '@/features/profile/club.logic';
+import { z } from 'zod';
+import { kv } from '@/shared/storage';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/shared/supabase/client';
 import type { AuthMode, SocialProvider } from './social';
@@ -60,18 +62,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // membership webhook can map subscription events to accounts. logOut throws
   // if already anonymous — harmless, swallow.
   const uid = user?.id;
-  // After logIn, a non-member is synced once: a purchase Apple completed but
-  // RevenueCat never recorded (seen 2026-10-02 in sandbox) is pulled in here
-  // instead of waiting for the user to find Restore. StoreKit 2: no sign-in prompt.
+  // After logIn, sync ONCE per account on this phone (not every sign-in): it
+  // recovers a purchase Apple completed but RevenueCat missed (seen 2026-10-02),
+  // while RevenueCat warns repeated syncs move a subscription between accounts
+  // that share an Apple ID (Transfer behavior). Restore purchases is the manual path.
   useEffect(() => {
     if (!uid) {
       Purchases.logOut().catch(() => {});
       return;
     }
     Purchases.logIn(uid)
-      .then(({ customerInfo }) =>
-        hasClubEntitlement(customerInfo) ? undefined : Purchases.syncPurchasesForResult(),
-      )
+      .then(async ({ customerInfo }) => {
+        if (hasClubEntitlement(customerInfo)) return;
+        const synced = await kv.get('rcSynced', [] as string[], z.array(z.string()));
+        if (synced.includes(uid)) return;
+        await kv.set('rcSynced', [...synced, uid]);
+        await Purchases.syncPurchasesForResult();
+      })
       .catch(() => {});
   }, [uid]);
 

@@ -29,6 +29,7 @@ import { usePlan } from '@/features/planner';
 import { usePrefs } from './usePrefs';
 import { UNIT_SEGMENTS, cookedCount, earnedStats, statText } from './profile.logic';
 import { deleteAccount } from './profile.queries';
+import Purchases from 'react-native-purchases';
 import { useMembership } from './club.purchases';
 
 // "You" — Account (Mobbin account study, ported from v1). Warm header, cold
@@ -151,7 +152,8 @@ export function ProfileScreen() {
     if (!armDelete) {
       setArmDelete(true);
       show('This permanently deletes your recipes, saves, and week. Tap again to confirm.', 'info');
-      setTimeout(() => setArmDelete(false), 6000);
+      // A subscriber gets time to cancel first (Apple's deletion guidance), so no auto-disarm.
+      if (!member) setTimeout(() => setArmDelete(false), 6000);
       return;
     }
     setDeleting(true);
@@ -409,16 +411,22 @@ export function ProfileScreen() {
         accessibilityLabel="Delete my account"
       >
         <Text role={armDelete ? 'computed' : 'caption'}>
-          {armDelete ? 'Tap again. This is forever' : 'Delete my account'}
+          {armDelete ? (member ? 'Delete anyway' : 'Tap again. This is forever') : 'Delete my account'}
         </Text>
       </Pressable>
-      {armDelete && (
+      {armDelete && member && (
         <View style={styles.deleteNote}>
           <Text role="caption">
-            Have Otto Club? Apple bills it, so it keeps renewing until you cancel it there too.
+            Your Otto Club subscription is billed by Apple and keeps renewing after you delete
+            your account. Cancel it first:
           </Text>
           <Pressable
-            onPress={() => void Linking.openURL(MANAGE_SUBSCRIPTIONS_URL).catch(() => {})}
+            onPress={() =>
+              // Apple's own cancel sheet in-app; the web page if it can't open.
+              void Purchases.showManageSubscriptions().catch(() =>
+                Linking.openURL(MANAGE_SUBSCRIPTIONS_URL).catch(() => {}),
+              )
+            }
             accessibilityRole="link"
             accessibilityLabel="Manage subscription"
             hitSlop={8}

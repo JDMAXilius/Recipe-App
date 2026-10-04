@@ -1,18 +1,22 @@
-// First-run flag, device-local (persistence.md §4) but kept PER ACCOUNT: the order
-// is sign up → onboarding → Otto Club trial offer, so every new account on this
-// phone gets it, even after another account (or a deleted one) finished it.
-// Stored as the list of user ids that finished; a legacy `true` (the old
-// per-device flag) means "this phone has been used" with no ids yet.
+// First-run flag. Signed in: "has THIS account finished onboarding" lives on the
+// account (Supabase user_metadata.onboarded_at, next to the username), so it
+// survives reinstalls and new phones, and a new account always gets the intro +
+// trial offer. The device list of finished ids is a bridge for accounts that
+// finished before the flag moved server-side. Signed out: "has this phone been
+// used" (sign-in vs sign-up) is genuinely per device and stays local.
 // onboarded=null means the kv read hasn't landed — the gate shows the splash.
 import { useCallback, useEffect, useState } from 'react';
+import type { User } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { kv } from '@/shared/storage';
+import { supabase } from '@/shared/supabase/client';
 import { onboardedFor } from './gate';
 
 const Stored = z.union([z.boolean(), z.array(z.string())]);
 
-export function useOnboarded(uid: string | undefined) {
+export function useOnboarded(user: User | null | undefined) {
   const [stored, setStored] = useState<boolean | string[] | null>(null);
+  const uid = user?.id;
 
   useEffect(() => {
     let alive = true;
@@ -29,8 +33,13 @@ export function useOnboarded(uid: string | undefined) {
     const ids = [...(Array.isArray(stored) ? stored : []), uid];
     await kv.set('onboarded', ids);
     setStored(ids);
+    // Best-effort: offline, the local list still lets this phone through.
+    await supabase.auth
+      .updateUser({ data: { onboarded_at: new Date().toISOString() } })
+      .catch(() => {});
   }, [uid, stored]);
 
-  const onboarded = stored === null ? null : onboardedFor(stored, uid);
+  const onAccount = Boolean(user?.user_metadata?.onboarded_at);
+  const onboarded = stored === null ? null : onAccount || onboardedFor(stored, uid);
   return { onboarded, markOnboarded };
 }
