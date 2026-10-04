@@ -164,8 +164,15 @@ Deno.serve(async (req) => {
 
     // Only once the data is safely gone do we drop the login.
     const { error: authError } = await admin.auth.admin.deleteUser(userId);
+    // A login that survives is NOT a deleted account (5.1.1(v)): say so with a
+    // 500, so the app shows "try again" instead of "deleted". A retry is safe —
+    // every step above is idempotent on an already-emptied account.
+    if (authError) {
+      console.error("auth user delete failed", authError.message);
+      return json(500, { error: "Something went wrong" });
+    }
 
-    return json(200, { dataDeleted: true, authUserDeleted: !authError, photosDeleted, revenueCatDeleted, appleRevoked });
+    return json(200, { dataDeleted: true, authUserDeleted: true, photosDeleted, revenueCatDeleted, appleRevoked });
   } catch (error) {
     console.error("delete account failed", (error as Error).message);
     return json(500, { error: "Something went wrong" });

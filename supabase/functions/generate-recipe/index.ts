@@ -4,7 +4,7 @@
 // DORMANT without ANTHROPIC_API_KEY (503). Key comes ONLY from Deno.env and is
 // never logged or echoed. Per-user rate limit: this is the most expensive path.
 import { z } from "npm:zod@4";
-import { corsHeaders, getUserId, json, preflight, rateLimited } from "../_shared/http.ts";
+import { corsHeaders, getUserId, json, preflight, rateLimited, requireClub } from "../_shared/http.ts";
 import { checkImage, MAX_TEXT_CHARS, TEXT_INSTRUCTION, VISION_INSTRUCTION } from "./imageMode.ts";
 import { extractMessagePrefix, parseSseLines } from "./streamParse.ts";
 
@@ -381,6 +381,10 @@ Deno.serve(async (req) => {
   if (rateLimited(`gen:${userId}`, 20, 15 * 60 * 1000)) {
     return json(429, { error: "Too many requests. Give it a few minutes and try again" });
   }
+  // Hard paywall on the server too (REQUIRE_CLUB=on, 1.0.20+): the app's gate
+  // alone can't stop a direct call with a signed-in token.
+  const gate = await requireClub(userId);
+  if (gate) return gate;
   if (!Deno.env.get("ANTHROPIC_API_KEY")) {
     return json(503, { error: "Otto can't cook ideas up just yet. That part of the kitchen is still being wired up." });
   }

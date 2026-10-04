@@ -91,6 +91,9 @@ export function OttoClubScreen() {
 
         <View style={styles.hero}>
           <OttoArt name="floating" size={200} />
+          {/* The subscription's name on the screen that sells it (Schedule 2:
+              title, length, price, all before purchase). */}
+          <Text role="meta">OTTO CLUB</Text>
           <Text role="display">{club.member ? "You're in the Club" : 'Cook more. Plan less.'}</Text>
           <Text role="caption">
             {club.member
@@ -145,11 +148,12 @@ export function OttoClubScreen() {
               onPress={onBuy}
               loading={club.purchasing}
             />
-            {/* Apple 3.1.2: the amount billed, the period and the trial, on this screen. */}
+            {/* Apple 3.1.2 / Schedule 2: the amount billed, the period, the trial
+                and that it renews on its own — on this screen, before the tap. */}
             <RNText style={styles.fine}>
               {trialDays
-                ? `${trialDays} days free, then ${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Cancel anytime.`
-                : `${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Cancel anytime.`}
+                ? `${trialDays} days free, then ${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Renews automatically. Cancel anytime.`
+                : `${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Renews automatically. Cancel anytime.`}
             </RNText>
             <View style={styles.legalRow}>
               <Pressable onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link">

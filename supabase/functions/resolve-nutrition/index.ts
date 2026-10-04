@@ -15,7 +15,7 @@
 // matters beyond what USDA search + the client's qualifier-strip catch, re-add
 // Stage 1 as a DB-backed canonical-name lookup, not a bundled JSON.
 import { z } from "npm:zod@4";
-import { getUserId, json, preflight, rateLimited, serviceClient } from "../_shared/http.ts";
+import { getUserId, json, preflight, rateLimited, requireClub, serviceClient } from "../_shared/http.ts";
 
 const MODEL = "claude-haiku-4-5"; // a pick-the-match job, not generation
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
@@ -197,6 +197,8 @@ Deno.serve(async (req) => {
   if (rateLimited(`resolve:${userId}`, 20, 15 * 60 * 1000)) {
     return json(429, { error: "Too many requests — give it a few minutes and try again" });
   }
+  const gate = await requireClub(userId);
+  if (gate) return gate;
 
   const parsed = bodySchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return json(400, { error: "Invalid names" });

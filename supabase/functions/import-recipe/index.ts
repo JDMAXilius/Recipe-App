@@ -8,7 +8,7 @@
 // Resolve-then-connect: every hop's hostname is DNS-resolved and every
 // resolved address checked against private/reserved ranges before fetching.
 import { z } from "npm:zod@4";
-import { getUserId, json, preflight } from "../_shared/http.ts";
+import { getUserId, json, preflight, rateLimited, requireClub } from "../_shared/http.ts";
 import { captionFromHtml, decodeEntities } from "./caption.ts";
 
 const bodySchema = z.object({ url: z.string().trim().url().max(2000) });
@@ -360,6 +360,13 @@ Deno.serve(async (req) => {
 
   const userId = await getUserId(req);
   if (!userId) return json(401, { error: "Missing or invalid access token" });
+  // The HTML path has no AI call, but it is still our egress fetching any URL
+  // someone names (3 MB, 12 s each) — bound it so Otto isn't a fetch proxy.
+  if (rateLimited(`import:${userId}`, 30, 15 * 60 * 1000)) {
+    return json(429, { error: "Too many imports at once. Give it a few minutes and try again" });
+  }
+  const gate = await requireClub(userId);
+  if (gate) return gate;
 
   const parsed = bodySchema.safeParse(await req.json().catch(() => ({})));
   if (!parsed.success) return json(400, { error: "Invalid url" });

@@ -15,7 +15,7 @@ voice in the art and the occasional headline, not in the fine print.
 - **Ships in 1.0.20**, on top of builds 43–44 (hard paywall). Do NOT touch 1.0.19 build 41
   (in review). Don't submit anything to App Review; Juan gives that go.
 - Copy below is exact. Where it says "delete", delete the element, not just the string.
-- Don't touch: the paywall (`OttoClubScreen.tsx`, verdict Keep), the SIWA
+- Don't touch: the paywall (`OttoClubScreen.tsx`, verdict Keep — note the 2026-10-04 audit added an `OTTO CLUB` eyebrow and "Renews automatically" to the fine print for Apple 3.1.2; keep both), the SIWA
   `appleAuthorizationCode` flow in delete-account, the membership gate in
   `app/(tabs)/_layout.tsx`.
 - Follow `docs/design/motion.md` and the delight vocabulary; no new effects in this ticket.
@@ -27,7 +27,7 @@ voice in the art and the occasional headline, not in the fine print.
       `useBottomTabBarHeight`). Fix at the root: read the height through a safe fallback
       (e.g. `useContext(BottomTabBarHeightContext) ?? 0`) so every caller is covered. Repro:
       `xcrun simctl openurl booted otto://chats` while signed in.
-- [ ] **F2 RevenueCat logOut while anonymous.** `src/features/auth/AuthProvider.tsx` ~72 calls
+- [x] **F2 RevenueCat logOut while anonymous.** DONE 2026-10-04 on `main` (audit): logOut only on a uid → none transition. `src/features/auth/AuthProvider.tsx` ~72 calls
       `Purchases.logOut()` at launch when uid is undefined → RC error log. Only log out when
       a previous uid existed (or `!(await Purchases.isAnonymous())`).
 - [ ] **F3 First save fails.** Saving a recipe the first time after sign-in showed "Couldn't

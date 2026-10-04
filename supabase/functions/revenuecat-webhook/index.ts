@@ -24,15 +24,30 @@ const json = (status: number, body: unknown): Response =>
     headers: { "content-type": "application/json" },
   });
 
+// Constant-time string compare: hash both sides to a fixed length, then XOR
+// every byte, so the comparison's timing never depends on where the secret
+// first differs.
+async function safeEqual(a: string, b: string): Promise<boolean> {
+  const enc = new TextEncoder();
+  const [ha, hb] = await Promise.all([
+    crypto.subtle.digest("SHA-256", enc.encode(a)),
+    crypto.subtle.digest("SHA-256", enc.encode(b)),
+  ]);
+  const x = new Uint8Array(ha), y = new Uint8Array(hb);
+  let diff = 0;
+  for (let i = 0; i < x.length; i++) diff |= x[i] ^ y[i];
+  return diff === 0;
+}
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json(405, { error: "POST only" });
 
   const secret = Deno.env.get("RC_WEBHOOK_SECRET");
   const auth = req.headers.get("authorization") ?? "";
   // Missing secret fails closed. RevenueCat sends the header value verbatim.
-  if (!secret || (auth !== secret && auth !== `Bearer ${secret}`)) {
-    return json(401, { error: "unauthorized" });
-  }
+  const ok = Boolean(secret) &&
+    ((await safeEqual(auth, secret!)) || (await safeEqual(auth, `Bearer ${secret}`)));
+  if (!ok) return json(401, { error: "unauthorized" });
 
   const body = await req.json().catch(() => null);
   const appUserId: unknown = body?.event?.app_user_id;

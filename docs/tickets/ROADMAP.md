@@ -235,3 +235,17 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 - Full app walk + Mobbin references. Plan with screenshots: `docs/ux-audit-2026-10-04/plan.html`.
 - Ticket: `docs/tickets/TERMINAL_TICKET_UX_AUDIT_1_0_20.md` — 18 screens (trim chatty copy, rework nutrition card, import review, chat empty state, AI consent, Account, delete) + defects F1–F3 (deep-link tab-bar crash, RevenueCat logOut while anonymous, first-save failure).
 - Ships with 1.0.20 on top of the hard-paywall builds; console/ASC work and the onboarding goal-question decision come back to the main session.
+
+## 2026-10-04 — Full audit (cloud session)
+- Report: `docs/audit/2026-10-04-AUDIT.md` (12 findings, 7 fixed on `main`, evidence per item).
+- **Fixed:** server-side Otto Club gate for the paid AI functions (off until `REQUIRE_CLUB=on`, see the 1.0.20 release ticket); RevenueCat `logOut()` no longer runs on every launch; paywall shows the subscription name and "Renews automatically"; `delete-account` returns 500 if the login survives; import rate limit; constant-time webhook secret; Supabase token refresh tied to app foreground.
+- **Tickets:** release ticket — deploy the five functions, flip `REQUIRE_CLUB=on` with 1.0.20, enable leaked-password protection.
+- **Deferred (new rows):**
+
+| ID | Ticket | Owner | Priority | Status |
+| --- | --- | --- | --- | --- |
+| APP-15 | Encrypt the persisted Supabase session (Supabase's `LargeSecureStore`: AES key in `expo-secure-store`, blob in AsyncStorage). New native dep → 1.0.21 build. | Claude | P2 | todo |
+| APP-16 | Recipe photo paths expose the owner's auth uid in a public bucket URL (`recipe-photos/{uid}/…`). Use a per-user random folder on the next photo change; keep delete-account's cleanup in step. | Claude | P3 | todo |
+| APP-17 | Hard-paywall cold-start flash: hold the splash until RevenueCat answers (2 s cap) if visible on device. | Claude | P3 | todo |
+| DB-1 | `resolved_ingredients` anon read — founder call: keep (names only, no user column) or restrict to `authenticated`. | Juan | P3 | todo |
+

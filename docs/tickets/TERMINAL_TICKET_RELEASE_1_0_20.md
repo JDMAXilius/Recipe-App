@@ -31,6 +31,23 @@ free tier and no inbox screen. Do these the day 1.0.20 is submitted / goes live.
       able to test the purchase.
 - [ ] What's New: "A cleaner start: sign up, a quick intro, and your free week."
 
+## Edge functions — deploy with 1.0.20 (audit 2026-10-04, `docs/audit/2026-10-04-AUDIT.md`)
+The code on `main` carries: a server-side Otto Club gate for `generate-recipe`, `import-recipe`
+and `resolve-nutrition` (`_shared/membership.ts` + `requireClub()` in `_shared/http.ts`, **off
+until `REQUIRE_CLUB=on`**), a 500 from `delete-account` when the auth user survives, an import
+rate limit, and a constant-time webhook secret compare. Deploying is safe before 1.0.20 is live
+(the gate is off); **turning the gate on is not** — build 41's free tier calls these functions.
+- [ ] `deno check supabase/functions/*/index.ts` (no Deno in the cloud; must pass here).
+- [ ] `supabase functions deploy generate-recipe import-recipe resolve-nutrition delete-account`
+      and `supabase functions deploy revenuecat-webhook --no-verify-jwt`. Then one Ask Otto on
+      TestFlight to confirm nothing changed with the gate off.
+- [ ] **Day 1.0.20 is live, after the demo entitlement grant above:**
+      `supabase secrets set REQUIRE_CLUB=on`. Verify: a non-member token → 402 from
+      generate-recipe; the demo account → 200; a fresh sandbox purchase → 200 within seconds even
+      before the webhook (REST fallback). If anything blocks a real member, `supabase secrets unset
+      REQUIRE_CLUB` turns it off instantly.
+- [ ] Supabase → Auth → Providers → Email → **Leaked password protection: ON** (advisor WARN).
+
 ## Same day 1.0.20 goes live
 - [ ] Website: merge `w6-hard-paywall` (Terms §4 + support FAQ subscription-only copy).
 - [ ] Supabase → Auth → Sign In / Providers → **Confirm email: ON** (1.0.20 has the inbox

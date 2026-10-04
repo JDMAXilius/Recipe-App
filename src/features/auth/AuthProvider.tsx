@@ -4,7 +4,7 @@
 // else (the sign-in/up/out/social actions) is imperative and delegates to
 // auth.queries.ts. useAuth() is the cross-feature hook every other feature
 // consumes (feature-module.md allowlist).
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Purchases from 'react-native-purchases';
 import { hasClubEntitlement } from '@/features/profile/club.logic';
 import { z } from 'zod';
@@ -60,16 +60,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const user = session?.user ?? null;
 
   // Keep RevenueCat's app user id in step with the Supabase user, so the
-  // membership webhook can map subscription events to accounts. logOut throws
-  // if already anonymous — harmless, swallow.
+  // membership webhook can map subscription events to accounts.
   const uid = user?.id;
+  // logOut only on a real sign-out (a uid → none transition). The SDK's logOut
+  // "generates a random user id and saves it" (purchases.d.ts), so calling it
+  // on every launch — before the session has even loaded — minted a fresh
+  // anonymous customer each start and logged an error when already anonymous
+  // (audit 2026-10-04, UX ticket F2).
+  const lastUid = useRef<string | undefined>(undefined);
   // After logIn, sync ONCE per account on this phone (not every sign-in): it
   // recovers a purchase Apple completed but RevenueCat missed (seen 2026-10-02),
   // while RevenueCat warns repeated syncs move a subscription between accounts
   // that share an Apple ID (Transfer behavior). Restore purchases is the manual path.
   useEffect(() => {
+    const previous = lastUid.current;
+    lastUid.current = uid;
     if (!uid) {
-      Purchases.logOut().catch(() => {});
+      if (previous) Purchases.logOut().catch(() => {});
       return;
     }
     Purchases.logIn(uid)

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Database } from '@/types/database';
 
@@ -37,3 +37,14 @@ export const supabase = createClient<Database>(
     },
   },
 );
+
+// Supabase's React Native pattern: the refresh ticker only runs while the app
+// is in the foreground (iOS suspends JS in the background anyway), and coming
+// back to the foreground refreshes a stale token at once instead of on the
+// next tick — so the first request after a long background doesn't 401.
+if (Platform.OS !== 'web') {
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') supabase.auth.startAutoRefresh();
+    else supabase.auth.stopAutoRefresh();
+  });
+}
