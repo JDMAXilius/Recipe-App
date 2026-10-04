@@ -255,3 +255,8 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 | ID | Ticket | Owner | Priority | Status |
 | --- | --- | --- | --- | --- |
 | OBS-1 | **Crash reporting (Sentry, paid Team plan).** Why: Apple's crash reports only see hard crashes from users who share analytics, a day late, with hard-to-read React Native traces; errors Otto catches and shows as "Something went wrong" never reach us. Ready-made: commit `a9d0bc4b` has the whole implementation (`src/shared/monitoring.ts` + scrubber `monitoring.logic.ts` with tests: no user, IP, URLs, screenshots or typed text; error-boundary hook; Crash Data in the privacy manifest), removed in the next commit — restore those files and `@sentry/react-native` (Expo 54 pin `~7.2.0`). Then: Juan creates the Sentry org on the Team plan (IP storage off, data scrubber on); `EXPO_PUBLIC_SENTRY_DSN` in EAS; optional source-map plugin + `SENTRY_AUTH_TOKEN` secret; App Privacy → Crash Data (not linked) in the same release; privacy policy names Sentry. Do it when there are real users to watch. | Juan (account) + Claude | P2 | backlog |
+
+## 2026-10-04 — Resubmitted 1.0.19 with build 46 (Juan: replace 41)
+- Build 46 = hard paywall + UX audit + F1/F3; version string kept 1.0.19 so it replaced 41 in the open review. 4 items submitted (app + 2 subs + group).
+- Done: store description subscription-only, review notes updated (3,974 chars), RevenueCat demo `club` granted 1 year, Supabase Confirm email ON.
+- Open (Juan): `npx supabase login` → deploy 5 functions → `REQUIRE_CLUB=on` (verify 402/200); push Otto_Website main (W6 merged locally); leaked-password protection needs Pro plan.
