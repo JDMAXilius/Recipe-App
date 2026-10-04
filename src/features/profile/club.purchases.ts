@@ -33,17 +33,23 @@ export const RC_API_KEY = 'appl_BUeOnXkZitkSNMjkCbkTJxicpaN';
  * listener already answers locally and keeps fresh after a purchase or a
  * restore. `useClub()` (the paywall's hook) is the one that needs products.
  */
-export function useMembership(): { member: boolean; known: boolean } {
+export function useMembership(): { member: boolean; known: boolean; failed: boolean } {
   const [info, setInfo] = useState<CustomerInfo | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let alive = true;
+    // RevenueCat answers from its on-device cache when offline, so a member who
+    // has opened Otto before is never locked out by a network blip. Only a
+    // fresh install with no network fails — and that fails CLOSED onto the
+    // paywall (Try again / Restore), never into the app (hard paywall, 2026-10-04).
     Purchases.getCustomerInfo()
       .then((i) => alive && setInfo(i))
-      // Offline / not configured: membership stays UNKNOWN, so the hard paywall
-      // fails open (a paying member is never locked out by a network blip).
-      .catch(() => {});
-    const listener = (i: CustomerInfo) => setInfo(i);
+      .catch(() => alive && setFailed(true));
+    const listener = (i: CustomerInfo) => {
+      setInfo(i);
+      setFailed(false);
+    };
     Purchases.addCustomerInfoUpdateListener(listener);
     return () => {
       alive = false;
@@ -51,7 +57,7 @@ export function useMembership(): { member: boolean; known: boolean } {
     };
   }, []);
 
-  return { member: hasClubEntitlement(info), known: info !== null };
+  return { member: hasClubEntitlement(info), known: info !== null || failed, failed };
 }
 
 export function useClub() {

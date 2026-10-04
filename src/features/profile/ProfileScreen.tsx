@@ -23,12 +23,12 @@ import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { AI_CONSENT_COPY, useAiConsent } from '@/shared/aiConsent';
-import { useAuth, displayNameFor, hasUsername, cleanUsername, MAX_USERNAME, appleAuthorizationCode } from '@/features/auth';
+import { useAuth, displayNameFor, hasUsername, cleanUsername, MAX_USERNAME } from '@/features/auth';
 import { useSaved, useMyRecipes } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
 import { usePrefs } from './usePrefs';
 import { UNIT_SEGMENTS, cookedCount, earnedStats, statText } from './profile.logic';
-import { deleteAccount } from './profile.queries';
+import { useDeleteAccount } from './useDeleteAccount';
 import Purchases from 'react-native-purchases';
 import { useMembership } from './club.purchases';
 
@@ -145,41 +145,8 @@ export function ProfileScreen() {
     void signOut();
   };
 
-  // Delete account: two-tap arm (works on web), then wipe server data.
-  const [armDelete, setArmDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const onDelete = async () => {
-    if (!armDelete) {
-      setArmDelete(true);
-      show('This permanently deletes your recipes, saves, and week. Tap again to confirm.', 'info');
-      // A subscriber gets time to cancel first (Apple's deletion guidance), so no auto-disarm.
-      if (!member) setTimeout(() => setArmDelete(false), 6000);
-      return;
-    }
-    setDeleting(true);
-    try {
-      // Signed in with Apple: one Apple sheet tap so the server can revoke the
-      // Apple tokens (required for Sign in with Apple apps).
-      const viaApple = (user?.identities ?? []).some((i) => i.provider === 'apple');
-      let appleCode: string | undefined;
-      if (viaApple && Platform.OS === 'ios') {
-        const code = await appleAuthorizationCode();
-        if (!code) {
-          show('Confirm with Apple to finish deleting your account.', 'info');
-          setDeleting(false);
-          return;
-        }
-        appleCode = code;
-      }
-      await deleteAccount(appleCode);
-      show("Everything's deleted. Otto will miss you.", 'success');
-      await signOut();
-    } catch {
-      show("Couldn't delete right now. Try again, or email us.", 'error');
-      setDeleting(false);
-      setArmDelete(false);
-    }
-  };
+  // Delete account: shared with the paywall (useDeleteAccount).
+  const { armed: armDelete, deleting, onDelete } = useDeleteAccount(member);
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.cream }}>

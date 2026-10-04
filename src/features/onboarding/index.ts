@@ -3,4 +3,4 @@
 export { OnboardingScreen } from './OnboardingScreen';
 export { Splash } from './Splash';
 export { useOnboarded } from './useOnboarded';
-export { resolveRoute, type GateRoute, type GateInput } from './gate';
+export { canUseApp, resolveRoute, type GateRoute, type GateInput } from './gate';

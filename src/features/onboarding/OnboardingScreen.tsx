@@ -18,7 +18,6 @@ import { haptics } from '@/shared/haptics';
 import { onboardingArt } from '@/shared/assets';
 import { useOnboarded } from './useOnboarded';
 import { useAuth } from '@/features/auth';
-import { useMembership } from '@/features/profile';
 
 // Onboarding — the 3-screen painted showcase (Figma master board / v1 parity):
 // full-bleed art, a Skip door, page dots, and one CTA that advances then hands
@@ -56,12 +55,12 @@ export function OnboardingScreen() {
   const scroller = useRef<ScrollView>(null);
   const [page, setPage] = useState(0);
 
-  const { member } = useMembership();
-  // Onboarding now runs after sign-up; its end is where the 7-day Otto Club trial
-  // is offered (once — the flag is set first). Members go straight home.
+  // Onboarding runs after sign-up; at its end the launch gate sends members home
+  // and everyone else to the Otto Club paywall (the flag is set first).
   const leave = async () => {
     await markOnboarded();
-    router.replace(member ? '/(tabs)' : '/otto-club');
+    // The launch gate decides: members go home, everyone else to Otto Club.
+    router.replace('/');
   };
   const finish = leave;
   const skip = leave;

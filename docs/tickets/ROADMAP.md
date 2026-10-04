@@ -246,6 +246,6 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 | --- | --- | --- | --- | --- |
 | APP-15 | Encrypt the persisted Supabase session (Supabase's `LargeSecureStore`: AES key in `expo-secure-store`, blob in AsyncStorage). New native dep → 1.0.21 build. | Claude | P2 | todo |
 | APP-16 | Recipe photo paths expose the owner's auth uid in a public bucket URL (`recipe-photos/{uid}/…`). Use a per-user random folder on the next photo change; keep delete-account's cleanup in step. | Claude | P3 | todo |
-| APP-17 | Hard-paywall cold-start flash: hold the splash until RevenueCat answers (2 s cap) if visible on device. | Claude | P3 | todo |
+| APP-17 | Hard-paywall cold-start flash: hold the splash until RevenueCat answers. **Done 2026-10-04** with the root route guard (no app screen renders until membership is known). | Claude | P3 | done |
 | DB-1 | `resolved_ingredients` anon read — founder call: keep (names only, no user column) or restrict to `authenticated`. | Juan | P3 | todo |
-
+- 2026-10-04: **Hard paywall enforced on every route** (root `Stack.Protected`): no screen opens without sign-in + Otto Club, deep links included; unknown membership fails closed; paywall has Sign out + Delete account (Apple 5.1.1(v)). Ships in the next build (version 1.0.20). Device check on TestFlight: fresh install → sign up → intro → paywall; `otto://shopping` from Safari lands on the paywall; buy (sandbox) → app opens.

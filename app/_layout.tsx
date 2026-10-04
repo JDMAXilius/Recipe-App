@@ -5,10 +5,10 @@ import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Lora_400Regular, Lora_600SemiBold, Lora_700Bold } from '@expo-google-fonts/lora';
-import { AuthProvider } from '@/features/auth';
-import { Splash } from '@/features/onboarding';
+import { AuthProvider, useAuth } from '@/features/auth';
+import { Splash, canUseApp } from '@/features/onboarding';
 import { NotifSync } from '@/features/notifications';
-import { RC_API_KEY } from '@/features/profile/club.purchases';
+import { RC_API_KEY, useMembership } from '@/features/profile/club.purchases';
 import { AiConsentHost, ErrorBoundary, ToastHost } from '@/shared/ui';
 import { timing } from '@/shared/theme/tokens';
 
@@ -52,20 +52,7 @@ export default function RootLayout() {
                   own transition curve and `animationDuration` is Android-only.
                   Claiming a tokenized curve on iOS here would be false; the
                   role-named tokens govern in-app motion, not the OS push. */}
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  animation: 'slide_from_right',
-                  animationDuration: timing.enter,
-                }}
-              >
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="(auth)" />
-                <Stack.Screen name="add" />
-                {/* Hard paywall: no swipe-back past it (members get a close button). */}
-                <Stack.Screen name="otto-club" options={{ gestureEnabled: false }} />
-                <Stack.Screen name="recipe/cook/[id]" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
-              </Stack>
+              <RootStack />
               <ToastHost />
               {/* Asks before anything leaves for a third-party AI (5.1.2(i)). */}
               <AiConsentHost />
@@ -76,5 +63,64 @@ export default function RootLayout() {
         </SafeAreaProvider>
       </ErrorBoundary>
     </GestureHandlerRootView>
+  );
+}
+
+// Every route, declared and guarded in one place (Expo Router's Stack.Protected).
+// Hard paywall (Juan, 2026-10-04): signed out → only the auth screens; signed in
+// without Otto Club → only onboarding and the paywall; the rest of the app is for
+// signed-in members. A screen NOT declared here would be reachable by deep link
+// with no guard, so every route in app/ is listed. A guard that turns false
+// sends the user to `index`, the launch gate, which picks the right door.
+function RootStack() {
+  const { session } = useAuth();
+  const { member, known } = useMembership();
+  const signedIn = !!session;
+  const allowed = canUseApp(signedIn, known ? member : null);
+
+  return (
+    // Back is the LEFT-EDGE swipe, not a drag from anywhere: a full-screen pan
+    // claimed slightly-diagonal scrolls on long pages as "go back". Cook opts
+    // out entirely — its step pager owns horizontal pans. One slide-from-right
+    // push on both platforms at the `enter` duration (motion.md §1); iOS runs
+    // UIKit's own curve, `animationDuration` is Android-only.
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'slide_from_right',
+        animationDuration: timing.enter,
+      }}
+    >
+      {/* Always reachable: the launch gate and the link landings. */}
+      <Stack.Screen name="index" />
+      <Stack.Screen name="auth/callback" />
+      <Stack.Screen name="reset-password" />
+
+      <Stack.Protected guard={!signedIn}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={signedIn}>
+        <Stack.Screen name="onboarding" />
+        {/* No swipe-back: a non-member has nowhere behind the paywall to go. */}
+        <Stack.Screen name="otto-club" options={{ gestureEnabled: member }} />
+      </Stack.Protected>
+
+      <Stack.Protected guard={allowed}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="add" />
+        <Stack.Screen name="recipe/[id]" />
+        <Stack.Screen name="recipe/edit" />
+        <Stack.Screen name="recipe/cook/[id]" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
+        <Stack.Screen name="shopping" />
+        <Stack.Screen name="chats" />
+        <Stack.Screen name="journal" />
+        <Stack.Screen name="household" />
+        <Stack.Screen name="faq" />
+        <Stack.Screen name="preferences" />
+        <Stack.Screen name="notifications" />
+        <Stack.Screen name="change-password" />
+      </Stack.Protected>
+    </Stack>
   );
 }

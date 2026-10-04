@@ -15,6 +15,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { useClub } from './club.purchases';
+import { useDeleteAccount } from './useDeleteAccount';
+import { useAuth } from '@/features/auth';
 
 // Otto Club paywall — a HARD paywall (Juan, 2026-10-04): a signed-in non-member
 // can't use Otto without starting the trial, so there is no X and no "Not now".
@@ -32,7 +34,13 @@ export function OttoClubScreen() {
   const { show } = useToast();
   const [plan, setPlan] = useState<'year' | 'month'>('year');
   const club = useClub();
-  const goHome = () => router.replace('/(tabs)');
+  const { signOut } = useAuth();
+  // Hard paywall: a non-member can't reach Account, so its exits live here
+  // (Apple 5.1.1(v): in-app deletion for every account, subscribed or not).
+  const del = useDeleteAccount(club.member);
+  // Through the launch gate, which re-reads membership: replacing straight to
+  // the tabs could beat the root guard's own membership update and bounce.
+  const goHome = () => router.replace('/');
   const close = () => (router.canGoBack() ? router.back() : goHome());
 
   const yearly = club.yearly?.product;
@@ -166,6 +174,24 @@ export function OttoClubScreen() {
             </View>
           </View>
         )}
+
+        {!club.member ? (
+          <View style={styles.legalRow}>
+            <Pressable onPress={() => void signOut()} accessibilityRole="button" hitSlop={8}>
+              <RNText style={styles.legal}>Sign out</RNText>
+            </Pressable>
+            <RNText style={styles.fine}>·</RNText>
+            <Pressable
+              onPress={del.onDelete}
+              disabled={del.deleting}
+              accessibilityRole="button"
+              accessibilityLabel="Delete my account"
+              hitSlop={8}
+            >
+              <RNText style={styles.legal}>{del.armed ? 'Tap again to delete' : 'Delete account'}</RNText>
+            </Pressable>
+          </View>
+        ) : null}
       </ScrollView>
     </View>
   );
