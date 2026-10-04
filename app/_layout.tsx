@@ -10,7 +10,6 @@ import { Splash, canUseApp } from '@/features/onboarding';
 import { NotifSync } from '@/features/notifications';
 import { RC_API_KEY, useMembership } from '@/features/profile/club.purchases';
 import { AiConsentHost, ErrorBoundary, ToastHost } from '@/shared/ui';
-import { initMonitoring } from '@/shared/monitoring';
 import { timing } from '@/shared/theme/tokens';
 
 // The provider stack: gesture root → error boundary → server state (TanStack
@@ -19,9 +18,6 @@ import { timing } from '@/shared/theme/tokens';
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 60_000, retry: 1 } },
 });
-
-// Crash reporting first, so a crash during startup is caught (no-op without a DSN).
-initMonitoring();
 
 // RevenueCat init at module scope, not in an effect: child effects (AuthProvider's
 // Purchases.logIn) run before the root layout's would, so configure must beat render.

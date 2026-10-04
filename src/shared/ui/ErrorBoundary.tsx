@@ -1,7 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
 import { colors, space } from '../theme/tokens';
-import { reportError } from '../monitoring';
 import { Text } from './Text';
 import { Button } from './Button';
 
@@ -24,7 +23,6 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error) {
     console.error('Uncaught render error', error.message);
-    reportError(error);
   }
 
   reset = () => this.setState({ error: null });
