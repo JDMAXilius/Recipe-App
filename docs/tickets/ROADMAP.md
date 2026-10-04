@@ -230,3 +230,8 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 - Stale rows: the submit ticket records Paid Apps, Free Apps and the bank account as **Active**, so ASC-1/2/3 are effectively done. Juan to confirm, then mark them.
 - Consent sheet v2: adds `More in our Privacy Policy` and "Anthropic doesn’t train its AI on what you send" (matching Runna, Liven, Starling and Structured).
 - Then: record on 39 → reply + Notes → resubmit with the three Otto Club items.
+
+## 2026-10-04 — UX audit → 1.0.20 (handed to Claude Code)
+- Full app walk + Mobbin references. Plan with screenshots: `docs/ux-audit-2026-10-04/plan.html`.
+- Ticket: `docs/tickets/TERMINAL_TICKET_UX_AUDIT_1_0_20.md` — 18 screens (trim chatty copy, rework nutrition card, import review, chat empty state, AI consent, Account, delete) + defects F1–F3 (deep-link tab-bar crash, RevenueCat logOut while anonymous, first-save failure).
+- Ships with 1.0.20 on top of the hard-paywall builds; console/ASC work and the onboarding goal-question decision come back to the main session.

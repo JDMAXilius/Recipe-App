@@ -1,0 +1,555 @@
+<title>Otto Screen Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  --paper:#F7F6F2; --card:#FFFFFF; --ink:#1F1D1A; --muted:#6B665E; --line:#E4E0D8; --soft:#EFECE6;
+  --accent:#C8582B; --keep:#2F7A4F; --keep-bg:#E6F2EA; --trim:#A8720A; --trim-bg:#F7EEDA; --rework:#B23A2E; --rework-bg:#F8E4E1;
+  --otto-cream:#FAF4EA; --otto-deep:#F1E7D8; --otto-ink:#2B2118; --otto-soft:#6E6055; --otto-terra:#C8582B; --otto-terra-soft:#F3DCCD;
+  --sans:"Source Sans 3",-apple-system,"Helvetica Neue",Arial,sans-serif; --serif:Lora,Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --paper:#171614; --card:#201E1B; --ink:#ECE8E1; --muted:#A39C91; --line:#2F2C27; --soft:#262320;
+  --keep-bg:#1D3326; --trim-bg:#3A2E12; --rework-bg:#3F1F1B; --keep:#7FC79A; --trim:#E2B35A; --rework:#F08A7E;}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --paper:#171614; --card:#201E1B; --ink:#ECE8E1; --muted:#A39C91; --line:#2F2C27; --soft:#262320;
+  --keep-bg:#1D3326; --trim-bg:#3A2E12; --rework-bg:#3F1F1B; --keep:#7FC79A; --trim:#E2B35A; --rework:#F08A7E;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-block:32px 80px;padding-inline:20px}
+h1,h2,h3{font-family:var(--serif);text-wrap:balance;margin:0}
+h1{font-size:2.2rem;line-height:1.15;font-weight:700}
+h2{font-size:1.5rem;font-weight:600;margin-top:56px;padding-top:24px;border-top:1px solid var(--line)}
+h3{font-size:1.15rem;font-weight:600}
+p{margin:0;max-width:68ch}
+a{color:var(--accent)}
+.lede{font-size:1.1rem;color:var(--muted);margin-top:10px}
+.meta{font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:24px}
+.principle{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.principle b{display:block;font-family:var(--serif);font-size:1.05rem;margin-bottom:4px}
+.principle span{color:var(--muted);font-size:.95rem}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;align-items:center;font-size:.95rem;color:var(--muted)}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.08em;padding:3px 9px;border-radius:999px;text-transform:uppercase}
+.pill.keep{background:var(--keep-bg);color:var(--keep)} .pill.trim{background:var(--trim-bg);color:var(--trim)} .pill.rework{background:var(--rework-bg);color:var(--rework)}
+.item{margin-top:36px}
+.item-head{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:baseline}
+.item-head .num{font-family:var(--serif);color:var(--muted);font-size:1rem}
+.item p.why{margin-top:6px;color:var(--muted)}
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:16px;align-items:start}
+.col{min-width:0}
+.col .label{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.shots{display:flex;gap:10px;flex-wrap:wrap}
+figure{margin:0;flex:1 1 150px;max-width:230px}
+.phone{background:var(--soft);border:1px solid var(--line);border-radius:14px;overflow:hidden;aspect-ratio:9/19.5;max-width:100%}
+.phone img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+figcaption{font-size:.82rem;color:var(--muted);margin-top:6px;line-height:1.3}
+figcaption a{color:var(--muted)}
+.notes{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.notes ul{margin:0;padding-left:18px}
+.notes li{margin:5px 0}
+.notes li+li{border-top:1px dashed var(--line);padding-top:6px}
+.q{color:var(--muted)} .arrow{color:var(--accent);font-weight:700;padding:0 4px}
+.now{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:var(--rework)}
+/* Otto-styled mockups: use Otto's own tokens so the proposal reads like the app */
+.mock{background:var(--otto-cream);color:var(--otto-ink);border-radius:18px;padding:18px 16px;border:1px solid #E9DFD0;font-family:var(--sans);max-width:360px;font-size:15px;line-height:1.35}
+.mock .t{font-family:var(--serif);font-weight:700;font-size:1.35rem;line-height:1.2}
+.mock .c{color:var(--otto-soft);font-size:.9rem}
+.mock .card{background:#fff;border-radius:14px;padding:12px 14px;margin-top:10px}
+.mock .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F0E8DB}
+.mock .row:last-child{border-bottom:0}
+.mock .btn{background:var(--otto-terra);color:#fff;text-align:center;border-radius:999px;padding:12px;font-weight:700;margin-top:12px}
+.mock .ghost{text-align:center;color:var(--otto-terra);font-weight:600;margin-top:10px}
+.mock .chip{display:inline-block;border:1px solid var(--otto-terra);color:var(--otto-terra);border-radius:999px;padding:6px 12px;font-size:.88rem;margin:4px 6px 0 0;background:#fff}
+.mock .i{display:inline-block;width:17px;height:17px;border:1.5px solid var(--otto-soft);border-radius:50%;font-size:.7rem;text-align:center;line-height:14px;color:var(--otto-soft);vertical-align:1px;margin-left:4px;font-family:var(--serif);font-style:italic}
+.mock .sec{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--otto-soft);margin-top:14px;font-weight:700}
+.mock .ring{width:64px;height:64px;border-radius:50%;border:6px solid var(--otto-terra);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;font-size:1.1rem}
+.mock .macros{display:flex;gap:14px;font-size:.85rem;color:var(--otto-soft)}
+.mock .macros b{display:block;color:var(--otto-ink);font-size:1rem}
+.mock .alert{background:#fff;border-radius:16px;padding:16px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.mock .alert .ab{border-top:1px solid #EEE5D8;padding:10px;font-weight:600;color:#1F6FEB}
+.mock .alert .ab.danger{color:#C62E2E}
+.mock .bar{height:4px;background:#EADFCF;border-radius:2px;overflow:hidden}
+.mock .bar i{display:block;height:100%;width:85%;background:var(--otto-terra)}
+.found{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:16px}
+.found .notes{font-size:.95rem}
+table{border-collapse:collapse;width:100%;margin-top:16px;font-size:.95rem}
+th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td:first-child{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.tablewrap{overflow-x:auto}
+@media (max-width:640px){h1{font-size:1.8rem} .item-head{gap:6px 10px}}
+</style>
+
+<div class="wrap">
+  <div class="meta">Otto · 1.0.20 planning · nothing applied yet</div>
+  <h1>Otto Screen Plan</h1>
+  <p class="lede">Every Otto screen next to how the top apps handle the same moment, with the proposed change. References come from Mobbin (Cal AI, ReciMe, Crouton, Kitchen Stories, MyFitnessPal, ChatGPT, Spark, Notion, Duolingo, Calm, Brilliant, Finch, Pocket). Otto screenshots are from the current build on the simulator; four marked “from the review recording” are from your TestFlight video.</p>
+
+  <div class="principles">
+    <div class="principle"><b>Numbers and nouns, no narrator</b><span>A section is a title and its content. The pros never add a sentence explaining the title.</span></div>
+    <div class="principle"><b>Caveats behind an (i)</b><span>None of 12 nutrition screens prints a medical disclaimer inline. Apple only needs it one tap away.</span></div>
+    <div class="principle"><b>Empty states are one line</b><span>“No recipes yet.” Not a pep talk and not a sales line.</span></div>
+    <div class="principle"><b>The pros ask, Otto tells</b><span>ReciMe, Brilliant and Cal AI ask one question before the paywall. Otto shows three feature cards.</span></div>
+  </div>
+  <div class="legend"><span class="pill rework">Rework</span> structure changes · <span class="pill trim">Trim</span> delete or shorten words · <span class="pill keep">Keep</span> already at the reference level</div>
+
+  <!-- ============ A. FIRST RUN ============ -->
+  <h2>A. First run and sign-in</h2>
+
+  <div class="item" id="i1">
+    <div class="item-head"><span class="num">01</span><h3>Sign up and sign in</h3><span class="pill trim">Trim</span></div>
+    <p class="why">The structure matches Headspace and Brilliant (icon row, email below). The difference is the kitchen metaphors on every label, and the one line every reference app has that Otto lacks: the Terms and Privacy agreement under the button.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-signin.jpg" alt="Otto sign-in: Back to the kitchen? Otto kept your place."></div><figcaption>Sign in</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">References</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-calm-signup.jpg" alt="Calm create account"></div><figcaption>Calm · <a href="https://mobbin.com/screens/6c44f8a4-eb9e-409e-90d6-39c725eae85a">Mobbin ↗</a></figcaption></figure>
+        <figure><div class="phone"><img src="img/ref-calm-login.jpg" alt="Calm log in"></div><figcaption>Calm · <a href="https://mobbin.com/screens/3d14c14e-1f3b-44ea-b8ac-45510aa33e98">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div><div class="notes"><ul>
+        <li><span class="now">Pull up a stool. / Save recipes and plan dinners. Otto remembers.</span><span class="arrow">→</span><b>Create your account</b>, no subtitle</li>
+        <li><span class="now">Join Otto's kitchen</span><span class="arrow">→</span><b>Create account</b></li>
+        <li><span class="now">Back to the kitchen? / Otto kept your place.</span><span class="arrow">→</span><b>Welcome back</b></li>
+        <li><span class="now">New here? Pull up a stool</span><span class="arrow">→</span><b>New to Otto? Create account</b></li>
+        <li><span class="now">Forgot your password? / Happens to everyone…</span><span class="arrow">→</span><b>Reset password</b> · “We'll email you a reset link.” · button <b>Send reset link</b></li>
+        <li><b>Add</b> under the button: “By continuing you agree to Otto's Terms and Privacy Policy.”</li>
+        <li>Illustration ~110px so the fields sit above the keyboard. Apple stays first.</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="item" id="i2">
+    <div class="item-head"><span class="num">02</span><h3>Onboarding cards</h3><span class="pill keep">Keep</span><span class="pill rework">Idea</span></div>
+    <p class="why">Otto's three cards are already at reference density (11 to 16 words each). What the pros add is one question. Brilliant, ReciMe and Cal AI each ask a goal before the paywall; it is the single highest-converting pattern in every reference flow, and the answer feeds the paywall headline.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-onboarding.jpg" alt="Otto onboarding card 1"></div><figcaption>Card 1 of 3</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-brilliant-goal.jpg" alt="Brilliant: What's your top goal?"></div><figcaption>Brilliant · <a href="https://mobbin.com/screens/0985030b-7fc2-488d-883e-d7575e93cb93">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed: one question after the cards</div>
+        <div class="mock">
+          <div class="bar"><i></i></div>
+          <div class="t" style="margin-top:14px">What's Otto for?</div>
+          <div class="c">Pick one. You can change it later.</div>
+          <div class="card" style="margin-top:14px">🔖&nbsp; Keep my recipes in one place</div>
+          <div class="card">📅&nbsp; Plan the week and shop faster</div>
+          <div class="card" style="border:2px solid var(--otto-terra)">🥗&nbsp; Eat healthier</div>
+          <div class="card">👩‍🍳&nbsp; Cook more often</div>
+          <div class="btn">Continue</div>
+        </div>
+        <div class="notes" style="margin-top:12px"><ul>
+          <li>Card 2 body: <span class="now">Step-by-step cook mode, serving sizes that scale, and a nutrition estimate for every dish.</span><span class="arrow">→</span><b>Cook mode, scaling, nutrition. Every dish.</b></li>
+          <li>Dots become a progress bar once there is a question.</li>
+          <li>The paywall headline follows the answer, e.g. “Plan the week. Start free.”</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="item" id="i3">
+    <div class="item-head"><span class="num">03</span><h3>Otto Club paywall</h3><span class="pill keep">Keep</span></div>
+    <p class="why">Rebuilt yesterday on exactly this pattern. Headline, two plans, “No payment due now”, one button, one price line, Terms and Privacy. No change.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-paywall.jpg" alt="Otto Club paywall"></div><figcaption>Build 44</figcaption></figure>
+      </div></div>
+      <div class="col" style="grid-column:span 2"><div class="label">References</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-calai-paywall.jpg" alt="Cal AI paywall"></div><figcaption>Cal AI · <a href="https://mobbin.com/screens/6e269857-5e29-4c86-8d0a-8b0961d10c53">Mobbin ↗</a></figcaption></figure>
+        <figure><div class="phone"><img src="img/ref-recime-paywall.jpg" alt="ReciMe choose a plan"></div><figcaption>ReciMe · <a href="https://mobbin.com/screens/f89f0917-99c3-4075-909a-af87e6ee4ee5">Mobbin ↗</a></figcaption></figure>
+        <figure><div class="phone"><img src="img/ref-julienne-paywall.jpg" alt="Julienne Pro paywall"></div><figcaption>Julienne · <a href="https://mobbin.com/screens/3cbc1928-a4e0-4ab6-83a7-4ce825088e67">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ============ B. COOKING ============ -->
+  <h2>B. Finding and cooking</h2>
+
+  <div class="item" id="i4">
+    <div class="item-head"><span class="num">04</span><h3>Discover</h3><span class="pill trim">Trim</span></div>
+    <p class="why">The layout is fine. Two captions and two empty states narrate.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-discover.jpg" alt="Otto Discover"></div><figcaption>Discover</figcaption></figure>
+      </div></div>
+      <div class="col" style="grid-column:span 2"><div class="label">Proposed</div><div class="notes"><ul>
+        <li>Ask Otto row: <span class="now">Tell him what you're hungry for and he'll write the recipe.</span><span class="arrow">→</span><b>Write me a recipe →</b></li>
+        <li>Empty search: <span class="now">Otto came up empty for “x”. Try another dish or ingredient.</span><span class="arrow">→</span><b>No results for “x”</b></li>
+        <li>Filter sheet: delete the “single choice” / “choose any” hints.</li>
+        <li>Cookbook empty states already one line plus a button. Keep.</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="item" id="i5">
+    <div class="item-head"><span class="num">05</span><h3>Recipe detail and the nutrition card</h3><span class="pill rework">Rework</span></div>
+    <p class="why">Otto's card carries three captions: the serving note, “Otto worked this estimate out from the ingredients”, and the full USDA / not-medical-advice paragraph. MyFitnessPal, Kitchen Stories, Yazio and Lifesum show numbers and a header. The caveat moves behind an (i), which still satisfies Apple's rule on health claims because it is one tap from the number.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-recipe.jpg" alt="Otto recipe detail with nutrition card"></div><figcaption>Recipe detail</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">References</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-mfp-nutrition.jpg" alt="MyFitnessPal nutrition"></div><figcaption>MyFitnessPal · <a href="https://mobbin.com/screens/fa25f3b6-ebaa-48ba-9b01-db24e553ec5f">Mobbin ↗</a></figcaption></figure>
+        <figure><div class="phone"><img src="img/ref-kitchenstories-recipe.jpg" alt="Kitchen Stories nutrition per serving"></div><figcaption>Kitchen Stories · <a href="https://mobbin.com/screens/f2846528-82ff-47e5-bfcf-e632885efd5f">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div>
+        <div class="mock">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="t" style="font-size:1.15rem">Nutrition</span><span class="c">Estimate<span class="i">i</span></span></div>
+          <div class="c" style="margin-top:4px"><b style="color:var(--otto-terra)">per serving</b> · whole recipe</div>
+          <div class="card" style="display:flex;gap:16px;align-items:center">
+            <div class="ring">1140</div>
+            <div class="macros"><div><b>61 g</b>Protein</div><div><b>47 g</b>Carbs</div><div><b>79 g</b>Fat</div></div>
+          </div>
+        </div>
+        <div class="notes" style="margin-top:12px"><ul>
+          <li>Delete all three captions. The (i) opens a sheet “About these numbers” with the USDA and not-medical-advice text as it is today.</li>
+          <li>Low-confidence estimate: header reads <b>Rough estimate (i)</b>. No estimate: hide the card.</li>
+          <li>Also on this screen: <span class="now">Watch this one being made before you start.</span> and <span class="now">Other beef dishes Otto keeps close by.</span> go; “See it made” and “More beef recipes” stay as titles.</li>
+          <li>Remove the inline “Share this recipe” block; share is the header icon, as in every reference.</li>
+          <li>404: <span class="now">Otto looked everywhere. This recipe isn't on the shelf anymore.</span><span class="arrow">→</span><b>Recipe not found</b></li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="item" id="i6">
+    <div class="item-head"><span class="num">06</span><h3>Cook mode</h3><span class="pill trim">Trim</span></div>
+    <p class="why">Step cards and timers already match Kitchen Stories and Crouton. Two instructional lines go. The timer-done and “Dinner, done” moments stay: short, at the right moment, and the references have them too.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-cook.jpg" alt="Otto cook mode"></div><figcaption>Mise en place</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-kitchenstories-step.jpg" alt="Kitchen Stories step with timer"></div><figcaption>Kitchen Stories · <a href="https://mobbin.com/screens/85a4ace6-390e-40b5-a231-14f134af1752">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div><div class="notes"><ul>
+        <li><span class="now">Everything on the counter before the heat goes on.</span><span class="arrow">→</span>delete; the checklist explains itself</li>
+        <li><span class="now">Tap a time to start a timer</span><span class="arrow">→</span>delete; the tinted ◷ duration is the affordance</li>
+        <li><span class="now">Nothing specific for this step.</span><span class="arrow">→</span>render nothing</li>
+        <li>Keep: “Leave the kitchen? Your timers will stop.” and “Dinner, done.”</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <!-- ============ C. ADDING ============ -->
+  <h2>C. Adding recipes and Ask Otto</h2>
+
+  <div class="item" id="i7">
+    <div class="item-head"><span class="num">07</span><h3>Add a recipe</h3><span class="pill trim">Trim</span></div>
+    <p class="why">ReciMe's version is three tiles and one secondary action. Otto's has a mascot, a subtitle, a caption under each mode, and a card pitching the chat.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-add.jpg" alt="Otto Bring in a recipe"></div><figcaption>Bring in a recipe</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-recime-import-picker.jpg" alt="ReciMe import recipe sheet"></div><figcaption>ReciMe · <a href="https://mobbin.com/screens/a7cfa4c0-40d5-4f37-9e71-e11500403d15">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div>
+        <div class="mock">
+          <div class="t" style="text-align:center">Add a recipe</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+            <div class="card" style="margin:0">🔗<br>Paste a link</div><div class="card" style="margin:0">📄<br>Paste text</div>
+            <div class="card" style="margin:0">📷<br>Snap a photo</div><div class="card" style="margin:0">✏️<br>Write it myself</div>
+          </div>
+          <div class="ghost">Ask Otto to write one</div>
+        </div>
+        <div class="notes" style="margin-top:12px"><ul>
+          <li>Delete the subtitle, the mascot, and the caption under each mode. The hint moves into the placeholder: “Paste a link (website, TikTok, Instagram)”.</li>
+          <li>Busy state keeps “Otto's reading it…”; the second line goes.</li>
+          <li>Photo field: <b>Add photo</b> only; the paste-a-picture-link field hides behind the same tap.</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="item" id="i8">
+    <div class="item-head"><span class="num">08</span><h3>Review an import</h3><span class="pill rework">Rework</span></div>
+    <p class="why">Two warning paragraphs sit above the form. ReciMe's review is the form, a Save button and a one-line “Report import mistake”. The allergen and temperature warning is real, so it keeps a home: the same (i) sheet as nutrition.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-review.jpg" alt="Otto Check Otto's work"></div><figcaption>Check Otto's work · from the review recording</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-recime-import-review.jpg" alt="ReciMe import review"></div><figcaption>ReciMe · <a href="https://mobbin.com/screens/fd3d6cc0-8814-406b-83aa-dade34689283">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div>
+        <div class="mock">
+          <div class="t">Review import</div>
+          <div class="c" style="margin-top:4px">AI-read · check amounts and temperatures<span class="i">i</span></div>
+          <div class="sec">Title</div><div class="card" style="margin-top:6px">Creamy Garlic Pasta</div>
+          <div class="sec">Photo</div><div class="card" style="margin-top:6px;border:1.5px dashed var(--otto-terra);color:var(--otto-terra);text-align:center">Add photo</div>
+          <div class="sec">Servings</div><div class="card" style="margin-top:6px;display:flex;justify-content:space-between"><span>2</span><span>−&nbsp;&nbsp;+</span></div>
+          <div class="btn">Looks right, save</div>
+        </div>
+        <div class="notes" style="margin-top:12px"><ul>
+          <li>Footer: <span class="now">From allrecipes.com. The credit stays with the recipe.</span><span class="arrow">→</span><b>Source: allrecipes.com</b></li>
+          <li><span class="now">Cooked up with Otto. Checked and kept by you.</span><span class="arrow">→</span>delete</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="item" id="i9">
+    <div class="item-head"><span class="num">09</span><h3>Ask Otto, empty state</h3><span class="pill rework">Rework</span></div>
+    <p class="why">ChatGPT, Gemini and Copilot open with a headline and example chips. Otto explains how to talk to it in a sentence. Chips demonstrate instead of explaining, and they are tappable.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-chat.jpg" alt="Otto chat empty state"></div><figcaption>Chat with Otto · from the review recording</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-chatgpt-empty.jpg" alt="ChatGPT empty state with chips"></div><figcaption>ChatGPT · <a href="https://mobbin.com/screens/fce32b52-522f-425d-b193-dc00895ee187">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div>
+        <div class="mock" style="text-align:center">
+          <div style="font-size:52px;line-height:1">🦦</div>
+          <div class="t" style="margin-top:8px">What are you hungry for?</div>
+          <div style="margin-top:12px;text-align:left"><span class="chip">20-min weeknight pasta</span><span class="chip">Use up chicken thighs + spinach</span><span class="chip">Something cozy, vegetarian</span></div>
+          <div class="card" style="display:flex;justify-content:space-between;color:var(--otto-soft)"><span>Tell Otto what you're after…</span><b style="color:var(--otto-ink)">🎤 Speak</b></div>
+        </div>
+        <div class="notes" style="margin-top:12px"><ul>
+          <li><span class="now">Tell Otto a craving, a few ingredients, or a mood. He'll ask a little, then write you a recipe.</span><span class="arrow">→</span>three chips</li>
+          <li>Mascot about 140px instead of 220px.</li>
+          <li>Hide the Speak pill when voice is unavailable instead of toasting “coming soon”.</li>
+          <li>Keep the Speak pill itself: Grok uses the identical pattern.</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="item" id="i10">
+    <div class="item-head"><span class="num">10</span><h3>AI consent sheet</h3><span class="pill rework">Rework</span></div>
+    <p class="why">About 110 words in three paragraphs. Spark does it in about 40 with a bold lead; Runna in 75 with bullets. Every fact Apple's rule needs stays: who receives the data, what is sent, what happens if you decline.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-consent.jpg" alt="Otto uses AI for this sheet"></div><figcaption>Otto uses AI for this · from the review recording</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-spark-ai-consent.jpg" alt="Spark +AI is private by design"></div><figcaption>Spark Mail · <a href="https://mobbin.com/screens/b7782671-d358-4586-9e86-64b53ed99a46">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed (about 55 words)</div>
+        <div class="mock">
+          <div class="t">Otto uses Claude AI</div>
+          <p style="margin-top:8px">Imports, Ask Otto and nutrition matching run on Claude, made by Anthropic. Otto sends only what you give the feature:</p>
+          <ul style="margin:8px 0 0;padding-left:20px"><li>Text, links and photos you share</li><li>Your questions</li><li>Ingredient names in your recipes</li></ul>
+          <div class="c" style="margin-top:10px">Not used to train AI. Your account stays with Otto. Change anytime in Account › AI features.</div>
+          <div class="btn">Allow</div><div class="ghost">Not now</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ D. PLANNING ============ -->
+  <h2>D. Planning and shopping</h2>
+
+  <div class="item" id="i11">
+    <div class="item-head"><span class="num">11</span><h3>Otto's week</h3><span class="pill trim">Trim</span></div>
+    <p class="why">ReciMe writes “No recipes yet” on every empty day and nothing else. Otto writes a different quip per day and a sales line for the empty week.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-plan.jpg" alt="Otto's week"></div><figcaption>Plan</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">References</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-recime-plan-empty.jpg" alt="ReciMe meal plan, empty days"></div><figcaption>ReciMe · <a href="https://mobbin.com/screens/3b3da8e4-6b50-4dc5-8826-9df0225a6fd2">Mobbin ↗</a></figcaption></figure>
+        <figure><div class="phone"><img src="img/ref-recime-plan-groceries.jpg" alt="ReciMe meal plan with Add to groceries"></div><figcaption>ReciMe · <a href="https://mobbin.com/screens/5780fcc2-a600-41d5-8dd3-5c232926f690">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div><div class="notes"><ul>
+        <li><span class="now">Open. No plans, no guilt.</span> / <span class="now">Nothing yet. Otto's happy to improvise.</span><span class="arrow">→</span><b>Nothing planned</b> on every day</li>
+        <li>Empty week: <span class="now">Pick something from your cookbook. Tonight in one tap, a list in ten seconds.</span><span class="arrow">→</span><b>Add a dish to get started.</b></li>
+        <li><span class="now">Build my shopping list</span><span class="arrow">→</span><b>Shopping list</b>, outlined (secondary), as ReciMe's “Add to groceries”</li>
+        <li>Keep the “Seven days, seven dinners” toast. A moment, not chrome.</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="item" id="i12">
+    <div class="item-head"><span class="num">12</span><h3>Shopping list</h3><span class="pill keep">Keep</span><span class="pill trim">Trim</span></div>
+    <p class="why">Aisle groups, dish chips and the basket counter match ReciMe and Centr. Only the empty states narrate.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-shopping.jpg" alt="Otto shopping list"></div><figcaption>Shopping list</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-crouton-groceries-empty.jpg" alt="Crouton: No Groceries"></div><figcaption>Crouton · <a href="https://mobbin.com/screens/88fde2d9-9014-4a2a-af68-481a82eeafda">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div><div class="notes"><ul>
+        <li>Empty: <span class="now">Nothing to buy yet. Put a dish or two on Otto's week and build the list from there.</span><span class="arrow">→</span><b>Nothing to buy yet</b> · “Plan a dish and it lands here.”</li>
+        <li>All hidden: <span class="now">You've taken everything off this list. The dishes are still on the week…</span><span class="arrow">→</span><b>Everything's hidden.</b></li>
+        <li>Counter: <span class="now">0 of 10 in the basket</span><span class="arrow">→</span><b>0 of 10</b></li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="item" id="i13">
+    <div class="item-head"><span class="num">13</span><h3>Our shared list</h3><span class="pill trim">Trim</span></div>
+    <p class="why">Splitwise and Abode show a code, Share, Copy, and one trust line. Otto adds two explanatory paragraphs and a step-by-step invite message.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-household.jpg" alt="Otto Our shared list"></div><figcaption>Our kitchen</figcaption></figure>
+      </div></div>
+      <div class="col" style="grid-column:span 2"><div class="label">Proposed</div><div class="notes"><ul>
+        <li><span class="now">Everyone here shares one shopping list. Build it on the Shopping screen and check it off together.</span><span class="arrow">→</span>delete</li>
+        <li>Not joined: subtitle <b>One shopping list for everyone in your kitchen.</b>; drop the “You'll show up as” line (reuse the Account name)</li>
+        <li>Add <b>Copy</b> next to Share. “Leave this kitchen” as plain red text.</li>
+        <li>Invite message: <span class="now">Join our Otto kitchen. In the app, go to Account, then Our shared list, then Join, and enter code X.</span><span class="arrow">→</span><b>Join my Otto kitchen: otto://join/X</b> (tap to join; code X)</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <!-- ============ E. ACCOUNT ============ -->
+  <h2>E. Account and settings</h2>
+
+  <div class="item" id="i14">
+    <div class="item-head"><span class="num">14</span><h3>Account tab</h3><span class="pill rework">Rework</span></div>
+    <p class="why">Cal AI and Duolingo show plain rows: subscription status, support, legal, delete, log out. Otto has a “Current plan” row plus a promotional Otto Club card, a stats block with a zero-state caption, and two whimsically named sections.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-account.jpg" alt="Otto Account tab"></div><figcaption>You</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">References</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-calai-settings.jpg" alt="Cal AI settings"></div><figcaption>Cal AI · <a href="https://mobbin.com/screens/9387d627-ed0a-487f-9616-43ea4abdad9b">Mobbin ↗</a></figcaption></figure>
+        <figure><div class="phone"><img src="img/ref-duolingo-settings.jpg" alt="Duolingo settings"></div><figcaption>Duolingo · <a href="https://mobbin.com/screens/5c8c0436-be5e-42ab-b02b-2d1b3bf7316a">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div>
+        <div class="mock">
+          <div class="card" style="margin-top:0;display:flex;gap:12px;align-items:center"><span style="font-size:28px">🦦</span><div><b>Juan</b> ✎</div></div>
+          <div class="sec">Membership</div>
+          <div class="card" style="margin-top:6px"><div class="row" style="padding:4px 0"><span>Otto Club</span><span style="color:var(--otto-terra);font-weight:600">Active ›</span></div></div>
+          <div class="card" style="display:flex;justify-content:space-around;text-align:center"><div><b style="font-size:1.3rem">0</b><br><span class="c">cooked</span></div><div><b style="font-size:1.3rem">4</b><br><span class="c">saved</span></div><div><b style="font-size:1.3rem">8</b><br><span class="c">yours</span></div></div>
+          <div class="sec">Preferences</div>
+          <div class="card" style="margin-top:6px"><div class="row">Food preferences<span>›</span></div><div class="row">Reminders<span>›</span></div><div class="row">Our shared list<span>›</span></div><div class="row">Sounds<span>⬤</span></div><div class="row"><span>AI features<br><span class="c">Powered by Claude</span></span><span>⬤</span></div></div>
+          <div class="sec">Share</div>
+          <div class="card" style="margin-top:6px"><div class="row">Tell a friend<span>›</span></div><div class="row">Rate Otto<span>›</span></div></div>
+          <div class="sec">Support</div>
+          <div class="card" style="margin-top:6px"><div class="row">Help<span>›</span></div><div class="row">Contact us<span>›</span></div><div class="row">Privacy Policy<span>›</span></div><div class="row">Terms<span>›</span></div></div>
+          <div class="ghost">Sign out</div>
+          <div class="c" style="text-align:center;margin-top:12px">Delete my account</div>
+          <div class="c" style="text-align:center;margin-top:12px;font-size:.78rem">Otto 1.0.20</div>
+        </div>
+        <div class="notes" style="margin-top:12px"><ul>
+          <li>One membership row: <b>Otto Club · Active ›</b> opens Apple's manage screen; <b>Otto Club · Free ›</b> opens the paywall. The art card goes.</li>
+          <li><span class="now">Tap to change your name</span>, <span class="now">Nothing cooked yet. Otto's ready when you are.</span>, the Sounds caption<span class="arrow">→</span>delete</li>
+          <li><span class="now">Spread the word</span><span class="arrow">→</span><b>Share</b>; <span class="now">The boring-but-important bits</span><span class="arrow">→</span><b>Support</b></li>
+          <li>“Send a thought” and “Report a bug” merge into <b>Contact us</b>; the version becomes a footer line; “About Otto” goes.</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="item" id="i15">
+    <div class="item-head"><span class="num">15</span><h3>Food preferences and the AI switch</h3><span class="pill trim">Trim</span></div>
+    <p class="why">Settings sub-pages in Duolingo and Cal AI have zero intro prose. Notion's AI toggle is a label and a switch.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-preferences.jpg" alt="Otto Food preferences"></div><figcaption>Food preferences</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-notion-ai-toggle.jpg" alt="Notion AI settings toggle"></div><figcaption>Notion · <a href="https://mobbin.com/screens/614fd719-85a2-4337-afa3-73f9836556ad">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div><div class="notes"><ul>
+        <li><span class="now">These shape Otto's pick and where Discover starts. Search and the filters stay fully yours…</span><span class="arrow">→</span>delete</li>
+        <li><span class="now">Only the diets Otto's recipe shelf can honestly tag today…</span><span class="arrow">→</span>delete</li>
+        <li>Save toast <span class="now">Noted. Discover follows your taste now.</span><span class="arrow">→</span>none (it autosaves)</li>
+        <li><span class="now">Otto and AI / Ask Otto, imports and nutrition matching use Anthropic's Claude.</span><span class="arrow">→</span><b>AI features</b> · “Powered by Claude. Details in Privacy Policy.”</li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="item" id="i16">
+    <div class="item-head"><span class="num">16</span><h3>Reminders</h3><span class="pill trim">Trim</span></div>
+    <p class="why">Asking for notification permission only when a toggle is turned on is the pattern Apple prefers, so the timing stays. Finch's screen is rows and switches; Otto opens with a three-line caption.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-notifications.jpg" alt="Otto Reminders"></div><figcaption>Reminders</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-finch-notifications.jpg" alt="Finch notifications"></div><figcaption>Finch · <a href="https://mobbin.com/screens/fe843928-3466-49b8-ac6b-b4a11f841dc1">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed</div><div class="notes"><ul>
+        <li><span class="now">Everything here lives on this phone — Otto only reminds you about things the phone already knows, and both nudges start off.</span><span class="arrow">→</span>delete</li>
+        <li>Denied card: <b>Notifications are off for Otto</b> + Open Settings</li>
+        <li>Speech permission string: <span class="now">Apple's speech recognition turns your words into text for Otto. Your voice is processed by Apple; Otto receives only the text.</span><span class="arrow">→</span><b>Otto turns what you say into text with Apple speech recognition.</b></li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="item" id="i17">
+    <div class="item-head"><span class="num">17</span><h3>Little questions (FAQ)</h3><span class="pill trim">Trim</span></div>
+    <p class="why">Duolingo, Headspace and Cal AI link out to help. Apps that keep an in-app FAQ (Beli, Moonly) answer in one to three sentences. Otto's eleven answers run up to 95 words.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-faq.jpg" alt="Otto Little questions"></div><figcaption>Little questions</figcaption></figure>
+      </div></div>
+      <div class="col" style="grid-column:span 2"><div class="label">Proposed</div><div class="notes"><ul>
+        <li>Title <span class="now">Little questions</span><span class="arrow">→</span><b>Help</b></li>
+        <li>Nine questions, each answer 35 words or fewer. Drop “What do food preferences actually change?” and “How do I leave?”.</li>
+        <li>“What is Otto Club?” now describes the trial and subscription, not a free kitchen.</li>
+        <li>Footer <span class="now">Something else on your mind? Send a thought from the Account tab. A human reads every one.</span><span class="arrow">→</span><b>Still stuck? Contact us</b></li>
+      </ul></div></div>
+    </div>
+  </div>
+
+  <div class="item" id="i18">
+    <div class="item-head"><span class="num">18</span><h3>Delete my account</h3><span class="pill rework">Rework</span></div>
+    <p class="why">Today: a tap, a toast, “Tap again. This is forever”, a six-second timer, and for subscribers a paragraph with a link. Pocket, Duolingo and DailyArt use one native alert. Apple's rule (tell subscribers billing continues via Apple, offer a way to manage it) is met in one sentence.</p>
+    <div class="compare">
+      <div class="col"><div class="label">Otto today</div><div class="shots">
+        <figure><div class="phone"><img src="img/otto-delete.jpg" alt="Otto delete account armed state"></div><figcaption>Armed state · from the review recording</figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Reference</div><div class="shots">
+        <figure><div class="phone"><img src="img/ref-pocket-delete.jpg" alt="Pocket delete your account"></div><figcaption>Pocket · <a href="https://mobbin.com/screens/f1ead1e0-bb34-404e-bf1b-c6b6517be73a">Mobbin ↗</a></figcaption></figure>
+      </div></div>
+      <div class="col"><div class="label">Proposed: native alert</div>
+        <div class="mock" style="background:var(--otto-deep)">
+          <div class="alert">
+            <b style="font-size:1.05rem">Delete account?</b>
+            <p style="margin-top:6px;font-size:.92rem">Your recipes, saves and plan are erased. This can't be undone.<br><br>Your Otto Club subscription is billed by Apple and continues until you cancel it.</p>
+            <div class="ab" style="margin-top:12px">Manage subscription</div>
+            <div class="ab danger">Delete</div>
+            <div class="ab" style="font-weight:700">Cancel</div>
+          </div>
+          <div class="c" style="text-align:center;margin-top:10px">Non-subscribers see the first sentence and Delete / Cancel only.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ F. FOUND ALONG THE WAY ============ -->
+  <h2>F. Found along the way</h2>
+  <p class="lede">Small defects surfaced while capturing. Not part of the copy plan, but worth fixing in the same build.</p>
+  <div class="found">
+    <div class="notes"><b>Chat crashes when opened by link</b><br>Opening <code>otto://create</code> or <code>otto://chats</code> directly throws “Couldn't find the bottom tab bar height”. Only reachable by deep link today, but a notification or share link into chat would hit it.</div>
+    <div class="notes"><b>RevenueCat “LogOut was called but the current user is anonymous”</b><br>On launch with nobody signed in, the app calls log-out anyway. Harmless, dev-only log, one-line fix.</div>
+    <div class="notes"><b>“Couldn't save. Try again.” on the first save</b><br>Seen at 5:05 in your recording: the first tap on “Save to my cookbook” failed, the second worked. Needs a look before 1.0.20.</div>
+    <div class="notes"><b>Account shows “Current plan: Free” while the Club card sells</b><br>Fixed in build 40 for the card text; the row itself goes with item 14.</div>
+  </div>
+
+  <!-- ============ G. DECISIONS ============ -->
+  <h2>G. Decisions</h2>
+  <p class="lede">Reply with the numbers to skip, or “go” for everything. Tiers 1 and 2 together are about a day of work and one TestFlight build.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Screen</th><th>Verdict</th><th>Effort</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td>Sign up and sign in copy, Terms line</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>02</td><td>Onboarding: trim card 2; add the goal question</td><td><span class="pill keep">Keep</span> <span class="pill rework">Idea</span></td><td>Medium (one new screen)</td></tr>
+      <tr><td>03</td><td>Otto Club paywall</td><td><span class="pill keep">Keep</span></td><td>None</td></tr>
+      <tr><td>04</td><td>Discover captions and empty state</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>05</td><td>Nutrition card with (i) sheet; recipe detail trims</td><td><span class="pill rework">Rework</span></td><td>Medium</td></tr>
+      <tr><td>06</td><td>Cook mode instruction lines</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>07</td><td>Add a recipe sheet</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>08</td><td>Import review header, (i) sheet, button</td><td><span class="pill rework">Rework</span></td><td>Medium</td></tr>
+      <tr><td>09</td><td>Ask Otto empty state with chips</td><td><span class="pill rework">Rework</span></td><td>Small</td></tr>
+      <tr><td>10</td><td>AI consent sheet rewrite</td><td><span class="pill rework">Rework</span></td><td>Small</td></tr>
+      <tr><td>11</td><td>Plan empty states and button</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>12</td><td>Shopping list empty states and counter</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>13</td><td>Shared list copy, Copy button, deep-link invite</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>14</td><td>Account tab structure</td><td><span class="pill rework">Rework</span></td><td>Medium</td></tr>
+      <tr><td>15</td><td>Food preferences captions, AI switch label</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>16</td><td>Reminders caption, speech string</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>17</td><td>Help: rename, nine short answers</td><td><span class="pill trim">Trim</span></td><td>Small</td></tr>
+      <tr><td>18</td><td>Delete account as a native alert</td><td><span class="pill rework">Rework</span></td><td>Small</td></tr>
+      <tr><td>F</td><td>The four defects found along the way</td><td>Fix</td><td>Small</td></tr>
+    </tbody>
+  </table></div>
+</div>
