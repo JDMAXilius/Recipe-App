@@ -261,3 +261,4 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 - Done: store description subscription-only, review notes updated (3,974 chars), RevenueCat demo `club` granted 1 year, Supabase Confirm email ON.
 - Functions deployed 2026-10-04 (all 5, gate off; unauthenticated calls → 401). Open (Juan): `REQUIRE_CLUB=on` AFTER approval (verify 402/200); push Otto_Website main (W6 merged locally); leaked-password protection needs Pro plan.
 - Renumbered (Juan): resubmitted as **1.0.21 build 47** (same code as 46). Build 45 (1.0.20) expired; testers get builds via the auto group "Otto Team (auto)".
+- Swapped to **1.0.21 build 48** (cook-mode header fix after the visual check).
