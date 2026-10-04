@@ -55,12 +55,22 @@ export async function nativeBrowserSignIn(
   const redirectTo = Linking.createURL('/auth/callback');
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
-    options: { redirectTo, skipBrowserRedirect: true },
+    options: {
+      redirectTo,
+      skipBrowserRedirect: true,
+      // Always let people pick which Google account (not silently the last one).
+      ...(provider === 'google' ? { queryParams: { prompt: 'select_account' } } : {}),
+    },
   });
   if (error) throw error;
   if (!data?.url) throw new Error("Sign-in didn't finish. Try again.");
 
-  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  // Ephemeral = a private browser session: no shared Safari cookies, so no iOS
+  // "Otto wants to use …supabase.co to sign in" prompt, and no auto-reuse of
+  // whatever Google/Facebook account Safari is signed into (Juan, 2026-10-03).
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo, {
+    preferEphemeralSession: true,
+  });
   if (result.type !== 'success' || !result.url) return; // dismissed/cancelled → no-op
   const ok = await finishFromUrl(result.url);
   if (!ok) throw new Error("Sign-in didn't finish. Try again.");
