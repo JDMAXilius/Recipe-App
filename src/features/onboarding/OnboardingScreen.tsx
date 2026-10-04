@@ -17,6 +17,7 @@ import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { onboardingArt } from '@/shared/assets';
 import { useOnboarded } from './useOnboarded';
+import { useAuth } from '@/features/auth';
 import { useMembership } from '@/features/profile';
 
 // Onboarding — the 3-screen painted showcase (Figma master board / v1 parity):
@@ -50,7 +51,8 @@ const SCENES = [
 export function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { markOnboarded } = useOnboarded();
+  const { user } = useAuth();
+  const { markOnboarded } = useOnboarded(user?.id);
   const scroller = useRef<ScrollView>(null);
   const [page, setPage] = useState(0);
 

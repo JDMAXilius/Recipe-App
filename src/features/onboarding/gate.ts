@@ -18,3 +18,12 @@ export function resolveRoute({ onboarded, isLoaded, hasSession }: GateInput): Ga
   if (!hasSession) return onboarded ? '/(auth)/sign-in' : '/(auth)/sign-up';
   return onboarded ? '/(tabs)' : '/onboarding';
 }
+
+// What the gate's `onboarded` means, from the stored value (useOnboarded): signed
+// in → has THIS account finished onboarding on this phone; signed out → has this
+// phone been used (sign-in) or is it a first launch (sign-up). Stored is the list
+// of finished user ids; a legacy `true` (old per-device flag) = used, no ids.
+export function onboardedFor(stored: boolean | string[], uid: string | undefined): boolean {
+  const ids = Array.isArray(stored) ? stored : [];
+  return uid ? ids.includes(uid) : Array.isArray(stored) ? ids.length > 0 : stored;
+}

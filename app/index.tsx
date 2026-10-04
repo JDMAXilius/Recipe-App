@@ -7,7 +7,7 @@ import { Splash, resolveRoute, useOnboarded } from '@/features/onboarding';
 // (pure, tested); this file only wires state → <Redirect>.
 export default function Index() {
   const { isLoaded, session } = useAuth();
-  const { onboarded } = useOnboarded();
+  const { onboarded } = useOnboarded(session?.user.id);
 
   const route = resolveRoute({ onboarded, isLoaded, hasSession: !!session });
   if (!route) return <Splash />;
