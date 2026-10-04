@@ -10,10 +10,10 @@ Everything below was **deliberately held** because 1.0.19 (build 41) in review h
 free tier and no inbox screen. Do these the day 1.0.20 is submitted / goes live.
 
 ## At submission (App Store Connect)
-- [x] **Version string first.** DONE 2026-10-04: `1.0.20` build 45 (commit 2941d977). UX-audit work lands as 46+. Builds 43–44 were built as `1.0.19` (`app.json` `expo.version`).
-      ASC only attaches a build whose version string matches, so set `expo.version` to
-      **`1.0.20`** and cut a new build (45+) before creating/attaching version 1.0.20. Builds
-      43–44 can't be used for 1.0.20.
+- [x] **Version numbering (2026-10-04, Juan: replace 41 in review):** the hard paywall + UX audit
+      shipped as **1.0.19 build 46** (in review). Build 45 (1.0.20) was expired: TestFlight only shows the
+      highest version string, so a stray 1.0.20 hid 46. Rule: stay on `1.0.19` for any fix build (47+) until
+      Apple approves; only then set `expo.version` to `1.0.20` for the next release.
 - [ ] **If the UX ticket's consent rework lands (item 10: "Account › AI features")**, rename
       everywhere in the same release, because Apple compares the reply/notes with the app:
       `AI_CONSENT_COPY.settingsLabel` and `offToast` (and `aiConsent.logic.test.mjs`, which pins
