@@ -51,6 +51,31 @@ rate limit, and a constant-time webhook secret compare. Deploying is safe before
       REQUIRE_CLUB` turns it off instantly.
 - [ ] Supabase → Auth → Providers → Email → **Leaked password protection: ON** (advisor WARN).
 
+## Crash reporting (Sentry) — before the 1.0.20 build (code on `main`, 2026-10-04)
+`src/shared/monitoring.ts` starts Sentry only when `EXPO_PUBLIC_SENTRY_DSN` is set; it sends no
+user, request, screenshots, view hierarchy or tracing, and drops network/console/typed-input
+breadcrumbs (`monitoring.logic.ts`, tested). `app.json` privacy manifest now declares Crash Data
+(not linked, not tracking).
+- [ ] Juan: create a free Sentry account + a React Native project "otto" (sentry.io). Project →
+      Settings → Security & Privacy: **Prevent storing of IP addresses: ON**, **Data scrubber: ON**.
+- [ ] `eas env:create --environment production --name EXPO_PUBLIC_SENTRY_DSN --value <dsn> --visibility plaintext`
+      (the DSN is a public client key). Same for `preview` if TestFlight builds should report.
+- [ ] Optional, readable stack traces: add `["@sentry/react-native/expo", {"organization":"<org>","project":"otto"}]`
+      to `app.json` plugins and `SENTRY_AUTH_TOKEN` as an EAS **secret**. Without it, reports
+      still arrive, just minified. Don't add the plugin without the token: its upload step fails the build.
+- [ ] **App Store Connect → App Privacy (Juan attests):** add **Diagnostics → Crash Data**,
+      not linked to the user, not used for tracking, purpose App Functionality. Publish with 1.0.20.
+- [ ] Website Privacy Policy: add Sentry (Functional Software, Inc.) as a processor of anonymous
+      crash reports (device model, OS version, app version, stack trace; no account data).
+- [ ] After the build: force a test crash once on TestFlight (temporarily, or via a dev menu)
+      and confirm the event in Sentry has **no user, no IP, no URLs**.
+
+## Free tier removed (code on `main`, 2026-10-04)
+The limit counters (5 imports/month, 25 saves, 5 asks/day) and their upsell toasts are gone:
+with the hard paywall only members are inside the app. The repo's store description and
+review notes (`docs/release/STORE_METADATA.md`) now say subscription-only after a 1-week free
+trial; paste those at submission.
+
 ## Same day 1.0.20 goes live
 - [ ] Website: merge `w6-hard-paywall` (Terms §4 + support FAQ subscription-only copy).
 - [ ] Supabase → Auth → Sign In / Providers → **Confirm email: ON** (1.0.20 has the inbox

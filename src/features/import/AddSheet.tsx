@@ -8,7 +8,6 @@ import { RecipeInput } from './components/RecipeInput';
 import { useImportFromText, useImportFromUrl, useImportFromPhoto } from './import.queries';
 import { emptyDraft, setDraft } from './draft';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
-import { useClubGate } from '@/features/profile';
 import { ensureAiConsent } from '@/shared/aiConsent';
 
 // "Bring in a recipe" — a pushed full SCREEN with a back button (founder call:
@@ -54,7 +53,6 @@ export function AddSheet({ onClose }: AddSheetProps) {
   // Free tier: the three AI-backed paths below are counted. "Write it myself"
   // is not, and must never be — manual entry is free forever, and it is also
   // the honest fallback we offer when a gate closes.
-  const gate = useClubGate();
   const busy = importMut.isPending || photoMut.isPending || textMut.isPending;
 
   // Hand a draft to the editor and open it. Reset local state so a re-opened
@@ -79,10 +77,8 @@ export function AddSheet({ onClose }: AddSheetProps) {
     }
     setError(null);
     if (!(await ensureAiConsent())) return;
-    if (!(await gate.check('import'))) return;
     try {
       const draft = await importMut.mutateAsync(target);
-      await gate.spend('import'); // only a successful import costs one
       openEditor(draft);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Otto couldn't read that page.");
@@ -102,10 +98,8 @@ export function AddSheet({ onClose }: AddSheetProps) {
     }
     setError(null);
     if (!(await ensureAiConsent())) return;
-    if (!(await gate.check('import'))) return;
     try {
       const draft = await textMut.mutateAsync(body);
-      await gate.spend('import');
       openEditor(draft);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Otto couldn't sort that into a recipe.");
@@ -117,11 +111,8 @@ export function AddSheet({ onClose }: AddSheetProps) {
   // just backs out — the ＋ never dead-ends.
   const snapRecipe = async () => {
     setError(null);
-    // Checked BEFORE the camera opens: making someone frame a shot and then
-    // telling them they're out of imports is worse than telling them now.
-    // Same for consent: ask before the shutter, never after the shot.
+    // Consent BEFORE the camera opens: ask before the shutter, never after the shot.
     if (!(await ensureAiConsent())) return;
-    if (!(await gate.check('import'))) return;
     const picked = (await takePhoto({ base64: true })) ?? (await pickFromLibrary({ base64: true }));
     if (!picked) return;
     if (!picked.base64) {
@@ -133,7 +124,6 @@ export function AddSheet({ onClose }: AddSheetProps) {
         image: picked.base64,
         mimeType: picked.mimeType ?? 'image/jpeg',
       });
-      await gate.spend('import');
       openEditor(draft);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Otto couldn't read that photo. Try a clearer shot.");

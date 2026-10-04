@@ -11,7 +11,6 @@ import { ensureAiConsent } from '@/shared/aiConsent';
 import { sound } from '@/shared/sound';
 import { useAuth } from '@/features/auth';
 import { stageOttoRecipe, takeOttoAsk } from '@/features/import';
-import { useClubGate } from '@/features/profile';
 import { ChatEmptyState } from './components/ChatEmptyState';
 import { Composer } from './components/Composer';
 import { Transcript } from './components/Transcript';
@@ -83,7 +82,6 @@ export function ChatScreen() {
   // hooks' objects are new every render): that keeps the memoized Transcript
   // out of the keystroke path.
   const { send, pickOption, isSending } = chat;
-  const gate = useClubGate();
 
   // The recipe editor's Ask-Otto hand-off: arriving with a part-filled form,
   // its rendered ask lands in the composer — visible and editable, so the cook
@@ -118,13 +116,8 @@ export function ChatScreen() {
     const text = draft.trim();
     if (!text) return;
     // Consent first (5.1.2(i)): nothing goes to Anthropic until they've said
-    // yes. Before the club check, so "Not now" never costs a question, and
-    // before the draft clears, so the words are still there if they allow.
+    // yes, and before the draft clears, so the words are still there if they allow.
     if (!(await ensureAiConsent())) return;
-    // Free tier: a turn to Otto is counted. Checked before the draft is
-    // cleared, so a blocked question is still sitting there to send tomorrow
-    // — or to send now, after joining.
-    if (!(await gate.check('ask'))) return;
     // Send can land mid-dictation (the Speak pill now stays put beside it): stop
     // the session first so trailing results can't repopulate the sent text.
     if (listening) stopSpeech();
@@ -134,9 +127,8 @@ export function ChatScreen() {
     sound.play('send');
     setDraft('');
     send(text);
-    void gate.spend('ask');
     toBottom();
-  }, [draft, listening, stopSpeech, send, toBottom, gate]);
+  }, [draft, listening, stopSpeech, send, toBottom]);
 
   const onSpeak = useCallback(() => {
     if (!canSpeak) {
@@ -153,16 +145,13 @@ export function ChatScreen() {
   // otherwise the same user act feels different depending on where it started.
   const onPickChip = useCallback(
     async (option: string) => {
-      // A clarify chip is a full turn to Otto, so it costs what typing one
-      // costs. Anything else would make the cheap-looking path the loophole.
+      // A clarify chip is a full turn to Otto: same consent as typing one.
       if (!(await ensureAiConsent())) return;
-      if (!(await gate.check('ask'))) return;
       haptics.select();
       sound.play('send');
       pickOption(option);
-      void gate.spend('ask');
     },
-    [pickOption, gate],
+    [pickOption],
   );
 
   // Review-first (founder call 2026-07-24): Otto's recipe opens in the editor

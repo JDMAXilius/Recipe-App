@@ -79,11 +79,10 @@ No ads. No feed. No tracking across other apps. Nothing is sold to anyone. You c
 account, and everything in it, from inside the app.
 
 Otto Club
-Otto's core features are free and stay free. Otto Club is an optional membership that unlocks
-the heavier features, $4.99 a month or $39.99 a year, with a 1-week free trial. Payment is
-charged to your Apple ID. The subscription renews automatically unless you cancel at least
-24 hours before the end of the current period; manage or cancel it in your App Store account
-settings. Everything Otto does today stays available whether or not you join.
+Otto is a membership app. Start with a 1-week free trial, then Otto Club is $4.99 a month or
+$39.99 a year. Payment is charged to your Apple ID. The subscription renews automatically unless
+you cancel at least 24 hours before the end of the current period; manage or cancel it in your
+App Store account settings.
 
 Recipe data and photography from TheMealDB. Nutrition figures are computed from USDA FoodData
 Central, which does not endorse Otto.
@@ -136,7 +135,7 @@ $39.99 a year, $4.99 a month, 1-week free trial. Localized listings: `STORE_META
 | User-facing support address | `juandiego@ottosapp.com` | decided 2026-09-24 (APP-12): in the app, on the support page, in the policy |
 | Copyright | `2026 Juan Diego Lugo` | matches the provider named in the policy and terms |
 | Export compliance | `ITSAppUsesNonExemptEncryption: false` | already declared in `app.json` |
-| Price tier | Free, with auto-renewable subscriptions | |
+| Price tier | Free download, subscription required after a 1-week free trial (from 1.0.20) | |
 
 **On the support URL.** Apple's Support URL field requires a URL; an email address or a `mailto:`
 is routinely rejected, so `juandiego@ottosapp.com` (`ProfileScreen.tsx:38`) cannot go in that
@@ -240,8 +239,11 @@ Otto requires an account to show anything, so please sign in with the demo crede
 Demo Account fields above. The account is seeded with saved recipes, a week plan, and a
 shopping list, so no screen will be empty.
 
-Otto Club (auto-renewable subscription) is reachable from Profile > Otto Club: yearly
-$39.99 or monthly $4.99, each with a 1-week free trial. Otto's core features stay free.
+Otto Club (auto-renewable subscription): yearly $39.99 or monthly $4.99, each with a 1-week
+free trial. From 1.0.20 Otto is subscription-only: a new account sees a short intro, then the
+Otto Club screen. The demo account has an Otto Club entitlement so you can use everything; to
+test the purchase, create a new account and start the free week (sandbox). Sign out and Delete
+account are on the Otto Club screen and in Account.
 
 To try an import, tap + and paste a recipe link, for example
 https://www.bbcgoodfood.com/recipes/easy-pancakes . A TikTok or Instagram recipe post also

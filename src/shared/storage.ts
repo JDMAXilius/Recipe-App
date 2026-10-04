@@ -18,7 +18,6 @@ export type StoreKey =
   | 'journal'
   | 'chats'
   | 'cookRatings'
-  | 'clubUsage'
   | 'reviewPrompt'
   | 'aiConsent'
   | 'rcSynced';

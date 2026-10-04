@@ -57,8 +57,7 @@ features/<name>/
 | `NutritionCard` | component | nutrition | recipes (detail), cook (finish screen) |
 | `ShareCard` | component | share | recipes (detail) |
 | `AddSheet` | component | import | app add route |
-| `useClubGate()` | hook | profile | import (the three AI paths), chat (a turn) |
-| `useMembership()` + `club.limits` (pure) | hook + module | profile | cookbook (the saved-shelf cap) |
+| `useMembership()` | hook | profile | app/index + app/_layout (hard paywall gate) |
 | `PawMark` wiring: use `useSaved()` + `@/shared/ui` PawMark | — | — | — |
 
 Anything not in this table = `contract_gap` first.

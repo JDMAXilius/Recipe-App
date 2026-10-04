@@ -11,9 +11,5 @@ export { OttoClubScreen } from './OttoClubScreen';
 export { FaqScreen } from './FaqScreen';
 // Journal + Notifications now live in their own features (src/features/journal,
 // src/features/notifications); the old profile stubs were removed.
-// Free-tier gate (allowlist: profile → import, chat; cookbook consumes
-// useMembership + club.limits directly for the save cap). One home for the
-// numbers, one home for the enforcement.
-export { useClubGate, type ClubGate, type CountedKind } from './useClubGate';
+// Membership (hard paywall, 2026-10-04): the launch gate and the paywall read it.
 export { useMembership } from './club.purchases';
-export { FREE_LIMITS } from './club.limits';
