@@ -18,3 +18,9 @@ export async function nativeBrowserSignIn(
 ): Promise<void> {
   webUnreachable();
 }
+
+export async function nativeGoogleSignIn(): Promise<void> {
+  webUnreachable();
+}
+
+export async function nativeGoogleSignOut(): Promise<void> {}

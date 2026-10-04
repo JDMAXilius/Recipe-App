@@ -7,6 +7,12 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
+import {
+  GoogleSignin,
+  isCancelledResponse,
+  isErrorWithCode,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import { supabase } from '@/shared/supabase/client';
 
 // Finishes any auth session left dangling if the browser redirect races the app
@@ -74,4 +80,35 @@ export async function nativeBrowserSignIn(
   if (result.type !== 'success' || !result.url) return; // dismissed/cancelled → no-op
   const ok = await finishFromUrl(result.url);
   if (!ok) throw new Error("Sign-in didn't finish. Try again.");
+}
+
+// Native Google — the iOS Google account picker (Supabase's documented Expo path):
+// Google's SDK returns an ID token, exchanged via signInWithIdToken. No browser,
+// so no "wants to use …supabase.co" prompt and any account can be picked.
+// Client IDs are public identifiers (Google Cloud project otto-502822): the web
+// client is the token audience Supabase already trusts, the iOS client is this
+// app. The free SDK can't pass a nonce on iOS, so Supabase's Google provider has
+// "Skip nonce check" on (set 2026-10-03).
+GoogleSignin.configure({
+  webClientId: '191825407172-vi4g3e1av51quet7csoloeah3tebjgto.apps.googleusercontent.com',
+  iosClientId: '191825407172-krh83vo1una000a1fc6sh73f0qc6uk2c.apps.googleusercontent.com',
+});
+
+export async function nativeGoogleSignIn(): Promise<void> {
+  try {
+    const res = await GoogleSignin.signIn();
+    if (isCancelledResponse(res)) return;
+    const token = res.data.idToken;
+    if (!token) throw new Error("Google didn't return a sign-in token. Try again.");
+    const { error } = await supabase.auth.signInWithIdToken({ provider: 'google', token });
+    if (error) throw error;
+  } catch (err) {
+    if (isErrorWithCode(err) && err.code === statusCodes.IN_PROGRESS) return;
+    throw err;
+  }
+}
+
+// Forget the Google account on sign-out so the next sign-in shows the picker.
+export async function nativeGoogleSignOut(): Promise<void> {
+  await GoogleSignin.signOut().catch(() => {});
 }

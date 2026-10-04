@@ -111,6 +111,12 @@
           "microphonePermission": "Otto listens only while Speak is on, to write down what you say.",
           "speechRecognitionPermission": "Apple's speech recognition turns your words into text for Otto. Your voice is processed by Apple; Otto receives only the text."
         }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.191825407172-krh83vo1una000a1fc6sh73f0qc6uk2c"
+        }
       ]
     ],
     "experiments": {
