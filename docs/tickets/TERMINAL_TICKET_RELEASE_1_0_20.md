@@ -1,0 +1,33 @@
+# Release checklist: Otto 1.0.20 (after 1.0.19 is approved)
+
+1.0.20 = builds 43–44+: native Google sign-in, private Facebook session, onboarding on the
+account, sign up → onboarding → hard paywall, Sign in with Apple revocation on delete,
+subscriber delete step, email-confirmation inbox screen, lean hard paywall (no skip).
+Everything below was **deliberately held** because 1.0.19 (build 41) in review has the
+free tier and no inbox screen. Do these the day 1.0.20 is submitted / goes live.
+
+## At submission (App Store Connect)
+- [ ] Create version 1.0.20, attach the newest VALID build.
+- [ ] **Description:** remove any "free" / "core features stay free" wording → "Start with a
+      7-day free trial, then Otto Club $4.99/month or $39.99/year." Keep renewal terms +
+      Terms/Privacy links (3.1.2).
+- [ ] **Review notes:** Otto is subscription-only after a 7-day trial; the demo account has an
+      Otto Club entitlement so you can use everything; to test the purchase, sign up with a
+      new account → after the intro, the paywall → Start my free week (sandbox).
+      Delete my account on an Apple-sign-in account asks Apple once (token revocation).
+- [ ] **RevenueCat:** customer `e320f478-9313-4870-bd63-33851846352b` (demo) → Grant
+      entitlement `club` (promotional, e.g. 1 year). NOT before: build 41's reviewer must be
+      able to test the purchase.
+- [ ] What's New: "A cleaner start: sign up, a quick intro, and your free week."
+
+## Same day 1.0.20 goes live
+- [ ] Website: merge `w6-hard-paywall` (Terms §4 + support FAQ subscription-only copy).
+- [ ] Supabase → Auth → Sign In / Providers → **Confirm email: ON** (1.0.20 has the inbox
+      screen; old builds don't).
+- [ ] RevenueCat sandbox transfer behavior is "Keep with original App User ID" (testing aid,
+      sandbox only). Fine to leave; production stays "Transfer to new App User ID".
+
+## Already done (2026-10-03/04)
+Google Cloud iOS client + consent screen In production; Supabase Google client IDs + skip
+nonce; SIWA key 3R22ZNM24Q + APPLE_SIWA_* function secrets (verified by digest);
+delete-account v9 deployed; all non-demo accounts removed.
