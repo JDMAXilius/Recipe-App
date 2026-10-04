@@ -29,7 +29,8 @@ export interface AuthValue {
   isLoaded: boolean;
   isSignedIn: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  /** true = check your inbox (email confirmation required) */
+  signUp: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;

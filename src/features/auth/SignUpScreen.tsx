@@ -19,6 +19,7 @@ export function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkInbox, setCheckInbox] = useState(false);
 
   const handleSignUp = async () => {
     if (!email || !password) {
@@ -32,13 +33,29 @@ export function SignUpScreen() {
     setError(null);
     setLoading(true);
     try {
-      await signUp(email, password);
+      if (await signUp(email, password)) setCheckInbox(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't create your account. Try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  if (checkInbox) {
+    return (
+      <AuthScreenLayout
+        title="Check your email"
+        subtitle={`Otto sent a link to ${email.trim()}. Tap it on this phone to finish creating your account.`}
+      >
+        <Button
+          title="Back to sign in"
+          onPress={() => router.replace('/(auth)/sign-in')}
+          variant="primary"
+          size="lg"
+        />
+      </AuthScreenLayout>
+    );
+  }
 
   return (
     <AuthScreenLayout

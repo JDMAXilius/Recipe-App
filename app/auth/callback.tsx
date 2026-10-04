@@ -1,16 +1,22 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
+import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
 import { Text } from '@/shared/ui';
-import { useAuth } from '@/features/auth';
+import { sessionFromUrl, useAuth } from '@/features/auth';
 
-// OAuth/deep-link return: Supabase parses the session from the URL fragment;
-// once authed we bounce to the tabs.
+// Deep-link return for OAuth and the sign-up confirmation email: turn the link's
+// ?code= (PKCE) or #tokens into a session, then hand off to the launch gate,
+// which sends a new account to onboarding and everyone else home.
 export default function AuthCallback() {
   const router = useRouter();
   const { session } = useAuth();
+  const url = Linking.useURL();
   useEffect(() => {
-    if (session) router.replace('/(tabs)');
+    if (!session && url && Platform.OS !== 'web') void sessionFromUrl(url);
+  }, [session, url]);
+  useEffect(() => {
+    if (session) router.replace('/');
   }, [session, router]);
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

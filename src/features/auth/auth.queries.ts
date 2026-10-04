@@ -21,11 +21,19 @@ export async function signInWithPassword(email: string, password: string): Promi
   if (error) throw error;
 }
 
-export async function signUpWithPassword(email: string, password: string): Promise<void> {
+// Returns true when Supabase wants the email confirmed first ("Confirm email"
+// on): no session yet, the user must tap the link we just sent. The link comes
+// back to otto://auth/callback, which exchanges it for a session.
+export async function signUpWithPassword(email: string, password: string): Promise<boolean> {
   // Auth is required — no anonymous/guest sessions to upgrade (founder decision
   // 2026-07-22), so this is a plain sign-up.
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: Linking.createURL('/auth/callback') },
+  });
   if (error) throw error;
+  return !data.session;
 }
 
 export async function signOut(): Promise<void> {
