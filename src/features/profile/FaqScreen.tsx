@@ -48,7 +48,7 @@ const FAQS = [
   },
   {
     q: 'What is Otto Club?',
-    a: 'An optional membership, yearly or monthly, with a free week to try it. It lifts the free limits on imports, saved recipes and questions to Otto. The free kitchen stays a real kitchen either way.',
+    a: "Otto's membership: everything Otto does, yearly or monthly. New members get the first week free, and you can cancel anytime in your iPhone's Settings.",
   },
   {
     q: 'How do I leave?',

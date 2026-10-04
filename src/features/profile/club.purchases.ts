@@ -33,14 +33,16 @@ export const RC_API_KEY = 'appl_BUeOnXkZitkSNMjkCbkTJxicpaN';
  * listener already answers locally and keeps fresh after a purchase or a
  * restore. `useClub()` (the paywall's hook) is the one that needs products.
  */
-export function useMembership(): { member: boolean } {
+export function useMembership(): { member: boolean; known: boolean } {
   const [info, setInfo] = useState<CustomerInfo | null>(null);
 
   useEffect(() => {
     let alive = true;
     Purchases.getCustomerInfo()
       .then((i) => alive && setInfo(i))
-      .catch(() => {}); // offline / not configured → treat as not a member
+      // Offline / not configured: membership stays UNKNOWN, so the hard paywall
+      // fails open (a paying member is never locked out by a network blip).
+      .catch(() => {});
     const listener = (i: CustomerInfo) => setInfo(i);
     Purchases.addCustomerInfoUpdateListener(listener);
     return () => {
@@ -49,7 +51,7 @@ export function useMembership(): { member: boolean } {
     };
   }, []);
 
-  return { member: hasClubEntitlement(info) };
+  return { member: hasClubEntitlement(info), known: info !== null };
 }
 
 export function useClub() {
@@ -57,6 +59,8 @@ export function useClub() {
   const [monthly, setMonthly] = useState<PurchasesPackage | null>(null);
   const [info, setInfo] = useState<CustomerInfo | null>(null);
   const [purchasing, setPurchasing] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -65,8 +69,9 @@ export function useClub() {
         if (!alive) return;
         setYearly(offerings.current?.annual ?? null);
         setMonthly(offerings.current?.monthly ?? null);
+        setFailed(!offerings.current?.annual || !offerings.current?.monthly);
       })
-      .catch(() => {}); // no offerings → opens-soon fallback
+      .catch(() => alive && setFailed(true)); // offline / store down → retry state
     Purchases.getCustomerInfo().then((i) => alive && setInfo(i)).catch(() => {});
     const listener = (i: CustomerInfo) => setInfo(i);
     Purchases.addCustomerInfoUpdateListener(listener);
@@ -74,7 +79,7 @@ export function useClub() {
       alive = false;
       Purchases.removeCustomerInfoUpdateListener(listener);
     };
-  }, []);
+  }, [attempt]);
 
   const buy = useCallback(async (pkg: PurchasesPackage): Promise<BuyResult> => {
     setPurchasing(true);
@@ -118,6 +123,11 @@ export function useClub() {
     trialDays: introTrialDays(yearly?.product.introPrice),
     live: Boolean(yearly && monthly),
     purchasing,
+    failed,
+    reload: () => {
+      setFailed(false);
+      setAttempt((n) => n + 1);
+    },
     buy,
     restore,
   };

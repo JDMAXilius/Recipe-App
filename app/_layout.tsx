@@ -62,6 +62,8 @@ export default function RootLayout() {
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="(auth)" />
                 <Stack.Screen name="add" />
+                {/* Hard paywall: no swipe-back past it (members get a close button). */}
+                <Stack.Screen name="otto-club" options={{ gestureEnabled: false }} />
                 <Stack.Screen name="recipe/cook/[id]" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
               </Stack>
               <ToastHost />

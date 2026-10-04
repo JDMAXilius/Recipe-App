@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Linking,
   Pressable,
   ScrollView,
@@ -15,316 +16,152 @@ import { Button, Text, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { useClub } from './club.purchases';
 
-// Otto Club paywall. Three states, decided by RevenueCat at runtime:
-//  · member  — already subscribed: thank-you card + manage link, no sell.
-//  · live    — offerings loaded: real prices/trial from the store, purchase +
-//              Restore + the Terms/Privacy links App Review requires.
-//  · fallback — offerings unavailable (products not configured, offline):
-//              the honest "opens soon" state below. No dead buy buttons.
-// Every date is computed from real "now" — never hardcoded. The constants are
-// display placeholders for the fallback only; live mode prices come from the
-// store.
-const PRICE_YEAR = 39.99;
-const PRICE_MONTH = 4.99;
-const TRIAL_DAYS = 7;
+// Otto Club paywall — a HARD paywall (Juan, 2026-10-04): a signed-in non-member
+// can't use Otto without starting the trial, so there is no X and no "Not now".
+// Lean on purpose, like Cal AI / ReciMe / Julienne (Mobbin research 2026-10-04):
+// one headline, two plans, one button, one price line, small Restore/Terms/
+// Privacy. Apple 3.1.2 needs the billed price, period, trial and those links —
+// nothing more. Members (opened from Account) get a close button + Manage.
 const TERMS_URL = 'https://ottosapp.com/terms';
 const PRIVACY_URL = 'https://ottosapp.com/privacy';
 const MANAGE_URL = 'https://apps.apple.com/account/subscriptions';
-
-const prettyDate = (date: Date) =>
-  date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
 
 export function OttoClubScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { show } = useToast();
-  const [plan, setPlan] = useState<'year' | 'month'>('year'); // annual preselected
+  const [plan, setPlan] = useState<'year' | 'month'>('year');
   const club = useClub();
+  const goHome = () => router.replace('/(tabs)');
+  const close = () => (router.canGoBack() ? router.back() : goHome());
 
-  // Live mode reads price/trial from the store; fallback keeps the placeholders.
-  // In live mode the trial is ONLY what the store's intro offer says — if the
-  // product has no free trial we must not advertise one (trust + App Review).
-  const storePrices = club.live;
-  const priceYear = storePrices ? (club.yearly?.product.price ?? PRICE_YEAR) : PRICE_YEAR;
-  const priceMonth = storePrices ? (club.monthly?.product.price ?? PRICE_MONTH) : PRICE_MONTH;
-  const priceYearText = storePrices
-    ? (club.yearly?.product.priceString ?? `$${PRICE_YEAR}`)
-    : `$${PRICE_YEAR}`;
-  const priceMonthText = storePrices
-    ? (club.monthly?.product.priceString ?? `$${PRICE_MONTH}`)
-    : `$${PRICE_MONTH}`;
-  const trialDays = storePrices ? club.trialDays : TRIAL_DAYS;
-  const hasTrial = trialDays != null;
+  const yearly = club.yearly?.product;
+  const monthly = club.monthly?.product;
+  const trialDays = club.trialDays;
+  const selected = plan === 'year' ? yearly : monthly;
+  const savePct =
+    yearly && monthly ? Math.round((1 - yearly.price / (monthly.price * 12)) * 100) : null;
+  const perMonth = (price: number, currency: string) =>
+    new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(price);
 
-  const now = new Date();
-  const chargeDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (trialDays ?? 0));
-  // the day before the charge. ponytail: a date on the timeline, not a push —
-  // syncNotifications cancels ALL scheduled notifications on every plan
-  // change, so a trial reminder needs per-id cancel there before it can ship.
-  const reminderDay = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() + (trialDays ?? 0) - 1,
-  );
-
-  // The derived math speaks the storefront's currency too: priceString is
-  // already localized, a hard-coded "$" beside it would read "$399.99" in pesos.
-  const currency = storePrices ? club.yearly?.product.currencyCode : undefined;
-  const money = (n: number) =>
-    currency
-      ? new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(n)
-      : `$${n.toFixed(2)}`;
-  const monthlyEquivalent = money(priceYear / 12);
-  const yearlyIfMonthly = money(priceMonth * 12);
-  // savings computed ONLY against our own real monthly price — no fake anchors
-  const savePct = Math.round((1 - priceYear / (priceMonth * 12)) * 100);
-
-  const notifyMe = () =>
-    show("You're on the list. Otto will holler when the Club opens.", 'success');
-
-  const selectedPkg = plan === 'year' ? club.yearly : club.monthly;
   const onBuy = async () => {
-    if (!selectedPkg) return;
-    const result = await club.buy(selectedPkg);
-    if (result === 'ok') show('Welcome to the Club. Everything is unlocked.', 'success');
+    const pkg = plan === 'year' ? club.yearly : club.monthly;
+    if (!pkg) return;
+    const result = await club.buy(pkg);
+    if (result === 'ok') goHome();
     else if (result === 'unconfirmed')
-      show("Apple confirmed it, but the Club hasn't unlocked yet. Tap Restore purchases.", 'info');
-    else if (result === 'pending')
-      show("Apple is still approving this purchase. The Club unlocks once it's done.", 'info');
+      show("Apple confirmed it, but it hasn't unlocked yet. Tap Restore.", 'info');
+    else if (result === 'pending') show('Waiting for Apple to approve the purchase.', 'info');
     else if (typeof result === 'object')
-      show(`The purchase didn't go through (${result.error}). If Apple charged you, tap Restore purchases.`, 'error');
-    // cancelled: user closed the sheet on purpose, no toast nagging
+      show(`The purchase didn't go through (${result.error}).`, 'error');
   };
   const onRestore = async () => {
-    const restored = await club.restore();
-    show(
-      restored ? 'Membership restored. Welcome back.' : 'No membership found on this Apple ID.',
-      restored ? 'success' : 'info',
-    );
+    if (await club.restore()) goHome();
+    else show('No Otto Club membership found on this Apple ID.', 'info');
   };
-
-  const BENEFITS: { icon: keyof typeof Ionicons.glyphMap; text: string }[] = [
-    // Exactly the three limits club.limits.ts lifts — nothing free users
-    // already get (planner/list are ungated until APP-10 says otherwise).
-    { icon: 'bookmark', text: 'Unlimited saved recipes, no caps on your collection' },
-    { icon: 'link', text: 'Unlimited imports: links, photos and pasted recipes' },
-    { icon: 'chatbubble-ellipses', text: 'Ask Otto as often as you like' },
-    { icon: 'paw', text: 'Keeps the lights on. The Club is how Otto pays the cooks and the servers' },
-  ];
-
-  const TIMELINE: { icon: keyof typeof Ionicons.glyphMap; date: string; body: string }[] = [
-    { icon: 'lock-open', date: `Today, ${prettyDate(now)}`, body: 'Everything unlocks. Cook away.' },
-    {
-      icon: 'notifications',
-      date: prettyDate(reminderDay),
-      body: 'Your trial ends tomorrow. Cancel today in Settings if Otto isn’t for you.',
-    },
-    {
-      icon: 'star',
-      date: prettyDate(chargeDay),
-      body: `${club.live ? "You'll" : "You'd"} be charged ${
-        plan === 'year' ? `${priceYearText} for the year` : `${priceMonthText} for the month`
-      }. Cancel before then, pay nothing.`,
-    },
-  ];
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + space[2] }]}>
-        {/* X-close — circular, top-right (no nav bar) */}
-        <View style={styles.closeRow}>
-          <Pressable
-            style={styles.closeBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Close"
-            hitSlop={8}
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))}
-          >
-            <Ionicons name="close" size={22} color={colors.ink} />
-          </Pressable>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingTop: insets.top + space[2], paddingBottom: insets.bottom + space[4] },
+        ]}
+      >
+        <View style={styles.topRow}>
+          {club.member ? (
+            <Pressable
+              style={styles.closeBtn}
+              onPress={close}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+              hitSlop={8}
+            >
+              <Ionicons name="close" size={22} color={colors.ink} />
+            </Pressable>
+          ) : (
+            <View />
+          )}
+          {!club.member ? (
+            <Pressable onPress={onRestore} accessibilityRole="button" hitSlop={8}>
+              <RNText style={styles.small}>Restore</RNText>
+            </Pressable>
+          ) : null}
         </View>
 
-        {/* Floating Otto — the otter lying back, eating */}
-        <View style={{ alignItems: 'center' }}>
-          <OttoArt name="floating" size={220} />
+        <View style={styles.hero}>
+          <OttoArt name="floating" size={200} />
+          <Text role="display">{club.member ? "You're in the Club" : 'Cook more. Plan less.'}</Text>
+          <Text role="caption">
+            {club.member
+              ? 'Every recipe, plan and question, unlimited.'
+              : 'Unlimited imports, plans and Ask Otto.'}
+          </Text>
         </View>
-
-        {/* In-content title + subtitle */}
-        <View style={{ gap: space[1] }}>
-          <Text role="display">Otto Club</Text>
-          <Text role="caption">One membership. Everything Otto can do.</Text>
-        </View>
-
-        {/* Benefits */}
-        <View style={{ gap: space[2] }}>
-          {BENEFITS.map((b) => (
-            <View key={b.text} style={styles.benefitRow}>
-              <View style={styles.benefitTile}>
-                <Ionicons name={b.icon} size={20} color={colors.terracotta} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text role="body">{b.text}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Trial timeline — real computed dates, dotted connector. Hidden when
-            the live product carries no free trial: promising one is a trust bug. */}
-        {hasTrial ? (
-        <View style={{ gap: space[2] }}>
-          <Text role="title">How your {trialDays} free days work</Text>
-          <View>
-            {TIMELINE.map((step, i) => {
-              const isCharge = i === TIMELINE.length - 1;
-              return (
-                <View key={step.date} style={styles.timelineRow}>
-                  <View style={styles.rail}>
-                    <View style={[styles.node, isCharge && styles.nodeSoft]}>
-                      <Ionicons
-                        name={step.icon}
-                        size={15}
-                        color={isCharge ? colors.terracotta : colors.white}
-                      />
-                    </View>
-                    {i < TIMELINE.length - 1 ? <View style={styles.line} /> : null}
-                  </View>
-                  <View style={styles.timelineBody}>
-                    <RNText style={styles.stepDate}>{step.date}</RNText>
-                    <Text role="caption">{step.body}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-        </View>
-        ) : null}
-
-        {/* Price block — annual preselected, math shown both directions */}
-        <View style={{ gap: space[2] }}>
-          <PlanCard
-            active={plan === 'year'}
-            onPress={() => setPlan('year')}
-            name="Yearly"
-            price={priceYearText}
-            per="year"
-            math={`${monthlyEquivalent} a month. Save ${savePct}% vs monthly.`}
-            badge={`SAVE ${savePct}%`}
-            note={hasTrial ? `${trialDays} days free first · Cancel anytime` : 'Cancel anytime'}
-          />
-          <PlanCard
-            active={plan === 'month'}
-            onPress={() => setPlan('month')}
-            name="Monthly"
-            price={priceMonthText}
-            per="month"
-            math={`${yearlyIfMonthly} a year if you stay all 12 months.`}
-            note={hasTrial ? `${trialDays} days free first · Cancel anytime` : 'Cancel anytime'}
-          />
-        </View>
-
-        <Text role="caption">
-          {/* App Review 3.1.2: price, period, and that it auto-renews, on the
-              purchase screen itself. */}
-          {hasTrial
-            ? `No charge today. ${trialDays} days free, then ${
-                plan === 'year' ? `${priceYearText}/year` : `${priceMonthText}/month`
-              } starting ${prettyDate(chargeDay)}, billed through your Apple ID. Renews automatically every ${
-                plan === 'year' ? 'year' : 'month'
-              } until you cancel. One tier, no add-ons.`
-            : `${
-                plan === 'year' ? `${priceYearText}/year` : `${priceMonthText}/month`
-              }, billed through your Apple ID. Renews automatically every ${
-                plan === 'year' ? 'year' : 'month'
-              } until you cancel. One tier, no add-ons.`}
-        </Text>
 
         {club.member ? (
-          /* Already in — no sell, just thanks + where to manage */
-          <View style={{ gap: space[2], alignItems: 'center' }}>
-            <View style={styles.banner}>
-              <View style={styles.bannerHead}>
-                <Ionicons name="paw" size={16} color={colors.terracotta} />
-                <Text role="label">You&apos;re in the Club</Text>
-              </View>
-            </View>
-            <Pressable
-              onPress={() => Linking.openURL(MANAGE_URL)}
-              accessibilityRole="link"
-              accessibilityLabel="Manage subscription"
-              style={styles.notify}
-            >
-              <RNText style={styles.notifyText}>Manage subscription</RNText>
-            </Pressable>
+          <Pressable onPress={() => Linking.openURL(MANAGE_URL)} accessibilityRole="link">
+            <RNText style={styles.link}>Manage subscription</RNText>
+          </Pressable>
+        ) : !yearly || !monthly ? (
+          <View style={styles.center}>
+            {club.failed ? (
+              <>
+                <Text role="caption">Couldn&apos;t load plans. Check your connection.</Text>
+                <Button title="Try again" variant="primary" onPress={club.reload} />
+              </>
+            ) : (
+              <ActivityIndicator color={colors.terracotta} />
+            )}
           </View>
-        ) : club.live ? (
-          /* Live store — real purchase, Restore, and the links App Review requires */
+        ) : (
           <View style={{ gap: space[3] }}>
+            <PlanCard
+              active={plan === 'year'}
+              onPress={() => setPlan('year')}
+              name="Yearly"
+              detail={`${yearly.priceString} / year`}
+              right={`${perMonth(yearly.price / 12, yearly.currencyCode)}/mo`}
+              badge={savePct ? `SAVE ${savePct}%` : undefined}
+            />
+            <PlanCard
+              active={plan === 'month'}
+              onPress={() => setPlan('month')}
+              name="Monthly"
+              right={`${monthly.priceString}/mo`}
+            />
+
+            {trialDays ? (
+              <View style={styles.reassure}>
+                <Ionicons name="checkmark" size={18} color={colors.ink} />
+                <Text role="label">No payment due now</Text>
+              </View>
+            ) : null}
+
             <Button
-              title={hasTrial ? `Start my ${trialDays} free days` : 'Join Otto Club'}
+              title={trialDays ? `Start my free ${trialDays === 7 ? 'week' : `${trialDays} days`}` : 'Continue'}
               variant="primary"
+              size="lg"
               onPress={onBuy}
               loading={club.purchasing}
             />
-            {/* Opened at the end of first-run onboarding, so the way out is a word, not just the X. */}
-            <Pressable
-              onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))}
-              accessibilityRole="button"
-              accessibilityLabel="Not now"
-              style={styles.notify}
-            >
-              <RNText style={styles.notifyText}>Not now</RNText>
-            </Pressable>
-            <Pressable
-              onPress={onRestore}
-              accessibilityRole="button"
-              accessibilityLabel="Restore purchases"
-              style={styles.notify}
-            >
-              <RNText style={styles.notifyText}>Restore purchases</RNText>
-            </Pressable>
+            {/* Apple 3.1.2: the amount billed, the period and the trial, on this screen. */}
+            <RNText style={styles.fine}>
+              {trialDays
+                ? `${trialDays} days free, then ${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Cancel anytime.`
+                : `${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Cancel anytime.`}
+            </RNText>
             <View style={styles.legalRow}>
               <Pressable onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link">
-                <RNText style={styles.legalLink}>Terms of Service</RNText>
+                <RNText style={styles.legal}>Terms</RNText>
               </Pressable>
-              <RNText style={styles.legalDot}>·</RNText>
+              <RNText style={styles.fine}>·</RNText>
               <Pressable onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link">
-                <RNText style={styles.legalLink}>Privacy Policy</RNText>
+                <RNText style={styles.legal}>Privacy</RNText>
               </Pressable>
             </View>
-          </View>
-        ) : (
-          /* Fallback — store unavailable, stay honest (no dead buy button) */
-          <View style={{ gap: space[2], alignItems: 'center' }}>
-            <View style={styles.banner}>
-              <View style={styles.bannerHead}>
-                <Ionicons name="time-outline" size={16} color={colors.terracotta} />
-                <Text role="label">Otto Club opens soon</Text>
-              </View>
-            </View>
-            <RNText style={styles.bannerNote}>
-              Memberships aren&apos;t on sale yet. Consider this a preview of the menu.
-            </RNText>
-            <Pressable
-              onPress={notifyMe}
-              accessibilityRole="button"
-              accessibilityLabel="Notify me when Otto Club opens"
-              style={styles.notify}
-            >
-              <RNText style={styles.notifyText}>Notify me when it opens</RNText>
-            </Pressable>
           </View>
         )}
-
-        {/* How do I cancel — answered inline, not a FAQ link */}
-        <View style={styles.card}>
-          <Text role="title">How do I cancel?</Text>
-          <Text role="caption">
-            {hasTrial
-              ? `Open Settings on your iPhone → tap your name → Subscriptions → Otto → Cancel. Do it at least a day before ${prettyDate(chargeDay)} and you pay nothing. You keep access for all ${trialDays} days either way.`
-              : 'Open Settings on your iPhone → tap your name → Subscriptions → Otto → Cancel. Cancel at least a day before it renews. You keep access until the end of the period you already paid for.'}
-          </Text>
-        </View>
       </ScrollView>
     </View>
   );
@@ -334,58 +171,55 @@ function PlanCard({
   active,
   onPress,
   name,
-  price,
-  per,
-  math,
+  detail,
+  right,
   badge,
-  note,
 }: {
   active: boolean;
   onPress: () => void;
   name: string;
-  price: string;
-  per: string;
-  math: string;
+  detail?: string;
+  right: string;
   badge?: string;
-  note: string;
 }) {
   return (
     <Pressable
-      style={[styles.planCard, active && styles.planCardActive]}
+      style={[styles.plan, active && styles.planActive]}
       onPress={onPress}
       accessibilityRole="radio"
       accessibilityState={{ checked: active }}
-      accessibilityLabel={`${name}, ${price} per ${per}`}
+      accessibilityLabel={`${name}, ${detail ?? right}`}
     >
-      <View style={styles.planTop}>
-        <Ionicons
-          name={active ? 'radio-button-on' : 'ellipse-outline'}
-          size={22}
-          color={active ? colors.terracotta : colors.gray}
-        />
-        <Text role={active ? 'computed' : 'body'}>{name}</Text>
-        <View style={{ flex: 1 }} />
-        {badge ? (
-          <View style={styles.badge}>
-            <RNText style={styles.badgeText}>{badge}</RNText>
-          </View>
-        ) : null}
+      <Ionicons
+        name={active ? 'radio-button-on' : 'ellipse-outline'}
+        size={22}
+        color={active ? colors.terracotta : colors.gray}
+      />
+      <View style={{ flex: 1, gap: 2 }}>
+        <View style={styles.planName}>
+          <Text role={active ? 'computed' : 'body'}>{name}</Text>
+          {badge ? (
+            <View style={styles.badge}>
+              <RNText style={styles.badgeText}>{badge}</RNText>
+            </View>
+          ) : null}
+        </View>
+        {detail ? <Text role="caption">{detail}</Text> : null}
       </View>
-      <RNText style={styles.price}>
-        {price}
-        <RNText style={styles.pricePer}>/{per}</RNText>
-      </RNText>
-      <Text role="caption">{math}</Text>
-      <Text role="caption">{note}</Text>
+      <Text role="label">{right}</Text>
     </Pressable>
   );
 }
 
 const styles = {
   container: { flex: 1, backgroundColor: colors.cream } as ViewStyle,
-  scroll: { padding: space[4], paddingBottom: space[7], gap: space[5] } as ViewStyle,
-
-  closeRow: { flexDirection: 'row', justifyContent: 'flex-end' } as ViewStyle,
+  scroll: { flexGrow: 1, padding: space[4], gap: space[5] } as ViewStyle,
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minHeight: 36,
+  } as ViewStyle,
   closeBtn: {
     width: 36,
     height: 36,
@@ -394,92 +228,40 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   } as ViewStyle,
-
-  benefitRow: { flexDirection: 'row', gap: space[3], alignItems: 'center' } as ViewStyle,
-  benefitTile: {
-    width: 40,
-    height: 40,
-    borderRadius: radii.button,
-    backgroundColor: colors.accentSoft,
+  small: { ...type.caption, color: colors.inkSoft } as TextStyle,
+  hero: { alignItems: 'center', gap: space[2] } as ViewStyle,
+  center: { alignItems: 'center', gap: space[3], paddingVertical: space[5] } as ViewStyle,
+  plan: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-
-  timelineRow: { flexDirection: 'row', gap: space[3] } as ViewStyle,
-  rail: { width: 30, alignItems: 'center' } as ViewStyle,
-  node: {
-    width: 30,
-    height: 30,
-    borderRadius: radii.pill,
-    backgroundColor: colors.terracotta,
-    alignItems: 'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-  nodeSoft: { backgroundColor: colors.accentSoft } as ViewStyle,
-  line: { flex: 1, width: 2, backgroundColor: colors.accentSoft, marginTop: 2 } as ViewStyle,
-  timelineBody: { flex: 1, paddingBottom: space[4], gap: 2 } as ViewStyle,
-  stepDate: { ...type.body, fontWeight: '700', color: colors.ink } as TextStyle,
-
-  card: {
+    gap: space[3],
     backgroundColor: colors.white,
     borderRadius: radii.card,
     padding: space[4],
-    gap: space[2],
-  } as ViewStyle,
-
-  planCard: {
-    backgroundColor: colors.white,
-    borderRadius: radii.card,
-    padding: space[4],
-    gap: space[1],
     borderWidth: 2,
     borderColor: colors.white,
   } as ViewStyle,
-  planCardActive: { borderColor: colors.terracotta, backgroundColor: colors.creamDeep } as ViewStyle,
-  planTop: { flexDirection: 'row', alignItems: 'center', gap: space[2] } as ViewStyle,
-  price: { ...type.title, color: colors.ink, marginTop: space[1] } as TextStyle,
-  pricePer: { ...type.caption, color: colors.inkSoft } as TextStyle,
+  planActive: { borderColor: colors.terracotta } as ViewStyle,
+  planName: { flexDirection: 'row', alignItems: 'center', gap: space[2] } as ViewStyle,
   badge: {
     backgroundColor: colors.terracotta,
     borderRadius: radii.pill,
     paddingHorizontal: space[2],
-    paddingVertical: 3,
+    paddingVertical: 2,
   } as ViewStyle,
   badgeText: { ...type.meta, fontVariant: ['tabular-nums'], color: colors.white } as TextStyle,
-
-  banner: {
-    alignSelf: 'stretch',
-    backgroundColor: colors.accentSoft,
-    borderRadius: radii.card,
-    padding: space[4],
+  reassure: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: space[1],
   } as ViewStyle,
-  bannerHead: { flexDirection: 'row', alignItems: 'center', gap: space[2] } as ViewStyle,
-  bannerNote: {
-    ...type.meta,
-    fontVariant: ['tabular-nums'],
-    color: colors.inkSoft,
-    textAlign: 'center',
-  } as TextStyle,
-
-  notify: { alignItems: 'center' } as ViewStyle,
-  notifyText: {
-    ...type.body,
-    fontWeight: '600',
-    color: colors.terracotta,
-  } as TextStyle,
-
+  fine: { ...type.caption, color: colors.inkSoft, textAlign: 'center' } as TextStyle,
   legalRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
     gap: space[2],
   } as ViewStyle,
-  legalLink: {
-    ...type.meta,
-    fontVariant: ['tabular-nums'],
-    color: colors.inkSoft,
-    textDecorationLine: 'underline',
-  } as TextStyle,
-  legalDot: { ...type.meta, fontVariant: ['tabular-nums'], color: colors.inkSoft } as TextStyle,
+  legal: { ...type.caption, color: colors.inkSoft, textDecorationLine: 'underline' } as TextStyle,
+  link: { ...type.body, fontWeight: '600', color: colors.terracotta, textAlign: 'center' } as TextStyle,
 };
