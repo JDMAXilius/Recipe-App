@@ -52,8 +52,8 @@ export function ForgotPasswordScreen() {
 
   return (
     <AuthScreenLayout
-      title="Forgot your password?"
-      subtitle="Happens to everyone. Otto will email you a link to set a new one."
+      title="Reset password"
+      subtitle="We'll email you a reset link."
       error={error}
     >
       <AuthInput
@@ -66,7 +66,7 @@ export function ForgotPasswordScreen() {
       />
       <View style={{ marginTop: space[2] }}>
         <Button
-          title={loading ? 'Sending…' : 'Send me a link'}
+          title={loading ? 'Sending…' : 'Send reset link'}
           onPress={handleSend}
           variant="primary"
           size="lg"
@@ -78,7 +78,7 @@ export function ForgotPasswordScreen() {
         accessibilityRole="button"
         style={{ marginTop: space[4], alignItems: 'center' }}
       >
-        <Text role="body">Remembered it? Sign in</Text>
+        <Text role="body">Back to sign in</Text>
       </Pressable>
     </AuthScreenLayout>
   );

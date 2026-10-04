@@ -20,7 +20,7 @@ import {
   type IngredientPair,
   type RecipeSource,
 } from './draft';
-import { ingredientsWithGrams } from './save.compute';
+import { ingredientsWithGrams, retryOnTransportFailure } from './save.compute';
 
 // --- edge functions -------------------------------------------------------
 
@@ -235,11 +235,13 @@ async function computeSaveExtras(
 
 export async function createUserRecipe(userId: string, recipe: CleanRecipe): Promise<number> {
   const extras = await computeSaveExtras(recipe);
-  const { data, error } = await supabase
-    .from('recipes')
-    .insert({ ...toInsert(userId, recipe), ...extras })
-    .select('id')
-    .single();
+  const { data, error } = await retryOnTransportFailure(() =>
+    supabase
+      .from('recipes')
+      .insert({ ...toInsert(userId, recipe), ...extras })
+      .select('id')
+      .single(),
+  );
   if (error) throw error;
   return data.id;
 }
@@ -248,20 +250,22 @@ export async function updateUserRecipe(id: number, recipe: CleanRecipe): Promise
   const extras = await computeSaveExtras(recipe);
   // user_id/source stay put; only editable content + the recomputed
   // grams/nutrition + updated_at move.
-  const { error } = await supabase
-    .from('recipes')
-    .update({
-      title: recipe.title,
-      image: recipe.image,
-      category: recipe.category,
-      area: recipe.area,
-      servings: recipe.servings,
-      ingredients: extras.ingredients,
-      nutrition: extras.nutrition,
-      steps: recipe.steps,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id);
+  const { error } = await retryOnTransportFailure(() =>
+    supabase
+      .from('recipes')
+      .update({
+        title: recipe.title,
+        image: recipe.image,
+        category: recipe.category,
+        area: recipe.area,
+        servings: recipe.servings,
+        ingredients: extras.ingredients,
+        nutrition: extras.nutrition,
+        steps: recipe.steps,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id),
+  );
   if (error) throw error;
 }
 

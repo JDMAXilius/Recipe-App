@@ -44,11 +44,15 @@ export function AiConsentHost() {
   return (
     <Sheet visible={visible} onClose={() => answer(false, false)} title={AI_CONSENT_COPY.title}>
       <View style={{ gap: space[3], marginBottom: space[5] }}>
-        {AI_CONSENT_COPY.body.map((p) => (
-          <Text key={p} role="body">
-            {p}
-          </Text>
-        ))}
+        <Text role="body">{AI_CONSENT_COPY.lead}</Text>
+        <View style={{ gap: space[1] }}>
+          {AI_CONSENT_COPY.bullets.map((b) => (
+            <Text key={b} role="body">
+              {`•  ${b}`}
+            </Text>
+          ))}
+        </View>
+        <Text role="caption">{AI_CONSENT_COPY.caption}</Text>
       </View>
       <View style={{ gap: space[2] }}>
         <Button title={AI_CONSENT_COPY.allow} variant="primary" size="lg" onPress={() => answer(true, true)} />

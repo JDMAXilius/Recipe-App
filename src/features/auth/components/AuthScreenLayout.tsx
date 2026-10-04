@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   Text as RNText,
@@ -49,7 +50,7 @@ export function AuthScreenLayout({
         >
           {hero && (
             <View style={{ alignItems: 'center', marginBottom: space[5] }}>
-              <OttoArt name="hero" size={168} />
+              <OttoArt name="hero" size={84} />
             </View>
           )}
           {/* Centered hero title + subtitle (Figma master board). The shared
@@ -75,5 +76,26 @@ export function AuthScreenLayout({
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
+  );
+}
+
+const TERMS_URL = 'https://ottosapp.com/terms';
+const PRIVACY_URL = 'https://ottosapp.com/privacy';
+
+// The one fine-print line every reference sign-up carries, under the buttons.
+export function AuthLegal() {
+  const link = { color: colors.inkSoft, textDecorationLine: 'underline' } as const;
+  return (
+    <RNText style={{ ...type.caption, color: colors.inkSoft, textAlign: 'center', marginTop: space[4] }}>
+      By continuing you agree to the{' '}
+      <RNText style={link} accessibilityRole="link" onPress={() => Linking.openURL(TERMS_URL)}>
+        Terms
+      </RNText>{' '}
+      and{' '}
+      <RNText style={link} accessibilityRole="link" onPress={() => Linking.openURL(PRIVACY_URL)}>
+        Privacy Policy
+      </RNText>
+      .
+    </RNText>
   );
 }

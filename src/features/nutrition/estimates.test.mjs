@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import {
   getNutritionEstimate,
   applyCarbCeiling,
-  estimateCaption,
+  estimateLabel,
 } from "./estimates.ts";
 
 const assertMacros = (est, { calories, protein, carbs, fat }, label) => {
@@ -54,8 +54,8 @@ test("carb ceiling leaves a genuinely carb-bearing dish alone", () => {
 
 test("estimates are always flagged as estimates", () => {
   // the proof of the honesty flag: category templates never read as fact.
-  assert.match(estimateCaption("category"), /estimate/i);
-  assert.match(estimateCaption("computed"), /estimate/i);
-  assert.match(estimateCaption("computed-low"), /rough guide/i);
-  assert.match(estimateCaption("none"), /no nutrition estimate/i);
+  assert.match(estimateLabel("category"), /estimate/i);
+  assert.match(estimateLabel("computed"), /estimate/i);
+  assert.match(estimateLabel("computed-low"), /rough estimate/i);
+  assert.match(estimateLabel("none"), /no nutrition estimate/i);
 });

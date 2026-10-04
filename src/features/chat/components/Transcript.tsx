@@ -62,7 +62,7 @@ function Bubble({ message }: { message: StoredMessage }) {
 }
 
 // Clarify options → tappable pills that send the chosen text as the next turn.
-function OptionChips({ options, onPick }: { options: string[]; onPick: (o: string) => void }) {
+export function OptionChips({ options, onPick }: { options: string[]; onPick: (o: string) => void }) {
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2], marginBottom: space[3] }}>
       {options.map((option) => (

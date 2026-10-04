@@ -135,8 +135,8 @@ export function PlanScreen() {
       {planned > 0 && (
         <View style={{ marginBottom: space[4] }}>
           <Button
-            title="Build my shopping list"
-            variant="primary"
+            title="Shopping list"
+            variant="secondary"
             onPress={() => router.push('/shopping')}
           />
         </View>
@@ -146,7 +146,7 @@ export function PlanScreen() {
         <OttoLoading message="Checking Otto's week…" />
       ) : isError ? (
         // An errored query also reports isLoading false with entries [] — and
-        // seven "Open. No plans, no guilt." cards would assert the user planned
+        // seven "Nothing planned" cards would assert the user planned
         // nothing when the app knows nothing (usePlan.ts says this in writing).
         <OttoError message="We couldn't reach Otto's week." onRetry={refetch} />
       ) : (
@@ -178,9 +178,7 @@ export function PlanScreen() {
               </View>
 
               {dayEntries.length === 0 ? (
-                <Text role="caption">
-                  {index === 0 ? "Nothing yet. Otto's happy to improvise." : 'Open. No plans, no guilt.'}
-                </Text>
+                <Text role="caption">Nothing planned</Text>
               ) : (
                 dayEntries.map((entry) => {
                   const canCarry = Boolean(entry.recipe_id) && nextInWeek(day.key, days) != null;
@@ -269,9 +267,7 @@ export function PlanScreen() {
       {!isLoading && planned === 0 && (
         <View style={styles.emptyWeek}>
           <OttoIdle name="happy" size={120} sway />
-          <Text role="body">
-            Pick something from your cookbook. Tonight in one tap, a list in ten seconds.
-          </Text>
+          <Text role="body">Add a dish to get started.</Text>
         </View>
       )}
       </ScrollView>

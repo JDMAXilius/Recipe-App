@@ -5,7 +5,7 @@ import { Button, Text } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
 import { AuthInput } from './components/AuthInput';
-import { AuthScreenLayout } from './components/AuthScreenLayout';
+import { AuthLegal, AuthScreenLayout } from './components/AuthScreenLayout';
 import { SocialAuthButtons } from './components/SocialAuthButtons';
 
 // Sign-in — the everyday door. Inline errors (native Alert is invisible on web).
@@ -36,7 +36,7 @@ export function SignInScreen() {
   };
 
   return (
-    <AuthScreenLayout title="Back to the kitchen?" subtitle="Otto kept your place." error={error}>
+    <AuthScreenLayout title="Welcome back" error={error}>
       <SocialAuthButtons mode="sign-in" onError={setError} />
       <AuthInput
         value={email}
@@ -73,8 +73,9 @@ export function SignInScreen() {
         accessibilityRole="button"
         style={{ marginTop: space[3], alignItems: 'center' }}
       >
-        <Text role="body">New here? Pull up a stool</Text>
+        <Text role="body">New to Otto? Create account</Text>
       </Pressable>
+      <AuthLegal />
     </AuthScreenLayout>
   );
 }

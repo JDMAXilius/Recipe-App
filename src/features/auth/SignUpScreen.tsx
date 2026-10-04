@@ -5,7 +5,7 @@ import { Button, Text } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
 import { AuthInput } from './components/AuthInput';
-import { AuthScreenLayout } from './components/AuthScreenLayout';
+import { AuthLegal, AuthScreenLayout } from './components/AuthScreenLayout';
 import { SocialAuthButtons } from './components/SocialAuthButtons';
 
 const MIN_PASSWORD = 6;
@@ -58,11 +58,7 @@ export function SignUpScreen() {
   }
 
   return (
-    <AuthScreenLayout
-      title="Pull up a stool."
-      subtitle="Save recipes and plan dinners. Otto remembers."
-      error={error}
-    >
+    <AuthScreenLayout title="Create your account" error={error}>
       <SocialAuthButtons mode="sign-up" onError={setError} />
       <AuthInput
         value={email}
@@ -80,7 +76,7 @@ export function SignUpScreen() {
       />
       <View style={{ marginTop: space[2] }}>
         <Button
-          title={loading ? 'Setting your place…' : "Join Otto's kitchen"}
+          title={loading ? 'Creating account…' : 'Create account'}
           onPress={handleSignUp}
           variant="primary"
           size="lg"
@@ -94,6 +90,7 @@ export function SignUpScreen() {
       >
         <Text role="body">Already have an account? Sign in</Text>
       </Pressable>
+      <AuthLegal />
     </AuthScreenLayout>
   );
 }

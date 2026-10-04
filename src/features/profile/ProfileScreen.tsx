@@ -6,7 +6,6 @@ import {
   ScrollView,
   Share,
   Switch,
-  Text as RNText,
   TextInput,
   View,
   type TextStyle,
@@ -29,8 +28,7 @@ import { usePlan } from '@/features/planner';
 import { usePrefs } from './usePrefs';
 import { UNIT_SEGMENTS, cookedCount, earnedStats, statText } from './profile.logic';
 import { useDeleteAccount } from './useDeleteAccount';
-import Purchases from 'react-native-purchases';
-import { useMembership } from './club.purchases';
+import { openManageSubscriptions, useMembership } from './club.purchases';
 
 // "You" — Account (Mobbin account study, ported from v1). Warm header, cold
 // facts: Otto greeting + plain email. Stats only if EARNED, honest at zero,
@@ -48,10 +46,6 @@ import { useMembership } from './club.purchases';
 const SUPPORT_EMAIL = 'juandiego@ottosapp.com';
 const PRIVACY_URL = 'https://ottosapp.com/privacy';
 const TERMS_URL = 'https://ottosapp.com/terms';
-// Apple's account-deletion rule for subscription apps: say billing continues
-// through Apple until cancelled, and show where to cancel. Same link as the
-// paywall's member card (OttoClubScreen MANAGE_URL).
-const MANAGE_SUBSCRIPTIONS_URL = 'https://apps.apple.com/account/subscriptions';
 // App Store id 6792195637 (ASC). The write-review page only resolves once the
 // listing is live; every build carrying this ships after approval anyway.
 const RATE_APP_URL = 'https://apps.apple.com/app/id6792195637?action=write-review';
@@ -81,7 +75,7 @@ export function ProfileScreen() {
 
   // cooked from usePlan(), saved from useSaved(), yours from useMyRecipes()
   // (allowlisted — one source shared with cookbook's My-recipes segment).
-  const { stats, nothingYet } = earnedStats({
+  const { stats } = earnedStats({
     cooked: cookedCount(entries),
     saved: saved.length,
     yours: yoursCount,
@@ -124,10 +118,10 @@ export function ProfileScreen() {
     haptics.select();
     void Linking.openURL(RATE_APP_URL).catch(() => {});
   };
-  const reportBug = () => {
-    haptics.select();
-    const body = `What happened?\n\n\nWhat did you expect?\n\n\n--\nOtto v${APP_VERSION} · ${Platform.OS}`;
-    const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Otto bug report')}&body=${encodeURIComponent(body)}`;
+  // One door for thoughts and bugs; the version line helps either way.
+  const contactUs = () => {
+    const body = `\n\n\n--\nOtto v${APP_VERSION} · ${Platform.OS}`;
+    const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Otto')}&body=${encodeURIComponent(body)}`;
     void Linking.openURL(url).catch(() => {});
   };
 
@@ -146,7 +140,7 @@ export function ProfileScreen() {
   };
 
   // Delete account: shared with the paywall (useDeleteAccount).
-  const { armed: armDelete, deleting, onDelete } = useDeleteAccount(member);
+  const { deleting, onDelete } = useDeleteAccount(member);
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.cream }}>
@@ -182,44 +176,23 @@ export function ProfileScreen() {
                 <Text role="title">{shownName}</Text>
                 <Ionicons name="pencil" size={14} color={colors.inkSoft} />
               </View>
-              <Text role="caption">
-                {hasUsername(user) || nameOverride ? 'Tap to change your name' : 'Tap to add your name'}
-              </Text>
             </Pressable>
           )}
         </View>
       </View>
 
-      {/* MEMBERSHIP — honest free state + Otto Club door */}
+      {/* MEMBERSHIP — one row: a member manages it at Apple, anyone else
+          sees the paywall. */}
       <View style={styles.section}>
         <Text role="caption">Membership</Text>
         <View style={styles.card}>
-          <View style={styles.row}>
-            <Ionicons name="ribbon-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
-            <Text role="body">Current plan</Text>
-            <View style={{ flex: 1 }} />
-            <Text role="computed">{member ? 'Otto Club' : 'Free'}</Text>
-          </View>
+          <SettingsRow
+            icon="ribbon-outline"
+            label="Otto Club"
+            value={member ? 'Active' : 'Free'}
+            onPress={member ? openManageSubscriptions : () => router.push('/otto-club')}
+          />
         </View>
-        <Pressable
-          style={styles.clubCard}
-          onPress={() => router.push('/otto-club')}
-          accessibilityRole="button"
-          accessibilityLabel="Otto Club. See how it works"
-        >
-          <View style={styles.clubArt} pointerEvents="none">
-            <OttoArt name="floating" size={132} />
-          </View>
-          <View style={{ gap: space[1], paddingRight: 92 }}>
-            <RNText style={clubTitle}>Otto Club</RNText>
-            <Text role="body">
-              {member ? "You're in. Thanks for keeping Otto cooking." : 'Everything Otto can do, one simple membership.'}
-            </Text>
-          </View>
-          <View style={styles.clubButton}>
-            <RNText style={clubButtonText}>See how it works</RNText>
-          </View>
-        </Pressable>
       </View>
 
       {/* YOUR KITCHEN SO FAR — earned numbers, each one a door */}
@@ -239,7 +212,6 @@ export function ProfileScreen() {
             </Pressable>
           ))}
         </View>
-        {nothingYet && <Text role="caption">Nothing cooked yet. Otto&apos;s ready when you are.</Text>}
       </View>
 
       {/* CONTENT — the private cooking journal */}
@@ -272,14 +244,12 @@ export function ProfileScreen() {
           <SettingsRow icon="restaurant-outline" label="Food preferences" onPress={() => router.push('/preferences')} divided={hasPasswordLogin(user)} />
           <SettingsRow icon="notifications-outline" label="Reminders" onPress={() => router.push('/notifications')} divided />
           <SettingsRow icon="people-outline" label="Our shared list" onPress={() => router.push('/household')} divided />
-          {/* Honest copy: the toggle governs Otto's soft feedback sounds only —
-              the cook timer alarm keeps its job either way. */}
+          {/* The toggle governs Otto's soft feedback sounds only — the cook
+              timer alarm keeps its job either way. */}
           <View style={[styles.unitRow, styles.rowDivider]}>
             <Ionicons name="musical-notes-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
-            <View style={{ flex: 1, marginRight: space[3] }}>
-              <Text role="body">Sounds</Text>
-              <Text role="caption">Soft chimes on saves and finishes. Timers always ring.</Text>
-            </View>
+            <Text role="body">Sounds</Text>
+            <View style={{ flex: 1 }} />
             <Switch
               value={soundsOn}
               onValueChange={(v) => {
@@ -328,33 +298,24 @@ export function ProfileScreen() {
         </View>
       </View>
 
-      {/* SPREAD THE WORD */}
+      {/* SHARE */}
       <View style={styles.section}>
-        <Text role="caption">Spread the word</Text>
+        <Text role="caption">Share</Text>
         <View style={styles.card}>
           <SettingsRow icon="gift-outline" label="Tell a friend" onPress={tellAFriend} />
           <SettingsRow icon="heart-outline" label="Rate Otto" divided onPress={rateOtto} />
         </View>
       </View>
 
-      {/* THE BORING-BUT-IMPORTANT BITS */}
+      {/* SUPPORT */}
       <View style={styles.section}>
-        <Text role="caption">The boring-but-important bits</Text>
+        <Text role="caption">Support</Text>
         <View style={styles.card}>
-          <SettingsRow icon="help-buoy-outline" label="Little questions" onPress={() => router.push('/faq')} />
-          <SettingsRow
-            icon="chatbubble-ellipses-outline"
-            label="Send a thought"
-            divided
-            onPress={() => {
-              const url = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('A thought about Otto')}`;
-              void Linking.openURL(url).catch(() => {});
-            }}
-          />
-          <SettingsRow icon="bug-outline" label="Report a bug" divided onPress={reportBug} />
+          <SettingsRow icon="help-buoy-outline" label="Help" onPress={() => router.push('/faq')} />
+          <SettingsRow icon="chatbubble-ellipses-outline" label="Contact us" divided onPress={contactUs} />
           <SettingsRow
             icon="shield-checkmark-outline"
-            label="Privacy policy"
+            label="Privacy Policy"
             divided
             onPress={() => void WebBrowser.openBrowserAsync(PRIVACY_URL)}
           />
@@ -364,12 +325,6 @@ export function ProfileScreen() {
             divided
             onPress={() => void WebBrowser.openBrowserAsync(TERMS_URL)}
           />
-          <View style={[styles.row, styles.settingsRow, styles.rowDivider]}>
-            <Ionicons name="paw-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
-            <Text role="body">About Otto</Text>
-            <View style={{ flex: 1 }} />
-            <Text role="caption">v{APP_VERSION}</Text>
-          </View>
         </View>
       </View>
 
@@ -390,31 +345,11 @@ export function ProfileScreen() {
         accessibilityRole="button"
         accessibilityLabel="Delete my account"
       >
-        <Text role={armDelete ? 'computed' : 'caption'}>
-          {armDelete ? (member ? 'Delete anyway' : 'Tap again. This is forever') : 'Delete my account'}
-        </Text>
+        <Text role="caption">Delete my account</Text>
       </Pressable>
-      {armDelete && member && (
-        <View style={styles.deleteNote}>
-          <Text role="caption">
-            Your Otto Club subscription is billed by Apple and keeps renewing after you delete
-            your account. Cancel it first:
-          </Text>
-          <Pressable
-            onPress={() =>
-              // Apple's own cancel sheet in-app; the web page if it can't open.
-              void Purchases.showManageSubscriptions().catch(() =>
-                Linking.openURL(MANAGE_SUBSCRIPTIONS_URL).catch(() => {}),
-              )
-            }
-            accessibilityRole="link"
-            accessibilityLabel="Manage subscription"
-            hitSlop={8}
-          >
-            <Text role="computed">Manage subscription</Text>
-          </Pressable>
-        </View>
-      )}
+      <View style={styles.versionFooter}>
+        <Text role="caption">Otto {APP_VERSION}</Text>
+      </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -423,11 +358,13 @@ export function ProfileScreen() {
 function SettingsRow({
   icon,
   label,
+  value,
   onPress,
   divided,
 }: {
   icon: React.ComponentProps<typeof Ionicons>['name'];
   label: string;
+  value?: string;
   onPress: () => void;
   divided?: boolean;
 }) {
@@ -439,11 +376,12 @@ function SettingsRow({
         onPress();
       }}
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={value ? `${label}, ${value}` : label}
     >
       <Ionicons name={icon} size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
       <Text role="body">{label}</Text>
       <View style={{ flex: 1 }} />
+      {value != null && <Text role="caption">{value}</Text>}
       <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
     </Pressable>
   );
@@ -478,23 +416,6 @@ const styles: Record<string, ViewStyle> = {
   rowDivider: { borderTopWidth: 1, borderTopColor: colors.creamDeep },
   unitRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: space[3] },
   unitToggle: { width: 160 },
-  clubCard: {
-    backgroundColor: colors.accentSoft,
-    borderRadius: radii.card,
-    borderWidth: 1.5,
-    borderColor: colors.terracotta,
-    padding: space[4],
-    gap: space[3],
-    overflow: 'hidden',
-  },
-  clubArt: { position: 'absolute', right: -6, bottom: -10 },
-  clubButton: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.terracotta,
-    borderRadius: radii.pill,
-    paddingHorizontal: space[4],
-    paddingVertical: space[2],
-  },
   statsCard: {
     flexDirection: 'row',
     backgroundColor: colors.white,
@@ -504,7 +425,7 @@ const styles: Record<string, ViewStyle> = {
   statCell: { flex: 1, alignItems: 'center', gap: space[1] },
   statCellDivider: { borderLeftWidth: 1, borderLeftColor: colors.creamDeep },
   deleteRow: { alignItems: 'center', paddingVertical: space[4] },
-  deleteNote: { alignItems: 'center', gap: space[2], paddingHorizontal: space[4], paddingBottom: space[4] },
+  versionFooter: { alignItems: 'center' },
 };
 
 // Inline name field — styled to sit where the title Text was, no bordered box.
@@ -513,9 +434,3 @@ const nameInput: TextStyle = {
   color: colors.ink,
   padding: 0,
 };
-
-// Otto Club card: terracotta serif title + filled pill button (Figma). Styled
-// directly because the shared Text is role-only (terracotta title + white
-// on-terracotta button label are both outside the role palette).
-const clubTitle: TextStyle = { ...type.title, color: colors.terracotta };
-const clubButtonText: TextStyle = { ...type.label, color: colors.white, fontWeight: '700' };

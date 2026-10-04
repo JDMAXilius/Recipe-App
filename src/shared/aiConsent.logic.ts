@@ -24,20 +24,18 @@ export function mayUseAi(state: AiConsentState): boolean {
 // has a single source to match. Name the company, name the data, say what
 // happens if you decline. Said once, plainly.
 export const AI_CONSENT_COPY = {
-  title: 'Otto uses AI for this',
-  body: [
-    'To write recipes, read what you paste or photograph, answer your questions and match ingredients to nutrition data, Otto sends that content through our server to Anthropic, the company that makes the Claude AI model.',
-    'Only what you give the feature goes: the words you type, the link, text or photo you share, and the ingredient names in your recipes. Your email and the rest of your account stay with us, and Anthropic doesn’t train its AI on what you send.',
-    'Change this anytime in Account › Otto and AI. Your cookbook, cook mode, plan and shopping list work either way.',
-  ],
+  title: 'Otto uses Claude AI',
+  lead: 'Imports, Ask Otto and nutrition matching run on Claude, made by Anthropic. Otto sends only what you give the feature:',
+  bullets: ['Text, links and photos you share', 'Your questions', 'Ingredient names in your recipes'],
+  caption: 'Not used to train AI. Your account stays with Otto. Change anytime in Account › AI features.',
   allow: 'Allow',
   decline: 'Not now',
-  settingsLabel: 'Otto and AI',
-  settingsCaption: 'Ask Otto, imports and nutrition matching use Anthropic’s Claude.',
+  settingsLabel: 'AI features',
+  settingsCaption: 'Powered by Claude. Details in Privacy Policy.',
   // Runna, Liven, Starling, Structured: every consent card that passed links
   // the policy behind it.
   privacyLead: 'More in our',
   privacyLink: 'Privacy Policy',
   privacyUrl: 'https://ottosapp.com/privacy',
-  offToast: 'Otto’s AI is off. Turn it on in Account › Otto and AI.',
+  offToast: 'AI features are off. Turn them on in Account › AI features.',
 } as const;

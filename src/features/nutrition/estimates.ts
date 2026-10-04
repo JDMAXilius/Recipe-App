@@ -4,7 +4,7 @@
 // the fallback get both from one place, but not a second copy.
 //
 // TheMealDB provides no nutrition data: these are typical per-serving values for
-// each kind of dish, ALWAYS presented as estimates (see estimateCaption), never
+// each kind of dish, ALWAYS presented as estimates (see estimateLabel), never
 // as measured facts. The computed per-ingredient USDA figure (engine) always
 // wins when available; a category template only answers when computation
 // honestly returns null. Ported from mobile/constants/nutritionEstimates.js.
@@ -61,20 +61,20 @@ export function getNutritionEstimate(category: string | null | undefined): Categ
   return LOOKUP[norm(category)] || DEFAULT;
 }
 
-// The honesty copy, in ONE place. A category template is never shown as a fact:
-// its caption always says "estimate". Kept pure (no React) so it is unit-tested
-// as the proof that estimates are flagged.
+// The honesty label, in ONE place: the card header. A category template is never
+// shown as a fact: its label always says "estimate". Kept pure (no React) so it
+// is unit-tested as the proof that estimates are flagged. "none" never renders
+// (the card hides) but stays honest if it ever does.
 export type EstimateKind = "computed" | "computed-low" | "category" | "none";
 
-export function estimateCaption(kind: EstimateKind): string {
+export function estimateLabel(kind: EstimateKind): string {
   switch (kind) {
     case "computed":
-      return "Otto worked this estimate out from the ingredients.";
-    case "computed-low":
-      return "Otto worked this out from the ingredients, but a few lines didn't measure cleanly. Treat it as a rough guide.";
     case "category":
-      return "Otto's estimate, from this kind of dish.";
+      return "Nutrition · Estimate";
+    case "computed-low":
+      return "Rough estimate";
     case "none":
-      return "No nutrition estimate for this recipe yet.";
+      return "No nutrition estimate";
   }
 }

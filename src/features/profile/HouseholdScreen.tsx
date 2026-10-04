@@ -22,7 +22,7 @@ export function HouseholdScreen() {
   const { user } = useAuth();
   const { household, members, isLoading, create, join, leave } = useHousehold();
 
-  const [name, setName] = useState(() => displayNameFor(user));
+  const name = displayNameFor(user);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState<'create' | 'join' | 'leave' | null>(null);
 
@@ -68,7 +68,7 @@ export function HouseholdScreen() {
     if (!household) return;
     haptics.select();
     void Share.share({
-      message: `Join our Otto kitchen. In the app, go to Account, then Our shared list, then Join, and enter code ${household.invite_code}.`,
+      message: `Join my Otto kitchen with code ${household.invite_code}: Account › Our shared list › Join.`,
     }).catch(() => {});
   };
 
@@ -88,10 +88,6 @@ export function HouseholdScreen() {
           <View style={{ alignItems: 'center', gap: space[2] }}>
             <OttoIdle name="happy" size={120} />
             <Text role="title">{household.name}</Text>
-            <Text role="caption">
-              Everyone here shares one shopping list. Build it on the Shopping screen and check it
-              off together.
-            </Text>
           </View>
 
           {/* Invite code — the join key. */}
@@ -136,23 +132,7 @@ export function HouseholdScreen() {
       <ScrollView contentContainerStyle={styles.setupScroll} keyboardShouldPersistTaps="handled">
         <OttoIdle name="happy" size={140} />
         <Text role="title">One list, shared</Text>
-        <Text role="caption">
-          Start a shared kitchen or join one with a code. Everyone adds to and checks off the same
-          shopping list, in real time.
-        </Text>
-
-        <View style={styles.nameLine}>
-          <Text role="caption">You&apos;ll show up as</Text>
-          <TextInput
-            style={styles.nameInput}
-            value={name}
-            onChangeText={setName}
-            placeholder="your name"
-            placeholderTextColor={colors.inkSoft}
-            maxLength={40}
-            accessibilityLabel="Your display name"
-          />
-        </View>
+        <Text role="caption">One shopping list for everyone in your kitchen.</Text>
 
         <View style={{ alignSelf: 'stretch' }}>
           <Button title="Start a shared kitchen" variant="primary" loading={busy === 'create'} onPress={doCreate} />
@@ -187,15 +167,6 @@ export function HouseholdScreen() {
 const styles = StyleSheet.create({
   setupScroll: { padding: space[4], paddingTop: space[6], alignItems: 'center', gap: space[4] },
   scroll: { padding: space[4], paddingBottom: space[7], gap: space[4] },
-  nameLine: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
-  nameInput: {
-    minWidth: 120,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    paddingVertical: space[1],
-    color: colors.terracotta,
-    fontWeight: '600',
-  },
   card: { backgroundColor: colors.white, borderRadius: radii.card, padding: space[4], gap: space[2] },
   codeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   shareBtn: {

@@ -411,9 +411,6 @@ export function CookScreen() {
         <ScrollView contentContainerStyle={{ padding: space[4], paddingBottom: space[7] }} showsVerticalScrollIndicator={false}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[4], marginBottom: space[4] }}>
             <OttoArt name="happy" size={72} />
-            <View style={{ flex: 1 }}>
-              <Text role="body">Everything on the counter before the heat goes on.</Text>
-            </View>
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space[3] }}>
@@ -576,11 +573,6 @@ export function CookScreen() {
               <RNText style={{ color: colors.ink, flexShrink: 1 }}>{p.name}</RNText>
             </View>
           ))}
-          {sheetFilter === 'step' && stepIngredients.length === 0 && (
-            <View style={{ paddingVertical: space[4] }}>
-              <Text role="caption">Nothing specific for this step.</Text>
-            </View>
-          )}
         </ScrollView>
       </Sheet>
 

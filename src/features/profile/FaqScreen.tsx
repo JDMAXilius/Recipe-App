@@ -1,60 +1,53 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { Linking, Pressable, ScrollView, Text as RNText, View, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Screen, Text } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
-import { colors, radii, space } from '@/shared/theme/tokens';
+import { colors, radii, space, type } from '@/shared/theme/tokens';
 
-// Little questions — an accordion of what people actually wonder. Every answer
-// states what Otto does TODAY; when a capability is still on its way, the
-// answer says so instead of pretending. Ported verbatim from v1 faq.jsx.
+// Help — an accordion of what people actually ask. Nine questions, each
+// answer 35 words or fewer, stating what Otto does TODAY.
 const FAQS = [
   {
     q: 'Where do Otto’s recipes come from?',
-    a: 'Three shelves: Otto’s own recipe database, recipes you write yourself, and recipes you import from links. Otto’s database is curated in-house — every recipe is read line by line, its ingredients broken into amount and food, and its nutrition matched against USDA FoodData Central rather than guessed. Where a recipe has an original page behind it, that link travels with it and can’t be removed. Imported recipes keep their source the same way.',
+    a: 'Otto’s own curated recipes, recipes you write, and recipes you import. Nutrition is matched against USDA FoodData Central. When a recipe has an original page, its source link stays with it.',
   },
   {
     q: 'How accurate is the nutrition?',
-    a: 'It’s an estimate, and Otto says which kind. When he can work it out from the ingredients he does, using USDA FoodData Central — a public database that Otto is not endorsed by. When he can’t, you get a rough figure from the kind of dish, marked with a tilde. When he has nothing honest to show, he says that instead of inventing a number. None of it is dietary or medical advice: if a number has to be right for a medical reason, weigh it yourself.',
+    a: 'It’s an estimate built from the ingredients with USDA FoodData Central, which doesn’t endorse Otto. Rough figures are labeled. It isn’t dietary or medical advice, so weigh food when it matters.',
   },
   {
-    q: 'Otto wrote this recipe. Should I trust it?',
-    a: 'Read it first — that’s why an imported or generated recipe opens as a draft for you to check rather than landing on your shelf. Otto can misread a temperature, drop an ingredient or miss that something contains nuts. Allergies, raw eggs and cooking temperatures are yours to check, every time.',
+    q: 'Can I trust an AI recipe?',
+    a: 'Check it first. Imports and AI recipes open for review before they’re saved. AI can misread a temperature or miss an allergen, so allergies, raw eggs and cooking temperatures are yours to check.',
   },
   {
-    q: 'How do I import a recipe from a link?',
-    a: 'Paste a food-blog, TikTok or Instagram link on the Add screen. Otto pulls what it honestly can. From blogs that’s usually the full recipe. From social posts it works from the caption, so if the caption hides the recipe, Otto says so instead of guessing.',
-  },
-  {
-    q: 'Will my shopping list change if I change my week?',
-    a: 'Never silently. If your week no longer matches the list, a small banner asks whether to update it. Your checked-off items and your own additions survive the refresh.',
-  },
-  {
-    q: 'What do food preferences actually change?',
-    a: 'Exactly two things on Discover: Otto’s pick and where the grid starts. Search and the filters stay fully yours, and your own recipes are never filtered.',
-  },
-  {
-    q: 'Who can see a recipe or list I share?',
-    a: 'Only people holding the link. Links are long random strings nobody can guess, and the pages are read-only. A shared shopping list is a snapshot of that moment; it never updates by itself.',
+    q: 'How do I import a recipe?',
+    a: 'Tap + and paste a link (website, TikTok, Instagram), paste text, or add a photo. From social posts Otto reads the caption; if the recipe isn’t there, Otto says so.',
   },
   {
     q: 'Can my household share one list?',
-    a: 'Yes. From your shopping list, tap the people icon to start a shared list and send the invite link. Everyone who joins adds and checks off the same list, and each line shows who added it or picked it up.',
+    a: 'Yes. From your shopping list, tap the people icon and send the invite. Everyone who joins adds to and checks off the same list.',
   },
   {
-    q: 'Where does my data live?',
-    a: 'Your recipes, saved recipes and weekly plan live in your account. Your cooking journal photos, food preferences and your own shopping list stay on this phone. A list you share with your kitchen is kept in your account so everyone sees the same one. When you use Otto’s AI (asking Otto, importing, nutrition matching), what you give it is sent to Anthropic to produce the answer — only after you allow it, and you can switch it off in Account › Otto and AI. Voice input is turned into text by Apple.',
+    q: 'How does Otto Club work?',
+    a: 'Otto is a subscription. Start with a 7-day free trial, then Otto Club renews monthly or yearly until you cancel. Cancel anytime in iPhone Settings › your name › Subscriptions.',
   },
   {
-    q: 'What is Otto Club?',
-    a: "Otto's membership: everything Otto does, yearly or monthly. New members get the first week free, and you can cancel anytime in your iPhone's Settings.",
+    q: 'How do I restore my subscription?',
+    a: 'Sign in to the same Otto account, open the Otto Club screen and tap Restore. Use the Apple ID you subscribed with.',
   },
   {
-    q: 'How do I leave?',
-    a: 'Sign out anytime from the Account tab, or choose Delete my account to remove everything, for real. No guilt trip, and Otto will keep the stove warm.',
+    q: 'What happens to my data and AI?',
+    a: 'Your recipes, saves and plan live in your account. AI features send only what you give them to Claude, by Anthropic, after you allow it. Turn them off in Account › AI features.',
+  },
+  {
+    q: 'How do I delete my account?',
+    a: 'Account › Delete my account erases your recipes, saves and plan for good. Your subscription is billed by Apple, so cancel it in iPhone Settings too.',
   },
 ];
+
+const SUPPORT_EMAIL = 'juandiego@ottosapp.com';
 
 export function FaqScreen() {
   const router = useRouter();
@@ -64,7 +57,7 @@ export function FaqScreen() {
     setOpen((prev) => (prev === index ? null : index));
   };
   return (
-    <Screen title="Little questions" onBack={() => router.back()}>
+    <Screen title="Help" onBack={() => router.back()}>
       <ScrollView contentContainerStyle={styles.scroll}>
         {FAQS.map((item, index) => {
           const isOpen = open === index;
@@ -90,9 +83,16 @@ export function FaqScreen() {
             </View>
           );
         })}
-        <Text role="caption">
-          Something else on your mind? Send a thought from the Account tab. A human reads every one.
-        </Text>
+        <Pressable
+          onPress={() => void Linking.openURL(`mailto:${SUPPORT_EMAIL}`).catch(() => {})}
+          accessibilityRole="link"
+          hitSlop={8}
+        >
+          {/* Same link treatment as the AI consent sheet's policy link. */}
+          <RNText style={{ ...type.caption, color: colors.inkSoft }}>
+            Still stuck? <RNText style={{ textDecorationLine: 'underline' }}>Contact us</RNText>
+          </RNText>
+        </Pressable>
       </ScrollView>
     </Screen>
   );

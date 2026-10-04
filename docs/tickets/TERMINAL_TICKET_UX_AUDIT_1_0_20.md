@@ -1,5 +1,7 @@
 # UX audit → 1.0.20: trim, rework, fix (Claude Code ticket)
 
+> **DONE 2026-10-04** in build 46 (shipped as version string 1.0.19 to replace build 41 in review, Juan's call). Not built: goal question (02), Household Copy button (no clipboard lib). F3: transport-failure retry; root cause inferred from logs, not reproduced.
+
 > **Budget:** the copy and fixes are already decided below; implement, don't re-research.
 > Open `plan.html` once for a screen you're on, not all of it. Read only the file each item
 > names. Run `tsc`/lint/tests once at the end, not per item. Skip Mobbin.

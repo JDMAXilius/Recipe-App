@@ -41,17 +41,9 @@ export function NotificationsScreen() {
     <Screen title="Reminders" onBack={onBack}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={{ gap: space[3] }}>
-          <Text role="caption">
-            Everything here lives on this phone — Otto only reminds you about things the phone already
-            knows, and both nudges start off.
-          </Text>
-
           {denied && (
             <View style={styles.card}>
               <Text role="body">Notifications are off for Otto</Text>
-              <Text role="caption">
-                Turn them on in Settings and Otto can nudge you about tonight&apos;s dinner.
-              </Text>
               <Button
                 title="Open Settings"
                 variant="secondary"

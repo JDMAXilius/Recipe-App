@@ -90,8 +90,7 @@ export function RecipeDetailScreen() {
           gap: space[3],
         }}
       >
-        <Text role="title">That page is gone</Text>
-        <Text role="caption">Otto looked everywhere. This recipe isn’t on the shelf anymore.</Text>
+        <Text role="title">Recipe not found</Text>
         <Button title="Take me back" variant="secondary" onPress={() => router.back()} />
       </View>
     );
@@ -129,14 +128,14 @@ export function RecipeDetailScreen() {
     sourceUrl: recipe.sourceUrl,
   };
 
-  // Hero Share (own recipes) — shares the painted recipe card, identical to the
-  // bottom Share button. It does NOT mint a capability link: nothing in the app
+  // Hero Share — the only share entry: shares the painted recipe card (staged
+  // offscreen below for the capture). It does NOT mint a capability link: nothing in the app
   // (or on the website yet) resolves a share token, and the native sheet drops a
   // URL anyway — so a minted link is a dead link plus an orphan recipe_shares
   // row per tap. A clickable "open my recipe" link is a real follow-up (it needs
   // a /s/<slug> resolver page + the URL delivered in the sheet); until then this
   // shares the recipe the way that actually works.
-  const shareOwnRecipe = async () => {
+  const shareRecipeImage = async () => {
     haptics.impact('medium');
     await shareRecipeCard(shareCardRef, shareRecipe);
   };
@@ -203,6 +202,14 @@ export function RecipeDetailScreen() {
               gap: space[2],
             }}
           >
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Share recipe"
+              onPress={shareRecipeImage}
+              style={heroRoundButton}
+            >
+              <Ionicons name="share-outline" size={20} color={colors.ink} />
+            </Pressable>
             {isSeed ? (
               <PawMark
                 saved={isSaved(recipeIdNum)}
@@ -218,27 +225,16 @@ export function RecipeDetailScreen() {
                 }
               />
             ) : (
-              // User's own recipe (id "u-…") — Share + edit affordances in the
-              // hero (v1 parity for edit; Share mints the capability link).
-              // Seed recipes get the paw instead; never both.
-              <>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Share recipe"
-                  onPress={shareOwnRecipe}
-                  style={heroRoundButton}
-                >
-                  <Ionicons name="share-outline" size={20} color={colors.ink} />
-                </Pressable>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Edit recipe"
-                  onPress={() => router.push(`/recipe/edit?id=${recipeId}`)}
-                  style={heroRoundButton}
-                >
-                  <Ionicons name="pencil" size={20} color={colors.ink} />
-                </Pressable>
-              </>
+              // User's own recipe (id "u-…") — edit affordance in the hero
+              // (v1 parity). Seed recipes get the paw instead; never both.
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Edit recipe"
+                onPress={() => router.push(`/recipe/edit?id=${recipeId}`)}
+                style={heroRoundButton}
+              >
+                <Ionicons name="pencil" size={20} color={colors.ink} />
+              </Pressable>
             )}
           </View>
         </View>
@@ -285,11 +281,9 @@ export function RecipeDetailScreen() {
             </View>
           </View>
 
-          {/* NUTRITION — the merged card, per serving */}
-          <View style={{ gap: space[2] }}>
-            <Text role="title">Nutrition</Text>
-            <NutritionCard recipe={nutritionRecipe} servings={servings} />
-          </View>
+          {/* NUTRITION — the card carries its own header and hides itself
+              when there's no estimate. */}
+          <NutritionCard recipe={nutritionRecipe} servings={servings} />
 
           {/* INGREDIENTS — live scaling. Unit system follows the global Account
               preference (weight-first); no per-screen US/Metric toggle (v1). */}
@@ -404,47 +398,14 @@ export function RecipeDetailScreen() {
             </View>
           ) : null}
 
-          {/* SHARE — the painted, shareable card. Tap Share (or long-press the
-              card) captures it to a PNG and opens the OS share sheet; web/no-
-              capture falls back to text share inside shareRecipeCard. */}
-          <View style={{ gap: space[2] }}>
-            <Text role="title">Share this recipe</Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Share this recipe"
-              onLongPress={() => {
-                haptics.impact('medium');
-                shareRecipeCard(shareCardRef, shareRecipe);
-              }}
-            >
-              <ShareCard ref={shareCardRef} recipe={shareRecipe} />
-            </Pressable>
-            <Button
-              title="Share"
-              variant="secondary"
-              onPress={() => {
-                haptics.impact('medium');
-                shareRecipeCard(shareCardRef, shareRecipe);
-              }}
-            />
-          </View>
-
           {/* EXIT — related recipes */}
           {related.length > 0 ? (
             <View style={{ gap: space[3] }}>
-              <View style={{ gap: space[1] }}>
-                <Text role="title">More from the pantry</Text>
-                {/* Names what the row actually is — useRelated returns other
-                    recipes in THIS category, so the line is descriptive, not
-                    decoration. Lowercased so "Beef" reads as "beef dishes";
-                    no category (user recipes never reach here) → the plain
-                    line rather than an awkward "other  dishes". */}
-                <Text role="caption">
-                  {recipe.category
-                    ? `Other ${recipe.category.toLowerCase()} dishes Otto keeps close by.`
-                    : 'Other dishes Otto keeps close by.'}
-                </Text>
-              </View>
+              {/* useRelated returns other recipes in THIS category; no
+                  category (user recipes never reach here) → plain title. */}
+              <Text role="title">
+                {recipe.category ? `More ${recipe.category.toLowerCase()} recipes` : 'More recipes'}
+              </Text>
               {/* A 2×2 grid, built as explicit rows of two. A single wrapping
                   row can't do it: RecipeCard is flex:1 (basis 0), so four cards
                   shrink onto ONE line — flex-wrap never fires and the tiles come
@@ -465,6 +426,19 @@ export function RecipeDetailScreen() {
           ) : null}
         </View>
       </Animated.ScrollView>
+
+      {/* The painted share card, parked out of the viewport for the hero Share
+          capture (same staging as Shopping's list card). Web shares text. */}
+      {Platform.OS !== 'web' && (
+        <View
+          style={{ position: 'absolute', top: 0, left: -1000 }}
+          pointerEvents="none"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          <ShareCard ref={shareCardRef} recipe={shareRecipe} />
+        </View>
+      )}
 
       {/* PINNED BOTTOM BAR (v1 parity) — Start cooking is the primary flame
           Bounceable; Add-to-week is its quiet 54×54 calendar companion. Save +

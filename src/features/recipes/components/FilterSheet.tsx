@@ -97,18 +97,6 @@ function RemoveChip({ label, onRemove }: { label: string; onRemove: () => void }
   );
 }
 
-// Group header: authored label left, behaviour hint right. The hint is
-// caption (quiet inkSoft), not meta — it's a sentence fragment, not an eyebrow,
-// and shouting "SINGLE CHOICE" next to "Category" would out-rank the label.
-function GroupHeader({ label, hint }: { label: string; hint: string }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: space[3] }}>
-      <Text role="meta">{label}</Text>
-      <Text role="caption">{hint}</Text>
-    </View>
-  );
-}
-
 // Module-level so the disabled (sheet-closed) count query gets a stable empty
 // array instead of a fresh literal every render.
 const NO_AREAS: string[] = [];
@@ -230,14 +218,14 @@ export function FilterSheet({
           </View>
         ) : null}
 
-        <GroupHeader label="Category" hint="single choice" />
+        <Text role="meta">Category</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2], marginTop: space[2], marginBottom: space[4] }}>
           {categories.map((c) => (
             <Chip key={c} label={c} active={category === c} onPress={toggleCategory(c)} />
           ))}
         </View>
 
-        <GroupHeader label="Cuisine" hint="choose any" />
+        <Text role="meta">Cuisine</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2], marginTop: space[2] }}>
           {areas.map((a) => (
             <Chip key={a} label={a} active={selectedAreas.includes(a)} onPress={toggleArea(a)} />

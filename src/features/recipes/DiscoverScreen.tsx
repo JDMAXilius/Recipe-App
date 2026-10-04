@@ -238,9 +238,7 @@ export function DiscoverScreen() {
             <OttoArt name="happy" size={48} />
             <View style={{ flex: 1, gap: 2 }}>
               <Text role="body">Ask Otto</Text>
-              <Text role="caption">
-                Tell him what you&apos;re hungry for and he&apos;ll write the recipe.
-              </Text>
+              <Text role="caption">Write me a recipe →</Text>
             </View>
             <View
               style={{
@@ -341,13 +339,15 @@ export function DiscoverScreen() {
                 gap: space[3],
               }}
             >
-              <OttoArt name={isSearching ? 'thinking' : 'sleepy'} size={120} />
-              <Text role="title">{isSearching ? 'Nothing found' : 'This shelf is empty'}</Text>
-              <Text role="caption">
-                {isSearching
-                  ? `Otto came up empty for “${debounced}”. Try another dish or ingredient.`
-                  : 'Nothing on this shelf yet. Try another category.'}
-              </Text>
+              {isSearching ? (
+                <Text role="title">{`No results for “${debounced}”`}</Text>
+              ) : (
+                <>
+                  <OttoArt name="sleepy" size={120} />
+                  <Text role="title">This shelf is empty</Text>
+                  <Text role="caption">Nothing on this shelf yet. Try another category.</Text>
+                </>
+              )}
             </View>
           )
         }

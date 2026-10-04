@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Screen, Text, useToast } from '@/shared/ui';
+import { Screen, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { DIETS, CUISINES } from './profile.prefs';
 import { usePrefs } from './usePrefs';
@@ -9,37 +9,25 @@ import { usePrefs } from './usePrefs';
 // Food preferences — diet (single choice) + cuisines (any number). These bias
 // Otto's pick and where Discover starts; search, filters and your own recipes
 // stay fully yours. Persisted through usePrefs on every tap (best-effort, never
-// blocks the UI); "Save" just confirms the intent already committed.
+// blocks the UI), so "Save" just dismisses — silently.
 export function PreferencesScreen() {
   const router = useRouter();
-  const { show } = useToast();
   const { diet, cuisines, setDiet, toggleCuisine } = usePrefs();
 
-  // Prefs persist on every tap (usePrefs), so Save just confirms the intent
-  // already committed and dismisses — matching Figma's header Save.
   const onBack = () => (router.canGoBack() ? router.back() : router.replace('/profile'));
-  const onSave = () => {
-    show('Noted. Discover follows your taste now.', 'success');
-    onBack();
-  };
 
   return (
     <Screen
       title="Food preferences"
       onBack={onBack}
       right={
-        <Pressable onPress={onSave} hitSlop={8} accessibilityRole="button" accessibilityLabel="Save preferences">
+        <Pressable onPress={onBack} hitSlop={8} accessibilityRole="button" accessibilityLabel="Save preferences">
           <Text role="computed">Save</Text>
         </Pressable>
       }
     >
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={{ gap: space[4] }}>
-        <Text role="caption">
-          These shape Otto&apos;s pick and where Discover starts. Search and the filters stay fully
-          yours, and your own recipes are never filtered.
-        </Text>
-
         <View style={{ gap: space[2] }}>
           <Text role="caption">Diet</Text>
           <View style={styles.card}>
@@ -61,10 +49,6 @@ export function PreferencesScreen() {
               );
             })}
           </View>
-          <Text role="caption">
-            Only the diets Otto&apos;s recipe shelf can honestly tag today — more arrive as richer
-            recipe data lands.
-          </Text>
         </View>
 
         <View style={{ gap: space[2] }}>

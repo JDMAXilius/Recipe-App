@@ -18,17 +18,19 @@ test('nothing leaves for AI without an explicit yes', () => {
 });
 
 test('the sheet names the company, the data, the way out, and a real decline', () => {
-  const text = AI_CONSENT_COPY.body.join(' ');
+  const text = [AI_CONSENT_COPY.lead, ...AI_CONSENT_COPY.bullets, AI_CONSENT_COPY.caption].join(' ');
+  assert.match(text, /Claude/);
   assert.match(text, /Anthropic/);
-  assert.match(text, /words you type/);
-  assert.match(text, /photo/);
-  assert.match(text, /ingredient names/);
-  assert.match(text, /Account › Otto and AI/);
-  assert.match(text, /work either way/);
+  assert.match(text, /photos/);
+  assert.match(text, /Your questions/);
+  assert.match(text, /Ingredient names/);
+  assert.match(text, /Account › AI features/);
   // Anthropic's commercial terms: no training on API customer content.
-  assert.match(text, /doesn’t train its AI/);
+  assert.match(text, /Not used to train AI/);
   assert.equal(AI_CONSENT_COPY.privacyUrl, 'https://ottosapp.com/privacy');
+  assert.equal(AI_CONSENT_COPY.allow, 'Allow');
   assert.equal(AI_CONSENT_COPY.decline, 'Not now');
-  // The Account row is what the sheet points to — they must use the same name.
-  assert.equal(AI_CONSENT_COPY.settingsLabel, 'Otto and AI');
+  // The Account row is what the sheet and the toast point to — same name.
+  assert.equal(AI_CONSENT_COPY.settingsLabel, 'AI features');
+  assert.match(AI_CONSENT_COPY.offToast, /Account › AI features/);
 });

@@ -36,7 +36,7 @@ const SCENES = [
   {
     key: 'cook',
     title: 'Cook it right, every time',
-    body: 'Step-by-step cook mode, serving sizes that scale, and a nutrition estimate for every dish.',
+    body: 'Cook mode, scaling, nutrition. Every dish.',
     cta: 'Continue',
   },
   {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, OttoArt, Screen, Text } from '@/shared/ui';
+import { Button, Screen, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { RecipeInput } from './components/RecipeInput';
 import { useImportFromText, useImportFromUrl, useImportFromPhoto } from './import.queries';
@@ -10,10 +10,10 @@ import { emptyDraft, setDraft } from './draft';
 import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
 import { ensureAiConsent } from '@/shared/aiConsent';
 
-// "Bring in a recipe" — a pushed full SCREEN with a back button (founder call:
-// no longer a bottom modal). Matches the Figma master (213:1667): a 2×2 tile
-// grid — paste a link, paste text, snap a photo, write it myself — over a
-// Chat-with-Otto entry. Every path ALWAYS lands the user in the editor (or the
+// "Add a recipe" — a pushed full SCREEN with a back button (founder call:
+// no longer a bottom modal). A 2×2 tile grid — paste a link, paste text, snap
+// a photo, write it myself — over one Ask Otto button (UX audit 07: no
+// mascot, no captions; the hint lives in the placeholder). Every path ALWAYS lands the user in the editor (or the
 // chat tab): an import failure carries its URL into manual entry, so it never
 // dead-ends.
 export interface AddSheetProps {
@@ -162,19 +162,12 @@ export function AddSheet({ onClose }: AddSheetProps) {
       <ScrollView contentContainerStyle={{ padding: space[4], paddingBottom: space[7], gap: space[4] }}>
       {busy ? (
         <View style={{ paddingVertical: space[5], gap: space[3], alignItems: 'center' }}>
-          <OttoArt name="thinking" size={96} />
+          <ActivityIndicator color={colors.terracotta} />
           <Text role="title">Otto&apos;s reading it…</Text>
-          <Text role="caption">
-            He&apos;ll pull out the ingredients and steps — check his work before it goes on the shelf.
-          </Text>
         </View>
       ) : (
         <View style={{ gap: space[4] }}>
-          <View style={{ alignItems: 'center', gap: space[2] }}>
-            <OttoArt name="happy" size={96} />
-            <Text role="display">Bring in a recipe</Text>
-            <Text role="caption">Found something good? Otto will copy it down.</Text>
-          </View>
+          <Text role="display">Add a recipe</Text>
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[3] }}>
             <Tile icon="link" label="Paste a link" active={mode === 'link'} onPress={() => tap('link')} />
@@ -190,16 +183,13 @@ export function AddSheet({ onClose }: AddSheetProps) {
 
           {mode === 'link' && (
             <View style={{ gap: space[3] }}>
-              <Text role="caption">
-                A recipe page, or a TikTok or Instagram post — Otto reads the ingredients and steps.
-              </Text>
               <RecipeInput
                 value={url}
                 onChangeText={(t) => {
                   setUrl(t);
                   setError(null);
                 }}
-                placeholder="https://…"
+                placeholder="Paste a link (website, TikTok, Instagram)"
                 accessibilityLabel="Recipe link"
                 keyboardType="url"
                 autoFocus
@@ -210,16 +200,13 @@ export function AddSheet({ onClose }: AddSheetProps) {
 
           {mode === 'text' && (
             <View style={{ gap: space[3] }}>
-              <Text role="caption">
-                Paste a recipe from a DM, a note, or an email — Otto sorts it into ingredients and steps.
-              </Text>
               <RecipeInput
                 value={text}
                 onChangeText={(t) => {
                   setText(t);
                   setError(null);
                 }}
-                placeholder="Paste the recipe text here…"
+                placeholder="Paste a recipe from a note, DM or email"
                 accessibilityLabel="Recipe text"
                 multiline
                 autoFocus
@@ -234,27 +221,12 @@ export function AddSheet({ onClose }: AddSheetProps) {
             </View>
           )}
 
-          <View style={{ alignItems: 'center', marginTop: space[1] }}>
-            <Text role="caption">or</Text>
-          </View>
-
-          <View
-            style={{
-              backgroundColor: colors.creamDeep,
-              borderRadius: radii.card,
-              padding: space[4],
-              gap: space[2],
-            }}
-          >
-            <Text role="title">Nothing to bring in?</Text>
-            <Text role="caption">Otto can write you one from scratch.</Text>
-            <Button
-              title="Chat with Otto"
-              onPress={() => router.replace('/create')}
-              variant="primary"
-              size="lg"
-            />
-          </View>
+          <Button
+            title="Ask Otto to write one"
+            onPress={() => router.replace('/create')}
+            variant="secondary"
+            size="lg"
+          />
         </View>
       )}
       </ScrollView>

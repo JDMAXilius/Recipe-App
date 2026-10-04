@@ -4,6 +4,7 @@
 // (no products configured yet, store down, offline) the screen falls back to
 // its honest "opens soon" state — never a broken buy button.
 import { useCallback, useEffect, useState } from 'react';
+import { Linking } from 'react-native';
 import Purchases, { type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
 import { hasClubEntitlement, introTrialDays } from './club.logic';
 
@@ -25,6 +26,15 @@ async function syncedInfo(): Promise<CustomerInfo | null> {
 // The one place the RevenueCat key lives (_layout configures with it). Public
 // App Store SDK key — safe to ship in the binary.
 export const RC_API_KEY = 'appl_BUeOnXkZitkSNMjkCbkTJxicpaN';
+
+// Apple's own subscription sheet in-app; Apple's web page if it can't open.
+// Account's Otto Club row and the delete-account alert both route here.
+const MANAGE_SUBSCRIPTIONS_URL = 'https://apps.apple.com/account/subscriptions';
+export function openManageSubscriptions(): void {
+  void Purchases.showManageSubscriptions().catch(() =>
+    Linking.openURL(MANAGE_SUBSCRIPTIONS_URL).catch(() => {}),
+  );
+}
 
 /**
  * Membership alone — no offerings fetch. Every gated screen in the app mounts

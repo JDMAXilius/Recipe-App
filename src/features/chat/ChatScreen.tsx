@@ -1,9 +1,9 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { BottomTabBarHeightContext } from '@react-navigation/bottom-tabs';
 import { Button, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
@@ -69,8 +69,11 @@ export function ChatScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   // Real tab bar height (safe-area included) — the keyboard offset must clear
-  // exactly this, no more and no less.
-  const tabBarHeight = useBottomTabBarHeight();
+  // exactly this, no more and no less. Read through the context, not
+  // useBottomTabBarHeight(): that hook THROWS outside the tab navigator, and a
+  // deep link (otto://create, otto://chats) can mount this screen there. No tab
+  // bar means nothing to clear, so 0 (UX ticket F1).
+  const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
   const { show } = useToast();
   const { isSignedIn } = useAuth();
   // ?chat=<id> — arriving from Recent chats reopens that thread.
@@ -102,7 +105,7 @@ export function ChatScreen() {
 
   // Speak to Otto (Phase 1): on-device speech streams interim text into the
   // draft; the cook edits and sends like typed text. Where the module or the
-  // Web Speech API is missing, keep v1's warm "coming soon" instead of a dead tap.
+  // Web Speech API is missing, the Composer hides the Speak pill outright.
   const speech = useSpeechInput(setDraft, (kind) => {
     if (kind === 'denied') {
       show('Otto needs the microphone for that. You can allow it in Settings.', 'error');
@@ -131,17 +134,12 @@ export function ChatScreen() {
   }, [draft, listening, stopSpeech, send, toBottom]);
 
   const onSpeak = useCallback(() => {
-    if (!canSpeak) {
-      // No haptic before the guard: a commit-weight thump followed by "coming
-      // soon" tells the hand something happened when nothing did.
-      show('Talking to Otto is coming soon. Type it to him for now.', 'info');
-      return;
-    }
     haptics.select(); // a toggle is a micro-selection (motion.md §2)
     toggleSpeech(draft); // live draft becomes the prefix dictation appends to
-  }, [canSpeak, toggleSpeech, draft, show]);
+  }, [toggleSpeech, draft]);
 
-  // A clarify chip sends a full turn, so it gets the same beat as Send —
+  // A clarify chip (or an empty-state starter) sends a full turn, so it gets
+  // the same beat as Send —
   // otherwise the same user act feels different depending on where it started.
   const onPickChip = useCallback(
     async (option: string) => {
@@ -216,13 +214,12 @@ export function ChatScreen() {
           // composer card; the card's own well below adds the rest.
           contentContainerStyle={{ padding: space[4], paddingBottom: space[5] }}
           keyboardShouldPersistTaps="handled"
-          // Only a real transcript chases its own tail. The empty state GREW
-          // (220pt hero) past small-phone viewports, and this autoscroll was
-          // shoving Otto's head under the header the moment the screen opened.
+          // Only a real transcript chases its own tail: on the empty state this
+          // autoscroll shoved Otto's head under the header on small phones.
           onContentSizeChange={empty ? undefined : toBottom}
         >
           {empty ? (
-            <ChatEmptyState />
+            <ChatEmptyState onPick={onPickChip} />
           ) : (
             <Transcript
               messages={chat.messages}
@@ -244,6 +241,7 @@ export function ChatScreen() {
             onChangeText={setDraft}
             onSend={onSend}
             onSpeak={onSpeak}
+            canSpeak={canSpeak}
             listening={listening}
             sending={isSending}
           />

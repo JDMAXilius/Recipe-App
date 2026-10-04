@@ -26,8 +26,10 @@ export interface ComposerProps {
   value: string;
   onChangeText: (text: string) => void;
   onSend: () => void;
-  /** Toggles dictation. Owns its own toasts (unavailable / denied) — see ChatScreen. */
+  /** Toggles dictation. Owns its own toasts (denied / no speech) — see ChatScreen. */
   onSpeak: () => void;
+  /** Speech recognition exists on this device; false hides the Speak pill. */
+  canSpeak: boolean;
   listening: boolean;
   sending: boolean;
 }
@@ -94,6 +96,7 @@ export function Composer({
   onChangeText,
   onSend,
   onSpeak,
+  canSpeak,
   listening,
   sending,
 }: ComposerProps) {
@@ -120,7 +123,7 @@ export function Composer({
         >
           <Ionicons name="arrow-up" size={22} color={colors.white} />
         </Bounceable>
-      ) : (
+      ) : canSpeak ? (
         <Bounceable
           onPress={onSpeak}
           accessibilityLabel={listening ? 'Stop listening' : 'Speak to Otto'}
@@ -129,7 +132,7 @@ export function Composer({
           <Ionicons name="mic" size={18} color={colors.white} />
           <RNText style={pillLabel}>{listening ? 'Listening' : 'Speak'}</RNText>
         </Bounceable>
-      )}
+      ) : null}
     </View>
   );
 }

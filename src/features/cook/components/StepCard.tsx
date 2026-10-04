@@ -6,7 +6,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { OttoArt, Text } from '@/shared/ui';
+import { OttoArt } from '@/shared/ui';
 import { colors, radii, space, timing } from '@/shared/theme/tokens';
 import { easings } from '@/shared/motion';
 import { segmentStep } from '../stepEnrich';
@@ -26,7 +26,6 @@ interface Props {
 // acting out the step's primary action (deterministic — stepAction).
 export function StepCard({ stepIndex, text, ingredients, onStartTimer }: Props) {
   const segments = segmentStep(text);
-  const hasDuration = segments.some((s) => s.type === 'duration');
 
   // Step-advance transition (v1 ~186-195): fade + a small slide, re-run on each
   // step change (keyed on stepIndex). Reduced motion → static, no animation.
@@ -101,12 +100,6 @@ export function StepCard({ stepIndex, text, ingredients, onStartTimer }: Props) 
           return <RNText key={i}>{seg.text}</RNText>;
         })}
       </RNText>
-
-      {hasDuration && (
-        <View style={{ marginTop: space[3] }}>
-          <Text role="caption">Tap a time to start a timer</Text>
-        </View>
-      )}
 
       <View style={{ alignItems: 'center', marginTop: space[6] }}>
         <OttoArt name={stepActionArt(text)} size={220} />

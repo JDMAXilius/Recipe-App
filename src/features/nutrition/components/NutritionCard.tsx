@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, View } from "react-native";
-import { Text } from "@/shared/ui";
+import { Ionicons } from "@expo/vector-icons";
+import { Sheet, Text } from "@/shared/ui";
 import { colors, macro, radii, space } from "@/shared/theme/tokens";
 import { formatCount } from "@/shared/lib/format";
 import { haptics } from "@/shared/haptics";
@@ -9,20 +10,21 @@ import { useNutrition } from "../nutrition.queries";
 import {
   applyCarbCeiling,
   getNutritionEstimate,
-  estimateCaption,
+  estimateLabel,
   type EstimateKind,
 } from "../estimates";
 import type { NutritionRecipe } from "../nutrition.types";
 
 // The cross-feature nutrition card recipes' detail renders. It owns the whole
 // honesty decision so a consumer only writes <NutritionCard recipe servings />:
-//   computed figure (engine/cache) wins → estimate framing, "rough guide" when
-//   confidence is low; else a labelled CATEGORY estimate (carb-ceiling'd so a
-//   carb-less dish can't show phantom carbs); else "no estimate" — a visible
-//   em-dash on the ring and every macro, NEVER a fabricated 0 (honesty law).
+//   computed figure (engine/cache) wins → "Nutrition · Estimate", "Rough
+//   estimate" when confidence is low; else a labelled CATEGORY estimate
+//   (carb-ceiling'd so a carb-less dish can't show phantom carbs); else no
+//   card at all — NEVER a fabricated 0 (honesty law). The caveat (USDA, not
+//   medical advice) sits one tap away behind the header's (i).
 // v1-fidelity chrome (restored): bordered card, a quiet "per serving ◦ whole
 // recipe" scope toggle (defaults to whole recipe — the number the stepper
-// visibly moves) + a scope sentence, ONE segmented macro bar coloured by the
+// visibly moves), ONE segmented macro bar coloured by the
 // fixed macro palette (protein blue / carbs amber / fat purple), and a legend
 // with grams + "% of cals". Inputs are PER-SERVING; whole recipe = × servings.
 
@@ -40,12 +42,13 @@ export function NutritionCard({
   recipe: NutritionRecipe;
   servings?: number;
 }) {
-  const { data: computed, isLoading } = useNutrition(recipe);
+  const { data: computed } = useNutrition(recipe);
   // Defaults to whole recipe (founder call): people reach for the servings
   // stepper and expect the number to move with it. Per-serving correctly does
   // NOT — cooking for 8 instead of 4 doubles the pot, not the plate — so it
   // stays one tap away as the honest dish-to-dish comparable.
   const [scope, setScope] = useState<"serving" | "recipe">("recipe");
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   // Category fallback only when we have a category to judge by — no category and
   // no computed figure is honestly "no estimate", not the 420-kcal default.
@@ -58,7 +61,6 @@ export function NutritionCard({
 
   let kind: EstimateKind;
   let perServing: Macros | null;
-  let basisGrams: number | null = null;
   if (computed) {
     kind = computed.confidence === "low" ? "computed-low" : "computed";
     perServing = {
@@ -67,7 +69,6 @@ export function NutritionCard({
       carbs: computed.carbs_g,
       fat: computed.fat_g,
     };
-    basisGrams = computed.basis_grams ?? null;
   } else if (estimate) {
     kind = "category";
     perServing = {
@@ -109,7 +110,9 @@ export function NutritionCard({
     setScope(next);
   };
 
-  const servingWord = servings === 1 ? "serving" : "servings";
+  // No estimate at all → no card (no empty-state text). Loading included: the
+  // card appears once there's something honest to show.
+  if (kind === "none") return null;
 
   return (
     // NOT `accessible` on the container — that collapses children into one node,
@@ -124,18 +127,24 @@ export function NutritionCard({
         gap: space[3],
       }}
     >
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+        <Text role="title">{estimateLabel(kind)}</Text>
+        <Pressable
+          onPress={() => setAboutOpen(true)}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="About these numbers"
+        >
+          <Ionicons name="information-circle-outline" size={20} color={colors.inkSoft} />
+        </Pressable>
+      </View>
+
       {/* Scope toggle — quiet words, no switch chrome */}
       <View style={{ flexDirection: "row", alignItems: "center", gap: space[2] }}>
         <ScopeWord label="per serving" active={scope === "serving"} onPress={() => toggleScope("serving")} a11y="Show per serving" />
         <Text role="caption">◦</Text>
         <ScopeWord label="whole recipe" active={scope === "recipe"} onPress={() => toggleScope("recipe")} a11y="Show the whole recipe" />
       </View>
-      <Text role="caption">
-        {scope === "serving"
-          ? `Per serving, at ${servings} ${servingWord}` +
-            (basisGrams ? ` · about ${Math.round(basisGrams)}g each` : "")
-          : `The whole recipe, at ${servings} ${servingWord}`}
-      </Text>
 
       <View style={{ flexDirection: "row", alignItems: "center", gap: space[4] }}>
         <CalorieRing kcal={kcal} label="est. kcal" />
@@ -178,22 +187,17 @@ export function NutritionCard({
         </View>
       </View>
 
-      {/* The ONE place nutrition is qualified. */}
-      <Text role="caption">{isLoading ? "Estimating…" : estimateCaption(kind)}</Text>
-
       {/* A7 + A8 (ticket §Section A). USDA data is public domain, but the
           attribution and the "not endorsed" wording still have to appear
           wherever nutrition is explained — and an app that prints calorie
-          numbers has to say out loud that they are not dietary advice. This
-          card is the only surface that shows macros, so this is the only
-          place it needs saying. Hidden while loading: a disclaimer under a
-          spinner qualifies nothing. */}
-      {isLoading || kind === "none" ? null : (
-        <Text role="caption">
+          numbers has to say out loud that they are not dietary advice. One tap
+          from the number, behind the header's (i). */}
+      <Sheet visible={aboutOpen} onClose={() => setAboutOpen(false)} title="About these numbers">
+        <Text role="body">
           Numbers are worked out from USDA FoodData Central, a public database. Otto isn’t
           endorsed by the USDA, and an estimate isn’t dietary or medical advice.
         </Text>
-      )}
+      </Sheet>
     </View>
   );
 }

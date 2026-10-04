@@ -632,7 +632,7 @@ export function ShoppingScreen() {
 
             {total > 0 && (
               <RNText style={styles.countHeader}>
-                {allDone ? 'All in the basket.' : `${done} of ${total} in the basket`}
+                {allDone ? 'All in the basket.' : `${done} of ${total}`}
               </RNText>
             )}
 
@@ -696,10 +696,8 @@ export function ShoppingScreen() {
               // Genuinely nothing planned.
               <View style={styles.empty}>
                 <OttoIdle name="thinking" size={120} sway />
-                <Text role="body">
-                  Nothing to buy yet. Put a dish or two on Otto&apos;s week and build the list from
-                  there.
-                </Text>
+                <Text role="title">Nothing to buy yet</Text>
+                <Text role="body">Plan a dish and it lands here.</Text>
               </View>
             ) : items.length === 0 && allItems.length > 0 ? (
               // The week HAS ingredients — the shopper has taken every one off.
@@ -708,10 +706,7 @@ export function ShoppingScreen() {
               // points at the restore line above.
               <View style={styles.empty}>
                 <OttoIdle name="thinking" size={120} sway />
-                <Text role="body">
-                  You&apos;ve taken everything off this list. The dishes are still on the week —
-                  tap &ldquo;Show them&rdquo; above to put the ingredients back.
-                </Text>
+                <Text role="body">Everything&apos;s hidden.</Text>
               </View>
             ) : (
               grouped.map((group) => (

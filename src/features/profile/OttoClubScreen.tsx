@@ -188,7 +188,7 @@ export function OttoClubScreen() {
               accessibilityLabel="Delete my account"
               hitSlop={8}
             >
-              <RNText style={styles.legal}>{del.armed ? 'Tap again to delete' : 'Delete account'}</RNText>
+              <RNText style={styles.legal}>Delete account</RNText>
             </Pressable>
           </View>
         ) : null}

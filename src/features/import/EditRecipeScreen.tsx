@@ -10,7 +10,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, OttoArt, Text, useToast } from '@/shared/ui';
+import { Button, OttoArt, Sheet, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
@@ -36,7 +36,7 @@ import {
 } from './import.queries';
 
 // ONE editor, two fill states (Crouton pattern): import-review arrives
-// pre-filled ("Did Otto get this right?"), manual arrives blank. Steps are
+// pre-filled ("Review import"), manual arrives blank. Steps are
 // optional at save. Provenance is read-only — attribution never edits away.
 // Loads from three sources, in order: an ?id= (edit an existing row) → the
 // hand-off draft slot (import / write-it-myself from AddSheet) → blank manual.
@@ -97,6 +97,12 @@ const photoDrop: ViewStyle = {
   gap: space[1],
 };
 
+// "allrecipes.com" from "https://www.allrecipes.com/recipe/…"; null if unparseable.
+function sourceDomain(url: string): string | null {
+  const m = /^https?:\/\/(?:www\.)?([^/?#:]+)/i.exec(url.trim());
+  return m ? m[1].toLowerCase() : null;
+}
+
 export function EditRecipeScreen() {
   const router = useRouter();
   const { show } = useToast();
@@ -124,6 +130,9 @@ export function EditRecipeScreen() {
   }, [editId, draftQuery.data, baseline]);
 
   const [armDelete, setArmDelete] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  // The picture-link field hides behind the Add photo tap (UX audit 07).
+  const [photoTapped, setPhotoTapped] = useState(false);
 
   if (!form) {
     return (
@@ -166,6 +175,7 @@ export function EditRecipeScreen() {
   // renders). Library-only, matching the "choose from your library" copy; the
   // PHOTO LINK field below stays for pasting a picture URL instead.
   const addPhoto = async () => {
+    setPhotoTapped(true);
     const picked = await pickFromLibrary({ base64: true });
     if (!picked) return; // cancelled or permission denied — no error to throw
     if (!picked.base64) {
@@ -223,7 +233,7 @@ export function EditRecipeScreen() {
     }
   };
 
-  const heading = form.mode === 'edit' ? 'Edit recipe' : form.mode === 'import' ? "Check Otto's work" : 'New recipe';
+  const heading = form.mode === 'edit' ? 'Edit recipe' : form.mode === 'import' ? 'Review import' : 'New recipe';
 
   return (
     <KeyboardAvoidingView
@@ -248,7 +258,7 @@ export function EditRecipeScreen() {
           <Text role="display">{heading}</Text>
         </View>
 
-        {/* Manual creation and edit — not import review ("Check Otto's work"). */}
+        {/* Manual creation and edit — not import review ("Review import"). */}
         {form.mode !== 'import' && (
           <Pressable
             accessibilityRole="button"
@@ -268,22 +278,28 @@ export function EditRecipeScreen() {
         )}
 
         {form.mode === 'import' && (
-          <View style={{ marginBottom: space[4], gap: space[2] }}>
-            <Text role="body">
-              {form.source === 'otto'
-                ? 'Otto dreamed this one up. Tweak anything, then save it to the shelf.'
-                : 'Did Otto get this right? Fix anything that reads oddly, then save it.'}
-            </Text>
-            {/* A8 (ticket §Section A): every recipe on this screen was written
-                or read by a machine. Allergens and food safety are the cook's
-                call, and that has to be said here — where the AI's work is
-                being reviewed — not only in the Terms nobody opens. */}
-            <Text role="caption">
-              Otto can misread an ingredient or a temperature. Check anything that matters —
-              allergies, raw eggs, cooking temperatures — before you cook it.
-            </Text>
-          </View>
+          <Pressable
+            onPress={() => setAboutOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel="AI-read. Check amounts and temperatures. More info"
+            hitSlop={8}
+            style={[rowStyle, { marginBottom: space[4], alignSelf: 'flex-start' }]}
+          >
+            <Text role="caption">AI-read · check amounts and temperatures</Text>
+            <Ionicons name="information-circle-outline" size={18} color={colors.inkSoft} />
+          </Pressable>
         )}
+        {/* A8 (ticket §Section A): every recipe on this screen was written or
+            read by a machine. Allergens and food safety are the cook's call, and
+            that has to be said here — where the AI's work is being reviewed —
+            not only in the Terms nobody opens. One line + (i), the full warning
+            in the sheet. */}
+        <Sheet visible={aboutOpen} onClose={() => setAboutOpen(false)} title="AI-read">
+          <Text role="body">
+            Otto can misread an ingredient or a temperature. Check anything that matters —
+            allergies, raw eggs, cooking temperatures — before you cook it.
+          </Text>
+        </Sheet>
 
         <RecipeInput
           value={form.title}
@@ -315,30 +331,31 @@ export function EditRecipeScreen() {
             onPress={addPhoto}
             disabled={uploadMut.isPending}
             accessibilityRole="button"
-            accessibilityLabel="Upload a photo of the dish"
+            accessibilityLabel="Add photo"
           >
             <Ionicons
               name={uploadMut.isPending ? 'cloud-upload-outline' : 'camera-outline'}
               size={26}
               color={colors.terracotta}
             />
-            <Text role="computed">
-              {uploadMut.isPending ? 'Uploading…' : 'Upload a photo of the dish'}
-            </Text>
-            <Text role="caption">Tap to choose from your library</Text>
+            <Text role="computed">{uploadMut.isPending ? 'Uploading…' : 'Add photo'}</Text>
           </Pressable>
         )}
 
-        <View style={{ marginTop: space[3], marginBottom: space[2] }}>
-          <Text role="caption">Or paste a link to a picture</Text>
-        </View>
-        <RecipeInput
-          value={form.image}
-          onChangeText={(t) => patch({ image: t })}
-          placeholder="https://… a picture of the dish"
-          accessibilityLabel="Photo link"
-          keyboardType="url"
-        />
+        {(photoTapped || form.image.trim() !== '') && (
+          <>
+            <View style={{ marginTop: space[3], marginBottom: space[2] }}>
+              <Text role="caption">Or paste a link to a picture</Text>
+            </View>
+            <RecipeInput
+              value={form.image}
+              onChangeText={(t) => patch({ image: t })}
+              placeholder="https://… a picture of the dish"
+              accessibilityLabel="Photo link"
+              keyboardType="url"
+            />
+          </>
+        )}
 
         <RecipeInput
           value={form.category}
@@ -465,17 +482,11 @@ export function EditRecipeScreen() {
           <Text role="computed">Add step</Text>
         </Pressable>
 
-        {form.sourceUrl != null ? (
+        {form.sourceUrl != null && (
           <View style={{ marginTop: space[5] }}>
-            <Text role="caption">
-              From {form.sourceName ?? form.sourceUrl}. The credit stays with the recipe.
-            </Text>
+            <Text role="caption">Source: {sourceDomain(form.sourceUrl) ?? form.sourceName ?? form.sourceUrl}</Text>
           </View>
-        ) : form.source === 'otto' ? (
-          <View style={{ marginTop: space[5] }}>
-            <Text role="caption">Cooked up with Otto. Checked and kept by you.</Text>
-          </View>
-        ) : null}
+        )}
 
         <View style={{ marginTop: space[6], gap: space[3] }}>
           <Button
@@ -484,7 +495,9 @@ export function EditRecipeScreen() {
                 ? 'Saving…'
                 : editId != null
                   ? 'Save changes'
-                  : 'Save to my cookbook'
+                  : form.mode === 'import'
+                    ? 'Looks right, save'
+                    : 'Save to my cookbook'
             }
             onPress={save}
             variant="primary"

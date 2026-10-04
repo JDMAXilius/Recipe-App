@@ -149,9 +149,7 @@ export function VideoEmbed({ youtubeUrl }: { youtubeUrl: string | null }) {
         >
           <Text role="computed">Not playing? Watch on YouTube →</Text>
         </Pressable>
-      ) : (
-        <Text role="caption">Watch this one being made before you start.</Text>
-      )}
+      ) : null}
     </View>
   );
 }
