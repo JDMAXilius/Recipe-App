@@ -11,9 +11,9 @@ free tier and no inbox screen. Do these the day 1.0.20 is submitted / goes live.
 
 ## At submission (App Store Connect)
 - [x] **Version numbering (2026-10-04, Juan: replace 41 in review):** the hard paywall + UX audit
-      shipped as **1.0.19 build 46** (in review). Build 45 (1.0.20) was expired: TestFlight only shows the
-      highest version string, so a stray 1.0.20 hid 46. Rule: stay on `1.0.19` for any fix build (47+) until
-      Apple approves; only then set `expo.version` to `1.0.20` for the next release.
+      shipped as 1.0.19 build 46, then renumbered by Juan to **1.0.21 build 47** (in review). Build 45 (1.0.20) was expired: TestFlight only shows the
+      highest version string, so a stray 1.0.20 hid 46. Rule: stay on `1.0.21` for any fix build (48+) until
+      Apple approves; only then bump `expo.version` (1.0.22) for the next release.
 - [ ] **If the UX ticket's consent rework lands (item 10: "Account › AI features")**, rename
       everywhere in the same release, because Apple compares the reply/notes with the app:
       `AI_CONSENT_COPY.settingsLabel` and `offToast` (and `aiConsent.logic.test.mjs`, which pins
