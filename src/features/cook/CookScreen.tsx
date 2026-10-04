@@ -13,6 +13,7 @@ import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, OttoArt, OttoError, Sheet, Text, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
@@ -639,8 +640,10 @@ export function CookScreen() {
 
 // --- small local chrome (nothing a shared primitive covers) ------------------
 function Header({ left, title, right }: { left?: React.ReactNode; title: string; right?: React.ReactNode }) {
+  // Cook mode is full-screen with no navigator header, so clear the status bar / Dynamic Island here.
+  const insets = useSafeAreaInsets();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space[4], paddingTop: space[3], paddingBottom: space[2] }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space[4], paddingTop: insets.top + space[3], paddingBottom: space[2] }}>
       <View style={{ width: 44 }}>{left}</View>
       <Text role="title">{title}</Text>
       <View style={{ width: 44, alignItems: 'flex-end' }}>{right}</View>
