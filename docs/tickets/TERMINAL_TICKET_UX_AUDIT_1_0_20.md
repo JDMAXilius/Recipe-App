@@ -1,5 +1,9 @@
 # UX audit → 1.0.20: trim, rework, fix (Claude Code ticket)
 
+> **Budget:** the copy and fixes are already decided below; implement, don't re-research.
+> Open `plan.html` once for a screen you're on, not all of it. Read only the file each item
+> names. Run `tsc`/lint/tests once at the end, not per item. Skip Mobbin.
+
 Written 2026-10-04 from a full walk of the app on the simulator plus Mobbin references.
 **Owner: Claude Code (implementation).** The visual plan with every screenshot, side by
 side with the references, is `docs/ux-audit-2026-10-04/plan.html` (open in a browser) and

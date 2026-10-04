@@ -1,5 +1,8 @@
 # Release checklist: Otto 1.0.20 (after 1.0.19 is approved)
 
+> **Budget:** checklist only. Read nothing outside the files and dashboards named here; no
+> re-audit (`docs/audit/2026-10-04-AUDIT.md` is done); one verification run per step; short logs.
+
 1.0.20 = builds 43–44+: native Google sign-in, private Facebook session, onboarding on the
 account, sign up → onboarding → hard paywall, Sign in with Apple revocation on delete,
 subscriber delete step, email-confirmation inbox screen, lean hard paywall (no skip).

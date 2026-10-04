@@ -50,6 +50,21 @@ git fetch && git pull --rebase   # never skip; the other session pushes to main 
 All boxes checked → change the STATUS line to `> STATUS: done — <side> <date>`, add the
 closing Log entry, update `docs/history/REDESIGN_NOTES.md` if the ticket asked for it, push.
 
+## Token discipline (founder rule, 2026-10-04)
+
+A ticket is a checklist, not an invitation to re-audit. Spend tokens on the boxes, nothing else.
+- Read only what the ticket names. No repo-wide reads, no "understanding the codebase" pass,
+  no re-deriving decisions already written in the ticket or `docs/audit/`.
+- Don't spawn subagents for a ticket unless the ticket says to. One session, top to bottom.
+- Use targeted tools (`Grep`, `Read` with offsets, one command at a time). Never `cat` a big
+  file or dump logs into the transcript; pipe to `tail`/`grep`.
+- Verification is the listed command once, not tsc/lint/tests after every edit.
+- Log entries: dated, 1–3 lines each, facts only (commit, result, what the live page shows).
+- Stop when the boxes are checked or a blocker is logged. Don't continue into adjacent work;
+  write a `> HANDOFF → cloud:` line instead.
+- If a ticket looks like it needs more than ~2 hours of work it was written wrong: log that
+  and stop rather than grinding.
+
 ## Rules
 
 - Never delete or rewrite ticket bodies — append. The ticket file is the shared thread.
