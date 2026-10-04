@@ -5,7 +5,10 @@
 // storage photos, then the auth user in that order.
 import { supabase } from '@/shared/supabase/client';
 
-export async function deleteAccount(): Promise<void> {
-  const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+export async function deleteAccount(appleAuthorizationCode?: string): Promise<void> {
+  const { error } = await supabase.functions.invoke('delete-account', {
+    method: 'POST',
+    body: appleAuthorizationCode ? { appleAuthorizationCode } : {},
+  });
   if (error) throw error;
 }

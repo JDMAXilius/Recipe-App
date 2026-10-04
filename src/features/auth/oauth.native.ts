@@ -112,3 +112,16 @@ export async function nativeGoogleSignIn(): Promise<void> {
 export async function nativeGoogleSignOut(): Promise<void> {
   await GoogleSignin.signOut().catch(() => {});
 }
+
+// For account deletion: a fresh Sign in with Apple authorization code, so the
+// server can revoke this user's Apple tokens (Apple requires it for SIWA apps).
+// null = the user closed the sheet.
+export async function appleAuthorizationCode(): Promise<string | null> {
+  try {
+    const cred = await AppleAuthentication.signInAsync({ requestedScopes: [] });
+    return cred.authorizationCode ?? null;
+  } catch (err) {
+    if ((err as { code?: string })?.code === 'ERR_REQUEST_CANCELED') return null;
+    throw err;
+  }
+}

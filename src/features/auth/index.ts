@@ -17,3 +17,4 @@ export {
   type AuthMode,
 } from './social';
 export { displayNameFor, hasUsername, cleanUsername, MAX_USERNAME } from './username';
+export { appleAuthorizationCode } from './oauth';

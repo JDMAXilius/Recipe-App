@@ -24,3 +24,7 @@ export async function nativeGoogleSignIn(): Promise<void> {
 }
 
 export async function nativeGoogleSignOut(): Promise<void> {}
+
+export async function appleAuthorizationCode(): Promise<string | null> {
+  return null; // web has no Apple sheet; revocation is native-only
+}

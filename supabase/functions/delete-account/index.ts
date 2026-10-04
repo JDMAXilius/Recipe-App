@@ -65,6 +65,66 @@ async function deleteRevenueCatSubscriber(userId: string): Promise<boolean> {
   }
 }
 
+// Sign in with Apple token revocation — Apple requires apps offering SIWA to
+// revoke the user's tokens when they delete their account. The app sends a
+// fresh authorization code (one Apple sheet tap); we exchange it for a refresh
+// token and revoke that. Best-effort like the steps above: a revocation hiccup
+// must not leave the account half-deleted. Secrets (Supabase function env):
+// APPLE_SIWA_KEY (.p8 contents), APPLE_SIWA_KEY_ID, APPLE_TEAM_ID, APPLE_CLIENT_ID.
+const b64url = (b: ArrayBuffer | Uint8Array | string) =>
+  btoa(typeof b === "string" ? b : String.fromCharCode(...new Uint8Array(b as ArrayBuffer)))
+    .replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+
+async function appleClientSecret(): Promise<{ secret: string; clientId: string } | null> {
+  const pem = Deno.env.get("APPLE_SIWA_KEY");
+  const kid = Deno.env.get("APPLE_SIWA_KEY_ID");
+  const team = Deno.env.get("APPLE_TEAM_ID");
+  const clientId = Deno.env.get("APPLE_CLIENT_ID");
+  if (!pem || !kid || !team || !clientId) return null;
+  const der = Uint8Array.from(atob(pem.replace(/-----[^-]+-----|\s/g, "")), (c) => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey("pkcs8", der, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  const now = Math.floor(Date.now() / 1000);
+  const input = `${b64url(JSON.stringify({ alg: "ES256", kid }))}.${b64url(
+    JSON.stringify({ iss: team, iat: now, exp: now + 300, aud: "https://appleid.apple.com", sub: clientId }),
+  )}`;
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, new TextEncoder().encode(input));
+  return { secret: `${input}.${b64url(sig)}`, clientId };
+}
+
+async function revokeAppleTokens(code: string): Promise<boolean> {
+  try {
+    const creds = await appleClientSecret();
+    if (!creds) return false; // not configured
+    const form = (o: Record<string, string>) => new URLSearchParams(o);
+    const tokenRes = await fetch("https://appleid.apple.com/auth/token", {
+      method: "POST",
+      body: form({ grant_type: "authorization_code", code, client_id: creds.clientId, client_secret: creds.secret }),
+      signal: AbortSignal.timeout(8000),
+    });
+    const tokens = await tokenRes.json();
+    const token = tokens.refresh_token ?? tokens.access_token;
+    if (!token) {
+      console.error("apple revoke: token exchange failed", tokenRes.status, tokens.error);
+      return false;
+    }
+    const revokeRes = await fetch("https://appleid.apple.com/auth/revoke", {
+      method: "POST",
+      body: form({
+        client_id: creds.clientId,
+        client_secret: creds.secret,
+        token,
+        token_type_hint: tokens.refresh_token ? "refresh_token" : "access_token",
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!revokeRes.ok) console.error("apple revoke failed", revokeRes.status);
+    return revokeRes.ok;
+  } catch (error) {
+    console.error("apple revoke failed", (error as Error).message);
+    return false;
+  }
+}
+
 Deno.serve(async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
@@ -95,10 +155,17 @@ Deno.serve(async (req) => {
     // same reasoning as photos: after deleteUser, nothing can re-derive the id.
     const revenueCatDeleted = await deleteRevenueCatSubscriber(userId);
 
+    // Apple account? Revoke its Sign in with Apple tokens (code from the app).
+    let appleRevoked: boolean | null = null;
+    const body = await req.json().catch(() => ({}));
+    if (typeof body?.appleAuthorizationCode === "string" && body.appleAuthorizationCode) {
+      appleRevoked = await revokeAppleTokens(body.appleAuthorizationCode);
+    }
+
     // Only once the data is safely gone do we drop the login.
     const { error: authError } = await admin.auth.admin.deleteUser(userId);
 
-    return json(200, { dataDeleted: true, authUserDeleted: !authError, photosDeleted, revenueCatDeleted });
+    return json(200, { dataDeleted: true, authUserDeleted: !authError, photosDeleted, revenueCatDeleted, appleRevoked });
   } catch (error) {
     console.error("delete account failed", (error as Error).message);
     return json(500, { error: "Something went wrong" });

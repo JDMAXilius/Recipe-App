@@ -23,7 +23,7 @@ import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { AI_CONSENT_COPY, useAiConsent } from '@/shared/aiConsent';
-import { useAuth, displayNameFor, hasUsername, cleanUsername, MAX_USERNAME } from '@/features/auth';
+import { useAuth, displayNameFor, hasUsername, cleanUsername, MAX_USERNAME, appleAuthorizationCode } from '@/features/auth';
 import { useSaved, useMyRecipes } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
 import { usePrefs } from './usePrefs';
@@ -158,7 +158,20 @@ export function ProfileScreen() {
     }
     setDeleting(true);
     try {
-      await deleteAccount();
+      // Signed in with Apple: one Apple sheet tap so the server can revoke the
+      // Apple tokens (required for Sign in with Apple apps).
+      const viaApple = (user?.identities ?? []).some((i) => i.provider === 'apple');
+      let appleCode: string | undefined;
+      if (viaApple && Platform.OS === 'ios') {
+        const code = await appleAuthorizationCode();
+        if (!code) {
+          show('Confirm with Apple to finish deleting your account.', 'info');
+          setDeleting(false);
+          return;
+        }
+        appleCode = code;
+      }
+      await deleteAccount(appleCode);
       show("Everything's deleted. Otto will miss you.", 'success');
       await signOut();
     } catch {
