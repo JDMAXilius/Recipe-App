@@ -1,6 +1,6 @@
 # Release checklist: Otto 1.0.20 (after 1.0.19 is approved)
 
-> **URGENT 2026-10-05 — do now, while 1.0.21 (48) is in review.** Juan's TestFlight purchase:
+> **URGENT 2026-10-05 → now its own ticket: `TERMINAL_TICKET_PURCHASE_TRANSFER_FIX.md`.** Juan's TestFlight purchase:
 > Apple said "You're all set", the app said "didn't go through (7)". Code 7 =
 > `RECEIPT_ALREADY_IN_USE_ERROR`: his Apple ID's Otto Club belongs to an older Otto account,
 > and RevenueCat's **sandbox transfer behavior is "Keep with original App User ID"** (set as a

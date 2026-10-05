@@ -264,6 +264,6 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 - Swapped to **1.0.21 build 48** (cook-mode header fix after the visual check).
 
 ## 2026-10-05 — Purchase stuck on build 48 (code 7)
-- Cause: RevenueCat sandbox transfer behavior "Keep with original App User ID" + an Apple ID whose subscription belongs to an older Otto account → `RECEIPT_ALREADY_IN_USE_ERROR`. Risk for review: reused reviewer sandbox IDs. **Fix now (dashboard): sandbox transfer → "Transfer to new App User ID"**, then Restore. Steps in the release ticket's URGENT block.
+- Cause: RevenueCat sandbox transfer behavior "Keep with original App User ID" + an Apple ID whose subscription belongs to an older Otto account → `RECEIPT_ALREADY_IN_USE_ERROR`. Risk for review: reused reviewer sandbox IDs. **Fix now (dashboard): sandbox transfer → "Transfer to new App User ID"**, then Restore. Ticket: `TERMINAL_TICKET_PURCHASE_TRANSFER_FIX.md` (also carries the website "AI features" rename).
 - Code on `main` (next build): plain-language purchase/restore errors, no bare codes.
 
