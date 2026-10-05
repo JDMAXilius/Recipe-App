@@ -2,7 +2,13 @@
 // Run: node --test src/features/profile/club.logic.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { introTrialDays, hasClubEntitlement, CLUB_ENTITLEMENT } from './club.logic.ts';
+import {
+  CLUB_ENTITLEMENT,
+  LINKED_ELSEWHERE,
+  hasClubEntitlement,
+  introTrialDays,
+  purchaseErrorMessage,
+} from './club.logic.ts';
 
 test('introTrialDays: free intro offers convert to days', () => {
   assert.equal(introTrialDays({ price: 0, periodUnit: 'WEEK', periodNumberOfUnits: 1 }), 7);
@@ -26,3 +32,16 @@ test('hasClubEntitlement: only an active club entitlement counts', () => {
     true,
   );
 });
+
+test('purchase errors read as sentences, never as bare codes', () => {
+  // 7 = RECEIPT_ALREADY_IN_USE (build 48, 2026-10-05): the Apple ID's
+  // subscription belongs to another Otto account.
+  assert.equal(purchaseErrorMessage('7'), LINKED_ELSEWHERE);
+  assert.equal(purchaseErrorMessage('13'), LINKED_ELSEWHERE);
+  assert.match(purchaseErrorMessage('6'), /Restore/);
+  assert.match(purchaseErrorMessage('10'), /connection/);
+  for (const code of ['0', '7', '99', undefined]) {
+    assert.doesNotMatch(purchaseErrorMessage(code), /\(\d+\)/);
+  }
+});
+

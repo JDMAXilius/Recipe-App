@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { useClub } from './club.purchases';
+import { purchaseErrorMessage } from './club.logic';
 import { useDeleteAccount } from './useDeleteAccount';
 import { useAuth } from '@/features/auth';
 
@@ -60,12 +61,13 @@ export function OttoClubScreen() {
     else if (result === 'unconfirmed')
       show("Apple confirmed it, but it hasn't unlocked yet. Tap Restore.", 'info');
     else if (result === 'pending') show('Waiting for Apple to approve the purchase.', 'info');
-    else if (typeof result === 'object')
-      show(`The purchase didn't go through (${result.error}).`, 'error');
+    else if (typeof result === 'object') show(purchaseErrorMessage(result.error), 'error');
   };
   const onRestore = async () => {
-    if (await club.restore()) goHome();
-    else show('No Otto Club membership found on this Apple ID.', 'info');
+    const result = await club.restore();
+    if (result === 'ok') goHome();
+    else if (result === 'none') show('No Otto Club membership found on this Apple ID.', 'info');
+    else show(purchaseErrorMessage(result.error), 'error');
   };
 
   return (

@@ -12,6 +12,8 @@ import { hasClubEntitlement, introTrialDays } from './club.logic';
 // after a sync. Never call that a success: the 2026-10-02 sandbox test charged a
 // trial and unlocked nothing, while the old code said "Welcome to the Club".
 export type BuyResult = 'ok' | 'unconfirmed' | 'pending' | 'cancelled' | { error: string };
+/** 'none' = nothing to restore on this Apple ID; error carries the RevenueCat code. */
+export type RestoreResult = 'ok' | 'none' | { error: string };
 
 // A purchase can complete at Apple while RevenueCat's copy of it lags or failed to
 // post. Pull Apple's transactions into RevenueCat and re-read before giving up.
@@ -113,20 +115,24 @@ export function useClub() {
       if (synced) setInfo(synced);
       if (hasClubEntitlement(synced)) return 'ok';
       console.warn('[club] purchase failed', err.code, err.readableErrorCode, err.message);
-      return { error: err.readableErrorCode ?? err.code ?? 'unknown' };
+      return { error: err.code ?? 'unknown' };
     } finally {
       setPurchasing(false);
     }
   }, []);
 
-  const restore = useCallback(async (): Promise<boolean> => {
+  const restore = useCallback(async (): Promise<RestoreResult> => {
     try {
       let customerInfo: CustomerInfo | null = await Purchases.restorePurchases();
       if (!hasClubEntitlement(customerInfo)) customerInfo = (await syncedInfo()) ?? customerInfo;
       setInfo(customerInfo);
-      return hasClubEntitlement(customerInfo);
-    } catch {
-      return false;
+      return hasClubEntitlement(customerInfo) ? 'ok' : 'none';
+    } catch (e) {
+      // A restore can fail for a reason worth naming (the subscription belongs
+      // to another Otto account, no network) — "nothing found" would be a lie.
+      const err = e as { code?: string; message?: string };
+      console.warn('[club] restore failed', err.code, err.message);
+      return { error: err.code ?? 'unknown' };
     }
   }, []);
 

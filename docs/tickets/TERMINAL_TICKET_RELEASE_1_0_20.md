@@ -1,5 +1,19 @@
 # Release checklist: Otto 1.0.20 (after 1.0.19 is approved)
 
+> **URGENT 2026-10-05 — do now, while 1.0.21 (48) is in review.** Juan's TestFlight purchase:
+> Apple said "You're all set", the app said "didn't go through (7)". Code 7 =
+> `RECEIPT_ALREADY_IN_USE_ERROR`: his Apple ID's Otto Club belongs to an older Otto account,
+> and RevenueCat's **sandbox transfer behavior is "Keep with original App User ID"** (set as a
+> testing aid, line below), so RevenueCat refuses to give it to the new account. Apple's
+> reviewers reuse sandbox Apple IDs that bought Otto Club in earlier reviews (builds 40/41/46),
+> so a reviewer can hit the same wall behind the hard paywall.
+> - [ ] RevenueCat → Project settings → **Transfer behavior (sandbox): "Transfer to new App User ID"**,
+>       the same as production. (Dashboard only; no build.)
+> - [ ] Juan: in the app tap **Restore** on the Otto Club screen → the subscription moves to
+>       this account and the app opens. Log the result.
+> - Code (next build): error codes now read as sentences; Restore reports a real failure instead
+>   of "No membership found" (`club.logic.ts` `purchaseErrorMessage`, tested).
+
 > **Budget:** checklist only. Read nothing outside the files and dashboards named here; no
 > re-audit (`docs/audit/2026-10-04-AUDIT.md` is done); one verification run per step; short logs.
 
@@ -64,8 +78,7 @@ trial; paste those at submission.
 - [ ] Website: merge `w6-hard-paywall` (Terms §4 + support FAQ subscription-only copy).
 - [ ] Supabase → Auth → Sign In / Providers → **Confirm email: ON** (1.0.20 has the inbox
       screen; old builds don't).
-- [ ] RevenueCat sandbox transfer behavior is "Keep with original App User ID" (testing aid,
-      sandbox only). Fine to leave; production stays "Transfer to new App User ID".
+- [ ] ~~RevenueCat sandbox transfer behavior "Keep with original App User ID"~~ — **change it** (see URGENT above): it strands a reviewer's reused sandbox Apple ID.
 
 ## Already done (2026-10-03/04)
 Google Cloud iOS client + consent screen In production; Supabase Google client IDs + skip

@@ -262,3 +262,8 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 - Functions deployed 2026-10-04 (all 5, gate off; unauthenticated calls → 401). Open (Juan): `REQUIRE_CLUB=on` AFTER approval (verify 402/200); push Otto_Website main (W6 merged locally); leaked-password protection needs Pro plan.
 - Renumbered (Juan): resubmitted as **1.0.21 build 47** (same code as 46). Build 45 (1.0.20) expired; testers get builds via the auto group "Otto Team (auto)".
 - Swapped to **1.0.21 build 48** (cook-mode header fix after the visual check).
+
+## 2026-10-05 — Purchase stuck on build 48 (code 7)
+- Cause: RevenueCat sandbox transfer behavior "Keep with original App User ID" + an Apple ID whose subscription belongs to an older Otto account → `RECEIPT_ALREADY_IN_USE_ERROR`. Risk for review: reused reviewer sandbox IDs. **Fix now (dashboard): sandbox transfer → "Transfer to new App User ID"**, then Restore. Steps in the release ticket's URGENT block.
+- Code on `main` (next build): plain-language purchase/restore errors, no bare codes.
+
