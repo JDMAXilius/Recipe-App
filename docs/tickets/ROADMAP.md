@@ -267,3 +267,6 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 - Cause: RevenueCat sandbox transfer behavior "Keep with original App User ID" + an Apple ID whose subscription belongs to an older Otto account → `RECEIPT_ALREADY_IN_USE_ERROR`. Risk for review: reused reviewer sandbox IDs. **Fix now (dashboard): sandbox transfer → "Transfer to new App User ID"**, then Restore. Ticket: `TERMINAL_TICKET_PURCHASE_TRANSFER_FIX.md` (also carries the website "AI features" rename).
 - Code on `main` (next build): plain-language purchase/restore errors, no bare codes.
 
+
+## 2026-10-05 — Purchase code 7 (receipt already in use)
+- RevenueCat sandbox transfer now follows production (Transfer to new App User ID). Website rename already live. Waiting on Juan: Restore on build 48. Build 48 stays in review; plain error messages ship in the next build.

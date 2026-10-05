@@ -15,13 +15,13 @@ that bought Otto Club in earlier reviews (builds 40/41/46), so a reviewer can hi
 behind the hard paywall and reject.
 
 ## Steps
-- [ ] **T1. RevenueCat dashboard (Chrome):** Project settings → **Transfer behavior** → sandbox:
+- [x] **T1. RevenueCat dashboard (Chrome):** Project settings → **Transfer behavior** → sandbox:
       **"Transfer to new App User ID"** (production already is). Screenshot the saved setting.
       If Chrome isn't signed in to RevenueCat, stop and ask Juan to sign in. Never type a password.
 - [ ] **T2. Juan verifies (one tap):** in Otto on TestFlight, Otto Club screen → **Restore** →
       the app opens. Then RevenueCat → Customers → his current Otto account shows `club` active.
       Log the result.
-- [ ] **T3. Website rename (Otto_Website repo):** the app's consent setting is now
+- [x] **T3. Website rename (Otto_Website repo):** the app's consent setting is now
       **"Account › AI features"** (build 48); the live Privacy Policy, Terms "AI features" section and
       FAQ still say "Account > Otto and AI". Replace that phrase, deploy, check the three live pages.
       Also push `main` if W6 (subscription-only copy) is still only merged locally.
@@ -36,3 +36,6 @@ T1 saved, T2 confirmed by Juan, T3 live. Update `ROADMAP.md` (2026-10-05 section
 
 ## Log
 <!-- append: date, step, result, commit / screenshot -->
+- 2026-10-05 T1: RevenueCat Project settings → "Use a different behavior for sandbox" switched OFF and saved, so sandbox now follows production "Transfer to new App User ID". Verified after reload.
+- 2026-10-05 T3: already live since 2026-10-04 (Otto_Website 7d81035 + W6 d6a05d3). /terms, /support, /privacy show "AI features" and "1-week free trial"; no "Otto and AI".
+- T2: waiting on Juan (Restore on TestFlight 48).
