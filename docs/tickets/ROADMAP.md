@@ -271,3 +271,4 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 ## 2026-10-05 — Purchase code 7 (receipt already in use)
 - RevenueCat sandbox transfer now follows production (Transfer to new App User ID). Website rename already live. Waiting on Juan: Restore on build 48. Build 48 stays in review; plain error messages ship in the next build.
 - 2026-10-07: expedited review requested for 1.0.21 (48) (waiting since 2026-10-04 19:05 UTC). Apple confirmed: "We'll expedite review for Otto"; a rejection-and-resubmit stays in the expedited queue.
+- 2026-10-08: the App Review video attachment had been removed by accident (0 attachments while notes said 'Attached'). Re-uploaded ~/Downloads/Otto app overview 2.mp4 (127 MB) via the ASC API: state COMPLETE, review not reset.
