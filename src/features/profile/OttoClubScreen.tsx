@@ -48,8 +48,6 @@ export function OttoClubScreen() {
   const monthly = club.monthly?.product;
   const trialDays = club.trialDays;
   const selected = plan === 'year' ? yearly : monthly;
-  const savePct =
-    yearly && monthly ? Math.round((1 - yearly.price / (monthly.price * 12)) * 100) : null;
   const perMonth = (price: number, currency: string) =>
     new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(price);
 
@@ -133,9 +131,8 @@ export function OttoClubScreen() {
               active={plan === 'year'}
               onPress={() => setPlan('year')}
               name="Yearly"
-              detail={`${yearly.priceString} / year`}
-              right={`${perMonth(yearly.price / 12, yearly.currencyCode)}/mo`}
-              badge={savePct ? `SAVE ${savePct}%` : undefined}
+              detail={`${perMonth(yearly.price / 12, yearly.currencyCode)}/mo`}
+              right={`${yearly.priceString}/yr`}
             />
             <PlanCard
               active={plan === 'month'}
@@ -144,26 +141,18 @@ export function OttoClubScreen() {
               right={`${monthly.priceString}/mo`}
             />
 
-            {trialDays ? (
-              <View style={styles.reassure}>
-                <Ionicons name="checkmark" size={18} color={colors.ink} />
-                <Text role="label">No payment due now</Text>
-              </View>
-            ) : null}
-
-            <Button
-              title={trialDays ? `Start my free ${trialDays === 7 ? 'week' : `${trialDays} days`}` : 'Continue'}
-              variant="primary"
-              size="lg"
-              onPress={onBuy}
-              loading={club.purchasing}
-            />
-            {/* Apple 3.1.2 / Schedule 2: the amount billed, the period, the trial
-                and that it renews on its own — on this screen, before the tap. */}
+            {/* Apple 3.1.2(c), 1.0.21 rejection: "the billed amount is the most clear
+                and conspicuous pricing element"; free trial and calculated (per-month)
+                pricing must be "subordinate in position and size". So the billed
+                amount leads, in bold ink, and the trial only appears in the fine print. */}
+            <RNText style={styles.billed}>
+              {`${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}`}
+            </RNText>
+            <Button title="Continue" variant="primary" size="lg" onPress={onBuy} loading={club.purchasing} />
             <RNText style={styles.fine}>
               {trialDays
-                ? `${trialDays} days free, then ${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Renews automatically. Cancel anytime.`
-                : `${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Renews automatically. Cancel anytime.`}
+                ? `Free for ${trialDays} days, then billed ${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Renews automatically. Cancel anytime.`
+                : 'Renews automatically. Cancel anytime.'}
             </RNText>
             <View style={styles.legalRow}>
               <Pressable onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link">
@@ -205,14 +194,12 @@ function PlanCard({
   name,
   detail,
   right,
-  badge,
 }: {
   active: boolean;
   onPress: () => void;
   name: string;
   detail?: string;
   right: string;
-  badge?: string;
 }) {
   return (
     <Pressable
@@ -220,7 +207,7 @@ function PlanCard({
       onPress={onPress}
       accessibilityRole="radio"
       accessibilityState={{ checked: active }}
-      accessibilityLabel={`${name}, ${detail ?? right}`}
+      accessibilityLabel={`${name}, ${right}${detail ? `, ${detail}` : ''}`}
     >
       <Ionicons
         name={active ? 'radio-button-on' : 'ellipse-outline'}
@@ -230,11 +217,6 @@ function PlanCard({
       <View style={{ flex: 1, gap: 2 }}>
         <View style={styles.planName}>
           <Text role={active ? 'computed' : 'body'}>{name}</Text>
-          {badge ? (
-            <View style={styles.badge}>
-              <RNText style={styles.badgeText}>{badge}</RNText>
-            </View>
-          ) : null}
         </View>
         {detail ? <Text role="caption">{detail}</Text> : null}
       </View>
@@ -275,19 +257,7 @@ const styles = {
   } as ViewStyle,
   planActive: { borderColor: colors.terracotta } as ViewStyle,
   planName: { flexDirection: 'row', alignItems: 'center', gap: space[2] } as ViewStyle,
-  badge: {
-    backgroundColor: colors.terracotta,
-    borderRadius: radii.pill,
-    paddingHorizontal: space[2],
-    paddingVertical: 2,
-  } as ViewStyle,
-  badgeText: { ...type.meta, fontVariant: ['tabular-nums'], color: colors.white } as TextStyle,
-  reassure: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: space[1],
-  } as ViewStyle,
+  billed: { ...type.body, fontWeight: '700', color: colors.ink, textAlign: 'center' } as TextStyle,
   fine: { ...type.caption, color: colors.inkSoft, textAlign: 'center' } as TextStyle,
   legalRow: {
     flexDirection: 'row',
