@@ -272,3 +272,8 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 - RevenueCat sandbox transfer now follows production (Transfer to new App User ID). Website rename already live. Waiting on Juan: Restore on build 48. Build 48 stays in review; plain error messages ship in the next build.
 - 2026-10-07: expedited review requested for 1.0.21 (48) (waiting since 2026-10-04 19:05 UTC). Apple confirmed: "We'll expedite review for Otto"; a rejection-and-resubmit stays in the expedited queue.
 - 2026-10-08: the App Review video attachment had been removed by accident (0 attachments while notes said 'Attached'). Re-uploaded ~/Downloads/Otto app overview 2.mp4 (127 MB) via the ASC API: state COMPLETE, review not reset.
+
+## 2026-10-15 — 1.0.21 (48) rejected: 3.1.2(c) price prominence
+- Apple (iPad Air, Oct 14): "displays the monthly calculated pricing more clearly and conspicuously than the billed amount." Reviewer made a fresh Sign in with Apple account, saw the paywall ~1 min in; demo account unused.
+- Fix in build 50 (`ef5dc12d`): yearly card leads with $39.99/yr, per-month is the subline, SAVE badge + "No payment due now" removed, CTA "Continue", trial only in fine print.
+- Next: Juan runs the EAS build → attach 50 → review notes "Start my free week" → "Continue" → reply + Resubmit (Juan's OK).
