@@ -1,6 +1,6 @@
 // Vision-import pure bits for generate-recipe — no imports so both Deno (the
 // edge fn) and `node --test` (imageMode.test.mjs) can load it. It answers one
-// question: is this a base64 image Otto can hand to Claude, and if not, does it
+// question: is this a base64 image Otto can hand to the model, and if not, does it
 // fail because it's oversized (413) or malformed (400)? The size cap is why
 // this can't lean on the zod body the other two modes use — zod's max() failure
 // doesn't tell us "too big" from "bad type".

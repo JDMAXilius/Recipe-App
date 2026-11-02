@@ -2,8 +2,8 @@
 // lookup misses. The client already matches against the bundled 962-row table
 // (exact + qualifier-strip in engine/lookup.ts); the freeform names it CAN'T
 // resolve are POSTed here, where a live USDA FoodData Central search supplies
-// real candidates and Claude picks the fdcId that matches the ingredient a home
-// cook means. Claude only ever SELECTS a real USDA record — it never invents a
+// real candidates and the model picks the fdcId that matches the ingredient a home
+// cook means. The model only ever SELECTS a real USDA record — it never invents a
 // calorie. Honesty guard: an fdcId counts only if USDA actually returned it in
 // that ingredient's candidate list; anything else → null. Resolved rows are
 // cached durably in resolved_ingredients (service-role write; clients read-only
@@ -16,9 +16,9 @@
 // Stage 1 as a DB-backed canonical-name lookup, not a bundled JSON.
 import { z } from "npm:zod@4";
 import { getUserId, json, preflight, rateLimited, requireClub, serviceClient } from "../_shared/http.ts";
+import { askJson, openaiActive } from "../_shared/openai.ts";
 
-const MODEL = "claude-haiku-4-5"; // a pick-the-match job, not generation
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+const MODEL = "gpt-5-mini"; // a pick-the-match job, not generation (slug verified live 2026-11-01)
 const MAX_BATCH = 40;
 const MAX_NAME_CHARS = 120;
 
@@ -54,34 +54,13 @@ Rules — non-negotiable:
 - Return only an fdcId that appears in that ingredient's candidate list, or null. Never invent an id.`;
 
 const norm = (s: unknown) => String(s || "").trim().toLowerCase();
-const resolverActive = () => Boolean(Deno.env.get("ANTHROPIC_API_KEY"));
+const resolverActive = openaiActive;
 const usdaSearchActive = () => Boolean(Deno.env.get("USDA_API_KEY"));
 
-// ---- Claude call -----------------------------------------------------------
+// ---- model call -------------------------------------------------------------
 // deno-lint-ignore no-explicit-any
-async function askClaude(system: unknown, schema: unknown, user: string): Promise<any> {
-  const response = await fetch(ANTHROPIC_URL, {
-    method: "POST",
-    headers: {
-      "x-api-key": Deno.env.get("ANTHROPIC_API_KEY")!,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 2000,
-      system,
-      output_config: { format: { type: "json_schema", schema } },
-      messages: [{ role: "user", content: user }],
-    }),
-    signal: AbortSignal.timeout(60000),
-  });
-  if (!response.ok) throw new Error(`Anthropic answered ${response.status}`);
-  const data = await response.json();
-  if (data.stop_reason === "max_tokens" || data.stop_reason === "refusal") return null;
-  // deno-lint-ignore no-explicit-any
-  const textBlock = (data.content || []).find((b: any) => b.type === "text");
-  return JSON.parse(textBlock?.text ?? "");
+function askModel(system: string, schema: unknown, user: string): Promise<any> {
+  return askJson({ model: MODEL, system, schema, messages: [{ role: "user", content: user }], maxTokens: 2000, effort: "low" }, 60000);
 }
 
 // ---- USDA search tail (port of usdaSearch.js) -------------------------------
@@ -169,7 +148,7 @@ async function resolveViaUsdaSearch(names: string[], into: Map<string, FoodRow>)
       s.candidates.map((c) => `  fdcId ${c.fdcId}: ${c.description}`).join("\n")
     )
     .join("\n\n");
-  const data = await askClaude(
+  const data = await askModel(
     SEARCH_SYSTEM,
     SEARCH_SCHEMA,
     `Pick the best USDA record for each ingredient:\n\n${block}`,

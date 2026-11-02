@@ -175,7 +175,7 @@ EXPO_PUBLIC_USE_OTTO_RECIPES=true   # serve recipe display from Otto's DB (not T
 
 `EXPO_PUBLIC_*` vars are inlined at build time — restart Expo after changing them, and keep the same
 set registered in **EAS env** (`eas env:list production`) or TestFlight builds silently ship without them. Server-side secrets
-(`ANTHROPIC_API_KEY`, `THEMEALDB_KEY`, `USDA_API_KEY`, the service-role key for account deletion) live
+(`OPENAI_API_KEY`, `THEMEALDB_KEY`, `USDA_API_KEY`, the service-role key for account deletion) live
 in **Supabase Edge Function config**, never in the app bundle.
 
 ## Checks

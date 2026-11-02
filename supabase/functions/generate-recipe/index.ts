@@ -1,17 +1,19 @@
 // generate-recipe — "Cook something up with Otto". Prompt + validation shape
 // ported from backend/src/lib/generateRecipe.js (one-shot AND chat modes; the
 // body decides: {prompt} → one-shot, {messages} → chat).
-// DORMANT without ANTHROPIC_API_KEY (503). Key comes ONLY from Deno.env and is
-// never logged or echoed. Per-user rate limit: this is the most expensive path.
+// DORMANT without OPENAI_API_KEY (503). Key comes ONLY from Deno.env and is
+// never logged or echoed (see _shared/openai.ts). Per-user rate limit: this is the most expensive path.
 import { z } from "npm:zod@4";
 import { corsHeaders, getUserId, json, preflight, rateLimited, requireClub } from "../_shared/http.ts";
+import { askJson, type ChatMessage, logUsage, openaiActive, openaiFetch, truncated } from "../_shared/openai.ts";
 import { checkImage, MAX_TEXT_CHARS, TEXT_INSTRUCTION, VISION_INSTRUCTION } from "./imageMode.ts";
 import { extractMessagePrefix, parseSseLines } from "./streamParse.ts";
 
-const MODEL_TEXT = "claude-sonnet-5"; // chat + one-shot: schema-constrained work, ~5x cheaper
-const MODEL_VISION = "claude-opus-4-8"; // photo transcription stays on opus until measured on sonnet
+// ponytail: model slugs are the calibration knob — verified live 2026-11-01
+// (strict json_schema + reasoning_effort both accepted); swap here if OpenAI retires them.
+const MODEL_TEXT = "gpt-5.1"; // chat + one-shot + paste: schema-constrained work
+const MODEL_VISION = "gpt-5.1"; // photo transcription
 const MAX_PROMPT_CHARS = 600;
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
 const commonFields = {
   servings: z.coerce.number().int().min(1).max(24).optional(),
@@ -149,74 +151,20 @@ function shapeGeneratedRecipe(data: any) {
 }
 
 type Turn = { role: "user" | "assistant"; content: string };
-// Vision turns carry a content-block array (image + text) instead of a string;
-// the string Turn (chat/one-shot) is still assignable to Message[].
-type VisionContent = Array<
-  | { type: "image"; source: { type: "base64"; media_type: string; data: string } }
-  | { type: "text"; text: string }
->;
-type Message = Turn | { role: "user"; content: VisionContent };
 
-// System goes as blocks: the static prompt carries a cache_control breakpoint;
-// any per-user context rides in a second, uncached block so it never breaks
-// the cacheable prefix. Measured live 2026-09-24 (APP-11 usage log): the chat
-// prefix is 1472 tokens and a repeat call reads all of it from cache, so the
-// July worry that it sat under the ~1024-token floor no longer holds.
-type SystemBlock = { type: "text"; text: string; cache_control?: { type: "ephemeral" } };
-function systemBlocks(staticPrompt: string, context?: string): SystemBlock[] {
-  const blocks: SystemBlock[] = [{ type: "text", text: staticPrompt, cache_control: { type: "ephemeral" } }];
-  if (context) blocks.push({ type: "text", text: context });
-  return blocks;
+// System prompt: static text first, any per-user context appended. OpenAI
+// caches the shared prefix automatically (>1024 tokens), so keeping the
+// static prompt first preserves the cache hit without explicit breakpoints.
+function systemPrompt(staticPrompt: string, context?: string): string {
+  return context ? `${staticPrompt}\n\n${context}` : staticPrompt;
 }
 
-// APP-11: token counts only — never prompt or output content — so spend per
-// call is readable in function_edge_logs.
+// effort: the latency knob. Chat/one-shot/paste pass "low" so turns come
+// back faster; vision omits it (model default) because faithful photo
+// transcription is quality-critical.
 // deno-lint-ignore no-explicit-any
-function logUsage(model: string, usage: any, stopReason: string | null) {
-  console.log(JSON.stringify({
-    event: "anthropic_usage",
-    model,
-    input_tokens: usage?.input_tokens ?? null,
-    output_tokens: usage?.output_tokens ?? null,
-    cache_read_input_tokens: usage?.cache_read_input_tokens ?? null,
-    cache_creation_input_tokens: usage?.cache_creation_input_tokens ?? null,
-    stop_reason: stopReason,
-  }));
-}
-
-// effort: the latency knob (docs: sonnet-5 at "medium" ≈ prior-gen "high").
-// Chat/one-shot pass "medium" so turns come back faster; vision omits it
-// (default "high") because faithful photo transcription is quality-critical.
-// deno-lint-ignore no-explicit-any
-async function askClaude(model: string, system: SystemBlock[], schema: unknown, messages: Message[], effort?: string): Promise<any> {
-  const response = await fetch(ANTHROPIC_URL, {
-    method: "POST",
-    headers: {
-      "x-api-key": Deno.env.get("ANTHROPIC_API_KEY")!,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 4000,
-      thinking: { type: "adaptive" },
-      system,
-      output_config: { format: { type: "json_schema", schema }, ...(effort ? { effort } : {}) },
-      messages,
-    }),
-    signal: AbortSignal.timeout(120000),
-  });
-  if (!response.ok) throw new Error(`Anthropic answered ${response.status}`);
-  const data = await response.json();
-  logUsage(model, data.usage, data.stop_reason);
-  if (data.stop_reason === "max_tokens" || data.stop_reason === "refusal") return null;
-  // deno-lint-ignore no-explicit-any
-  const textBlock = (data.content || []).find((b: any) => b.type === "text");
-  try {
-    return JSON.parse(textBlock?.text ?? "");
-  } catch {
-    return null; // schema-constrained, so this shouldn't happen — null beats a guess
-  }
+function askModel(model: string, system: string, schema: unknown, messages: ChatMessage[], effort?: string): Promise<any> {
+  return askJson({ model, system, schema, messages, maxTokens: 4000, effort }, 120000);
 }
 
 // Chat post-processing shared by the JSON and SSE paths: model output →
@@ -245,43 +193,34 @@ function chatPayload(data: any) {
   };
 }
 
-// Chat mode with stream:true — same Anthropic call with stream:true, relayed
+// Chat mode with stream:true — same OpenAI call with stream:true, relayed
 // as our own SSE: {"type":"delta","text"} for each new slice of the message
 // field, then {"type":"done","payload"} with EXACTLY the JSON-path payload,
 // or {"type":"error","error"} with the JSON-path copy. Auth/rate-limit/400/
 // 503 all ran before we get here.
-function streamChat(system: SystemBlock[], turns: Turn[]): Response {
+function streamChat(system: string, turns: Turn[]): Response {
   const body = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
       const send = (obj: unknown) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
       try {
-        const response = await fetch(ANTHROPIC_URL, {
-          method: "POST",
-          headers: {
-            "x-api-key": Deno.env.get("ANTHROPIC_API_KEY")!,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({
-            model: MODEL_TEXT,
-            max_tokens: 4000,
-            stream: true,
-            thinking: { type: "adaptive" },
-            system,
-            output_config: { format: { type: "json_schema", schema: CHAT_SCHEMA }, effort: "medium" },
-            messages: turns,
-          }),
-          signal: AbortSignal.timeout(120000),
-        });
-        if (!response.ok || !response.body) throw new Error(`Anthropic answered ${response.status}`);
+        const response = await openaiFetch({
+          model: MODEL_TEXT,
+          system,
+          schema: CHAT_SCHEMA,
+          messages: turns,
+          maxTokens: 4000,
+          effort: "low",
+          stream: true,
+        }, 120000);
+        if (!response.body) throw new Error("OpenAI sent no body");
 
         const decoder = new TextDecoder();
         const reader = response.body.getReader();
         let carry = "";
         let buffer = "";
         let sent = "";
-        let stopReason: string | null = null;
+        let finishReason: string | null = null;
         // deno-lint-ignore no-explicit-any
         let usage: any = {};
         try {
@@ -298,29 +237,26 @@ function streamChat(system: SystemBlock[], turns: Turn[]): Response {
               } catch {
                 continue;
               }
-              if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
-                buffer += event.delta.text;
+              const choice = event.choices?.[0];
+              if (typeof choice?.delta?.content === "string" && choice.delta.content) {
+                buffer += choice.delta.content;
                 const prefix = extractMessagePrefix(buffer);
                 if (prefix.length > sent.length) {
                   send({ type: "delta", text: prefix.slice(sent.length) });
                   sent = prefix;
                 }
-              } else if (event.type === "message_start") {
-                usage = { ...event.message?.usage }; // input + cache counts
-              } else if (event.type === "message_delta") {
-                stopReason = event.delta?.stop_reason ?? stopReason;
-                usage = { ...usage, ...event.usage }; // cumulative output_tokens
               }
-              // thinking deltas and every other event type: ignored
+              if (choice?.finish_reason) finishReason = choice.finish_reason;
+              if (event.usage) usage = event.usage; // final chunk (stream_options.include_usage)
             }
           }
         } finally {
           reader.cancel().catch(() => {}); // client gone or loop done: stop upstream
         }
-        logUsage(MODEL_TEXT, usage, stopReason);
+        logUsage(MODEL_TEXT, usage, finishReason);
 
         let payload = null;
-        if (stopReason !== "max_tokens" && stopReason !== "refusal") {
+        if (!truncated(finishReason)) {
           try {
             payload = chatPayload(JSON.parse(buffer));
           } catch {
@@ -385,7 +321,7 @@ Deno.serve(async (req) => {
   // alone can't stop a direct call with a signed-in token.
   const gate = await requireClub(userId);
   if (gate) return gate;
-  if (!Deno.env.get("ANTHROPIC_API_KEY")) {
+  if (!openaiActive()) {
     return json(503, { error: "Otto can't cook ideas up just yet. That part of the kitchen is still being wired up." });
   }
 
@@ -399,12 +335,12 @@ Deno.serve(async (req) => {
       const turns: Turn[] = parsed.data.messages.slice(-12);
       if (turns[turns.length - 1].role !== "user") return json(400, { error: "Invalid body" });
       const context = contextLines(parsed.data);
-      const system = systemBlocks(
+      const system = systemPrompt(
         CHAT_SYSTEM,
         context.length ? `Context for this person: ${context.join(" ")}` : undefined,
       );
       if (parsed.data.stream) return streamChat(system, turns);
-      const data = await askClaude(MODEL_TEXT, system, CHAT_SCHEMA, turns, "medium");
+      const data = await askModel(MODEL_TEXT, system, CHAT_SCHEMA, turns, "medium");
       if (!data) return json(502, { error: CHAT_LOST });
       const payload = chatPayload(data);
       if (!payload) return json(502, { error: CHAT_LOST });
@@ -420,10 +356,10 @@ Deno.serve(async (req) => {
           ? json(413, { error: "That photo's a bit big for Otto. Try a smaller, clearer shot." })
           : json(400, { error: "Invalid body" });
       }
-      const data = await askClaude(MODEL_VISION, systemBlocks(SYSTEM), SCHEMA, [{
+      const data = await askModel(MODEL_VISION, systemPrompt(SYSTEM), SCHEMA, [{
         role: "user",
         content: [
-          { type: "image", source: { type: "base64", media_type: check.mimeType, data: check.image } },
+          { type: "image_url", image_url: { url: `data:${check.mimeType};base64,${check.image}` } },
           { type: "text", text: VISION_INSTRUCTION },
         ],
       }]);
@@ -445,7 +381,7 @@ Deno.serve(async (req) => {
     if (pasted !== undefined) {
       const parsedText = textBody.safeParse({ text: pasted });
       if (!parsedText.success) return json(400, { error: "Paste the whole recipe, up to about a page of text." });
-      const data = await askClaude(MODEL_TEXT, systemBlocks(SYSTEM), SCHEMA, [{
+      const data = await askModel(MODEL_TEXT, systemPrompt(SYSTEM), SCHEMA, [{
         role: "user",
         content: `${TEXT_INSTRUCTION}\n\n---\n${parsedText.data.text}`,
       }], "medium");
@@ -464,7 +400,7 @@ Deno.serve(async (req) => {
     const parsed = generateBody.safeParse(raw);
     if (!parsed.success) return json(400, { error: "Invalid body" });
     const context = contextLines(parsed.data);
-    const data = await askClaude(MODEL_TEXT, systemBlocks(SYSTEM), SCHEMA, [
+    const data = await askModel(MODEL_TEXT, systemPrompt(SYSTEM), SCHEMA, [
       {
         role: "user",
         content: `${context.length ? `${context.join("\n")}\n\n` : ""}Recipe request:\n${parsed.data.prompt}`,

@@ -49,6 +49,10 @@ const TERMS_URL = 'https://ottosapp.com/terms';
 // App Store id 6792195637 (ASC). The write-review page only resolves once the
 // listing is live; every build carrying this ships after approval anyway.
 const RATE_APP_URL = 'https://apps.apple.com/app/id6792195637?action=write-review';
+// Canonical product page, as Apple publishes it on the listing.
+const STORE_URL = 'https://apps.apple.com/us/app/otto-recipes-meal-plans/id6792195637';
+const SHARE_MESSAGE =
+  "I've been cooking with Otto, the easiest way to cook: meal recipes and meal planning in one place. Take a look:";
 const APP_VERSION = Constants.expoConfig?.version ?? '1.0.0';
 
 function hasPasswordLogin(user: User | null): boolean {
@@ -109,10 +113,9 @@ export function ProfileScreen() {
 
   const tellAFriend = () => {
     haptics.select();
-    void Share.share({
-      message:
-        "I've been cooking with Otto, the quieter kind of cookbook. Ask me to show you!",
-    }).catch(() => {});
+    // Link stays inside `message`: separate `url` items get dropped or split by
+    // some share targets. WhatsApp and Messages build the app card from the link.
+    void Share.share({ message: `${SHARE_MESSAGE}\n${STORE_URL}` }).catch(() => {});
   };
   const rateOtto = () => {
     haptics.select();

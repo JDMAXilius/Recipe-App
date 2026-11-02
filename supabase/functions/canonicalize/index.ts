@@ -6,24 +6,18 @@
 // calls this per recipe with the 969-key usdaTable allowlist; it fills media/
 // provenance from bronze itself. This function ONLY transforms text — no DB writes.
 //
-// Model call mirrors generate-recipe/index.ts exactly: ANTHROPIC_API_KEY read
-// ONLY from Deno.env (never logged, never echoed), same Anthropic endpoint /
-// headers / json_schema output_config, same CORS + error shape. DORMANT without
-// ANTHROPIC_API_KEY (503). Auth posture mirrors content/index.ts: the batch
+// Model call goes through _shared/openai.ts like generate-recipe: OPENAI_API_KEY
+// read ONLY from Deno.env (never logged, never echoed), strict json_schema
+// output, same CORS + error shape. DORMANT without OPENAI_API_KEY (503). Auth posture mirrors content/index.ts: the batch
 // driver calls with the anon key (NOT a user token), so the platform's
 // verify_jwt + anon key is the boundary — no getUserId gate.
 import { z } from "npm:zod@4";
 import { json, preflight, rateLimited } from "../_shared/http.ts";
+import { askJson, openaiActive } from "../_shared/openai.ts";
 
-// claude-sonnet-5: batch of 792 recipes — this is a pick-the-match + rewrite job
-// (like resolve-nutrition's haiku pick), not open generation, so sonnet's quality
-// at ~1/5 opus cost is the right tradeoff. generate-recipe uses opus-4-8 for
-// creative generation; resolve-nutrition uses haiku-4-5 for pure matching — this
-// sits between. ponytail: model slug is a calibration knob — repo siblings are
-// `claude-opus-4-8` / `claude-haiku-4-5`, so the lead should confirm the exact
-// current sonnet slug at deploy if the API rejects this one.
-const MODEL = "claude-sonnet-5";
-const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+// gpt-5.1: batch of 792 recipes — a pick-the-match + rewrite job, not open
+// generation. ponytail: model slug is a calibration knob (verified live 2026-11-01).
+const MODEL = "gpt-5.1";
 
 // ---- input contract -------------------------------------------------------
 const body = z.object({
@@ -144,36 +138,10 @@ supplies those. Output the JSON object only.`;
 
 const SYSTEM = `You are Otto's recipe canonicalizer. ONE original recipe in, ONE canonical structured record out. You are the correction-at-the-source step: after you, no guard or overlay should need to reinterpret this recipe.\n\n${DOCTRINE}\n\n${OUTPUT_CONTRACT}`;
 
-// ---- Anthropic call — mirrors generate-recipe's askClaude exactly ---------
+// ---- model call — same helper as generate-recipe --------------------------
 // deno-lint-ignore no-explicit-any
-async function askClaude(userMessage: string): Promise<any> {
-  const response = await fetch(ANTHROPIC_URL, {
-    method: "POST",
-    headers: {
-      "x-api-key": Deno.env.get("ANTHROPIC_API_KEY")!,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 8000,
-      thinking: { type: "adaptive" },
-      system: SYSTEM,
-      output_config: { format: { type: "json_schema", schema: SCHEMA } },
-      messages: [{ role: "user", content: userMessage }],
-    }),
-    signal: AbortSignal.timeout(120000),
-  });
-  if (!response.ok) throw new Error(`Anthropic answered ${response.status}`);
-  const data = await response.json();
-  if (data.stop_reason === "max_tokens" || data.stop_reason === "refusal") return null;
-  // deno-lint-ignore no-explicit-any
-  const textBlock = (data.content || []).find((b: any) => b.type === "text");
-  try {
-    return JSON.parse(textBlock?.text ?? "");
-  } catch {
-    return null; // driver retries — null beats a guess
-  }
+function askModel(userMessage: string): Promise<any> {
+  return askJson({ model: MODEL, system: SYSTEM, schema: SCHEMA, messages: [{ role: "user", content: userMessage }], maxTokens: 8000 }, 120000);
 }
 
 function buildUserMessage(recipe: Body["recipe"], keys: string[]): string {
@@ -252,7 +220,7 @@ Deno.serve(async (req) => {
   if (rateLimited("canon", 1000, 60 * 60 * 1000)) {
     return json(429, { error: "Rate limit — too many canonicalize calls this hour" });
   }
-  if (!Deno.env.get("ANTHROPIC_API_KEY")) {
+  if (!openaiActive()) {
     return json(503, { error: "Canonicalizer is not wired up yet (no model key)" });
   }
 
@@ -262,7 +230,7 @@ Deno.serve(async (req) => {
 
   try {
     const { recipe, keys } = parsed.data;
-    const data = await askClaude(buildUserMessage(recipe, keys));
+    const data = await askModel(buildUserMessage(recipe, keys));
     const record = shapeRecord(recipe, new Set(keys), data);
     if (!record) {
       // non-JSON / wrong shape / bad servings — the driver retries.
@@ -270,7 +238,7 @@ Deno.serve(async (req) => {
     }
     return json(200, { record });
   } catch (error) {
-    // message is our own string ("Anthropic answered 4xx") — never the key or body.
+    // message is our own string ("OpenAI answered 4xx") — never the key or body.
     console.error("canonicalize failed", (error as Error).message);
     return json(502, { error: "Canonicalization failed", detail: "upstream model call failed" });
   }
