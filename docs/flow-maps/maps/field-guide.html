@@ -1,0 +1,241 @@
+<title>Flow Map Field Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a tab strip of maps. Each map reads left to right along the main path; branches drop below the screen they leave from and curve back where they rejoin. */
+:root{
+  --bg:#F6F3EE; --card:#FFFFFF; --line:#E3DDD3; --ink:#1F1B17; --ink-soft:#6A625A; --edge:#B8AEA2;
+  --c-entry:#1F1B17; --c-screen:#8C8378; --c-q:#3D6FB0; --c-proof:#8E7CC3; --c-perm:#2A9D8F; --c-account:#8A5A3B;
+  --c-pay:#D2552D; --c-offer:#E08A3C; --c-reveal:#C9932F; --c-home:#4E8A4A; --c-dec:#1F1B17;
+  --tint:rgba(31,27,23,.04);
+  --display:"Fraunces",Georgia,serif; --body:"Figtree",-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#17150F; --card:#221F19; --line:#38332B; --ink:#F1ECE4; --ink-soft:#ADA397; --edge:#5C554B;
+  --c-entry:#F1ECE4; --c-screen:#9C9287; --c-q:#7FA8E0; --c-proof:#B1A2E0; --c-perm:#5CC6B8; --c-account:#C99573;
+  --c-pay:#F0805A; --c-offer:#F2A865; --c-reveal:#E8B04B; --c-home:#86BE7F; --c-dec:#F1ECE4; --tint:rgba(255,255,255,.04); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17150F; --card:#221F19; --line:#38332B; --ink:#F1ECE4; --ink-soft:#ADA397; --edge:#5C554B;
+  --c-entry:#F1ECE4; --c-screen:#9C9287; --c-q:#7FA8E0; --c-proof:#B1A2E0; --c-perm:#5CC6B8; --c-account:#C99573;
+  --c-pay:#F0805A; --c-offer:#F2A865; --c-reveal:#E8B04B; --c-home:#86BE7F; --c-dec:#F1ECE4; --tint:rgba(255,255,255,.04); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--body)}
+.wrap{max-width:1400px;margin:0 auto;padding-block:28px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+h1{font:700 clamp(28px,4.4vw,40px)/1.1 var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font:600 22px/1.2 var(--display);margin:0;text-wrap:balance}
+h3{font:600 15px/1.3 var(--body);margin:0}
+p{margin:0}
+.lede{color:var(--ink-soft);max-width:72ch}
+header{display:flex;flex-direction:column;gap:10px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs a{flex:none;padding:10px 14px;font-weight:600;font-size:14px;color:var(--ink-soft);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs a[aria-current="page"]{color:var(--ink);border-color:var(--c-pay)}
+.tabs a:focus-visible{outline:2px solid var(--c-pay);outline-offset:-2px}
+.tabs .sep{flex:none;width:1px;background:var(--line);margin:8px 6px}
+.view{display:flex;flex-direction:column;gap:26px}
+.vhead{display:flex;flex-direction:column;gap:6px}
+.src{font:400 11.5px/1.5 var(--mono);color:var(--ink-soft);overflow-wrap:anywhere}
+.mapcard{background:var(--card);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;min-width:0}
+.mapcard .mh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;padding:14px 18px 0}
+.mapcard .mh p{font-size:13px;color:var(--ink-soft)}
+.scroll{overflow-x:auto;padding:18px 18px 20px}
+.map{position:relative}
+.map svg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.ed{fill:none;stroke:var(--edge);stroke-width:1.6}
+.ed.br{stroke-dasharray:5 4}
+.el{font:500 10.5px var(--body);fill:var(--ink-soft)}
+.n{position:absolute;width:150px;min-height:64px;padding:8px 10px 8px 12px;border-radius:10px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:1px}
+.n::before{content:"";position:absolute;left:-1px;top:-1px;bottom:-1px;width:4px;border-radius:10px 0 0 10px;background:var(--c)}
+.n .t{font:600 9.5px/1.5 var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--c)}
+.n b{font-weight:650;font-size:13px;line-height:1.25}
+.n i{font-style:normal;font-size:11px;color:var(--ink-soft);line-height:1.3}
+.n .x{position:absolute;right:7px;top:6px;font:500 10px var(--mono);color:var(--ink-soft)}
+.n.entry{background:var(--c-entry);border-color:var(--c-entry);border-radius:32px;justify-content:center;padding-left:16px}
+.n.entry::before{display:none}
+.n.entry b,.n.entry .t{color:var(--bg)}
+.n.entry i{color:color-mix(in srgb,var(--bg) 75%,transparent)}
+.n.dec{border:1.5px dashed var(--c-dec);background:var(--tint)}
+.n.dec::before{display:none}
+.n.dec .t::before{content:"◇ "}
+.n.perm{border-style:dashed;border-color:var(--c-perm)}
+.n.pay{border-color:color-mix(in srgb,var(--c-pay) 55%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--c-pay) 14%,transparent)}
+.n.home{border-color:color-mix(in srgb,var(--c-home) 55%,var(--line))}
+.n.end{border-radius:32px}
+.notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.note{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.note .k{font:600 11px/1 var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--c-pay)}
+.note p{font-size:13.5px}
+/* overview strip */
+.strip{display:flex;flex-direction:column;gap:0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 18px 14px;overflow-x:auto}
+.srow{display:grid;grid-template-columns:130px minmax(560px,1fr) 120px;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.srow:first-child{border-top:0}
+.srow.headr{font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);padding:6px 0}
+.srow .app{font-weight:700}
+.srow .app a{color:inherit;text-decoration:none}
+.srow .app a:hover{text-decoration:underline}
+.srow .app small{display:block;font-weight:400;font-size:11.5px;color:var(--ink-soft)}
+.track{position:relative;height:34px}
+.track::before{content:"";position:absolute;left:0;right:0;top:16px;height:2px;background:var(--line);border-radius:2px}
+.qbar{position:absolute;top:13px;height:8px;border-radius:4px;background:color-mix(in srgb,var(--c-q) 35%,transparent)}
+.mk{position:absolute;top:6px;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:var(--c);color:#fff;font:700 10px/22px var(--body);text-align:center;box-shadow:0 0 0 2px var(--card)}
+.mk.after{top:6px;border:2px dashed var(--c);background:var(--card);color:var(--c);line-height:18px}
+.srow .tabsn{font-size:12px;color:var(--ink-soft)}
+.agree{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:820px){.notes,.agree{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Flow Map Field Guide</h1>
+    <p class="lede">How proven iOS apps really order their first run, and the model Apple’s guidelines describe. Each map reads left to right along the main path. Branches drop below the screen they leave from. Built from the PlanFuel Mobbin study file, Mobbin flows, the Human Interface Guidelines and the App Store Review Guidelines.</p>
+    <div class="legend" id="legend"></div>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="Maps"></nav>
+  <main class="view" id="view"></main>
+</div>
+
+<script>
+const T={entry:["Entry","--c-entry"],screen:["Screen","--c-screen"],q:["Questions","--c-q"],proof:["Value / proof","--c-proof"],perm:["Permission","--c-perm"],account:["Account","--c-account"],pay:["Paywall","--c-pay"],offer:["Offer","--c-offer"],reveal:["Result reveal","--c-reveal"],home:["Home","--c-home"],dec:["Decision","--c-dec"],end:["Outcome","--c-home"]};
+document.getElementById("legend").innerHTML=Object.entries(T).filter(([k])=>k!=="end").map(([k,[l,c]])=>`<span><i class="sw" style="--c:var(${c})"></i>${l}</span>`).join("")+`<span><svg width="26" height="6"><line x1="0" y1="3" x2="26" y2="3" stroke="var(--edge)" stroke-width="1.6" stroke-dasharray="5 4"/></svg>branch</span>`;
+
+// node: [type, title, sub, count?]
+// map: {title, desc, main:[nodes], br:[{from, label, steps:[nodes], to: index|undefined}]}
+const V={
+apple:{tab:"Apple’s model",title:"The flow Apple’s guidelines describe",lede:"No app ships this exactly, but it is what the Human Interface Guidelines and Review Guidelines add up to: launch straight into the app, keep onboarding short and optional, ask for permissions and sign-in only when a feature needs them, and restore state for returning people.",
+ maps:[
+ {title:"First launch",desc:"HIG Launching, Onboarding, Privacy, Managing accounts · Review 3.1.2, 5.1.1",
+  main:[["entry","App icon","fresh install"],["screen","Launch screen","Looks like the first screen. No logo, no text"],["q","Short onboarding","Fast, fun, optional. Skippable"],["dec","Core feature needs a permission?","Only then ask now"],["pay","Paywall","Price, billed amount, trial, Restore, Terms, Privacy"],["home","Home tab","Tab bar always visible"],["screen","First account-only action","Sync, save, share, buy"],["account","Sign in","Apple button no smaller than others"],["end","Back to the task","Welcome. Ask nothing extra"]],
+  br:[{from:2,label:"Skip",steps:[["end","Home with defaults","Never show onboarding again"]],to:5},
+      {from:3,label:"yes",steps:[["perm","Pre-alert screen","One button: Continue"],["perm","iOS alert","Allow / Don’t allow"],["dec","Denied?","Offer a fallback, link to Settings"]],to:4},
+      {from:4,label:"Close",steps:[["end","Free tier","If the app has free features"]],to:5}]},
+ {title:"Returning launch",desc:"HIG Launching: restore the previous state",
+  main:[["entry","App icon","already set up"],["screen","Launch screen","Same as first screen"],["dec","Signed in and entitled?","Check quietly"],["end","Where they left off","Same tab, same scroll"]],
+  br:[{from:2,label:"subscription lapsed",steps:[["home","App in free tier","No data lost"],["pay","Upsell at gated feature","Re-subscribe or Restore"]]},
+      {from:2,label:"signed out",steps:[["home","Guest mode","Everything that needs no account"],["account","Sign in when needed",""]]}]},
+ {title:"Arriving from a notification, link or widget",desc:"Every entry checks state before showing content",
+  main:[["entry","Push / link / widget","cold or warm start"],["dec","Signed in?",""],["dec","Entitled?",""],["dec","Content still exists?",""],["end","Target screen","Back goes to its parent tab"]],
+  br:[{from:1,label:"no",steps:[["account","Sign in sheet",""]],to:2},
+      {from:2,label:"no",steps:[["pay","Paywall for that feature","Close returns to Home"]],to:3},
+      {from:3,label:"no",steps:[["home","Parent tab","With a short message"]]}]}
+ ]},
+scen:{tab:"Every scenario",title:"Scenarios a complete flow map covers",lede:"A first-run map is one lane. These are the other lanes, from the Review Guidelines and HIG. Each starts from its own entry and ends in a clear outcome.",
+ maps:[
+ {title:"Permission request",desc:"HIG Privacy · Review 5.1.1(iv)",main:[["entry","Taps feature","e.g. Scan food"],["perm","Pre-alert","Why, one Continue button"],["perm","iOS alert",""],["end","Feature works",""]],br:[{from:2,label:"Don’t allow",steps:[["screen","Fallback","Manual entry instead"],["screen","Settings link","Shown next time"]]}]},
+ {title:"Buying a subscription",desc:"Review 3.1.1, 3.1.2",main:[["entry","Paywall",""],["screen","Picks plan",""],["perm","Apple purchase sheet","Face ID"],["dec","Result?",""],["end","Unlocked","Thank-you state"]],br:[{from:3,label:"cancelled",steps:[["screen","Back on paywall","No guilt copy"]]},{from:3,label:"failed / pending",steps:[["screen","Error or Ask to Buy","Retry later"]]}]},
+ {title:"Restore on a new phone",desc:"Review 3.1.1: restore mechanism required",main:[["entry","New device install",""],["account","Sign in",""],["dec","Entitlement found?","RevenueCat / StoreKit"],["end","Full app",""]],br:[{from:2,label:"no",steps:[["pay","Paywall","Restore Purchases button"],["perm","Apple restore",""]],to:3}]},
+ {title:"Subscription lapses",desc:"Billing retry, expiry",main:[["entry","Renewal fails",""],["screen","Grace period","App keeps working"],["dec","Fixed in time?",""],["end","Still subscribed",""]],br:[{from:2,label:"no",steps:[["home","Free tier","Keep their data"],["pay","Win-back offer",""]]}]},
+ {title:"Deleting the account",desc:"Review 5.1.1(v) · HIG Managing accounts",main:[["entry","Settings › Account",""],["screen","Delete account","Easy to find"],["screen","Confirm","Billing continues via Apple until cancelled"],["dec","Re-auth","Revoke Sign in with Apple"],["end","Deleted","Back to welcome"]],br:[]},
+ {title:"Offline",desc:"Network loss",main:[["entry","Opens with no signal",""],["home","Cached content",""],["screen","Action needs network","Queue or explain"],["end","Syncs when back",""]],br:[]}
+ ]},
+duo:{tab:"Duolingo",title:"Duolingo",lede:"Value first, everything else later. Seven questions, a reminder ask framed as Duo cheering you on, then a placement result. The profile wall comes after that result and can be skipped. There is no paywall in onboarding at all.",src:"Figma study 46:116 (24 screens) · Mobbin 4511e153 Creating a profile · c71bfa5f Subscribing to Super · 706ba483 Lesson",
+ maps:[{title:"First run",desc:"Tab bar: 6 icon-only tabs",
+  main:[["entry","First launch",""],["screen","Splash","Owl + wordmark"],["screen","Welcome","Get started / I have an account"],["proof","Meet Duo","“Just 7 quick questions”"],["q","Pick a language","",3],["proof","Course building","“3 million people”"],["q","Level, source, why","",6],["q","Daily goal","5–20 min, “I’m committed”",2],["proof","Outcome promise","“50 words in week 1”"],["perm","Notifications","Primed by Duo, then iOS",2],["dec","Start point","From scratch / Find my level"],["reveal","Placement result","“Start at Score 10”"],["account","Create profile","Skippable: Later"],["home","Lesson path",""]],
+  br:[{from:2,label:"I have an account",steps:[["account","Sign in",""],["end","Lesson path",""]]},
+      {from:12,label:"Later",steps:[["screen","Guest progress","Asked again later"]],to:13},
+      {from:13,label:"later, at friction",steps:[["offer","“Skip ads, 7 days free”","Try for $0 / No thanks"],["pay","Choose a plan","Family, annual, monthly"],["perm","Apple purchase",""],["screen","Super welcome","5-step tour"]],to:13}]},
+  {title:"Core loop: a lesson",desc:"Mobbin 706ba483",main:[["home","Path node","Start"],["q","Exercises","Hearts + progress bar"],["screen","Feedback banner","Good job / Incorrect"],["reveal","Results","XP, accuracy, time"],["proof","Chest reward","+5 gems"],["end","Back to path",""]],br:[]}],
+ notes:[["Account","After the first win, and skippable. Asks only once you have something to lose."],["Paywall","Never in onboarding. Offered when free limits bite (ads, hearts)."],["Copy","Every question is spoken by the mascot, with a progress bar."]]},
+cal:{tab:"Cal AI",title:"Cal AI",lede:"A long, persuasive quiz. Proof charts are spread between the questions, permissions come late, the account is asked before the plan is generated, and a hard paywall sits right after the plan reveal. If you dismiss it, a one-time discount appears.",src:"Figma study 41:100 (34 screens, screenshot-confirmed) · Mobbin 05ca2ff4, 579da5dd, 6b462ef7 Scanning a food",
+ maps:[{title:"First run",desc:"Tab bar: Home · Progress · Settings + floating ＋",
+  main:[["entry","First launch",""],["screen","Splash",""],["screen","Welcome","“Calorie tracking made easy”"],["q","Gender, workouts, source","",5],["proof","Results chart",""],["q","Body + goal","Height, weight, age, target",7],["proof","“2× vs on your own”",""],["q","What’s stopping you","",2],["proof","Privacy promise","“Thank you for trusting us”"],["perm","Apple Health","Not now allowed"],["q","Calorie settings","Burned, rollover",2],["proof","Rate us","Review prompt"],["perm","Notifications","Primed mock dialog"],["account","Save your progress","Apple / Google · Skip"],["reveal","Plan generating","Loading 0→100%",2],["reveal","Your plan is ready","Calories + macros, editable"],["pay","Hard paywall","3-day trial, no ×"],["home","Home dashboard",""]],
+  br:[{from:2,label:"Have an account",steps:[["account","Sign in sheet",""],["end","Home",""]]},
+      {from:13,label:"Skip",steps:[["screen","Referral code","optional"]],to:14},
+      {from:16,label:"back",steps:[["offer","One-time offer","80% off forever, ×"],["pay","Purchase",""]],to:17}]},
+  {title:"Core loop: log a meal by photo",desc:"Mobbin 6b462ef7",main:[["home","Home",""],["screen","＋ sheet","Scan, database, saved"],["perm","Camera","First time + 3-step tip"],["screen","Photo taken",""],["screen","Analyzing card","On home, notifies when done"],["end","Rings update","Calories + macros"]],br:[]}],
+ notes:[["Account","Asked late, framed as saving progress, skippable."],["Paywall","Hard, placed right after the plan reveal, when perceived value peaks."],["Offer","A dismissed paywall leads to a one-time discount."]]},
+mfp:{tab:"MyFitnessPal",title:"MyFitnessPal",lede:"Account intent up front, then a goal-setting interview with encouragement screens, data consents, account creation and a soft Premium offer.",src:"Figma study 37:221 (21 screens) · Mobbin 6ec621e1 (24 screens, adds paywall) · d58bea22 Log meal",
+ maps:[{title:"First run",desc:"Tab bar: Today · Plan · ＋ · Progress · More",
+  main:[["entry","First launch",""],["screen","Splash",""],["proof","Value carousel","Sign up free / Log in"],["account","Choose how to join","Continue / Google / Apple"],["q","Name + goals","Up to 3 goals",4],["proof","Encouragement","“A big step”"],["q","Habits + planning","",4],["q","About you","Sex, age, country",2],["q","Body + weekly goal","",4],["perm","Data consents","Required, legal"],["account","Create account","Email + terms"],["pay","Premium","1-month trial, ×"],["home","Today",""]],
+  br:[{from:2,label:"Log in",steps:[["account","Sign in",""],["end","Today",""]]},
+      {from:11,label:"×",steps:[["screen","Free plan",""]],to:12}]},
+  {title:"Core loop: log food",desc:"Mobbin d58bea22",main:[["home","Today","Calorie bar + diary"],["screen","Meal › Log",""],["screen","Search","All, meals, recipes, foods"],["screen","Food detail","Serving size"],["end","Added to diary",""]],br:[]}],
+ notes:[["Account","Sign-up intent first, account created at the end of the interview."],["Rhythm","An encouragement screen after every few questions."],["Paywall","Soft, with a long trial. The free tier is real."]]},
+tiimo:{tab:"Tiimo",title:"Tiimo",lede:"Apple Design Award finalist. The account comes first, then two questions and social proof, a soft paywall, and setup asks you can skip. A newer version moves the reminders ask onto a home checklist.",src:"Figma study 42:8 (16 screens) · Mobbin 817f5bfd, 16df946d (variant)",
+ maps:[{title:"First run",desc:"Tab bar: To-do · Today · Focus · Me",
+  main:[["entry","First launch",""],["screen","Splash","Design award badge"],["account","Sign up","Apple / email"],["account","Email form + opt-in","",4],["q","Biggest need","",2],["q","Neurodivergent?","",2],["proof","Social proof","“500,000 happy users”"],["pay","Paywall","Annual 7-day trial, ×"],["perm","Notifications","Skip allowed"],["perm","Import calendar","Skip allowed",2],["home","Today timeline","Get started checklist"]],
+  br:[{from:2,label:"Log in",steps:[["account","Log in",""],["end","Today",""]]},
+      {from:7,label:"×",steps:[["screen","Free version",""]],to:8},
+      {from:10,label:"newer version",steps:[["perm","Checklist: reminders","Step 2 of 3 sheet"],["perm","Checklist: calendar",""]],to:10}]}],
+ notes:[["Account","First, before any value. Works because the plan lives in the account."],["Setup","Each permission has a Skip and shows on a home checklist later."],["Paywall","Soft, trial only on annual, to steer the plan choice."]]},
+hs:{tab:"Headspace",title:"Headspace",lede:"Account first, then a short quiz framed as discovering your mindfulness style. The paywall explains how the trial works, and the result is revealed after it.",src:"Mobbin 31b21791 (21 screens) · retention offer c995f167",
+ maps:[{title:"First run",desc:"Tab bar: Today · Explore · Profile",
+  main:[["entry","First launch",""],["screen","“Breathe in”","Animated splash"],["account","Create account","Email, Apple, Google, Facebook"],["q","What’s on your mind","Stress, sleep, focus"],["proof","Quiz intro","“We’ll reveal your course”"],["q","Style quiz","",5],["pay","How your trial works","Today, day 12 reminder, day 14 charge"],["reveal","Your course","“For Calm Explorers like you”"],["home","Today",""]],
+  br:[{from:2,label:"Log in",steps:[["account","Log in",""],["end","Today",""]]},
+      {from:6,label:"×",steps:[["screen","Limited free",""]],to:7}]},
+  {title:"Cancelling",desc:"Retention offer",main:[["entry","Settings › Subscription",""],["screen","Cancel",""],["offer","“Would 50% off help?”",""],["end","Kept or cancelled",""]],br:[]}],
+ notes:[["Paywall","A trial timeline answers “when will I be charged?” before it is asked."],["Reveal","The result comes after the paywall, so curiosity carries people through it."],["Offer","The discount is kept for cancellation, not onboarding."]]},
+cherry:{tab:"Cherrypick",title:"Cherrypick",lede:"The closest analogue to a recipe and meal-plan app. Value screens, household and diet questions, then a swipe game to taste meals. The account is framed as the reward: your matches are ready. There is no hard paywall; a Pro trial starts on its own.",src:"Figma study 28:1825 (22 screens)",
+ maps:[{title:"First run",desc:"Tab bar: Plan · Shop · Cook · You",
+  main:[["entry","First launch",""],["screen","Welcome","“Weekly meals and groceries, sorted”"],["proof","Plan · Cook · Shop","Value screens",3],["q","What matters","Testimonial on select",2],["proof","Video proof","“26% less UPFs”"],["q","Who you plan for","Adults, kids, infants",2],["q","Diet + filter","",3],["q","Dislikes","Allergy warning",4],["q","Taste swipe","“Do these make you tingle?”",2],["account","“Your meal matches are ready”","Create account · Skip"],["proof","How it works","3 steps, under 2 min"],["home","Plan it","Pro trial: 7 days left"]],
+  br:[{from:1,label:"Log in",steps:[["account","Log in",""],["end","Plan",""]]},
+      {from:9,label:"Skip",steps:[["screen","Guest","Matches kept"]],to:10}]}],
+ notes:[["Account","Framed as the payoff, right after the taste swipe."],["Paywall","None up front. The trial runs, and the banner counts down."],["Questions","Food-specific: household, diet, dislikes, taste."]]},
+};
+
+// overview data: position as % of first run; marks [type,letter,pos,after?]
+const O=[
+ ["apple","Apple’s model","HIG + Review",[[10,35]],[["perm","N",45],["pay","P",62],["home","H",75],["account","A",90,1]],"Any, labels"],
+ ["duo","Duolingo","26 screens",[[15,78]],[["perm","N",80],["reveal","R",88],["account","A",94],["home","H",100],["pay","P",108,1]],"6, icons"],
+ ["cal","Cal AI","34 screens",[[8,58]],[["perm","N",65],["perm","N",76],["account","A",79],["reveal","R",91],["pay","P",97],["home","H",100]],"3 + ＋"],
+ ["mfp","MyFitnessPal","24 screens",[[20,70]],[["account","A",16],["perm","N",72],["account","A",80],["pay","P",88],["home","H",100]],"5 with ＋"],
+ ["tiimo","Tiimo","16 screens",[[45,70]],[["account","A",12],["pay","P",81],["perm","N",88],["perm","N",94],["home","H",100]],"4"],
+ ["hs","Headspace","21 screens",[[45,82]],[["account","A",24],["pay","P",86],["reveal","R",95],["home","H",100]],"3"],
+ ["cherry","Cherrypick","22 screens",[[25,88]],[["account","A",91],["home","H",100],["pay","P",106,1]],"4"],
+];
+
+const CW=184,NW=150,NH=64,RH=104;
+function buildMap(m){
+  const nodes=[],edges=[];let rows=1,maxc=m.main.length-1;
+  m.main.forEach((n,i)=>nodes.push({n,c:i,r:0}));
+  for(let i=1;i<m.main.length;i++) edges.push({a:[i-1,0],b:[i,0],k:"m"});
+  m.br.forEach(b=>{const r=rows++;b.steps.forEach((n,j)=>{nodes.push({n,c:b.from+j,r});maxc=Math.max(maxc,b.from+j);
+      if(j>0)edges.push({a:[b.from+j-1,r],b:[b.from+j,r],k:"b"});});
+    edges.push({a:[b.from,0],b:[b.from,r],k:"down",label:b.label,ar:b.from===b.from?r:0});
+    if(b.to!==undefined) edges.push({a:[b.from+b.steps.length-1,r],b:[b.to,0],k:"up"});});
+  const W=(maxc+1)*CW-(CW-NW)+8, H=rows*RH-(RH-NH)+30;
+  const X=c=>c*CW, Y=r=>r*RH;
+  // branch rows below a down-edge from row 0 may cross intermediate rows; route along the left side
+  let svg=`<svg width="${W}" height="${H}"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--edge)"/></marker></defs>`;
+  for(const e of edges){let d,lbl="";
+    if(e.k==="m"||e.k==="b"){const y=Y(e.a[1])+NH/2;d=`M${X(e.a[0])+NW} ${y}L${X(e.b[0])-3} ${y}`;}
+    else if(e.k==="down"){const x0=X(e.a[0])+18,y0=Y(0)+NH,y1=Y(e.b[1]);
+      d=`M${x0} ${y0}C${x0-34} ${y0+20} ${x0-34} ${y1-20} ${x0} ${y1-3}`; if(e.b[1]===1)d=`M${x0} ${y0}L${x0} ${y1-3}`;
+      if(e.label) lbl=`<text class="el" x="${x0+6}" y="${y0+(e.b[1]===1?24:22)}">${e.label}</text>`;}
+    else {const x0=X(e.a[0])+NW,y0=Y(e.a[1])+NH/2,x1=X(e.b[0])+NW/2,y1=Y(0)+NH+2;
+      d=`M${x0} ${y0}C${x0+40} ${y0} ${x1} ${y0} ${x1} ${y1+1}`;}
+    svg+=`<path class="ed ${e.k==="m"?"":"br"}" d="${d}" marker-end="url(#ar)"/>${lbl}`;}
+  svg+="</svg>";
+  const html=nodes.map(({n:[t,ti,sub,cnt],c,r})=>`<div class="n ${t}" style="left:${X(c)}px;top:${Y(r)}px;--c:var(${T[t][1]})"><span class="t">${T[t][0]}</span><b>${ti}</b>${sub?`<i>${sub}</i>`:""}${cnt?`<span class="x">×${cnt}</span>`:""}</div>`).join("");
+  return `<div class="map" style="width:${W}px;height:${H}px">${svg}${html}</div>`;
+}
+
+function overview(){
+  const mk=([t,l,p,after])=>`<span class="mk ${after?"after":""}" style="left:${Math.min(p,104)}%;--c:var(${T[t][1]})" title="${T[t][0]}${after?" (after first run)":""}">${l}</span>`;
+  return `<div class="vhead"><h2>Where each app puts the big moments</h2><p class="lede">Each line is one app’s first run, from first launch (left) to home (right). The shaded band is the question section. Dashed markers sit past the end because the app asks later, after people reach home.</p></div>
+  <div class="legend"><span><i class="sw" style="--c:var(--c-account)"></i>A · account wall</span><span><i class="sw" style="--c:var(--c-pay)"></i>P · paywall</span><span><i class="sw" style="--c:var(--c-perm)"></i>N · permission</span><span><i class="sw" style="--c:var(--c-reveal)"></i>R · result reveal</span><span><i class="sw" style="--c:var(--c-home)"></i>H · home</span><span><i class="sw" style="--c:color-mix(in srgb,var(--c-q) 35%,transparent)"></i>questions</span></div>
+  <div class="strip"><div class="srow headr"><span>App</span><span>First launch → home</span><span>Tabs</span></div>${O.map(([id,a,s,q,m,tabs])=>`<div class="srow"><div class="app"><a href="#${id}">${a}</a><small>${s}</small></div><div class="track">${q.map(([x,y])=>`<span class="qbar" style="left:${x}%;width:${y-x}%"></span>`).join("")}${m.map(mk).join("")}</div><div class="tabsn">${tabs}</div></div>`).join("")}</div>
+  <div class="agree">
+   <div class="note"><span class="k">What they all agree on</span><p>Questions come before any money ask. Every notification request is primed by a custom screen first. Every paywall has a trial, and most close with ×. Returning users get a small “I have an account” link on the first screen.</p></div>
+   <div class="note"><span class="k">Where they split</span><p>The account wall. Tiimo, Headspace and MyFitnessPal ask first because the product lives in the account. Duolingo, Cal AI and Cherrypick ask after a result, framed as saving progress, and allow Skip. Apple’s guidance sides with later.</p></div>
+   <div class="note"><span class="k">The peak-value rule</span><p>The paywall lands right after the moment of most value: Cal AI after the plan reveal, Tiimo after social proof, Headspace just before the result. Duolingo waits until free limits bite.</p></div>
+   <div class="note"><span class="k">Evidence</span><p>RevenueCat 2026: hard paywalls convert about 10.7% of trials to paid by day 35 vs 2.1% for freemium (observational). 55% of 3-day trial cancellations happen on day 0. Superwall: multi-page paywalls beat single-page, 12.4% vs 9.1%.</p></div>
+  </div>`;
+}
+
+const order=["overview","apple","scen","|","duo","cal","mfp","tiimo","hs","cherry"];
+document.getElementById("tabs").innerHTML=order.map(k=>k==="|"?`<span class="sep"></span>`:`<a href="#${k}" data-k="${k}">${k==="overview"?"Overview":V[k].tab}</a>`).join("");
+function render(){
+  let k=location.hash.slice(1); if(!V[k]&&k!=="overview") k="overview";
+  document.querySelectorAll(".tabs a").forEach(a=>a.dataset.k===k?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+  const el=document.getElementById("view");
+  if(k==="overview"){el.innerHTML=overview();return;}
+  const v=V[k];
+  el.innerHTML=`<div class="vhead"><h2>${v.title}</h2><p class="lede">${v.lede}</p>${v.src?`<p class="src">Sources: ${v.src}</p>`:""}</div>`+
+   v.maps.map(m=>`<section class="mapcard"><div class="mh"><h3>${m.title}</h3><p>${m.desc}</p></div><div class="scroll">${buildMap(m)}</div></section>`).join("")+
+   (v.notes?`<div class="notes">${v.notes.map(([kk,t])=>`<div class="note"><span class="k">${kk}</span><p>${t}</p></div>`).join("")}</div>`:"");
+}
+addEventListener("hashchange",render); render();
+</script>

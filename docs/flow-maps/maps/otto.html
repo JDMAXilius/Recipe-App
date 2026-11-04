@@ -1,0 +1,185 @@
+<title>Otto Flow Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one pannable canvas, left to right = the order a person moves through the app. Zones are tinted regions; arrows are pushes (solid) or redirects (dashed). */
+:root{
+  --bg:#FAF4EA; --card:#FFFFFF; --line:#E8DECF; --ink:#2A211B; --ink-soft:#6E6055;
+  --accent:#C4562E; --accent-soft:#F3D9CD; --chestnut:#8A5A3B; --gold:#C9932F; --sage:#5A7A4F; --muted:#B9A895;
+  --z-open:rgba(185,168,149,.12); --z-out:rgba(138,90,59,.08); --z-club:rgba(232,176,75,.12); --z-mem:rgba(90,122,79,.08);
+  --edge:#C9B8A4;
+  --display:"Lora",Georgia,serif; --body:"Figtree",-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1E1915; --card:#2A231E; --line:#3D332B; --ink:#F3EADF; --ink-soft:#B8A999;
+  --accent:#E07A52; --accent-soft:#4A2C20; --chestnut:#C99573; --gold:#E8B04B; --sage:#93B585; --muted:#7D6E60;
+  --z-open:rgba(185,168,149,.07); --z-out:rgba(201,149,115,.07); --z-club:rgba(232,176,75,.07); --z-mem:rgba(147,181,133,.07);
+  --edge:#5A4C40; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1E1915; --card:#2A231E; --line:#3D332B; --ink:#F3EADF; --ink-soft:#B8A999;
+  --accent:#E07A52; --accent-soft:#4A2C20; --chestnut:#C99573; --gold:#E8B04B; --sage:#93B585; --muted:#7D6E60;
+  --z-open:rgba(185,168,149,.07); --z-out:rgba(201,149,115,.07); --z-club:rgba(232,176,75,.07); --z-mem:rgba(147,181,133,.07);
+  --edge:#5A4C40; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.4 var(--body);display:flex;flex-direction:column}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line)}
+h1{font:700 22px/1.1 var(--display);margin:0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--ink-soft);align-items:center}
+.legend svg{vertical-align:middle;margin-right:4px}
+.zoom{margin-left:auto;display:flex;gap:4px}
+.zoom button{font:600 14px var(--body);width:34px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.zoom button.fit{width:auto;padding:0 12px;font-size:12.5px}
+.zoom button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.view{flex:1;overflow:auto;position:relative;min-height:0}
+.sizer{position:relative}
+.canvas{position:absolute;left:0;top:0;transform-origin:0 0}
+.zone{position:absolute;border-radius:18px}
+.zone span{position:absolute;left:14px;top:10px;font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+svg.edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.e{fill:none;stroke:var(--edge);stroke-width:1.6;transition:stroke .15s,opacity .15s}
+.e.dash{stroke-dasharray:5 5}
+.lbl{font:500 10.5px var(--body);fill:var(--ink-soft);transition:opacity .15s}
+.node{position:absolute;width:176px;padding:9px 12px 9px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:border-color .15s,opacity .15s,box-shadow .15s;box-shadow:0 1px 2px rgba(42,33,27,.06)}
+.node::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--c)}
+.node b{font-weight:650;font-size:14px}
+.node i{font:400 10.5px var(--mono);color:var(--ink-soft);font-style:normal;overflow-wrap:anywhere}
+.node em{position:absolute;right:8px;top:8px;font:600 9.5px/1.6 var(--body);font-style:normal;letter-spacing:.05em;text-transform:uppercase;color:var(--c)}
+.node:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.node.tab{border-color:color-mix(in srgb,var(--sage) 45%,var(--line))}
+.node.gate{border:2px solid var(--ink)}
+.tabframe{position:absolute;border:1.5px dashed color-mix(in srgb,var(--sage) 55%,transparent);border-radius:16px}
+.tabframe span{position:absolute;left:12px;top:-9px;background:var(--bg);padding:0 6px;font:600 11px/18px var(--body);color:var(--sage);letter-spacing:.06em;text-transform:uppercase}
+.focus .node{opacity:.28}.focus .node.on{opacity:1;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.focus .e{opacity:.12}.focus .e.on{opacity:1;stroke:var(--accent)}
+.focus .lbl{opacity:0}.focus .lbl.on{opacity:1;fill:var(--accent)}
+.hint{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));font-size:12px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.e,.node,.lbl{transition:none}}
+</style>
+
+<div class="bar">
+  <h1>Otto Flow Map</h1>
+  <div class="legend">
+    <span><svg width="28" height="8"><line x1="0" y1="4" x2="28" y2="4" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>opens screen</span>
+    <span><svg width="28" height="8"><line x1="0" y1="4" x2="28" y2="4" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="5 5"/></svg>redirect / returns</span>
+    <span>Branch <code style="font:11px var(--mono)">fix/1.0.23</code> · 25 screens</span>
+  </div>
+  <div class="zoom"><button id="zo" aria-label="Zoom out">−</button><button id="zi" aria-label="Zoom in">+</button><button id="zf" class="fit">Fit</button></div>
+</div>
+<div class="view" id="view">
+  <div class="sizer" id="sizer"><div class="canvas" id="canvas"><svg class="edges" id="edges"></svg></div></div>
+  <div class="hint">Tap a screen to trace its paths</div>
+</div>
+
+<script>
+const W=1340, H=1160, NW=176;
+const X=[30,280,560,840,1120];
+const C={open:"var(--muted)",out:"var(--chestnut)",club:"var(--gold)",mem:"var(--sage)"};
+// id: [name, route, col, y, zone, tag]
+const N={
+  callback:["Sign-in link","/auth/callback",0,90,"open"],
+  reset:["Reset password","/reset-password",0,190,"open"],
+  launch:["Launch gate","/  · splash",0,470,"open","start"],
+  signup:["Sign up","/(auth)/sign-up",1,90,"out","first launch"],
+  signin:["Sign in","/(auth)/sign-in",1,190,"out"],
+  forgot:["Forgot password","/(auth)/forgot-password",1,290,"out"],
+  onboarding:["Onboarding","/onboarding",1,470,"club"],
+  club:["Otto Club paywall","/otto-club",1,590,"club","paywall"],
+  discover:["Discover","/(tabs)",2,130,"mem","tab"],
+  cookbook:["Cookbook","/(tabs)/cookbook",2,260,"mem","tab"],
+  create:["Create chat","/(tabs)/create  ＋",2,390,"mem","tab"],
+  plan:["Plan","/(tabs)/plan",2,560,"mem","tab"],
+  account:["Account","/(tabs)/profile",2,860,"mem","tab"],
+  recipe:["Recipe","/recipe/[id]",3,130,"mem"],
+  add:["Add a recipe","/add",3,300,"mem"],
+  chats:["Past chats","/chats",3,410,"mem"],
+  shopping:["Shopping list","/shopping",3,560,"mem"],
+  household:["Household","/household",3,670,"mem"],
+  journal:["Cooking journal","/journal",3,780,"mem"],
+  prefs:["Preferences","/preferences",3,880,"mem"],
+  notifs:["Notifications","/notifications",3,960,"mem"],
+  faq:["FAQ","/faq",3,1040,"mem"],
+  password:["Change password","/change-password",3,1110,"mem"],
+  cook:["Cook mode","/recipe/cook/[id]",4,80,"mem","no swipe"],
+  edit:["Edit recipe","/recipe/edit",4,250,"mem"],
+};
+// [from, to, label, dashed]
+const E=[
+  ["callback","launch","",1],["reset","launch","",1],
+  ["launch","signup","no session · new phone"],["launch","signin","no session"],
+  ["launch","onboarding","not onboarded"],["launch","club","not a member"],["launch","discover","member"],
+  ["signup","signin",""],["signin","forgot",""],
+  ["signin","launch","signed in",1],
+  ["onboarding","club","done"],["club","discover","purchased",1],
+  ["discover","recipe","featured · tonight"],["discover","create","",0],
+  ["cookbook","recipe","saved recipe"],["cookbook","add","import"],
+  ["create","chats","history"],["create","add",""],["create","edit","save Otto's recipe"],
+  ["plan","recipe","planned meal"],["plan","shopping","week list"],
+  ["account","household",""],["account","journal",""],["account","prefs",""],["account","notifs",""],["account","faq",""],["account","password",""],
+  ["account","club","membership"],["account","cookbook","stats",0],
+  ["recipe","cook","start cooking"],["recipe","edit","edit"],
+  ["add","edit","review import"],["edit","recipe","save",1],
+  ["chats","create","reopen",1],["shopping","household","share"],["journal","recipe","cooked dish",1],
+];
+
+const canvas=document.getElementById("canvas"), svg=document.getElementById("edges");
+canvas.style.width=W+"px"; canvas.style.height=H+"px"; svg.setAttribute("width",W); svg.setAttribute("height",H);
+
+function zone(x,y,w,h,label,bg){const d=document.createElement("div");d.className="zone";Object.assign(d.style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px",background:bg});d.innerHTML=`<span>${label}</span>`;canvas.insertBefore(d,svg);}
+zone(12,30,212,H-50,"Always open","var(--z-open)");
+zone(258,30,222,330,"Signed out","var(--z-out)");
+zone(258,410,222,300,"Signed in · not a member","var(--z-club)");
+zone(530,30,W-545,H-50,"Members only","var(--z-mem)");
+const tf=document.createElement("div");tf.className="tabframe";Object.assign(tf.style,{left:(X[2]-12)+"px",top:"110px",width:(NW+24)+"px",height:"830px"});tf.innerHTML="<span>Tab bar</span>";canvas.appendChild(tf);
+
+const el={};
+for(const [id,[name,route,col,y,z,tag]] of Object.entries(N)){
+  const d=document.createElement("div");
+  d.className="node"+(tag==="tab"?" tab":"")+(id==="launch"?" gate":"");
+  d.tabIndex=0; d.dataset.id=id; d.style.left=X[col]+"px"; d.style.top=y+"px"; d.style.setProperty("--c",C[z]);
+  d.innerHTML=`<b>${name}</b><i>${route}</i>${tag&&tag!=="tab"?`<em>${tag}</em>`:""}`;
+  canvas.appendChild(d); el[id]=d;
+}
+
+const NS="http://www.w3.org/2000/svg";
+svg.innerHTML=`<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--edge)"/></marker><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>`;
+const box=id=>{const d=el[id];return{x:d.offsetLeft,y:d.offsetTop,w:d.offsetWidth,h:d.offsetHeight};};
+const paths=[];
+function draw(){
+  paths.forEach(p=>{p.path.remove();p.text&&p.text.remove();}); paths.length=0;
+  for(const [f,t,label,dash] of E){
+    const a=box(f), b=box(t); let d, lx, ly;
+    const ay=a.y+a.h/2, by=b.y+b.h/2;
+    if(b.x>=a.x+a.w){ const sx=a.x+a.w, ex=b.x-2, k=Math.max(40,(ex-sx)/2);
+      d=`M${sx} ${ay}C${sx+k} ${ay} ${ex-k} ${by} ${ex} ${by}`; lx=(sx+ex)/2; ly=(ay+by)/2-5; }
+    else if(b.x+b.w<=a.x){ const sx=a.x, ex=b.x+b.w+2, k=Math.max(40,(sx-ex)/2);
+      d=`M${sx} ${ay}C${sx-k} ${ay} ${ex+k} ${by} ${ex} ${by}`; lx=(sx+ex)/2; ly=(ay+by)/2-5; }
+    else { const side=(b.y>a.y)?1:-1, sx=a.x+a.w, ex=b.x+b.w+2, off=24+Math.abs(by-ay)*.12;
+      d=`M${sx} ${ay}C${sx+off} ${ay} ${ex+off} ${by} ${ex} ${by}`; lx=sx+off*.75+4; ly=(ay+by)/2+4; }
+    const p=document.createElementNS(NS,"path"); p.setAttribute("d",d); p.setAttribute("class","e"+(dash?" dash":"")); p.setAttribute("marker-end","url(#a)"); svg.appendChild(p);
+    let tx=null; if(label){ tx=document.createElementNS(NS,"text"); tx.setAttribute("x",lx); tx.setAttribute("y",ly); tx.setAttribute("text-anchor","middle"); tx.setAttribute("class","lbl"); tx.textContent=label; svg.appendChild(tx); }
+    paths.push({f,t,path:p,text:tx});
+  }
+}
+
+let active=null;
+function focus(id){
+  active=(active===id)?null:id; canvas.classList.toggle("focus",!!active);
+  Object.values(el).forEach(n=>n.classList.remove("on"));
+  paths.forEach(p=>{const on=active&&(p.f===active||p.t===active);
+    p.path.classList.toggle("on",!!on); p.path.setAttribute("marker-end",on?"url(#ah)":"url(#a)"); p.text&&p.text.classList.toggle("on",!!on);
+    if(on){el[p.f].classList.add("on");el[p.t].classList.add("on");}});
+  if(active) el[active].classList.add("on");
+}
+canvas.addEventListener("click",e=>{const n=e.target.closest(".node"); if(n) focus(n.dataset.id); else if(active) focus(active);});
+canvas.addEventListener("keydown",e=>{const n=e.target.closest(".node"); if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();focus(n.dataset.id);} if(e.key==="Escape"&&active) focus(active);});
+
+const view=document.getElementById("view"), sizer=document.getElementById("sizer");
+let s=1; const fitScale=()=>Math.min(1,(view.clientWidth-16)/W);
+function setScale(v){ s=Math.max(.35,Math.min(1.6,v)); canvas.style.transform=`scale(${s})`; sizer.style.width=W*s+"px"; sizer.style.height=H*s+"px"; }
+document.getElementById("zi").onclick=()=>setScale(s+.15);
+document.getElementById("zo").onclick=()=>setScale(s-.15);
+document.getElementById("zf").onclick=()=>setScale(fitScale());
+draw(); setScale(Math.max(.55,fitScale()));
+document.fonts&&document.fonts.ready.then(draw);
+</script>

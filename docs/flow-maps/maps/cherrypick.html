@@ -1,0 +1,159 @@
+<title>Cherrypick Flow Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one canvas that opens fitted to the screen. Columns are stages in the order this app runs them; each column reads top to bottom, then the path jumps to the next column. */
+:root{
+  --bg:#FAF6EF; --card:#FFFFFF; --line:#E6DFD3; --ink:#221D18; --ink-soft:#6C6359; --edge:#C2B6A8; --hi:#C4562E; --hi-soft:#F3D9CD;
+  --s-entry:#8C8378; --s-welcome:#8A5A3B; --s-account:#6B4E9B; --s-q:#3D6FB0; --s-proof:#9A7BC4; --s-perm:#22897C;
+  --s-reveal:#B9861F; --s-pay:#C9502A; --s-home:#4E8A4A; --s-core:#2F6B4F; --s-later:#8C8378;
+  --display:"Lora",Georgia,serif; --body:"Figtree",-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1C1915; --card:#29241F; --line:#3C352D; --ink:#F2EBE2; --ink-soft:#B3A89B; --edge:#5E554A; --hi:#EE8559; --hi-soft:#4A2C20;
+  --s-entry:#A0968A; --s-welcome:#C99573; --s-account:#A68BD6; --s-q:#7FA8E0; --s-proof:#B9A3E3; --s-perm:#5CC6B8;
+  --s-reveal:#E8B04B; --s-pay:#F0805A; --s-home:#86BE7F; --s-core:#6FBF97; --s-later:#A0968A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1C1915; --card:#29241F; --line:#3C352D; --ink:#F2EBE2; --ink-soft:#B3A89B; --edge:#5E554A; --hi:#EE8559; --hi-soft:#4A2C20;
+  --s-entry:#A0968A; --s-welcome:#C99573; --s-account:#A68BD6; --s-q:#7FA8E0; --s-proof:#B9A3E3; --s-perm:#5CC6B8;
+  --s-reveal:#E8B04B; --s-pay:#F0805A; --s-home:#86BE7F; --s-core:#6FBF97; --s-later:#A0968A; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.4 var(--body);display:flex;flex-direction:column}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line)}
+.ttl{display:flex;flex-direction:column;gap:2px;min-width:0}
+h1{font:700 21px/1.1 var(--display);margin:0}
+.sub{font-size:12px;color:var(--ink-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-soft);align-items:center}
+.legend svg{vertical-align:middle;margin-right:4px}
+.zoom{margin-left:auto;display:flex;gap:4px}
+.zoom button{font:600 14px var(--body);min-width:34px;height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.zoom button:focus-visible,.node:focus-visible,.notes button:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.view{flex:1;overflow:auto;position:relative;min-height:0}
+.sizer{position:relative}
+.canvas{position:absolute;left:0;top:0;transform-origin:0 0}
+.zone{position:absolute;border-radius:18px;background:color-mix(in srgb,var(--c) 8%,transparent)}
+.zone span{position:absolute;left:14px;top:11px;right:10px;font:700 11px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.zone.tabs{background:transparent;border:1.5px dashed color-mix(in srgb,var(--c) 60%,transparent)}
+svg.edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.e{fill:none;stroke:var(--edge);stroke-width:1.6;transition:stroke .15s,opacity .15s}
+.e.dash{stroke-dasharray:5 5}
+.lbl{font:600 10.5px var(--body);fill:var(--ink-soft);paint-order:stroke;stroke:var(--bg);stroke-width:4px;transition:opacity .15s}
+.node{position:absolute;width:176px;min-height:58px;padding:9px 12px 9px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:border-color .15s,opacity .15s,box-shadow .15s;box-shadow:0 1px 2px rgba(34,29,24,.06)}
+.node::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--c)}
+.node b{font-weight:650;font-size:13.5px;line-height:1.25;padding-right:34px}
+.node i{font-style:normal;font-size:11px;color:var(--ink-soft);line-height:1.3}
+.node em{position:absolute;right:8px;top:8px;font:600 9.5px/1.6 var(--body);font-style:normal;letter-spacing:.05em;text-transform:uppercase;color:var(--c)}
+.node.dec{border-style:dashed;border-color:var(--ink-soft)}
+.node.sys{border-style:dashed;border-color:var(--c)}
+.node.key{border:2px solid var(--c)}
+.node.start{border:2px solid var(--ink)}
+.focus .node{opacity:.25}.focus .node.on{opacity:1;border-color:var(--hi);box-shadow:0 0 0 3px var(--hi-soft)}
+.focus .e{opacity:.1}.focus .e.on{opacity:1;stroke:var(--hi)}
+.focus .lbl{opacity:0}.focus .lbl.on{opacity:1;fill:var(--hi)}
+.notes{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));width:min(340px,calc(100% - 28px));background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:0 6px 24px rgba(34,29,24,.12);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.notes .hd{display:flex;justify-content:space-between;align-items:center;font:700 11px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--hi)}
+.notes button{all:unset;cursor:pointer;color:var(--ink-soft);font-size:16px;line-height:1;padding:2px 4px}
+.notes ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px}
+.notes .src{font:400 10.5px/1.4 var(--mono);color:var(--ink-soft);overflow-wrap:anywhere}
+.hint{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));font-size:12px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;pointer-events:none}
+@media (max-width:640px){.hint{display:none}}
+@media (prefers-reduced-motion:reduce){.e,.node,.lbl{transition:none}}
+</style>
+
+<div class="bar">
+  <div class="ttl"><h1 id="h1"></h1><span class="sub" id="sub"></span></div>
+  <div class="legend">
+    <span><svg width="28" height="8"><line x1="0" y1="4" x2="28" y2="4" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>next screen</span>
+    <span><svg width="28" height="8"><line x1="0" y1="4" x2="28" y2="4" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="5 5"/></svg>optional / skip / returns</span>
+  </div>
+  <div class="zoom"><button id="zo" aria-label="Zoom out">−</button><button id="zi" aria-label="Zoom in">+</button><button id="zf">Fit</button><button id="zn" aria-pressed="true">Notes</button></div>
+</div>
+<div class="view" id="view">
+  <div class="sizer" id="sizer"><div class="canvas" id="canvas"><svg class="edges" id="edges"></svg></div></div>
+  <div class="notes" id="notes"><div class="hd"><span>What to learn</span><button id="nx" aria-label="Hide notes">×</button></div><ul id="nl"></ul><div class="src" id="src"></div><div class="sub">Tap a screen to trace its paths.</div></div>
+</div>
+
+<script>
+const APP={"title":"Cherrypick Flow Map","sub":"Closest analogue to a recipe and meal-plan app · Plan · Shop · Cook · You","src":"PlanFuel Figma study 28:1825 (22 screens, screenshot-confirmed)","notes":["Three value screens show the whole product before any question.","Food questions: household, diet, dislikes, then a swipe game to taste meals.","The account is the reward: “your meal matches are ready”, with Skip.","No paywall up front. A Pro trial starts on its own and a banner counts it down."],"zones":[{"label":"Entry","st":"entry","cols":[0]},{"label":"Welcome","st":"welcome","cols":[1]},{"label":"What you get","st":"proof","cols":[2]},{"label":"Priorities","st":"q","cols":[3]},{"label":"Household + diet","st":"q","cols":[4]},{"label":"Taste","st":"reveal","cols":[5]},{"label":"Account as payoff","st":"account","cols":[6]},{"label":"Tab bar","st":"home","cols":[7],"tabs":1}],"nodes":[["first","First launch","",0,0,"entry","start","start"],["splash","Splash","",1,0,"welcome"],["welcome","Weekly meals and groceries, sorted","Get started · Log in",1,1,"welcome"],["login","Log in","",1,3,"welcome"],["plan","Plan","Value screen",2,0,"proof"],["cook","Cook","Value screen",2,1,"proof"],["shopv","Shop","Groceries to Sainsbury’s",2,2,"proof"],["matters","What matters when planning?","Testimonial on select",3,0,"q","×2"],["video","“26% less ultra-processed food”","Video proof",3,1,"proof"],["who","Who are you planning for?","Adults, children, infants",4,0,"q","×2"],["diet","Dietary requirements","",4,1,"q","×2"],["filter","Only show matching recipes?","Sheet",4,2,"q"],["dis","Dislikes","Ingredient picker, allergy warning",4,3,"q","×4"],["swipe","Do these meals make your tastebuds tingle?","Swipe yes / no",5,0,"reveal","×2","key"],["matches","Your meal matches are ready","Create account · Skip",6,0,"account","","key"],["guest","Skip","Matches kept",6,1,"account"],["how","Meal-plan and shop in under 2 min","3 steps",6,2,"proof"],["planT","Plan it","“Pro trial ends in 7 days” banner",7,0,"home","","key"],["shopT","Shop","",7,1,"home"],["cookT","Cook","",7,2,"home"],["you","You","",7,3,"home"]],"edges":[["first","splash"],["splash","welcome"],["welcome","plan","get started"],["welcome","login","log in",1],["login","planT","",1],["plan","cook"],["cook","shopv"],["shopv","matters"],["matters","video"],["video","who"],["who","diet"],["diet","filter"],["filter","dis"],["dis","swipe"],["swipe","matches"],["matches","how","create"],["matches","guest","skip",1],["guest","how","",1],["how","planT"],["planT","shopT"],["shopT","cookT"],["cookT","you"]]};
+const CX=220, RY=92, X0=30, Y0=58, NW=176;
+const STAGE={entry:"--s-entry",welcome:"--s-welcome",account:"--s-account",q:"--s-q",proof:"--s-proof",perm:"--s-perm",reveal:"--s-reveal",pay:"--s-pay",home:"--s-home",core:"--s-core",later:"--s-later"};
+document.getElementById("h1").textContent=APP.title;
+document.getElementById("sub").textContent=APP.sub;
+document.getElementById("nl").innerHTML=APP.notes.map(n=>`<li>${n}</li>`).join("");
+document.getElementById("src").textContent="Sources: "+APP.src;
+
+const canvas=document.getElementById("canvas"), svg=document.getElementById("edges");
+const el={}; let maxC=0,maxR=0;
+for(const [id,title,sub,c,r,st,tag,kind] of APP.nodes){
+  const d=document.createElement("div");
+  d.className="node"+(kind?" "+kind:"");
+  d.tabIndex=0; d.dataset.id=id; d.dataset.zone=APP.zones.findIndex(z=>z.cols.includes(c));
+  d.style.left=(X0+c*CX)+"px"; d.style.top=(Y0+r*RY)+"px"; d.style.setProperty("--c",`var(${STAGE[st]})`);
+  d.innerHTML=`<b>${title}</b>${sub?`<i>${sub}</i>`:""}${tag?`<em>${tag}</em>`:""}`;
+  canvas.appendChild(d); el[id]=d; maxC=Math.max(maxC,c); maxR=Math.max(maxR,r);
+}
+const W=X0+maxC*CX+NW+40, H=Y0+(maxR+1)*RY+24;
+canvas.style.width=W+"px"; canvas.style.height=H+"px"; svg.setAttribute("width",W); svg.setAttribute("height",H);
+
+function zones(){
+  canvas.querySelectorAll(".zone").forEach(z=>z.remove());
+  APP.zones.forEach((z,i)=>{
+    const ns=[...canvas.querySelectorAll(`.node[data-zone="${i}"]`)]; if(!ns.length) return;
+    const x0=Math.min(...ns.map(n=>n.offsetLeft))-14, x1=Math.max(...ns.map(n=>n.offsetLeft+n.offsetWidth))+14;
+    const y0=Math.min(...ns.map(n=>n.offsetTop))-36, y1=Math.max(...ns.map(n=>n.offsetTop+n.offsetHeight))+14;
+    const d=document.createElement("div"); d.className="zone"+(z.tabs?" tabs":"");
+    Object.assign(d.style,{left:x0+"px",top:y0+"px",width:(x1-x0)+"px",height:(y1-y0)+"px"}); d.style.setProperty("--c",`var(${STAGE[z.st]})`);
+    d.innerHTML=`<span>${z.label}</span>`; canvas.insertBefore(d,svg);
+  });
+}
+
+const NS="http://www.w3.org/2000/svg";
+svg.innerHTML=`<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--edge)"/></marker><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--hi)"/></marker></defs>`;
+const box=id=>{const d=el[id];return{x:d.offsetLeft,y:d.offsetTop,w:d.offsetWidth,h:d.offsetHeight};};
+const paths=[];
+function draw(){
+  paths.forEach(p=>{p.path.remove();p.text&&p.text.remove();}); paths.length=0;
+  for(const [f,t,label,dash] of APP.edges){
+    const a=box(f), b=box(t); let d,lx,ly,anchor="middle";
+    const ay=a.y+a.h/2, by=b.y+b.h/2;
+    if(b.x>=a.x+a.w){ const sx=a.x+a.w, ex=b.x-2, k=Math.max(40,(ex-sx)/2);
+      d=`M${sx} ${ay}C${sx+k} ${ay} ${ex-k} ${by} ${ex} ${by}`; lx=(sx+ex)/2; ly=(ay+by)/2-6; }
+    else if(b.x+b.w<=a.x){ const sx=a.x, ex=b.x+b.w+2, k=Math.max(50,(sx-ex)/2);
+      d=`M${sx} ${ay}C${sx-k} ${ay} ${ex+k} ${by} ${ex} ${by}`; lx=(sx+ex)/2; ly=(ay+by)/2-6; }
+    else if(b.y>a.y && b.y-(a.y+a.h)<60){ const x=a.x+a.w/2;
+      d=`M${x} ${a.y+a.h}L${x} ${b.y-2}`; lx=x+8; ly=(a.y+a.h+b.y)/2+4; anchor="start"; }
+    else { const sx=a.x+a.w, ex=b.x+b.w+2, off=26+Math.abs(by-ay)*.12;
+      d=`M${sx} ${ay}C${sx+off} ${ay} ${ex+off} ${by} ${ex} ${by}`; lx=sx+off*.75+4; ly=(ay+by)/2+4; anchor="start"; }
+    const p=document.createElementNS(NS,"path"); p.setAttribute("d",d); p.setAttribute("class","e"+(dash?" dash":"")); p.setAttribute("marker-end","url(#a)"); svg.appendChild(p);
+    let tx=null; if(label){ tx=document.createElementNS(NS,"text"); tx.setAttribute("x",lx); tx.setAttribute("y",ly); tx.setAttribute("text-anchor",anchor); tx.setAttribute("class","lbl"); tx.textContent=label; svg.appendChild(tx); }
+    paths.push({f,t,path:p,text:tx});
+  }
+  zones();
+}
+
+let active=null;
+function focus(id){
+  active=(active===id)?null:id; canvas.classList.toggle("focus",!!active);
+  Object.values(el).forEach(n=>n.classList.remove("on"));
+  paths.forEach(p=>{const on=active&&(p.f===active||p.t===active);
+    p.path.classList.toggle("on",!!on); p.path.setAttribute("marker-end",on?"url(#ah)":"url(#a)"); p.text&&p.text.classList.toggle("on",!!on);
+    if(on){el[p.f].classList.add("on");el[p.t].classList.add("on");}});
+  if(active) el[active].classList.add("on");
+}
+canvas.addEventListener("click",e=>{const n=e.target.closest(".node"); if(n) focus(n.dataset.id); else if(active) focus(active);});
+canvas.addEventListener("keydown",e=>{const n=e.target.closest(".node"); if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();focus(n.dataset.id);} if(e.key==="Escape"&&active) focus(active);});
+
+const view=document.getElementById("view"), sizer=document.getElementById("sizer"), notes=document.getElementById("notes");
+let s=1; const fitScale=()=>Math.min(1.2,(view.clientWidth-12)/W,(view.clientHeight-12)/H);
+function setScale(v){ s=Math.max(.25,Math.min(1.8,v)); canvas.style.transform=`scale(${s})`; sizer.style.width=W*s+"px"; sizer.style.height=H*s+"px"; }
+document.getElementById("zi").onclick=()=>setScale(s+.15);
+document.getElementById("zo").onclick=()=>setScale(s-.15);
+document.getElementById("zf").onclick=()=>setScale(fitScale());
+const zn=document.getElementById("zn");
+function showNotes(on){notes.hidden=!on; zn.setAttribute("aria-pressed",on);}
+zn.onclick=()=>showNotes(notes.hidden); document.getElementById("nx").onclick=()=>showNotes(false);
+draw(); setScale(fitScale());
+addEventListener("resize",()=>setScale(fitScale()));
+document.fonts&&document.fonts.ready.then(()=>{draw();setScale(fitScale());});
+</script>

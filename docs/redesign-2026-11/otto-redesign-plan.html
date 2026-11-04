@@ -1,0 +1,261 @@
+<title>Otto Redesign Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single working document, with screen rows and one phone mock. */
+:root{--bg:#f6f7f3;--panel:#ffffff;--fg:#1d2420;--soft:#5a655f;--line:#dde1d9;--accent:#2f6b4f;--accent-soft:#dcebe2;--warn:#a5481f;--warn-soft:#f6e3d8;--yolk:#f2c14e;--display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;--body:"Figtree",ui-sans-serif,system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141815;--panel:#1d221e;--fg:#edf0ea;--soft:#a3ada6;--line:#323a34;--accent:#7cc5a0;--accent-soft:#233a2e;--warn:#f0a27e;--warn-soft:#402a1f;--yolk:#e6b84a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141815;--panel:#1d221e;--fg:#edf0ea;--soft:#a3ada6;--line:#323a34;--accent:#7cc5a0;--accent-soft:#233a2e;--warn:#f0a27e;--warn-soft:#402a1f;--yolk:#e6b84a;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+main{max-width:880px;margin:0 auto;display:grid;gap:44px}
+h1,h2,h3{font-family:var(--display);line-height:1.12;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,7vw,52px);font-weight:700}
+h2{font-size:clamp(24px,4.5vw,31px);font-weight:700}
+h3{font-size:18px;font-weight:700}
+p{margin:0;max-width:68ch}
+section{display:grid;gap:16px}
+.lead{font-size:18px;color:var(--soft)}
+.stack{display:grid;gap:10px}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:8px;min-width:0}
+.note.warn{background:var(--warn-soft);border-color:transparent}
+.label{font-size:13px;font-weight:600;color:var(--soft)}
+ul,ol{margin:0;padding-left:20px;display:grid;gap:7px}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:14.5px}
+th,td{text-align:left;vertical-align:top;padding:11px 12px;border-bottom:1px solid var(--line)}
+th{font-size:13px;color:var(--soft);font-weight:600}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600;white-space:nowrap}
+tr.group td{background:var(--accent-soft);font-family:var(--display);font-weight:700;font-size:15px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.tag.big{background:var(--warn-soft);color:var(--warn)}
+.tag.low{background:transparent;border:1px solid var(--line);color:var(--soft)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:28px;align-items:start}
+@media (max-width:720px){.two{grid-template-columns:minmax(0,1fr)}}
+.phone{width:100%;max-width:290px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:30px;padding:18px 14px 12px;display:grid;gap:12px;box-shadow:0 12px 30px rgba(20,30,25,.12)}
+.ph{display:flex;justify-content:space-between;align-items:baseline}
+.ph b{font:700 22px var(--display)}
+.ph span{font-size:12px;color:var(--soft)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.d{padding:5px 0 6px;border-radius:12px;font-size:11px;color:var(--soft);display:grid;gap:1px}
+.d b{font-size:15px;color:var(--fg)}
+.d.on{background:var(--accent);color:#fff}.d.on b{color:#fff}
+:root[data-theme="dark"] .d.on,:root[data-theme="dark"] .d.on b{color:#10150f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .d.on,:root:not([data-theme="light"]) .d.on b{color:#10150f}}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--yolk);margin:1px auto 0}
+.dot.e{background:transparent}
+.tonight{border-radius:16px;min-height:132px;padding:12px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;color:#fff;background:linear-gradient(160deg,#c8892f,#7b3f1d 60%,#3a2413)}
+.tonight small{font-size:11px;font-weight:600}
+.tonight b{font:700 18px var(--display)}
+.cook{margin-top:6px;align-self:flex-start;background:#fff;color:#222;font-size:12px;font-weight:600;padding:5px 11px;border-radius:99px}
+.slot{display:grid;gap:5px}
+.slot>span{font-size:11px;font-weight:600;color:var(--soft)}
+.m{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:500}
+.t{width:34px;height:34px;border-radius:9px;flex:none;background:linear-gradient(135deg,#7da35b,#39572f)}
+.t.b{background:linear-gradient(135deg,#e0a65a,#a4532b)}
+.empty{font-size:12.5px;color:var(--accent);font-weight:600;border:1px dashed var(--line);border-radius:10px;padding:8px 10px}
+.bar{display:flex;justify-content:space-between;align-items:center;background:var(--accent-soft);border-radius:12px;padding:8px 11px;font-size:12px;font-weight:600}
+@media (prefers-reduced-motion:no-preference){.d.on{transition:background .2s}}
+a{color:var(--accent)}
+</style>
+<main>
+<header class="stack">
+  <span class="label">Otto iOS app · plan for review · 2 November 2026</span>
+  <h1>Taking Otto to the next level</h1>
+  <p class="lead">Every screen we have, what is wrong with it, how better apps handle it, and the order to rebuild it. Nothing here has been changed in the app yet.</p>
+</header>
+
+<section>
+  <h2>The short version</h2>
+  <ul>
+    <li><strong>Rebuild the experience, keep the engine.</strong> Recipes, import, nutrition, payments and accounts work. What needs starting over is the look, the navigation, the plan and the first-run flow.</li>
+    <li><strong>The "AI slop" feeling has a real cause.</strong> Warm cream, a serif headline and a terracotta accent is one of the most common looks AI tools produce. Otto uses exactly that, on nearly every screen.</li>
+    <li><strong>Your otter is the asset nobody can copy.</strong> Today it is mostly a still image. It should become the thing that makes the app feel alive.</li>
+    <li><strong>Fix the three reported bugs first</strong> as a quick 1.0.23, then start the redesign.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>The bugs you reported</h2>
+  <p>I traced these by reading the code. I have not reproduced them on a device, so each fix gets tested with your paid account.</p>
+  <div class="stack">
+    <div class="note warn">
+      <h3>Paid members see the paywall after signing in, with an X</h3>
+      <p><strong>Likely cause:</strong> these are one bug. Right after sign-in, the app asks about your membership before RevenueCat, the payment service, has switched to your account. It gets "not a member" and opens the paywall. Moments later the answer corrects itself, but nothing moves you off that screen.</p>
+      <p>The X only ever appears for members, which fits your report: you were seeing the members' version of the screen by accident.</p>
+      <p><strong>Fix:</strong> wait for the account switch to finish before choosing a screen, and send members to the app automatically. Non-members already have no X. From Account, the membership page gets a normal back arrow.</p>
+    </div>
+    <div class="note">
+      <h3>Small otter on sign-in and sign-up</h3>
+      <p><strong>Cause:</strong> the screen draws a tall framed painting, background included, at only 84 points. It reads as a tiny pasted picture. <strong>Fix:</strong> replace it in the redesign with a large cut-out or animated otter.</p>
+    </div>
+    <div class="note">
+      <h3>Wrong image size on the paywall</h3>
+      <p><strong>Cause:</strong> the image component forces every picture into a square. The floating otter is wide, so it shrinks and leaves empty space above and below. <strong>Fix:</strong> let the image keep its real shape. This also corrects other wide art in the app.</p>
+    </div>
+    <div class="note">
+      <h3>Onboarding only once</h3>
+      <p><strong>Already correct in the code.</strong> It is saved on the account, so it also survives a reinstall or a new phone.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Why it looks dead today</h2>
+  <ul>
+    <li><strong>Everything has the same weight.</strong> Plan, chat and Account are all the same white rounded cards on cream, so nothing leads the eye.</li>
+    <li><strong>Food is too small.</strong> A recipe app should sell appetite. The plan shows a thumbnail surrounded by empty cards reading "Nothing planned".</li>
+    <li><strong>Icon puzzles.</strong> Each planned meal has four unlabeled icons in a row: swap, cooked, leftovers and remove.</li>
+    <li><strong>The app has no daily reason to open.</strong> Discover greets you with a catalog, but it does not know what you planned for tonight.</li>
+    <li><strong>It stays inside the app.</strong> I found no home screen widget or lock screen timer, even though cooking suits both well.</li>
+    <li><strong>It does not look like current iOS.</strong> The tab bar and sheets are custom drawn, so they miss the newest system look and behavior. Dark mode does not exist either.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Meal plan: rebuilt around dates</h2>
+  <div class="two">
+    <div class="stack">
+      <p>You asked for dates, and that is the right spine. One finding from the research, though: Crouton also stacks day cards, much like ours. What separates better planners is photos, meal sections and a fast way to move between days.</p>
+      <ul>
+        <li><strong>Week strip on top.</strong> Tap a date or swipe between weeks. Dots show which days have food. Tiimo uses this pattern.</li>
+        <li><strong>Tonight is the hero.</strong> A large photo with one action: Start cooking.</li>
+        <li><strong>Breakfast, lunch and dinner sections</strong>, as Crouton does, each optional. People who only plan dinner never see empty guilt rows.</li>
+        <li><strong>Press and drag</strong> to move a meal to another day. Swipe to mark it cooked or remove it. A long press opens swap and leftovers, with words instead of mystery icons.</li>
+        <li><strong>"Plan my week" with Otto.</strong> Otto proposes meals, and you keep or swap each one with a tap, then get one grocery list.</li>
+        <li><strong>Month view</strong> to look back and repeat a good week.</li>
+      </ul>
+    </div>
+    <div class="phone" role="img" aria-label="Concept sketch of the new plan screen with a week date strip, tonight's dinner photo and meal sections">
+      <div class="ph"><b>November</b><span>Week 45</span></div>
+      <div class="week">
+        <div class="d">M<b>2</b><i class="dot"></i></div>
+        <div class="d on">T<b>3</b><i class="dot"></i></div>
+        <div class="d">W<b>4</b><i class="dot"></i></div>
+        <div class="d">T<b>5</b><i class="dot e"></i></div>
+        <div class="d">F<b>6</b><i class="dot"></i></div>
+        <div class="d">S<b>7</b><i class="dot e"></i></div>
+        <div class="d">S<b>8</b><i class="dot e"></i></div>
+      </div>
+      <div class="tonight"><small>Tonight · 35 min</small><b>Teriyaki chicken casserole</b><span class="cook">Start cooking</span></div>
+      <div class="slot"><span>Lunch</span><div class="m"><i class="t"></i>Leek and rice bake · leftovers</div></div>
+      <div class="slot"><span>Breakfast</span><div class="empty">+ Add breakfast</div></div>
+      <div class="bar"><span>12 items for this week</span><span>Shop →</span></div>
+    </div>
+  </div>
+  <p class="label">Sketch only, to show the structure. It is not the final visual style.</p>
+</section>
+
+<section>
+  <h2>A new app structure</h2>
+  <p>Today the tabs are Discover, Cookbook, a plus button, Plan and Account. I propose this instead:</p>
+  <ul>
+    <li><strong>Today (new home).</strong> Tonight's dinner, a timer you left running, what to defrost, and one idea from Otto.</li>
+    <li><strong>Plan.</strong> The dated week above, with Shopping one tap inside it.</li>
+    <li><strong>Plus button.</strong> One menu for Ask Otto, paste a link, scan a photo, or write a recipe.</li>
+    <li><strong>Cookbook.</strong> Your saved recipes, as folders with cover photos.</li>
+    <li><strong>Discover.</strong> Curated collections and search.</li>
+    <li><strong>Account</strong> moves to your avatar at the top of Today, which frees a tab.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Every screen</h2>
+  <p><span class="tag big">Rebuild</span> start over &nbsp; <span class="tag">Redesign</span> same job, new design &nbsp; <span class="tag low">Reskin</span> inherits the new style</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Screen</th><th>Call</th><th>Today</th><th>What it becomes</th><th>Learned from</th></tr></thead>
+    <tbody>
+    <tr class="group"><td colspan="5">Getting in</td></tr>
+    <tr><td>Splash</td><td><span class="tag">Redesign</span></td><td>Static wait</td><td>Short otter animation that hands off smoothly to the first screen</td><td>Duolingo, Finch</td></tr>
+    <tr><td>Sign up</td><td><span class="tag big">Rebuild</span></td><td>First thing a new user sees</td><td>Comes after the user has seen value. Large otter, Apple sign-in first</td><td>Cherrypick</td></tr>
+    <tr><td>Sign in</td><td><span class="tag big">Rebuild</span></td><td>Tiny framed otter and a stacked form</td><td>Full-bleed otter scene, Apple and Google up top, email tucked behind one tap</td><td>BitePal</td></tr>
+    <tr><td>Forgot, reset and change password</td><td><span class="tag low">Reskin</span></td><td>Simple forms</td><td>Same logic in the new style</td><td>Standard</td></tr>
+    <tr><td>Onboarding</td><td><span class="tag big">Rebuild</span></td><td>3 slides of feature claims</td><td>Questions on household, diet and dislikes, then Otto builds a real first week before asking for anything</td><td>Cherrypick, Cal AI</td></tr>
+    <tr><td>Paywall</td><td><span class="tag big">Rebuild</span></td><td>Otter, two plans, one button</td><td>Shows the user's own generated week behind the offer. No spin wheels or fake countdowns</td><td>Cal AI, without its tricks</td></tr>
+    <tr><td>Membership (from Account)</td><td><span class="tag">Redesign</span></td><td>Reuses the paywall screen, with lots of empty space</td><td>Separate page: plan, renewal date, what's included, Manage</td><td>Crouton</td></tr>
+    <tr><td>AI permission sheet</td><td><span class="tag">Redesign</span></td><td>Says Claude by Anthropic</td><td>Friendlier, and must name OpenAI correctly</td><td>Apple 5.1.2(i)</td></tr>
+    <tr class="group"><td colspan="5">Daily use</td></tr>
+    <tr><td>Today</td><td><span class="tag big">New</span></td><td>Does not exist</td><td>The daily home described above</td><td>Tiimo, Bevel</td></tr>
+    <tr><td>Discover</td><td><span class="tag big">Rebuild</span></td><td>Greeting, search, one pick, grid</td><td>Editorial collections, big photography, swipeable rows, "Add to plan" on every card</td><td>Cherrypick, Crouton</td></tr>
+    <tr><td>Search and filters</td><td><span class="tag">Redesign</span></td><td>Filter sheet</td><td>Native search with live suggestions and removable filter chips</td><td>Yazio, Cherrypick</td></tr>
+    <tr><td>Cookbook</td><td><span class="tag">Redesign</span></td><td>Saved recipe list</td><td>Folders and tags, cover photos, grid or list</td><td>Crouton</td></tr>
+    <tr><td>Recipe detail</td><td><span class="tag">Redesign</span></td><td>Good bones, but nutrition crowds out the food</td><td>Photo expands as you pull. Ingredients come first, servings adjust live, nutrition folds away</td><td>Crouton</td></tr>
+    <tr><td>Cook mode</td><td><span class="tag">Redesign</span></td><td>Works, inside the app only</td><td>Lock screen timer, screen stays on, hands-free option, otter celebrates at the end</td><td>Crouton, Tiimo</td></tr>
+    <tr class="group"><td colspan="5">Otto and adding recipes</td></tr>
+    <tr><td>Ask Otto chat</td><td><span class="tag big">Rebuild</span></td><td>Otter, three text chips, input</td><td>Answers appear as real recipe cards with photos and "Add to plan". Suggestions use your fridge and your week. Voice is first class</td><td>BitePal</td></tr>
+    <tr><td>Chat history</td><td><span class="tag low">Reskin</span></td><td>List</td><td>Searchable, shows the recipes each chat made</td><td>Standard</td></tr>
+    <tr><td>Add recipe menu</td><td><span class="tag">Redesign</span></td><td>Sheet</td><td>The new plus menu, plus receiving links from the iOS share sheet</td><td>Crouton</td></tr>
+    <tr><td>Edit recipe</td><td><span class="tag low">Reskin</span></td><td>Long form</td><td>Same logic, tidier sections</td><td>Crouton</td></tr>
+    <tr class="group"><td colspan="5">Planning and shopping</td></tr>
+    <tr><td>Meal plan</td><td><span class="tag big">Rebuild</span></td><td>Seven stacked day cards</td><td>Dated plan described above</td><td>Tiimo, Crouton</td></tr>
+    <tr><td>Recipe picker</td><td><span class="tag">Redesign</span></td><td>Bottom sheet</td><td>Native sheet with photos and "recently cooked"</td><td>Crouton</td></tr>
+    <tr><td>Shopping list</td><td><span class="tag">Redesign</span></td><td>Largest screen in the code, at about 1,080 lines</td><td>Grouped by aisle, satisfying check-off, shared live with the household</td><td>Crouton, Cherrypick</td></tr>
+    <tr class="group"><td colspan="5">You</td></tr>
+    <tr><td>Account</td><td><span class="tag">Redesign</span></td><td>Long settings tab</td><td>Opens from the avatar. Your cooking stats on top, native settings below</td><td>Duolingo</td></tr>
+    <tr><td>Journal</td><td><span class="tag">Redesign</span></td><td>Simple list</td><td>Photo timeline of what you cooked, with a yearly recap to share</td><td>Duolingo, Finch</td></tr>
+    <tr><td>Household</td><td><span class="tag low">Reskin</span></td><td>Invite code</td><td>Shareable invite link and member photos</td><td>Crouton</td></tr>
+    <tr><td>Preferences, notifications, FAQ</td><td><span class="tag low">Reskin</span></td><td>Simple lists</td><td>Native iOS settings style</td><td>Standard</td></tr>
+    <tr><td>Share cards</td><td><span class="tag">Redesign</span></td><td>Recipe image and text</td><td>Beautiful cards with the otter and an App Store link, since this is free marketing</td><td>Duolingo</td></tr>
+    <tr><td>Empty, loading and error states</td><td><span class="tag">Redesign</span></td><td>Still otter image</td><td>Animated otter acting out each situation</td><td>Finch</td></tr>
+    <tr class="group"><td colspan="5">Outside the app (new)</td></tr>
+    <tr><td>Widgets, lock screen, Siri</td><td><span class="tag big">New</span></td><td>None</td><td>Tonight's dinner widget, live cooking timer, "Add to my list" through Siri</td><td>Cal AI, Tiimo</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>What makes it feel alive</h2>
+  <ul>
+    <li><strong>A living otter.</strong> Interactive animation that reacts: stirs while AI works, cheers when you finish, naps on empty pages. Tools like Rive support this. It needs new animation art, and it will be the largest creative cost.</li>
+    <li><strong>A new visual identity.</strong> Dark mode, a food-first layout and a type and color system that leaves the cream, serif and terracotta formula behind. I would show you 2 or 3 directions in Figma before any code.</li>
+    <li><strong>Native iOS parts.</strong> System tab bar, sheets and search, so Otto gets the current iOS look and feel for free. A short technical test comes first, because some of this is still maturing in Expo, our app framework.</li>
+    <li><strong>Motion with a purpose.</strong> Photos that carry from card to full screen, meals that drag between days, and haptics when you check something off.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Rules that stay, even in a fresh start</h2>
+  <p>I set aside our old internal design rules for this plan. Apple's rules are different: you asked to follow them, and breaking them gets the app rejected or removed.</p>
+  <ul>
+    <li><strong>Paywall:</strong> the billed price stays the most prominent price. Trial length, restore, terms and privacy must be present. This is what got 1.0.21 rejected.</li>
+    <li><strong>No X for non-members is allowed</strong>, but sign out and delete account must stay reachable, as they are now.</li>
+    <li><strong>The AI provider must be named correctly.</strong> The app and privacy policy still say Anthropic while data goes to OpenAI. The app working does not resolve this. 1.0.22 is already in review with that text, so I want to correct it in 1.0.23 and ask users to consent again.</li>
+    <li><strong>Nutrition stays an estimate,</strong> with its source shown, and reviews use only Apple's own prompt.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Order of work</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Phase</th><th>What ships</th><th>Rough size</th></tr></thead>
+    <tbody>
+    <tr><td>0 · Fix now</td><td>Paywall bug, image sizes, sign-in otter, correct AI naming. Release 1.0.23.</td><td>1 to 2 days, plus Apple review</td></tr>
+    <tr><td>1 · Identity</td><td>2 or 3 visual directions in Figma, covering Plan, Today and sign-in. You choose one.</td><td>About 1 week</td></tr>
+    <tr><td>2 · Foundation</td><td>New colors, type, dark mode, native navigation, shared components, otter animation test.</td><td>1 to 2 weeks</td></tr>
+    <tr><td>3 · Plan and Today</td><td>The new plan, the home screen and shopping. Most visible change, so it ships first.</td><td>2 to 3 weeks</td></tr>
+    <tr><td>4 · First run</td><td>Sign in, onboarding and the new paywall.</td><td>1 to 2 weeks</td></tr>
+    <tr><td>5 · Otto and recipes</td><td>Chat with recipe cards, Discover, Cookbook, recipe detail, cook mode.</td><td>2 to 3 weeks</td></tr>
+    <tr><td>6 · Beyond the app</td><td>Widgets, lock screen timer, Siri, share cards, recap.</td><td>1 to 2 weeks</td></tr>
+    <tr><td>7 · Website</td><td>Same identity applied to ottosapp.com, as you said, after the app.</td><td>About 1 week</td></tr>
+    </tbody>
+  </table></div>
+  <p class="label">Sizes are rough judgment calls, not measurements, and each phase ships as its own App Store update.</p>
+</section>
+
+<section>
+  <h2>Decisions for you</h2>
+  <ol>
+    <li><strong>Start Phase 0 now?</strong> I recommend yes, because members hitting the paywall hurts your new testers today.</li>
+    <li><strong>Should the hard paywall stay?</strong> I recommend keeping it, but showing the user's generated first week before it. Letting people in for free would change the business model.</li>
+    <li><strong>Should the look change completely, keeping only the otter?</strong> I recommend yes. Otherwise it keeps reading as the same app.</li>
+    <li><strong>Do you agree with Today as the new home tab?</strong> It is the biggest structural change here.</li>
+    <li><strong>Who makes the otter animation?</strong> It can be you, a hired animator, or me working from your art with simpler motion. The quality gap between these is large.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>What this is based on</h2>
+  <p>The code for every route and the main screens. App screenshots from your 4 October audit, so some may be slightly out of date. In Figma, I looked at onboarding, plan, home or paywall rows for Cherrypick, BitePal, Cal AI, Crouton and Tiimo. Names like Duolingo, Finch, Bevel and Yazio in the table rest on their flow lists, or on what those apps are known for, rather than a close look at their screens, so I will study each reference properly when its screen comes up. There is no usage data here, so which changes improve conversion remains something to measure after release.</p>
+</section>
+</main>
