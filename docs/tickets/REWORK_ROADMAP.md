@@ -39,7 +39,7 @@ The new flow moves **value before the account**. That single change drives most 
 ```
 today:   splash → sign up → 3 paintings → paywall → 5 tabs
 next:    launch shell → Welcome → 3 questions → your first week → save your plan (account)
-         → Otto Club (no X) → App Store sheet → you're all set → reminders → 4 tabs + Search
+         → Otto Club (no X) → App Store sheet → you're all set → reminders → 4 tabs + Otto
 ```
 
 What that means in code, in one breath:
@@ -50,7 +50,9 @@ What that means in code, in one breath:
    a returning signed-out person back to Save your plan; lapsed and pending get their own screens.
 3. **The paywall turns outcomes into screens**, and reminders move to after the purchase.
 4. **The tab bar is rebuilt**: Home (Tonight + This week + Discover), Plan (with the list), Cookbook,
-   Account, and a trailing Search tab. The ＋ Create tab goes away; Ask Otto lives on Home and in Search.
+   Account, and **Otto, the AI, as the separate circle at the trailing end** (the spot iOS 26 gives Search; Juan,
+   2026-11-04: talking with Otto is the app's big feature). The ＋ Create tab goes away. Search becomes a
+   screen pushed from Discover's search field.
 5. **Doors get wired**: universal links, notification taps, What's new, offline, not found — all
    through one "where was this person going" intent that survives sign-in and purchase.
 
@@ -63,7 +65,7 @@ What that means in code, in one breath:
 | D1 | Where preferences live | **On the account** (new `profiles` row, RLS own-row), kv as offline cache | Today they're phone-only; a new phone loses diet/allergies. The 3 answers need a home the draft can be claimed into |
 | D2 | Allergies stored server-side? | Yes, as a plain list, labelled "Preferences" in the privacy answers | Changes the App Privacy answers (Other user content) — must be updated before release |
 | D3 | Signed-out person with a draft who closes the app | Reopen on **Save your plan**, the week still there | Draft must persist in kv, not memory |
-| D4 | Tab bar tech | **NativeTabs** (`expo-router/unstable-native-tabs`) for Liquid Glass + a real Search tab; JS tabs as fallback | Native is the only way to get the iOS 26 floating bar and `role="search"`; it's marked unstable |
+| D4 | Tab bar tech | **NativeTabs** (`expo-router/unstable-native-tabs`) for the iOS 26 floating bar; the Otto circle is the trailing slot iOS reserves for Search (`role="search"` without a search field), JS tabs as fallback | The trailing circle is styled by the system for search. Spike: confirm it can host a chat screen with an otter icon and no search field; if not, a custom bar draws the same shape |
 | D5 | Version | **1.1.0** for the new flow | A flow change this size deserves What's new and a clean review note |
 | D6 | Lock-screen timer (Live Activity) | **Later (P2)** | Needs a native widget extension; not needed for the flow |
 
@@ -111,14 +113,14 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R2.7 | **Grace period**: turn on Billing Grace Period in App Store Connect; in app, `entitlement.billingIssueDetectedAt` → quiet banner on Home "Update payment" → `openManageSubscriptions`. Access continues. | S | ASC setting is Juan's click |
 | R2.8 | **Trial ending reminder**: local notification 2 days before `expirationDate` while `periodType === 'TRIAL'`, only if reminders are on. Tap → Membership. | S | Rescheduled by `NotifSync` |
 
-### Phase 3 — Tab bar: Home · Plan · Cookbook · Account + Search
+### Phase 3 — Tab bar: Home · Plan · Cookbook · Account + Otto
 
 | ID | Work | Size | Notes |
 |---|---|---|---|
-| R3.1 | **NativeTabs** layout (D4) with SF Symbols, Search as `role="search"` at the trailing end; JS fallback for web/Android with the same 5 entries. | M | Spike first: confirm Expo SDK 54's native tabs build on EAS with Xcode 26 |
+| R3.1 | **NativeTabs** layout (D4): SF Symbols for the four tabs, the Otto circle at the trailing end with the otter face (`otto-happy` art) and the label “Otto” for VoiceOver; JS fallback for web/Android with the same 5 entries. | M | Spike first: Expo SDK 54 native tabs on EAS with Xcode 26, and whether the trailing slot accepts a non-search screen |
 | R3.2 | **Home** = Tonight (big card, Start cooking · Swap) + This week (date strip) + Discover (Otto's pick, categories, new). Merge `DiscoverScreen` sections; delete the Discover tab. | L | Tonight reads `plan_entries` for today; empty → "Pick tonight" |
-| R3.3 | **Search tab**: browse by kind + recent; results with filters; nothing found → Ask Otto with the query prefilled. Move search out of Discover. | M | |
-| R3.4 | **Remove the ＋ Create tab**: Ask Otto opens from Home (card) and Search (empty state) as a pushed screen `app/ask.tsx`; `/chats` stays for history. `TabBarCreateButton` deleted. | M | Deep links to `/create` redirect to `/ask` |
+| R3.3 | **Search** as a screen pushed from Discover's search field (`app/search.tsx`, back to Home): browse by kind + recent; results with filters; nothing found → Ask Otto with the query prefilled. | M | Today's Discover search moves here |
+| R3.4 | **Otto tab** replaces the ＋ Create tab: `app/(tabs)/otto.tsx` = `ChatScreen` as a tab root (no close button; history icon stays, new chat from the header). Home's Ask Otto card and Search's empty state switch to this tab with the prompt prefilled. `/chats` stays for history; `TabBarCreateButton` deleted. | M | Deep links to `/create` redirect to the Otto tab. AI consent still asks before the first message |
 | R3.5 | **Restore last tab** on relaunch (kv), Home on first run. | S | Old ticket F4 |
 | R3.6 | Fix from the old ticket: Cookbook empty-state "Explore" pushes the Home tab, not `/`. Delete unreachable signed-out branch in `ChatScreen`. | S | F6 |
 

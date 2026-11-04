@@ -19,7 +19,7 @@ Source: Figma `jWn55Rq4u6cbukA2JeqOaI` (read only), page 48 "Flow map — the st
 | 11 | Link / notification in every state: content missing explains itself; signed out → sign-in sheet with context behind, then the destination (48) | Shared link → Recipe | New: Not found state. Trial-ending reminder entry (2 days before the charge) |
 | 12 | Update → What's new, once, dismissible, major releases only (48) | Not drawn | New entry + What's new sheet |
 | 13 | Offline is a state: cached content + quiet banner; explain only network-only actions (22) | Banner | Copy: "You're offline. Your plan and list still work." |
-| 14 | Tab bar floats on Liquid Glass; Search is a dedicated trailing tab; Add lives in a toolbar (27, 01) | Search inside Home | Tabs Home · Plan · Cookbook · Account + Search tab at the trailing end |
+| 14 | Tab bar floats on Liquid Glass; Search is a dedicated trailing tab; Add lives in a toolbar (27, 01) | Search inside Home | Tabs Home · Plan · Cookbook · Account + **Otto** in the separate trailing circle. Juan (2026-11-04): talking with Otto is the big feature, so Otto takes the slot Apple gives Search; Search opens from Discover's search field |
 | 15 | Settings: Privacy & data (AI toggle naming OpenAI, download my data, Delete account in red); delete = explain → confirm → deleted (48, 5.1.1(v)) | AI data row; one alert | Privacy & data screen; Delete account explain screen → confirm → "Your account is deleted" |
 | 16 | Subscription settings: plan, renewal date, Manage, Restore, refund help (44) | Membership | Add "Request a refund" |
 | 17 | iOS 26 alerts: bolder, left-aligned (01, 15) | Centered alerts | Alerts restyled |

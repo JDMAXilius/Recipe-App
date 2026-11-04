@@ -105,7 +105,7 @@ tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
   <div class="sizer" id="sizer"><div class="canvas" id="canvas">
     <div class="head">
       <h2>Flow map</h2>
-      <p>The entire Otto app as one flow, checked against Apple’s standard iOS flow (hard-paywall variant): launch screen → welcome → three questions, each with Skip → your first week → save your plan (Apple first) → Otto Club, no X → App Store sheet → you’re all set → reminders in context → Home, Plan, Cookbook, Account, plus a Search tab. Returning people skip all of it: auto sign-in, then Home if Otto Club is active, the paywall if not. Other doors (a dinner notification or widget, a shared link, an offline launch) run the same check, then open their screen.</p>
+      <p>The entire Otto app as one flow, checked against Apple’s standard iOS flow (hard-paywall variant): launch screen → welcome → three questions, each with Skip → your first week → save your plan (Apple first) → Otto Club, no X → App Store sheet → you’re all set → reminders in context → Home, Plan, Cookbook, Account, plus Otto, the AI, as the trailing circle. Returning people skip all of it: auto sign-in, then Home if Otto Club is active, the paywall if not. Other doors (a dinner notification or widget, a shared link, an offline launch) run the same check, then open their screen.</p>
       <div class="legend" id="legend"></div>
     </div>
     <svg class="edges" id="edges"></svg>
@@ -234,11 +234,11 @@ tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
       <tr><td><span class="tag t-add">New</span></td><td>Food questions (×6)</td><td>Who's eating · diet · allergies · anything to skip · weeknight time · what matters.</td></tr>
       <tr><td><span class="tag t-add">New</span></td><td>Taste swipe · Building · Your first week</td><td>The plan reveal before the account and the paywall.</td></tr>
       <tr><td><span class="tag t-chg">Move</span></td><td>Sign up</td><td>From the first screen to after the reveal, as “Save your plan”. No Skip: the trial needs an account.</td></tr>
-      <tr><td><span class="tag t-chg">Move</span></td><td>Notifications ask</td><td>After Save your plan, before the paywall. Primed, Not now allowed.</td></tr>
+      <tr><td><span class="tag t-chg">Move</span></td><td>Notifications ask</td><td>After the purchase, on “You’re all set”, when there is a plan to remind about. Primed, Not now allowed.</td></tr>
       <tr><td><span class="tag t-chg">Change</span></td><td>Otto Club paywall</td><td>No X. Billed amount leads, trial timeline, Restore, Terms, Privacy, Sign out, Delete account. Members never see it.</td></tr>
       <tr><td><span class="tag t-add">New</span></td><td>Welcome to the Club</td><td>One screen after the purchase, then Home.</td></tr>
-      <tr><td><span class="tag t-chg">Merge</span></td><td>Discover + Today → Home</td><td>One scroll: Tonight → This week → Discover. Ask Otto next to search.</td></tr>
-      <tr><td><span class="tag t-rm">Remove</span></td><td>Create tab (center ＋)</td><td>Ask Otto moves to Home, Add a recipe to Cookbook's ＋.</td></tr>
+      <tr><td><span class="tag t-chg">Merge</span></td><td>Discover + Today → Home</td><td>One scroll: Tonight → This week → Discover. Search opens from Discover’s search field.</td></tr>
+      <tr><td><span class="tag t-rm">Remove</span></td><td>Create tab (center ＋)</td><td>Ask Otto becomes the Otto circle at the trailing end of the tab bar (Otto is the app’s big feature, so it gets the spot iOS gives Search). Add a recipe goes to Cookbook’s ＋.</td></tr>
       <tr><td><span class="tag t-chg">Move</span></td><td>Shopping list</td><td>Inside Plan.</td></tr>
       <tr><td><span class="tag t-chg">Change</span></td><td>Plan</td><td>Built on dates: week → day → pick a meal. “Otto plans my week” on the week.</td></tr>
       <tr><td><span class="tag t-chg">Change</span></td><td>Membership page</td><td>Only in Account, only for members: plan, renewal date, Manage (Apple's sheet). Back arrow.</td></tr>
@@ -252,7 +252,7 @@ tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
 const ST={search:"--s-core",entry:"--s-entry",welcome:"--s-welcome",q:"--s-q",reveal:"--s-reveal",account:"--s-account",pay:"--s-pay",tab:"--s-home",home:"--s-core",cook:"--s-core",plan:"--s-q",book:"--s-reveal",set:"--s-set",perm:"--s-perm",proof:"--s-proof"};
 const COLS=[
  ["entry","Entry"],["welcome","Welcome · sign in"],["q","About you · 3 questions"],["reveal","Your plan"],["account","Save your plan"],["pay","Otto Club · no X"],
- ["tab","Tab bar · 4 + Search"],["home","Home tab"],["cook","Recipe + cook"],["search","Search tab"],["plan","Plan tab"],["book","Cookbook tab"],["set","Account · settings"]];
+ ["tab","Tab bar · 4 + Otto"],["home","Home tab"],["cook","Recipe + cook"],["search","Otto tab · AI"],["plan","Plan tab"],["book","Cookbook tab"],["set","Account · settings"]];
 const LEG=[["Entry","--s-entry"],["Welcome","--s-welcome"],["Question","--s-q"],["Result","--s-reveal"],["Account","--s-account"],["Permission","--s-perm"],["Paywall","--s-pay"],["Tab","--s-home"],["Feature","--s-core"],["Settings","--s-set"]];
 
 /* ---------------------------------------------------------------- CARDS
@@ -295,26 +295,26 @@ const N=[
  ["tplan",6,1,"tab","Plan","Week by dates + shopping list","Today: Plan tab","planFilled"],
  ["tbook",6,2,"tab","Cookbook","Saved · Mine · Cooked, ＋ Add","Today: Cookbook tab","cookbook"],
  ["tacct",6,3,"tab","Account","Membership, household, privacy","Today: Account tab","tacct"],
- ["tsearch",6,4,"tab","Search","Its own tab at the trailing end","new","search"],
+ ["totto",6,4,"tab","Otto","Ask Otto by text or voice. The circle at the trailing end","Today: ＋ Create tab, moved","chatStart"],
 
  ["tonight",7,0,"home","Tonight","Tonight’s dinner, big. Start cooking · Swap","new","today"],
  ["thisweek",7,1,"home","This week","The next days’ dinners on dates","new","thisweek"],
  ["discover",7,2,"home","Discover","Otto’s pick, categories, new recipes","Today: Discover","discover"],
- ["ask",7,3,"home","Ask Otto","Text or voice, from Home","Today: Create tab, moved","chatStart"],
- ["consent",7,4,"perm","AI consent","Names OpenAI. Allow · Not now. First time only","Today: consent sheet","consent","sys"],
- ["thinking",7,5,"home","Otto’s thinking","Uses your kitchen answers. Cancel anytime","new","thinking"],
- ["answer",7,6,"home","Answer as a recipe","Save · add to plan · cook","Today: chat answer","chatAnswer"],
- ["grace",7,7,"pay","Payment problem","Billing retry: access continues, quiet banner","new","grace"],
- ["whatsnew",7,8,"home","What’s new","Dismissible sheet, once","new","whatsnew"],
- ["notfound",7,9,"home","Recipe not found","“Otto couldn’t find that one” + similar","new","notfound"],
+ ["ask",9,0,"home","Chat with Otto","What are you hungry for? Text or voice, suggestions","Today: Create tab","chatStart"],
+ ["consent",9,1,"perm","AI consent","Names OpenAI. Allow · Not now. First time only","Today: consent sheet","consent","sys"],
+ ["thinking",9,2,"home","Otto’s thinking","Uses your kitchen answers. Cancel anytime","new","thinking"],
+ ["answer",9,3,"home","Answer as a recipe","Save · add to plan · cook","Today: chat answer","chatAnswer"],
+ ["grace",7,5,"pay","Payment problem","Billing retry: access continues, quiet banner","new","grace"],
+ ["whatsnew",7,6,"home","What’s new","Dismissible sheet, once","new","whatsnew"],
+ ["notfound",7,7,"home","Recipe not found","“Otto couldn’t find that one” + similar","new","notfound"],
 
  ["recipe",8,0,"cook","Recipe","Photo, servings, estimate, paw save, add to plan","Today: /recipe/[id]","recipe","key"],
  ["mise",8,1,"cook","Mise en place","Gather and check off","Today: cook mode","mise"],
  ["steps",8,2,"cook","Cook mode","Big type, timers, lock-screen timer","Today: /recipe/cook/[id]","cookStep"],
  ["finish",8,3,"cook","Dinner, done","Thumbs · snap the plate · journal · rating once","Today: cook finish","dinnerDone"],
 
- ["search",9,0,"home","Search","Browse by kind, recent searches","Today: Discover search","search"],
- ["results",9,1,"home","Results","Filters, food first. Nothing → Ask Otto","Today: Discover search","results"],
+ ["search",7,3,"home","Search","From Discover’s search field. Browse by kind, recent","Today: Discover search","search"],
+ ["results",7,4,"home","Results","Filters, food first. Nothing → Ask Otto","Today: Discover search","results"],
 
  ["pweek",10,0,"plan","Week","Date strip, tonight first. Empty days inviting","Today: Plan, rebuilt","planFilled"],
  ["pday",10,1,"plan","Dish actions","Cooked · swap · move · leftovers · remove","new","planActions"],
@@ -351,11 +351,11 @@ const E=[
  ["pay","buy","start trial"],["buy","club"],["club","remind"],["remind","thome"],
  ["buy","fail","failed",1,"skip"],["buy","pending","Ask to Buy",1,"skip"],["pay","restorenone","restore · none",1,"skip"],["pay","restored","restore · found",1,"skip"],
  ["ended","pay","resubscribe",1,"skip"],
- ["thome","tplan"],["tplan","tbook"],["tbook","tacct"],["tacct","tsearch"],
+ ["thome","tplan"],["tplan","tbook"],["tbook","tacct"],["tacct","totto"],
  ["thome","tonight"],["tonight","recipe"],["recipe","mise"],["mise","steps"],["steps","finish"],
  ["ask","consent","first time"],["consent","thinking","allow"],["thinking","answer"],["answer","recipe","",1],
  ["ppick","recipe","",1,"topback"],["bsaved","recipe","",1,"topback"],["results","recipe","",1,"topback"],
- ["tsearch","search","",0,"top"],["search","results"],
+ ["totto","ask","",0,"top"],["discover","search","search field"],["search","results"],
  ["tplan","pweek","",0,"top"],["pday","ppick","",1],["pshop","phouse","share"],
  ["tbook","bsaved","",0,"top"],["badd","bcampri","photo",1],["bcampri","bcam"],["bcam","breview"],["breview","bedit","fix",1],
  ["tacct","amember","",0,"top"],["aprivacy","adelx"],["adelx","adelete"],["adelete","adeleted"],
