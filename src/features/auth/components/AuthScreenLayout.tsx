@@ -7,7 +7,7 @@ import {
   Text as RNText,
   View,
 } from 'react-native';
-import { OttoArt } from '@/shared/ui';
+import { OttoArt, TextLink } from '@/shared/ui';
 import { colors, space, type } from '@/shared/theme/tokens';
 
 // Shared chrome for all five auth screens: safe keyboard behaviour, a centered
@@ -82,20 +82,19 @@ export function AuthScreenLayout({
 const TERMS_URL = 'https://ottosapp.com/terms';
 const PRIVACY_URL = 'https://ottosapp.com/privacy';
 
-// The one fine-print line every reference sign-up carries, under the buttons.
+// The fine print every reference sign-up carries, under the buttons. The links
+// sit on their own line as TextLinks: inline `Text onPress` links are only as
+// tall as the caption (HIG 44pt targets).
 export function AuthLegal() {
-  const link = { color: colors.inkSoft, textDecorationLine: 'underline' } as const;
   return (
-    <RNText style={{ ...type.caption, color: colors.inkSoft, textAlign: 'center', marginTop: space[4] }}>
-      By continuing you agree to the{' '}
-      <RNText style={link} accessibilityRole="link" onPress={() => Linking.openURL(TERMS_URL)}>
-        Terms
-      </RNText>{' '}
-      and{' '}
-      <RNText style={link} accessibilityRole="link" onPress={() => Linking.openURL(PRIVACY_URL)}>
-        Privacy Policy
+    <View style={{ marginTop: space[4] }}>
+      <RNText style={{ ...type.caption, color: colors.inkSoft, textAlign: 'center' }}>
+        By continuing you agree to the
       </RNText>
-      .
-    </RNText>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', columnGap: space[4] }}>
+        <TextLink title="Terms" role="link" onPress={() => Linking.openURL(TERMS_URL)} />
+        <TextLink title="Privacy Policy" role="link" onPress={() => Linking.openURL(PRIVACY_URL)} />
+      </View>
+    </View>
   );
 }

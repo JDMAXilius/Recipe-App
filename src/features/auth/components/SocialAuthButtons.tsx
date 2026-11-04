@@ -6,6 +6,7 @@ import { brandMark } from '@/shared/assets';
 import { haptics } from '@/shared/haptics';
 import { useAuth } from '../AuthProvider';
 import { SOCIAL_PROVIDERS, providerLabel, type AuthMode, type SocialProvider } from '../social';
+import { AppleSignInButton } from './AppleSignInButton';
 
 // Social sign-in (ported from mobile/components/SocialAuthButtons.jsx, matched to
 // the Figma master board): a compact CENTERED ROW of icon-only brand buttons —
@@ -13,6 +14,8 @@ import { SOCIAL_PROVIDERS, providerLabel, type AuthMode, type SocialProvider } f
 // NOT three stacked "Continue with…" bars. All three always render (product
 // decision); a provider that can't complete surfaces a friendly error on tap.
 // Same component on sign-in and sign-up. An "or" divider closes the row.
+// On iOS Apple leaves the row for the system full-width "Continue with Apple"
+// button above it (HIG 43; still first and the most prominent, Review 4.8).
 export interface SocialAuthButtonsProps {
   mode?: AuthMode;
   onError?: (message: string) => void;
@@ -20,7 +23,7 @@ export interface SocialAuthButtonsProps {
 
 const button: ViewStyle = {
   width: 76,
-  height: 50,
+  minHeight: 50,
   borderRadius: radii.button,
   borderWidth: 1,
   borderColor: colors.border,
@@ -56,10 +59,17 @@ export function SocialAuthButtons({ mode = 'sign-in', onError }: SocialAuthButto
     return <Ionicons name="logo-apple" size={22} color={colors.ink} />;
   };
 
+  const row = AppleSignInButton ? SOCIAL_PROVIDERS.filter((p) => p !== 'apple') : SOCIAL_PROVIDERS;
+
   return (
     <View style={{ marginBottom: space[4] }}>
+      {AppleSignInButton && (
+        <View style={{ marginBottom: space[3] }}>
+          <AppleSignInButton onPress={() => start('apple')} dimmed={!!busy && busy !== 'apple'} />
+        </View>
+      )}
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: space[3] }}>
-        {SOCIAL_PROVIDERS.map((p) => (
+        {row.map((p) => (
           <Pressable
             key={p}
             onPress={() => start(p)}

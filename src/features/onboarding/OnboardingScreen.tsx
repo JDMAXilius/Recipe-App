@@ -1,10 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
-  Dimensions,
   Pressable,
   ScrollView,
   Text as RNText,
+  useWindowDimensions,
   View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -24,7 +24,6 @@ import { useAuth } from '@/features/auth';
 // off to auth. Auth is REQUIRED (founder decision — no anonymous browsing): the
 // final "Start cooking" opens sign-up (the new-cook path), Skip opens sign-in
 // (the returning cook). Either exit marks onboarded so the gate won't repeat.
-const { width } = Dimensions.get('window');
 
 const SCENES = [
   {
@@ -54,6 +53,19 @@ export function OnboardingScreen() {
   const { markOnboarded } = useOnboarded(user);
   const scroller = useRef<ScrollView>(null);
   const [page, setPage] = useState(0);
+  // Live, not a module-level snapshot: rotation / split view change the width.
+  const { width } = useWindowDimensions();
+
+  // The dots are visual only; say the position when it changes (not on mount —
+  // the first page is announced by reading the screen itself).
+  const firstPage = useRef(true);
+  useEffect(() => {
+    if (firstPage.current) {
+      firstPage.current = false;
+      return;
+    }
+    AccessibilityInfo.announceForAccessibility(`Page ${page + 1} of ${SCENES.length}`);
+  }, [page]);
 
   // Onboarding runs after sign-up; at its end the launch gate sends members home
   // and everyone else to the Otto Club paywall (the flag is set first).
@@ -118,7 +130,11 @@ export function OnboardingScreen() {
       </ScrollView>
 
       <View style={{ paddingHorizontal: space[6], paddingTop: space[3], paddingBottom: Math.max(insets.bottom, space[5]) + space[3], gap: space[4] }}>
-        <View style={{ flexDirection: 'row', gap: space[2], justifyContent: 'center' }}>
+        <View
+          accessible
+          accessibilityLabel={`Page ${page + 1} of ${SCENES.length}`}
+          style={{ flexDirection: 'row', gap: space[2], justifyContent: 'center' }}
+        >
           {SCENES.map((s, i) => (
             <View
               key={s.key}
@@ -132,8 +148,9 @@ export function OnboardingScreen() {
           ))}
         </View>
 
-        {/* Fixed text block so the CTA never scrolls with the art. */}
-        <View style={{ height: 132, gap: space[2] }}>
+        {/* minHeight keeps the CTA steady at default sizes; at large Dynamic
+            Type the block grows and the art (flex: 1) gives up the room. */}
+        <View style={{ minHeight: 132, gap: space[2] }}>
           <Text role="display">{scene.title}</Text>
           <Text role="caption">{scene.body}</Text>
         </View>
@@ -141,7 +158,8 @@ export function OnboardingScreen() {
         <Bounceable accessibilityLabel={scene.cta} onPress={advance}>
           <View
             style={{
-              height: 54,
+              minHeight: 54,
+              paddingVertical: space[2],
               borderRadius: radii.button,
               backgroundColor: colors.terracotta,
               alignItems: 'center',

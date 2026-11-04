@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Text, useToast } from '@/shared/ui';
+import { Button, TextLink, useToast } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
 import { AuthInput } from './components/AuthInput';
@@ -21,6 +21,7 @@ export function ChangePasswordScreen() {
   const [next, setNext] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const nextRef = useRef<TextInput>(null);
 
   const handleSave = async () => {
     if (!current) return setError('Enter your current password first.');
@@ -56,6 +57,10 @@ export function ChangePasswordScreen() {
         label="Current password"
         secure
         autoFocus
+        textContentType="password"
+        autoComplete="current-password"
+        returnKeyType="next"
+        onSubmitEditing={() => nextRef.current?.focus()}
       />
       <AuthInput
         value={next}
@@ -63,6 +68,12 @@ export function ChangePasswordScreen() {
         placeholder="New password"
         label="New password"
         secure
+        ref={nextRef}
+        textContentType="newPassword"
+        autoComplete="new-password"
+        passwordRules={`minlength: ${MIN_PASSWORD};`}
+        returnKeyType="done"
+        onSubmitEditing={handleSave}
       />
       <View style={{ marginTop: space[2] }}>
         <Button
@@ -73,13 +84,9 @@ export function ChangePasswordScreen() {
           loading={loading}
         />
       </View>
-      <Pressable
-        onPress={() => router.back()}
-        accessibilityRole="button"
-        style={{ marginTop: space[4], alignItems: 'center' }}
-      >
-        <Text role="computed">Never mind</Text>
-      </Pressable>
+      <View style={{ marginTop: space[3] }}>
+        <TextLink title="Never mind" onPress={() => router.back()} />
+      </View>
     </AuthScreenLayout>
   );
 }

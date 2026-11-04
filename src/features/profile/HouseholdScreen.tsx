@@ -152,6 +152,7 @@ export function HouseholdScreen() {
             placeholder="6-CHAR CODE"
             placeholderTextColor={colors.inkSoft}
             autoCapitalize="characters"
+            autoComplete="off"
             maxLength={6}
             onSubmitEditing={doJoin}
             returnKeyType="go"

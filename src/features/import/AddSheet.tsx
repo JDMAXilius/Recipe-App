@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View, type ViewStyle } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useRef, useState } from 'react';
+import { ActivityIndicator, Linking, Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { useNavigation, useRouter } from 'expo-router';
+import { usePreventRemove } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Screen, Text } from '@/shared/ui';
+import { Button, Screen, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { RecipeInput } from './components/RecipeInput';
 import { useImportFromText, useImportFromUrl, useImportFromPhoto } from './import.queries';
 import { emptyDraft, setDraft } from './draft';
-import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
+import { choosePhoto } from '@/shared/imagePicker';
 import { ensureAiConsent } from '@/shared/aiConsent';
+import { showActionSheet } from '@/shared/actionSheet';
 
 // "Add a recipe" — a pushed full SCREEN with a back button (founder call:
 // no longer a bottom modal). A 2×2 tile grid — paste a link, paste text, snap
@@ -43,10 +45,24 @@ const tileActive: ViewStyle = {
 
 export function AddSheet({ onClose }: AddSheetProps) {
   const router = useRouter();
+  const navigation = useNavigation();
+  const toast = useToast();
   const [mode, setMode] = useState<Mode>(null);
   const [url, setUrl] = useState('');
   const [text, setText] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Pasted text is the one thing here that's work to redo; back / edge-swipe
+  // asks before throwing it away. `handingOff` lets the editor hand-off
+  // through — the text was used, not lost (a state reset lands too late).
+  const handingOff = useRef(false);
+  usePreventRemove(text.trim() !== '', ({ data }) => {
+    if (handingOff.current) return navigation.dispatch(data.action);
+    void showActionSheet({
+      options: ['Discard changes'],
+      destructiveIndex: 0,
+      cancelLabel: 'Keep editing',
+    }).then((i) => i === 0 && navigation.dispatch(data.action));
+  });
   const importMut = useImportFromUrl();
   const photoMut = useImportFromPhoto();
   const textMut = useImportFromText();
@@ -58,6 +74,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
   // Hand a draft to the editor and open it. Reset local state so a re-opened
   // sheet starts clean.
   const openEditor = (draft: Parameters<typeof setDraft>[0]) => {
+    handingOff.current = true;
     setDraft(draft);
     setUrl('');
     setText('');
@@ -107,14 +124,21 @@ export function AddSheet({ onClose }: AddSheetProps) {
   };
 
   // Snap a recipe → Claude reads the photo → same review-first editor. Camera
-  // first, library as the fallback; a null pick (cancel or denied permission)
-  // just backs out — the ＋ never dead-ends.
+  // or library is the user's pick; cancel just backs out, a denied camera gets
+  // the way back to Settings — the ＋ never dead-ends.
   const snapRecipe = async () => {
     setError(null);
     // Consent BEFORE the camera opens: ask before the shutter, never after the shot.
     if (!(await ensureAiConsent())) return;
-    const picked = (await takePhoto({ base64: true })) ?? (await pickFromLibrary({ base64: true }));
-    if (!picked) return;
+    const picked = await choosePhoto({ base64: true });
+    if (picked === 'denied') {
+      toast.show('Otto needs the camera for that.', 'info', {
+        actionLabel: 'Open Settings',
+        onAction: () => void Linking.openSettings(),
+      });
+      return;
+    }
+    if (picked === 'cancelled') return;
     if (!picked.base64) {
       setError("Otto couldn't read that photo. Try a clearer shot.");
       return;

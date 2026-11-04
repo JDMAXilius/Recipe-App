@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { OttoArt, OttoError, OttoIdle, OttoLoading, Text } from '@/shared/ui';
 import { colors, overlay, radii, space, type } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
+import { addRecent, loadRecent, saveRecent } from '@/shared/recentSearches';
 import { usePlan, tonightEntry } from '@/features/planner';
 import { CategoryTiles } from './components/CategoryTiles';
 import { FilterSheet } from './components/FilterSheet';
@@ -27,6 +28,8 @@ function greeting(): string {
 // readonly fontVariant tuple the same way the Text primitive does.
 const heroEyebrow: TextStyle = { ...type.meta, fontVariant: ['tabular-nums'], color: colors.white };
 const heroTitle: TextStyle = { ...type.title, color: colors.white };
+// Text-button ink for Cancel / Clear: interactive, so terracotta (tokens rule).
+const textButton: TextStyle = { ...type.body, fontWeight: '600', color: colors.terracotta };
 
 export function DiscoverScreen() {
   const router = useRouter();
@@ -36,6 +39,33 @@ export function DiscoverScreen() {
   // Cuisine is multi-select (Category stays one); empty = no cuisine filter.
   const [activeAreas, setActiveAreas] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
+  // Search field (gap audit P1-9): Cancel while focused, last 5 queries when
+  // focused and empty, iOS clear (×) while editing.
+  const inputRef = useRef<TextInput>(null);
+  const [focused, setFocused] = useState(false);
+  const [recent, setRecent] = useState<string[]>([]);
+  useEffect(() => {
+    loadRecent().then(setRecent);
+  }, []);
+  const remember = (q: string) => {
+    const next = addRecent(recent, q);
+    setRecent(next);
+    saveRecent(next);
+  };
+  const runRecent = (q: string) => {
+    setQuery(q);
+    setDebounced(q);
+    remember(q);
+    inputRef.current?.blur();
+  };
+  const cancelSearch = () => {
+    setQuery('');
+    inputRef.current?.blur();
+  };
+  const clearRecent = () => {
+    setRecent([]);
+    saveRecent([]);
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(query.trim()), 300);
@@ -171,16 +201,70 @@ export function DiscoverScreen() {
           }}
         >
           <TextInput
+            ref={inputRef}
             value={query}
             onChangeText={setQuery}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            onSubmitEditing={() => remember(query)}
             placeholder="What are we cooking today?"
             placeholderTextColor={colors.inkSoft}
             returnKeyType="search"
+            enablesReturnKeyAutomatically
+            clearButtonMode="while-editing"
             accessibilityLabel="Search recipes"
             style={{ fontSize: 16, color: colors.ink }}
           />
         </View>
+        {focused ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Cancel search"
+            onPress={cancelSearch}
+            style={{ minHeight: 44, minWidth: 44, justifyContent: 'center', paddingHorizontal: space[1] }}
+          >
+            <RNText style={textButton}>Cancel</RNText>
+          </Pressable>
+        ) : null}
       </View>
+
+      {/* Recent searches — focused + empty field only; tap re-runs one. */}
+      {focused && !query && recent.length > 0 ? (
+        <View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text role="meta">RECENT</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Clear recent searches"
+              onPress={clearRecent}
+              style={{ minHeight: 44, minWidth: 44, justifyContent: 'center', alignItems: 'flex-end' }}
+            >
+              <RNText style={textButton}>Clear</RNText>
+            </Pressable>
+          </View>
+          {recent.map((q) => (
+            <Pressable
+              key={q}
+              accessibilityRole="button"
+              accessibilityLabel={`Search ${q}`}
+              onPress={() => runRecent(q)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: space[3],
+                minHeight: 44,
+                borderBottomWidth: 1,
+                borderBottomColor: colors.border,
+              }}
+            >
+              <Ionicons name="time-outline" size={18} color={colors.inkSoft} />
+              <View style={{ flex: 1 }}>
+                <Text role="body" numberOfLines={1}>{q}</Text>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
 
       {!isSearching && (
         <>

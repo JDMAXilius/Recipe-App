@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -7,7 +7,8 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { usePreventRemove } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, OttoArt, Sheet, Text, useToast } from '@/shared/ui';
@@ -15,6 +16,7 @@ import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { useAuth } from '@/features/auth';
 import { pickFromLibrary } from '@/shared/imagePicker';
+import { showActionSheet } from '@/shared/actionSheet';
 import { RecipeInput } from './components/RecipeInput';
 import {
   cloneDraft,
@@ -105,6 +107,7 @@ function sourceDomain(url: string): string | null {
 
 export function EditRecipeScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { show } = useToast();
   const { user } = useAuth();
   const { id: idParam } = useLocalSearchParams<{ id?: string }>();
@@ -129,7 +132,20 @@ export function EditRecipeScreen() {
     }
   }, [editId, draftQuery.data, baseline]);
 
-  const [armDelete, setArmDelete] = useState(false);
+  // Back / edge-swipe with unsaved edits asks first (HIG: confirm before
+  // discarding user content). Save and delete leave on purpose, so they set
+  // `leaving` and pass straight through — a state reset would land too late.
+  const leaving = useRef(false);
+  const unsaved = form != null && baseline != null && isDirty(form, baseline);
+  usePreventRemove(unsaved, ({ data }) => {
+    if (leaving.current) return navigation.dispatch(data.action);
+    void showActionSheet({
+      options: ['Discard changes'],
+      destructiveIndex: 0,
+      cancelLabel: 'Keep editing',
+    }).then((i) => i === 0 && navigation.dispatch(data.action));
+  });
+
   const [aboutOpen, setAboutOpen] = useState(false);
   // The picture-link field hides behind the Add photo tap (UX audit 07).
   const [photoTapped, setPhotoTapped] = useState(false);
@@ -143,7 +159,6 @@ export function EditRecipeScreen() {
   }
 
   const patch = (next: Partial<Draft>) => setForm((f) => (f ? { ...f, ...next } : f));
-  const dirty = baseline ? isDirty(form, baseline) : true;
 
   const setIngredient = (index: number, field: 'measure' | 'name', value: string) =>
     patch({
@@ -177,7 +192,7 @@ export function EditRecipeScreen() {
   const addPhoto = async () => {
     setPhotoTapped(true);
     const picked = await pickFromLibrary({ base64: true });
-    if (!picked) return; // cancelled or permission denied — no error to throw
+    if (typeof picked === 'string') return; // cancelled — no error to throw
     if (!picked.base64) {
       show("Couldn't read that photo. Try another.", 'error');
       return;
@@ -205,6 +220,7 @@ export function EditRecipeScreen() {
       const id = await saveMut.mutateAsync({ id: editId, userId: user.id, recipe: result.recipe });
       haptics.notify('success');
       show(editId != null ? 'Changes saved.' : 'Saved to your cookbook.', 'success');
+      leaving.current = true;
       if (editId != null) router.back();
       else router.replace(`/recipe/u-${id}`);
     } catch (err) {
@@ -212,21 +228,21 @@ export function EditRecipeScreen() {
     }
   };
 
-  // Delete = two taps (native Alert is a web no-op): first arms with a toast,
-  // second within 4s actually deletes.
+  // Delete confirms in a native action sheet with a red "Delete recipe" — not a
+  // second tap against a timed toast that VoiceOver users can't reach in time.
   const confirmDelete = async () => {
-    if (editId == null) return;
-    if (!armDelete) {
-      setArmDelete(true);
-      show('Tap delete again to remove this recipe for good.', 'info');
-      setTimeout(() => setArmDelete(false), 4000);
-      return;
-    }
-    if (!user) return;
+    if (editId == null || !user) return;
+    const choice = await showActionSheet({
+      message: 'This removes the recipe from your cookbook for good.',
+      options: ['Delete recipe'],
+      destructiveIndex: 0,
+    });
+    if (choice !== 0) return;
     try {
       await deleteMut.mutateAsync({ id: editId, userId: user.id });
       haptics.notify('warning');
       show('Gone. Otto tore out the page.', 'success');
+      leaving.current = true;
       router.replace('/cookbook');
     } catch (err) {
       show(err instanceof Error ? err.message : "Couldn’t delete it. Try again.", 'error');
@@ -503,7 +519,7 @@ export function EditRecipeScreen() {
             variant="primary"
             size="lg"
             loading={saveMut.isPending}
-            disabled={editId != null && !dirty}
+            disabled={editId != null && !unsaved}
           />
           {editId != null && (
             <Pressable
@@ -512,12 +528,8 @@ export function EditRecipeScreen() {
               accessibilityRole="button"
               accessibilityLabel="Delete recipe"
             >
-              <Ionicons
-                name={armDelete ? 'trash' : 'trash-outline'}
-                size={20}
-                color={colors.danger}
-              />
-              <Text role="body">{armDelete ? 'Tap again to delete' : 'Delete recipe'}</Text>
+              <Ionicons name="trash-outline" size={20} color={colors.danger} />
+              <Text role="body">Delete recipe</Text>
             </Pressable>
           )}
         </View>

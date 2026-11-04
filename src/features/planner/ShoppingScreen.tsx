@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { Text, OttoArt, OttoIdle, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
+import { ACTION_TOAST_MS } from '@/shared/ui/Toast';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -310,6 +311,10 @@ export function ShoppingScreen() {
   // removal. Local-mode changes therefore write THROUGH to kv when the screen
   // is gone; shared-mode changes are mutations on the app-level query client
   // and survive unmount on their own.
+  // Undo can't be toast-only (a timed control VoiceOver users may never reach,
+  // audit P0-3): the last removed extra keeps an on-screen Restore line.
+  // ponytail: last one only, session-only — a list if shoppers ask for more.
+  const [lastCustom, setLastCustom] = useState<{ key: string; name: string } | null>(null);
   const unmounted = useRef(false);
   useEffect(
     () => () => {
@@ -425,48 +430,53 @@ export function ShoppingScreen() {
   // the shared-mode removal is a real DB delete, so the undo toast is the only
   // thing standing between a brushed thumb and a lost "Coffee". Undo re-adds by
   // name (a re-created row: new key, unchecked — the honest reconstruction).
+  // The undo body, shared by the toast and the on-screen "Restore" line below.
+  const restoreCustom = useCallback((key: string, name: string) => {
+    setLastCustom(null);
+    const { isShared: sharedUndo, shared: listUndo } = liveRef.current;
+    if (sharedUndo) {
+      listUndo.addCustom(name); // a query mutation — survives unmount
+      return;
+    }
+    // The toast outlives this screen, so the local path writes through
+    // to kv when we're gone (same law as the ingredient undo), and the
+    // row comes back UNTICKED — a restored row still marked "got it"
+    // is a lie.
+    if (!unmounted.current) {
+      setChecked((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+      setCustom((prev) => [...prev, { key, name }]);
+      return;
+    }
+    void (async () => {
+      const saved = await kv.get('shoppingState', EMPTY_STORED, storedStateSchema);
+      const checkedNext = { ...saved.checked };
+      delete checkedNext[key];
+      await kv.set('shoppingState', {
+        ...saved,
+        checked: checkedNext,
+        custom: [...saved.custom, { key, name }],
+      });
+    })();
+  }, []);
+
   const removeCustom = useCallback(
     (key: string, name: string) => {
       haptics.impact('light'); // a commit — and this one is a real DB delete
       const { isShared: sharedNow, shared: list } = liveRef.current;
       if (sharedNow) list.removeCustom(key);
       else setCustom((prev) => prev.filter((c) => c.key !== key));
+      setLastCustom({ key, name });
       const label = name.charAt(0).toUpperCase() + name.slice(1);
       show(`${label} — off the list.`, 'info', {
         actionLabel: 'Undo',
-        onAction: () => {
-          const { isShared: sharedUndo, shared: listUndo } = liveRef.current;
-          if (sharedUndo) {
-            listUndo.addCustom(name); // a query mutation — survives unmount
-            return;
-          }
-          // The toast outlives this screen, so the local path writes through
-          // to kv when we're gone (same law as the ingredient undo), and the
-          // row comes back UNTICKED — a restored row still marked "got it"
-          // is a lie.
-          if (!unmounted.current) {
-            setChecked((prev) => {
-              const next = { ...prev };
-              delete next[key];
-              return next;
-            });
-            setCustom((prev) => [...prev, { key, name }]);
-            return;
-          }
-          void (async () => {
-            const saved = await kv.get('shoppingState', EMPTY_STORED, storedStateSchema);
-            const checkedNext = { ...saved.checked };
-            delete checkedNext[key];
-            await kv.set('shoppingState', {
-              ...saved,
-              checked: checkedNext,
-              custom: [...saved.custom, { key, name }],
-            });
-          })();
-        },
+        onAction: () => restoreCustom(key, name),
       });
     },
-    [show],
+    [show, restoreCustom],
   );
 
   const grouped = AISLES.map((aisle) => ({
@@ -670,7 +680,7 @@ export function ShoppingScreen() {
             )}
 
             {/* The way back. Always on screen while anything is hidden — the
-                undo toast lives 5 seconds, a shopper's change of mind doesn't. */}
+                undo toast is brief, a shopper's change of mind doesn't. */}
             {hiddenItems.length > 0 && (
               <Pressable
                 onPress={restoreHidden}
@@ -688,6 +698,24 @@ export function ShoppingScreen() {
                   <RNText style={styles.restoreAction}>
                     Show {hiddenItems.length === 1 ? 'it' : 'them'}
                   </RNText>
+                </RNText>
+              </Pressable>
+            )}
+
+            {lastCustom && (
+              <Pressable
+                onPress={() => {
+                  haptics.impact('light');
+                  restoreCustom(lastCustom.key, lastCustom.name);
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={`Put ${lastCustom.name} back on the list`}
+                style={styles.restoreRow}
+              >
+                <Ionicons name="arrow-undo-outline" size={16} color={colors.inkSoft} />
+                <RNText style={styles.restoreText}>
+                  Recently removed: {lastCustom.name} ·{' '}
+                  <RNText style={styles.restoreAction}>Restore</RNText>
                 </RNText>
               </Pressable>
             )}
@@ -905,8 +933,9 @@ const AddItemRow = React.memo(function AddItemRow({ onAdd }: { onAdd: (name: str
 });
 
 // Matches ToastHost's lifetime for a toast that carries an action — removals
-// inside that window share one undo.
-const UNDO_TOAST_MS = 5000;
+// inside that window share one undo. (With VoiceOver on the toast stays until
+// replaced; the batch still closes here, so Undo restores the latest batch.)
+const UNDO_TOAST_MS = ACTION_TOAST_MS;
 
 // Pad frame insets (from the pad's outer edge). The double frame is two nested
 // hairlines a step apart; content padding clears them so text never collides
@@ -1058,7 +1087,8 @@ const styles: Record<string, ViewStyle & TextStyle> = {
   addRow: { flexDirection: 'row', alignItems: 'center', gap: space[3], marginTop: space[3] },
   addInput: {
     flex: 1,
-    height: 48,
+    minHeight: 48, // grows with Dynamic Type instead of clipping the text
+    paddingVertical: space[2],
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.white,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Text } from '@/shared/ui';
+import { Button, TextLink } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
 import { AuthInput } from './components/AuthInput';
@@ -63,6 +63,10 @@ export function ForgotPasswordScreen() {
         label="Email"
         keyboardType="email-address"
         autoFocus
+        textContentType="emailAddress"
+        autoComplete="email"
+        returnKeyType="send"
+        onSubmitEditing={handleSend}
       />
       <View style={{ marginTop: space[2] }}>
         <Button
@@ -73,13 +77,9 @@ export function ForgotPasswordScreen() {
           loading={loading}
         />
       </View>
-      <Pressable
-        onPress={() => router.push('/(auth)/sign-in')}
-        accessibilityRole="button"
-        style={{ marginTop: space[4], alignItems: 'center' }}
-      >
-        <Text role="body">Back to sign in</Text>
-      </Pressable>
+      <View style={{ marginTop: space[3] }}>
+        <TextLink title="Back to sign in" onPress={() => router.push('/(auth)/sign-in')} />
+      </View>
     </AuthScreenLayout>
   );
 }

@@ -191,7 +191,7 @@ export function RecipeDetailScreen() {
               elevation: 3,
             }}
           >
-            <Ionicons name="arrow-back" size={22} color={colors.ink} />
+            <Ionicons name="chevron-back" size={22} color={colors.ink} />
           </Pressable>
           <View
             style={{
@@ -347,9 +347,9 @@ export function RecipeDetailScreen() {
                 <View key={i} style={{ flexDirection: 'row', gap: space[3], alignItems: 'flex-start' }}>
                   <View
                     style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 14,
+                      minWidth: 28, // min so the step number can grow with Dynamic Type
+                      minHeight: 28,
+                      borderRadius: radii.pill,
                       backgroundColor: colors.creamDeep,
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -487,7 +487,9 @@ export function RecipeDetailScreen() {
           >
             <View
               style={{
-                height: 54,
+                minHeight: 54, // grows with Dynamic Type instead of clipping the label
+                paddingVertical: space[2],
+                paddingHorizontal: space[3],
                 borderRadius: radii.button,
                 backgroundColor: colors.terracotta,
                 flexDirection: 'row',
@@ -497,7 +499,7 @@ export function RecipeDetailScreen() {
               }}
             >
               <Ionicons name={hasSteps ? 'flame-outline' : 'create-outline'} size={20} color={colors.white} />
-              <RNText style={{ color: colors.white, fontWeight: '700', fontSize: 16 }}>
+              <RNText style={{ color: colors.white, fontWeight: '700', fontSize: 16, flexShrink: 1, textAlign: 'center' }}>
                 {hasSteps ? 'Start cooking' : 'Add steps to cook this'}
               </RNText>
             </View>
