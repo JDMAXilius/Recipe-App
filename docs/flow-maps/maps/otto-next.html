@@ -354,10 +354,19 @@ const E=[
  ["signin","retm","signed in",1],
 ];
 
-/* ---------------------------------------------------------------- SCREENS from the v2 redesign (Figma "Otto — App Redesign", v2 pages) */
-const IMG={first:"splash",scenes:"onb1",signin:"signin",forgot:"forgot",who:"who",skip:"skip",week:"firstweek",save:"signup",pay:"paywall",
- thome:"today",tonight:"today",discover:"discover",ask:"chatStart",recipe:"recipe",steps:"cookStep",finish:"dinnerDone",shared:"recipe",
- tplan:"planFilled",pweek:"planFilled",pday:"planActions",ppick:"planOpen",potto:"ottoWeek",pshop:"shopping",tbook:"cookbook",bsaved:"cookbook",badd:"bringIn"};
+/* ---------------------------------------------------------------- SCREENS: Figma "Otto — App Redesign", page "v3 · Flow screens" */
+const IMG={first:"splash",notif:"notif",shared:"recipe",offline:"offline",retm:"today",retn:"paywall",
+ welcome:"welcome",scenes:"onb1",signin:"signin",forgot:"forgot",
+ who:"who",diet:"diet",allergy:"allergy",skip:"skip",time:"time",goal:"goal",
+ taste:"taste",building:"building",week:"firstweek",
+ save:"signup",email:"email",remind:"remind",
+ pay:"paywall",buy:"buy",club:"club",fail:"fail",restore:"restore",
+ thome:"today",tplan:"planFilled",tbook:"cookbook",tacct:"tacct",
+ tonight:"today",thisweek:"today",discover:"discover",search:"search",ask:"chatStart",consent:"consent",
+ recipe:"recipe",mise:"mise",steps:"cookStep",finish:"dinnerDone",
+ pweek:"planFilled",pday:"planActions",ppick:"planOpen",potto:"ottoWeek",pshop:"shopping",phouse:"phouse",
+ bsaved:"cookbook",badd:"bringIn",bcam:"bcam",breview:"breview",bedit:"bedit",
+ amember:"amember",aprefs:"aprefs",anotif:"anotif",ajournal:"ajournal",aout:"aout",adelete:"adelete"};
 
 /* ---------------------------------------------------------------- THUMBNAILS (mini wireframes) */
 function thumb(k,c){
@@ -394,7 +403,7 @@ function thumb(k,c){
 const PW=300, GAP=24, CW=276, CH=150, RP=174, PX=12, TOP=206, PTOP=44, LANE=26;
 const canvas=document.getElementById("canvas"), svg=document.getElementById("edges"), view=document.getElementById("view"), sizer=document.getElementById("sizer"), zoom=document.getElementById("zoom");
 document.getElementById("legend").innerHTML=LEG.map(([t,c])=>`<span><i style="background:var(${c})"></i>${t}</span>`).join("")+
- `<span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>next screen</span><span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="5 5"/></svg>optional · branch · back</span><span>Each card is one screen: “new”, or what it is in today’s app.</span><span>Picture = the v2 redesign screen · wireframe = not designed yet. v2 screens still show the old 5-tab bar and sample prices.</span>`;
+ `<span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>next screen</span><span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="5 5"/></svg>optional · branch · back</span><span>Each card is one screen: “new”, or what it is in today’s app.</span><span>Every picture is a v3 screen: the v2 designs moved to four tabs and real prices, plus the new screens drawn in the same style.</span>`;
 const colX=c=>24+c*(PW+GAP);
 const el={}, pos={};
 let maxRow=0;
