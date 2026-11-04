@@ -104,7 +104,7 @@ tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
   <div class="sizer" id="sizer"><div class="canvas" id="canvas">
     <div class="head">
       <h2>Flow map</h2>
-      <p>The entire Otto app as one flow: welcome → three paintings → six food questions → taste swipe → Otto builds your first week → save your plan (Apple / Google / Facebook / email) → dinner reminders → Otto Club, no X → welcome to the Club → Home, Plan, Cookbook, Account. Returning people skip all of it: auto sign-in, then Home if Otto Club is active, the paywall if not.</p>
+      <p>The entire Otto app as one flow: welcome → three paintings → six food questions → taste swipe → Otto builds your first week → save your plan (Apple / Google / Facebook / email) → dinner reminders → Otto Club, no X → welcome to the Club → Home, Plan, Cookbook, Account. Returning people skip all of it: auto sign-in, then Home if Otto Club is active, the paywall if not. Other doors (a dinner notification or widget, a shared link, an offline launch) run the same check, then open their screen.</p>
       <div class="legend" id="legend"></div>
     </div>
     <svg class="edges" id="edges"></svg>
@@ -259,6 +259,9 @@ const LEG=[["Entry","--s-entry"],["Welcome","--s-welcome"],["Question","--s-q"],
    footer: "new" = new screen, anything else = what it is today */
 const N=[
  ["first",0,0,"entry","First launch","Splash. Otto checks for a saved session","New install","splash","key"],
+ ["notif",0,1,"entry","Dinner notification · widget","“Tonight: lemon chicken.” Launch check, then tonight’s recipe","new","primer"],
+ ["shared",0,2,"entry","Shared link","A friend’s recipe or list. Signed out → Sign in, then back to it","new","recipe"],
+ ["offline",0,3,"entry","Offline launch","Last known Otto Club answer, cached plan. Otto’s AI waits","new","splash"],
  ["retm",0,5,"entry","Returning member","Auto sign-in, Otto Club active. Opens on the tab they left","Today: launch gate","splash"],
  ["retn",0,6,"entry","Returning, no Club","Auto sign-in, no Otto Club (never bought or trial ended)","Today: launch gate","splash"],
 
@@ -285,6 +288,8 @@ const N=[
  ["pay",5,0,"pay","Otto Club","No X. $39.99/yr leads · trial timeline · Restore · Terms · Privacy · Sign out · Delete account","Today: /otto-club, reworked","paywall","key"],
  ["buy",5,1,"pay","Apple purchase sheet","Cancel or fail → back to the paywall","iOS sheet","sheet","sys"],
  ["club",5,2,"pay","Welcome to the Club","Trial ends on [date]. Into Otto","new","success"],
+ ["fail",5,3,"pay","Purchase didn’t finish","Cancelled · failed · Ask to Buy pending. Back on the paywall, Try again","new","paywall"],
+ ["restore",5,4,"pay","Restore purchases","Found → Home. None → “No Otto Club for this Apple ID”","Today: /otto-club","paywall"],
 
  ["thome",6,0,"tab","Home","Tonight · this week · Discover","Today: Discover tab, merged","home","key"],
  ["tplan",6,1,"tab","Plan","Week by dates + shopping list","Today: Plan tab","week"],
@@ -334,12 +339,15 @@ const E=[
  ["taste","building"],["building","week"],["week","save"],
  ["save","email","email",1],["save","remind","",0,"skip"],["email","remind"],
  ["remind","pay"],["pay","buy","start trial"],["buy","club"],["club","thome"],
+ ["buy","fail","cancel · fail · pending",1,"skip"],["pay","restore","restore",1,"skip"],
  ["thome","tplan"],["tplan","tbook"],["tbook","tacct"],
  ["thome","tonight"],["tonight","recipe"],["recipe","mise"],["mise","steps"],["steps","finish"],
- ["ask","consent","first time"],
+ ["ask","consent","first time"],["consent","recipe","",1],
+ ["ppick","recipe","",1,"topback"],["bsaved","recipe","",1,"topback"],
  ["tplan","pweek","",0,"top"],["pweek","pday"],["pday","ppick","add"],["pshop","phouse","share"],
  ["tbook","bsaved","",0,"top"],["badd","bcam","photo",1],["bcam","breview"],["breview","bedit","fix",1],
  ["tacct","amember","",0,"top"],
+ ["notif","tonight","notification · widget",1,"bottom"],["shared","recipe","shared link",1,"bottom"],["offline","thome","offline",1,"bottom"],
  ["retm","thome","Otto Club active",1,"bottom"],
  ["retn","pay","no Otto Club",1,"bottom"],
  ["signin","retm","signed in",1],
@@ -377,7 +385,7 @@ function thumb(k,c){
 }
 
 /* ---------------------------------------------------------------- LAYOUT + RENDER */
-const PW=300, GAP=24, CW=276, CH=150, RP=174, PX=12, TOP=176, PTOP=44, LANE=30;
+const PW=300, GAP=24, CW=276, CH=150, RP=174, PX=12, TOP=206, PTOP=44, LANE=26;
 const canvas=document.getElementById("canvas"), svg=document.getElementById("edges"), view=document.getElementById("view"), sizer=document.getElementById("sizer"), zoom=document.getElementById("zoom");
 document.getElementById("legend").innerHTML=LEG.map(([t,c])=>`<span><i style="background:var(${c})"></i>${t}</span>`).join("")+
  `<span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>next screen</span><span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="5 5"/></svg>optional · branch · back</span><span>Each card is one screen: “new”, or what it is in today’s app.</span>`;
@@ -402,7 +410,7 @@ for(const [id,c,r,ty,title,line,ft,th,flags] of N){
   canvas.appendChild(d); el[id]=d; pos[id]={x,y,w:CW,h:CH,c,r};
 }
 const PANEL_BOTTOM=TOP+PTOP+maxRow*RP+CH+16;
-const W=colX(COLS.length)+4, H=PANEL_BOTTOM+LANE*3+20;
+const W=colX(COLS.length)+4, H=PANEL_BOTTOM+LANE*6+20;
 canvas.style.width=W+"px"; canvas.style.height=H+"px"; svg.setAttribute("width",W); svg.setAttribute("height",H);
 
 const NS="http://www.w3.org/2000/svg";
@@ -418,17 +426,20 @@ function ortho(pts){ // rounded orthogonal polyline
   }
   const l=pts[pts.length-1]; return d+`L${l[0]} ${l[1]}`;
 }
-const paths=[]; let topLane=0, botLane=0;
+const paths=[]; let topLane=0, botLane=0; const skipIn={}, backIn={};
 for(const [f,t,label,dash,route] of E){
   const a=pos[f], b=pos[t]; let d,lx,ly,anchor="middle";
-  if(route==="top"){
+  if(route==="topback"){ // back to an earlier column, over the top: no card crossed
+    const yL=TOP-14-topLane*12, sx=a.x+a.w, sy=a.y+a.h/2, gx=sx+PX+4, k=(backIn[t]=(backIn[t]||0)+1), tx=b.x+b.w/2+(k-1)*14; topLane++;
+    d=ortho([[sx,sy],[gx,sy],[gx,yL],[tx,yL],[tx,b.y-2]]); lx=tx; ly=yL-5;
+  } else if(route==="top"){
     const yL=TOP-14-topLane*12, sx=a.x+a.w, sy=a.y+a.h/2, gx=sx+PX+4+topLane*8, tx=b.x+b.w/2; topLane++;
     d=ortho([[sx,sy],[gx,sy],[gx,yL],[tx,yL],[tx,b.y-2]]); lx=(gx+tx)/2; ly=yL-5;
   } else if(route==="bottom"){
-    const yL=PANEL_BOTTOM+LANE*(botLane+1), sy=a.y+a.h/2, gx=a.x-5-botLane*4, ex=b.x-PX-GAP/2+4+botLane*6, ey=b.y+b.h/2; botLane++;
+    const yL=PANEL_BOTTOM+LANE*(botLane+1), sy=a.y+a.h/2, gx=a.x-4-botLane*2, ex=b.x-PX-GAP/2+2+botLane*4, ey=b.y+b.h/2; botLane++;
     d=ortho([[a.x,sy],[gx,sy],[gx,yL],[ex,yL],[ex,ey],[b.x-2,ey]]); lx=(gx+ex)/2; ly=yL-6;
   } else if(route==="skip"){
-    const sx=a.x+a.w, sy=a.y+a.h/2, ey=b.y+b.h/2, gx=sx+PX-1;
+    const sx=a.x+a.w, sy=a.y+a.h/2, ey=b.y+b.h/2, gx=sx+PX-1+((skipIn[a.c]=(skipIn[a.c]||0)+1)-1)*7;
     d=ortho([[sx,sy],[gx,sy],[gx,ey],[b.x+b.w+2,ey]]); lx=gx-6; ly=b.y-8; anchor="end";
   } else if(a.c===b.c && b.r===a.r+1){
     const x=a.x+a.w/2; d=`M${x} ${a.y+a.h}L${x} ${b.y-2}`; lx=x+8; ly=(a.y+a.h+b.y)/2+4; anchor="start";
