@@ -175,7 +175,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 |---|---|---|---|
 | R8.1 | **Universal links**: `associatedDomains: applinks:ottosapp.com`, AASA file on the Vercel site, routes `app/r/[slug].tsx` (recipe share) and `app/l/[token].tsx` (list share) reading the existing DEFINER RPCs. Signed out → Welcome/Sign in with the intent kept (R0.2). | M | Share cards gain a URL. One AASA file on ottosapp.com serves both `applinks:` and the `webcredentials:` domain G5 left open |
 | R8.2 | **Notification taps** → href through the intent store (dinner → tonight's recipe, trial → Membership). | S | `addNotificationResponseReceivedListener` in `NotifSync` |
-| R8.3 | **Offline launch**: in-app offline is done (G14). Remaining: the gate uses RevenueCat's cached customer info (or the last known answer in kv) when offline, so a member opens Home instead of the paywall; AI actions explain they need a connection. | S | Fail-closed stays for a fresh install with no cached answer |
+| R8.3 | **Offline launch**: in-app offline is done (G14), and `useMembership` reads `Purchases.getCustomerInfo()`, which RevenueCat answers from its on-device cache, so a returning member should already open offline (commit `db084fcd`: “RevenueCat's offline cache keeps returning members in”). Remaining: **prove it on a device** in airplane mode (cold start, member and lapsed), make AI actions say they need a connection, keep fail-closed for a fresh install with no cache. | S | Mostly a device check, not new code. `src/features/profile/club.purchases.ts:65` |
 | R8.4 | **What's new** sheet once per major version (kv `lastSeenVersion`). | S | |
 | R8.5 | **Widget** (dinner tonight) — later, with Live Activity. | L | P2 |
 
@@ -256,3 +256,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 <!-- append: date, phase/ID, result, commit -->
 - 2026-11-04 · roadmap · re-read against main `ac8fd38a` (G1–G14): offline in-app, photo choice, search, paywall hierarchy, Apple button and shared UI marked done; R2.1, R3.3, R6.3, R8.3 shrunk; D7 added; section 5 links the gaps and motion tickets.
 - 2026-11-04 · D7 · Juan: one style only, the original look; no Dark Mode. G16 closed as won't do.
+- 2026-11-04 · R8.3 · corrected: RevenueCat's cache already covers offline member launch (db084fcd); the ticket is now a device check. ADR log started in `docs/adr/` (ADR-0001…0011).
