@@ -1,6 +1,6 @@
 # Otto rework roadmap — from today's app to the Apple-checked flow
 
-Written 2026-11-04 · branch `claude/new-session-izhr2i` · app at 1.0.23 (build 52).
+Written 2026-11-04 · updated the same day against `main` at `ac8fd38a` (gold-standard gaps G1–G14 merged) · app at 1.0.23 (build 52).
 Published page: https://claude.ai/artifact/YVGJMYoY6UFK19fKoSK2sa (regenerate with `python3 docs/tickets/build_rework_roadmap.py`).
 Target: `docs/flow-maps/maps/otto-next.html` (current) and Figma "Otto — App Redesign" → page
 "v3 · Flow screens" + "Flow map — Otto next (current)". Apple pass: `docs/flow-maps/research/04_APPLE_DESIGN_FILE_PASS.md`.
@@ -9,7 +9,7 @@ This roadmap is the order of work. It is a plan, not shipped code: nothing below
 
 ---
 
-## 1. Where the code is today (read 2026-11-04)
+## 1. Where the code is today (read again after G1–G14, 2026-11-04)
 
 | Area | What the code does now | File(s) |
 |---|---|---|
@@ -19,14 +19,17 @@ This roadmap is the order of work. It is a plan, not shipped code: nothing below
 | Preferences | Diet + cuisines only, **on the phone only** (kv). Not per account, not synced. | `profile.prefs.ts`, `usePrefs.ts` |
 | Recipes before sign-in | `otto_recipes` is readable by `anon` (policy `otto_recipes_read_all`). So a first week **can** be built before the account. | migration `…otto_recipes…` |
 | Plan | `plan_entries` keyed by real dates (`YYYY-MM-DD`), RLS per user. Shopping list is its own route. **Dates already exist.** | `src/features/planner/*`, `app/shopping.tsx` |
-| Purchases | RevenueCat hook with `buy()` → ok · unconfirmed · pending · cancelled · error, and `restore()` → ok · none · error. **Exists.** The paywall shows these as toasts, not as the screens the map draws. | `club.purchases.ts`, `club.logic.ts`, `OttoClubScreen.tsx` |
-| Tabs | 5 JS tabs: Discover · Cookbook · raised ＋ (Chat) · Plan · Account. | `app/(tabs)/_layout.tsx` |
+| Purchases | RevenueCat hook with `buy()` → ok · unconfirmed · pending · cancelled · error, and `restore()` → ok · none · error. **Exists.** Paywall (G4, G6): billed line at title size, CTA “Start free trial” / “Subscribe”, Restore purchases · Terms · Privacy as 44 pt `TextLink`s, Sign out and Delete account on it. **Still missing:** the outcomes are toasts, not the screens the map draws; one-line benefit; no dated trial terms. | `club.purchases.ts`, `club.logic.ts`, `OttoClubScreen.tsx` |
+| Tabs | 5 JS tabs: Discover · Cookbook · raised ＋ (Chat) · Plan · Account. Tab-press haptic removed (G15). Gaps decision G15: the ＋ stays until `NativeTabs` (motion M7) replaces the bar. `NativeTabs` is installed but unused. | `app/(tabs)/_layout.tsx` |
 | AI consent | Per-provider stored answer naming OpenAI; one host sheet asks before the first AI call. **Exists.** | `src/shared/aiConsent.ts`, `AiConsentHost.tsx` |
-| Permissions | Notifications asked from the Notifications screen; camera / library asked straight by the system, no primer. | `notifications.queries.ts`, `src/shared/imagePicker.ts` |
+| Permissions | Notifications asked from the Notifications screen. Photos (G9): no library permission, an explicit “Take photo / Choose from library” action sheet, denied camera → toast with Open Settings. **Still missing:** a primer before the first camera alert. | `notifications.queries.ts`, `src/shared/imagePicker.ts`, `src/shared/actionSheet.ts` |
 | Delete account | One confirm, then the `delete-account` edge function (revokes Apple token). **Exists.** | `useDeleteAccount.ts`, `supabase/functions/delete-account` |
 | Links | Scheme `otto://` and `auth/callback` only. No universal links, no route that opens a shared recipe in the app. Share cards are images/text. | `app.json`, `src/features/share/*` |
-| Offline | No query-cache persistence, no network listener. | — |
-| Tests | `node --test` over `*.test.mjs` (pure logic), `tsc`, `eslint`. No device journey suite. | `package.json` |
+| Offline | **Exists in-app (G14):** NetInfo → TanStack `onlineManager`, one `OfflineBanner`, query cache persisted to AsyncStorage for a week (Cookbook, Plan, Shopping read offline), cleared on sign-out or account switch. **Still missing:** offline *launch*: the gate still fails closed to the paywall when RevenueCat can't answer. | `app/_layout.tsx`, `src/shared/online.ts`, `OfflineBanner.tsx` |
+| Search | Inside Discover. Clear button, Cancel while focused, last 5 queries (G11). | `DiscoverScreen.tsx`, `src/shared/recentSearches.ts` |
+| Sign-in forms | System “Continue with Apple” button on iOS (G13), autofill + return-key chain, minimum password 8 (G5). No `webcredentials:` domain yet. | `src/features/auth/*` |
+| Shared UI | Contrast-checked tokens (terracotta `#AE4A26`, test in `tokens.contrast.test.mjs`), Dynamic Type `minHeight` layouts, header roles, toasts that wait for VoiceOver, `Sheet` with drag-to-dismiss, native destructive confirms, editor discard guard (G1–G3, G7, G8, G10, G12). Dark Mode not started (G16). | `src/shared/ui/*`, `src/shared/theme/tokens.ts` |
+| Tests | `node --test` over `*.test.mjs` (351 on main per the G1–G14 log), `tsc`, `eslint`. No device journey suite. | `package.json` |
 
 Stack: Expo SDK 54, expo-router 6, RN 0.81 (new arch), Supabase, RevenueCat, OpenAI via edge functions.
 
@@ -65,9 +68,10 @@ What that means in code, in one breath:
 | D1 | Where preferences live | **On the account** (new `profiles` row, RLS own-row), kv as offline cache | Today they're phone-only; a new phone loses diet/allergies. The 3 answers need a home the draft can be claimed into |
 | D2 | Allergies stored server-side? | Yes, as a plain list, labelled "Preferences" in the privacy answers | Changes the App Privacy answers (Other user content) — must be updated before release |
 | D3 | Signed-out person with a draft who closes the app | Reopen on **Save your plan**, the week still there | Draft must persist in kv, not memory |
-| D4 | Tab bar tech | **NativeTabs** (`expo-router/unstable-native-tabs`) for the iOS 26 floating bar; the Otto circle is the trailing slot iOS reserves for Search (`role="search"` without a search field), JS tabs as fallback | The trailing circle is styled by the system for search. Spike: confirm it can host a chat screen with an otter icon and no search field; if not, a custom bar draws the same shape |
+| D4 | Tab bar tech | **NativeTabs** (`expo-router/unstable-native-tabs`, already installed) for the iOS 26 floating bar; the Otto circle is the trailing slot iOS reserves for Search (`role="search"` without a search field), JS tabs as fallback. This answers gaps **G15** and is built as motion **M7** | The trailing circle is styled by the system for search. Spike: confirm it can host a chat screen with an otter icon and no search field; if not, a custom bar draws the same shape |
 | D5 | Version | **1.1.0** for the new flow | A flow change this size deserves What's new and a clean review note |
 | D6 | Lock-screen timer (Live Activity) | **Later (P2)** | Needs a native widget extension; not needed for the flow |
+| D7 | Dark Mode (gaps G16) | **After Phase 3**, with NativeTabs | Needs `colors.white` split into surface vs on-accent (64 uses) and every new screen checked twice; cheaper once the new screens exist |
 
 ---
 
@@ -92,11 +96,11 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 
 | ID | Work | Size | Notes |
 |---|---|---|---|
-| R1.1 | **Launch screen** = Welcome's empty cream shell: `expo-splash-screen` config, no logo, no text. Hide it when the gate resolves. Delete `Splash.tsx`'s otter. | S | Apple page 14. The otter + wordmark move onto Welcome |
+| R1.1 | **Launch screen** = Welcome's empty cream shell: `expo-splash-screen` config, no logo, no text. Hide it when the gate resolves. Delete `Splash.tsx`'s otter. | S | Apple page 14. Same item as gaps **G18**. The otter + wordmark move onto Welcome |
 | R1.2 | **Welcome** route `app/welcome.tsx`: one screen, painting hero, left-aligned title, Get started · I have an account. Replaces `onboarding.tsx` (3 paintings). | S | Keep the paintings as heroes elsewhere |
 | R1.3 | **Three questions** `app/about/[step].tsx`: Who's eating · How do you eat (diet + allergies) · Anything to skip. "Question n of 3", Skip on each. Writes to the draft. | M | Allergy copy: "Otto will leave these out. Always check labels." |
 | R1.4 | **Your first week** `app/first-week.tsx`: builds the week (R0.6), loads in place (no "building" screen), summary line, Save my week. | M | The value moment. Cards reuse `RecipeCard` |
-| R1.5 | **Save your plan** = today's sign-up, moved: Apple first, same size as Google / Facebook; email path. No Skip. After success → `claimDraft` → paywall. | M | `SignUpScreen.tsx` gets a `context="save-plan"` header; Sign in keeps "I have an account" |
+| R1.5 | **Save your plan** = today's sign-up, moved. The system “Continue with Apple” button already leads (G13); add Google / Facebook below at the same height and the email path. No Skip. After success → `claimDraft` → paywall. | S | `SignUpScreen.tsx` gets a `context="save-plan"` header; autofill already works (G5) |
 | R1.6 | **Sign in** from Welcome: returning person who signs in skips questions (account already onboarded) → gate decides member / paywall. | S | `onboarded_at` stays the "skip questions" flag |
 | R1.7 | Guards: new routes in a `!signedIn` group (welcome, about, first-week); `(auth)` stays signed-out only. | S | Every new route declared in `RootStack` — the existing rule |
 
@@ -104,7 +108,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 
 | ID | Work | Size | Notes |
 |---|---|---|---|
-| R2.1 | **Paywall layout**: four benefit lines, $39.99/yr leads (billed amount most prominent), monthly second, dated trial terms ("Free until Nov 11, then $39.99/year…"), Restore · Terms · Privacy · Sign out. No close. | M | `trialEndDate(introTrialDays, now)` pure + tested; copy from `localizedPriceString` only — never hard-code price |
+| R2.1 | **Paywall content**: four benefit lines, yearly first, monthly second, dated trial terms (“Free until Nov 11, then $39.99/year…”). Already done by G4/G6: billed line at title size, Start free trial / Subscribe, Restore purchases · Terms · Privacy at 44 pt, Sign out. No close. | S | `trialEndDate(introTrialDays, now)` pure + tested; copy from `localizedPriceString` only. The gaps ticket said “change nothing else” for G4 only; this is the next step |
 | R2.2 | **Outcomes as screens**: cancelled → stay, no message; error → native alert "nothing was charged"; pending → `app/club/pending.tsx` (listens for the entitlement, opens on its own); unconfirmed → keep today's honest copy + retry sync. | M | `BuyResult` already returns all of these — this is UI wiring |
 | R2.3 | **Restore**: none → native alert, stay; ok → "Purchases restored" then Home. | S | `RestoreResult` exists |
 | R2.4 | **You're all set** `app/club/welcome.tsx`: names tonight's dinner and the list. | S | |
@@ -117,9 +121,9 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 
 | ID | Work | Size | Notes |
 |---|---|---|---|
-| R3.1 | **NativeTabs** layout (D4): SF Symbols for the four tabs, the Otto circle at the trailing end with the otter face (`otto-happy` art) and the label “Otto” for VoiceOver; JS fallback for web/Android with the same 5 entries. | M | Spike first: Expo SDK 54 native tabs on EAS with Xcode 26, and whether the trailing slot accepts a non-search screen |
+| R3.1 | **NativeTabs** layout (D4) = motion **M7**: SF Symbols for the four tabs, the Otto circle at the trailing end with the otter face (`otto-happy` art) and the label “Otto” for VoiceOver; JS fallback for web/Android with the same 5 entries. The `Sheet` → `formSheet` route move (G7's deferred part) rides with it. | M | Spike first: Expo SDK 54 native tabs on EAS with Xcode 26, and whether the trailing slot accepts a non-search screen |
 | R3.2 | **Home** = Tonight (big card, Start cooking · Swap) + This week (date strip) + Discover (Otto's pick, categories, new). Merge `DiscoverScreen` sections; delete the Discover tab. | L | Tonight reads `plan_entries` for today; empty → "Pick tonight" |
-| R3.3 | **Search** as a screen pushed from Discover's search field (`app/search.tsx`, back to Home): browse by kind + recent; results with filters; nothing found → Ask Otto with the query prefilled. | M | Today's Discover search moves here |
+| R3.3 | **Search** as a screen pushed from Discover's search field (`app/search.tsx`, back to Home): browse by kind + recent; results with filters; nothing found → Ask Otto with the query prefilled. | S | Move the G11 search (clear, Cancel, recent 5) out of `DiscoverScreen` as is |
 | R3.4 | **Otto tab** replaces the ＋ Create tab: `app/(tabs)/otto.tsx` = `ChatScreen` as a tab root (no close button; history icon stays, new chat from the header). Home's Ask Otto card and Search's empty state switch to this tab with the prompt prefilled. `/chats` stays for history; `TabBarCreateButton` deleted. | M | Deep links to `/create` redirect to the Otto tab. AI consent still asks before the first message |
 | R3.5 | **Restore last tab** on relaunch (kv), Home on first run. | S | Old ticket F4 |
 | R3.6 | Fix from the old ticket: Cookbook empty-state "Explore" pushes the Home tab, not `/`. Delete unreachable signed-out branch in `ChatScreen`. | S | F6 |
@@ -151,7 +155,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 |---|---|---|---|
 | R6.1 | Saved · Mine · Cooked segments; empty: "Tap the paw on any recipe". | S | |
 | R6.2 | ＋ Add in the navigation bar (not a tab): link · text · photo · write it. | S | `AddSheet` exists |
-| R6.3 | **Camera primer** before the system alert; denied → paste a link + Settings link. Same for photo library. | S | Wrap `imagePicker.ts` |
+| R6.3 | **Camera primer** before the first system alert (“Snap a cookbook page”, Continue / Paste a link instead). Choice sheet and denied → Open Settings already exist (G9). | S | One screen in front of `takePhoto()` |
 | R6.4 | Import review (source credited) and editor unchanged in function. | — | |
 
 ### Phase 7 — Account and settings
@@ -169,9 +173,9 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 
 | ID | Work | Size | Notes |
 |---|---|---|---|
-| R8.1 | **Universal links**: `associatedDomains: applinks:ottosapp.com`, AASA file on the Vercel site, routes `app/r/[slug].tsx` (recipe share) and `app/l/[token].tsx` (list share) reading the existing DEFINER RPCs. Signed out → Welcome/Sign in with the intent kept (R0.2). | M | Share cards gain a URL. Website ticket for AASA |
+| R8.1 | **Universal links**: `associatedDomains: applinks:ottosapp.com`, AASA file on the Vercel site, routes `app/r/[slug].tsx` (recipe share) and `app/l/[token].tsx` (list share) reading the existing DEFINER RPCs. Signed out → Welcome/Sign in with the intent kept (R0.2). | M | Share cards gain a URL. One AASA file on ottosapp.com serves both `applinks:` and the `webcredentials:` domain G5 left open |
 | R8.2 | **Notification taps** → href through the intent store (dinner → tonight's recipe, trial → Membership). | S | `addNotificationResponseReceivedListener` in `NotifSync` |
-| R8.3 | **Offline**: `@react-native-community/netinfo` + TanStack persist (AsyncStorage) for plan, list, saved; banner "You're offline. Your plan and list still work."; AI actions explain they need a connection. Gate uses the last known member answer offline. | M | Fail-closed rule stays for a *fresh* install |
+| R8.3 | **Offline launch**: in-app offline is done (G14). Remaining: the gate uses RevenueCat's cached customer info (or the last known answer in kv) when offline, so a member opens Home instead of the paywall; AI actions explain they need a connection. | S | Fail-closed stays for a fresh install with no cached answer |
 | R8.4 | **What's new** sheet once per major version (kv `lastSeenVersion`). | S | |
 | R8.5 | **Widget** (dinner tonight) — later, with Live Activity. | L | P2 |
 
@@ -180,8 +184,8 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | ID | Work | Notes |
 |---|---|---|
 | R9.1 | Build with **Xcode 26 / iOS 26 SDK** on EAS: native alerts, sheets, nav bars and the tab bar pick up Liquid Glass and the left-aligned alert style for free. | Check the EAS image; most of rows 14 and 17 come from this alone |
-| R9.2 | Custom sheets (`Sheet.tsx`, Toast) reviewed against iOS 26: no fake glass, no centred alert clones. | |
-| R9.3 | Large left-aligned titles on tab roots; Dynamic Type through `Text`; 44 pt targets. | `/polish --all` + accessibility audit |
+| R9.2 | Custom `Sheet` already upgraded (G7: drag to dismiss, grabber, Reduce Motion). Remaining: no fake glass, no centred alert clones in the new screens. | |
+| R9.3 | Already done: contrast tokens, Dynamic Type layouts, header roles (G1, G2, G10). Remaining from the gaps ticket: Dark Mode (G16, D7), layered app icon (G17), body 17 type scale (G19), native large titles (G20), list gestures and context menus (G21). | Track them there, not here |
 | R9.4 | Remove: logo splash, painting carousel, 3 of 6 questions, taste swipe, building screen, ＋ tab. | Already out of the design |
 
 ### Phase 10 — Release 1.1.0
@@ -197,7 +201,15 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 
 ---
 
-## 5. Order and what can run in parallel
+## 5. How this fits the other tickets
+
+| Ticket | Relationship |
+|---|---|
+| `TERMINAL_TICKET_GOLD_STANDARD_GAPS.md` | G1–G14 done on main (2026-11-04) and reflected above. G15 is answered by D4 (Otto circle). G16–G23 stay there; R9.3 points to them. |
+| `TERMINAL_TICKET_MOTION.md` | M7 (NativeTabs) **is** R3.1. M9 (Live Activity, widget) is D6 / R5.3 / R8.5. |
+| `TERMINAL_TICKET_FLOW_REDESIGN.md` | Superseded by this roadmap. |
+
+## 6. Order and what can run in parallel
 
 ```
 P0 foundations ──► P1 getting in ──► P2 paywall ──┐
@@ -213,7 +225,7 @@ P9 Apple pass runs across P3–P8 (build image first, polish at the end).
 - P2 depends on P1 only for the "after sign-up" entry; the outcome screens can start on day one.
 - Everything behind `flow_v2` until P10, so 1.0.x hotfixes keep shipping from `main`.
 
-## 6. Tests
+## 7. Tests
 
 | Layer | What | Where |
 |---|---|---|
@@ -222,7 +234,7 @@ P9 Apple pass runs across P3–P8 (build image first, polish at the end).
 | Database | RLS for `profiles` (own row only; anon none), export function returns only the caller's rows, delete removes `profiles` | `supabase/migrations/tests` |
 | Journeys | Web build + Playwright for the signed-out path (Welcome → questions → first week → Save your plan) and tab navigation; device sandbox matrix (R10.2) for purchases | new `test/journeys/` |
 
-## 7. Risks
+## 8. Risks
 
 | Risk | Mitigation |
 |---|---|
@@ -234,7 +246,7 @@ P9 Apple pass runs across P3–P8 (build image first, polish at the end).
 | Allergy filter wrong → a dish with an allergen | Hard filter on canonical ingredients + label copy; unit tests per allergen |
 | Universal links need the website | AASA + routes ship together; until then share stays image/text |
 
-## 8. Done when
+## 9. Done when
 
 The shipped 1.1.0 app, regenerated into `otto.html`, matches `otto-next.html` card for card; the sandbox
 matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
@@ -242,3 +254,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 
 ## Log
 <!-- append: date, phase/ID, result, commit -->
+- 2026-11-04 · roadmap · re-read against main `ac8fd38a` (G1–G14): offline in-app, photo choice, search, paywall hierarchy, Apple button and shared UI marked done; R2.1, R3.3, R6.3, R8.3 shrunk; D7 Dark Mode added; section 5 links the gaps and motion tickets.

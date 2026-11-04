@@ -131,7 +131,7 @@ a {{ color:var(--accent); }}
   <div class="eyebrow">Otto · plan for the code</div>
   <h1>{inline(title)}</h1>
   <p>How the app gets from today's flow (sign-up first, 5 tabs) to the Apple-checked flow on the current map: value before the account, a paywall with every outcome drawn, four tabs plus Search, and every door wired.</p>
-  <p>Written 2026-11-04 from a read of the code at 1.0.23 (build 52). Source: <code>docs/tickets/REWORK_ROADMAP.md</code>.</p>
+  <p>Written 2026-11-04, re-read against main at ac8fd38a (after the Apple gaps G1–G14 landed). Source: <code>docs/tickets/REWORK_ROADMAP.md</code>.</p>
 </header>
 <nav class="strip" aria-label="Phases">{strip}</nav>
 {body}
