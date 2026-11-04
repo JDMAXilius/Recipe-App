@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Otto Next Previous</title>
+<meta name="description" content="The redesigned Otto flow: one launch check, Cal AI-style first run into a hard paywall, and four tabs with Today merged into Home.">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#FAF6EF; --card:#FFFFFF; --line:#E6DFD3; --ink:#221D18; --ink-soft:#6C6359; --edge:#C2B6A8; --hi:#C4562E; --hi-soft:#F3D9CD;
+  --s-entry:#8C8378; --s-welcome:#8A5A3B; --s-account:#6B4E9B; --s-q:#3D6FB0; --s-proof:#9A7BC4; --s-perm:#22897C;
+  --s-reveal:#B9861F; --s-pay:#C9502A; --s-home:#4E8A4A; --s-core:#2F6B4F; --s-later:#8C8378;
+  --display:"Lora",Georgia,serif; --body:"Figtree",-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1C1915; --card:#29241F; --line:#3C352D; --ink:#F2EBE2; --ink-soft:#B3A89B; --edge:#5E554A; --hi:#EE8559; --hi-soft:#4A2C20;
+  --s-entry:#A0968A; --s-welcome:#C99573; --s-account:#A68BD6; --s-q:#7FA8E0; --s-proof:#B9A3E3; --s-perm:#5CC6B8;
+  --s-reveal:#E8B04B; --s-pay:#F0805A; --s-home:#86BE7F; --s-core:#6FBF97; --s-later:#A0968A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1C1915; --card:#29241F; --line:#3C352D; --ink:#F2EBE2; --ink-soft:#B3A89B; --edge:#5E554A; --hi:#EE8559; --hi-soft:#4A2C20;
+  --s-entry:#A0968A; --s-welcome:#C99573; --s-account:#A68BD6; --s-q:#7FA8E0; --s-proof:#B9A3E3; --s-perm:#5CC6B8;
+  --s-reveal:#E8B04B; --s-pay:#F0805A; --s-home:#86BE7F; --s-core:#6FBF97; --s-later:#A0968A; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);display:flex;flex-direction:column}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line)}
+.ttl{display:flex;flex-direction:column;gap:2px;min-width:0}
+h1{font:700 21px/1.1 var(--display);margin:0}
+.sub{font-size:12px;color:var(--ink-soft)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px}
+.tabs button{font:600 12.5px var(--body);height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--hi);border-color:var(--hi);color:#fff}
+.zoom{margin-left:auto;display:flex;gap:4px}
+.zoom button{font:600 14px var(--body);min-width:34px;height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button:focus-visible,.node:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-soft);align-items:center;padding:8px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.legend svg{vertical-align:middle;margin-right:4px}
+.view{flex:1;overflow:auto;position:relative;min-height:0}
+.sizer{position:relative}
+.canvas{position:absolute;left:0;top:0;transform-origin:0 0}
+.zone{position:absolute;border-radius:18px;background:color-mix(in srgb,var(--c) 8%,transparent)}
+.zone span{position:absolute;left:14px;top:11px;right:10px;font:700 11px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.zone.tabs{background:transparent;border:1.5px dashed color-mix(in srgb,var(--c) 60%,transparent)}
+svg.edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.e{fill:none;stroke:var(--edge);stroke-width:1.6;transition:stroke .15s,opacity .15s}
+.e.dash{stroke-dasharray:5 5}
+.lbl{font:600 10.5px var(--body);fill:var(--ink-soft);paint-order:stroke;stroke:var(--bg);stroke-width:4px;transition:opacity .15s}
+.node{position:absolute;width:176px;min-height:58px;padding:9px 12px 9px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:border-color .15s,opacity .15s,box-shadow .15s;box-shadow:0 1px 2px rgba(34,29,24,.06)}
+.node::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--c)}
+.node b{font-weight:650;font-size:13.5px;line-height:1.25;padding-right:34px}
+.node i{font-style:normal;font-size:11px;color:var(--ink-soft);line-height:1.3}
+.node em{position:absolute;right:8px;top:8px;font:600 9.5px/1.6 var(--body);font-style:normal;letter-spacing:.05em;text-transform:uppercase;color:var(--c)}
+.node.dec{border-style:dashed;border-color:var(--ink-soft)}
+.node.sys{border-style:dashed;border-color:var(--c)}
+.node.key{border:2px solid var(--c)}
+.node.start{border:2px solid var(--ink)}
+.focus .node{opacity:.25}.focus .node.on{opacity:1;border-color:var(--hi);box-shadow:0 0 0 3px var(--hi-soft)}
+.focus .e{opacity:.1}.focus .e.on{opacity:1;stroke:var(--hi)}
+.focus .lbl{opacity:0}.focus .lbl.on{opacity:1;fill:var(--hi)}
+.notes{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));width:min(360px,calc(100% - 28px));background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:0 6px 24px rgba(34,29,24,.12);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.notes .hd{display:flex;justify-content:space-between;align-items:center;font:700 11px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--hi)}
+.notes button{all:unset;cursor:pointer;color:var(--ink-soft);font-size:16px;line-height:1;padding:2px 4px}
+.notes ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px}
+.notes .src{font:400 10.5px/1.4 var(--mono);color:var(--ink-soft);overflow-wrap:anywhere}
+.doc{flex:1;overflow:auto;min-height:0;padding:20px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.doc .in{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+.doc h2{font:700 20px/1.2 var(--display);margin:0 0 6px}
+.doc p{margin:0 0 8px}
+.doc ol,.doc ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.cd{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.cd .k{font:700 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--hi);margin-bottom:6px}
+.cd b{display:block;font-size:14.5px;margin-bottom:4px}
+.cd p{color:var(--ink-soft);font-size:12.5px;margin:0}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{font:700 11px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);background:color-mix(in srgb,var(--line) 40%,transparent)}
+tr:last-child td{border-bottom:0}
+tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
+.tag{display:inline-block;font:600 10px/1.6 var(--body);letter-spacing:.05em;text-transform:uppercase;padding:0 7px;border-radius:999px;color:#fff}
+.t-rm{background:#B2432B}.t-add{background:#4E8A4A}.t-chg{background:#B9861F}.t-keep{background:#8C8378}
+.callout{border-left:3px solid var(--hi);background:color-mix(in srgb,var(--hi) 7%,transparent);padding:10px 14px;border-radius:0 12px 12px 0;font-size:13px}
+.flowline{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}
+.flowline span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.flowline span.k{border-color:var(--hi);color:var(--hi);font-weight:600}
+.tabwrap{overflow-x:auto}
+@media (prefers-reduced-motion:reduce){.e,.node,.lbl{transition:none}}
+</style>
+
+<div class="bar">
+  <div class="ttl"><h1>Otto — the flow it should have (previous)</h1><span class="sub" id="sub"></span></div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="zoom" id="zoom"><button id="zo" aria-label="Zoom out">−</button><button id="zi" aria-label="Zoom in">+</button><button id="zf">Fit</button><button id="zn" aria-pressed="true">Notes</button></div>
+</div>
+<div class="legend" id="legend">
+  <span><svg width="28" height="8"><line x1="0" y1="4" x2="28" y2="4" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>next screen</span>
+  <span><svg width="28" height="8"><line x1="0" y1="4" x2="28" y2="4" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="5 5"/></svg>optional / back</span>
+  <span>thick border = key moment · dashed border = decision or iOS sheet</span>
+</div>
+
+<div class="view" id="view" hidden>
+  <div class="sizer" id="sizer"><div class="canvas" id="canvas"><svg class="edges" id="edges"></svg></div></div>
+  <div class="notes" id="notes"><div class="hd"><span>What to notice</span><button id="nx" aria-label="Hide notes">×</button></div><ul id="nl"></ul><div class="src" id="src"></div><div class="sub">Tap a screen to trace its paths.</div></div>
+</div>
+
+<!-- ============ WHY ============ -->
+<div class="doc" id="doc-why" hidden><div class="in">
+  <div>
+    <h2>The shape in one line</h2>
+    <p>Show the plan, take the account, then the paywall. Members never see the paywall again; everyone else can't get past it.</p>
+    <div class="flowline">
+      <span>Launch</span>→<span>Signed in?</span>→<span>Welcome</span>→<span>Paintings</span>→<span>Questions</span>→<span>Taste</span>→<span class="k">Save your plan (account)</span>→<span>Building</span>→<span class="k">Your first week</span>→<span class="k">Otto Club · no X</span>→<span>Reminders</span>→<span>Home</span>
+    </div>
+    <p class="sub" style="margin-top:8px">Returning: Launch → auto sign-in → Club active? → Home (yes) or the same paywall (no). Sign in from Welcome joins the same check.</p>
+  </div>
+
+  <div>
+    <h2>Whose order this is</h2>
+    <p>It's Cal AI's order, nearly screen for screen. Cal AI is the strongest hard-paywall app in the study and the closest to "trial needs a membership".</p>
+    <div class="tabwrap"><table>
+      <tr><th style="width:130px">App</th><th>First-run order</th><th style="width:28%">Taken for Otto</th></tr>
+      <tr><td>Cal AI</td><td>welcome → quiz → save your progress (account) → generating → plan ready → <b>hard paywall, no ×</b> → home</td><td>The whole spine.</td></tr>
+      <tr><td>Cherrypick</td><td>welcome → value scenes → household, diet, dislikes → taste swipe → account → Plan</td><td>The food questions and the taste swipe.</td></tr>
+      <tr><td>Tiimo</td><td>… → paywall → notifications (Skip) → Today</td><td>Reminders asked after the purchase, not before.</td></tr>
+      <tr><td>Headspace</td><td>account → quiz → paywall with trial timeline → result</td><td>Trial timeline on the paywall (today · reminder · charge day).</td></tr>
+      <tr><td>Duolingo · MFP</td><td>"I already have an account" on Welcome</td><td>One door for returning people, on the first screen.</td></tr>
+      <tr class="us"><td>Otto next</td><td>welcome → paintings → questions → taste → account → building → first week → paywall, no X → reminders → Home</td><td></td></tr>
+    </table></div>
+  </div>
+
+  <div>
+    <h2>How many tabs? Four.</h2>
+    <p>Counted from Mobbin and the study file. Most food and recipe apps use 4 or 5. Apple's limit is 5, and the cleanest meal-plan apps use 4.</p>
+    <div class="tabwrap"><table>
+      <tr><th style="width:44px">Tabs</th><th style="width:150px">App</th><th>Tab bar</th></tr>
+      <tr><td>4</td><td>Cherrypick</td><td>Plan · Shop · Cook · You</td></tr>
+      <tr><td>4</td><td>NYT Cooking</td><td>Browse · Recipe Box · Recently Viewed · Search</td></tr>
+      <tr><td>4</td><td>Centr</td><td>Home · Explore · Programs · Profile</td></tr>
+      <tr><td>4</td><td>Yazio</td><td>Diary · Recipes · Fasting · Profile</td></tr>
+      <tr><td>4</td><td>Tiimo · Alma</td><td>To-do · Today · Focus · Me / four icon-only tabs (home, journal, food, profile)</td></tr>
+      <tr><td>5</td><td>Kitchen Stories</td><td>Home · Search · Saved · Shopping list · Profile</td></tr>
+      <tr><td>5</td><td>Crouton · Recime</td><td>Meal Plan · Recipes · Groceries · Discover · Settings / Cookbooks · Meal Plan · ＋ · Groceries · More</td></tr>
+      <tr><td>5</td><td>MyFitnessPal · HelloFresh · Julienne</td><td>Today · Plan · ＋ · Progress · More / … / Discover · Recipes · Add · Ask · Settings</td></tr>
+      <tr><td>3</td><td>Cal AI · Headspace · Noom</td><td>Home · Progress · Settings + ＋ / Today · Explore · Profile</td></tr>
+      <tr class="us"><td>4</td><td>Otto next</td><td>Home · Plan · Cookbook · Account</td></tr>
+    </table></div>
+  </div>
+
+  <div>
+    <h2>Today and Discover become one Home</h2>
+    <p>Recipe apps don't split "today" and "browse" into two tabs. Kitchen Stories' Home opens on <i>Today's Recipe</i> and <i>What to cook tonight</i>, then the feed. Wabi opens on <i>This week's meals</i>, then <i>Suggested recipes</i>. Centr's Home is the date strip with today's meals. Otto's Home follows that, in one scroll:</p>
+    <div class="cards">
+      <div class="cd"><div class="k">Top</div><b>Tonight</b><p>Tonight's dinner from the plan, big, with Start cooking. Empty night: "Open. No plans, no guilt." with Plan tonight.</p></div>
+      <div class="cd"><div class="k">Then</div><b>This week</b><p>A small date strip of the next days' meals. Tapping a day opens Plan.</p></div>
+      <div class="cd"><div class="k">Then</div><b>Discover</b><p>Search with Ask Otto beside it, categories, Otto's picks, new recipes. This is today's Discover tab, moved down.</p></div>
+    </div>
+    <p class="sub" style="margin-top:8px">Where the rest goes: the <b>shopping list</b> lives in Plan, as Centr, BitePal and Recime do ("Shopping list" button on the plan). <b>Add a recipe</b> is the ＋ in Cookbook's top bar. <b>Ask Otto</b> sits next to search on Home. Household, journal and settings live in Account.</p>
+  </div>
+
+  <div>
+    <h2>Apple checks for a hard paywall</h2>
+    <div class="cards">
+      <div class="cd"><div class="k">3.1.2(c)</div><b>Billed amount leads</b><p>$39.99/yr is the biggest price; per-month is the small line. Trial terms are stated plainly.</p></div>
+      <div class="cd"><div class="k">3.1.1</div><b>Restore on the paywall</b><p>With Terms and Privacy links that work.</p></div>
+      <div class="cd"><div class="k">5.1.1(v)</div><b>A way out without paying</b><p>The paywall has no X, so Sign out and Delete account must be on it. Today's paywall already has both; keep them.</p></div>
+      <div class="cd"><div class="k">4.8</div><b>Sign in with Apple</b><p>As large as Google and Facebook in the one-row lineup, with no scrolling.</p></div>
+      <div class="cd"><div class="k">5.1.2(i)</div><b>AI consent</b><p>The sheet names OpenAI and appears right before the first Ask Otto or import, not during onboarding.</p></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ============ SCENARIOS ============ -->
+<div class="doc" id="doc-scenarios" hidden><div class="in">
+  <div>
+    <h2>Every state at launch, and where it goes</h2>
+    <div class="tabwrap"><table>
+      <tr><th style="width:34%">Who opens the app</th><th>What they see</th></tr>
+      <tr><td>New person, fresh install</td><td>Welcome → paintings → questions → taste → Save your plan → first week → paywall → reminders → Home</td></tr>
+      <tr><td>Signed in, Club active</td><td>Splash, then straight to Home, on the tab they left. Never the paywall.</td></tr>
+      <tr><td>Signed in, no Club (never bought, or the trial ended)</td><td>Splash, then the paywall, no X. Restore · Sign out · Delete account on it. Their recipes and plans stay saved for when they come back.</td></tr>
+      <tr><td>Has an account, signed out (new phone, reinstall)</td><td>Welcome → I have an account → Sign in → Club active? → Home or paywall. Onboarding is never shown again.</td></tr>
+      <tr><td>Club status still loading</td><td>The splash stays up (5-second ceiling, as in 1.0.23). Never a flash of the paywall for a member.</td></tr>
+      <tr><td>Offline at launch</td><td>The last known Club answer is used; Home shows the cached plan. A fresh install offline gets a "Try again" on the splash.</td></tr>
+      <tr><td>Dinner notification, widget, shared link</td><td>Same launch check first, then the exact screen (tonight's recipe, the shared list). Signed out → Sign in, then back to it.</td></tr>
+    </table></div>
+  </div>
+  <div>
+    <h2>Inside the paywall</h2>
+    <div class="tabwrap"><table>
+      <tr><th style="width:34%">Outcome</th><th>Next</th></tr>
+      <tr><td>Starts the trial</td><td>Apple sheet → reminders primer (Not now allowed) → Home</td></tr>
+      <tr><td>Cancels the Apple sheet</td><td>Back on the paywall</td></tr>
+      <tr><td>Purchase fails</td><td>Plain-language error on the paywall, Try again</td></tr>
+      <tr><td>Ask to Buy pending</td><td>"Waiting for approval" on the paywall; opens the app once approved</td></tr>
+      <tr><td>Restore finds Club</td><td>Home</td></tr>
+      <tr><td>Restore finds nothing</td><td>"No Otto Club found for this Apple ID" on the paywall</td></tr>
+    </table></div>
+  </div>
+  <div>
+    <h2>Asked at the moment, never up front</h2>
+    <div class="tabwrap"><table>
+      <tr><th style="width:34%">Ask</th><th>When</th></tr>
+      <tr><td>Dinner reminders</td><td>Once, right after the purchase (Tiimo's spot). Denied → the app works the same; switch it on later in Account → Notifications.</td></tr>
+      <tr><td>AI consent (OpenAI)</td><td>First Ask Otto or first import. Not now → that feature waits; everything else works.</td></tr>
+      <tr><td>Camera</td><td>First photo import. Denied → pick from the library, or type it.</td></tr>
+      <tr><td>Rating</td><td>On the cook finish screen after the third dish, once.</td></tr>
+    </table></div>
+  </div>
+</div></div>
+
+<!-- ============ CHANGES ============ -->
+<div class="doc" id="doc-changes" hidden><div class="in">
+  <div>
+    <h2>What changes against today's app</h2>
+    <div class="tabwrap"><table>
+      <tr><th style="width:84px"></th><th style="width:30%">Screen</th><th>Change</th></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Launch gate</td><td>Becomes the splash plus one quiet check: signed in? → Club active? No visible gate screen.</td></tr>
+      <tr><td><span class="tag t-chg">Move</span></td><td>Sign up</td><td>From the first screen to after the questions, as "Save your plan". No Skip: the trial needs an account.</td></tr>
+      <tr><td><span class="tag t-add">New</span></td><td>Welcome</td><td>Get started · I have an account. The only door for returning people.</td></tr>
+      <tr><td><span class="tag t-keep">Keep</span></td><td>Three paintings</td><td>Right after Welcome, swipeable. Shown once, ever.</td></tr>
+      <tr><td><span class="tag t-add">New</span></td><td>Food questions (×5)</td><td>Who's eating · diet + allergies · anything to skip · weeknight time · what matters.</td></tr>
+      <tr><td><span class="tag t-add">New</span></td><td>Taste swipe</td><td>Eight real dishes, yes / no.</td></tr>
+      <tr><td><span class="tag t-add">New</span></td><td>Building your week · Your first week</td><td>The plan reveal right before the paywall, on dates, tonight first.</td></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Otto Club paywall</td><td>No X. Comes right after the reveal. Billed amount leads, trial timeline, Restore, Terms, Privacy, Sign out, Delete account. Members never see it.</td></tr>
+      <tr><td><span class="tag t-chg">Move</span></td><td>Notifications ask</td><td>Right after the purchase, primed, Not now allowed.</td></tr>
+      <tr><td><span class="tag t-chg">Merge</span></td><td>Discover + Today → Home</td><td>One scroll: Tonight → This week → Discover. Ask Otto next to search.</td></tr>
+      <tr><td><span class="tag t-rm">Remove</span></td><td>Create tab (center ＋)</td><td>Ask Otto moves to Home, Add a recipe to Cookbook's ＋.</td></tr>
+      <tr><td><span class="tag t-chg">Move</span></td><td>Shopping list</td><td>Inside Plan (button at the top of the week).</td></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Plan</td><td>Built on dates: week strip → day → pick a meal. "Otto plans my week" on the week.</td></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Membership page</td><td>Only in Account, only for members: plan, renewal date, Manage (Apple's sheet). Back arrow.</td></tr>
+      <tr><td><span class="tag t-keep">Keep</span></td><td>Recipe, Cook mode, Cookbook, Add, import review, editor, journal, household, FAQ, password screens</td><td>Same screens, now reached from four tabs instead of five.</td></tr>
+    </table></div>
+  </div>
+</div></div>
+
+<script>
+const MAPS={};
+
+/* ------------------------------------------------------------------ LAUNCH + FIRST RUN */
+MAPS.launch={title:"Launch and first run",
+sub:"One check at launch. New people: Cal AI's order into a hard paywall. Returning people: auto sign-in → Club active? → Home or paywall",
+src:"Cal AI 41:100 (order + hard paywall) · Cherrypick 28:1825 (questions, taste swipe) · Tiimo 42:8 (reminders after purchase) · Duolingo, MFP (“I have an account” on Welcome) · HIG Launching, Managing accounts · Review 3.1.1, 3.1.2(c), 4.8, 5.1.1(v)",
+notes:["Launch makes one quiet check: is someone signed in on this phone? Yes → auto sign-in. No → Welcome.","Every signed-in person goes through the same “Club active?” check. Yes → Home, never the paywall. No → the paywall, which has no X.","New people see their first week before the paywall, and give the account just before it, as “save your plan”. No Skip: the trial needs an account.","Reminders are asked once, right after the purchase."],
+zones:[{label:"Entry",st:"entry",cols:[0]},{label:"Launch",st:"welcome",cols:[1]},{label:"Welcome · Sign in",st:"account",cols:[2]},{label:"Onboarding",st:"q",cols:[3]},{label:"Account · Club check",st:"account",cols:[4]},{label:"Your plan",st:"reveal",cols:[5]},{label:"Otto Club · no X",st:"pay",cols:[6]},{label:"Reminders",st:"perm",cols:[7]},{label:"The app",st:"home",cols:[8],tabs:1}],
+nodes:[
+["open","App icon","Every launch",0,0,"entry","start","start"],
+["splash","Splash","Otto + wordmark while the check runs",1,0,"welcome"],
+["signedq","Signed in on this phone?","Saved session",1,1,"welcome","","dec"],
+["welcome","Welcome","Get started · I have an account",2,1,"welcome","","key"],
+["signin","Sign in","Apple · Google · Facebook in one row, email, forgot password",2,2,"account"],
+["scenes","Three paintings","Plan · Cook · Shop. Shown once, ever",3,2,"proof","×3"],
+["questions","Food questions","Who’s eating · diet · skip · time · goal",3,3,"q","×5"],
+["clubq","Otto Club active?","Waits for RevenueCat, 5 s ceiling",4,0,"account","","dec"],
+["taste","Taste swipe","Eight real dishes, yes / no",4,2,"reveal","×8"],
+["signup","Save your plan","Apple · Google · Facebook in one row, email. No Skip",4,3,"account","","key"],
+["building","Otto’s building your week","Uses the answers and the swipes",5,2,"proof"],
+["week","Your first week","Seven dates, tonight first",5,3,"reveal","","key"],
+["pay","Otto Club","No X. $39.99/yr leads, trial timeline. Restore · Terms · Privacy · Sign out · Delete account",6,1,"pay","","key"],
+["buy","Apple purchase sheet","Cancel or fail → back to the paywall",6,2,"pay","system","sys"],
+["nprime","Dinner reminders?","Primer: Continue · Not now",7,1,"perm"],
+["nos","iOS notification alert","Allow · Don’t allow",7,2,"perm","system","sys"],
+["home","Home","Members land here. Returning: the tab they left",8,0,"home","","key"],
+["plan","Plan","",8,1,"home"],
+["cookbook","Cookbook","",8,2,"home"],
+["account","Account","",8,3,"home"],
+],
+edges:[
+["open","splash"],["splash","signedq"],
+["signedq","clubq","yes · auto sign-in"],["signedq","welcome","no"],
+["welcome","signin","I have an account"],["signin","clubq","signed in"],
+["welcome","scenes","get started"],["scenes","questions"],["questions","taste"],["taste","signup"],["signup","building"],["building","week"],["week","pay"],
+["clubq","home","yes"],["clubq","pay","no"],
+["pay","buy","start trial"],["buy","nprime","subscribed"],["nprime","nos","continue"],["nos","home"],["nprime","home","not now",1],
+["home","plan"],["plan","cookbook"],["cookbook","account"]]};
+
+/* ------------------------------------------------------------------ THE APP */
+MAPS.app={title:"The app",
+sub:"Four tabs: Home (Tonight + This week + Discover) · Plan (with Shopping) · Cookbook (with ＋ Add) · Account",
+src:"Kitchen Stories, Wabi, Centr (today on Home) · Centr, BitePal, Recime (shopping list inside the plan) · Cherrypick, NYT Cooking, Yazio (4 tabs) · HIG Tab bars · redesign tickets T05–T09",
+notes:["Each tab reads left to right as one path. No arrows between tabs.","Home opens on tonight’s dinner, then this week, then Discover. Ask Otto sits next to search.","Plan is built on dates and holds the shopping list.","Recipe → Cook mode is drawn once, from Home. Plan, Cookbook and Ask Otto open the same recipe screen."],
+zones:[{label:"Tab bar · 4",st:"home",cols:[0],tabs:1},{label:"Opens",st:"core",cols:[1]},{label:"Then",st:"core",cols:[2]},{label:"Then",st:"core",cols:[3]},{label:"Done",st:"core",cols:[4]}],
+nodes:[
+["home","Home","Tonight · This week · Discover. Search + Ask Otto",0,0,"home","","key"],
+["recipe","Recipe","Photo, servings, estimate, paw save, add to plan",1,0,"core","","key"],
+["mise","Mise en place","Gather and check off",2,0,"core"],
+["steps","Cook mode","Big type, timers, lock-screen timer",3,0,"core","×n"],
+["finish","Dinner, done","Thumbs · snap the plate · into the journal",4,0,"core","","key"],
+["search","Search + filters","Diet, time, category",1,1,"reveal"],
+["results","Results","Food first. Nothing found → Ask Otto",2,1,"reveal"],
+["ask","Ask Otto","Text or voice",1,2,"proof"],
+["consent","AI consent","Names OpenAI. First time only",2,2,"perm","legal","sys"],
+["answer","Answer as a recipe card","Save · add to plan · cook",3,2,"proof"],
+
+["plan","Plan","Week strip by dates",0,3,"home","","key"],
+["day","Day","Breakfast · lunch · dinner",1,3,"q"],
+["pick","Pick a meal","Saved · Discover · Ask Otto",2,3,"q"],
+["planned","On the plan","Swap · move · leftovers · cooked · remove",3,3,"q"],
+["ottoweek","Otto plans my week","Fills the empty days",1,4,"q"],
+["shop","Shopping list","By aisle, each item names its recipe",1,5,"q"],
+["household","Share with household","Invite · join · one live list",2,5,"q"],
+
+["cookbook","Cookbook","Saved · Mine · Cooked",0,6,"home","","key"],
+["add","＋ Add a recipe","Link · text · photo · write it",1,6,"reveal"],
+["review","Import review","Check it, source credited",2,6,"reveal"],
+["saved","Saved to Cookbook","",3,6,"reveal"],
+
+["account","Account","Stats, settings",0,7,"home","","key"],
+["membership","Membership","Plan, renewal date, Manage via Apple. Back arrow",1,7,"pay"],
+["settings","Preferences · Notifications","Diet, household size, reminders",1,8,"later"],
+["more","Household · Journal · FAQ","",1,9,"later"],
+["signout","Sign out","Confirm → Welcome",1,10,"account"],
+["delete","Delete account","Confirm · billing note · Apple token revoked",1,11,"account","5.1.1(v)"],
+],
+edges:[
+["home","recipe","tonight · a pick"],["recipe","mise","start cooking"],["mise","steps"],["steps","finish"],
+["home","search"],["search","results"],
+["home","ask"],["ask","consent","first time"],["consent","answer"],
+["plan","day"],["day","pick","add"],["pick","planned"],
+["plan","ottoweek"],["plan","shop"],["shop","household","share"],
+["cookbook","add","＋"],["add","review"],["review","saved"],
+["account","membership"],["account","settings"],["account","more"],["account","signout"],["account","delete"]]};
+
+/* ------------------------------------------------------------------ RENDER */
+const CX=220, RY=92, X0=30, Y0=58, NW=176;
+const STAGE={entry:"--s-entry",welcome:"--s-welcome",account:"--s-account",q:"--s-q",proof:"--s-proof",perm:"--s-perm",reveal:"--s-reveal",pay:"--s-pay",home:"--s-home",core:"--s-core",later:"--s-later"};
+const DOCSUB="Hard paywall · 4 tabs · built from Cal AI, Cherrypick and the recipe apps on Mobbin · 2026-11-04 · a proposal, not the shipped app";
+const TABS=[["launch","Launch + first run","map"],["app","The app","map"],["why","Why this shape","doc"],["scenarios","Every state","doc"],["changes","What changes","doc"]];
+const view=document.getElementById("view"), canvas=document.getElementById("canvas"), svg=document.getElementById("edges"), sizer=document.getElementById("sizer"), notes=document.getElementById("notes"), zoom=document.getElementById("zoom"), legend=document.getElementById("legend");
+const NS="http://www.w3.org/2000/svg";
+let APP=null, el={}, W=0, H=0, paths=[], active=null, s=1;
+
+function render(key){
+  APP=MAPS[key]; el={}; paths=[]; active=null; canvas.classList.remove("focus");
+  canvas.querySelectorAll(".node,.zone").forEach(n=>n.remove());
+  svg.innerHTML=`<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--edge)"/></marker><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--hi)"/></marker></defs>`;
+  document.getElementById("sub").textContent=APP.sub;
+  document.getElementById("nl").innerHTML=APP.notes.map(n=>`<li>${n}</li>`).join("");
+  document.getElementById("src").textContent="Sources: "+APP.src;
+  let maxC=0,maxR=0;
+  for(const [id,title,sub,c,r,st,tag,kind] of APP.nodes){
+    const d=document.createElement("div");
+    d.className="node"+(kind?" "+kind:""); d.tabIndex=0; d.dataset.id=id; d.dataset.zone=APP.zones.findIndex(z=>z.cols.includes(c));
+    d.style.left=(X0+c*CX)+"px"; d.style.top=(Y0+r*RY)+"px"; d.style.setProperty("--c",`var(${STAGE[st]})`);
+    d.innerHTML=`<b>${title}</b>${sub?`<i>${sub}</i>`:""}${tag?`<em>${tag}</em>`:""}`;
+    canvas.appendChild(d); el[id]=d; maxC=Math.max(maxC,c); maxR=Math.max(maxR,r);
+  }
+  W=X0+maxC*CX+NW+40; H=Y0+(maxR+1)*RY+40;
+  canvas.style.width=W+"px"; canvas.style.height=H+"px"; svg.setAttribute("width",W); svg.setAttribute("height",H);
+  draw(); setScale(fitScale());
+}
+function zones(){
+  canvas.querySelectorAll(".zone").forEach(z=>z.remove());
+  APP.zones.forEach((z,i)=>{
+    const ns=[...canvas.querySelectorAll(`.node[data-zone="${i}"]`)]; if(!ns.length) return;
+    const x0=Math.min(...ns.map(n=>n.offsetLeft))-14, x1=Math.max(...ns.map(n=>n.offsetLeft+n.offsetWidth))+14;
+    const y0=Math.min(...ns.map(n=>n.offsetTop))-36, y1=Math.max(...ns.map(n=>n.offsetTop+n.offsetHeight))+14;
+    const d=document.createElement("div"); d.className="zone"+(z.tabs?" tabs":"");
+    Object.assign(d.style,{left:x0+"px",top:y0+"px",width:(x1-x0)+"px",height:(y1-y0)+"px"}); d.style.setProperty("--c",`var(${STAGE[z.st]})`);
+    d.innerHTML=`<span>${z.label}</span>`; canvas.insertBefore(d,svg);
+  });
+}
+const box=id=>{const d=el[id];return{x:d.offsetLeft,y:d.offsetTop,w:d.offsetWidth,h:d.offsetHeight};};
+function draw(){
+  paths.forEach(p=>{p.path.remove();p.text&&p.text.remove();}); paths.length=0;
+  for(const [f,t,label,dash] of APP.edges){
+    const a=box(f), b=box(t); let d,lx,ly,anchor="middle";
+    const ay=a.y+a.h/2, by=b.y+b.h/2;
+    if(b.x>=a.x+a.w){ const sx=a.x+a.w, ex=b.x-2, k=Math.max(40,(ex-sx)/2);
+      d=`M${sx} ${ay}C${sx+k} ${ay} ${ex-k} ${by} ${ex} ${by}`; lx=(sx+ex)/2; ly=(ay+by)/2-6; }
+    else if(b.x+b.w<=a.x){ const sx=a.x, ex=b.x+b.w+2, k=Math.max(50,(sx-ex)/2);
+      d=`M${sx} ${ay}C${sx-k} ${ay} ${ex+k} ${by} ${ex} ${by}`; lx=(sx+ex)/2; ly=(ay+by)/2-6; }
+    else if(b.y>a.y && b.y-(a.y+a.h)<60){ const x=a.x+a.w/2;
+      d=`M${x} ${a.y+a.h}L${x} ${b.y-2}`; lx=x+8; ly=(a.y+a.h+b.y)/2+4; anchor="start"; }
+    else { const sx=a.x+a.w, ex=b.x+b.w+2, off=26+Math.abs(by-ay)*.12;
+      d=`M${sx} ${ay}C${sx+off} ${ay} ${ex+off} ${by} ${ex} ${by}`; lx=sx+off*.75+4; ly=(ay+by)/2+4; anchor="start"; }
+    const p=document.createElementNS(NS,"path"); p.setAttribute("d",d); p.setAttribute("class","e"+(dash?" dash":"")); p.setAttribute("marker-end","url(#a)"); svg.appendChild(p);
+    let tx=null; if(label){ tx=document.createElementNS(NS,"text"); tx.setAttribute("x",lx); tx.setAttribute("y",ly); tx.setAttribute("text-anchor",anchor); tx.setAttribute("class","lbl"); tx.textContent=label; svg.appendChild(tx); }
+    paths.push({f,t,path:p,text:tx});
+  }
+  zones();
+}
+function focus(id){
+  active=(active===id)?null:id; canvas.classList.toggle("focus",!!active);
+  Object.values(el).forEach(n=>n.classList.remove("on"));
+  paths.forEach(p=>{const on=active&&(p.f===active||p.t===active);
+    p.path.classList.toggle("on",!!on); p.path.setAttribute("marker-end",on?"url(#ah)":"url(#a)"); p.text&&p.text.classList.toggle("on",!!on);
+    if(on){el[p.f].classList.add("on");el[p.t].classList.add("on");}});
+  if(active) el[active].classList.add("on");
+}
+canvas.addEventListener("click",e=>{const n=e.target.closest(".node"); if(n) focus(n.dataset.id); else if(active) focus(active);});
+canvas.addEventListener("keydown",e=>{const n=e.target.closest(".node"); if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();focus(n.dataset.id);} if(e.key==="Escape"&&active) focus(active);});
+const fitScale=()=>Math.min(1.2,(view.clientWidth-12)/W,(view.clientHeight-12)/H);
+function setScale(v){ s=Math.max(.25,Math.min(1.8,v)); canvas.style.transform=`scale(${s})`; sizer.style.width=W*s+"px"; sizer.style.height=H*s+"px"; }
+document.getElementById("zi").onclick=()=>setScale(s+.15);
+document.getElementById("zo").onclick=()=>setScale(s-.15);
+document.getElementById("zf").onclick=()=>setScale(fitScale());
+const zn=document.getElementById("zn");
+function showNotes(on){notes.hidden=!on; zn.setAttribute("aria-pressed",on);}
+zn.onclick=()=>showNotes(notes.hidden); document.getElementById("nx").onclick=()=>showNotes(false);
+
+const tabbar=document.getElementById("tabs");
+function show(key){
+  const def=TABS.find(t=>t[0]===key);
+  tabbar.querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected",b.dataset.key===key));
+  document.querySelectorAll(".doc").forEach(d=>d.hidden=true);
+  const isMap=def[2]==="map";
+  view.hidden=!isMap; zoom.style.visibility=isMap?"visible":"hidden"; legend.style.display=isMap?"flex":"none";
+  if(isMap) render(key); else { document.getElementById("doc-"+key).hidden=false; document.getElementById("sub").textContent=DOCSUB; }
+  try{ history.replaceState(null,"","#"+key); }catch(e){}
+}
+for(const [key,label] of TABS){ const b=document.createElement("button"); b.textContent=label; b.dataset.key=key; b.setAttribute("role","tab"); b.onclick=()=>show(key); tabbar.appendChild(b); }
+const start=(location.hash||"").slice(1);
+show(TABS.some(t=>t[0]===start)?start:"launch");
+addEventListener("resize",()=>{ if(!view.hidden) setScale(fitScale()); });
+document.fonts&&document.fonts.ready.then(()=>{ if(!view.hidden){draw();setScale(fitScale());} });
+</script>
+</html>

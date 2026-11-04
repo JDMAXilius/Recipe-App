@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Otto Next First</title>
+<meta name="description" content="The redesigned Otto flow, built from Apple's guidelines and the reference apps: first run, returning and link entries, the whole app, and the 23-scenario checklist.">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#FAF6EF; --card:#FFFFFF; --line:#E6DFD3; --ink:#221D18; --ink-soft:#6C6359; --edge:#C2B6A8; --hi:#C4562E; --hi-soft:#F3D9CD;
+  --s-entry:#8C8378; --s-welcome:#8A5A3B; --s-account:#6B4E9B; --s-q:#3D6FB0; --s-proof:#9A7BC4; --s-perm:#22897C;
+  --s-reveal:#B9861F; --s-pay:#C9502A; --s-home:#4E8A4A; --s-core:#2F6B4F; --s-later:#8C8378;
+  --display:"Lora",Georgia,serif; --body:"Figtree",-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1C1915; --card:#29241F; --line:#3C352D; --ink:#F2EBE2; --ink-soft:#B3A89B; --edge:#5E554A; --hi:#EE8559; --hi-soft:#4A2C20;
+  --s-entry:#A0968A; --s-welcome:#C99573; --s-account:#A68BD6; --s-q:#7FA8E0; --s-proof:#B9A3E3; --s-perm:#5CC6B8;
+  --s-reveal:#E8B04B; --s-pay:#F0805A; --s-home:#86BE7F; --s-core:#6FBF97; --s-later:#A0968A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1C1915; --card:#29241F; --line:#3C352D; --ink:#F2EBE2; --ink-soft:#B3A89B; --edge:#5E554A; --hi:#EE8559; --hi-soft:#4A2C20;
+  --s-entry:#A0968A; --s-welcome:#C99573; --s-account:#A68BD6; --s-q:#7FA8E0; --s-proof:#B9A3E3; --s-perm:#5CC6B8;
+  --s-reveal:#E8B04B; --s-pay:#F0805A; --s-home:#86BE7F; --s-core:#6FBF97; --s-later:#A0968A; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);display:flex;flex-direction:column}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line)}
+.ttl{display:flex;flex-direction:column;gap:2px;min-width:0}
+h1{font:700 21px/1.1 var(--display);margin:0}
+.sub{font-size:12px;color:var(--ink-soft)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px}
+.tabs button{font:600 12.5px var(--body);height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--hi);border-color:var(--hi);color:#fff}
+.zoom{margin-left:auto;display:flex;gap:4px}
+.zoom button{font:600 14px var(--body);min-width:34px;height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button:focus-visible,.node:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-soft);align-items:center;padding:8px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.legend svg{vertical-align:middle;margin-right:4px}
+.legend .sw{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.view{flex:1;overflow:auto;position:relative;min-height:0}
+.sizer{position:relative}
+.canvas{position:absolute;left:0;top:0;transform-origin:0 0}
+.zone{position:absolute;border-radius:18px;background:color-mix(in srgb,var(--c) 8%,transparent)}
+.zone span{position:absolute;left:14px;top:11px;right:10px;font:700 11px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.zone.tabs{background:transparent;border:1.5px dashed color-mix(in srgb,var(--c) 60%,transparent)}
+svg.edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.e{fill:none;stroke:var(--edge);stroke-width:1.6;transition:stroke .15s,opacity .15s}
+.e.dash{stroke-dasharray:5 5}
+.lbl{font:600 10.5px var(--body);fill:var(--ink-soft);paint-order:stroke;stroke:var(--bg);stroke-width:4px;transition:opacity .15s}
+.node{position:absolute;width:176px;min-height:58px;padding:9px 12px 9px 14px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:border-color .15s,opacity .15s,box-shadow .15s;box-shadow:0 1px 2px rgba(34,29,24,.06)}
+.node::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--c)}
+.node b{font-weight:650;font-size:13.5px;line-height:1.25;padding-right:34px}
+.node i{font-style:normal;font-size:11px;color:var(--ink-soft);line-height:1.3}
+.node em{position:absolute;right:8px;top:8px;font:600 9.5px/1.6 var(--body);font-style:normal;letter-spacing:.05em;text-transform:uppercase;color:var(--c)}
+.node.dec{border-style:dashed;border-color:var(--ink-soft)}
+.node.sys{border-style:dashed;border-color:var(--c)}
+.node.key{border:2px solid var(--c)}
+.node.start{border:2px solid var(--ink)}
+.focus .node{opacity:.25}.focus .node.on{opacity:1;border-color:var(--hi);box-shadow:0 0 0 3px var(--hi-soft)}
+.focus .e{opacity:.1}.focus .e.on{opacity:1;stroke:var(--hi)}
+.focus .lbl{opacity:0}.focus .lbl.on{opacity:1;fill:var(--hi)}
+.notes{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));width:min(360px,calc(100% - 28px));background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:0 6px 24px rgba(34,29,24,.12);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.notes .hd{display:flex;justify-content:space-between;align-items:center;font:700 11px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--hi)}
+.notes button{all:unset;cursor:pointer;color:var(--ink-soft);font-size:16px;line-height:1;padding:2px 4px}
+.notes ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px}
+.notes .src{font:400 10.5px/1.4 var(--mono);color:var(--ink-soft);overflow-wrap:anywhere}
+/* Prose tabs */
+.doc{flex:1;overflow:auto;min-height:0;padding:20px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.doc .in{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.doc h2{font:700 20px/1.2 var(--display);margin:0 0 6px}
+.doc h3{font:700 14px/1.3 var(--body);margin:14px 0 4px;letter-spacing:.02em}
+.doc p{margin:0 0 8px}
+.doc ul,.doc ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.cd{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.cd .k{font:700 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--hi);margin-bottom:6px}
+.cd b{display:block;font-size:14.5px;margin-bottom:4px}
+.cd p{color:var(--ink-soft);font-size:12.5px;margin:0}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{font:700 11px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);background:color-mix(in srgb,var(--line) 40%,transparent)}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font:600 10px/1.6 var(--body);letter-spacing:.05em;text-transform:uppercase;padding:0 7px;border-radius:999px;color:#fff}
+.t-rm{background:#B2432B}.t-add{background:#4E8A4A}.t-chg{background:#B9861F}.t-keep{background:#8C8378}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:6px}
+.st{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;border-top:3px solid var(--c)}
+.st small{display:block;color:var(--ink-soft);font-size:10.5px;margin-top:2px}
+.callout{border-left:3px solid var(--hi);background:color-mix(in srgb,var(--hi) 7%,transparent);padding:10px 14px;border-radius:0 12px 12px 0;font-size:13px}
+.tabwrap{overflow-x:auto}
+@media (prefers-reduced-motion:reduce){.e,.node,.lbl{transition:none}}
+@media (max-width:640px){.notes{width:calc(100% - 28px)}}
+</style>
+
+<div class="bar">
+  <div class="ttl"><h1>Otto — the flow it should have (first)</h1><span class="sub" id="sub">Redesigned from Apple's guidelines and the reference apps · 2026-11-04 · a proposal, not the shipped app</span></div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="zoom" id="zoom"><button id="zo" aria-label="Zoom out">−</button><button id="zi" aria-label="Zoom in">+</button><button id="zf">Fit</button><button id="zn" aria-pressed="true">Notes</button></div>
+</div>
+<div class="legend" id="legend">
+  <span><svg width="28" height="8"><line x1="0" y1="4" x2="28" y2="4" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>next screen</span>
+  <span><svg width="28" height="8"><line x1="0" y1="4" x2="28" y2="4" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="5 5"/></svg>optional / skip / returns</span>
+  <span>thick border = key moment · dashed border = decision or iOS system sheet</span>
+</div>
+
+<div class="view" id="view" hidden>
+  <div class="sizer" id="sizer"><div class="canvas" id="canvas"><svg class="edges" id="edges"></svg></div></div>
+  <div class="notes" id="notes"><div class="hd"><span>What to notice</span><button id="nx" aria-label="Hide notes">×</button></div><ul id="nl"></ul><div class="src" id="src"></div><div class="sub">Tap a screen to trace its paths.</div></div>
+</div>
+
+<!-- ============ OVERVIEW ============ -->
+<div class="doc" id="doc-overview" hidden><div class="in">
+  <div>
+    <h2>The idea in one line</h2>
+    <p>Show the dinner before you ask for the account, and show the account before you ask for the money. Everything else is a consequence.</p>
+    <div class="callout">Today: launch gate → sign up → three paintings → paywall → Discover. The person gives Otto an email and a card before Otto has shown them a single meal. The new order: launch → five food questions → taste swipe → <b>their first week of dinners</b> → “save your week” (Sign in with Apple first, Not now allowed) → Otto Club right after the reveal → <b>Today</b>, with tonight's dinner already on it.</div>
+  </div>
+
+  <div>
+    <h2>The order, side by side</h2>
+    <div class="tabwrap"><table>
+      <tr><th style="width:120px">App</th><th>Order</th><th style="width:30%">What Otto takes from it</th></tr>
+      <tr><td><b>Otto today</b></td><td>gate → account → onboarding → hard paywall → Discover</td><td>Nothing of value before the wall. The one thing to change.</td></tr>
+      <tr><td><b>Apple HIG</b></td><td>launch into the app → short optional onboarding → permissions only when core → paywall → tabs → asks at feature moments</td><td>The spine of the new map.</td></tr>
+      <tr><td><b>Cherrypick</b></td><td>value scenes → household, diet, dislikes → taste swipe → “matches ready, create account (Skip)” → Plan with trial banner</td><td>The questions and the swipe. Closest product to Otto.</td></tr>
+      <tr><td><b>Cal AI</b></td><td>long quiz → save progress (Skip) → plan ready → hard paywall → home</td><td>The plan reveal as the moment before money.</td></tr>
+      <tr><td><b>Duolingo</b></td><td>7 questions → first result → profile wall (Later) → path</td><td>Account after the result, with Later.</td></tr>
+      <tr><td><b>Headspace</b></td><td>account → quiz → trial timeline paywall → result</td><td>The trial timeline on the paywall (today · reminder day · charge day).</td></tr>
+    </table></div>
+  </div>
+
+  <div>
+    <h2>Seven rules the map obeys</h2>
+    <div class="cards">
+      <div class="cd"><div class="k">1 · Launch</div><b>No gate screen</b><p>The launch frame is the Welcome frame. Returning people skip it entirely and land where they left off (HIG Launching).</p></div>
+      <div class="cd"><div class="k">2 · Onboarding</div><b>Questions are the onboarding</b><p>The three paintings stay as a swipeable intro with Skip. The real onboarding is five food questions and a swipe — it produces something.</p></div>
+      <div class="cd"><div class="k">3 · Account</div><b>After the result, as the payoff</b><p>“Save your week.” Sign in with Apple first and largest (4.8), then Google and Facebook in one row, then email. Not now keeps the week on the phone.</p></div>
+      <div class="cd"><div class="k">4 · Money</div><b>Right after the reveal, once</b><p>Billed amount leads (3.1.2(c)), trial timeline, Restore, Terms, Privacy. Never seen again by members. Non-members meet it only at Club features.</p></div>
+      <div class="cd"><div class="k">5 · Permissions</div><b>At the feature moment, primed</b><p>Dinner reminder at the plan reveal, camera at the first photo, AI consent (naming OpenAI) right before the first Otto call. Every denial has a fallback.</p></div>
+      <div class="cd"><div class="k">6 · Tabs</div><b>Five words, no actions</b><p>Today · Discover · Plan · Cookbook · You. Add and Ask Otto become toolbar actions, not a tab (HIG: tabs navigate, they don't act).</p></div>
+      <div class="cd"><div class="k">7 · Returning</div><b>State, not Discover</b><p>Same tab, same recipe, same cook step. Lapsed members keep every recipe and plan; only Otto's work locks.</p></div>
+    </div>
+  </div>
+
+  <div>
+    <h2>Free Otto and Otto Club</h2>
+    <p>The paywall is dismissible, so what's behind “Not now” has to be a real app. The split follows one sentence: <b>you can cook with Otto for free; you pay for Otto to do the work.</b></p>
+    <div class="cards">
+      <div class="cd"><div class="k">Free Otto</div><b>The kitchen tools</b><p>Browse and search Discover · open any recipe, scale servings, see the nutrition estimate · paw-save · Cook mode with timers · plan by hand on the week · shopping list · journal · the first week Otto built during setup stays.</p></div>
+      <div class="cd"><div class="k">Otto Club</div><b>Otto does the work</b><p>Otto plans my week · Ask Otto (chat and voice) · import from link, text and photo · household shared list · lock-screen timer and widgets. 7-day trial, yearly leads.</p></div>
+    </div>
+    <p class="sub" style="margin-top:8px">If Juan keeps the hard paywall, the map still holds: delete the “Not now” arrow on the paywall and the Free Otto node; everything before and after stays identical. That is the one decision this map does not make for him — see <b>Decisions</b>.</p>
+  </div>
+</div></div>
+
+<!-- ============ SCENARIOS ============ -->
+<div class="doc" id="doc-scenarios" hidden><div class="in">
+  <div>
+    <h2>The 23-scenario checklist, answered</h2>
+    <p>Every scenario from <code>research/01_APPLE_AND_INDUSTRY_RULES.md</code>, and where the new flow handles it. “Map” names the tab where it is drawn.</p>
+    <div class="tabwrap"><table>
+      <tr><th style="width:34px">#</th><th style="width:30%">Scenario</th><th>Where it is handled</th><th style="width:90px">Map</th></tr>
+      <tr><td>1</td><td>First launch, fresh install</td><td>Launch → Welcome → scenes → questions → swipe → first week → save → Club → Today</td><td>First run</td></tr>
+      <tr><td>2</td><td>Onboarding skipped</td><td>Scenes have Skip; questions can't be skipped because they make the week, but every question has a “no preference” answer. Skipped scenes never return; they live in You → FAQ → “How Otto works”.</td><td>First run</td></tr>
+      <tr><td>3</td><td>Returning, signed in, entitled</td><td>Straight to the last tab and position. Cook step is kept if the app was killed mid-cook.</td><td>Returning</td></tr>
+      <tr><td>4</td><td>Returning, signed out</td><td>Welcome with “I have an account” prominent; Sign in → week restored from the account; Restore purchases if Club not found.</td><td>Returning</td></tr>
+      <tr><td>5</td><td>Sign in: new, existing, cancelled, error</td><td>Save your week handles all four: new → Club; existing → Welcome back (nothing extra asked, local week merged); cancelled → stays on Save your week; error → inline, retry, Not now still available.</td><td>First run</td></tr>
+      <tr><td>6</td><td>Sign out</td><td>You → Sign out → confirm → Welcome. Local guest data cleared only after confirmation copy says so.</td><td>The app</td></tr>
+      <tr><td>7</td><td>Paywall entry points × outcomes</td><td>Entries: after reveal, any Club feature, You → Otto Club, lapsed banner, promo link. Outcomes: subscribed → back to where they were; cancelled → paywall stays; failed → plain-language error + retry; Ask to Buy pending → Free Otto with “waiting for approval” note.</td><td>First run · The app</td></tr>
+      <tr><td>8</td><td>Trial active / ending / converted / cancelled</td><td>Membership page (members only, from You) shows the timeline: trial ends on date · renews on date · ended. Day-5 reminder notification if reminders are on.</td><td>The app</td></tr>
+      <tr><td>9</td><td>Lapsed or billing retry → free tier without data loss</td><td>Today with a banner “Your Club week ended”. Every recipe, plan and list stays; Otto's work locks with a clear re-subscribe path.</td><td>Returning</td></tr>
+      <tr><td>10</td><td>Upgrade / downgrade, Manage Subscriptions</td><td>Membership → Manage opens Apple's sheet. No in-app plan switching to double-charge.</td><td>The app</td></tr>
+      <tr><td>11</td><td>Restore on new device / reinstall</td><td>Welcome → Sign in → entitlement follows the Apple ID; explicit Restore on the paywall and in Membership.</td><td>Returning</td></tr>
+      <tr><td>12</td><td>Second device</td><td>Same as 11; the week, cookbook and lists come from the account.</td><td>Returning</td></tr>
+      <tr><td>13</td><td>Deep link / push / widget in every state</td><td>Shared recipe or list → public read-only preview; the first account action asks to sign in and returns to the target. Not entitled → the Club sheet at the gated action only. Content gone → “Otto couldn't find that one” → Discover.</td><td>Returning</td></tr>
+      <tr><td>14</td><td>Permission granted / denied / limited / revoked</td><td>Reminders denied → Today still shows tonight, a Settings link in Notifications. Camera denied → paste a photo from the library or write it. Revoked later → same fallbacks.</td><td>First run · The app</td></tr>
+      <tr><td>15</td><td>Notification opt-in at a feature moment; marketing opt-out</td><td>Primed at the plan reveal (“Want a nudge at dinner time?”). Only dinner and timer reminders; no marketing push. Each toggle in You → Notifications.</td><td>First run</td></tr>
+      <tr><td>16</td><td>Offline / slow network</td><td>Launch shows the cached Today and plan; Otto says it's offline; AI actions queue a retry. Fresh install offline: questions and swipe work on bundled recipes.</td><td>Returning</td></tr>
+      <tr><td>17</td><td>Server or AI error, quota, rate limit</td><td>Otto state “We dropped the pan. Try again in a bit.” with Retry; the typed message is kept. Rate limit says when to come back.</td><td>The app</td></tr>
+      <tr><td>18</td><td>Empty state on every tab</td><td>Today: “Open. No plans, no guilt.” + plan tonight. Plan: inviting empty days. Cookbook: “Nothing saved… yet” → Discover. Shopping: “Add a meal and the list writes itself.”</td><td>The app</td></tr>
+      <tr><td>19</td><td>Account deletion</td><td>You → Delete account → confirm → note that Apple billing continues until cancelled, link to Manage → real deletion, Sign in with Apple token revoked → Welcome.</td><td>The app</td></tr>
+      <tr><td>20</td><td>Consent withdrawal (AI data)</td><td>You → AI data: shows what is sent to OpenAI, with a switch. Off means Otto's AI features ask again before the next call.</td><td>The app</td></tr>
+      <tr><td>21</td><td>Rating prompt after engagement</td><td>After the third cooked dish, on the cook finish screen, once.</td><td>First run</td></tr>
+      <tr><td>22</td><td>App update / what's new</td><td>One contextual tip on the changed screen, not a tour. Never on launch.</td><td>—</td></tr>
+      <tr><td>23</td><td>One sheet at a time; confirm before discarding</td><td>Ask Otto, Add and the recipe picker are sheets; opening one closes another. Leaving the editor or a chat with text asks first.</td><td>The app</td></tr>
+    </table></div>
+  </div>
+</div></div>
+
+<!-- ============ CHANGES ============ -->
+<div class="doc" id="doc-changes" hidden><div class="in">
+  <div>
+    <h2>What changes against today's app</h2>
+    <p>Compared with <code>otto.html</code> (branch <code>fix/1.0.23</code>, 25 screens).</p>
+    <div class="tabwrap"><table>
+      <tr><th style="width:84px"></th><th style="width:30%">Screen or rule</th><th>Change</th></tr>
+      <tr><td><span class="tag t-rm">Remove</span></td><td>Launch gate (<code>/</code>)</td><td>No screen decides the door. Launch is the Welcome frame for new people and the last state for returning ones.</td></tr>
+      <tr><td><span class="tag t-rm">Remove</span></td><td>Sign up as the first screen</td><td>The account moves after the first week. Sign up and Sign in merge into one “Save your week” / “Sign in” screen with the icon row.</td></tr>
+      <tr><td><span class="tag t-rm">Remove</span></td><td>Center ＋ tab, Create chat tab</td><td>Tabs navigate. Add and Ask Otto become toolbar actions on Today, Discover and Cookbook, presented as sheets.</td></tr>
+      <tr><td><span class="tag t-rm">Remove</span></td><td>Paywall as a route guard for the whole app</td><td>The guard becomes per-feature. Club is asked where Otto's work is.</td></tr>
+      <tr><td><span class="tag t-rm">Remove</span></td><td>Signed-out “Sign in” state in Chat; Cookbook “Explore” → launch gate</td><td>Dead code and a wrong target today. Chat asks for Club; Cookbook empty state opens Discover.</td></tr>
+      <tr><td><span class="tag t-add">Add</span></td><td>Your kitchen (5 questions)</td><td>Who's eating · how you eat (diet + allergies) · anything to skip · weeknight time · what matters. Each has a neutral answer. Progress bar, Otto speaks.</td></tr>
+      <tr><td><span class="tag t-add">Add</span></td><td>Taste swipe</td><td>Eight real dishes from the catalogue, yes / no. Feeds the first week.</td></tr>
+      <tr><td><span class="tag t-add">Add</span></td><td>Your first week (plan reveal)</td><td>Seven dates with tonight first, swap any meal, nutrition labelled as an estimate. This is the moment of value.</td></tr>
+      <tr><td><span class="tag t-add">Add</span></td><td>Today tab</td><td>Tonight's dinner big, what's missing for it, a week strip, Ask Otto. Home for returning people.</td></tr>
+      <tr><td><span class="tag t-add">Add</span></td><td>Free Otto</td><td>What “Not now” on the paywall leads to. Browse, save, cook, plan by hand, shop. Decision for Juan.</td></tr>
+      <tr><td><span class="tag t-add">Add</span></td><td>Public preview for shared links</td><td>A shared recipe or list opens read-only without an account; the first action asks to sign in and comes back.</td></tr>
+      <tr><td><span class="tag t-add">Add</span></td><td>Lapsed banner, Ask to Buy pending, trial timeline, AI data switch</td><td>States that exist today but have no screen.</td></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Onboarding paintings</td><td>Stay, as three swipeable scenes with Skip, before the questions. Never shown again once skipped or finished.</td></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Otto Club paywall</td><td>One encounter after the reveal. Yearly card leads with $39.99/yr, per-month as subline; “Continue”; trial timeline; Restore · Terms · Privacy; Not now (or none, if hard). Members never see it — their Membership page is only in You, with a back arrow.</td></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Plan</td><td>Built on dates: week strip, day, month, picker, swap, move, leftovers, cooked, remove. “Otto plans my week” is a Club action on the week.</td></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Shopping list</td><td>Pushed from Plan and Today, not a tab. Grouped by aisle, each item names its recipe; share creates the household.</td></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Notifications</td><td>Asked at the plan reveal with a one-button primer, not on launch. Only dinner and timer reminders.</td></tr>
+      <tr><td><span class="tag t-chg">Change</span></td><td>Account → You</td><td>Membership (members only) · Manage subscription · Restore · Household · Journal · Preferences · Notifications · AI data · FAQ · Sign out · Delete account.</td></tr>
+      <tr><td><span class="tag t-keep">Keep</span></td><td>Recipe detail, Cook mode, Discover, Cookbook, Add sheet, import review, editor, journal, AI consent sheet, FAQ, password flows</td><td>Same screens, new positions. Cook finish gains thumbs, snap-the-plate and the (once) rating prompt.</td></tr>
+    </table></div>
+  </div>
+</div></div>
+
+<!-- ============ DECISIONS ============ -->
+<div class="doc" id="doc-decisions" hidden><div class="in">
+  <div>
+    <h2>Decisions only Juan can make</h2>
+    <p>The map draws the recommended answer to each. Changing an answer changes a few arrows, not the structure.</p>
+    <div class="cards">
+      <div class="cd"><div class="k">A · Business</div><b>Hard paywall, or Free Otto behind “Not now”?</b><p><b>Drawn:</b> Free Otto. Apple's guidance and the HIG favour it, and the free tier is the honest answer to “what happens when a trial lapses?”. <b>Alternative:</b> keep the hard wall — delete one arrow and one node. RevenueCat's data says hard walls convert ~5× better per install; the trade is reviews, ratings and word of mouth.</p></div>
+      <div class="cd"><div class="k">B · Account</div><b>Account after the reveal, with Not now?</b><p><b>Drawn:</b> yes. Answers and the first week live on the phone until sign-in, then write to the account. <b>Cost:</b> a local store for prefs + week and a merge step. <b>Alternative:</b> require the account at “Save your week” (no Not now) — Apple allows it only if the app genuinely needs an account, which household sharing and sync arguably are.</p></div>
+      <div class="cd"><div class="k">C · Home</div><b>Today as the first tab?</b><p><b>Drawn:</b> yes. The plan reveal ends on tonight's dinner, so landing on Today keeps the story going; Discover is one tap away. <b>Alternative:</b> Discover first, Today as a card on it — weaker for returning people who already have a plan.</p></div>
+      <div class="cd"><div class="k">D · Offer</div><b>A one-time offer when the paywall is dismissed?</b><p><b>Drawn:</b> no. Headspace saves its discount for cancellation; Cal AI's 80%-off-after-close trains people to close. If wanted, the right place is the Membership page when someone cancels.</p></div>
+      <div class="cd"><div class="k">E · Tabs</div><b>Drop the center ＋ and the Create tab?</b><p><b>Drawn:</b> yes — five navigation tabs, Add and Ask Otto as toolbar actions. Cal AI and MyFitnessPal keep a center ＋ and it works for them; Apple's HIG says tabs shouldn't be actions. Following Apple here was the brief.</p></div>
+      <div class="cd"><div class="k">F · Sign-in row</div><b>Apple first, or three equal pills?</b><p><b>Drawn:</b> Sign in with Apple as the top full-width button, then Google and Facebook as pills in one row, then email. 4.8 only requires Apple to be no smaller; Juan asked for one row. Both are satisfied if Apple sits above the row at full width — flag if the lineup must be strictly three equal pills.</p></div>
+    </div>
+  </div>
+  <div>
+    <h2>What to build first</h2>
+    <ol>
+      <li>Agree A–F above. Then regenerate this map with the answers.</li>
+      <li>Gate: replace the route guard with the new order; a local store for the setup answers and the first week; tests for every branch here (first run, guest, returning, lapsed, link while signed out).</li>
+      <li>Screens in order of flow: Your kitchen → Taste swipe → Your first week → Save your week → the paywall changes → Today.</li>
+      <li>Plan on dates, Shopping from Plan, You with Membership.</li>
+      <li>Then regenerate <code>otto.html</code> from the shipped routes and diff it against this map.</li>
+    </ol>
+  </div>
+</div></div>
+
+<script>
+const MAPS={};
+
+/* ------------------------------------------------------------------ FIRST RUN */
+MAPS.firstrun={title:"First run",
+sub:"Fresh install → five questions → taste → your first week → save it → Otto Club → Today",
+src:"HIG Launching, Onboarding, Privacy, Managing accounts · Review 3.1.1, 3.1.2(c), 4.8, 5.1.1(v), 5.1.2(i) · Cherrypick 28:1825 · Cal AI 41:100 · Duolingo 46:116",
+notes:["Nothing is asked before Otto shows a week of dinners. The questions are the onboarding; the paintings are optional.","The account is the payoff (“Save your week”), with Sign in with Apple first and Not now allowed.","Otto Club comes once, right after the reveal, with the billed amount leading. Members never see it again.","Every permission is primed and placed at its feature moment. Every denial has a fallback."],
+zones:[{label:"Entry",st:"entry",cols:[0]},{label:"Launch · optional intro",st:"welcome",cols:[1]},{label:"Your kitchen · 5 questions",st:"q",cols:[2]},{label:"Taste",st:"reveal",cols:[3]},{label:"Your first week",st:"reveal",cols:[4]},{label:"Save your week",st:"account",cols:[5]},{label:"Otto Club · once",st:"pay",cols:[6]},{label:"Tab bar · 5 words",st:"home",cols:[7],tabs:1},{label:"Later, at the feature",st:"later",cols:[8]}],
+nodes:[
+["first","Fresh install","App icon",0,0,"entry","start","start"],
+["launch","Launch frame","Same frame as Welcome. No logo wall, no spinner",1,0,"welcome"],
+["welcome","Welcome","“Dinner, sorted.” Get started · I have an account",1,1,"welcome","","key"],
+["scenes","Three painted scenes","Plan · Cook · Shop, swipeable, Skip",1,2,"proof","×3"],
+["signin","Sign in","Apple on top, Google · Facebook in one row, email",1,4,"account"],
+["who","Who’s eating?","Just me · two · family, kids",2,0,"q"],
+["diet","How do you eat?","Diet, then allergies with a warning",2,1,"q","×2"],
+["skipfood","Anything Otto should skip?","Ingredient picker, optional",2,2,"q"],
+["time","Weeknight time","15 · 30 · 45+ min",2,3,"q"],
+["goal","What matters most?","Eat better · save time · spend less",2,4,"q"],
+["swipe","Does this look good?","Eight real dishes, swipe yes / no",3,0,"reveal","×8","key"],
+["building","Otto’s picking your week","Progress, showing the dishes you liked",3,1,"proof"],
+["week","Your first week","Seven dates, tonight first. Swap any meal",4,0,"reveal","","key"],
+["estimate","Nutrition, as an estimate","Labelled, never a claim",4,1,"reveal"],
+["nprime","“Want a nudge at dinner time?”","One button: Continue · Not now. No close",4,2,"perm"],
+["nos","iOS notification alert","Allow · Don’t allow",4,3,"perm","system","sys"],
+["ndeny","Denied","Today still shows tonight. Settings link later",4,4,"perm"],
+["save","Save your week","Sign in with Apple · Google · Facebook · email · Not now",5,0,"account","","key"],
+["guest","Kept on this phone","Guest. Asked again at the first sync action",5,1,"account"],
+["back","Welcome back","Existing account. Nothing extra asked, week merged",5,2,"account"],
+["pay","Otto Club","$39.99/yr leads, per-month subline, 7-day trial timeline. Restore · Terms · Privacy",6,0,"pay","","key"],
+["buy","Apple purchase sheet","Success · cancelled · failed · Ask to Buy",6,1,"pay","system","sys"],
+["pending","Ask to Buy pending","Free Otto until approved, with a note",6,2,"pay"],
+["free","Free Otto","Browse, save, cook, plan by hand, shop. Club at Otto’s work",6,3,"pay"],
+["today","Today","Tonight’s dinner, big. What’s missing. Ask Otto",7,0,"home","","key"],
+["discover","Discover","Search, categories, picks. Add · Ask Otto in the toolbar",7,1,"home"],
+["plan","Plan","Week by dates · Shop",7,2,"home"],
+["cookbook","Cookbook","Saved · Mine · Cooked",7,3,"home"],
+["you","You","Membership, household, account",7,4,"home"],
+["aiconsent","AI consent sheet","Names OpenAI. Allow · Not now. Before the first Otto call",8,0,"perm","legal","sys"],
+["camera","Camera","At the first photo import. Denied → library or write it",8,1,"perm","system","sys"],
+["upsell","Club at a gated feature","Otto plans my week · Ask Otto · import · household. Close returns",8,2,"pay"],
+["rate","Rating prompt","On the cook finish, after the third dish, once",8,3,"later"],
+["tips","Contextual tips","One per screen on first visit. No tour",8,4,"later"],
+],
+edges:[["first","launch"],["launch","welcome"],["welcome","scenes","get started"],["welcome","signin","have account",1],["signin","today","week restored",1],
+["scenes","who","next · skip"],["who","diet"],["diet","skipfood"],["skipfood","time"],["time","goal"],["goal","swipe"],["swipe","building"],["building","week"],
+["week","estimate"],["estimate","nprime"],["nprime","nos","continue"],["nprime","save","not now",1],["nos","save","allowed"],["nos","ndeny","don’t allow",1],["ndeny","save","",1],
+["save","pay","new account"],["save","guest","not now",1],["save","back","existing",1],["back","today","",1],["guest","pay","",1],
+["pay","buy","continue"],["buy","today","subscribed"],["buy","pending","ask to buy",1],["buy","pay","cancelled · failed",1],["pending","free","",1],["pay","free","not now",1],["free","today","",1],
+["today","discover"],["discover","plan"],["plan","cookbook"],["cookbook","you"],
+["today","aiconsent","first Ask Otto"],["discover","camera","first photo",1],["plan","upsell","Otto plans my week",1],["upsell","pay","",1],["cookbook","rate","",1],["you","tips","",1]]};
+
+/* ------------------------------------------------------------------ RETURNING + ENTRIES */
+MAPS.returning={title:"Returning and other doors",
+sub:"Cold start, reinstall, a dinner notification, a shared link, a widget, offline — every state checked quietly, no gate screen",
+src:"HIG Launching (restore state), Managing accounts · Review 3.1.1 Restore, 5.1.1(v) · scenario checklist 3, 4, 9, 11–14, 16",
+notes:["A returning member lands where they left off — same tab, same recipe, same cook step.","Lapsed is a banner on Today, not a wall. Nothing is deleted; only Otto’s work locks.","A shared link opens a read-only preview with no account. The first action asks to sign in and comes back to the target.","Offline shows the cached Today and plan. AI actions wait; nothing errors on launch."],
+zones:[{label:"Entry",st:"entry",cols:[0]},{label:"Checked quietly",st:"welcome",cols:[1]},{label:"Landing",st:"home",cols:[2]},{label:"Then",st:"later",cols:[3]}],
+nodes:[
+["ret","Returning, signed in","Cold or warm start",0,0,"entry","start","start"],
+["clubq","Club active?","RevenueCat, cached answer first",1,0,"welcome","","dec"],
+["resume","Where they left off","Same tab · recipe · cook step kept",2,0,"home","","key"],
+["lapsed","Today, with a banner","“Your Club week ended.” Everything kept; Otto’s work locked",2,1,"pay"],
+["resub","Otto Club","Re-subscribe · Restore. Back arrow",3,2,"pay"],
+["reinstall","Returning, signed out","New phone or reinstall",0,3,"entry","start","start"],
+["welcome2","Welcome","“I have an account” stays prominent",1,3,"welcome"],
+["signin2","Sign in","Apple · Google · Facebook · email",2,3,"account"],
+["restored","Week restored","From the account, lands on Today",3,3,"home"],
+["restore","Restore purchases","Entitlement follows the Apple ID",3,4,"pay"],
+["notif","Notification","“Dinner tonight: lemon chicken”",0,6,"entry","start","start"],
+["notifq","Signed in? Recipe still there?","",1,6,"welcome","","dec"],
+["tonight","Tonight’s recipe","Back goes to Today",2,6,"home","","key"],
+["gone","“Otto couldn’t find that one”","Opens Discover. No dead end",2,7,"home"],
+["share","Shared recipe or list link","From a friend, Safari, Messages",0,9,"entry","start","start"],
+["preview","Public preview","Read-only recipe or list card. No account asked",1,9,"home"],
+["act","Save · add to plan · join list","The first account action",2,9,"account","","dec"],
+["signin3","Sign in, then back","Returns to the exact target",3,9,"account"],
+["joined","Done","Saved, planned or joined. Household list live",3,10,"home"],
+["widget","Widget · lock-screen timer","Tonight card, cook timer",0,12,"entry","start","start"],
+["exact","The exact screen","Tonight’s recipe or the cook step",1,12,"home"],
+["offline","Offline launch","Airplane mode, dead spot",0,13,"entry","start","start"],
+["cached","Cached Today and plan","Otto says it’s offline. AI actions wait",1,13,"home"],
+],
+edges:[["ret","clubq"],["clubq","resume","yes"],["clubq","lapsed","lapsed · retry",1],["lapsed","resub","re-subscribe",1],["resub","resume","",1],
+["reinstall","welcome2"],["welcome2","signin2"],["signin2","restored"],["signin2","restore","Club not found",1],["restore","restored","",1],
+["notif","notifq"],["notifq","tonight","yes"],["notifq","gone","gone",1],["notifq","welcome2","signed out",1],
+["share","preview"],["preview","act"],["act","joined","signed in"],["act","signin3","signed out",1],["signin3","joined","",1],
+["widget","exact"],["offline","cached"]]};
+
+/* ------------------------------------------------------------------ THE APP */
+MAPS.app={title:"The app",
+sub:"Today · Discover · Plan · Cookbook · You, with Add and Ask Otto as actions. Club marks where the paywall can appear",
+src:"HIG Tab bars, Modality, Sheets · WWDC22 Explore navigation design · Cherrypick Plan/Shop/Cook · redesign tickets T05–T09",
+notes:["Tabs are nouns. Add and Ask Otto are toolbar actions presented as sheets, one at a time.","Today is built around tonight: the recipe, what’s missing for it, the week strip.","Plan is built on dates. Shopping is pushed from Plan and Today, grouped by aisle, each item naming its recipe.","You holds the account: Membership only for members, Manage via Apple, Restore, AI data, Delete account in-app."],
+zones:[{label:"Tab bar",st:"home",cols:[0],tabs:1},{label:"Today → cook",st:"core",cols:[1,2]},{label:"Plan → shop → household",st:"q",cols:[3,4]},{label:"Browse · add",st:"reveal",cols:[5,6]},{label:"Ask Otto",st:"proof",cols:[7]},{label:"You",st:"account",cols:[8]}],
+nodes:[
+["today","Today","Tonight big · missing items · week strip · Ask Otto",0,0,"home","","key"],
+["discover","Discover","Search · categories · Otto’s pick",0,2,"home"],
+["plan","Plan","Week by dates",0,4,"home"],
+["cookbook","Cookbook","All · Saved · Mine · Cooked",0,6,"home"],
+["you","You","Account and settings",0,8,"home"],
+["actions","Toolbar actions","＋ Add · Ask Otto, on Today, Discover, Cookbook",0,10,"core"],
+["tonight","Tonight","Hero recipe, Start cooking, Swap",1,0,"core"],
+["missing","Missing for tonight","“3 things” → shopping list",1,1,"core"],
+["empty","Empty Today","“Open. No plans, no guilt.” Plan tonight · Ask Otto",1,2,"core"],
+["recipe","Recipe","Photo, servings, estimate, paw save, add to plan, share, source credit",2,0,"core","","key"],
+["mise","Mise en place","Ingredients to gather, check off",2,1,"core"],
+["steps","Steps","Large type, timers, lock-screen timer · no swipe-back",2,2,"core","×n"],
+["finish","Dinner, done","Thumbs · snap the plate · journal · rating (once)",2,3,"core","","key"],
+["journal","Cooking journal","Cooked dishes, photos",2,4,"core"],
+["weekv","Week","Date strip, tonight first. Empty days inviting",3,4,"q","","key"],
+["day","Day","Breakfast · lunch · dinner slots. Swap · move · leftovers · cooked · remove",3,5,"q"],
+["picker","Pick a meal","Saved · Discover · Ask Otto",3,6,"q"],
+["month","Month","Overview, jump to a week",3,7,"q"],
+["ottoweek","Otto plans my week","Club. Uses your kitchen answers",3,8,"pay","club","key"],
+["shop","Shopping list","By aisle, each item names its recipe. Check · add · share",4,4,"q","","key"],
+["household","Household","Create · invite · join · active. Shared list, live",4,5,"q","club"],
+["search","Search + filters","Diet, time, category",5,1,"reveal"],
+["results","Results","Food first",5,2,"reveal"],
+["noresults","Nothing found","→ Ask Otto for it",5,3,"reveal"],
+["saved","Saved · Mine · Cooked","Paw-saved, written, journaled",5,6,"reveal"],
+["cbempty","Nothing saved… yet","“Tap the paw on any recipe” → Discover",5,7,"reveal"],
+["add","Add sheet","Link · text · photo · write it myself",6,6,"reveal","","key"],
+["importing","Importing","Link · text · photo need Club. Camera at first photo",6,7,"pay","club"],
+["review","Import review","Check before saving. Source credited",6,8,"reveal"],
+["editor","Editor","Write or fix. Leaving with text asks first",6,9,"reveal"],
+["chat","Ask Otto","Text or voice. Club",7,0,"pay","club","key"],
+["consent","AI consent","Names OpenAI. Allow · Not now. First time only",7,1,"perm","legal","sys"],
+["thinking","Otto’s thinking","Otto state, cancel",7,2,"proof"],
+["answer","Answer as a recipe card","Save · add to plan · cook",7,3,"proof","","key"],
+["oops","“We dropped the pan”","Retry, message kept. Rate limit says when",7,4,"proof"],
+["chats","Recent chats","Reopen",7,5,"proof"],
+["membership","Membership","Members only. Trial ends / renews on date. Back arrow",8,0,"pay","","key"],
+["manage","Manage subscription","Apple’s sheet. Restore here too",8,1,"pay","system","sys"],
+["clubnon","Otto Club","Non-members: the paywall from You",8,2,"pay"],
+["prefs","Preferences · Notifications","Diet, household size, dinner reminder, timers",8,3,"account"],
+["aidata","AI data","What goes to OpenAI, with a switch",8,4,"account"],
+["faq","FAQ · How Otto works","The skipped intro lives here",8,5,"account"],
+["signout","Sign out","Confirm → Welcome",8,6,"account"],
+["delete","Delete account","Confirm · billing note + Manage link · real deletion · Apple token revoked",8,7,"account","5.1.1(v)","key"],
+],
+edges:[["today","tonight"],["today","empty","no plan",1],["tonight","recipe","open · start cooking"],["tonight","missing"],["missing","shop","",1],["empty","picker","plan tonight",1],["empty","chat","",1],
+["recipe","mise","start cooking"],["mise","steps"],["steps","finish"],["finish","journal"],["recipe","weekv","add to plan",1],
+["discover","search"],["search","results"],["results","recipe"],["results","noresults","none",1],["noresults","chat","",1],
+["plan","weekv"],["weekv","day"],["day","picker","add · swap"],["picker","recipe","",1],["weekv","month","",1],["weekv","ottoweek","Club",1],["ottoweek","clubnon","not a member",1],["weekv","shop","shop the week"],["shop","household","share"],
+["cookbook","saved"],["saved","recipe"],["saved","cbempty","empty",1],["cbempty","discover","",1],
+["actions","add","＋"],["actions","chat","Ask Otto"],["add","importing","link · text · photo"],["add","editor","write it myself",1],["importing","review"],["review","editor","fix",1],["review","recipe","save"],["editor","recipe","save",1],["importing","clubnon","not a member",1],
+["chat","consent","first time"],["consent","thinking","allow"],["chat","thinking"],["thinking","answer"],["thinking","oops","error",1],["oops","thinking","retry",1],["answer","recipe","save · cook"],["answer","weekv","add to plan",1],["chat","chats","",1],["chat","clubnon","not a member",1],
+["you","membership","member"],["membership","manage"],["you","clubnon","non-member",1],["you","prefs"],["you","aidata"],["you","faq"],["you","signout"],["you","delete"],["household","clubnon","not a member",1],["you","household","household",1],["you","journal","journal",1]]};
+
+/* ------------------------------------------------------------------ RENDER */
+const CX=220, RY=92, X0=30, Y0=58, NW=176;
+const STAGE={entry:"--s-entry",welcome:"--s-welcome",account:"--s-account",q:"--s-q",proof:"--s-proof",perm:"--s-perm",reveal:"--s-reveal",pay:"--s-pay",home:"--s-home",core:"--s-core",later:"--s-later"};
+const TABS=[["overview","Overview","doc"],["firstrun","First run","map"],["returning","Returning + doors","map"],["app","The app","map"],["scenarios","23 scenarios","doc"],["changes","What changes","doc"],["decisions","Decisions","doc"]];
+const view=document.getElementById("view"), canvas=document.getElementById("canvas"), svg=document.getElementById("edges"), sizer=document.getElementById("sizer"), notes=document.getElementById("notes"), zoom=document.getElementById("zoom"), legend=document.getElementById("legend");
+const NS="http://www.w3.org/2000/svg";
+let APP=null, el={}, W=0, H=0, paths=[], active=null, s=1;
+
+function render(key){
+  APP=MAPS[key]; el={}; paths=[]; active=null; canvas.classList.remove("focus");
+  canvas.querySelectorAll(".node,.zone").forEach(n=>n.remove());
+  svg.innerHTML=`<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--edge)"/></marker><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--hi)"/></marker></defs>`;
+  document.getElementById("sub").textContent=APP.sub;
+  document.getElementById("nl").innerHTML=APP.notes.map(n=>`<li>${n}</li>`).join("");
+  document.getElementById("src").textContent="Sources: "+APP.src;
+  let maxC=0,maxR=0;
+  for(const [id,title,sub,c,r,st,tag,kind] of APP.nodes){
+    const d=document.createElement("div");
+    d.className="node"+(kind?" "+kind:""); d.tabIndex=0; d.dataset.id=id; d.dataset.zone=APP.zones.findIndex(z=>z.cols.includes(c));
+    d.style.left=(X0+c*CX)+"px"; d.style.top=(Y0+r*RY)+"px"; d.style.setProperty("--c",`var(${STAGE[st]})`);
+    d.innerHTML=`<b>${title}</b>${sub?`<i>${sub}</i>`:""}${tag?`<em>${tag}</em>`:""}`;
+    canvas.appendChild(d); el[id]=d; maxC=Math.max(maxC,c); maxR=Math.max(maxR,r);
+  }
+  W=X0+maxC*CX+NW+40; H=Y0+(maxR+1)*RY+40;
+  canvas.style.width=W+"px"; canvas.style.height=H+"px"; svg.setAttribute("width",W); svg.setAttribute("height",H);
+  draw(); setScale(fitScale());
+}
+function zones(){
+  canvas.querySelectorAll(".zone").forEach(z=>z.remove());
+  APP.zones.forEach((z,i)=>{
+    const ns=[...canvas.querySelectorAll(`.node[data-zone="${i}"]`)]; if(!ns.length) return;
+    const x0=Math.min(...ns.map(n=>n.offsetLeft))-14, x1=Math.max(...ns.map(n=>n.offsetLeft+n.offsetWidth))+14;
+    const y0=Math.min(...ns.map(n=>n.offsetTop))-36, y1=Math.max(...ns.map(n=>n.offsetTop+n.offsetHeight))+14;
+    const d=document.createElement("div"); d.className="zone"+(z.tabs?" tabs":"");
+    Object.assign(d.style,{left:x0+"px",top:y0+"px",width:(x1-x0)+"px",height:(y1-y0)+"px"}); d.style.setProperty("--c",`var(${STAGE[z.st]})`);
+    d.innerHTML=`<span>${z.label}</span>`; canvas.insertBefore(d,svg);
+  });
+}
+const box=id=>{const d=el[id];return{x:d.offsetLeft,y:d.offsetTop,w:d.offsetWidth,h:d.offsetHeight};};
+function draw(){
+  paths.forEach(p=>{p.path.remove();p.text&&p.text.remove();}); paths.length=0;
+  for(const [f,t,label,dash] of APP.edges){
+    const a=box(f), b=box(t); let d,lx,ly,anchor="middle";
+    const ay=a.y+a.h/2, by=b.y+b.h/2;
+    if(b.x>=a.x+a.w){ const sx=a.x+a.w, ex=b.x-2, k=Math.max(40,(ex-sx)/2);
+      d=`M${sx} ${ay}C${sx+k} ${ay} ${ex-k} ${by} ${ex} ${by}`; lx=(sx+ex)/2; ly=(ay+by)/2-6; }
+    else if(b.x+b.w<=a.x){ const sx=a.x, ex=b.x+b.w+2, k=Math.max(50,(sx-ex)/2);
+      d=`M${sx} ${ay}C${sx-k} ${ay} ${ex+k} ${by} ${ex} ${by}`; lx=(sx+ex)/2; ly=(ay+by)/2-6; }
+    else if(b.y>a.y && b.y-(a.y+a.h)<60){ const x=a.x+a.w/2;
+      d=`M${x} ${a.y+a.h}L${x} ${b.y-2}`; lx=x+8; ly=(a.y+a.h+b.y)/2+4; anchor="start"; }
+    else { const sx=a.x+a.w, ex=b.x+b.w+2, off=26+Math.abs(by-ay)*.12;
+      d=`M${sx} ${ay}C${sx+off} ${ay} ${ex+off} ${by} ${ex} ${by}`; lx=sx+off*.75+4; ly=(ay+by)/2+4; anchor="start"; }
+    const p=document.createElementNS(NS,"path"); p.setAttribute("d",d); p.setAttribute("class","e"+(dash?" dash":"")); p.setAttribute("marker-end","url(#a)"); svg.appendChild(p);
+    let tx=null; if(label){ tx=document.createElementNS(NS,"text"); tx.setAttribute("x",lx); tx.setAttribute("y",ly); tx.setAttribute("text-anchor",anchor); tx.setAttribute("class","lbl"); tx.textContent=label; svg.appendChild(tx); }
+    paths.push({f,t,path:p,text:tx});
+  }
+  zones();
+}
+function focus(id){
+  active=(active===id)?null:id; canvas.classList.toggle("focus",!!active);
+  Object.values(el).forEach(n=>n.classList.remove("on"));
+  paths.forEach(p=>{const on=active&&(p.f===active||p.t===active);
+    p.path.classList.toggle("on",!!on); p.path.setAttribute("marker-end",on?"url(#ah)":"url(#a)"); p.text&&p.text.classList.toggle("on",!!on);
+    if(on){el[p.f].classList.add("on");el[p.t].classList.add("on");}});
+  if(active) el[active].classList.add("on");
+}
+canvas.addEventListener("click",e=>{const n=e.target.closest(".node"); if(n) focus(n.dataset.id); else if(active) focus(active);});
+canvas.addEventListener("keydown",e=>{const n=e.target.closest(".node"); if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();focus(n.dataset.id);} if(e.key==="Escape"&&active) focus(active);});
+const fitScale=()=>Math.min(1.2,(view.clientWidth-12)/W,(view.clientHeight-12)/H);
+function setScale(v){ s=Math.max(.25,Math.min(1.8,v)); canvas.style.transform=`scale(${s})`; sizer.style.width=W*s+"px"; sizer.style.height=H*s+"px"; }
+document.getElementById("zi").onclick=()=>setScale(s+.15);
+document.getElementById("zo").onclick=()=>setScale(s-.15);
+document.getElementById("zf").onclick=()=>setScale(fitScale());
+const zn=document.getElementById("zn");
+function showNotes(on){notes.hidden=!on; zn.setAttribute("aria-pressed",on);}
+zn.onclick=()=>showNotes(notes.hidden); document.getElementById("nx").onclick=()=>showNotes(false);
+
+/* tabs */
+const tabbar=document.getElementById("tabs");
+let current=null;
+function show(key){
+  current=key; const def=TABS.find(t=>t[0]===key);
+  tabbar.querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected",b.dataset.key===key));
+  document.querySelectorAll(".doc").forEach(d=>d.hidden=true);
+  const isMap=def[2]==="map";
+  view.hidden=!isMap; zoom.style.visibility=isMap?"visible":"hidden"; legend.style.display=isMap?"flex":"none";
+  if(isMap) render(key); else { document.getElementById("doc-"+key).hidden=false; document.getElementById("sub").textContent="Redesigned from Apple’s guidelines and the reference apps · 2026-11-04 · a proposal, not the shipped app"; }
+  try{ history.replaceState(null,"","#"+key); }catch(e){}
+}
+for(const [key,label] of TABS){ const b=document.createElement("button"); b.textContent=label; b.dataset.key=key; b.setAttribute("role","tab"); b.onclick=()=>show(key); tabbar.appendChild(b); }
+const start=(location.hash||"").slice(1);
+show(TABS.some(t=>t[0]===start)?start:"overview");
+addEventListener("resize",()=>{ if(view.hidden===false) setScale(fitScale()); });
+document.fonts&&document.fonts.ready.then(()=>{ if(view.hidden===false){draw();setScale(fitScale());} });
+</script>
+</html>

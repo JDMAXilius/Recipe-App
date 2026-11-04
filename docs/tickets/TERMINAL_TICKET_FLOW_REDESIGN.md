@@ -2,6 +2,7 @@
 
 > **Budget:** plan + Juan's decisions first (F1–F2), then build in small PRs. Written 2026-11-03.
 > Read `TERMINAL_TICKET_00_START_HERE_CLAUDE_CODE.md` first.
+> **2026-11-04: superseded by `REWORK_ROADMAP.md`** (the flow is decided: `docs/flow-maps/maps/otto-next.html`). F3–F6 live there as R0.1, R3.5, R8.x, R3.6.
 
 ## Why
 Juan: the current flow "is not the worst, but it's definitely not there". Today (see
