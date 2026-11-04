@@ -118,7 +118,7 @@ tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
     <h2>The shape in one line</h2>
     <p>Show the plan, take the account, then the paywall. Members never see the paywall again; everyone else can't get past it.</p>
     <div class="flowline">
-      <span>Splash</span>→<span>Welcome</span>→<span>Paintings</span>→<span>Questions</span>→<span>Taste</span>→<span>Building</span>→<span class="k">Your first week</span>→<span class="k">Save your plan</span>→<span>Reminders</span>→<span class="k">Otto Club · no X</span>→<span>Welcome to the Club</span>→<span>Home</span>
+      <span>Launch screen</span>→<span>Welcome</span>→<span>3 questions</span>→<span class="k">Your first week</span>→<span class="k">Save your plan</span>→<span class="k">Otto Club · no X</span>→<span>App Store sheet</span>→<span>You’re all set</span>→<span>Reminders</span>→<span>Home</span>
     </div>
     <p class="sub" style="margin-top:8px">Returning: splash → auto sign-in → Home if Otto Club is active, the paywall if not. Sign in from Welcome ends the same way.</p>
   </div>
@@ -143,7 +143,7 @@ tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
       <tr><td>Cherrypick</td><td>welcome → value scenes → household, diet, dislikes → taste swipe → account → Plan</td><td>The food questions and the taste swipe.</td></tr>
       <tr><td>Headspace</td><td>account → quiz → paywall with trial timeline → result</td><td>Trial timeline on the paywall.</td></tr>
       <tr><td>Duolingo · MFP · Yazio</td><td>“I already have an account” on Welcome</td><td>One door for returning people, on the first screen.</td></tr>
-      <tr class="us"><td>Otto next</td><td>welcome → paintings → questions → taste → building → first week → save your plan → reminders → Otto Club, no X → welcome to the Club → Home</td><td></td></tr>
+      <tr class="us"><td>Otto next</td><td>launch screen → welcome → 3 questions → first week → save your plan → Otto Club, no X → App Store sheet → you’re all set → reminders → Home</td><td></td></tr>
     </table></div>
   </div>
 
@@ -189,7 +189,7 @@ tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
     <h2>Every state at launch, and where it goes</h2>
     <div class="tabwrap"><table>
       <tr><th style="width:34%">Who opens the app</th><th>What they see</th></tr>
-      <tr><td>New person, fresh install</td><td>Welcome → paintings → questions → taste → building → first week → save your plan → reminders → Otto Club → welcome to the Club → Home</td></tr>
+      <tr><td>New person, fresh install</td><td>Launch screen → Welcome → 3 questions → first week → save your plan → Otto Club → App Store sheet → you’re all set → reminders → Home</td></tr>
       <tr><td>Signed in, Otto Club active</td><td>Splash, then straight to Home, on the tab they left. Never the paywall.</td></tr>
       <tr><td>Signed in, no Otto Club (never bought, or the trial ended)</td><td>Splash, then the paywall, no X. Restore · Sign out · Delete account on it. Their recipes and plans stay saved.</td></tr>
       <tr><td>Has an account, signed out (new phone, reinstall)</td><td>Welcome → I have an account → Sign in → Home or the paywall, same as above. Onboarding is never shown again.</td></tr>
@@ -214,7 +214,7 @@ tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
     <h2>Asked at the moment, never up front</h2>
     <div class="tabwrap"><table>
       <tr><th style="width:34%">Ask</th><th>When</th></tr>
-      <tr><td>Dinner reminders</td><td>Once, after Save your plan and before the paywall (Yazio's and Cal AI's spot). Not now → switch it on later in Account → Notifications.</td></tr>
+      <tr><td>Dinner reminders</td><td>Once, after the purchase on “You’re all set”, when there is a plan to remind about (Apple: ask in context). Not now → switch it on later in Account → Notifications.</td></tr>
       <tr><td>AI consent (OpenAI)</td><td>First Ask Otto or first import. Not now → that feature waits; everything else works.</td></tr>
       <tr><td>Camera</td><td>First photo import. Denied → pick from the library, or type it.</td></tr>
       <tr><td>Rating</td><td>On the cook finish screen after the third dish, once.</td></tr>
@@ -230,9 +230,9 @@ tr.us td{background:color-mix(in srgb,var(--hi) 8%,transparent);font-weight:600}
       <tr><th style="width:84px"></th><th style="width:30%">Screen</th><th>Change</th></tr>
       <tr><td><span class="tag t-chg">Change</span></td><td>Launch gate</td><td>Becomes the splash plus one quiet check: signed in? → Otto Club active? No visible gate screen.</td></tr>
       <tr><td><span class="tag t-add">New</span></td><td>Welcome</td><td>Get started · I have an account. The only door for returning people.</td></tr>
-      <tr><td><span class="tag t-keep">Keep</span></td><td>Three paintings</td><td>Right after Welcome. Shown once, ever.</td></tr>
+      <tr><td><span class="tag t-rm">Remove</span></td><td>Three-painting carousel</td><td>Apple: one Welcome screen. The paintings return as heroes (Welcome, empty states).</td></tr>
       <tr><td><span class="tag t-add">New</span></td><td>Food questions (×6)</td><td>Who's eating · diet · allergies · anything to skip · weeknight time · what matters.</td></tr>
-      <tr><td><span class="tag t-add">New</span></td><td>Taste swipe · Building · Your first week</td><td>The plan reveal before the account and the paywall.</td></tr>
+      <tr><td><span class="tag t-add">New</span></td><td>Three questions · Your first week</td><td>Three questions, each with Skip, then the plan reveal (tonight first) before the account and the paywall. No taste swipe, no “building” screen: the week loads in place.</td></tr>
       <tr><td><span class="tag t-chg">Move</span></td><td>Sign up</td><td>From the first screen to after the reveal, as “Save your plan”. No Skip: the trial needs an account.</td></tr>
       <tr><td><span class="tag t-chg">Move</span></td><td>Notifications ask</td><td>After the purchase, on “You’re all set”, when there is a plan to remind about. Primed, Not now allowed.</td></tr>
       <tr><td><span class="tag t-chg">Change</span></td><td>Otto Club paywall</td><td>No X. Billed amount leads, trial timeline, Restore, Terms, Privacy, Sign out, Delete account. Members never see it.</td></tr>
