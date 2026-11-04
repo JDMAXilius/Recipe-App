@@ -6,6 +6,7 @@ Researched and built 2026-11-03. Open any `.html` in a browser (they need intern
 | File | What |
 |---|---|
 | `otto.html` | **Otto today** — every route, who can open it (guards in `app/_layout.tsx`), every navigation call. Branch `fix/1.0.23`. |
+| `otto-next.html` | **Otto, redesigned (2026-11-04)** — the proposed flow built from Apple's model and the reference apps. Tabs: overview, first run, returning + other doors, the app, the 23-scenario checklist, what changes vs today, decisions for Juan. Standalone. |
 | `apple.html` | The flow Apple's HIG + Review Guidelines describe: three entry points, launch, onboarding, permission, paywall, tabs, later asks |
 | `duolingo.html` · `calai.html` · `mfp.html` · `tiimo.html` · `headspace.html` · `cherrypick.html` | Real first-run flows of reference apps, screen by screen |
 | `field-guide.html` | One page with tabs: overview strip comparing where each app puts account / paywall / permissions, the scenario lanes, and smaller per-app maps |
