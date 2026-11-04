@@ -61,6 +61,7 @@ svg.edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
 .card.sys{border-style:dashed}
 .card.key{border-width:2.5px}
 .card svg.th{flex:none;width:60px;height:128px}
+.card img.th{flex:none;width:60px;height:130px;border-radius:9px;border:1.5px solid var(--line);object-fit:cover;background:var(--phone)}
 .card .tx{display:flex;flex-direction:column;gap:3px;min-width:0}
 .card .ey{font:700 9.5px/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
 .card b{font-size:14px;line-height:1.22;font-weight:650}
@@ -353,6 +354,11 @@ const E=[
  ["signin","retm","signed in",1],
 ];
 
+/* ---------------------------------------------------------------- SCREENS from the v2 redesign (Figma "Otto — App Redesign", v2 pages) */
+const IMG={first:"splash",scenes:"onb1",signin:"signin",forgot:"forgot",who:"who",skip:"skip",week:"firstweek",save:"signup",pay:"paywall",
+ thome:"today",tonight:"today",discover:"discover",ask:"chatStart",recipe:"recipe",steps:"cookStep",finish:"dinnerDone",shared:"recipe",
+ tplan:"planFilled",pweek:"planFilled",pday:"planActions",ppick:"planOpen",potto:"ottoWeek",pshop:"shopping",tbook:"cookbook",bsaved:"cookbook",badd:"bringIn"};
+
 /* ---------------------------------------------------------------- THUMBNAILS (mini wireframes) */
 function thumb(k,c){
   const S="var(--sk)",S2="var(--sk2)",A=`var(${c})`;
@@ -388,7 +394,7 @@ function thumb(k,c){
 const PW=300, GAP=24, CW=276, CH=150, RP=174, PX=12, TOP=206, PTOP=44, LANE=26;
 const canvas=document.getElementById("canvas"), svg=document.getElementById("edges"), view=document.getElementById("view"), sizer=document.getElementById("sizer"), zoom=document.getElementById("zoom");
 document.getElementById("legend").innerHTML=LEG.map(([t,c])=>`<span><i style="background:var(${c})"></i>${t}</span>`).join("")+
- `<span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>next screen</span><span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="5 5"/></svg>optional · branch · back</span><span>Each card is one screen: “new”, or what it is in today’s app.</span>`;
+ `<span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6"/></svg>next screen</span><span><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--ink-soft)" stroke-width="1.6" stroke-dasharray="5 5"/></svg>optional · branch · back</span><span>Each card is one screen: “new”, or what it is in today’s app.</span><span>Picture = the v2 redesign screen · wireframe = not designed yet. v2 screens still show the old 5-tab bar and sample prices.</span>`;
 const colX=c=>24+c*(PW+GAP);
 const el={}, pos={};
 let maxRow=0;
@@ -406,7 +412,7 @@ for(const [id,c,r,ty,title,line,ft,th,flags] of N){
   const d=document.createElement("div"); d.className="card"+(flags?" "+flags:""); d.tabIndex=0; d.dataset.id=id;
   d.style.left=x+"px"; d.style.top=y+"px"; d.style.setProperty("--c",`var(${ST[ty]})`);
   const eyeb={entry:"Entry",welcome:"Welcome",q:"Question",reveal:"Result",account:"Account",pay:"Paywall",tab:"Tab",home:"Feature",cook:"Feature",plan:"Feature",book:"Feature",set:"Settings",perm:"Permission",proof:"Value"}[ty];
-  d.innerHTML=thumb(th,ST[ty])+`<div class="tx"><span class="ey">${eyeb}</span><b>${title}</b><span class="ds">${line}</span><span class="ft${ft==="new"?" new":""}">${ft==="new"?"New screen":ft}</span></div>`;
+  d.innerHTML=(IMG[id]?`<img class="th" src="screens/${IMG[id]}.png" alt="" width="60" height="130" loading="lazy">`:thumb(th,ST[ty]))+`<div class="tx"><span class="ey">${eyeb}</span><b>${title}</b><span class="ds">${line}</span><span class="ft${ft==="new"?" new":""}">${ft==="new"?"New screen":ft}</span></div>`;
   canvas.appendChild(d); el[id]=d; pos[id]={x,y,w:CW,h:CH,c,r};
 }
 const PANEL_BOTTOM=TOP+PTOP+maxRow*RP+CH+16;
