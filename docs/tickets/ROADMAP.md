@@ -1,5 +1,7 @@
 # Otto Launch Roadmap
 
+> The app rework (new flow, tabs, paywall states) has its own plan: `REWORK_ROADMAP.md` (2026-11-04).
+
 As of 2026-09-24 · Juan Diego Lugo. Living copy: https://claude.ai/artifact/6HXbQRc9X1nfWpeiHAABRE
 
 Otto ships with Otto Club for sale. Payments, the store listing text, the age rating and the
