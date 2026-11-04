@@ -1,0 +1,1218 @@
+{
+"app": "yazio",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Signed-in users land on Diary \"Today\" and signed-out users on the welcome screen; whether a relaunch restores the last tab or screen was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Diary: Today",
+"Summary ring, meals, tab bar",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Welcome",
+"\"Get Started\" / \"I already have an account\"",
+2,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"d",
+"w",
+"no",
+1
+]
+],
+"sources": [
+"Mobbin flow 607884b2-9842-4004-8c0d-ce459c5b76e7 (Diary Today)",
+"Mobbin flow 8ae2ba7a-f5d0-4761-922c-730f02cd9d9b (Logging out, welcome screen)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Yazio asks to send \"coach tips and reminders\", but where a notification tap lands, and what happens when signed out, was not observed or documented.",
+"steps": [
+[
+"e",
+"Reminder / tip",
+"Push notification",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Destination",
+"Not confirmed",
+2,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"d",
+"t",
+"yes",
+1
+]
+],
+"sources": [
+"Mobbin screen da9dc22b-6aea-49c8-9acf-0127c55d1dad (\"Stay motivated!\" notification pre-prompt)"
+]
+},
+{
+"n": 3,
+"verdict": "unknown",
+"summary": "A dismissible pre-prompt (\"Allow coach tips\", ×) comes before the notification ask, and Settings has a Reminders section; what the app does after a denial, and any Settings link, were not observed.",
+"steps": [
+[
+"p",
+"Pre-prompt",
+"\"Stay motivated!\" \"Allow coach tips\" ×",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS permission alert",
+"Allow / Don't Allow",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"x",
+"Dismiss ×",
+"Skips the ask",
+1,
+1,
+"dec",
+"seen"
+],
+[
+"r",
+"Settings > Reminders",
+"Reminders row in Settings",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Denied fallback",
+"Not observed",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"s",
+"Allow",
+0
+],
+[
+"p",
+"x",
+"",
+0
+],
+[
+"s",
+"r",
+"",
+1
+],
+[
+"r",
+"o",
+"denied",
+1
+]
+],
+"sources": [
+"Mobbin screen da9dc22b-6aea-49c8-9acf-0127c55d1dad",
+"Mobbin flow 4df08533-7d5a-4a22-90d5-8e0a9a6951ea (Settings list incl. Reminders)"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Paywalls (onboarding plan picker, Today \"Special Offer 75% OFF\" countdown card) were seen; StoreKit, success, cancel, pending and failure outcomes were not observed.",
+"steps": [
+[
+"c",
+"Today offer card",
+"\"Special Offer\" 75% OFF + countdown",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"p",
+"Paywall",
+"\"We'll help you lose weight...\" ×, Continue",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"Purchase confirm",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Outcome?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Pro active",
+"Not observed",
+4,
+0,
+"out",
+"unverified"
+],
+[
+"x",
+"Cancel / fail",
+"Not observed",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"c",
+"p",
+"Unlock all",
+0
+],
+[
+"p",
+"sk",
+"Continue",
+0
+],
+[
+"sk",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+1
+],
+[
+"d",
+"x",
+"cancel/fail",
+1
+]
+],
+"sources": [
+"Mobbin flow 607884b2-9842-4004-8c0d-ce459c5b76e7 (Subscribing to Yazio Pro)"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "An in-app cancel path (reason survey, \"Manage Subscription\") was seen and a free tier exists; grace-period messaging and what Pro-only content becomes after expiry were not found.",
+"steps": [
+[
+"a",
+"Account",
+"\"Subscription until 10 May 2026\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"q",
+"Cancel survey",
+"\"Why are you canceling your Pro subscription?\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Subscription",
+"\"...request is currently being processed\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+3,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free tier",
+"Pro ends at period end",
+4,
+0,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"a",
+"q",
+"",
+0
+],
+[
+"q",
+"s",
+"",
+0
+],
+[
+"s",
+"g",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 5e3a4d91-5fc0-4465-8ce6-34f1231adfcb (Canceling subscription)",
+"https://recurdash.com/guides/how-to-cancel-yazio (third-party: Pro stays active to end date, then free)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based: \"I already have an account\" signs in to the same Yazio account, and the help center points to Settings > Account > \"Restore subscription\"; no Restore link was seen on the paywall.",
+"steps": [
+[
+"w",
+"Welcome",
+"\"I already have an account\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Log in",
+"Yazio account (email / Apple)",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"t",
+"Diary restored",
+"Same account data",
+2,
+0,
+"out",
+"unverified"
+],
+[
+"d",
+"Pro missing?",
+"",
+3,
+0,
+"dec",
+"doc"
+],
+[
+"r",
+"Restore subscription",
+"Settings > Account (help center)",
+4,
+0,
+"screen",
+"doc"
+],
+[
+"c",
+"Check account",
+"Same Yazio account as purchase",
+5,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"w",
+"l",
+"",
+0
+],
+[
+"l",
+"t",
+"",
+0
+],
+[
+"t",
+"d",
+"",
+1
+],
+[
+"d",
+"r",
+"yes",
+0
+],
+[
+"r",
+"c",
+"still locked",
+1
+]
+],
+"sources": [
+"Mobbin flow 8ae2ba7a-f5d0-4761-922c-730f02cd9d9b (welcome)",
+"https://help.yazio.com/hc/en-us/articles/360000150949-Why-is-my-PRO-subscription-not-activated-in-the-app"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "In-app Settings > Account > Reset > \"Delete account\" with one explaining alert and logout, but it adds an email-confirmation step and does not cancel Pro (help center says so; the alert doesn't).",
+"steps": [
+[
+"a",
+"Account",
+"Settings > Account > Reset",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Reset",
+"\"Reset Account\" / \"Delete account\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"al",
+"Confirm alert",
+"\"...erase all user settings... diary entries\"",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"m",
+"Email confirm",
+"\"Please check your e-mail inbox to confirm\"",
+3,
+1,
+"screen",
+"doc"
+],
+[
+"sub",
+"Pro not cancelled",
+"Not mentioned in alert",
+3,
+2,
+"screen",
+"gap"
+],
+[
+"w",
+"Welcome",
+"Logged out: \"Welcome to Yazio\"",
+3,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"a",
+"r",
+"",
+0
+],
+[
+"r",
+"al",
+"",
+0
+],
+[
+"al",
+"w",
+"Delete",
+0
+],
+[
+"al",
+"m",
+"",
+1
+],
+[
+"al",
+"sub",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 4df08533-7d5a-4a22-90d5-8e0a9a6951ea (Deleting account)",
+"https://help.yazio.com/hc/en-us/articles/202371931-How-do-I-delete-my-user-account (email link; Pro not cancelled on deletion)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "No offline state observed; the help center says mobile data is needed to use Yazio on the go and an App Store review says \"No offline\".",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"h",
+"Needs connection",
+"Help: mobile data needed on the go",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"r",
+"\"No offline\"",
+"App Store user review",
+2,
+0,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"e",
+"h",
+"",
+1
+],
+[
+"h",
+"r",
+"",
+1
+]
+],
+"sources": [
+"https://help.yazio.com/hc/en-us/articles/202370251-About-the-App-Permissions (via search excerpt; page 403 to fetch)",
+"https://apps.apple.com/sa/app/id946099227 (user review)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Recent App Store release notes are generic (\"we've made further improvements to the app\"); no in-app What's New screen was observed.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. 26.44.1",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Generic improvement text",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"t",
+"Diary: Today",
+"No What's New seen",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"t",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id946099227 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "Recipe search has a designed no-results state and the help center says AI photo results are rough estimates to edit; no in-app AI or server error screen was observed, and the help center admits outages can hide or, rarely, lose recent entries.",
+"steps": [
+[
+"e",
+"AI camera",
+"Food search: \"AI camera\" | \"Search\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"d",
+"Recognized?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"r",
+"Editable estimate",
+"Help: \"rough estimate... review and edit\"",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"f",
+"AI failure message",
+"Not observed",
+2,
+1,
+"screen",
+"unverified"
+],
+[
+"s",
+"Search: no results",
+"\"Oh, we haven't cooked this yet!\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Server outage",
+"Help: data may vanish for minutes",
+3,
+2,
+"screen",
+"doc"
+],
+[
+"l",
+"Recent entries lost",
+"Help: rare backup restore loses hours",
+4,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"photo",
+0
+],
+[
+"d",
+"r",
+"yes",
+1
+],
+[
+"d",
+"f",
+"no",
+1
+],
+[
+"e",
+"s",
+"search",
+0
+],
+[
+"e",
+"o",
+"server",
+1
+],
+[
+"o",
+"l",
+"rare",
+1
+]
+],
+"sources": [
+"Mobbin screen d6037505-d718-446d-aea3-bf9ab4015638 (search with AI camera tab)",
+"Mobbin screen 841e9229-3546-47f2-bd33-f471c7e8a706 (recipe search no results)",
+"https://help.yazio.com/hc/en-us/articles/39137901903889 (AI Calorie Tracking)",
+"https://help.yazio.com/hc/en-us/articles/205012461 (My data is gone: servers may be shut down; last few hours may be lost)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "No AI consent screen was found (AI photo tracking is a Pro feature); traced Apple Health instead: connect and disconnect both live in Profile > Automatic Tracking, permissions in iOS Health, and the help center admits a known repeated-permission-prompt issue.",
+"steps": [
+[
+"e",
+"Profile tab",
+"\"Automatic Tracking\" > Apple Health",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"c",
+"Connect",
+"Tap \"Connect\", iOS Health sheet",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"x",
+"Disconnect",
+"Same place in Profile tab",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"h",
+"iOS Health settings",
+"Data Access & Devices > Yazio",
+2,
+1,
+"sys",
+"doc"
+],
+[
+"r",
+"Repeated prompts",
+"Known issue: asks every launch",
+3,
+1,
+"screen",
+"gap"
+],
+[
+"a",
+"AI consent",
+"No consent step observed",
+1,
+2,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+0
+],
+[
+"c",
+"x",
+"later",
+0
+],
+[
+"c",
+"h",
+"",
+1
+],
+[
+"h",
+"r",
+"bug",
+1
+],
+[
+"e",
+"a",
+"AI",
+1
+]
+],
+"sources": [
+"https://help.yazio.com/hc/en-us/articles/360004140998 (Apple Watch; Profile > Automatic Tracking > Apple Health > Connect)",
+"https://help.yazio.com/hc/en-us/articles/31136073389713 (Apple Health permission request: disconnect in Profile tab; repeated prompts)",
+"https://help.yazio.com/hc/en-us/articles/360018833998 (Yazio and Apple Health)"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "\"I already have an account\" opens an email/password form with \"Forgot password?\" and Passwords autofill, and Account > \"Log Out\" returns to the welcome screen; wrong-detail errors are explained only in the help center, and sign-up shows a bare \"error code 409\".",
+"steps": [
+[
+"w",
+"Welcome",
+"\"I already have an account\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"l",
+"Log in",
+"Email, Password, \"Forgot password?\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Details right?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Diary: Today",
+"Signed in",
+3,
+0,
+"out",
+"seen"
+],
+[
+"h",
+"Wrong details",
+"Help: check spelling, reset password",
+3,
+1,
+"screen",
+"doc"
+],
+[
+"c",
+"\"Error code 409\"",
+"Email already registered (help only)",
+3,
+2,
+"screen",
+"gap"
+],
+[
+"a",
+"Account",
+"\"Log Out\" row",
+4,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Welcome",
+"Signed out: \"Get Started\"",
+5,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"w",
+"l",
+"",
+0
+],
+[
+"l",
+"d",
+"Log In",
+0
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"d",
+"h",
+"no",
+1
+],
+[
+"d",
+"c",
+"sign-up",
+1
+],
+[
+"t",
+"a",
+"Settings",
+0
+],
+[
+"a",
+"o",
+"Log Out",
+0
+]
+],
+"sources": [
+"Mobbin flow d5e72655-2378-4a61-8be7-2d743dd5dc52 (Logging in)",
+"Mobbin flow 8ae2ba7a-f5d0-4761-922c-730f02cd9d9b (Logging out, welcome)",
+"https://help.yazio.com/hc/en-us/articles/360016074678 (Why can't I log in)",
+"https://help.yazio.com/hc/en-us/articles/17437113667089 (Error code 409)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Data and Pro follow a registered account to any device and there is a Watch app with its own login, but there is no live sync (help says close and reopen to see new entries), unregistered data is lost on switch, and no household sharing was found.",
+"steps": [
+[
+"e",
+"New device",
+"Log in to same account",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Registered?",
+"",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"s",
+"Data + Pro follow",
+"Linked to account, any OS",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"r",
+"Reopen to refresh",
+"\"close and reopen the app completely\"",
+3,
+0,
+"out",
+"gap"
+],
+[
+"l",
+"Data lost",
+"Unregistered: history lost on switch",
+2,
+1,
+"out",
+"gap"
+],
+[
+"w",
+"Apple Watch app",
+"Log in with Apple or email",
+2,
+2,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"s",
+"yes",
+0
+],
+[
+"s",
+"r",
+"",
+0
+],
+[
+"d",
+"l",
+"no",
+1
+],
+[
+"e",
+"w",
+"watch",
+1
+]
+],
+"sources": [
+"https://help.yazio.com/hc/en-us/articles/360004390638 (multiple devices: reopen app to see new Diary entries; unregistered data lost)",
+"https://help.yazio.com/hc/en-us/articles/360004140998 (Apple Watch app)"
+]
+},
+{
+"n": 14,
+"verdict": "meets",
+"summary": "First-use states are designed: Today shows 0 eaten with a + on every meal, Notes asks \"How was your day?\" with \"Add Note\", Favorites says \"No favorite recipes yet?\" with categories, and Fasting offers \"Start Tracker\".",
+"steps": [
+[
+"e",
+"First open",
+"After onboarding",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"t",
+"Diary: Today",
+"\"0 Eaten\", + on each meal",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"n",
+"Notes card",
+"\"How was your day?\" \"Add Note\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"f",
+"My Favorites",
+"\"No favorite recipes yet?\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"c",
+"Browse categories",
+"\"Browse to find new inspiration!\"",
+2,
+1,
+"out",
+"seen"
+],
+[
+"q",
+"Fasting",
+"\"Get ready to fast\" \"Start Tracker\"",
+1,
+2,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"t",
+"Diary",
+0
+],
+[
+"t",
+"n",
+"",
+0
+],
+[
+"e",
+"f",
+"Recipes",
+0
+],
+[
+"f",
+"c",
+"",
+0
+],
+[
+"e",
+"q",
+"Fasting",
+0
+]
+],
+"sources": [
+"Mobbin screen f1e30311-88df-4e8a-acf5-3077dae43e12 (empty Today)",
+"Mobbin screen f3abb0ab-fe60-4206-b7af-0063594c37a6 (Notes empty, 0 steps)",
+"Mobbin screen 8a97aa6a-2f03-4ece-8152-1656d093d1f8 (Favorites empty)",
+"Mobbin screen eda022a9-7781-4a1a-b9fe-5f0f3c78c96c (Fasting tracker)"
+]
+}
+]
+}

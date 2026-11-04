@@ -1,0 +1,1339 @@
+{
+"app": "oura",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "A returning member lands on Today with the header reading \"Updating...\" while the ring syncs, and Face ID sign-in is optional; restoring the last tab or screen was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Signed-in member",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"f",
+"Face ID?",
+"Optional: \"Fast and secure sign-ins\"",
+1,
+0,
+"dec",
+"seen"
+],
+[
+"t",
+"Today",
+"Scores + \"Updating...\" header",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Last tab restored?",
+"Not observed",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"f",
+"",
+1
+],
+[
+"f",
+"t",
+"",
+0
+],
+[
+"t",
+"r",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 27f04b7a-e650-46fc-82d4-09ab9c4c8d99 (Today \"Updating...\")",
+"Mobbin screen 4ba744ae-4df3-47da-ad68-c96d58be9c12 (\"Fast and secure sign-ins\" Enable / No thanks)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Oura sends many notification types (bedtime, insights, inactivity) and shows a workout Live Activity, but where a tap lands, and what happens when signed out, is neither observed nor documented.",
+"steps": [
+[
+"la",
+"Workout Live Activity",
+"\"Indoor running 2:34 ZONE 3\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"n",
+"Insight notification",
+"Settings: \"new insight... is available\"",
+0,
+1,
+"entry",
+"seen"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"x",
+"Destination",
+"Not confirmed",
+2,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"la",
+"d",
+"tap",
+1
+],
+[
+"n",
+"d",
+"tap",
+1
+],
+[
+"d",
+"x",
+"yes",
+1
+]
+],
+"sources": [
+"Mobbin screen 1e3c0935-bc5d-447e-b230-e25ae8f3c398 (Live Activity)",
+"Mobbin screen 109f39c7-8a8f-4d04-b2fe-1e6c53efd126 (Settings > Notifications toggles)",
+"https://support.ouraring.com/hc/en-us/articles/360025579173-Managing-Your-Notifications (destination not stated)"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "The app keeps working and explains missing data (\"Where's my route?\" names Location Services \"Always on\"), but it offers only \"Got it\", not a Settings link; for notifications the help center gives the manual iOS Settings path.",
+"steps": [
+[
+"e",
+"Workout without location",
+"Location not \"Always on\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"w",
+"Where's my route?",
+"Explains cause; only \"Got it\"",
+1,
+0,
+"screen",
+"gap"
+],
+[
+"n",
+"In-app Notifications",
+"Settings > Notifications toggles",
+0,
+1,
+"screen",
+"seen"
+],
+[
+"h",
+"Help: iOS path",
+"\"Ensure Allow Notifications is toggled on\"",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"b",
+"Ring won't connect",
+"\"Check Bluetooth is enabled on your phone\"",
+0,
+2,
+"screen",
+"seen"
+],
+[
+"o",
+"App keeps working",
+"Scores still shown",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"w",
+"",
+0
+],
+[
+"w",
+"o",
+"Got it",
+0
+],
+[
+"n",
+"h",
+"not arriving",
+1
+],
+[
+"b",
+"o",
+"Try again",
+1
+]
+],
+"sources": [
+"Mobbin screen f6f2d90d-8779-4044-9820-57cd9209722a (\"Where's my route?\")",
+"Mobbin screen 109f39c7-8a8f-4d04-b2fe-1e6c53efd126 (Notifications)",
+"Mobbin screen f529277c-9371-4aec-8380-225d82941229 (\"Trouble connecting to your Oura Ring\")",
+"https://support.ouraring.com/hc/en-us/articles/360025579173-Managing-Your-Notifications"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Membership is not sold through StoreKit: setup opens a web checkout (signup.ouraring.com: free month, card or PayPal, billing address), then \"Membership complete\"; cancel and payment-failure screens were not observed.",
+"steps": [
+[
+"s",
+"Select a membership",
+"Web: \"$0.00 ... Then $105.00 SGD/year\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"b",
+"Billing address",
+"signup.ouraring.com, card / PayPal",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Membership complete",
+"\"Let's keep going.\" Continue",
+3,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cancel / declined",
+"No handling observed",
+3,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"b",
+"Next",
+0
+],
+[
+"b",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"d",
+"x",
+"other",
+1
+]
+],
+"sources": [
+"Mobbin flow 31b605fe-7d82-4c20-891a-8190f521b28e (Subscribing to Oura membership)",
+"Mobbin screens a69e0bbf-3dee-43cc-90fb-d0b7d97c4ccc, ebace6f9-08e5-411a-9511-1f5916645668 (Select a membership)",
+"https://support.ouraring.com/hc/en-us/articles/4409086524819-Oura-Membership (PayPal or credit card)"
+]
+},
+{
+"n": 5,
+"verdict": "partial",
+"summary": "Downgrade is gentle and keeps data (three daily scores, battery, profile, settings and Explore stay; data stays saved and exportable as CSV; re-enrolling restores access), but no grace-period or failed-payment messaging was documented.",
+"steps": [
+[
+"e",
+"Membership ends",
+"Cancelled or unpaid",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"p",
+"Paid period runs out",
+"Access kept to end of billing period",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"g",
+"Grace period notice",
+"Not documented",
+1,
+1,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free tier",
+"\"only... your three daily Oura scores\"",
+2,
+0,
+"out",
+"doc"
+],
+[
+"x",
+"Export / re-enroll",
+"CSV in Membership Hub; data kept",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"p",
+"cancel",
+0
+],
+[
+"e",
+"g",
+"fail",
+1
+],
+[
+"p",
+"f",
+"",
+0
+],
+[
+"g",
+"f",
+"",
+1
+],
+[
+"f",
+"x",
+"",
+1
+]
+],
+"sources": [
+"https://support.ouraring.com/hc/en-us/articles/4409086524819-Oura-Membership",
+"https://support.ouraring.com/hc/en-us/articles/11353757824403-Manage-Oura-Membership (Membership Hub)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based: sign in (password or emailed code), pick and connect the ring, run \"Sync data\", and history returns; membership lives on the account, so there is no Restore Purchases to find.",
+"steps": [
+[
+"w",
+"Welcome",
+"\"Big changes start small\" Start",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Sign in",
+"Password, or emailed code (\"Submit code\")",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Select your ring",
+"\"Oura Ring 4\" > Connect",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Sync data",
+"\"We need to sync your data to continue\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Today with history",
+"Scores restored",
+4,
+0,
+"out",
+"seen"
+],
+[
+"m",
+"Membership on account",
+"Managed in Membership Hub",
+4,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"w",
+"l",
+"",
+0
+],
+[
+"l",
+"r",
+"",
+0
+],
+[
+"r",
+"s",
+"",
+0
+],
+[
+"s",
+"t",
+"Begin",
+0
+],
+[
+"t",
+"m",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 83dc236f-5898-4ab5-bf21-b5ca578c59b3 (Logging in, 16 screens)",
+"Mobbin flow 27f04b7a-e650-46fc-82d4-09ab9c4c8d99 (Logging in)",
+"Mobbin screen effb9325-fdde-485f-8e3b-85bb744e8df3 (Sync data)",
+"https://support.ouraring.com/hc/en-us/articles/4409086524819-Oura-Membership"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "In-app Settings > \"Delete account and all data\", one alert that names what is lost (account, data and \"any prepaid membership plans\"), then the signed-out welcome; per the help center, deleting cancels the membership automatically.",
+"steps": [
+[
+"s",
+"Settings",
+"\"Delete account and all data\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"Delete account confirmation",
+"\"permanently delete your account, all...\"",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Delete?",
+"\"Yes, delete my Oura account\" / Cancel",
+2,
+0,
+"dec",
+"seen"
+],
+[
+"w",
+"Signed-out welcome",
+"\"Big changes start small\"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"m",
+"Membership cancelled",
+"Automatic on deletion",
+3,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"s",
+"a",
+"",
+0
+],
+[
+"a",
+"d",
+"",
+0
+],
+[
+"d",
+"w",
+"Yes",
+0
+],
+[
+"d",
+"m",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 46cf955f-1d4f-4a18-991b-8dc6336a54f8 (Deleting account)",
+"https://support.ouraring.com/hc/en-us/articles/4409086524819-Oura-Membership (deleting removes data; membership canceled)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "The ring stores data and syncs to the app later, and cloud upload needs Wi-Fi or cellular; Advisor shows \"Can't load chat\" with Try again (cause unlabelled), but the phone-offline state of Today was not observed.",
+"steps": [
+[
+"e",
+"Phone offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"r",
+"Ring keeps recording",
+"Syncs to app when back in range",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"c",
+"Cloud upload waits",
+"Needs \"adequate connection (WiFi or cellular)\"",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"a",
+"Advisor error",
+"\"Can't load chat\" + Try again",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"t",
+"Today offline",
+"Not observed",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"r",
+"",
+1
+],
+[
+"r",
+"c",
+"",
+1
+],
+[
+"e",
+"a",
+"",
+1
+],
+[
+"c",
+"t",
+"",
+1
+]
+],
+"sources": [
+"https://support.ouraring.com/hc/en-us/articles/360025445814-Airplane-Mode",
+"https://support.ouraring.com/hc/en-us/articles/360025586953-Oura-Cloud-Update-Frequency (quoted in search results; page now 404)",
+"Mobbin screen 9dbf6e35-9643-449f-9d0f-c89cc6248a49 (\"Can't load chat\")"
+]
+},
+{
+"n": 9,
+"verdict": "meets",
+"summary": "New features show as a dismissible \"New in Oura\" card on Today (with ×) that leads to a one-page intro (\"Show me\"); App Store notes are generic. Whether the card shows only once was not confirmed.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. 7.30.0 \"Small fixes, big improvements\"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"c",
+"New in Oura card",
+"\"Track your daytime stress...\" ×",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"i",
+"Feature intro",
+"\"Track your daytime stress\" Show me",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Today",
+"Card dismissed (assumed)",
+2,
+1,
+"out",
+"unverified"
+],
+[
+"o",
+"Shown once?",
+"",
+3,
+0,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+1
+],
+[
+"c",
+"i",
+"Get started",
+0
+],
+[
+"c",
+"t",
+"×",
+0
+],
+[
+"i",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 27f04b7a-e650-46fc-82d4-09ab9c4c8d99 (\"New in Oura\" card on Today)",
+"Mobbin screen ed60a76b-f310-4643-ba72-af63a020d965 (\"Track your daytime stress\")",
+"https://apps.apple.com/us/app/oura/id1043837948 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "Failures get plain copy and a Try again (Advisor \"Can't load chat / Wait a moment and try again\", meal photo \"couldn't be analyzed... retake the photo or type in your meal items\", ring \"Trouble connecting\" checklist with help link), but whether the typed question or photo survives the retry is not shown, and no Advisor limits are stated up front.",
+"steps": [
+[
+"a",
+"Ask Advisor / log meal",
+"Chat message or meal photo",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"b",
+"\"Can't load chat\"",
+"\"Wait a moment and try again.\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Try again",
+"Typed text kept? not shown",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"d",
+"Meal not analyzed",
+"\"Retake the photo or type in...\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"e",
+"Done / Try again",
+"Meal entry stays, can delete",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"f",
+"Ring won't connect",
+"Checklist, help center, chat",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"g",
+"Limits never stated",
+"Help: needs stable internet only",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"chat fails",
+0
+],
+[
+"b",
+"c",
+"",
+0
+],
+[
+"a",
+"d",
+"photo fails",
+0
+],
+[
+"d",
+"e",
+"",
+0
+],
+[
+"a",
+"f",
+"sync fails",
+1
+],
+[
+"c",
+"g",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 9dbf6e35-9643-449f-9d0f-c89cc6248a49 (\"Can't load chat\")",
+"Mobbin screen 23c95f0f-0c21-4fd0-a809-5870b757cca8 (\"Meal items couldn't be analyzed\")",
+"Mobbin screen f529277c-9371-4aec-8380-225d82941229 (\"Trouble connecting to your Oura Ring\")",
+"https://support.ouraring.com/hc/en-us/articles/39512345699219 (Advisor \"needs a stable internet connection\"; force-close, switch Wi-Fi/cellular, retry; no usage limits listed)"
+]
+},
+{
+"n": 11,
+"verdict": "meets",
+"summary": "Advisor is opt-in (\"optional\", collects nothing until setup) and withdrawal is in-app: Advisor > Settings > \"Reset Advisor\" erases memories and settings, and using it again re-runs setup; check-ins can be turned off. The only off switch is the full reset, so there is no pause that keeps history.",
+"steps": [
+[
+"a",
+"Advisor > Settings",
+"From + menu on Today",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"b",
+"Advisor settings",
+"Style, Check-ins, Memories",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Memories",
+"Review or delete one by one",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"d",
+"Reset Advisor",
+"\"will forget everything\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"e",
+"\"Finalizing the reset\"",
+"\"Just a few more minutes.\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"f",
+"Open Advisor again",
+"Setup runs again before use",
+4,
+0,
+"out",
+"doc"
+],
+[
+"g",
+"Check-ins off",
+"Stops proactive nudges",
+2,
+2,
+"screen",
+"report"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"",
+0
+],
+[
+"b",
+"c",
+"",
+0
+],
+[
+"b",
+"d",
+"",
+0
+],
+[
+"d",
+"e",
+"",
+0
+],
+[
+"e",
+"f",
+"",
+0
+],
+[
+"b",
+"g",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flow 7c4f952a-6519-43b9-b7e3-2ee2dc3a8bdb (Advisor settings: Reset Advisor)",
+"Mobbin screen 6f0caea9-ffc6-4c1f-be64-3b2059f232e0 (\"Finalizing the reset\")",
+"Mobbin flow beead824-7246-495e-84c2-e193283867a4 (Setting up Oura Advisor: \"You're in control of what's saved\")",
+"https://support.ouraring.com/hc/en-us/articles/39512345699219 (optional; no data collected before setup; reset erases memories; setup required again)",
+"report: https://www.tomsguide.com/wellness/fitness/ouras-ai-powered-advisor-is-rolling-out-heres-what-it-means-for-you (check-ins can be turned off)",
+"Mobbin flow b916ed17-f099-43a2-902f-5f5e1376028b (Oura Labs \"Yes, stop testing\" for medical AI)"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "Sign-in is email-first with a single-use code (\"Resend code\"); an unknown email routes to \"Create an Oura account... confirm it's correct\" rather than an error. Sign out backs up data first (\"Backing up your data\") and returns to the signed-out welcome with Start. Wrong-code errors and cancelling were not observed.",
+"steps": [
+[
+"a",
+"\"Already a member?\"",
+"Email; new emails get an account",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"b",
+"Known email?",
+"",
+1,
+0,
+"dec",
+"seen"
+],
+[
+"c",
+"\"Check your email...\"",
+"Submit code / Resend code",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Create an Oura account",
+"\"please confirm it's correct\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"e",
+"Wrong code",
+"Error copy not observed",
+3,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Settings > Sign out",
+"Blue row above Delete account",
+0,
+2,
+"entry",
+"seen"
+],
+[
+"g",
+"Backing up your data",
+"\"Uploading file 1/4\"",
+1,
+2,
+"sys",
+"seen"
+],
+[
+"h",
+"Signed-out welcome",
+"Start / No Oura Ring yet?",
+2,
+2,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"",
+0
+],
+[
+"b",
+"c",
+"yes",
+0
+],
+[
+"b",
+"d",
+"no",
+0
+],
+[
+"c",
+"e",
+"",
+1
+],
+[
+"f",
+"g",
+"",
+0
+],
+[
+"g",
+"h",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen 71fecdc7-7c32-47be-a2ea-fa7a800d49d2 (\"Already a member?\")",
+"Mobbin screen 0d1fbf23-583b-4af0-b2e1-117c2bcdc97a (\"Check your email for the code\")",
+"Mobbin screen c2ba9bd9-c483-41bc-be8a-57122e008908 (\"Create an Oura account\")",
+"Mobbin screen 5812455e-c9e2-466f-b1c6-3758ab03b577 (older password sign-in, \"Forgot your password?\")",
+"Mobbin flow f47255a4-7c46-40b2-95ed-223ef394d7de (Logging out: backup then welcome)",
+"Mobbin flow 32cf6050-d210-4b25-9017-a9d855d21035 (Logging out)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Data lives in Oura's cloud and returns on a new phone after sign-in, but Oura's setup rule is \"one ring, one account, one device\"; Circles share only chosen scores (daily or weekly), joins need a single-use 7-day invite, and anyone can leave or be removed at any time, with a notice shown to the removed member.",
+"steps": [
+[
+"a",
+"Second phone / friend",
+"Same account or a circle",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"b",
+"New phone sign-in",
+"Log in, then remove old app",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"c",
+"One device per ring",
+"Extra devices: missing data",
+2,
+0,
+"out",
+"report"
+],
+[
+"d",
+"Create circle",
+"Name, pick scores to share",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"e",
+"Invite link",
+"Single use, expires in 7 days",
+2,
+1,
+"sys",
+"doc"
+],
+[
+"f",
+"Circle view",
+"Members' scores, 2-week graph",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"g",
+"Leave / remove",
+"Anytime; removed get a notice",
+4,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"own phone",
+0
+],
+[
+"b",
+"c",
+"",
+0
+],
+[
+"a",
+"d",
+"share",
+0
+],
+[
+"d",
+"e",
+"",
+0
+],
+[
+"e",
+"f",
+"joins",
+0
+],
+[
+"f",
+"g",
+"",
+0
+]
+],
+"sources": [
+"https://support.ouraring.com/hc/en-us/articles/360025592293 (new phone: install, log in, uninstall from old)",
+"report: https://z3n-cab-workshop-6.zendesk.com/hc/en-us/articles/9650634703514 (mirror of Oura text: \"one ring, one account, one device\")",
+"Mobbin flow 662c1c52-05e3-44ee-97b0-fd92a1d7fcd2 (Creating a circle)",
+"Mobbin flow 051f286b-5c3f-45f2-9085-a24ab7bcdfe8 (Editing a circle)",
+"Mobbin flow 4019d9b1-550d-40b5-b04a-d6e12d10c832 (Circles)",
+"https://support.ouraring.com/hc/en-us/articles/15958088640147 (invites single-use 7 days; leave anytime; removed member notified; 10 circles, 20 members)"
+]
+},
+{
+"n": 14,
+"verdict": "meets",
+"summary": "First-use screens are designed and point to the next action: Today \"Getting started\" with Learn more, \"No Readiness Score — yet\" with when it will appear, Timeline \"Start your timeline by adding tags...\" with chips, Circles \"Invite members...\" with Invite member, Advisor suggested questions, and Glucose \"No glucose data found\" with Connect sensor.",
+"steps": [
+[
+"a",
+"First day after setup",
+"No nights recorded yet",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"b",
+"Today \"Getting started\"",
+"Baseline goal + Learn more",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"\"No Readiness Score — yet\"",
+"Shows after first sleep analysis",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Timeline empty",
+"Add a tag / activity / meal",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"e",
+"Circle with only you",
+"\"Invite member\"",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"f",
+"Advisor first chat",
+"3 suggested questions",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"g",
+"Glucose empty",
+"\"Connect Stelo sensor\"",
+2,
+2,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"",
+0
+],
+[
+"b",
+"c",
+"",
+0
+],
+[
+"b",
+"d",
+"",
+0
+],
+[
+"d",
+"e",
+"",
+0
+],
+[
+"c",
+"f",
+"",
+0
+],
+[
+"b",
+"g",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen f6c46e74-427e-4197-9d63-03ed1f42a114 (Today \"Getting started\")",
+"Mobbin screen f2b123f2-bf28-4fc4-83b7-b4d4a7f91ab1 (\"No Readiness Score — yet.\")",
+"Mobbin screen f1a0bbb6-302f-47ae-9ace-d6e0e75b96e4 (\"Start your timeline by adding tags, activities, or other events.\")",
+"Mobbin flow 4019d9b1-550d-40b5-b04a-d6e12d10c832 (Circles: \"Invite members to your circle in Settings or below\")",
+"Mobbin flow b3b85e54-ec23-4be4-baae-18ac6fbfd62e (Advisor \"Hey! What's on your mind?\" + suggestions)",
+"Mobbin screen f843fcee-5210-41ed-b2a3-bde4354332f5 (\"No glucose data found\", Connect Stelo sensor)"
+]
+}
+]
+}

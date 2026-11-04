@@ -1,6 +1,9 @@
 import fs from "node:fs";
 const tpl=fs.readFileSync(new URL("template.html",import.meta.url),"utf8");
 const A={};
+const LANES_JS=fs.readFileSync(new URL("lanes.js",import.meta.url),"utf8");
+// Scenario lanes researched per app (see ../research/04_SCENARIO_LANES.md); missing file = no lanes.
+const laneData=k=>{try{return JSON.parse(fs.readFileSync(new URL(`../lanes/${k}.json`,import.meta.url),"utf8"));}catch{return null;}};
 
 A.apple={title:"Apple Guidelines Flow Map",sub:"The model the Human Interface Guidelines and App Store Review Guidelines describe",
 src:"HIG Launching, Onboarding, Privacy, Managing accounts, Tab bars, Modality · Review Guidelines 3.1.1, 3.1.2, 4.8, 5.1.1, 5.1.2",
@@ -262,8 +265,13 @@ nodes:[
 edges:[["first","splash"],["splash","welcome"],["welcome","plan","get started"],["welcome","login","log in",1],["login","planT","",1],["plan","cook"],["cook","shopv"],["shopv","matters"],["matters","video"],["video","who"],["who","diet"],["diet","filter"],["filter","dis"],["dis","swipe"],["swipe","matches"],["matches","how","create"],["matches","guest","skip",1],["guest","how","",1],["how","planT"],["planT","shopT"],["shopT","cookT"],["cookT","you"]]};
 
 for(const [k,v] of Object.entries(A)){
+  v.lanes=laneData(k)||undefined;
   const ids=new Set(v.nodes.map(n=>n[0]));
   for(const e of v.edges) for(const x of e.slice(0,2)) if(!ids.has(x)) throw new Error(k+" missing "+x);
-  fs.writeFileSync(new URL(`../maps/${k}.html`,import.meta.url),tpl.replace("__TITLE__",v.title).replace("__DATA__",JSON.stringify(v)));
+  fs.writeFileSync(new URL(`../maps/${k}.html`,import.meta.url),tpl.replace("__TITLE__",v.title).replace("__LANES_JS__",()=>LANES_JS).replace("__DATA__",()=>JSON.stringify(v)));
 }
-console.log(Object.keys(A).join(" "));
+// Otto's map is hand-laid; only its lanes block is generated.
+{const p=new URL("../maps/otto.html",import.meta.url), L=laneData("otto");
+ const html=fs.readFileSync(p,"utf8").replace(/\/\*LANES:start\*\/[\s\S]*?\/\*LANES:end\*\//,()=>`/*LANES:start*/${L?`const OTTO_LANES=${JSON.stringify(L)};\n`:""}${LANES_JS}/*LANES:end*/`);
+ fs.writeFileSync(p,html);}
+console.log(Object.keys(A).join(" "),"otto");

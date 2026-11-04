@@ -1,0 +1,1421 @@
+{
+"app": "headspace",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Only the post-login landing is observed (Today tab, 'Start your day'); whether a relaunch restores the last tab, course or paused session is not documented or observed.",
+"steps": [
+[
+"e",
+"Returning launch",
+"Signed-in user reopens app",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"sp",
+"\"Breathe in\" splash",
+"Orange sun launch screen",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Still signed in?",
+"Session token kept",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Today tab",
+"\"Good Evening, Alex / Start your day\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Log in",
+"Email/SSO/Apple/Google/Spotify",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"o",
+"Last state restored?",
+"Tab / paused session: no source",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"sp",
+"",
+0
+],
+[
+"sp",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"d",
+"l",
+"no",
+1
+],
+[
+"l",
+"t",
+"",
+0
+],
+[
+"t",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 31b21791 (Onboarding, 'Breathe in' splash)",
+"Mobbin flow 3177e178 (Logging in: Welcome 659042b4 > Log in > Today)",
+"Mobbin flow 5d307187 (Logging in, Today tab)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "No source shows where a reminder notification or headspace.com link lands, signed in or not; reminders exist (Settings > Notifications) but the tap-through destination is unverified.",
+"steps": [
+[
+"e",
+"Reminder / link tap",
+"Meditation, Bedtime, Mindful Moments",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"s",
+"Target session?",
+"Or Today tab: no source",
+2,
+0,
+"out",
+"unverified"
+],
+[
+"l",
+"Welcome / Log in",
+"Then destination kept? unknown",
+2,
+1,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"s",
+"yes",
+1
+],
+[
+"d",
+"l",
+"no",
+1
+]
+],
+"sources": [
+"https://help.headspace.com/hc/en-us/articles/115008276788 (Reminders setup)",
+"Mobbin flow a7a52c70 (Notifications categories)"
+]
+},
+{
+"n": 3,
+"verdict": "unknown",
+"summary": "Headspace asks with a soft primer before the iOS alert, and per-type toggles live in Settings > Notifications; what happens after Don't Allow (fallback copy, Settings link) is not observed.",
+"steps": [
+[
+"e",
+"Trial starts",
+"Post-purchase primer moment",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"p",
+"\"Your trial has started\"",
+"Remind me / Maybe later",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"iOS notification alert",
+"Don't Allow / Allow",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Allowed?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"n",
+"Settings > Notifications",
+"Per-type toggles, e.g. Mindful Moments",
+4,
+1,
+"screen",
+"seen"
+],
+[
+"f",
+"Fallback after deny?",
+"Settings deep link: no source",
+5,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"p",
+"",
+0
+],
+[
+"p",
+"a",
+"Remind me",
+0
+],
+[
+"a",
+"d",
+"",
+0
+],
+[
+"d",
+"n",
+"no",
+1
+],
+[
+"n",
+"f",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow ccf14439 (Subscribing: primer + iOS alert)",
+"Mobbin screen 66e6952c ('Your 14 day trial has started')",
+"Mobbin flow b41a3e7f (Turning on notifications)",
+"Mobbin flow a7a52c70"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Success path is clear (trial timeline paywall, StoreKit sheet, 'You're all set.' alert); cancel, Ask to Buy/pending and failure handling are not observed or documented.",
+"steps": [
+[
+"e",
+"Tap locked content",
+"\"Subscribe to Unlock\"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"pw",
+"\"How your trial works\"",
+"Today / In 12 days / In 14 days",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"App Store sheet",
+"\"1-week free trial\", then price",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"\"You're all set.\"",
+"\"Your purchase was successful.\"",
+4,
+0,
+"screen",
+"seen"
+],
+[
+"ts",
+"Trial started primer",
+"Then reminders ask",
+5,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cancel / pending / fail",
+"Handling: no source",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"pw",
+"",
+0
+],
+[
+"pw",
+"sk",
+"Start trial",
+0
+],
+[
+"sk",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"ok",
+"ts",
+"",
+0
+],
+[
+"d",
+"x",
+"other",
+1
+]
+],
+"sources": [
+"Mobbin screen a9bf58c3 (trial paywall with Restore Purchase)",
+"Mobbin screen 17e4ce60 ('You're all set.')",
+"Mobbin flow ccf14439 (Subscribing to premium, StoreKit sheet)",
+"https://help.headspace.com/hc/en-us/articles/215758647 ('Subscribe to Unlock'; one trial per account)"
+]
+},
+{
+"n": 5,
+"verdict": "partial",
+"summary": "Cancel flow states access continues to period end ('use Headspace until Sep 1'), but there is no in-app free tier after lapse per help center, and App Store grace-period handling is undocumented.",
+"steps": [
+[
+"e",
+"Cancel / renewal fails",
+"Subscription details > Cancel",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"r",
+"\"Goodbyes are tough\"",
+"Reason picker",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"\"Would 50% off help?\"",
+"\"still able to use Headspace until Sep 1\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"\"We'll miss you\"",
+"Steps to cancel in iOS Settings",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"g",
+"Grace period shown?",
+"App Store billing retry: no source",
+1,
+1,
+"dec",
+"unverified"
+],
+[
+"w",
+"Web: 4 retry attempts",
+"Then may auto-cancel",
+2,
+2,
+"sys",
+"doc"
+],
+[
+"f",
+"Lapsed: library locked",
+"No in-app free tier",
+4,
+0,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"r",
+"cancel",
+0
+],
+[
+"r",
+"o",
+"",
+0
+],
+[
+"o",
+"m",
+"Continue",
+0
+],
+[
+"m",
+"f",
+"period ends",
+1
+],
+[
+"e",
+"g",
+"billing fail",
+1
+],
+[
+"g",
+"w",
+"web subs",
+1
+],
+[
+"w",
+"f",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow a2f8004c (Canceling a subscription; screen c995f167 50% off)",
+"Mobbin flow dba10bcb (Cancelling subscription)",
+"https://help.headspace.com/hc/en-us/articles/115008192928 (What's included for free: full library during trial; afterwards free resources are YouTube/Radio/articles)",
+"https://help.headspace.com/hc/en-us/articles/115008362508 (up to four renewal attempts, then may be canceled)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based: logging in on the new device brings the subscription back, and the paywall has 'Restore Purchase' for App Store buyers; there is no Restore row in Settings.",
+"steps": [
+[
+"e",
+"New device",
+"Fresh install",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"w",
+"\"Welcome to Headspace\"",
+"Create an account / Log in",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Log in",
+"Email, SSO, Apple, Google, Spotify",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Sub active?",
+"Same account as purchase",
+3,
+0,
+"dec",
+"doc"
+],
+[
+"t",
+"Today tab",
+"Premium library",
+4,
+0,
+"out",
+"seen"
+],
+[
+"rp",
+"Paywall > Restore Purchase",
+"Via any session > Start subscription",
+4,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"w",
+"",
+0
+],
+[
+"w",
+"l",
+"",
+0
+],
+[
+"l",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"d",
+"rp",
+"no",
+1
+],
+[
+"rp",
+"t",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 3177e178 (Logging in)",
+"Mobbin screen a9bf58c3 ('Restore Purchase' link on paywall)",
+"https://help.headspace.com/hc/en-us/articles/218912777 (check logged-in email, then Restore Purchase on Buy Screen)"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "In-app: Settings > Account & Subscription > Delete Account, one confirm alert explaining permanent erasure, then the signed-out Welcome screen; the App Store renewal must be cancelled separately.",
+"steps": [
+[
+"e",
+"Settings",
+"Account & Subscription",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"a",
+"Account & Subscription",
+"\"Delete Account  DELETE\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"\"Are you sure...?\"",
+"\"permanently erase all data within 30 days\"",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"w",
+"\"Welcome to Headspace\"",
+"Signed out",
+3,
+0,
+"out",
+"seen"
+],
+[
+"s",
+"Cancel renewal first",
+"Help: must cancel before deleting",
+2,
+1,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"a",
+"",
+0
+],
+[
+"a",
+"c",
+"DELETE",
+0
+],
+[
+"c",
+"w",
+"Delete Account",
+0
+],
+[
+"a",
+"s",
+"active sub",
+1
+]
+],
+"sources": [
+"Mobbin flow 8e2d35f2 (Deleting an account: 5b8b1b79 > 40c27e70 > 659042b4)",
+"https://help.headspace.com/hc/en-us/articles/115015331707 (processed within 15 days; cancel renewal before deleting)"
+]
+},
+{
+"n": 8,
+"verdict": "partial",
+"summary": "Downloads are a first-class feature (per-course toggle, Settings > Downloads 'Available offline'), but Today's Headspace, Wake Up and Sleepcasts never play offline, and no offline banner/state is observed.",
+"steps": [
+[
+"e",
+"Course detail",
+"\"Download all sessions\" toggle",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"dl",
+"\"Downloading...\"",
+"\"10 sessions (193MB)\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"off",
+"Device offline",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"av",
+"\"Available offline\"",
+"Settings > Downloads list",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"em",
+"Empty state",
+"\"Hmm, it doesn't look like you've downloaded…\"",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"no",
+"Not offline-able",
+"Today's Headspace, Wake Up, Sleepcasts",
+3,
+2,
+"out",
+"doc"
+],
+[
+"bn",
+"Offline banner?",
+"No source; 2020 report: logged out",
+4,
+0,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"e",
+"dl",
+"",
+0
+],
+[
+"dl",
+"off",
+"",
+0
+],
+[
+"off",
+"av",
+"",
+0
+],
+[
+"off",
+"em",
+"none saved",
+1
+],
+[
+"off",
+"no",
+"streaming only",
+1
+],
+[
+"av",
+"bn",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 8ab15aef (Downloading a course)",
+"Mobbin flows e366ca82, 46bf43ce (Downloads; screen c344dbac empty state)",
+"https://help.headspace.com/hc/en-us/articles/115008361288 (download steps; not all sessions offline)",
+"report: App Store review 2020-04-21 'when opening the app without Internet you get logged out' https://apps.apple.com/se/app/headspace-sleep-meditation/id493145008"
+]
+},
+{
+"n": 9,
+"verdict": "partial",
+"summary": "App Store notes are boilerplate ('bug fixes and performance improvements') every release; in-app, a dismissible feature card on Today was observed but not tied to an update.",
+"steps": [
+[
+"e",
+"App updated",
+"v8.39.0 etc.",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"Release notes",
+"\"bug fixes and performance improvements\"",
+1,
+0,
+"sys",
+"gap"
+],
+[
+"t",
+"Today tab",
+"Lands as usual",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Feature card",
+"\"Finding Your Best Sleep\" Learn more / X",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"What's New screen?",
+"None observed",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"t",
+"",
+0
+],
+[
+"t",
+"c",
+"",
+0
+],
+[
+"c",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/headspace-sleep-meditation/id493145008 (version history 8.36.1-8.39.0, identical notes)",
+"Mobbin flow 5d307187 (Today with dismissible 'Finding Your Best Sleep' card)"
+]
+},
+{
+"n": 10,
+"verdict": "unknown",
+"summary": "No error, timeout or offline-failure screen was found on Mobbin; the help center's only generic advice is log out and back in, then reinstall, then email a screenshot. Ebb (AI companion) failure handling and any usage limits are undocumented.",
+"steps": [
+[
+"e",
+"Session/Ebb fails",
+"Server, network or AI error",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"s",
+"Error state in app?",
+"No error screen found on Mobbin",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"h",
+"Help: log out, reinstall",
+"Then email support a screenshot",
+2,
+0,
+"out",
+"doc"
+],
+[
+"l",
+"Ebb limits / Retry?",
+"Not shown or documented",
+1,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+0
+],
+[
+"s",
+"h",
+"still stuck",
+1
+],
+[
+"e",
+"l",
+"AI chat",
+1
+]
+],
+"sources": [
+"https://help.headspace.com/hc/en-us/articles/29130512240411 ('log out of the app and sign back in... uninstalling... email... attach a screenshot')",
+"Mobbin searches 'Headspace error', 'Headspace offline error', 'Headspace Ebb' returned no error or Ebb screens"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "Traced HealthKit (Apple Watch HRV for breathing nudges) and partner data sharing: both are opt-in and can be withdrawn (iOS Health settings; My Data > Partner Data Sharing > No, up to 24-48 h), and revoking HealthKit stops the nudges. Ebb (AI) has no documented consent or opt-out toggle.",
+"steps": [
+[
+"e",
+"Withdraw consent",
+"HealthKit, partner data, Ebb",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"w",
+"iOS Health settings",
+"Privacy & Security > Health > Headspace",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"o",
+"Nudges stop",
+"No more 'reminders to breathe'",
+2,
+0,
+"out",
+"doc"
+],
+[
+"m",
+"My Data > Permissions",
+"Settings row 'My Data' seen",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"p",
+"Partner Data Sharing: No",
+"Takes effect in 24-48 h",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"b",
+"Ebb opt-out?",
+"None documented; just don't use it",
+1,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"w",
+"HealthKit",
+0
+],
+[
+"w",
+"o",
+"",
+0
+],
+[
+"e",
+"m",
+"partner",
+0
+],
+[
+"m",
+"p",
+"",
+0
+],
+[
+"e",
+"b",
+"AI",
+1
+]
+],
+"sources": [
+"https://help.headspace.com/hc/en-us/articles/50308558536603 (Apple Watch FAQ: opt in after HRV permission; revoke in iOS Health; 'you will no longer receive haptic nudges')",
+"https://help.headspace.com/hc/en-us/articles/26853424601115 (Partner Data Sharing 'No', 24-48 hours)",
+"https://help.headspace.com/hc/en-us/articles/360007516213 (My Data > Permissions tab)",
+"Mobbin flow 26f5c02e (Settings with 'My Data' row, screen 85cb9343)",
+"https://help.headspace.com/hc/en-us/articles/56482710243483 (Ebb concerns: privacy only, no opt-out)"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "Sign out is clear: Profile > Settings > 'Log out', an alert warns 'Logging out will clear today's progress and downloaded sessions', then the Welcome screen with 'Log in'. Wrong-details help lives in the help center (social-login 'already an account associated with this email'); cancelled Apple/Google sign-in and in-app error copy were not observed.",
+"steps": [
+[
+"e",
+"Log in / Log out",
+"Profile > gear > Settings",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"l",
+"Log in",
+"Email, SSO, Apple, FB, Google, Spotify",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Cancelled social sign-in?",
+"Return state not observed",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"w",
+"Wrong details",
+"'already an account... this email'",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"f",
+"Forgot password?",
+"Link on Log in; web reset form",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"a",
+"\"Are you sure?\"",
+"Clears today's progress + downloads",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"o",
+"Welcome to Headspace",
+"'Create an account' / 'Log in'",
+2,
+2,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"sign in",
+0
+],
+[
+"l",
+"c",
+"Apple etc.",
+1
+],
+[
+"l",
+"w",
+"fails",
+0
+],
+[
+"w",
+"f",
+"",
+0
+],
+[
+"e",
+"a",
+"Log out",
+0
+],
+[
+"a",
+"o",
+"Yes",
+0
+]
+],
+"sources": [
+"Mobbin flow 26f5c02e (Logging out: 85cb9343 > d1b64528 > 659042b4)",
+"Mobbin flow 3177e178 (Logging in, Log in screen 24f5f45d)",
+"https://help.headspace.com/hc/en-us/articles/115009026668 (How do I log out?)",
+"https://help.headspace.com/hc/en-us/articles/24893909068571 ('It looks like there's already an account associated with this email')",
+"https://help.headspace.com/hc/en-us/articles/360048177533 (unable to log in: social login, wrong email, wrong password)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Account-based, so iPhone, iPad, web and the new Apple Watch app share one account; the Watch keeps streak, Favorites and Recents in sync and resumes phone playback. Family plan joins and removals happen only on headspace.com/family/manage, and an invitee with an active subscription cannot accept until it fully expires.",
+"steps": [
+[
+"e",
+"Second device / family",
+"iPad, web, Watch, Family plan",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Log in on device",
+"Same account restores progress",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Apple Watch app",
+"'Log in on watch' via iPhone",
+2,
+0,
+"sys",
+"doc"
+],
+[
+"s",
+"Streak/Favorites synced",
+"Resume phone session on wrist",
+3,
+0,
+"out",
+"doc"
+],
+[
+"f",
+"Family manage (web)",
+"Owner adds email, Save; 'X' removes",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"a",
+"Invitee has sub?",
+"Must let it fully expire first",
+2,
+1,
+"dec",
+"gap"
+],
+[
+"j",
+"Full access",
+"Email listed on owner's page",
+3,
+1,
+"out",
+"doc"
+],
+[
+"b",
+"Buddies tab",
+"'Share buddy link' via share sheet",
+1,
+2,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"w",
+"Watch",
+0
+],
+[
+"w",
+"s",
+"",
+0
+],
+[
+"e",
+"f",
+"family",
+0
+],
+[
+"f",
+"a",
+"invite",
+0
+],
+[
+"a",
+"j",
+"no",
+0
+],
+[
+"e",
+"b",
+"friends",
+1
+]
+],
+"sources": [
+"https://help.headspace.com/hc/en-us/articles/50308558536603 (Apple Watch FAQ: streak, Favorites, Recents 'always kept in sync'; continue where you left off)",
+"https://help.headspace.com/hc/en-us/articles/49151084767003 (New Apple Watch Experience, May 2026)",
+"https://help.headspace.com/hc/en-us/articles/360010468634 (add to Family plan on web; active subscription blocks accept)",
+"https://help.headspace.com/hc/en-us/articles/360010693754 (resend / 'X' to cancel invite)",
+"Mobbin flow 8a507e0b (Sharing buddy link: 'Add some buddies')",
+"Mobbin flow 3177e178 (Logging in)"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "Some empty states are designed (Downloads: illustration plus how-to; Buddies: 'Add some buddies' with a Share button; My progress: 'Check in'), but Favorites is a one-line header over a blank screen with no first action.",
+"steps": [
+[
+"e",
+"First use",
+"New account, nothing saved",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"t",
+"Today",
+"Pre-filled 'Start your day' plan",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"dl",
+"Downloads empty",
+"\"Hmm, it doesn't look like...\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"fv",
+"Favorites empty",
+"Header line over blank, no action",
+2,
+1,
+"screen",
+"gap"
+],
+[
+"rc",
+"Recent",
+"'Played meditations will appear here'",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"bd",
+"Buddies empty",
+"'Add some buddies' + Share link",
+2,
+2,
+"screen",
+"seen"
+],
+[
+"pr",
+"My progress empty",
+"'Start tracking...' + Check in",
+3,
+2,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"t",
+"",
+0
+],
+[
+"t",
+"dl",
+"Settings",
+1
+],
+[
+"t",
+"fv",
+"heart icon",
+0
+],
+[
+"t",
+"rc",
+"history",
+0
+],
+[
+"e",
+"bd",
+"Profile",
+1
+],
+[
+"bd",
+"pr",
+"Reflect",
+1
+]
+],
+"sources": [
+"Mobbin screen c344dbac (Available offline empty: 'To download your favorite sessions, tap the toggle')",
+"Mobbin screen 496bf55b (Favorites: 'Find all your favorite meditations and exercises here.', rest blank)",
+"Mobbin screen b0ec0b11 (Recent: 'Played meditations will appear here')",
+"Mobbin flow 8a507e0b (Buddies: 'Add some buddies', 'Share buddy link')",
+"Mobbin flow 8a507e0b, first screen (Profile Reflect tab ('Start tracking your stress over time with monthly check-ins.', Check in))",
+"Mobbin flow 3177e178 (Today 'Start your day')"
+]
+}
+]
+}

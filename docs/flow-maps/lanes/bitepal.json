@@ -1,0 +1,1044 @@
+{
+"app": "bitepal",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Today (raccoon + calories) is the observed home after sign-in; whether a relaunch restores the last tab was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning signed-in user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Today",
+"Raccoon, \"Calories eaten\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Welcome",
+"\"Reach your weight goals\"",
+2,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+1
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"d",
+"w",
+"no",
+1
+]
+],
+"sources": [
+"Mobbin flow 0ca2bca6-c4a8-455a-abcd-dac5ac19277d (Logging in)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "BitePal shows fasting reminders and a home-screen widget, but where a tap lands (and the signed-out case) was not observed.",
+"steps": [
+[
+"e",
+"Fasting reminder",
+"\"Your fasting starts in 1h\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"wg",
+"Widget",
+"\"Calories left\" + raccoon",
+0,
+1,
+"entry",
+"seen"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"f",
+"Destination",
+"Fasting / Today not confirmed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"wg",
+"d",
+"tap",
+1
+],
+[
+"d",
+"f",
+"yes",
+1
+]
+],
+"sources": [
+"Mobbin screen 33cb47ef-cfc4-47a6-a547-02474e1a7254 (reminder preview art)",
+"Mobbin flow d84c49f9-1052-4d02-a283-2f0b22ad1da9 (\"Bring Alex to your home screen\")"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Reminders get a skippable pre-prompt (\"Set up later\") and a Settings toggle; meal logging offers text, gallery and camera, but a denied-state Settings link was not observed.",
+"steps": [
+[
+"e",
+"Reminders pre-prompt",
+"\"We'll support you to stay on track\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS notification alert",
+"Not captured",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"k",
+"Set up later",
+"Skip",
+1,
+1,
+"dec",
+"seen"
+],
+[
+"t",
+"Settings toggle",
+"\"Daily reminder\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"f",
+"Feed Alex",
+"Camera, \"+\", gallery, text field",
+0,
+2,
+"screen",
+"seen"
+],
+[
+"o",
+"Log by search",
+"\"Add to meal\" food list",
+1,
+2,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"Enable",
+1
+],
+[
+"e",
+"k",
+"",
+0
+],
+[
+"k",
+"t",
+"",
+1
+],
+[
+"f",
+"o",
+"no camera",
+1
+]
+],
+"sources": [
+"Mobbin screen 33cb47ef-cfc4-47a6-a547-02474e1a7254 (Enable reminders / Set up later)",
+"Mobbin flow 6397c8e3-d9a5-49a3-945d-aaf116deffc7 (Settings: Daily reminder)",
+"Mobbin screens eb74890f-44ab-41bd-8933-7beebe1036c3 (Feed Alex), f99c8a9e-f39f-4db3-b2a1-7217ff13fac6 (Add to meal)"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Paywall seen (\"Start my 3-day free trial\", \"No payment now. Easy to cancel.\", Restore) and closing it leaves a free Today with locked macros; StoreKit, cancel, pending and failure were not observed.",
+"steps": [
+[
+"p",
+"Plus paywall",
+"\"Start my 3-day free trial\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"Not captured",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Outcome?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Plus unlocked",
+"",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"x",
+"Close (×)",
+"Free Today, \"BitePal Plus\" lock badge",
+1,
+1,
+"out",
+"seen"
+],
+[
+"pf",
+"Cancel / pending / fail",
+"No handling observed",
+3,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"sk",
+"",
+1
+],
+[
+"sk",
+"d",
+"",
+1
+],
+[
+"d",
+"ok",
+"success",
+1
+],
+[
+"d",
+"pf",
+"other",
+1
+],
+[
+"p",
+"x",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flows 9c7e199a-9c79-414c-903b-2cb0459baaf6, 1e1716af-3340-45ef-ac29-edaa3c5e7ecd (Subscribing to BitePal Plus)"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "A free tier exists (macros locked behind Plus), but grace-period and downgrade messaging were not found; users report a much higher renewal after a discounted start.",
+"steps": [
+[
+"e",
+"Plus lapses",
+"Renewal fails or cancelled",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free tier",
+"Carbs/Fats/Proteins locked",
+2,
+0,
+"out",
+"seen"
+],
+[
+"r",
+"Renewal price jump",
+"\"super inflated recurring charge\"",
+1,
+1,
+"screen",
+"report"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+],
+[
+"e",
+"r",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 9c7e199a-9c79-414c-903b-2cb0459baaf6 (free Today with locks)",
+"https://www.trustpilot.com/review/bitepal.app?page=2 (Oct 27, 2026 review)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based: \"I already have an account\" offers Apple/Google/Email and lands on Today; paywalls carry \"Restore\"; web purchases need email support.",
+"steps": [
+[
+"w",
+"Welcome",
+"\"I already have an account\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Sign-in sheet",
+"Apple / Google / Email",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"t",
+"Today restored",
+"Raccoon + history",
+2,
+0,
+"out",
+"seen"
+],
+[
+"r",
+"Paywall Restore",
+"\"Restore\" / \"Restore purchases\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"m",
+"Web purchase",
+"Email hi@bitepal.app",
+2,
+1,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"w",
+"s",
+"",
+0
+],
+[
+"s",
+"t",
+"",
+0
+],
+[
+"r",
+"t",
+"",
+1
+],
+[
+"r",
+"m",
+"web buy",
+1
+]
+],
+"sources": [
+"Mobbin flow 0ca2bca6-c4a8-455a-abcd-dac5ac19277d (Logging in)",
+"Mobbin flows 9c7e199a-9c79-414c-903b-2cb0459baaf6, 1e1716af-3340-45ef-ac29-edaa3c5e7ecd (Restore on paywalls)",
+"https://www.trustpilot.com/review/bitepal.app?page=2 (company reply: Settings > Manage Subscription or hi@bitepal.app)"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "In-app Settings > \"Delete my account\" and one confirm, then back to the signed-out welcome; but the sheet explains nothing about what is deleted or the subscription.",
+"steps": [
+[
+"s",
+"Settings",
+"\"Delete my account\" under Other",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Confirm sheet",
+"\"Sure you want to terminate your account?\"",
+1,
+0,
+"dec",
+"gap"
+],
+[
+"w",
+"Signed-out welcome",
+"\"Reach your weight goals\"",
+2,
+0,
+"out",
+"seen"
+],
+[
+"b",
+"Billing continues",
+"Deleting doesn't cancel subscription",
+2,
+1,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"s",
+"c",
+"",
+0
+],
+[
+"c",
+"w",
+"Terminate",
+0
+],
+[
+"c",
+"b",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow bf0c81e0-dec6-4efa-bae6-74ae8858b51c (Deleting account)",
+"https://www.trustpilot.com/review/bitepal.app (company replies: deleting the app doesn't cancel)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "No offline state observed and no official doc; AI photo logging (\"Checking database..\") likely needs a connection but this is unverified.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"a",
+"AI photo analysis",
+"\"Checking database..\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Offline behaviour",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"a",
+"",
+1
+],
+[
+"a",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen e904fdb7-bc19-486f-9f99-9bd7b0564e1b (scan analysing)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "App Store notes are generic (\"Less bugs, more snacks.\", 2.38.1); no in-app What's New screen was found on Mobbin.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. v2.38.1",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"\"Less bugs, more snacks.\"",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"t",
+"Today",
+"No What's New seen in app",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"t",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/-/id6479529917 (IAP list, version history)"
+]
+},
+{
+"n": 10,
+"verdict": "unknown",
+"summary": "No BitePal AI or server error screen was found on Mobbin and there's no help doc. Users report a \"Something went wrong\" at account creation and hangs during photo analysis. Retry, saved input and stated limits are unverified.",
+"steps": [
+[
+"p",
+"Photo analysing",
+"\"Checking database..\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"q",
+"Analysis fails?",
+"No error state captured",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"h",
+"Hang or crash",
+"Spinner hangs, app closes",
+2,
+1,
+"out",
+"report"
+],
+[
+"e",
+"\"Something went wrong\"",
+"At account creation, after paying",
+2,
+0,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"p",
+"q",
+"",
+0
+],
+[
+"q",
+"h",
+"",
+1
+],
+[
+"q",
+"e",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen e904fdb7-bc19-486f-9f99-9bd7b0564e1b (scan analysing)",
+"Mobbin search 'BitePal error message couldn't analyze meal' returned no BitePal screens",
+"https://justuseapp.com/en/app/6479529917/bitepal-food-calorie-tracker/problems (report)",
+"https://nutrola.app/en/blog/bitepal-keeps-crashing-2026 (competitor blog, report)"
+]
+},
+{
+"n": 11,
+"verdict": "misses",
+"summary": "There's no AI consent step and no AI toggle in Settings. The privacy notice names no AI provider and says that by submitting food photos you accept their anonymised use in marketing; opting out of marketing use means emailing support. Health consent, by contrast, is withdrawn in iOS Health settings.",
+"steps": [
+[
+"s",
+"Settings",
+"Goals / Application / Other, no AI row",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"ph",
+"Photo used for marketing",
+"\"By…submitting your food photos\"",
+1,
+0,
+"out",
+"gap"
+],
+[
+"em",
+"Email to opt out",
+"Marketing opt-out via contact",
+2,
+0,
+"out",
+"gap"
+],
+[
+"hk",
+"Health consent",
+"Native Health prompt",
+1,
+1,
+"sys",
+"doc"
+],
+[
+"rv",
+"Revoke in iOS Health",
+"\"Revoking access stops further collection\"",
+2,
+1,
+"sys",
+"doc"
+]
+],
+"edges": [
+[
+"s",
+"ph",
+"",
+1
+],
+[
+"ph",
+"em",
+"",
+0
+],
+[
+"s",
+"hk",
+"",
+1
+],
+[
+"hk",
+"rv",
+"withdraw",
+0
+]
+],
+"sources": [
+"Mobbin flow 6f5d25c9-6532-4ea6-8d45-8123e23569c8 (Settings: Goals/Application)",
+"Mobbin flow 8c08650d-dd0b-4410-832d-46c77523596f (Settings: Other section)",
+"https://bitepal.app/privacy (Google Doc embed, effective Apr 29 2024: photo marketing use; Sec 3.4 HealthKit consent 'withdrawal is as easy as giving it'; marketing opt-out by contact)"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "Sign-in offers Apple, Google or Email in one sheet. \"Log out\" in Settings asks once (\"Sure you want to log out? Caramel will miss you a lot\") and returns to the signed-out welcome with \"I already have an account\". Cancelled or failed sign-in and local-data clearing weren't observed.",
+"steps": [
+[
+"w",
+"Welcome",
+"\"I already have an account\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"sh",
+"Sign-in sheet",
+"Apple / Google / Email",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Cancelled or wrong?",
+"Not captured",
+2,
+1,
+"dec",
+"unverified"
+],
+[
+"t",
+"Today",
+"Signed in",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"lo",
+"Log out sheet",
+"\"Caramel will miss you a lot\"",
+3,
+0,
+"dec",
+"seen"
+],
+[
+"o",
+"Signed-out welcome",
+"Sign-in still offered",
+4,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"w",
+"sh",
+"",
+0
+],
+[
+"sh",
+"t",
+"",
+0
+],
+[
+"sh",
+"c",
+"",
+1
+],
+[
+"t",
+"lo",
+"Settings",
+0
+],
+[
+"lo",
+"o",
+"Log out",
+0
+]
+],
+"sources": [
+"Mobbin flow 0ca2bca6-c4a8-455a-abcd-dac5ac19277d (Logging in)",
+"Mobbin flow 8c08650d-dd0b-4410-832d-46c77523596f (Logging out)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "BitePal is account-based and iPhone only (no iPad or Watch app), so signing in on a second phone should bring the account back. Restored history wasn't observed. There's no household or friends sharing; only the subscription \"may be shareable\" through Family Sharing.",
+"steps": [
+[
+"d",
+"Second iPhone",
+"Same Apple/Google/Email login",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"t",
+"Today",
+"History restored?",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"nw",
+"No iPad / Watch app",
+"\"Only for iPhone\"",
+1,
+1,
+"out",
+"doc"
+],
+[
+"fs",
+"Family Sharing",
+"Some IAPs \"may be shareable\"",
+2,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"d",
+"t",
+"",
+0
+],
+[
+"d",
+"nw",
+"",
+1
+],
+[
+"t",
+"fs",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 0ca2bca6-c4a8-455a-abcd-dac5ac19277d (Logging in)",
+"https://apps.apple.com/us/app/-/id6479529917 (Only for iPhone; Family Sharing note)"
+]
+},
+{
+"n": 14,
+"verdict": "meets",
+"summary": "The Today cards have designed empty states that say what goes there and offer the first action (\"No fasting yet… Set a plan to start!\" with \"Set up fasting goal\", \"No fiber yet… Start logging your meals\"). The Stats tab's empty state wasn't observed.",
+"steps": [
+[
+"t",
+"Today, day one",
+"Cards over raccoon scene",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"f",
+"\"No fasting yet\"",
+"\"Set up fasting goal\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"fb",
+"\"No fiber yet\"",
+"\"Start logging your meals…\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"ns",
+"\"No score yet\"",
+"\"More nutritious food – more shiny awards\"",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"st",
+"Stats tab empty?",
+"Not captured",
+2,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"t",
+"f",
+"",
+0
+],
+[
+"t",
+"fb",
+"",
+1
+],
+[
+"t",
+"ns",
+"",
+1
+],
+[
+"t",
+"st",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow ba03584a-2f0f-48d6-a2fc-6b44940b4d0c (Setting a fasting goal, screen 8c260bfb: No fasting yet)",
+"Mobbin flow 0bb510c9-0c21-4cf5-9a37-b4a927750f7d (No score yet / No fiber yet cards)"
+]
+}
+]
+}

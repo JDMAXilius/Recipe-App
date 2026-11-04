@@ -1,0 +1,1200 @@
+{
+"app": "bevel",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Signed-in launch lands on Home \"Today, <date>\" with a \"Data still catching up\" card while Health syncs; whether the last tab/screen is restored was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning signed-in user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"h",
+"Home: Today",
+"Strain / Recovery / Sleep rings",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Catching-up card",
+"\"Data still catching up\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Welcome",
+"\"Continue with Apple\" / \"Use email instead\"",
+2,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"h",
+"yes",
+1
+],
+[
+"h",
+"c",
+"syncing",
+0
+],
+[
+"d",
+"w",
+"no",
+1
+]
+],
+"sources": [
+"Mobbin flow 0fc0c75f-30be-40aa-815d-a24bc45733c7 (Home with \"Data still catching up\")",
+"Mobbin screen eaf784a0-0f60-435c-9658-fc37f57de85a (welcome)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Bevel sends notifications (v3.2.7 adds a preview when a Bevel Intelligence reply is ready), but where a tap lands, and what happens signed out, was not observed or documented.",
+"steps": [
+[
+"e",
+"Notification",
+"\"preview when it's ready\" (Intelligence)",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"c",
+"Chat reply",
+"Tap destination not confirmed",
+2,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"d",
+"c",
+"yes",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6456176249 (version history) 3.2.7 notes"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Health asks are explained first and optional (\"This can later be readjusted in Settings\"); a missing-data screen tells people to enable sharing in Settings/Health, but there is no direct Settings link and the in-app fix steps go through the Health app.",
+"steps": [
+[
+"p",
+"Pre-ask",
+"\"Allow access to Health\" > Connect to Health",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Health permission sheet",
+"iOS Health access sheet",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"o",
+"Opt-in toggle",
+"\"can later be readjusted in Settings\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"f",
+"Failed to read data",
+"\"Go to Settings and enable ... in Health\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"h",
+"Help: Health > Sharing",
+"Apple Health > Sharing > Apps > Bevel",
+3,
+0,
+"screen",
+"doc"
+],
+[
+"k",
+"App keeps working",
+"Cancel returns to app",
+3,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"p",
+"s",
+"",
+0
+],
+[
+"p",
+"o",
+"",
+1
+],
+[
+"s",
+"f",
+"denied",
+1
+],
+[
+"f",
+"h",
+"Continue",
+0
+],
+[
+"f",
+"k",
+"Cancel",
+0
+]
+],
+"sources": [
+"Mobbin screen 0563bc9d-da45-41fb-b491-91228e338fac (Allow access to Health)",
+"Mobbin screen c01df450-f4ca-46fd-ac57-d368b850891d (opt-in toggle)",
+"Mobbin screen 6777917e-7076-4010-85e7-8e6e7d4458de (Failed to read glucose data)",
+"https://help.bevel.health/en/articles/11680065 (Data Sources Troubleshooting)"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Paywalls seen (\"Upgrade to Bevel Pro\", \"Start Free for 7 days\", \"No payment due now\") plus a credits store; the StoreKit sheet, cancel, Ask to Buy/pending and failure handling were not observed.",
+"steps": [
+[
+"u",
+"Upgrade card",
+"Home \"Upgrade to Bevel Pro\" > View",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"p",
+"Paywall",
+"Yearly/Monthly, \"Start Free for 7 days\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Outcome?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Pro unlocked",
+"",
+4,
+0,
+"out",
+"unverified"
+],
+[
+"x",
+"Cancel / pending / fail",
+"No handling observed",
+4,
+1,
+"out",
+"unverified"
+],
+[
+"cr",
+"Manage Credits",
+"\"Buy 350 credits\" consumable",
+1,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"u",
+"p",
+"",
+0
+],
+[
+"p",
+"sk",
+"",
+0
+],
+[
+"sk",
+"d",
+"",
+1
+],
+[
+"d",
+"ok",
+"success",
+1
+],
+[
+"d",
+"x",
+"other",
+1
+],
+[
+"u",
+"cr",
+"AI limit",
+1
+]
+],
+"sources": [
+"Mobbin flow 0fc0c75f-30be-40aa-815d-a24bc45733c7 (Subscribing to Bevel Pro)",
+"Mobbin flow f561e1bb-3568-4289-a908-ae6d0235a030 (Subscribing to Bevel Pro)",
+"Mobbin flow 00d151fb-8257-4ab0-8695-67205b858d7f (Buy credits)"
+]
+},
+{
+"n": 5,
+"verdict": "partial",
+"summary": "Docs promise a gentle downgrade: Pro until period end, then a Free tier with \"the full Bevel tracking experience\", all history kept, and 60 days to resubscribe at the old price; billing-retry grace messaging in the app was not observed.",
+"steps": [
+[
+"e",
+"Pro cancelled / lapses",
+"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"k",
+"Pro until period end",
+"\"keep access ... until the end\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"g",
+"Billing grace notice",
+"Not observed",
+1,
+1,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free tier",
+"\"full Bevel tracking experience\"",
+2,
+0,
+"out",
+"doc"
+],
+[
+"r",
+"Resubscribe window",
+"60 days at preserved price",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"k",
+"",
+0
+],
+[
+"e",
+"g",
+"billing fail",
+1
+],
+[
+"k",
+"f",
+"",
+0
+],
+[
+"f",
+"r",
+"",
+1
+]
+],
+"sources": [
+"https://help.bevel.health/en/articles/11583937 (Membership & Pricing): \"All of your historical data, logs, and trends stay in your account\"; \"60-day grace period if you cancel\""
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based: Sign in with Apple or an email magic link restores the account, Settings has \"Restore data from backend\", and Bevel staff point to \"Restore Purchase\" on the payment screen (one report of it failing with Family Sharing).",
+"steps": [
+[
+"w",
+"Welcome",
+"\"Continue with Apple\" / \"Use email instead\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"Check your inbox!",
+"Magic link, \"Resend Link\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"h",
+"Home with history",
+"Data reloads from account",
+2,
+0,
+"out",
+"unverified"
+],
+[
+"b",
+"Restore data from backend",
+"Settings, with \"Clear cache & reload\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"rp",
+"Restore Purchase",
+"On the payment screen",
+3,
+1,
+"screen",
+"report"
+]
+],
+"edges": [
+[
+"w",
+"h",
+"Apple",
+0
+],
+[
+"w",
+"m",
+"email",
+0
+],
+[
+"m",
+"h",
+"",
+0
+],
+[
+"h",
+"b",
+"data missing",
+1
+],
+[
+"h",
+"rp",
+"Pro missing",
+1
+]
+],
+"sources": [
+"Mobbin screen eaf784a0-0f60-435c-9658-fc37f57de85a (welcome)",
+"Mobbin screen 443bc15a-3cc6-401f-bc49-c03d6a09e249 (Check your inbox!)",
+"Mobbin screen 0e858159-918d-4901-96cd-d0c12d56ed5d (Settings: Restore data from backend)",
+"https://feedback.bevel.health/feature-requests/p/family-sharing-support (report: Restore Purchase reply, Family Sharing failures)"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "In-app Account details > \"Delete account\" with one alert (\"All data pertaining to your account will be deleted. This action cannot be undone.\"); the signed-out end state and any note about cancelling the Apple subscription were not observed.",
+"steps": [
+[
+"s",
+"Account details",
+"\"Log out\" / \"Delete account\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"Are you sure?",
+"\"All data ... will be deleted\"",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Confirm?",
+"Cancel / Confirm",
+2,
+0,
+"dec",
+"seen"
+],
+[
+"w",
+"Signed-out welcome",
+"",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"x",
+"Back to account",
+"",
+3,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"a",
+"",
+0
+],
+[
+"a",
+"d",
+"",
+0
+],
+[
+"d",
+"w",
+"Confirm",
+1
+],
+[
+"d",
+"x",
+"Cancel",
+1
+]
+],
+"sources": [
+"Mobbin screen db1d340b-1737-47bd-af7f-1f9387ed58ac (Account details)",
+"Mobbin screen 7990141d-04a0-4719-89d3-f86553c15ebb (Are you sure? alert)"
+]
+},
+{
+"n": 8,
+"verdict": "partial",
+"summary": "Help center says \"Most of Bevel's core features work without an internet connection\"; food logging, barcode scanning and Bevel Intelligence need internet. No offline banner or state was observed.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"c",
+"Core tracking works",
+"Health-based scores on device",
+1,
+0,
+"out",
+"doc"
+],
+[
+"n",
+"Online-only features",
+"Food log, barcode, Intelligence",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"b",
+"Offline banner",
+"Not observed",
+2,
+1,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+0
+],
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"b",
+"",
+1
+]
+],
+"sources": [
+"https://help.bevel.health/en/articles/11257601 (Common Questions)"
+]
+},
+{
+"n": 9,
+"verdict": "partial",
+"summary": "After an update Bevel can show a full-screen \"Access the latest updates\" asking for more Health permissions; that is a permission gate, not a What's New, and release notes live only in the App Store (e.g. 3.2.7 calendar sync).",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. v3.2.7",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"u",
+"Access the latest updates",
+"\"need more permissions to your Health data\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Health permission sheet",
+"",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"h",
+"Home",
+"",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"n",
+"App Store notes",
+"Version history only",
+1,
+1,
+"sys",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"u",
+"",
+0
+],
+[
+"u",
+"s",
+"Continue",
+1
+],
+[
+"s",
+"h",
+"",
+1
+],
+[
+"e",
+"n",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 4380b51e-bca2-4010-aa90-f796dbc075b1 (Access the latest updates)",
+"https://apps.apple.com/us/app/id6456176249 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "Limits are stated before they bite: Settings shows \"Weekly limits 5% used, Limit resets…\" and extra credits, which can be bought at the limit. A failed food match explains itself (\"Food items not found\" with \"Go to food log\"). Whether a typed chat message survives an AI failure is unverified.",
+"steps": [
+[
+"u",
+"Bevel Intelligence settings",
+"\"Weekly limits 5% used\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"cr",
+"Extra credits",
+"\"Manage credits\"; buy at limit",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"f",
+"Food match fails",
+"After a food log",
+0,
+1,
+"entry",
+"seen"
+],
+[
+"nf",
+"\"Food items not found\"",
+"\"Go to food log\" / \"Dismiss\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"ch",
+"Chat fails?",
+"Stuck \"thinking\" fixed in notes",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"kept",
+"Typed text kept?",
+"Not captured",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"u",
+"cr",
+"",
+0
+],
+[
+"f",
+"nf",
+"",
+0
+],
+[
+"cr",
+"ch",
+"",
+1
+],
+[
+"ch",
+"kept",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 5fb47042-e2e8-4bd7-95d7-2ec4a257c8bc (Bevel Intelligence: Weekly limits, Extra credits)",
+"Mobbin screen 9b6bbea6-6cd1-4cc6-8fb3-991c5e088b45 (Food items not found)",
+"https://apps.apple.com/us/app/id6456176249 (credits at limit; fix for chats stuck thinking)",
+"https://help.bevel.health/en/articles/11586753 (weekly allowance)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "Withdrawing is one switch: Settings > Customization > Bevel Intelligence has a \"Bevel Intelligence\" toggle, and when off the usage section disappears. Docs say LLM providers don't train on the data. No consent screen was seen before first use (chat opens \"Hi Alex, welcome to Bevel Intelligence!\"), and a re-ask after turning it off is unverified.",
+"steps": [
+[
+"s",
+"Settings → Customization",
+"Bevel Intelligence row",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"on",
+"Bevel Intelligence",
+"Toggle on, \"Personality\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"off",
+"Toggle off",
+"Usage section hidden",
+2,
+0,
+"out",
+"seen"
+],
+[
+"fu",
+"First chat",
+"\"welcome to Bevel Intelligence!\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"ca",
+"Consent before use?",
+"None captured",
+2,
+1,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"on",
+"",
+0
+],
+[
+"on",
+"off",
+"off",
+0
+],
+[
+"s",
+"fu",
+"",
+1
+],
+[
+"fu",
+"ca",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 5fb47042-e2e8-4bd7-95d7-2ec4a257c8bc (Turning off Bevel Intelligence)",
+"Mobbin flow 5f74184d-a9a5-47e6-8692-35116e19bf7c (Chatting with Bevel AI, onboarding chat)",
+"https://feedback.bevel.health/feature-requests/p/ai-summary-view-ui-ux-no-thanks (staff: toggle off Bevel Intelligence)",
+"https://help.bevel.health/en/articles/11586753 ('LLM providers do not use… to train their models')"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "Sign-in is \"Continue with Apple\" or \"Use email instead\" (email, then a magic link with \"Resend Link\"). \"Log out\" in Account details signs out with no confirmation and lands on the welcome, which still offers sign-in. A cancelled Apple sheet, a bad link, and clearing of local Health-derived data weren't observed.",
+"steps": [
+[
+"w",
+"Welcome",
+"\"Continue with Apple\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"em",
+"Email entry",
+"\"What is your email address?\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"ml",
+"\"Check your inbox!\"",
+"\"Resend Link\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"c",
+"Cancelled or bad link?",
+"Not captured",
+3,
+1,
+"dec",
+"unverified"
+],
+[
+"h",
+"Home",
+"Signed in",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"lo",
+"Account details",
+"\"Log out\", no confirm",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Welcome",
+"Sign-in still offered",
+4,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"w",
+"h",
+"Apple",
+0
+],
+[
+"w",
+"em",
+"",
+1
+],
+[
+"em",
+"ml",
+"",
+0
+],
+[
+"ml",
+"h",
+"",
+0
+],
+[
+"ml",
+"c",
+"",
+1
+],
+[
+"h",
+"lo",
+"",
+0
+],
+[
+"lo",
+"o",
+"Log out",
+0
+]
+],
+"sources": [
+"Mobbin flow 2388be46-642e-4d82-951f-5c25d4e0d9f0 (Logging in)",
+"Mobbin screen 443bc15a-3cc6-401f-bc49-c03d6a09e249 (Check your inbox!)",
+"Mobbin flow 41202d78-a0e0-4bb4-9bd9-d87c39776667 (Logging out)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "The account plus an \"iCloud Sync\" row in Settings carry preferences across Apple devices, and the Apple Watch app syncs with the phone. Docs admit sync \"can be delayed\" and fixes are manual (Resync, clear cache). There's no iPad app and no sharing with other people; one report says Pro fails with Family Sharing.",
+"steps": [
+[
+"s",
+"Settings → Data",
+"\"iCloud Sync\", Data Sources",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Apple Watch app",
+"~30 days of data when synced",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"d",
+"Sync delayed?",
+"\"syncing… can be delayed\"",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"r",
+"Re-sync / clear cache",
+"\"Clear cache & reload all data\"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"fs",
+"Family Sharing",
+"Pro not recognised",
+1,
+1,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"s",
+"w",
+"",
+0
+],
+[
+"w",
+"d",
+"",
+0
+],
+[
+"d",
+"r",
+"yes",
+0
+],
+[
+"s",
+"fs",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 9d6a3283-b826-49cf-9a52-d41995412dd4 (Settings: iCloud Sync)",
+"Mobbin flow 1562d9a8-d6d2-4b4d-91f6-17123aa56796 (Clearing cache & reload all data)",
+"https://help.bevel.health/en/articles/11257729 (watch sync delays, 30 vs 7 days)",
+"https://apps.apple.com/us/app/id6456176249 (iPhone + Watch; iCloud preferences sync fix)",
+"https://feedback.bevel.health/feature-requests/p/family-sharing-support (report)"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "Most empty states are designed: trackers show \"No logs yet / Once you add a log, it will show up here\" with add buttons, Today shows \"No data\" tiles and a \"Start cycle tracking\" card, and Home shows \"Data still catching up\". \"No Files Yet\" explains what goes there but offers no action.",
+"steps": [
+[
+"h",
+"Home, first run",
+"\"Data still catching up\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Today tiles",
+"\"No data\" + \"Start cycle tracking\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Tracker empty",
+"\"No logs yet\" + \"Add 50mg\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"f",
+"\"No Files Yet\"",
+"No action offered",
+1,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"h",
+"t",
+"",
+0
+],
+[
+"h",
+"l",
+"",
+1
+],
+[
+"h",
+"f",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 0fc0c75f-30be-40aa-815d-a24bc45733c7 (Data still catching up)",
+"Mobbin screens c4c26ac5-84f1-4e1c-9c76-19dfd00eeb2e (No data tiles), ebbdfcdf-dc49-4936-9eb8-aa1d84855992 (No logs yet), b1285865-e5af-4868-a417-22a04071a365 (No Files Yet)"
+]
+}
+]
+}

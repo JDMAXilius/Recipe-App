@@ -1,0 +1,1246 @@
+{
+"app": "apple",
+"intro": "The model every other map is measured against: what Apple's Human Interface Guidelines and App Store Review Guidelines describe for each edge case.",
+"lanes": [
+{
+"n": 1,
+"verdict": "standard",
+"summary": "A normal relaunch lands exactly where the person was.",
+"steps": [
+[
+"e",
+"Returning launch",
+"Cold start after days away",
+0,
+0,
+"entry",
+"std"
+],
+[
+"ls",
+"Launch screen",
+"Same chrome as the first screen",
+1,
+0,
+"screen",
+"std"
+],
+[
+"d",
+"Saved state?",
+"Tab, scroll position, open item",
+2,
+0,
+"dec",
+"std"
+],
+[
+"r",
+"Restored screen",
+"Where they left off",
+3,
+0,
+"out",
+"std"
+],
+[
+"t",
+"Default tab",
+"Only if nothing was saved",
+3,
+1,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"ls"
+],
+[
+"ls",
+"d"
+],
+[
+"d",
+"r",
+"yes"
+],
+[
+"d",
+"t",
+"no"
+]
+],
+"sources": [
+"HIG 14 · Launching",
+"HIG 15 · Onboarding"
+]
+},
+{
+"n": 2,
+"verdict": "standard",
+"summary": "Every gate (sign-in, entitlement, missing content) returns to the asked-for destination.",
+"steps": [
+[
+"e",
+"Link · notification · widget",
+"Points at one item",
+0,
+0,
+"entry",
+"std"
+],
+[
+"s",
+"Signed in?",
+"Only if the item needs an account",
+1,
+0,
+"dec",
+"std"
+],
+[
+"si",
+"Sign in sheet",
+"Context stays behind it",
+2,
+1,
+"screen",
+"std"
+],
+[
+"en",
+"Entitled?",
+"Only if the item is paid",
+3,
+0,
+"dec",
+"std"
+],
+[
+"pw",
+"Paywall",
+"Close returns to the item's preview",
+4,
+1,
+"screen",
+"std"
+],
+[
+"ex",
+"Item still exists?",
+"",
+5,
+0,
+"dec",
+"std"
+],
+[
+"dst",
+"The linked item",
+"Back goes to its parent tab",
+6,
+0,
+"out",
+"std"
+],
+[
+"gone",
+"Explain + nearest parent",
+"Never a blank screen",
+6,
+1,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"s"
+],
+[
+"s",
+"en",
+"yes"
+],
+[
+"s",
+"si",
+"no"
+],
+[
+"si",
+"en",
+"signed in"
+],
+[
+"en",
+"ex",
+"yes"
+],
+[
+"en",
+"pw",
+"no"
+],
+[
+"pw",
+"ex",
+"purchased"
+],
+[
+"ex",
+"dst",
+"yes"
+],
+[
+"ex",
+"gone",
+"no"
+]
+],
+"sources": [
+"HIG 18 · Managing notifications",
+"HIG 17 · Managing accounts",
+"HIG 44 · In-App Purchase"
+]
+},
+{
+"n": 3,
+"verdict": "standard",
+"summary": "Denial never blocks the app; the way back is the Settings link, not a second custom ask.",
+"steps": [
+[
+"p",
+"Primer",
+"Benefit in the app's words",
+0,
+0,
+"screen",
+"std"
+],
+[
+"os",
+"System alert",
+"Shown once by iOS",
+1,
+0,
+"sys",
+"std"
+],
+[
+"g",
+"Granted?",
+"",
+2,
+0,
+"dec",
+"std"
+],
+[
+"f",
+"Feature with access",
+"",
+3,
+0,
+"out",
+"std"
+],
+[
+"fb",
+"Manual fallback",
+"e.g. search by name",
+3,
+1,
+"screen",
+"std"
+],
+[
+"set",
+"Settings link",
+"Where the feature lives",
+4,
+1,
+"sys",
+"std"
+]
+],
+"edges": [
+[
+"p",
+"os",
+"Continue"
+],
+[
+"os",
+"g"
+],
+[
+"g",
+"f",
+"Allow"
+],
+[
+"g",
+"fb",
+"Don't Allow"
+],
+[
+"fb",
+"set",
+"when they want it",
+1
+]
+],
+"sources": [
+"HIG 12 · Privacy",
+"Review 5.1.1(iv)"
+]
+},
+{
+"n": 4,
+"verdict": "standard",
+"summary": "Each StoreKit result has its own calm outcome.",
+"steps": [
+[
+"pw",
+"Paywall",
+"Billed amount most prominent",
+0,
+0,
+"screen",
+"std"
+],
+[
+"sk",
+"Apple purchase sheet",
+"",
+1,
+0,
+"sys",
+"std"
+],
+[
+"r",
+"Result?",
+"",
+2,
+0,
+"dec",
+"std"
+],
+[
+"ok",
+"Unlocked",
+"Thank them, continue the task",
+3,
+0,
+"out",
+"std"
+],
+[
+"c",
+"Cancelled",
+"Back to the paywall, no error",
+3,
+1,
+"out",
+"std"
+],
+[
+"pe",
+"Pending · Ask to Buy",
+"Free access meanwhile",
+3,
+2,
+"out",
+"std"
+],
+[
+"f",
+"Failed",
+"Explain, nothing charged",
+3,
+3,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"pw",
+"sk"
+],
+[
+"sk",
+"r"
+],
+[
+"r",
+"ok",
+"success"
+],
+[
+"r",
+"c",
+"cancel"
+],
+[
+"r",
+"pe",
+"pending"
+],
+[
+"r",
+"f",
+"error"
+]
+],
+"sources": [
+"HIG 44 · Apple In-App Purchase",
+"Review 3.1.1, 3.1.2"
+]
+},
+{
+"n": 5,
+"verdict": "standard",
+"summary": "Billing problems are explained in-app and nothing people made is lost.",
+"steps": [
+[
+"e",
+"Renewal fails",
+"Card declined",
+0,
+0,
+"entry",
+"std"
+],
+[
+"gr",
+"Grace period",
+"Access continues",
+1,
+0,
+"screen",
+"std"
+],
+[
+"b",
+"“Update payment” banner",
+"Links to Manage Subscriptions",
+2,
+0,
+"screen",
+"std"
+],
+[
+"fx",
+"Fixed in time?",
+"",
+3,
+0,
+"dec",
+"std"
+],
+[
+"k",
+"Access continues",
+"",
+4,
+0,
+"out",
+"std"
+],
+[
+"fr",
+"Free tier",
+"Content kept, read-only if needed",
+4,
+1,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"gr"
+],
+[
+"gr",
+"b"
+],
+[
+"b",
+"fx"
+],
+[
+"fx",
+"k",
+"yes"
+],
+[
+"fx",
+"fr",
+"no"
+]
+],
+"sources": [
+"HIG 44 · Apple In-App Purchase (billing grace period)",
+"Review 3.1.2"
+]
+},
+{
+"n": 6,
+"verdict": "standard",
+"summary": "A new phone gets back everything with one sign-in or one Restore tap.",
+"steps": [
+[
+"e",
+"New device",
+"Fresh install",
+0,
+0,
+"entry",
+"std"
+],
+[
+"a",
+"Has accounts?",
+"",
+1,
+0,
+"dec",
+"std"
+],
+[
+"si",
+"Sign in",
+"Sign in with Apple first",
+2,
+0,
+"screen",
+"std"
+],
+[
+"rp",
+"Restore Purchases",
+"In the paywall and in Settings",
+2,
+1,
+"screen",
+"std"
+],
+[
+"ok",
+"Everything back",
+"Content and entitlement",
+3,
+0,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"a"
+],
+[
+"a",
+"si",
+"yes"
+],
+[
+"a",
+"rp",
+"no"
+],
+[
+"si",
+"ok"
+],
+[
+"rp",
+"ok"
+]
+],
+"sources": [
+"HIG 17 · Managing accounts",
+"Review 3.1.1 (restore mechanism)"
+]
+},
+{
+"n": 7,
+"verdict": "standard",
+"summary": "Deletion is findable, honest about billing, confirmed once.",
+"steps": [
+[
+"s",
+"Settings · Account",
+"Delete account",
+0,
+0,
+"screen",
+"std"
+],
+[
+"x",
+"Explain",
+"What's deleted, billing continues via Apple",
+1,
+0,
+"screen",
+"std"
+],
+[
+"c",
+"Confirm once",
+"Destructive button",
+2,
+0,
+"sys",
+"std"
+],
+[
+"d",
+"Deleted",
+"Tokens revoked (SIWA)",
+3,
+0,
+"screen",
+"std"
+],
+[
+"o",
+"Signed-out app",
+"",
+4,
+0,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"s",
+"x"
+],
+[
+"x",
+"c"
+],
+[
+"c",
+"d",
+"Delete"
+],
+[
+"d",
+"o"
+]
+],
+"sources": [
+"Review 5.1.1(v)",
+"HIG 17 · Managing accounts"
+]
+},
+{
+"n": 8,
+"verdict": "standard",
+"summary": "Losing the network changes a banner, not the screen.",
+"steps": [
+[
+"e",
+"Connection lost",
+"",
+0,
+0,
+"entry",
+"std"
+],
+[
+"c",
+"Cached content",
+"Still browsable",
+1,
+0,
+"screen",
+"std"
+],
+[
+"b",
+"Quiet banner",
+"“You're offline”",
+2,
+0,
+"screen",
+"std"
+],
+[
+"a",
+"Needs network?",
+"An action they tap",
+3,
+0,
+"dec",
+"std"
+],
+[
+"w",
+"Works offline",
+"Queued or local",
+4,
+0,
+"out",
+"std"
+],
+[
+"ex",
+"Explain inline",
+"Retry when back",
+4,
+1,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"c"
+],
+[
+"c",
+"b"
+],
+[
+"b",
+"a"
+],
+[
+"a",
+"w",
+"no"
+],
+[
+"a",
+"ex",
+"yes"
+]
+],
+"sources": [
+"HIG 22 · Feedback",
+"HIG 16 · Loading"
+]
+},
+{
+"n": 9,
+"verdict": "standard",
+"summary": "Updates show what matters once, then get out of the way.",
+"steps": [
+[
+"e",
+"App updated",
+"",
+0,
+0,
+"entry",
+"std"
+],
+[
+"m",
+"Meaningful changes?",
+"",
+1,
+0,
+"dec",
+"std"
+],
+[
+"w",
+"What's new sheet",
+"Once, dismissible",
+2,
+0,
+"screen",
+"std"
+],
+[
+"l",
+"Last state",
+"",
+3,
+0,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"m"
+],
+[
+"m",
+"w",
+"yes"
+],
+[
+"m",
+"l",
+"bug-fix only",
+1
+],
+[
+"w",
+"l",
+"dismiss"
+]
+],
+"sources": [
+"HIG 15 · Onboarding"
+]
+},
+{
+"n": 10,
+"verdict": "standard",
+"summary": "Failures explain themselves and never cost the person their work.",
+"steps": [
+[
+"e",
+"AI or server request",
+"Generate, import, analyse",
+0,
+0,
+"entry",
+"std"
+],
+[
+"r",
+"Result?",
+"",
+1,
+0,
+"dec",
+"std"
+],
+[
+"ok",
+"Result shown",
+"",
+2,
+0,
+"out",
+"std"
+],
+[
+"lim",
+"Limit reached",
+"Say when it resets; upsell if paid",
+2,
+1,
+"screen",
+"std"
+],
+[
+"err",
+"Error, input kept",
+"Plain cause + Try again",
+2,
+2,
+"screen",
+"std"
+],
+[
+"ret",
+"Retry",
+"Same input, no retyping",
+3,
+2,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"r"
+],
+[
+"r",
+"ok",
+"success"
+],
+[
+"r",
+"lim",
+"429"
+],
+[
+"r",
+"err",
+"error / timeout"
+],
+[
+"err",
+"ret"
+]
+],
+"sources": [
+"HIG 22 · Feedback",
+"HIG 16 · Loading",
+"Review 3.1.2 (limits stated before purchase)"
+]
+},
+{
+"n": 11,
+"verdict": "standard",
+"summary": "Consent is a switch, not a one-way door.",
+"steps": [
+[
+"e",
+"Settings · AI data",
+"Turn off sharing",
+0,
+0,
+"entry",
+"std"
+],
+[
+"off",
+"Consent off",
+"Stored, synced",
+1,
+0,
+"screen",
+"std"
+],
+[
+"bg",
+"Background AI stops",
+"No silent calls",
+2,
+0,
+"out",
+"std"
+],
+[
+"use",
+"Uses an AI feature",
+"",
+2,
+1,
+"entry",
+"std"
+],
+[
+"ask",
+"Ask again in context",
+"Named provider, data list",
+3,
+1,
+"sys",
+"std"
+],
+[
+"alt",
+"Decline → manual path",
+"Feature still usable without AI",
+4,
+1,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"off"
+],
+[
+"off",
+"bg"
+],
+[
+"use",
+"ask"
+],
+[
+"ask",
+"alt",
+"Not now"
+]
+],
+"sources": [
+"Review 5.1.2(i)",
+"HIG 12 · Privacy"
+]
+},
+{
+"n": 12,
+"verdict": "standard",
+"summary": "Signing in fails gently; signing out leaves a clean, usable app.",
+"steps": [
+[
+"e",
+"Sign in",
+"Apple first",
+0,
+0,
+"entry",
+"std"
+],
+[
+"r",
+"Result?",
+"",
+1,
+0,
+"dec",
+"std"
+],
+[
+"ok",
+"Back to the task",
+"",
+2,
+0,
+"out",
+"std"
+],
+[
+"c",
+"Cancelled",
+"Silent, stay on screen",
+2,
+1,
+"out",
+"std"
+],
+[
+"w",
+"Wrong details",
+"Explain the fix inline",
+2,
+2,
+"screen",
+"std"
+],
+[
+"so",
+"Sign out",
+"Confirm only if data would be lost",
+0,
+3,
+"entry",
+"std"
+],
+[
+"cl",
+"Private data cleared",
+"Caches, tokens",
+1,
+3,
+"screen",
+"std"
+],
+[
+"out",
+"Signed-out app",
+"Sign in still offered",
+2,
+3,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"r"
+],
+[
+"r",
+"ok",
+"success"
+],
+[
+"r",
+"c",
+"cancel"
+],
+[
+"r",
+"w",
+"error"
+],
+[
+"so",
+"cl"
+],
+[
+"cl",
+"out"
+]
+],
+"sources": [
+"HIG 17 · Managing accounts",
+"HIG 43 · Sign in with Apple"
+]
+},
+{
+"n": 13,
+"verdict": "standard",
+"summary": "Everything follows the account, and shared things stay in sync.",
+"steps": [
+[
+"e",
+"Second device / member",
+"Signs in or joins",
+0,
+0,
+"entry",
+"std"
+],
+[
+"j",
+"Join explained",
+"What's shared, how to leave",
+1,
+0,
+"screen",
+"std"
+],
+[
+"s",
+"Shared content",
+"Live for every member",
+2,
+0,
+"screen",
+"std"
+],
+[
+"cf",
+"Conflicting edits?",
+"Both edit at once",
+3,
+0,
+"dec",
+"std"
+],
+[
+"m",
+"Merged, nothing lost",
+"",
+4,
+0,
+"out",
+"std"
+],
+[
+"lv",
+"Leave",
+"Confirm, keep own copy",
+2,
+1,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"j"
+],
+[
+"j",
+"s"
+],
+[
+"s",
+"cf"
+],
+[
+"cf",
+"m"
+],
+[
+"s",
+"lv",
+"",
+1
+]
+],
+"sources": [
+"HIG 17 · Managing accounts",
+"iCloud / CloudKit sharing guidance"
+]
+},
+{
+"n": 14,
+"verdict": "standard",
+"summary": "Empty is a starting point, not a dead end.",
+"steps": [
+[
+"e",
+"First visit to a tab",
+"Nothing saved yet",
+0,
+0,
+"entry",
+"std"
+],
+[
+"es",
+"Designed empty state",
+"What goes here, in plain words",
+1,
+0,
+"screen",
+"std"
+],
+[
+"a",
+"First action",
+"One button that starts it",
+2,
+0,
+"screen",
+"std"
+],
+[
+"f",
+"Filled screen",
+"",
+3,
+0,
+"out",
+"std"
+]
+],
+"edges": [
+[
+"e",
+"es"
+],
+[
+"es",
+"a"
+],
+[
+"a",
+"f"
+]
+],
+"sources": [
+"HIG 16 · Loading",
+"HIG 15 · Onboarding (contextual tips)"
+]
+}
+]
+}

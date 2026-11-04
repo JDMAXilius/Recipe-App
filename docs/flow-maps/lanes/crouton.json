@@ -1,0 +1,1077 @@
+{
+"app": "crouton",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Meal Plan is the observed first tab, but whether a relaunch restores the last tab or open recipe was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"m",
+"Meal Plan",
+"First tab: week of meals",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Last tab / recipe",
+"Restore not confirmed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"m",
+"",
+1
+],
+[
+"m",
+"r",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 6bd07fec-46d3-43fc-bdbf-3ccc355e6e31 (tab bar: Meal Plan, Recipes, Groceries, Discover, Settings)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Discover offers shareable recipe links \"even if they don't have Crouton\", but what a link or notification opens in the app was not observed.",
+"steps": [
+[
+"e",
+"Shared recipe link",
+"\"Shareable Links\" (Discover)",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"d",
+"App installed?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"r",
+"Recipe in app",
+"Not confirmed",
+2,
+0,
+"out",
+"unverified"
+],
+[
+"w",
+"Web recipe page",
+"Not confirmed",
+2,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+1
+],
+[
+"d",
+"r",
+"yes",
+1
+],
+[
+"d",
+"w",
+"no",
+1
+]
+],
+"sources": [
+"Mobbin screen 6cde9c6e-be21-4912-ad3d-00ecf69f5df1 (Discover: Shareable Links)"
+]
+},
+{
+"n": 3,
+"verdict": "unknown",
+"summary": "Camera import is one of several import paths (Link, Image, Text, PDF, Manual), so the app works without camera, but the permission alert and denied state were not observed.",
+"steps": [
+[
+"a",
+"Add menu",
+"\"From Camera...\" under Smart Import",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS camera alert",
+"Not captured",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Allowed?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"c",
+"Camera import",
+"",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"o",
+"Other imports",
+"\"From Link...\", \"From Image...\", \"From Text...\"",
+3,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"a",
+"s",
+"",
+1
+],
+[
+"s",
+"d",
+"",
+1
+],
+[
+"d",
+"c",
+"yes",
+1
+],
+[
+"d",
+"o",
+"no",
+1
+],
+[
+"a",
+"o",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen fb23593b-951e-4fb4-bcf5-0d70421cf0ec (Recipes add menu)"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Upgrade screen offers one-time Plus and a Discover subscription with \"Restore Purchase · Redeem\"; after purchase it shows \"Subscription Active. Thank you for the support!\"; cancel, pending and failure were not observed.",
+"steps": [
+[
+"u",
+"Upgrade",
+"Plus $17.99 one-time / Discover $14.99/yr",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"p",
+"Discover paywall",
+"\"Continue\" 3 Day Free Trial, $1.99/Monthly",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"Not captured",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Outcome?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Subscription Active",
+"\"Thank you for the support!\" Renews on",
+4,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cancel / pending / fail",
+"No handling observed",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"u",
+"p",
+"",
+0
+],
+[
+"p",
+"sk",
+"",
+1
+],
+[
+"sk",
+"d",
+"",
+1
+],
+[
+"d",
+"ok",
+"success",
+1
+],
+[
+"d",
+"x",
+"other",
+1
+]
+],
+"sources": [
+"Mobbin screens d377dafe-6c91-42c7-b3df-0b1688db4b12 (Upgrade), 6cde9c6e-be21-4912-ad3d-00ecf69f5df1 (Discover paywall), 36d27a78-6c28-4648-8d3a-d6900afdcf3c (Subscription Active)",
+"https://apps.apple.com/us/app/crouton/id1461650987 (description, IAP list, version history)"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "Free tier caps recipes (Plus will \"Remove the 5 recipe limit\") and Plus is one-time; what happens to Discover features or extra recipes when a subscription lapses was not found.",
+"steps": [
+[
+"e",
+"Discover lapses",
+"Renewal fails or cancelled",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free / Plus tier",
+"Free: \"5 recipe limit\"; Plus one-time",
+2,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen cc8b13fb-a973-4b75-91f9-49f5e294fd67 (Plus: \"Remove the 5 recipe limit\", one-time purchase)",
+"https://apps.apple.com/us/app/crouton/id1461650987 (description, IAP list, version history)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Recipes come back through iCloud sync (with a Sync Status screen), and \"Restore Purchase\" is on the Upgrade screen and paywalls; Settings has \"Manage Subscription\".",
+"steps": [
+[
+"e",
+"New device",
+"Same Apple ID / iCloud",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"i",
+"iCloud Sync",
+"\"Last synced 1 minute ago\" + Sync",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"ss",
+"Sync Status",
+"\"Tap to sync\" if items missing",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Restore Purchase",
+"On Upgrade + paywall screens",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"o",
+"Library + unlocks back",
+"",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"i",
+"",
+0
+],
+[
+"i",
+"ss",
+"",
+0
+],
+[
+"ss",
+"o",
+"",
+1
+],
+[
+"e",
+"r",
+"",
+0
+],
+[
+"r",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screens dd142ef3-575c-4389-9686-ad829a02eccc, 2ec1d29c-8a03-4e15-9022-bdbc2c9de4dd, dae2fe8f-fb99-4b26-a288-65e8bd1e13fe (iCloud Sync / Sync Status)",
+"Mobbin screens d377dafe-6c91-42c7-b3df-0b1688db4b12, cc8b13fb-a973-4b75-91f9-49f5e294fd67 (Restore Purchase)",
+"https://apps.apple.com/us/app/crouton/id1461650987 (description, IAP list, version history) (\"synced between all of your devices using iCloud\")"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "Settings > Account > \"Delete Account\" explains it removes account details from Crouton servers, asks for the password, then one confirm; the screen after deletion was not observed.",
+"steps": [
+[
+"a",
+"Account",
+"Change Password / Log Out / \"Delete Account\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Delete Account sheet",
+"\"...remove your account details from...\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"pw",
+"Re-enter password",
+"\"sign in again below\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Confirm",
+"\"Are you sure you want to delete...\"",
+3,
+0,
+"dec",
+"seen"
+],
+[
+"o",
+"After deletion",
+"Not observed",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"a",
+"s",
+"",
+0
+],
+[
+"s",
+"pw",
+"",
+0
+],
+[
+"pw",
+"c",
+"",
+0
+],
+[
+"c",
+"o",
+"Delete",
+1
+]
+],
+"sources": [
+"Mobbin screens 51a980d6-e0ea-497a-a674-d02c27fb8bdd (Account), 3c04cc82-957c-4c93-a206-ea3e01f09c48 (Delete Account sheet), dbf5d3f9-974a-4740-987e-c9fc6e70834c (confirm)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "Recipes live on device and sync to iCloud (\"Items on Device\"), and in-app Help covers sync failures, but no offline state or banner was observed.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"l",
+"Local library",
+"\"Items on Device\" synced to iCloud",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"h",
+"Help: sync issues",
+"\"Sometimes iCloud is fussy...\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"b",
+"Offline indicator",
+"Not observed",
+2,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+1
+],
+[
+"l",
+"h",
+"",
+1
+],
+[
+"l",
+"b",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 2ec1d29c-8a03-4e15-9022-bdbc2c9de4dd (Sync Status)",
+"Mobbin screen 4cf18759-0fe6-4c6b-a9ea-01ab3c15ca5a (Help: General sync issues)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Release notes live in App Store version history (e.g. 2026.5, Oct 14: hands-free gestures); no in-app What's New screen was found on Mobbin.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. v2026.5.1, Oct 26",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Version history",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"m",
+"Meal Plan",
+"No What's New seen in app",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"m",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/crouton/id1461650987 (description, IAP list, version history)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "Smart Import shows \"Importing Photos...\", link import keeps the page with a \"Re-import\" button, the scale error says what to do (\"bring scale close and try again\", \"Try Again\"), and 2026.5 notes improved import error and retry; an AI import failure screen itself was not observed.",
+"steps": [
+[
+"e",
+"Smart Import",
+"Camera / Image / Text / PDF",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"i",
+"Importing",
+"\"Importing Photos...\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Import OK?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"r",
+"Add Recipe",
+"Source page + \"Re-import\"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"f",
+"Error + retry",
+"2026.5: better error, retry",
+3,
+1,
+"screen",
+"doc"
+],
+[
+"s",
+"Scale not found",
+"\"bring scale close\" \"Try Again\"",
+1,
+2,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"i",
+"",
+0
+],
+[
+"i",
+"d",
+"",
+0
+],
+[
+"d",
+"r",
+"yes",
+0
+],
+[
+"d",
+"f",
+"no",
+1
+],
+[
+"e",
+"s",
+"scale",
+1
+]
+],
+"sources": [
+"Mobbin screen a703adf1-4198-4e7e-b846-d2efa2222aab (Smart Import menu)",
+"Mobbin screen ee45a53d-79a3-4231-bbfc-dbad0db0c85f (Importing Photos)",
+"Mobbin screen a98870f2-3ee7-4671-aa37-a2ba084e91a9 (Re-import)",
+"Mobbin screen ddd84b6b-6c87-46d3-baa9-74e95e3a037c (scale Not Found)",
+"https://apps.apple.com/us/app/crouton/id1461650987 (description, version history, App Privacy) (2026.5 Smart Import error handling)"
+]
+},
+{
+"n": 11,
+"verdict": "unknown",
+"summary": "Smart Import is described as \"using AI\", but no consent prompt, provider disclosure or opt-out was observed and the privacy policy could not be retrieved.",
+"steps": [
+[
+"e",
+"Smart Import",
+"\"From Camera...\" etc.",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"c",
+"AI consent",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"o",
+"Withdraw path",
+"Not found",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+1
+],
+[
+"c",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen a703adf1-4198-4e7e-b846-d2efa2222aab (Smart Import menu)",
+"https://apps.apple.com/us/app/crouton/id1461650987 (description, version history, App Privacy) (\"Quickly import recipes using AI\")"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "Account is optional (recipes sync via iCloud); Settings > Account signed out says \"Log in to your Crouton account...\" with Sign In, and the sheet has Cancel, \"Forgot password\", \"Sign in with Apple\" and \"Create Account\"; wrong-password and sign-out screens were not observed.",
+"steps": [
+[
+"a",
+"Account (signed out)",
+"\"Log in to your Crouton account...\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"s",
+"Sign In sheet",
+"Email, password, Sign in with Apple",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"c",
+"Cancel",
+"Sheet has Cancel; result not seen",
+3,
+1,
+"out",
+"unverified"
+],
+[
+"f",
+"Forgot password",
+"Link on sheet",
+3,
+2,
+"screen",
+"seen"
+],
+[
+"o",
+"Signed in",
+"Account settings",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"a",
+"s",
+"Sign In",
+0
+],
+[
+"s",
+"d",
+"",
+0
+],
+[
+"d",
+"o",
+"ok",
+1
+],
+[
+"d",
+"c",
+"Cancel",
+0
+],
+[
+"d",
+"f",
+"wrong",
+1
+]
+],
+"sources": [
+"Mobbin screen 3d8aea76-5bdb-4661-9e9a-a0c8d1ddac02 (Account signed out)",
+"Mobbin screens 7c0fd788-9b41-4cc0-8457-390c1b0a394b, 45839cd9-89c1-4153-b7e0-2e8b2f973547 (Sign In sheet)",
+"https://apps.apple.com/us/app/crouton/id1461650987 (description, version history, App Privacy) (iCloud sync)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Recipes sync across devices via iCloud, and Household shares recipes and meal plan: an empty \"No Household\" state, a \"Household Sync\" alert warning it may take minutes (\"Please do not close Crouton\"), Add Members, Resync or Remove; what members lose on removal is not explained.",
+"steps": [
+[
+"e",
+"No Household",
+"\"Add a household to share...\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"s",
+"Household Sync",
+"\"...may take several minutes\"",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"h",
+"Household",
+"\"1 member\" Edit / Add Members",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"Manage",
+"\"Resync with Household\" / Remove",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Removing...",
+"Effect on members not stated",
+4,
+0,
+"out",
+"seen"
+],
+[
+"i",
+"iCloud devices",
+"Synced between all your devices",
+1,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"Add Household",
+0
+],
+[
+"s",
+"h",
+"OK",
+0
+],
+[
+"h",
+"m",
+"...",
+0
+],
+[
+"m",
+"r",
+"Remove",
+0
+],
+[
+"e",
+"i",
+"own devices",
+1
+]
+],
+"sources": [
+"Mobbin screens 7abf40d4-4a0c-49c0-b38a-4c309e9cce8a, e62197fc-6b28-49aa-90da-0389a21cc57b, 96a3e79e-949e-47f0-933a-0d54589a4ff3, 69c53af9-01ab-41c3-8d70-5c71f7b92488, 1c719a20-9179-4075-b57a-75fc4f912a77 (Household)",
+"https://apps.apple.com/us/app/crouton/id1461650987 (description, version history, App Privacy) (iCloud sync; Watch Live Activities)"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "Designed empties exist for Household (\"No Household\" + \"Add Household\"), empty folders (\"empty\") and cook mode (\"No ingredients for current step\"); the first-use empty Recipes and Meal Plan tabs were not observed.",
+"steps": [
+[
+"e",
+"First use",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"h",
+"No Household",
+"Icon, copy, \"Add Household\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Collections",
+"Folders labelled \"empty\", + menu",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"k",
+"Cook step",
+"\"No ingredients for current step\"",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"r",
+"Recipes / Meal Plan",
+"First-use empty not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"h",
+"",
+0
+],
+[
+"e",
+"c",
+"",
+0
+],
+[
+"e",
+"k",
+"",
+0
+],
+[
+"e",
+"r",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 7abf40d4-4a0c-49c0-b38a-4c309e9cce8a (No Household)",
+"Mobbin screen ee04dcec-04c4-4aa6-b547-6880a1e2232f (Collections empty folders)",
+"Mobbin screen e2734c2b-36a0-4697-b3ee-7347d576e8d7 (No ingredients for current step)"
+]
+}
+]
+}

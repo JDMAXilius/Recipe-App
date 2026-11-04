@@ -1,0 +1,1089 @@
+{
+"app": "tiimo",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "No observed evidence of what a warm relaunch restores; Today is the observed home after sign-in, but last-tab/state restore is unverified.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning signed-in user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Signed in?",
+"Session kept on device",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Today",
+"Day view with Anytime/Morning/Evening",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Welcome",
+"\"Own your day\" + \"Have an account? Log in\"",
+2,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"d",
+"w",
+"no",
+1
+]
+],
+"sources": [
+"Mobbin flow 749fe9d1-c906-47bc-99a4-3903a5b0e5d2 (Today after login)",
+"Mobbin screen d3823f43-e5ef-41b5-aec2-6510beb145c1 (welcome)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Tiimo shows Focus Live Activities and reminder notifications, but where a tap lands (and what happens if signed out) was not observed or documented.",
+"steps": [
+[
+"e",
+"Lock Screen Live Activity",
+"\"Focus 14:53\" timer, pause button",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"n",
+"Reminder notification",
+"\"Lunch starts in 10 min.\"",
+0,
+1,
+"entry",
+"seen"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"f",
+"Focus / activity",
+"Destination of tap not confirmed",
+2,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"n",
+"d",
+"tap",
+1
+],
+[
+"d",
+"f",
+"yes",
+1
+]
+],
+"sources": [
+"Mobbin screen 8171ea74-fb00-475b-9362-cb10ee63264e (Live Activity)",
+"Mobbin screen 4a21582b-e050-4b2f-898d-bd63e8ff6495 (notification preview art)"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Notification and calendar asks are skippable and resurface as dismissible Today cards; the help center gives manual iOS Settings paths, and calendar import routes to Settings, but a denied-state in-app Settings link for notifications was not observed.",
+"steps": [
+[
+"e",
+"Onboarding ask",
+"\"Never miss a task! Turn on notifications\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS permission alert",
+"Allow / Don't Allow",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"k",
+"Skip",
+"\"SKIP\" top right",
+1,
+1,
+"dec",
+"seen"
+],
+[
+"c",
+"Today card",
+"\"Enable reminders\" / \"Import your calendar\" (×)",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"h",
+"Help: iOS Settings path",
+"Settings > Apps > Tiimo > Notifications",
+3,
+1,
+"screen",
+"doc"
+],
+[
+"g",
+"Calendar: Go to Settings",
+"Import calendar > \"Go to 'Settings'\"",
+3,
+2,
+"sys",
+"doc"
+],
+[
+"o",
+"App keeps working",
+"Planner usable without permissions",
+4,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"Enable",
+0
+],
+[
+"e",
+"k",
+"",
+0
+],
+[
+"k",
+"c",
+"",
+0
+],
+[
+"s",
+"c",
+"denied",
+1
+],
+[
+"c",
+"h",
+"",
+1
+],
+[
+"c",
+"g",
+"calendar",
+1
+],
+[
+"c",
+"o",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen 4a21582b-e050-4b2f-898d-bd63e8ff6495",
+"Mobbin screens d8727487-e395-45d8-b1bb-3d0600d8c434, 5e32cde9-6a17-4cdc-9c9f-4de680be0337 (Enable reminders / Import your calendar cards)",
+"https://www.tiimoapp.com/faq/notifications",
+"https://www.tiimoapp.com/faq/calendar-import"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Success path seen end to end (paywall, StoreKit sheet, \"You're all set.\" alert); cancel, Ask to Buy/pending and failure handling not observed.",
+"steps": [
+[
+"p",
+"Paywall",
+"\"Start 7 day free trial\", ×, \"See all plans\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"\"1-week free trial\" then $60.00/yr",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Success alert",
+"\"You're all set. Your purchase was successful.\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"x",
+"Cancel",
+"Back on paywall (assumed)",
+3,
+1,
+"out",
+"unverified"
+],
+[
+"pf",
+"Pending / failed",
+"No handling observed",
+3,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"sk",
+"",
+0
+],
+[
+"sk",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"d",
+"x",
+"cancel",
+1
+],
+[
+"d",
+"pf",
+"pending/fail",
+1
+]
+],
+"sources": [
+"Mobbin flow ea5b312c-75ad-46d0-96fe-b2c01d1eca15 (Subscribing to Tiimo)",
+"Mobbin flow 4b6bbbed-4fb2-4cea-b17c-b7a059d0cda1 (Subscribing to Tiimo Pro)"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "A free tier exists (\"Basic planner, limited AI chats, 1 profile\"), but grace-period messaging, downgrade UI and what happens to extra profiles/data were not found.",
+"steps": [
+[
+"e",
+"Pro lapses",
+"Renewal fails or cancelled",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free tier",
+"\"Basic planner, limited AI chats, 1 profile\"",
+2,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1480220328 (free version description)",
+"https://www.tiimoapp.com/faq (free version, iOS/Android only)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based: logging in on a new device returns the user's plan (\"Ready to start where you left off?\"), and Settings has \"Restore purchase\"; no Restore link was visible on the paywall.",
+"steps": [
+[
+"w",
+"Welcome",
+"\"Have an account? Log in\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Sign in to Tiimo",
+"\"Ready to start where you left off?\" Apple/email",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Today with plan",
+"Existing routines restored",
+2,
+0,
+"out",
+"seen"
+],
+[
+"d",
+"Pro still locked?",
+"",
+3,
+0,
+"dec",
+"doc"
+],
+[
+"r",
+"Settings: Restore purchase",
+"Me > Settings > Account & subscription",
+4,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Email support",
+"support@tiimoapp.com if still locked",
+5,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"w",
+"l",
+"",
+0
+],
+[
+"l",
+"t",
+"",
+0
+],
+[
+"t",
+"d",
+"",
+1
+],
+[
+"d",
+"r",
+"yes",
+0
+],
+[
+"r",
+"s",
+"still locked",
+1
+]
+],
+"sources": [
+"Mobbin flow 749fe9d1-c906-47bc-99a4-3903a5b0e5d2 (Logging in)",
+"Mobbin flow 91559e87-6dd6-4000-a597-c54aa0fe0f1a (Settings, Restore purchase)",
+"https://www.tiimoapp.com/faq (\"I've subscribed to Pro, but my premium features are still locked\"; multi-device: log in with same email)"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "In-app Settings > Delete account, one confirm alert explaining permanent deletion after 3 days (log in to recover), then signed-out welcome; it tells users to cancel the Apple subscription themselves but offers no link.",
+"steps": [
+[
+"s",
+"Settings",
+"Account & subscription > \"Delete account\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"Confirm alert",
+"\"Do you want to delete...\" 3-day recovery",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"u",
+"Unsubscribe note",
+"\"You have to unsubscribe from Apple yourself\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"d",
+"Delete?",
+"Cancel / Delete",
+2,
+0,
+"dec",
+"seen"
+],
+[
+"w",
+"Signed-out welcome",
+"\"Own your day\"",
+3,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"s",
+"a",
+"",
+0
+],
+[
+"a",
+"d",
+"",
+0
+],
+[
+"a",
+"u",
+"",
+1
+],
+[
+"d",
+"w",
+"Delete",
+0
+]
+],
+"sources": [
+"Mobbin flow d09f1b00-e880-4a3a-9094-ef75368cc56d (Deleting account)",
+"Mobbin screen 7f5f4980-f7e8-434b-99e4-bf3538cb0815 (delete alert)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "No offline state observed and no official doc; a third-party health-app directory lists Tiimo as requiring internet access.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"r",
+"Needs internet",
+"Healthify: \"Require internet access to use? Yes\"",
+1,
+0,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"e",
+"r",
+"",
+1
+]
+],
+"sources": [
+"https://healthify.nz/apps/t/tiimo-app (third-party listing, reviewed Mar 2026)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Release notes live in App Store version history (e.g. 3.70.1, Oct 21: Google Calendar on Apple Watch); no in-app What's New screen was observed.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. v3.70.1",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Version history only",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"t",
+"Today",
+"No What's New seen in app",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"t",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1480220328 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "unknown",
+"summary": "The free plan has \"limited AI chats\" (App Store), but the limit screen and any AI error, timeout or retry state were not observed; the co-planner proposes tasks for review before \"Create tasks\", and a typed prompt has Reset / Send.",
+"steps": [
+[
+"e",
+"Open AI co-planner",
+"Character button on Today",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"c",
+"Chat",
+"\"What's the plan today?\" + chips",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Tasks to review",
+"\"Create tasks (1)\"",
+2,
+0,
+"out",
+"seen"
+],
+[
+"d",
+"Free chats left?",
+"\"limited AI chats\" on free",
+1,
+1,
+"dec",
+"doc"
+],
+[
+"x",
+"Limit / error state",
+"Not observed",
+2,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+0
+],
+[
+"c",
+"r",
+"",
+0
+],
+[
+"c",
+"d",
+"",
+1
+],
+[
+"d",
+"x",
+"no",
+1
+]
+],
+"sources": [
+"Mobbin flow fc516ed9-ec8b-4ab8-bee5-e9da198a0992 (Chatting with AI)",
+"https://apps.apple.com/us/app/id1480220328 (\"Free version includes: Basic planner, limited AI chats, 1 profile\")"
+]
+},
+{
+"n": 11,
+"verdict": "unknown",
+"summary": "No AI consent or provider disclosure was seen between Today and the chat, and the privacy policy names no AI provider and no AI opt-out (only \"You can withdraw your consent at any time\"); notification and calendar consents are in lane 3.",
+"steps": [
+[
+"e",
+"First AI chat",
+"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"c",
+"AI disclosure shown?",
+"None in the observed flow",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"s",
+"Chat opens",
+"\"Ask anything\" / Speak",
+2,
+0,
+"out",
+"seen"
+],
+[
+"p",
+"Privacy policy",
+"No AI provider or opt-out named",
+1,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+0
+],
+[
+"c",
+"s",
+"",
+0
+],
+[
+"c",
+"p",
+"policy",
+1
+]
+],
+"sources": [
+"Mobbin flow fc516ed9-ec8b-4ab8-bee5-e9da198a0992 (Today straight to chat)",
+"https://www.tiimoapp.com/privacy-policy"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "The signed-out welcome offers \"Sign in with Apple\", \"Continue with email\" and \"Log in here\"; the login screen pairs Apple with email and password plus \"Reset password\" and \"Create new account\"; Settings > \"Sign out\" returns to welcome with no confirm seen. Wrong-password and cancel states not observed.",
+"steps": [
+[
+"s",
+"Settings",
+"Account & subscription > \"Sign out\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Welcome",
+"\"Sign in with Apple\" / \"Log in here\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Sign in to Tiimo",
+"\"Ready to start where you left off?\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Reset password",
+"Link under Login",
+3,
+1,
+"out",
+"seen"
+],
+[
+"d",
+"Login OK?",
+"Error copy not observed",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Today",
+"Plan restored",
+4,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"s",
+"w",
+"",
+0
+],
+[
+"w",
+"l",
+"",
+0
+],
+[
+"l",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"l",
+"r",
+"forgot",
+1
+]
+],
+"sources": [
+"Mobbin flow 60eae8d8-4cd3-4a9d-bcd6-9e89ef7c27e2 (Logging out, current welcome)",
+"Mobbin flow 8130fb48-a576-4cff-891e-b5886cb5dcd2 (Logging out, older \"Own your day\" welcome)",
+"Mobbin flow 749fe9d1-c906-47bc-99a4-3903a5b0e5d2 (Logging in)"
+]
+},
+{
+"n": 13,
+"verdict": "meets",
+"summary": "One login works on iPhone, iPad, Watch, Mac, Android and web; one account can hold several profiles (\"Add new profile\"), and Apple Family Sharing gives each member \"a separate, private account\" on shared billing. There is no shared, co-edited plan.",
+"steps": [
+[
+"e",
+"Another device or person",
+"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Same person?",
+"",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"a",
+"Log in on each device",
+"iOS, iPad, Watch, Mac, Android, web",
+2,
+0,
+"out",
+"doc"
+],
+[
+"p",
+"Add new profile",
+"Separate profile, same account",
+2,
+1,
+"out",
+"seen"
+],
+[
+"f",
+"Apple Family Sharing",
+"\"separate, private account\"",
+2,
+2,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"a",
+"yes",
+0
+],
+[
+"d",
+"p",
+"family",
+1
+],
+[
+"d",
+"f",
+"family",
+1
+]
+],
+"sources": [
+"https://www.tiimoapp.com/faq (\"How can I use Tiimo across devices?\", \"How can I share my subscription with a family member or child?\")",
+"Mobbin flow 60eae8d8-4cd3-4a9d-bcd6-9e89ef7c27e2 (Settings: \"Add new profile\")"
+]
+},
+{
+"n": 14,
+"verdict": "meets",
+"summary": "Every list starts with designed empty slots that say what goes there and carry a +: Today (\"What's happening today?\", plus Enable reminders / Import your calendar cards), To-do (\"Need focus - add here\"), and the AI chat (\"What's the plan today?\" with suggestion chips).",
+"steps": [
+[
+"t",
+"Today (empty)",
+"\"What's happening today?\" + per slot",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Setup cards",
+"Enable reminders / Import calendar",
+1,
+1,
+"out",
+"seen"
+],
+[
+"o",
+"To-do (empty)",
+"\"Need focus - add here\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"k",
+"Quick add",
+"\"Type to begin\"",
+2,
+0,
+"out",
+"seen"
+],
+[
+"a",
+"AI chat",
+"\"What's the plan today?\" chips",
+1,
+2,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"t",
+"c",
+"",
+0
+],
+[
+"t",
+"o",
+"To-do",
+0
+],
+[
+"o",
+"k",
+"+",
+0
+],
+[
+"t",
+"a",
+"co-planner",
+1
+]
+],
+"sources": [
+"Mobbin screen 5e32cde9-6a17-4cdc-9c9f-4de680be0337 (empty Today with setup cards)",
+"Mobbin screen a0330259-f52f-4ea8-b750-ea63fc4fa29d (empty To-do)",
+"Mobbin screen e151c051-959a-4110-b01b-5c99bff12580 (Type to begin)",
+"Mobbin screen ed164b6c-6952-48e5-b56b-32a747e08c73 (What's the plan today?)"
+]
+}
+]
+}

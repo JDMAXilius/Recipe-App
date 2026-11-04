@@ -1,0 +1,1154 @@
+{
+"app": "gentlerstreak",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "No account and no sign-in gate; the Streak tab is the observed home, but whether a relaunch restores the last tab or screen was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning user, no account",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"s",
+"Streak home",
+"\"Hi Alex,\" Daily Condition bar + tab bar",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Last tab restored?",
+"Not observed",
+2,
+0,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+0
+],
+[
+"s",
+"r",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 19d146d1-3763-4ddb-926e-2c6d3f91e5d9 (Streak home)",
+"https://apps.apple.com/us/app/id1576857102 (5.9.1 notes: \"No servers, no account\")"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Sends activity notifications (e.g. \"New Activity Summary\") and has Siri App Intents, but where a notification tap lands was not observed or documented.",
+"steps": [
+[
+"n",
+"Notification",
+"\"New Activity Summary\" (shown in pre-prompt art)",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"d",
+"Opens summary?",
+"Tap destination not confirmed",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"w",
+"Workout summary",
+"Assumed destination",
+2,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"n",
+"d",
+"tap",
+1
+],
+[
+"d",
+"w",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 40740abe-04b9-4d43-a601-e9c521f3d6f5 (\"Keep your momentum.\" notification pre-prompt)",
+"https://apps.apple.com/us/app/id1576857102 (5.13.3 Siri / App Intents)"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Health and notification asks use explained pre-prompts (notifications skippable) and missing data shows calm \"No Data\" cards; no in-app Settings/Health link for a denied state was observed.",
+"steps": [
+[
+"h",
+"Health pre-prompt",
+"\"Fill me in\" + \"Connect to Health\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Health access sheet",
+"iOS HealthKit permissions",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"n",
+"Notif pre-prompt",
+"\"Keep your momentum.\" Skip / Go for it",
+0,
+1,
+"screen",
+"seen"
+],
+[
+"k",
+"Skip",
+"App continues without reminders",
+1,
+1,
+"dec",
+"seen"
+],
+[
+"nd",
+"No Data cards",
+"\"No readings in the last 14 days\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Settings link?",
+"None observed for denied state",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"h",
+"s",
+"",
+0
+],
+[
+"s",
+"nd",
+"denied/none",
+1
+],
+[
+"n",
+"k",
+"",
+0
+],
+[
+"nd",
+"l",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 709ce134-543f-433b-a4a7-73749b7992d3 (Connect to Health)",
+"Mobbin screen 40740abe-04b9-4d43-a601-e9c521f3d6f5 (notification pre-prompt)",
+"Mobbin screens f9bf6004-fa31-4dbe-818a-6acbd51f0cae, cc4ccc7e-0314-445f-b330-cc26cb0a2571 (No Data cards)"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Success path seen (paywall, plan picker with Restore Purchase, \"You're all set.\" alert); cancel, Ask to Buy/pending and failure handling not observed.",
+"steps": [
+[
+"p",
+"Paywall",
+"\"Go Premium 50% OFF\", ×, Continue",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"pl",
+"Plan picker",
+"Yearly / Monthly / Lifetime + Restore Purchase",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"Purchase confirm",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Outcome?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Success alert",
+"\"You're all set. Your purchase was successful.\"",
+4,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cancel",
+"Back on plan picker (assumed)",
+4,
+1,
+"out",
+"unverified"
+],
+[
+"pf",
+"Pending / failed",
+"No handling observed",
+4,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"pl",
+"More Options",
+0
+],
+[
+"pl",
+"sk",
+"",
+0
+],
+[
+"sk",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"d",
+"x",
+"cancel",
+1
+],
+[
+"d",
+"pf",
+"pending/fail",
+1
+]
+],
+"sources": [
+"Mobbin flow 2b976349-438b-4611-bf2b-3eb458c6fe27 (Subscribing to Gentler Streak Premium)",
+"Mobbin flow 19d146d1-3763-4ddb-926e-2c6d3f91e5d9 (Subscribing to Gentler Streak)"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "A free tier exists (users report the home progress bar and widgets stay free), but grace-period messaging and the downgrade UI were not found.",
+"steps": [
+[
+"e",
+"Premium lapses",
+"Renewal fails or cancelled",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free tier",
+"Home bar + widgets stay free",
+2,
+0,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1576857102 (user review: \"leave the essential homepage progress bar and widgets available for free users\")"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "No-account app: Restore Purchase sits on both the Profile premium card and the plan picker; activity data is read from Apple Health rather than an app server.",
+"steps": [
+[
+"e",
+"New iPhone",
+"Install, no account to sign in",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"h",
+"Connect to Health",
+"Activity read from Apple Health",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"pr",
+"Profile card",
+"\"Go Premium\" Upgrade + \"Restore Purchase\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"pl",
+"Plan picker",
+"\"Restore Purchase\" under plans",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"o",
+"Premium restored",
+"Same Apple ID",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"h",
+"",
+0
+],
+[
+"h",
+"pr",
+"",
+0
+],
+[
+"pr",
+"o",
+"Restore",
+1
+],
+[
+"pl",
+"o",
+"Restore",
+1
+]
+],
+"sources": [
+"Mobbin flow 098c7880-0b97-4893-9a4a-297b8adbed87 (My account, Restore Purchase)",
+"Mobbin flow 2b976349-438b-4611-bf2b-3eb458c6fe27 (plan picker)",
+"https://apps.apple.com/us/app/id1576857102 (\"No servers, no account\"; health data stays on device via HealthKit)"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "There is no account to delete (\"No servers, no account\"), so Review 5.1.1(v) does not apply; the profile shows no delete row.",
+"steps": [
+[
+"e",
+"Wants deletion",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"p",
+"Profile",
+"Activity Status, Personal Details, Settings",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"n",
+"No account exists",
+"Data on device + Apple Health",
+2,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"p",
+"",
+0
+],
+[
+"p",
+"n",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flow 098c7880-0b97-4893-9a4a-297b8adbed87 (My account)",
+"https://apps.apple.com/us/app/id1576857102 (5.9.1: \"No servers, no account, no data leaving your phone\")"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "The developer says data never leaves the phone, which implies core tracking works offline, but no offline state was observed and the paywall's offline behavior is unknown.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"l",
+"Local data",
+"\"No servers... no data leaving your phone\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"p",
+"Paywall offline?",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+0
+],
+[
+"l",
+"p",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1576857102 (5.9.1 release notes)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Detailed App Store release notes (e.g. 5.13.5) and in-app \"NEW\" badges on cards and paywall rows, but no What's New sheet after updating was observed.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. 5.13.5, Oct 22",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Detailed per-version notes",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"b",
+"NEW badges",
+"\"NEW\" Monthly Recap card",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Streak home",
+"No What's New sheet seen",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"b",
+"",
+1
+],
+[
+"b",
+"s",
+"",
+0
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1576857102 (version history)",
+"Mobbin flow 19d146d1-3763-4ddb-926e-2c6d3f91e5d9 (NEW Monthly Recap, \"NEW Automatic Step Counter\")"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "There is no app server to fail (\"No servers, no account\"). When Health data is missing it shows calm cards (\"No Data\", \"Calculating Data\", \"needs at least 7 readings\") and an empty Activities list linking to \"Where are my workouts?\". Purchase failures and the on-device AI summary failing were not observed.",
+"steps": [
+[
+"e",
+"Health data missing",
+"Watch not worn / not synced yet",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"m",
+"\"No Data\" metric cards",
+"\"No readings in the last 14 days\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"\"Calculating Data\"",
+"HRV: \"needs at least 7 readings\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"\"No activities recorded\"",
+"\"Where are my workouts?\" CTA",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"i",
+"Help Insight article",
+"Destination not captured",
+2,
+1,
+"screen",
+"unverified"
+],
+[
+"p",
+"Purchase / AI fails?",
+"No failure screen observed",
+1,
+2,
+"dec",
+"unverified"
+],
+[
+"o",
+"Nothing typed is lost",
+"All data stays in Apple Health",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"m",
+"",
+0
+],
+[
+"m",
+"c",
+"",
+0
+],
+[
+"e",
+"a",
+"workouts",
+0
+],
+[
+"a",
+"i",
+"tap",
+0
+],
+[
+"e",
+"p",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screens f9bf6004-fa31-4dbe-818a-6acbd51f0cae, cc4ccc7e-0314-445f-b330-cc26cb0a2571 (No Data cards)",
+"Mobbin flow bc4a7812-bb58-40e0-8ae2-66c4c8f35a4f (Body metrics detail: HRV \"needs at least 7 readings\")",
+"Mobbin flow b69e1bd2-0668-446d-9d34-e6a9b6b07405 (2023 build: \"No activities recorded\" / \"Where are my workouts?\")",
+"https://apps.apple.com/us/app/id1576857102 (5.9.1 \"No servers, no account\"; on-device AI workout summaries)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "Traced Health access, the newsletter and analytics. The Health primer says \"Your health data will never leave this device\" before the iOS sheet. The newsletter step has a Skip and says \"Opt out any time\". The privacy policy names Mixpanel, Adjust and Sentry but documents no in-app opt-out, and withdrawing Health access goes through iOS Settings, not the app.",
+"steps": [
+[
+"e",
+"Onboarding consents",
+"Health, notifications, newsletter",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"h",
+"\"Connect to Health\"",
+"\"Never leave this device\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS Health sheet",
+"Per-type read/write toggles",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"n",
+"\"Stay In Gentler Loop\"",
+"Email newsletter, Skip, opt out",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"r",
+"\"Sync RPE with Health\"",
+"Settings toggle, off by default",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Revoke in iOS Settings",
+"Health > Data Access; no in-app link",
+4,
+0,
+"sys",
+"unverified"
+],
+[
+"g",
+"Analytics opt-out?",
+"Mixpanel/Adjust: none documented",
+1,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"h",
+"",
+0
+],
+[
+"h",
+"s",
+"Connect",
+0
+],
+[
+"s",
+"r",
+"",
+0
+],
+[
+"r",
+"w",
+"withdraw",
+1
+],
+[
+"e",
+"n",
+"",
+0
+],
+[
+"e",
+"g",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 8d4fa57c-1176-4557-8d5c-4d241bfdf9d4 (Onboarding: screen 709ce134-543f-433b-a4a7-73749b7992d3 Connect to Health; \"Stay In Gentler Loop\" with Skip)",
+"Mobbin flow d60355df-ea20-4793-b9d5-8bcdb54f4002 (Settings: Include Steps, Sync RPE with Health, App Settings)",
+"https://gentlerstories.com/gentlerstreak/privacypolicy (Health data \"processed locally\"; Sentry, Mixpanel, Adjust; no opt-out described)"
+]
+},
+{
+"n": 12,
+"verdict": "meets",
+"summary": "No-account app (\"No servers, no account\"): there is no sign-in, sign-out or wrong-password path to get wrong. Onboarding goes straight to the Health primer, the profile has no sign-out row, and the replacement is Apple Health plus Restore Purchase. Only workout-photo dates go to the user's private iCloud.",
+"steps": [
+[
+"e",
+"First launch",
+"No sign-in gate",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"y",
+"\"Hi, I'm Yorhart\"",
+"Intro, then name and Health",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"p",
+"Profile sheet",
+"Name, Settings; no sign-out row",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Restore Purchase",
+"Replaces account for Premium",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"d",
+"Data lives in Health",
+"Photo dates in private iCloud",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"y",
+"",
+0
+],
+[
+"y",
+"p",
+"",
+0
+],
+[
+"p",
+"r",
+"",
+1
+],
+[
+"p",
+"d",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flow 8d4fa57c-1176-4557-8d5c-4d241bfdf9d4 (Onboarding, no sign-in)",
+"Mobbin flow ad29f45a-3898-43c9-93ab-97ea5dee3e7d (Profile: no sign-out row)",
+"Mobbin flow 098c7880-0b97-4893-9a4a-297b8adbed87 (Restore Purchase)",
+"https://apps.apple.com/us/app/id1576857102 (5.9.1 \"No servers, no account\")",
+"https://gentlerstories.com/gentlerstreak/privacypolicy (photo dates \"stored in your private iCloud\")"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Data follows the Apple ID through Health: the standalone Watch app and the iPad app read Health data synced via iCloud, and workout photos sync via iCloud. Premium can be shared with up to 5 people through Family Sharing. Sharing with people is a one-way image card through the share sheet, and whether app settings (character, units, status) sync between devices is undocumented.",
+"steps": [
+[
+"e",
+"Second device",
+"Watch, iPad or new iPhone",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"w",
+"Standalone Watch app",
+"Start workouts on the wrist",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"i",
+"iPad app",
+"Health data synced via iCloud",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"s",
+"Settings sync?",
+"Character/units/status: no source",
+2,
+1,
+"dec",
+"unverified"
+],
+[
+"f",
+"Family Sharing",
+"Premium for up to 5 people",
+1,
+2,
+"sys",
+"doc"
+],
+[
+"c",
+"Share card",
+"\"Add Photo\", Cancel / Share",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"iOS share sheet",
+"One-way image export",
+3,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"w",
+"",
+0
+],
+[
+"e",
+"i",
+"",
+0
+],
+[
+"i",
+"s",
+"",
+1
+],
+[
+"e",
+"f",
+"",
+0
+],
+[
+"w",
+"c",
+"",
+0
+],
+[
+"c",
+"o",
+"Share",
+0
+]
+],
+"sources": [
+"https://9to5mac.com/2022/02/17/gentler-streak-apple-watch-app/ (standalone Watch app)",
+"https://9to5mac.com/2023/09/18/gentler-streak-ipad-support/ (iPad; Health data \"synchronized from iPhone and Apple Watch via iCloud\")",
+"https://gentlerstories.com/gentlerstreak/privacypolicy (photos in private iCloud)",
+"https://apps.apple.com/us/app/id1576857102 (5.11.2: share one subscription with up to 5 people; Family Sharing note)",
+"Mobbin flows ecfbf5fe-bd66-48da-bc3e-b9d0abc45f39, f25ddc06-10f4-4c7a-ba00-527926b09b84 (Sharing an activity)"
+]
+},
+{
+"n": 14,
+"verdict": "meets",
+"summary": "Every tab seen with no data has a designed state that says what will appear and offers the next step. Streak shows \"Getting to Know You\" with a Track Your Activities card, Wellness shows \"Start Your Wellbeing Journey\", metrics show \"No Data\", the 2023 Activities list says \"No activities recorded\" with \"Where are my workouts?\", and Insights is always filled with Gentler Streak 101 articles. The empty Activities list in the current build was not observed.",
+"steps": [
+[
+"e",
+"First open, no history",
+"After Health connect",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"k",
+"\"Getting to Know You\"",
+"\"Ready 7 days after next workout\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"\"Track Your Activities\"",
+"Card: track with your smartwatch",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"j",
+"\"Start Your Wellbeing...\"",
+"Wear watch at night 7 days",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"n",
+"\"No Data\" cards",
+"\"No readings in the last 14 days\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"a",
+"\"No activities recorded\"",
+"CTA \"Where are my workouts?\"",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"i",
+"Insights tab",
+"101 articles, never empty",
+3,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"k",
+"Streak",
+0
+],
+[
+"k",
+"t",
+"",
+0
+],
+[
+"e",
+"j",
+"Wellness",
+0
+],
+[
+"j",
+"n",
+"",
+0
+],
+[
+"e",
+"a",
+"Activities",
+0
+],
+[
+"t",
+"i",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 8d4fa57c-1176-4557-8d5c-4d241bfdf9d4 (Onboarding end: \"Getting to Know You\")",
+"Mobbin flow 85886abe-6fd3-46ce-9b59-ffcc6bf49f8a (Wellbeing journey: \"Start Your Wellbeing Journey\")",
+"Mobbin screens f9bf6004-fa31-4dbe-818a-6acbd51f0cae, f1eb0470-11a0-499c-a78c-f8ba02c3d79b (No Data)",
+"Mobbin flow b69e1bd2-0668-446d-9d34-e6a9b6b07405 (2023 build: \"No activities recorded\")",
+"Mobbin screen eb117be8-7532-49ff-8f57-57aeeb9630c9 (Gentler Streak 101 list)"
+]
+}
+]
+}

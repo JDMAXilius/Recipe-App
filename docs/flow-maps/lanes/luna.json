@@ -1,0 +1,884 @@
+{
+"app": "luna",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Not on Mobbin; no recording of a relaunch. The budget home is seen in App Store art and v1.31 added Face ID, but what a relaunch restores is unverified.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"f",
+"Face ID?",
+"Face ID support added in v1.31",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"h",
+"Budget home",
+"Weekly/monthly categories, \"6 days left\"",
+2,
+0,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"f",
+"",
+1
+],
+[
+"f",
+"h",
+"",
+1
+]
+],
+"sources": [
+"Figma iEA3Aeu3ApmJdJabmAudXm node 177:4 (App Store screenshot 1, budget home)",
+"https://apps.apple.com/us/app/id6504741176 (version history 1.31: Face ID)"
+]
+},
+{
+"n": 2,
+"verdict": "partial",
+"summary": "Lock Screen widgets are pitched as \"tap to quick capture transactions\" (a direct destination), but where a reminder notification tap lands was not found.",
+"steps": [
+[
+"n",
+"Reminder notification",
+"\"It's going to be a good day! Remember to...\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"w",
+"Lock Screen widget",
+"\"$1,142 spent\" this week",
+0,
+1,
+"entry",
+"seen"
+],
+[
+"d",
+"Destination?",
+"Notification tap target not documented",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"q",
+"Quick capture",
+"\"tap to quick capture transactions\"",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"h",
+"Budget home",
+"Assumed landing for notification",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"n",
+"d",
+"tap",
+1
+],
+[
+"d",
+"h",
+"",
+1
+],
+[
+"w",
+"q",
+"tap",
+0
+]
+],
+"sources": [
+"Figma node 177:4 (App Store screenshots 3 and 4: widgets, reminder notification)",
+"https://guide.lunabudgeting.com/features/ios-widgets"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "A soft primer (\"Need a reminder?\") comes before the iOS ask and offers \"Don't send\"; the app is manual and works without notifications, but denied-state handling and a Settings link were not found.",
+"steps": [
+[
+"p",
+"Reminder primer",
+"\"Need a reminder?\" with frequency options",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"n",
+"Don't send",
+"\"Turn off all reminders\"",
+1,
+1,
+"dec",
+"seen"
+],
+[
+"s",
+"iOS permission alert",
+"Allow / Don't Allow",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"o",
+"App keeps working",
+"Manual logging needs no permission",
+2,
+1,
+"out",
+"doc"
+],
+[
+"l",
+"Denied: Settings link",
+"Not observed",
+2,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"s",
+"pick level",
+1
+],
+[
+"p",
+"n",
+"",
+0
+],
+[
+"n",
+"o",
+"",
+0
+],
+[
+"s",
+"l",
+"denied",
+1
+],
+[
+"l",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Figma node 177:4 (App Store screenshot 4, \"Need a reminder?\" / \"Don't send\")",
+"https://guide.lunabudgeting.com/features/reminders"
+]
+},
+{
+"n": 4,
+"verdict": "unknown",
+"summary": "Monthly $4.99, yearly $49.99 and $149.99 lifetime purchases, plus a 14-day trial with \"no credit card needed\"; no paywall or purchase result was observed.",
+"steps": [
+[
+"t",
+"14-day trial",
+"\"no credit card needed\" from sign-up",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"p",
+"Paywall",
+"$4.99/mo, $49.99/yr, $149.99 lifetime",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"sk",
+"StoreKit sheet",
+"",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Outcome?",
+"Success/cancel/pending not observed",
+3,
+0,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"t",
+"p",
+"",
+1
+],
+[
+"p",
+"sk",
+"",
+1
+],
+[
+"sk",
+"d",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6504741176 (In-App Purchases)",
+"https://lunabudgeting.com/pricing (\"All new accounts automatically come with a 14 day trial\")"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "Nothing documents what happens when the trial or a subscription ends; the pricing page only says to email the developer to extend the trial. No free tier is described.",
+"steps": [
+[
+"e",
+"Trial/sub ends",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"x",
+"Extend by email",
+"\"reach out to chris@aloa.co\" to extend",
+1,
+1,
+"out",
+"doc"
+],
+[
+"g",
+"Grace / lockout",
+"Not documented",
+1,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"e",
+"x",
+"",
+1
+]
+],
+"sources": [
+"https://lunabudgeting.com/pricing"
+]
+},
+{
+"n": 6,
+"verdict": "unknown",
+"summary": "Evidence conflicts: the privacy policy says data is stored in Firebase Firestore and v1.13 fixed \"forgot password\" (accounts exist), but a user review says data stays local with no sync. No Restore Purchases was documented.",
+"steps": [
+[
+"e",
+"New device",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"l",
+"Sign in",
+"Email/password (\"forgot password\" fix, v1.13)",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"c",
+"Data from Firestore",
+"Privacy policy: data stored in Firestore",
+2,
+0,
+"out",
+"doc"
+],
+[
+"r",
+"No sync (review)",
+"User review: local only, no sync/export",
+2,
+1,
+"out",
+"report"
+],
+[
+"rp",
+"Restore Purchases",
+"Not documented",
+3,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+1
+],
+[
+"l",
+"c",
+"",
+1
+],
+[
+"l",
+"r",
+"",
+1
+],
+[
+"c",
+"rp",
+"",
+1
+]
+],
+"sources": [
+"https://lunabudgeting.com/privacy-policy (\"We use Firebase Firestore to store and process your data\")",
+"https://apps.apple.com/us/app/id6504741176 (v1.13 notes; user review)"
+]
+},
+{
+"n": 7,
+"verdict": "unknown",
+"summary": "No in-app account deletion is documented. The privacy policy gives only an email address, and \"Fresh start mode\" wipes data (\"cannot be undone\") but is not account deletion.",
+"steps": [
+[
+"s",
+"Settings",
+"",
+0,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Fresh start mode",
+"\"clear your account\" and start over",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"w",
+"Wipe warning",
+"\"This action cannot be undone\"",
+2,
+1,
+"out",
+"doc"
+],
+[
+"d",
+"Delete account",
+"No in-app flow found",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"m",
+"Email developer",
+"Privacy policy: chris@lunabudgeting.com",
+2,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"s",
+"f",
+"",
+1
+],
+[
+"f",
+"w",
+"",
+0
+],
+[
+"s",
+"d",
+"",
+1
+],
+[
+"d",
+"m",
+"",
+1
+]
+],
+"sources": [
+"https://guide.lunabudgeting.com/features/fresh-start-mode",
+"https://lunabudgeting.com/privacy-policy (no deletion process described)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "No official word on offline use; data lives in Firestore (cloud), and one aggregator lists \"offline functionality\". Unverified.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"o",
+"Offline logging?",
+"Aggregator claims offline works",
+1,
+0,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"e",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://lunabudgeting.com/privacy-policy (Firestore)",
+"https://productivewithchris-com.pages.dev/tools/luna-budgeting (third-party summary)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Frequent release notes in App Store version history (latest 1.34, Jan 13; 1.32 interactive reports, Liquid Glass); no in-app What's New was found.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. v1.32 \"Interactive reports\"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Version history only",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"h",
+"Budget home",
+"No What's New seen",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"h",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6504741176 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "unknown",
+"summary": "No AI. Data lives in Firebase Firestore, but no sync or server failure handling is documented; only widget update bugs were fixed (v1.14).",
+"steps": [
+[
+"e",
+"Sync / save fails",
+"Firestore-backed",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Error shown?",
+"Not documented",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"w",
+"Widget not updating",
+"Fixed in v1.14",
+1,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+1
+],
+[
+"e",
+"w",
+"",
+1
+]
+],
+"sources": [
+"https://lunabudgeting.com/privacy-policy (Firestore)",
+"https://apps.apple.com/us/app/id6504741176 (listing, version history, privacy label) (v1.14 notes)"
+]
+},
+{
+"n": 11,
+"verdict": "misses",
+"summary": "No AI; traced analytics: the privacy policy names PostHog usage analytics and Firestore with consent \"By using our Service\", no opt-out is described, and the label lists linked data for the developer's marketing.",
+"steps": [
+[
+"e",
+"Use the app",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"c",
+"Implied consent",
+"\"By using our Service, you consent\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"a",
+"PostHog analytics",
+"Usage + in-app interactions",
+2,
+0,
+"sys",
+"doc"
+],
+[
+"x",
+"No opt-out",
+"None described in policy or guide",
+3,
+0,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+1
+],
+[
+"c",
+"a",
+"",
+0
+],
+[
+"a",
+"x",
+"",
+0
+]
+],
+"sources": [
+"https://lunabudgeting.com/privacy-policy (PostHog; Firestore consent)",
+"https://apps.apple.com/us/app/id6504741176 (listing, version history, privacy label) (Data Linked to You: Advertising or Marketing, Analytics)",
+"https://guide.lunabudgeting.com/llms.txt (official guide index)"
+]
+},
+{
+"n": 12,
+"verdict": "unknown",
+"summary": "Accounts exist (a \"Forget password fix\" shipped in v1.14), but sign-in methods, cancelled sign-in and sign out are undocumented.",
+"steps": [
+[
+"e",
+"Open signed out",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"si",
+"Sign in",
+"Password-based (\"Forget password fix\")",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"so",
+"Sign out",
+"Not documented",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"si",
+"",
+1
+],
+[
+"si",
+"so",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6504741176 (listing, version history, privacy label) (v1.14 notes)",
+"https://lunabudgeting.com/privacy-policy"
+]
+},
+{
+"n": 13,
+"verdict": "unknown",
+"summary": "No sharing or household budgets are documented; iPhone and Apple-silicon Mac only (no iPad or Watch), and whether data syncs between devices conflicts (Firestore vs a user review).",
+"steps": [
+[
+"e",
+"Second device",
+"Mac (Apple silicon) only",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"c",
+"Firestore account?",
+"Policy: data stored in Firestore",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"r",
+"No sync (review)",
+"User review: local only",
+2,
+1,
+"out",
+"report"
+],
+[
+"s",
+"Sharing",
+"No household / partner feature",
+2,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+1
+],
+[
+"c",
+"r",
+"",
+1
+],
+[
+"c",
+"s",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6504741176 (listing, version history, privacy label) (supported devices; user review)",
+"https://lunabudgeting.com/privacy-policy",
+"https://guide.lunabudgeting.com/llms.txt (16 pages, none on sharing or sync)"
+]
+},
+{
+"n": 14,
+"verdict": "unknown",
+"summary": "Not on Mobbin; empty budget or transaction screens were not observed. The guide's Getting Started is a reading list (\"Not sure where to start?\").",
+"steps": [
+[
+"e",
+"First open",
+"14-day trial starts",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"g",
+"Getting started guide",
+"\"Not sure where to start?\"",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"em",
+"Empty budget",
+"Not observed",
+1,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"em",
+"",
+1
+],
+[
+"e",
+"g",
+"help",
+1
+]
+],
+"sources": [
+"https://guide.lunabudgeting.com/getting-started/quickstart.md",
+"https://lunabudgeting.com/pricing (trial)"
+]
+}
+]
+}

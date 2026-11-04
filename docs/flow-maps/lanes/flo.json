@@ -1,0 +1,1119 @@
+{
+"app": "flo",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Returning users land on Today (\"Period in 4 days\"), and Settings offers an \"Access code\" lock; whether relaunch restores the last tab, and when the code is asked, were not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"c",
+"Access code set?",
+"Settings > \"Access code\"",
+1,
+0,
+"dec",
+"seen"
+],
+[
+"p",
+"Code entry",
+"Not observed",
+2,
+1,
+"screen",
+"unverified"
+],
+[
+"t",
+"Today",
+"\"Period in 4 days\", Log period",
+2,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+0
+],
+[
+"c",
+"t",
+"no",
+0
+],
+[
+"c",
+"p",
+"yes",
+1
+],
+[
+"p",
+"t",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 7cb82647-5822-4c81-bbc6-9fae6a7b5ce3 (Today)",
+"Mobbin flow 34c0b76d-b84b-48f3-88e9-88460c115196 (Settings incl. Access code)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Flo sends cycle reminders and Secret Chats pushes (toggles seen in Reminders), but where a tap lands, and what happens if signed out or locked, was not observed.",
+"steps": [
+[
+"e",
+"Cycle reminder",
+"\"Period in a couple of days\" etc.",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"d",
+"Locked / signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Destination",
+"Not confirmed",
+2,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"d",
+"t",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screens c1b503c4-cbdc-4e36-9538-14374c53e3f1, 7c81aa5d-fbf0-4a0f-9ef4-b2eae8e21b62 (Reminders)"
+]
+},
+{
+"n": 3,
+"verdict": "unknown",
+"summary": "Reminders are configured per type in Settings > Reminders, but the notification ask, the denied state and any Settings link were not observed.",
+"steps": [
+[
+"r",
+"Reminders",
+"Per-type toggles (Period start, Ovulation...)",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS permission alert",
+"Not observed",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"o",
+"Denied fallback",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"r",
+"s",
+"",
+1
+],
+[
+"s",
+"o",
+"denied",
+1
+]
+],
+"sources": [
+"Mobbin screens c1b503c4-cbdc-4e36-9538-14374c53e3f1, 7c81aa5d-fbf0-4a0f-9ef4-b2eae8e21b62"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Success seen end to end (\"Choose your plan\" with Restore, StoreKit trial sheet, account ask, \"Congratulations, you've got Flo Premium!\"); a \"Go back\" sheet appears while loading, and dismissing triggers a \"46% OFF FOREVER\" second offer; pending/failure not observed.",
+"steps": [
+[
+"p",
+"Choose your plan",
+"Restore, limited-access link, Continue",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"\"2-week free trial\" then yearly",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"gb",
+"Loading sheet",
+"Spinner + \"Go back\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"ac",
+"Create account",
+"\"Peace of mind: Check!\" trial reminder",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"ok",
+"Success",
+"\"Congratulations, you've got Flo Premium!\"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Dismiss paywall",
+"\"Claim your gift... 46% OFF FOREVER\"",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"pf",
+"Pending / failed",
+"No handling observed",
+2,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"sk",
+"Continue",
+0
+],
+[
+"p",
+"gb",
+"",
+1
+],
+[
+"sk",
+"ac",
+"success",
+0
+],
+[
+"ac",
+"ok",
+"",
+0
+],
+[
+"p",
+"x",
+"×",
+1
+],
+[
+"sk",
+"pf",
+"pending/fail",
+1
+]
+],
+"sources": [
+"Mobbin flow fca0777d-751e-4255-b891-b69a8cd8f4fa (Subscribing to Flo premium)",
+"Mobbin flow 7f5e5017-4a7a-4019-8ece-2f540379c40c (Subscribing to Flo premium)",
+"Mobbin flow 3e01b864 (onboarding paywall, second chance)"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "Basics stay free (developer: \"keeping the basics free for everyone\"); third-party guides say cancelling keeps cycle history, but grace-period messaging and downgrade UI were not found.",
+"steps": [
+[
+"e",
+"Premium lapses",
+"Renewal fails or cancelled",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free tier",
+"Basic cycle tracking; history kept",
+2,
+0,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1038369065 (developer response on free basics)",
+"https://www.19pine.ai/flo (third-party: cancel downgrades to free, data kept)"
+]
+},
+{
+"n": 6,
+"verdict": "partial",
+"summary": "Logging in with the original method restores data and Premium, and the paywall has \"Restore\"; but unregistered or Anonymous Mode users cannot get their data back on a new phone.",
+"steps": [
+[
+"e",
+"New device",
+"Open Flo",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Registered?",
+"",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"l",
+"Log in",
+"Apple / Google / email, same method",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Today with history",
+"Data + Premium tied to account",
+3,
+0,
+"out",
+"doc"
+],
+[
+"r",
+"Paywall \"Restore\"",
+"Top-right on \"Choose your plan\"",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"n",
+"Data not recoverable",
+"No account / Anonymous Mode",
+2,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"l",
+"yes",
+0
+],
+[
+"l",
+"t",
+"",
+0
+],
+[
+"t",
+"r",
+"Premium?",
+1
+],
+[
+"d",
+"n",
+"no",
+1
+]
+],
+"sources": [
+"https://help.flo.health/hc/en-us/articles/360015054351-How-can-I-restore-the-data-",
+"https://help.flo.health/hc/en-us/articles/42750063779988-What-if-I-uninstall-or-reinstall-the-Flo-app",
+"Mobbin flow fca0777d-751e-4255-b891-b69a8cd8f4fa (sign-in options, Restore)"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "In-app Profile > \"Manage my data\" > Delete account, one alert that explains deletion and logout (with Privacy Policy link); subscription handling is not mentioned and the end screen was not observed.",
+"steps": [
+[
+"p",
+"Profile",
+"\"Manage my data\" button",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"Manage my data",
+"Request info / Change details / Delete",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"Delete alert",
+"\"Delete account? ...can't be undone.\"",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Delete?",
+"Privacy Policy / Delete my account / Cancel",
+3,
+0,
+"dec",
+"seen"
+],
+[
+"o",
+"Logged out",
+"\"You will be logged out of Flo\"",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"m",
+"",
+0
+],
+[
+"m",
+"a",
+"",
+0
+],
+[
+"a",
+"d",
+"",
+0
+],
+[
+"d",
+"o",
+"Delete",
+0
+]
+],
+"sources": [
+"Mobbin flow cf18d334-2bab-4dcb-83ea-758b5031c073 (Deleting an account)",
+"https://help.flo.health/hc/en-us/articles/360042567131-How-can-I-delete-my-account"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "No offline state observed and no official doc found; Today shows an \"Updating predictions...\" state after logging, but its offline behavior is unknown.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"u",
+"Updating predictions",
+"Seen after logging a period (online)",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Offline behavior",
+"Not documented",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"u",
+"",
+1
+],
+[
+"u",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 4fd3dc50-a056-4b32-bb5c-3f156759a645 (Logging a period, \"Updating predictions...\")"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Recent App Store release notes are generic (\"This is a technical update...\"); no in-app What's New screen was observed.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. 10.9.1, Oct 22",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Generic technical-update text",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"t",
+"Today",
+"No What's New seen",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"t",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1038369065 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "unknown",
+"summary": "Only loading states were observed (\"Updating predictions...\", \"Analyzing your cycle... Powered by Flo Intelligence\"); no AI or server error screen was found, and the help center handles errors like failed email verification after the fact.",
+"steps": [
+[
+"e",
+"Log period",
+"Predictions recompute",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"u",
+"Updating",
+"\"Updating predictions...\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"Analyzing",
+"\"Analyzing your cycle...\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Request fails?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"x",
+"Error + retry",
+"Not observed",
+4,
+0,
+"out",
+"unverified"
+],
+[
+"v",
+"Email verify error",
+"Help: retype email in lowercase",
+3,
+1,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"u",
+"",
+0
+],
+[
+"u",
+"a",
+"",
+0
+],
+[
+"a",
+"d",
+"",
+1
+],
+[
+"d",
+"x",
+"yes",
+1
+],
+[
+"d",
+"v",
+"verify",
+1
+]
+],
+"sources": [
+"Mobbin screen a00dbb22-66b8-4b53-aaaa-6c8e4b3a054e (Updating predictions)",
+"Mobbin screen 9159416e-5b48-4719-a7d1-05881fae936c (Analyzing your cycle, Flo Intelligence)",
+"https://help.flo.health/hc/en-us/articles/51628860879892 (I can't verify my email: case-sensitive)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "Onboarding asks three separate consents (health processing, Privacy Policy, optional app-activity tracking with AppsFlyer/Firebase) and the help center routes withdrawal to Privacy settings > manage your consents, but withdrawing health-data consent sends you to delete the account.",
+"steps": [
+[
+"c",
+"Consent screen",
+"\"Your body. Your data\" 3 checkboxes",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"s",
+"Settings",
+"\"Privacy settings\" row",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"Manage consents",
+"Privacy settings > manage your consents",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"d",
+"Which consent?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Tracking off",
+"Optional consent withdrawn",
+4,
+1,
+"out",
+"unverified"
+],
+[
+"h",
+"Delete account",
+"Health consent withdrawal = delete",
+4,
+0,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"c",
+"s",
+"later",
+0
+],
+[
+"s",
+"m",
+"",
+0
+],
+[
+"m",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"tracking",
+1
+],
+[
+"d",
+"h",
+"health",
+0
+]
+],
+"sources": [
+"Mobbin screens 84bf35b2-2465-4037-b359-30203277bda8, 9524933d-5f9c-415f-9c2b-fb95b4ee5693 (consent screen)",
+"Mobbin screen cf95a741-9112-4458-86fe-c6322599ac93 (Settings: Privacy settings)",
+"https://help.flo.health/hc/en-us/articles/19157513179668 (How can I withdraw my consent?)"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "Sign-in offers email, Apple or Google, but each method is a separate profile, so the wrong one shows an empty calendar; Profile \"Log out\" asks \"Do you want to log out of the account?\" then returns to \"Hello, I'm Flo\", and logging out unregistered risks data loss.",
+"steps": [
+[
+"e",
+"Log in",
+"Email / Apple / Google",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Same method?",
+"",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"t",
+"Data restored",
+"Calendar back",
+2,
+0,
+"out",
+"doc"
+],
+[
+"w",
+"Empty calendar",
+"Other method = separate profile",
+2,
+1,
+"screen",
+"gap"
+],
+[
+"p",
+"Profile",
+"\"Log out\" top right",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"Logout alert",
+"\"Do you want to log out...?\" Yes/Cancel",
+4,
+0,
+"sys",
+"seen"
+],
+[
+"o",
+"Hello, I'm Flo",
+"Signed-out start",
+5,
+0,
+"out",
+"seen"
+],
+[
+"u",
+"Unregistered",
+"Help: logging out risks losing data",
+4,
+1,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"d",
+"w",
+"no",
+1
+],
+[
+"t",
+"p",
+"",
+0
+],
+[
+"p",
+"a",
+"",
+0
+],
+[
+"a",
+"o",
+"Yes",
+0
+],
+[
+"p",
+"u",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow b3c69fe1-6e00-4ab7-bbcc-9f243d3b800e (Logging out)",
+"https://help.flo.health/hc/en-us/articles/360015054351 (sign in and restore; methods are separate profiles)",
+"https://help.flo.health/hc/en-us/articles/4402670159252 (Why register your account?)",
+"https://help.flo.health/hc/en-us/articles/360054523751 (How do I log out)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Flo for Partners shares a view-only calendar via a pairing code and \"Stop sharing\" is explained and reversible, but the help center says there is no real-time sync between your own devices: log out and back in to see new data.",
+"steps": [
+[
+"e",
+"Partner tab",
+"\"Flo for Partners\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"c",
+"Pairing code",
+"\"Send pairing code\" / \"Cancel invite\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"v",
+"Partner view",
+"View-only cycle data",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"s",
+"Stop sharing?",
+"\"He'll no longer get...\" reactivate anytime",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Stopped",
+"\"You can share it again anytime.\"",
+4,
+0,
+"out",
+"seen"
+],
+[
+"d",
+"Second device",
+"No real-time sync: log out + in",
+1,
+1,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+0
+],
+[
+"c",
+"v",
+"paired",
+0
+],
+[
+"v",
+"s",
+"Stop sharing",
+0
+],
+[
+"s",
+"o",
+"Yes",
+0
+],
+[
+"e",
+"d",
+"own devices",
+1
+]
+],
+"sources": [
+"Mobbin flow 7c2fceff-624a-4c3f-a7af-0cf710ec76b8 (Stop sharing with a partner)",
+"Mobbin screen ade2efb3-8757-483b-ae1d-220438bd10ad (pairing code)",
+"https://help.flo.health/hc/en-us/articles/19872048333972 (What data will be shared)",
+"https://help.flo.health/hc/en-us/articles/51629669364372 (My data is not synced between devices)"
+]
+},
+{
+"n": 14,
+"verdict": "unknown",
+"summary": "New-user Today shows a placeholder insight (\"we're looking for symptom patterns\") and setup spinners; empty Insights, Messages and reports states were not observed.",
+"steps": [
+[
+"e",
+"First open",
+"After onboarding",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"s",
+"Setting up",
+"\"Setting up your account\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Today",
+"\"...we're looking for symptom patterns\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Other tabs empty",
+"Not observed",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+0
+],
+[
+"s",
+"t",
+"",
+0
+],
+[
+"t",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen e0dad574-5e81-478b-9bda-76cd765e9848 (Setting up your account)",
+"Mobbin screen a00dbb22-66b8-4b53-aaaa-6c8e4b3a054e (Today placeholder insight)"
+]
+}
+]
+}

@@ -1,0 +1,1177 @@
+{
+"app": "lifesum",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "The app cannot open without a connection; the observed signed-in home is the Diary (\"TODAY\"), but whether a relaunch restores the last tab or screen was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning signed-in user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"n",
+"Online?",
+"App needs network to open",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"d",
+"Diary",
+"\"TODAY\" calorie ring + meals",
+2,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cannot open",
+"No offline launch",
+2,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"d",
+"yes",
+0
+],
+[
+"n",
+"x",
+"no",
+1
+]
+],
+"sources": [
+"Mobbin flow ec0bd58b-d395-4c7f-8c0c-d9be3c588309 (Diary after subscribing)",
+"https://help.lifesum.com/en/article/does-the-mobile-app-work-without-an-internet-connection-w8zgj5/"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Lifesum sends reminders and keeps an in-app \"Messages\" inbox behind the bell icon, but where a push tap lands (and when signed out) was not observed or documented.",
+"steps": [
+[
+"n",
+"Reminder push",
+"Set in \"My notifications\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"d",
+"Where does tap land?",
+"Not documented",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"m",
+"Messages inbox",
+"Bell icon: All / Announcements / Promotions",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"t",
+"Destination",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"n",
+"d",
+"tap",
+1
+],
+[
+"d",
+"t",
+"",
+1
+],
+[
+"d",
+"m",
+"bell",
+1
+]
+],
+"sources": [
+"Mobbin screen f463a8c8-e32e-4a03-a6db-e8adbd36625e (My notifications: \"Remind me to track at 8 am\")",
+"Mobbin screen b8c2090e-57f9-4700-81c9-e8195c804ef5 (Messages inbox)",
+"https://help.lifesum.com/en/article/content-cards-in-app-message-center-15nne1d/"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Reminders are configured in-app and Apple Health is opt-in from Automatic Tracking; when permissions are off, the help center sends users to iOS Settings or the Health app by hand. No in-app Settings link was found.",
+"steps": [
+[
+"s",
+"Notification Settings",
+"In-app reminder toggles",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"Automatic Tracking",
+"\"Activate\" > Health sheet",
+0,
+1,
+"screen",
+"doc"
+],
+[
+"h",
+"iOS / Health permission",
+"",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Denied?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"m",
+"Help: manual path",
+"iOS Settings > Lifesum; Health > Apps",
+3,
+0,
+"screen",
+"doc"
+],
+[
+"o",
+"Diary still works",
+"Manual logging",
+3,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"h",
+"",
+0
+],
+[
+"a",
+"h",
+"",
+0
+],
+[
+"h",
+"d",
+"",
+0
+],
+[
+"d",
+"m",
+"yes",
+1
+],
+[
+"d",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 357f31bd-89bb-4eca-87a0-29e4516bdf38 (Settings: Notification Settings, Automatic Tracking; screen c7c496e0-364e-4412-8206-848b30d0f3d0)",
+"https://help.lifesum.com/en/article/how-can-i-manage-push-notifications-on-my-phone-ios-33fnrk/",
+"https://help.lifesum.com/en/article/how-to-connect-to-and-sync-with-apple-health-ios-eagtau/"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Paywall with Restore Purchase and Redeem Code, a spinner during purchase, then the Diary; failures are handled only in the help center (contact support or buy on the web), and Ask to Buy/pending was not found.",
+"steps": [
+[
+"p",
+"Paywall",
+"Free vs Premium, plans, CONTINUE",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit + spinner",
+"Purchase in progress",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Diary (Premium)",
+"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cancel",
+"Back on paywall (assumed)",
+3,
+1,
+"out",
+"unverified"
+],
+[
+"f",
+"Failed",
+"\"error message\" > support or lifesum.com/upgrade",
+3,
+2,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"p",
+"sk",
+"",
+0
+],
+[
+"sk",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"d",
+"x",
+"cancel",
+1
+],
+[
+"d",
+"f",
+"fail",
+1
+]
+],
+"sources": [
+"Mobbin flow ec0bd58b-d395-4c7f-8c0c-d9be3c588309 (Subscribing to Lifesum Premium)",
+"https://help.lifesum.com/en/article/unable-to-purchase-premium-subscription-7wmjfn/",
+"https://help.lifesum.com/en/article/i-bought-a-premium-subscription-but-my-account-still-shows-the-free-version-ios-wrufjr/ (activation can take a few minutes)"
+]
+},
+{
+"n": 5,
+"verdict": "partial",
+"summary": "A lapsed Premium drops gently to the free version with all data kept on the server and favorites still viewable; grace-period messaging was not found, and the app only shows the last 30 days of tracked data.",
+"steps": [
+[
+"e",
+"Premium runs out",
+"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free version",
+"Favorites viewable, can't create more",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"k",
+"Data kept on servers",
+"Full access back on resubscribe",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"e",
+"f",
+"",
+0
+],
+[
+"f",
+"k",
+"",
+0
+]
+],
+"sources": [
+"https://help.lifesum.com/en/article/do-i-lose-my-tracked-data-and-the-recipes-saved-as-soon-as-my-premium-subscription-is-running-out-1ykqhri/",
+"https://help.lifesum.com/en/article/cancel-subscription-x0r9op/"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based: log in with Apple, Google, Email or Facebook brings the data back; Restore Purchase is on the paywall and in Settings. The common failure is signing in with a different method than the one that holds the subscription.",
+"steps": [
+[
+"w",
+"Welcome",
+"\"CREATE ACCOUNT\" / \"LOG IN\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Log in",
+"Apple / Google / Email / Facebook",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Shows Premium?",
+"",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"h",
+"Diary with data",
+"",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"r",
+"Settings: Restore Purchase",
+"Also on paywall",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"m",
+"Check account email",
+"Apple Hide My Email mismatch",
+4,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"w",
+"l",
+"",
+0
+],
+[
+"l",
+"d",
+"",
+0
+],
+[
+"d",
+"h",
+"yes",
+0
+],
+[
+"d",
+"r",
+"no",
+1
+],
+[
+"r",
+"m",
+"still free",
+1
+]
+],
+"sources": [
+"Mobbin screen ba2ba934-eb10-49f1-85fb-a47ffa771cd8 (Log in options)",
+"Mobbin flow ec0bd58b-d395-4c7f-8c0c-d9be3c588309 (paywall \"RESTORE PURCHASE\")",
+"https://help.lifesum.com/en/article/i-have-an-active-premium-subscription-but-my-account-shows-the-free-version-what-can-i-do-g8h7w9/"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "In-app Settings > Account Settings > Delete account, a pop-up, then a typed confirmation code, then the signed-out welcome screen; the help center (not the screen) warns that the subscription is not cancelled.",
+"steps": [
+[
+"s",
+"Account Settings",
+"\"Delete account\" (red)",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"p",
+"Warning pop-up",
+"Confirm \"Delete Account\"",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"c",
+"Confirm code",
+"\"Please enter this code to confirm\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Signed-out welcome",
+"\"This is the start of life improving\"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"n",
+"Subscription note",
+"Help center only: cancel first",
+1,
+1,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"s",
+"p",
+"",
+0
+],
+[
+"p",
+"c",
+"",
+0
+],
+[
+"c",
+"w",
+"DELETE ACCOUNT",
+0
+],
+[
+"s",
+"n",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow b2211f33-0954-4510-804f-b08099200b53 (Deleting account)",
+"https://help.lifesum.com/en/article/account-deletion-13jyggn/"
+]
+},
+{
+"n": 8,
+"verdict": "misses",
+"summary": "Help center: \"Unfortunately not.\" The app can't open offline, and if the connection drops while it's open you can view but not save or track.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"App already open?",
+"",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"v",
+"View only",
+"Can't save changes or track",
+2,
+0,
+"out",
+"gap"
+],
+[
+"x",
+"Can't open app",
+"Needs Wi-Fi or mobile network",
+2,
+1,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"v",
+"yes",
+0
+],
+[
+"d",
+"x",
+"no",
+1
+]
+],
+"sources": [
+"https://help.lifesum.com/en/article/does-the-mobile-app-work-without-an-internet-connection-w8zgj5/"
+]
+},
+{
+"n": 9,
+"verdict": "partial",
+"summary": "No version What's New sheet found; new features show up as dismissible in-place cards (\"Try AI food tracking\" ×) and in the Messages inbox, with a running changelog in the help center.",
+"steps": [
+[
+"e",
+"App updated",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"c",
+"Diary feature card",
+"\"Try AI food tracking\" ×",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"Messages inbox",
+"\"updates in the app\", expire in 3-7 days",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"d",
+"Diary",
+"Last state kept",
+2,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+1
+],
+[
+"e",
+"m",
+"",
+1
+],
+[
+"c",
+"d",
+"×",
+0
+]
+],
+"sources": [
+"Mobbin flow ec0bd58b-d395-4c7f-8c0c-d9be3c588309 (Diary with \"Try AI food tracking\" card)",
+"https://help.lifesum.com/en/article/content-cards-in-app-message-center-15nne1d/",
+"https://help.lifesum.com/en/article/what-is-new-these-are-the-latest-additions-to-our-app-1vy6mk1/"
+]
+},
+{
+"n": 10,
+"verdict": "unknown",
+"summary": "AI Tracking is labelled Premium-only, and Lifesum's support bot asks whether users are \"receiving an error message in the AI Chat\", so AI errors exist, but their copy, retry and whether typed or photographed input survives were not observed; offline, nothing can be saved.",
+"steps": [
+[
+"e",
+"Track with AI chat",
+"Type, voice or photo",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"p",
+"Premium?",
+"\"AI Tracking is a Premium feature\"",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"c",
+"AI chat",
+"Greeting + \"Often tracked for lunch\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"x",
+"AI error message",
+"Copy and retry not observed",
+3,
+1,
+"screen",
+"unverified"
+],
+[
+"s",
+"Support bot triage",
+"\"error message in the AI Chat\"",
+4,
+1,
+"out",
+"seen"
+],
+[
+"o",
+"Offline: view only",
+"Can't save or track",
+3,
+2,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"p",
+"",
+0
+],
+[
+"p",
+"c",
+"yes",
+0
+],
+[
+"c",
+"x",
+"fails",
+1
+],
+[
+"x",
+"s",
+"",
+1
+],
+[
+"c",
+"o",
+"offline",
+1
+]
+],
+"sources": [
+"https://help.lifesum.com/en/article/ai-tracking-how-does-it-work-15sw7rk/",
+"Mobbin screen bc0da8c1-0d21-4abf-8beb-5e2d82cc3c4b (AI chat)",
+"Mobbin screen b66c0f06-c81a-4a30-87d0-c66c66800735 (support chat: \"receiving an error message in the AI Chat\")",
+"https://help.lifesum.com/en/article/does-the-mobile-app-work-without-an-internet-connection-w8zgj5/"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "Account Settings has a \"Data Consents\" row and the policy says consents can be withdrawn there; AI Tracking is offered as the default only after a question on first use; but the in-app support chat's data consent says revoking it means emailing contact@lifesum.com, harder than giving it.",
+"steps": [
+[
+"a",
+"Account Settings",
+"\"Data Consents\" row",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Data Consents",
+"Contents not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"w",
+"Withdraw in app",
+"Policy: withdraw \"from account settings\"",
+2,
+0,
+"out",
+"doc"
+],
+[
+"s",
+"Support chat consent",
+"Agreed by starting a chat",
+0,
+1,
+"screen",
+"seen"
+],
+[
+"g",
+"Revoke by email",
+"\"send a message to contact@lifesum.com\"",
+1,
+1,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"a",
+"d",
+"",
+0
+],
+[
+"d",
+"w",
+"",
+0
+],
+[
+"s",
+"g",
+"revoke",
+0
+]
+],
+"sources": [
+"Mobbin screen ee803113-579b-4036-b500-f7fba873919a (Account Settings: Data Consents)",
+"https://lifesum.com/policy (\"withdrawal of consents can also be done from the account settings page\"; AI processors for multimodal tracking, unnamed)",
+"Mobbin screen 1794c10e-646c-47c1-9798-65b68747d4a3 (support chat consent, revoke via contact@lifesum.com)",
+"https://help.lifesum.com/en/article/ai-tracking-how-does-it-work-15sw7rk/ (asks whether to make AI Tracking the standard method)"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "Log-in offers Apple, Google, Email or Facebook, and the help center explains the \"email address is already connected\" pop-up (you were on sign-up, choose Log in); Settings > LOG OUT has no confirm, shows \"Logging out\" and lands on the welcome screen, which then asks \"Is this you?\" with the old email. Cancelled sign-in not observed.",
+"steps": [
+[
+"s",
+"Settings",
+"\"LOG OUT\" at the bottom",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"\"Logging out\" toast",
+"No confirm dialog",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Welcome",
+"CREATE ACCOUNT / LOG IN",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"q",
+"\"Is this you?\"",
+"Remembers last email; No / Yes",
+3,
+0,
+"dec",
+"seen"
+],
+[
+"l",
+"Log-in options",
+"Apple, Google, Email, Facebook",
+4,
+0,
+"out",
+"seen"
+],
+[
+"e",
+"\"email already connected\"",
+"Help: go back, choose \"Log in\"",
+3,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"s",
+"t",
+"",
+0
+],
+[
+"t",
+"w",
+"",
+0
+],
+[
+"w",
+"q",
+"",
+0
+],
+[
+"q",
+"l",
+"Yes",
+0
+],
+[
+"w",
+"e",
+"sign-up",
+1
+]
+],
+"sources": [
+"Mobbin flow 8c0c223e-54e1-466d-b50c-0f09c2cd5e97 (Logging out: LOG OUT, \"Logging out\", \"Is this you?\")",
+"Mobbin screen ba2ba934-eb10-49f1-85fb-a47ffa771cd8 (Log in options, from lane 6)",
+"https://help.lifesum.com/en/article/when-i-try-to-log-into-the-app-says-that-the-email-address-is-already-connected-1gaotbb/",
+"https://help.lifesum.com/en/article/how-to-log-out-from-your-account-157i1dc/ (nothing on data after logout)"
+]
+},
+{
+"n": 13,
+"verdict": "misses",
+"summary": "The help center says using several devices is \"not something that we fully support\" (entries may not appear on the other device) and meals can't be shared with other users; the Apple Watch app picks up the iPhone's login.",
+"steps": [
+[
+"e",
+"Second device",
+"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"l",
+"Log in, same account",
+"Same method that holds the data",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"g",
+"Sync not guaranteed",
+"\"not something that we fully support\"",
+2,
+0,
+"out",
+"gap"
+],
+[
+"w",
+"Apple Watch",
+"Login passed from the iPhone app",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"f",
+"Log food on phone",
+"Triggers sync if Watch is signed out",
+2,
+1,
+"out",
+"doc"
+],
+[
+"s",
+"No meal sharing",
+"\"not possible to share any meal\"",
+1,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+0
+],
+[
+"l",
+"g",
+"",
+0
+],
+[
+"e",
+"w",
+"Watch",
+1
+],
+[
+"w",
+"f",
+"",
+0
+],
+[
+"e",
+"s",
+"share",
+1
+]
+],
+"sources": [
+"https://help.lifesum.com/en/article/can-i-use-the-lifesum-app-on-multiple-devices-at-once-84stx3/",
+"https://help.lifesum.com/en/article/is-it-possible-to-share-a-meal-tracked-in-lifesum-with-another-user-1o3akqr/",
+"https://help.lifesum.com/en/article/i-would-like-to-log-in-with-facebook-on-the-apple-watch-app-but-i-dont-see-an-option-for-it-ios-42wr7q/"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "The first Diary carries a \"Try AI food tracking\" card, the AI chat opens with suggestions, and the Messages inbox has illustrated empty states, but \"No notifications to show! Check again later.\" and Body Measurements' bare \"No measurements available\" offer no action.",
+"steps": [
+[
+"d",
+"Diary (first day)",
+"\"Try AI food tracking\" card",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"AI chat",
+"Greeting + \"Often tracked for\" chips",
+1,
+0,
+"out",
+"seen"
+],
+[
+"i",
+"Messages: \"Your inbox\"",
+"Explains what arrives here",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"n",
+"No notifications",
+"\"Check again later.\" no action",
+2,
+1,
+"out",
+"gap"
+],
+[
+"b",
+"Body Measurements",
+"\"No measurements available\"",
+1,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"d",
+"c",
+"+",
+0
+],
+[
+"d",
+"i",
+"bell",
+1
+],
+[
+"i",
+"n",
+"",
+0
+],
+[
+"d",
+"b",
+"Progress",
+1
+]
+],
+"sources": [
+"Mobbin flow ec0bd58b-d395-4c7f-8c0c-d9be3c588309 (Diary with \"Try AI food tracking\")",
+"Mobbin screen bc0da8c1-0d21-4abf-8beb-5e2d82cc3c4b (AI chat)",
+"Mobbin screen 0482dc9c-e0ad-4eb6-a028-e68e2734ae2e (Your inbox)",
+"Mobbin screen b8c2090e-57f9-4700-81c9-e8195c804ef5 (No notifications to show!)",
+"Mobbin screen 64ac5c13-3819-46dc-a18a-f2cf2cbd502c (No measurements available)"
+]
+}
+]
+}
