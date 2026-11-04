@@ -174,7 +174,7 @@ td.st {{ min-width:150px; }}
   <p class="lede">About forty artifacts describe a production app. Read them as one chain: each link answers one question, has one owner, and points to the next. Every artifact below has a plain definition, its standard format and originator, an Otto example, and whether Otto has it today.</p>
   <ol class="chain" aria-label="The artifact chain">{chain}</ol>
   <div class="stats" aria-label="Otto's coverage">{summary}</div>
-  <p class="note">Counts are rows in the tables below with a status, as of 2026-11-04. Since then: ADR log started (<code>docs/adr/</code>), root <code>CLAUDE.md</code> authority map added, architecture views and stale-doc fixes in progress.</p>
+  <p class="note">Counts are rows in the tables below with a status, as of 2026-11-04. Since then (2026-11-04): ADR log started (<code>docs/adr/</code>, 11 records), root <code>CLAUDE.md</code> authority map, C4 + ERD + edge-function contracts drawn from code (<code>docs/architecture/</code>), stale docs fixed (README, API, database, framework, index), and a findings ticket for the risks the architecture pass turned up.</p>
   <div class="legend"><span><span class="raci rA">A</span>approves</span><span><span class="raci rW">W</span>writes</span><span><span class="raci rR">R</span>reviews</span><span><span class="raci rI">I</span>informed</span></div>
   <nav class="toc" aria-label="Sections">{nav}</nav>
 </header>
