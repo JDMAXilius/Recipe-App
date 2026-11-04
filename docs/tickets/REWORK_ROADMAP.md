@@ -72,6 +72,7 @@ What that means in code, in one breath:
 | D5 | Version | **1.1.0** for the new flow | A flow change this size deserves What's new and a clean review note |
 | D6 | Lock-screen timer (Live Activity) | **Later (P2)** | Needs a native widget extension; not needed for the flow |
 | D7 | Dark Mode (gaps G16) | **Decided (Juan, 2026-11-04): no Dark Mode.** Otto keeps one style, the original cream look. `userInterfaceStyle` stays `"light"` (already set in `app.json`) | No second palette, no `colors.white` split, no dark QA pass. Every new screen is designed and checked once |
+| D8 | The magic moment | **"Tonight is answered"**: the reveal opens on tonight's dinner before the account and paywall; Otto AI is how you change the plan, not the first impression | `docs/learning/reports/Otto magic moment research.md`; depends on ADR-0009 |
 
 ---
 
@@ -89,8 +90,9 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R0.3 | **Onboarding draft.** `draft = { answers, week[], createdAt }` in kv with zod schema; `claimDraft(userId)` writes prefs + `plan_entries` once, idempotent (upsert on `user_id, day`), then clears. | M | Claim runs in `AuthProvider` after the session lands; failure keeps the draft and retries next launch |
 | R0.4 | **Preferences on the account** (D1). Migration: `profiles(user_id pk, household jsonb, diet text, allergies text[], skips text[], updated_at)` + RLS own row + `admin_delete_user_data` updated. `usePrefs` reads server, caches in kv. | M | Use the security-builder seat; add the RLS test in `supabase/migrations/tests` |
 | R0.5 | **Prefs model** grows: `household {adults, kids}`, `diet`, `allergies[]`, `skips[]`. `normalizePrefs` handles old `{diet, cuisines}` rows. | S | Unit tests for normalisation and the migration of old kv values |
-| R0.6 | **Week builder** without an account: `buildFirstWeek(prefs, catalogue) → 7 dinners` using `plan.pick`; respects allergies (hard filter) and skips; tonight first. | M | Pure + tested. Reads `otto_recipes` with the anon key (allowed today) |
+| R0.6 | **Week builder** without an account: `buildFirstWeek(prefs, catalogue) → 7 dinners` using `plan.pick`; respects allergies (hard filter) and skips; tonight first. | M | Pure + tested. Reads `otto_recipes` with the anon key (allowed today). Allergy filtering uses reviewed allergen tags on the ~970 ingredient keys; coverage checked in `docs/product/ALLERGEN_COVERAGE.md` (52+ dinners even for vegetarian + dairy- + gluten-free) |
 | R0.7 | **Feature flag** `flow_v2` (EAS env, default off) so Phases 1–3 can merge before they ship. | S | Gate and tab layout read it once at launch |
+| R0.8 | **Events table + tracking plan** (`docs/product/TRACKING_PLAN.md`): `app_events` table with RLS insert-own, onboarding events buffered on the phone until Save your plan, ~13 events. Privacy answers updated first. | S | Measures the magic moment, activation and the North Star without an SDK |
 
 ### Phase 1 — Getting in (Entry → Welcome → About you → Your plan → Save your plan)
 
@@ -99,7 +101,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R1.1 | **Launch screen** = Welcome's empty cream shell: `expo-splash-screen` config, no logo, no text. Hide it when the gate resolves. Delete `Splash.tsx`'s otter. | S | Apple page 14. Same item as gaps **G18**. The otter + wordmark move onto Welcome |
 | R1.2 | **Welcome** route `app/welcome.tsx`: one screen, painting hero, left-aligned title, Get started · I have an account. Replaces `onboarding.tsx` (3 paintings). | S | Keep the paintings as heroes elsewhere |
 | R1.3 | **Three questions** `app/about/[step].tsx`: Who's eating · How do you eat (diet + allergies) · Anything to skip. "Question n of 3", Skip on each. Writes to the draft. | M | Allergy copy: "Otto will leave these out. Always check labels." |
-| R1.4 | **Your first week** `app/first-week.tsx`: builds the week (R0.6), loads in place (no "building" screen), summary line, Save my week. | M | The value moment. Cards reuse `RecipeCard` |
+| R1.4 | **Tonight is answered** `app/first-week.tsx` (the magic moment): opens on tonight's dinner (tomorrow's after ~8 pm) as a big card sized for the household with its source credited, the rest of the week below with a one-tap Swap per day, and a "Shopping list ready" row. Loads in place, no AI, no account. Save my week. Figma: page "v3 · Flow screens", row "v4 · Magic moment". | M | Target: median under 90 s from launch; `first_week_revealed` |
 | R1.5 | **Save your plan** = today's sign-up, moved. The system “Continue with Apple” button already leads (G13); add Google / Facebook below at the same height and the email path. No Skip. After success → `claimDraft` → paywall. | S | `SignUpScreen.tsx` gets a `context="save-plan"` header; autofill already works (G5) |
 | R1.6 | **Sign in** from Welcome: returning person who signs in skips questions (account already onboarded) → gate decides member / paywall. | S | `onboarded_at` stays the "skip questions" flag |
 | R1.7 | Guards: new routes in a `!signedIn` group (welcome, about, first-week); `(auth)` stays signed-out only. | S | Every new route declared in `RootStack` — the existing rule |
@@ -108,7 +110,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 
 | ID | Work | Size | Notes |
 |---|---|---|---|
-| R2.1 | **Paywall content**: four benefit lines, yearly first, monthly second, dated trial terms (“Free until Nov 11, then $39.99/year…”). Already done by G4/G6: billed line at title size, Start free trial / Subscribe, Restore purchases · Terms · Privacy at 44 pt, Sign out. No close. | S | `trialEndDate(introTrialDays, now)` pure + tested; copy from `localizedPriceString` only. The gaps ticket said “change nothing else” for G4 only; this is the next step |
+| R2.1 | **Paywall content**: four benefit lines, yearly first, monthly second, dated trial terms (“Free until Nov 11, then $39.99/year…”). Already done by G4/G6: billed line at title size, Start free trial / Subscribe, Restore purchases · Terms · Privacy at 44 pt, Sign out. No close. | S | `trialEndDate(introTrialDays, now)` pure + tested; copy from `localizedPriceString` only. The gaps ticket said “change nothing else” for G4 only; this is the next step  Variant to test (R10 / tracking plan `paywall_viewed.variant`): **"Keep your week."** restating the person's own tonight + week instead of generic benefits; price line "$39.99 a year after your 7-day free trial" stays the most prominent. |
 | R2.2 | **Outcomes as screens**: cancelled → stay, no message; error → native alert "nothing was charged"; pending → `app/club/pending.tsx` (listens for the entitlement, opens on its own); unconfirmed → keep today's honest copy + retry sync. | M | `BuyResult` already returns all of these — this is UI wiring |
 | R2.3 | **Restore**: none → native alert, stay; ok → "Purchases restored" then Home. | S | `RestoreResult` exists |
 | R2.4 | **You're all set** `app/club/welcome.tsx`: names tonight's dinner and the list. | S | |
@@ -147,6 +149,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R5.2 | Mise en place step before step 1 (gather + check off). | M | |
 | R5.3 | Cook mode timers; **Live Activity** lock-screen timer later (D6). | M / L | |
 | R5.4 | Dinner, done: thumbs, snap the plate, into the journal, rating prompt once. | S | `reviewPrompt` exists |
+| R5.6 | **"Cooked it" on the Tonight card** (Home): one tap marks tonight's planned dinner cooked without opening cook mode, so activation counts people who cook from memory; a quiet weekly count ("4 dinners this week") on Plan, no streak guilt. | S | Feeds `dinner_cooked`; Figma "v4 · Home · Tonight with Cooked it" |
 | R5.5 | **Recipe not found** state for dead links / removed recipes, with similar dishes. | S | |
 
 ### Phase 6 — Cookbook and Add
@@ -257,3 +260,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 - 2026-11-04 · roadmap · re-read against main `ac8fd38a` (G1–G14): offline in-app, photo choice, search, paywall hierarchy, Apple button and shared UI marked done; R2.1, R3.3, R6.3, R8.3 shrunk; D7 added; section 5 links the gaps and motion tickets.
 - 2026-11-04 · D7 · Juan: one style only, the original look; no Dark Mode. G16 closed as won't do.
 - 2026-11-04 · R8.3 · corrected: RevenueCat's cache already covers offline member launch (db084fcd); the ticket is now a device check. ADR log started in `docs/adr/` (ADR-0001…0011).
+- 2026-11-04 · magic moment · D8 added; R1.4 reshaped to Tonight-first; R0.8 events + tracking plan; R2.1 paywall variant; R5.6 Cooked it; allergen coverage checked.

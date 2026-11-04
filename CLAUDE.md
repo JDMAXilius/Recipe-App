@@ -20,6 +20,7 @@ When two docs disagree, the one listed here wins; when a doc disagrees with the 
 | Design system | `docs/reference/DESIGN_SYSTEM.md` + `src/shared/theme/tokens.ts` (tokens are tested) |
 | Apple guidelines | skill `apple-gold-standard`; gaps in `docs/tickets/TERMINAL_TICKET_GOLD_STANDARD_GAPS.md` |
 | Privacy answers given to Apple | `docs/legal/APP_PRIVACY_TRUTH_TABLE.md` (check its Status line before a submission) |
+| Magic moment, North Star, tracking plan | `docs/learning/reports/Otto magic moment research.md`, `docs/product/TRACKING_PLAN.md` |
 | How to document things | `docs/learning/reports/App documentation artifacts guide.md` |
 
 `docs/history/` is a record, not instructions. `docs/reference/bagged/` describes a different product.
