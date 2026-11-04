@@ -1,5 +1,7 @@
 # Otto — App Privacy truth table (ticket A2)
 
+Status: needs re-audit · last audited at 1.0.17 (build 35); app is now 1.0.23 (build 52) and main added a persisted offline query cache (app/_layout.tsx) and NetInfo — re-check before the next submission.
+
 **Audit date:** 2026-07-25 · **App version audited:** `app.json` 1.0.17, iOS build 35
 **Method:** code walk only. No app code and no policy text was changed in this pass.
 **Rule used:** every row cites `file:line`. Where the code cannot settle a question (what a

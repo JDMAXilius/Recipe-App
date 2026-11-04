@@ -1,10 +1,15 @@
 # Otto — Target Framework (clean rebuild blueprint)
 
-Status: **agreed direction, not yet applied** (founder session 2026-07-21).
-Companion to `docs/ARCHITECTURE.md`, which documents the codebase as it is
-today. This file is the blueprint both sessions build against when the
-rebuild starts. **Execution plan:** `docs/REBUILD_WORKFLOW.md` (with
-`REBUILD_PACKETS.md`, `REBUILD_STATE.md`, `TESTING.md`). Guiding rule: **less is more — just the necessary files.**
+Status: current · Last verified against code at commit 675f136b · 2026-11-04
+
+Rebuild: **agreed direction, applied — the rebuild has shipped** (decided in the
+founder session 2026-07-21; the v2 app is live on `main` at 1.0.23, build 52,
+and the v1 app + Express backend sit on the `v1-legacy` branch). Read this file
+as the blueprint the rebuild followed; where it and the code differ, the code
+wins (e.g. `supabase/functions/` now holds 7 functions, not 5).
+Companion to `docs/reference/ARCHITECTURE.md`, which documents the codebase as it is
+today. **Execution record:** `docs/history/REBUILD_WORKFLOW.md` (with
+`REBUILD_PACKETS.md`, `REBUILD_STATE.md` in `docs/history/`, and `docs/reference/TESTING.md`). Guiding rule: **less is more — just the necessary files.**
 
 Founder decisions locked in:
 

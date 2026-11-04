@@ -28,8 +28,8 @@ A warm, hand-painted recipe app led by <b>Otto the otter chef</b>.<br/>
 
 **The rest**
 - 3-screen painted onboarding + splash (still image + animated lid-lift, reduced-motion aware)
-- "You" tab: earned stats (cooked/saved/yours — each a door), a private cooking journal, inline US/Metric, editable name + avatar, quiet sign-out, visible account deletion
-- **Otto Club** membership — $34.99/yr · $4.99/mo · 5-day trial, honest pricing math; RevenueCat wired end-to-end (purchase/restore/entitlement + Supabase membership webhook), running on the RC Test Store until the App Store products go live
+- Account tab ("You" screen): earned stats (cooked/saved/yours — each a door), a private cooking journal, inline US/Metric, editable name + avatar, quiet sign-out, visible account deletion
+- **Otto Club** membership — $39.99/yr · $4.99/mo · 1-week free trial, honest pricing math (prices come live from the App Store products); a hard paywall — signed-in non-members see only onboarding and the paywall, and the paid AI Edge Functions check membership server-side too (`requireClub`, on when `REQUIRE_CLUB=on`). RevenueCat wired end-to-end (purchase/restore/entitlement + Supabase membership webhook) on the App Store SDK key
 
 ## Tech stack
 
@@ -42,7 +42,8 @@ No custom server — server-side logic runs as Supabase Edge Functions. RLS is t
 Recipe-App/
 ├── app/                    expo-router routes (file-based; a file = a screen)
 │   ├── _layout.tsx           root: GestureHandler → ErrorBoundary → SafeArea →
-│   │                         QueryClientProvider → AuthProvider → <Stack> (+ ToastHost, NotifSync)
+│   │                         PersistQueryClientProvider → AuthProvider → <Stack> (+ ToastHost,
+│   │                         OfflineBanner, AiConsentHost, NotifSync)
 │   ├── index.tsx             launch gate → onboarding / sign-in / tabs (resolveRoute)
 │   ├── (auth)/               sign-in · sign-up · forgot-password (+ redirect guard)
 │   ├── (tabs)/               Discover (index) · Cookbook · raised ＋ (create/chat) · Plan · Account
@@ -96,9 +97,10 @@ Recipe-App/
 ├── supabase/
 │   ├── functions/          Edge Functions = the "backend" (Deno, deployed to Supabase)
 │   │   ├── content/          TheMealDB proxy (key server-side; the app never sees it)
-│   │   ├── import-recipe/    URL → recipe via schema.org JSON-LD (deterministic, SSRF-guarded)
-│   │   ├── generate-recipe/  Ask Otto — Claude (opus) recipe gen: prompt · chat · photo modes
-│   │   ├── resolve-nutrition/ Claude (haiku) picks a real USDA record for unseen ingredients
+│   │   ├── import-recipe/    URL → recipe via schema.org JSON-LD (deterministic, SSRF-guarded;
+│   │   │                     social posts fall back to caption → generate-recipe {text})
+│   │   ├── generate-recipe/  Ask Otto — OpenAI (gpt-5.1) recipe gen: prompt · chat · photo · paste modes
+│   │   ├── resolve-nutrition/ OpenAI (gpt-5-mini) picks a real USDA record for unseen ingredients
 │   │   ├── revenuecat-webhook/ RevenueCat events → public.memberships (shared-secret auth)
 │   │   ├── canonicalize/     otto_recipes curation: original recipe → canonical structured record
 │   │   └── delete-account/   completes account deletion (auth user + storage)
@@ -126,18 +128,18 @@ Supabase
    ├─ Realtime  ── the shared shopping list syncs via postgres_changes
    └─ Edge Functions ── the few jobs that must run server-side:
         content → TheMealDB    import-recipe → schema.org    delete-account
-        generate-recipe → Claude (opus)      resolve-nutrition → Claude (haiku) + USDA
+        generate-recipe → OpenAI (gpt-5.1)   resolve-nutrition → OpenAI (gpt-5-mini) + USDA
         revenuecat-webhook → memberships     canonicalize → otto_recipes curation
 ```
 
-- **No custom server.** The app queries Postgres directly through the Supabase client; RLS decides what each user can see. The Edge Functions hold the only secrets (TheMealDB / Anthropic / USDA keys, the RevenueCat webhook secret, the service-role key) so they never touch the app bundle.
+- **No custom server.** The app queries Postgres directly through the Supabase client; RLS decides what each user can see. The Edge Functions hold the only secrets (TheMealDB / OpenAI / USDA keys, the RevenueCat secret key, the RevenueCat webhook secret, the service-role key) so they never touch the app bundle.
 - **Memberships**: RevenueCat is the purchase layer (entitlement `club`); its webhook writes `public.memberships` (read-own-row RLS, service-role writes) so the backend always knows who's in the Club.
 - **Two content sources, one job each** — **TheMealDB** supplies recipes + ingredient lines (it carries no nutrition, by design); **USDA FoodData Central** (CC0) supplies the per-ingredient nutrition those lines are costed against.
 - **Semantic ink** — terracotta = computed/interactive, ink = human-authored. **Honesty law** — never fabricate data; `null` beats a guess.
 
 ### The nutrition engine (`src/features/nutrition/engine/`)
 
-Runs **on-device with zero network calls** — `usdaTable.json` ships in the app. An ingredient line is parsed to grams (`parse.ts`), looked up against the bundled USDA table (`lookup.ts`), and costed × per-100g ÷ servings with guards for raw/cooked, coverage, and kcal plausibility (`compute.ts` + `guards.ts`). Only an *unseen* ingredient falls back to the `resolve-nutrition` Edge Function (Claude picks a real USDA record), then caches forever. The cook/scale/shopping engines (`cook/session`, `stepEnrich`, `planner/shoppingList`, `recipes/recipe.scale`) are likewise pure, deterministic, and unit-tested — no LLM in the render path.
+Runs **on-device with zero network calls** — `usdaTable.json` ships in the app. An ingredient line is parsed to grams (`parse.ts`), looked up against the bundled USDA table (`lookup.ts`), and costed × per-100g ÷ servings with guards for raw/cooked, coverage, and kcal plausibility (`compute.ts` + `guards.ts`). Only an *unseen* ingredient falls back to the `resolve-nutrition` Edge Function (an OpenAI model picks a real USDA record), then caches forever. The cook/scale/shopping engines (`cook/session`, `stepEnrich`, `planner/shoppingList`, `recipes/recipe.scale`) are likewise pure, deterministic, and unit-tested — no LLM in the render path.
 
 ## Design system
 
@@ -175,7 +177,7 @@ EXPO_PUBLIC_USE_OTTO_RECIPES=true   # serve recipe display from Otto's DB (not T
 
 `EXPO_PUBLIC_*` vars are inlined at build time — restart Expo after changing them, and keep the same
 set registered in **EAS env** (`eas env:list production`) or TestFlight builds silently ship without them. Server-side secrets
-(`OPENAI_API_KEY`, `THEMEALDB_KEY`, `USDA_API_KEY`, the service-role key for account deletion) live
+(`OPENAI_API_KEY`, `THEMEALDB_KEY`, `USDA_API_KEY`, `RC_WEBHOOK_SECRET`, `REVENUECAT_SECRET_KEY`, the service-role key) live
 in **Supabase Edge Function config**, never in the app bundle.
 
 ## Checks
@@ -221,27 +223,27 @@ Internal testing needs no Beta App Review — testers install the moment the bui
 | `docs/reference/DESIGN_SYSTEM.md` | The authoritative design system |
 | `docs/reference/CONTEXT_ENGINEERING.md` | "How to navigate the tree" + task→file map |
 | `docs/reference/contracts/` | Feature-module, database, engine, UI, persistence, testing, data-ownership contracts |
-| `docs/tickets/` | **Active** work: nutrition accuracy + the otto-recipes data-ownership plan |
+| `docs/tickets/` | **Active** work: the launch roadmap, the app rework roadmap, release + gap tickets (see `docs/README.md`) |
 | `docs/history/REDESIGN_NOTES.md` | The decision log — every call with rationale |
 | `docs/history/` · `docs/README.md` | The full build record (tickets, rebuild, research, captures) |
 
 ## Status
 
-**On TestFlight — v1.0.15 (build 31)**, internal "Otto Insiders" group. The feature-first v2 rebuild is
+**v1.0.23 (build 52)** in `app.json`. The feature-first v2 rebuild is
 live on `main` (the old RN-JS app + Express backend are archived on the `v1-legacy` branch). Backend runs
-entirely on Supabase — all Edge Functions active, Claude generation + nutrition resolution working,
-security advisors cleaned up. Otto Club paywall shows launch pricing against the RevenueCat Test Store.
+entirely on Supabase — Edge Functions call OpenAI for generation + nutrition resolution,
+security advisors cleaned up. Otto Club is a hard paywall on the App Store products (`otto_club_yearly`,
+`otto_club_monthly`) via RevenueCat's App Store key, gated on the `club` entitlement in the app (and server-side via `REQUIRE_CLUB`).
 
-**Next:** a device pass on the OS-level paths (Apple/Google/Facebook login, timer audio, camera, push);
-real App Store subscription products (Paid Apps agreement → ASC products → swap the `appl_` RevenueCat
-key) and feature gating on the `club` entitlement; then App Store submission.
+**Next:** ship 1.0.23 (52) and the gold-standard fixes, then the app rework — see
+`docs/tickets/ROADMAP.md` and `docs/tickets/REWORK_ROADMAP.md`.
 
 ## Project identity
 
 - **Domain**: [ottosapp.com](https://ottosapp.com) — marketing site lives in its own repo (`Otto_Website`); Terms + Privacy hosted at `/terms` and `/privacy` (App Review requirement, linked from the paywall)
 - **Auth**: email/password + Apple, Google, and Facebook OAuth (Supabase Auth); transactional email over Google Workspace SMTP
 - **Deep-link scheme**: `otto://` (OAuth callbacks + share links); bundle id `com.otto.recipes`, Apple team `A6J6HGNWZK`
-- **Active data work** (`docs/tickets/`): nutrition accuracy (usdaTable is per-100g — the weight layer owns accuracy) and OWN_RECIPE_DB — migrating the 750 seed recipes into curated `otto_recipes` rows via the `canonicalize` function
+- **Recipe data**: nutrition accuracy (usdaTable is per-100g — the weight layer owns accuracy) and OWN_RECIPE_DB — the seed recipes curated into `otto_recipes` rows via the `canonicalize` function; both tickets are now in `docs/history/`
 
 ## Credits
 
