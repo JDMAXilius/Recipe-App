@@ -28,7 +28,7 @@ This roadmap is the order of work. It is a plan, not shipped code: nothing below
 | Offline | **Exists in-app (G14):** NetInfo → TanStack `onlineManager`, one `OfflineBanner`, query cache persisted to AsyncStorage for a week (Cookbook, Plan, Shopping read offline), cleared on sign-out or account switch. **Still missing:** offline *launch*: the gate still fails closed to the paywall when RevenueCat can't answer. | `app/_layout.tsx`, `src/shared/online.ts`, `OfflineBanner.tsx` |
 | Search | Inside Discover. Clear button, Cancel while focused, last 5 queries (G11). | `DiscoverScreen.tsx`, `src/shared/recentSearches.ts` |
 | Sign-in forms | System “Continue with Apple” button on iOS (G13), autofill + return-key chain, minimum password 8 (G5). No `webcredentials:` domain yet. | `src/features/auth/*` |
-| Shared UI | Contrast-checked tokens (terracotta `#AE4A26`, test in `tokens.contrast.test.mjs`), Dynamic Type `minHeight` layouts, header roles, toasts that wait for VoiceOver, `Sheet` with drag-to-dismiss, native destructive confirms, editor discard guard (G1–G3, G7, G8, G10, G12). Dark Mode not started (G16). | `src/shared/ui/*`, `src/shared/theme/tokens.ts` |
+| Shared UI | Contrast-checked tokens (terracotta `#AE4A26`, test in `tokens.contrast.test.mjs`), Dynamic Type `minHeight` layouts, header roles, toasts that wait for VoiceOver, `Sheet` with drag-to-dismiss, native destructive confirms, editor discard guard (G1–G3, G7, G8, G10, G12). One style only: light, no Dark Mode (D7). | `src/shared/ui/*`, `src/shared/theme/tokens.ts` |
 | Tests | `node --test` over `*.test.mjs` (351 on main per the G1–G14 log), `tsc`, `eslint`. No device journey suite. | `package.json` |
 
 Stack: Expo SDK 54, expo-router 6, RN 0.81 (new arch), Supabase, RevenueCat, OpenAI via edge functions.
@@ -71,7 +71,7 @@ What that means in code, in one breath:
 | D4 | Tab bar tech | **NativeTabs** (`expo-router/unstable-native-tabs`, already installed) for the iOS 26 floating bar; the Otto circle is the trailing slot iOS reserves for Search (`role="search"` without a search field), JS tabs as fallback. This answers gaps **G15** and is built as motion **M7** | The trailing circle is styled by the system for search. Spike: confirm it can host a chat screen with an otter icon and no search field; if not, a custom bar draws the same shape |
 | D5 | Version | **1.1.0** for the new flow | A flow change this size deserves What's new and a clean review note |
 | D6 | Lock-screen timer (Live Activity) | **Later (P2)** | Needs a native widget extension; not needed for the flow |
-| D7 | Dark Mode (gaps G16) | **After Phase 3**, with NativeTabs | Needs `colors.white` split into surface vs on-accent (64 uses) and every new screen checked twice; cheaper once the new screens exist |
+| D7 | Dark Mode (gaps G16) | **Decided (Juan, 2026-11-04): no Dark Mode.** Otto keeps one style, the original cream look. `userInterfaceStyle` stays `"light"` (already set in `app.json`) | No second palette, no `colors.white` split, no dark QA pass. Every new screen is designed and checked once |
 
 ---
 
@@ -185,7 +185,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 |---|---|---|
 | R9.1 | Build with **Xcode 26 / iOS 26 SDK** on EAS: native alerts, sheets, nav bars and the tab bar pick up Liquid Glass and the left-aligned alert style for free. | Check the EAS image; most of rows 14 and 17 come from this alone |
 | R9.2 | Custom `Sheet` already upgraded (G7: drag to dismiss, grabber, Reduce Motion). Remaining: no fake glass, no centred alert clones in the new screens. | |
-| R9.3 | Already done: contrast tokens, Dynamic Type layouts, header roles (G1, G2, G10). Remaining from the gaps ticket: Dark Mode (G16, D7), layered app icon (G17), body 17 type scale (G19), native large titles (G20), list gestures and context menus (G21). | Track them there, not here |
+| R9.3 | Already done: contrast tokens, Dynamic Type layouts, header roles (G1, G2, G10). Remaining from the gaps ticket: layered app icon (G17), body 17 type scale (G19), native large titles (G20), list gestures and context menus (G21). | Track them there, not here. G16 Dark Mode is dropped (D7) |
 | R9.4 | Remove: logo splash, painting carousel, 3 of 6 questions, taste swipe, building screen, ＋ tab. | Already out of the design |
 
 ### Phase 10 — Release 1.1.0
@@ -205,7 +205,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 
 | Ticket | Relationship |
 |---|---|
-| `TERMINAL_TICKET_GOLD_STANDARD_GAPS.md` | G1–G14 done on main (2026-11-04) and reflected above. G15 is answered by D4 (Otto circle). G16–G23 stay there; R9.3 points to them. |
+| `TERMINAL_TICKET_GOLD_STANDARD_GAPS.md` | G1–G14 done on main (2026-11-04) and reflected above. G15 is answered by D4 (Otto circle). G16 (Dark Mode) is dropped by D7. G17–G23 stay there; R9.3 points to them. |
 | `TERMINAL_TICKET_MOTION.md` | M7 (NativeTabs) **is** R3.1. M9 (Live Activity, widget) is D6 / R5.3 / R8.5. |
 | `TERMINAL_TICKET_FLOW_REDESIGN.md` | Superseded by this roadmap. |
 
@@ -254,4 +254,5 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 
 ## Log
 <!-- append: date, phase/ID, result, commit -->
-- 2026-11-04 · roadmap · re-read against main `ac8fd38a` (G1–G14): offline in-app, photo choice, search, paywall hierarchy, Apple button and shared UI marked done; R2.1, R3.3, R6.3, R8.3 shrunk; D7 Dark Mode added; section 5 links the gaps and motion tickets.
+- 2026-11-04 · roadmap · re-read against main `ac8fd38a` (G1–G14): offline in-app, photo choice, search, paywall hierarchy, Apple button and shared UI marked done; R2.1, R3.3, R6.3, R8.3 shrunk; D7 added; section 5 links the gaps and motion tickets.
+- 2026-11-04 · D7 · Juan: one style only, the original look; no Dark Mode. G16 closed as won't do.

@@ -89,18 +89,12 @@ page = f"""<title>Otto Rework Roadmap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@500;700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a single reading column for the plan, with a phase strip as the map of the work. Otto's own palette. */
+/* Layout: a single reading column for the plan, with a phase strip as the map of the work. Otto's own palette, one style only (light), like the app. */
 :root {{
   --bg:#FAF4EA; --raised:#FFFFFF; --inset:#F3E9DA; --ink:#2A211B; --soft:#6E6055; --line:#E8DECF;
   --accent:#C4562E; --chip:#F3D9CD; --chestnut:#8A5A3B;
   --display:"Lora", Georgia, serif; --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif; --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
 }}
-@media (prefers-color-scheme: dark) {{ :root:not([data-theme="light"]) {{
-  --bg:#1C1713; --raised:#262019; --inset:#2E271F; --ink:#F2E9DC; --soft:#B5A693; --line:#3A3128;
-  --accent:#E27650; --chip:#4A2C20; --chestnut:#D09A74; color-scheme:dark }} }}
-:root[data-theme="dark"] {{
-  --bg:#1C1713; --raised:#262019; --inset:#2E271F; --ink:#F2E9DC; --soft:#B5A693; --line:#3A3128;
-  --accent:#E27650; --chip:#4A2C20; --chestnut:#D09A74; color-scheme:dark }}
 body {{ background:var(--bg); color:var(--ink); font:16px/1.55 var(--body); }}
 .wrap {{ max-width:1080px; margin:0 auto; padding-block:40px 80px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }}
 header .eyebrow {{ font:600 12px/1 var(--body); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }}

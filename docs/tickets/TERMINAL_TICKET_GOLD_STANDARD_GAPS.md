@@ -28,7 +28,7 @@ The failures users and App Review will notice: brand terracotta text fails contr
 - [x] **G13. Sign in with Apple button** (43 · Sign in with Apple). System `AppleAuthenticationButton` on iOS, ideally full-width "Continue with Apple" above the other providers (matches flow F1).
 - [x] **G14. In-app offline state** (16 · Loading). NetInfo + TanStack `onlineManager`, one offline banner, persisted query cache so Cookbook/Plan/Shopping read offline. Offline *launch* routing stays in flow F5.
 - [ ] **G15. Tab bar decision** (27 · Tab bars). Ask Juan: chat as a normal labelled tab and "add recipe" as a toolbar button, or keep the raised ＋. Build it inside motion **M7** (`NativeTabs`); drop the tab-press haptic.
-- [ ] **G16. Dark Mode** (05 · Dark Mode). Needs Juan's OK (L effort). `userInterfaceStyle: "automatic"`, tokens via `useColorScheme` using the warm-dark palette in `DESIGN_SYSTEM.md` §1.2, extend the G1 contrast test to dark pairs, check the mascot art on espresso.
+- [x] ~~**G16. Dark Mode**~~ **Won't do (Juan, 2026-11-04): one style only, the original look.** `userInterfaceStyle` stays `"light"`. (05 · Dark Mode). Needs Juan's OK (L effort). `userInterfaceStyle: "automatic"`, tokens via `useColorScheme` using the warm-dark palette in `DESIGN_SYSTEM.md` §1.2, extend the G1 contrast test to dark pairs, check the mascot art on espresso.
 
 ## P2 — polish (Juan picks)
 - [ ] **G17.** Layered app icon with dark / clear / tinted appearances (03 · App icons).
@@ -37,7 +37,7 @@ The failures users and App Review will notice: brand terracotta text fails contr
 - [ ] **G20.** `chevron-back` everywhere now; native large-title headers after M7 (28 · Toolbars & navigation bars).
 - [ ] **G21.** Pull-to-refresh, recipe-card context menu, swipe-to-remove on plan entries (32 · Lists & tables, 31 · Menus). Coordinate the menu preview with motion M8.
 - [ ] **G22.** Localization scaffolding (`t()` + `expo-localization`), only when a second language is planned (11 · Writing).
-- [ ] **G23.** iPad layouts, after G2 and G16 (06 · Layout). Widgets / Live Activities stay in motion **M9**.
+- [ ] **G23.** iPad layouts, after G2 (06 · Layout). Widgets / Live Activities stay in motion **M9**.
 
 ## Rules
 Fix the shared primitive, not each call site (`Text`, `Button`, `Input`, `AuthInput`, `Screen`, `Toast`, `imagePicker`). Don't touch the AI consent flow, account deletion or the ratings prompt; they pass. Don't change the paywall beyond G4. Run `tsc`, lint and the test suites once per PR, not per item. Check every visual change at default size and at AX5, plus with VoiceOver on.
