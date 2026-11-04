@@ -1,0 +1,1442 @@
+{
+"app": "duolingo",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "meets",
+"summary": "Relaunch shows a brief loader, then the learning path scrolled to the current unit with no onboarding replay. Whether it reopens the last tab you used is unverified.",
+"steps": [
+[
+"e",
+"Returning launch",
+"Signed-in user opens app",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"load",
+"Loading dots",
+"Grey screen, three-dot loader",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"path",
+"Learning path",
+"Current unit, e.g. \"Café: Greet people\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"tab",
+"Last tab restored?",
+"Home tab vs last-used tab",
+3,
+1,
+"dec",
+"unverified"
+],
+[
+"out",
+"Back at current lesson",
+"No onboarding replay",
+4,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"load",
+"",
+0
+],
+[
+"load",
+"path",
+"",
+0
+],
+[
+"path",
+"tab",
+"",
+1
+],
+[
+"path",
+"out",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen 007004ee-ed5a-47c6-a919-34a0d816f5a2 (loader)",
+"Mobbin screen a13f2a69-17ab-48d1-b6bd-9b64b5cd426e (path at current unit)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Duolingo sends reminder pushes and shows a lock-screen Live Activity, but no observed screen or official doc shows where a tap lands in each state (signed out, mid-purchase).",
+"steps": [
+[
+"e",
+"Reminder / Live Activity",
+"\"11 exercises left!\" on Lock Screen",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"tap",
+"Tap notification",
+"Streak / practice reminder",
+1,
+0,
+"sys",
+"report"
+],
+[
+"auth",
+"Signed in?",
+"Signed-out handling not observed",
+2,
+1,
+"dec",
+"unverified"
+],
+[
+"les",
+"Opens practice",
+"User reports doing a lesson from the push",
+3,
+0,
+"screen",
+"report"
+],
+[
+"out",
+"Destination kept?",
+"No source for post-sign-in handoff",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"tap",
+"",
+0
+],
+[
+"tap",
+"les",
+"",
+0
+],
+[
+"tap",
+"auth",
+"",
+1
+],
+[
+"les",
+"out",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen 48b9a512-c166-4c70-a6a7-6cb88e7b8145 (Live Activity)",
+"report: r/duolingo thread via mirror https://reddit.sentinel-team.org/subreddits/duolingo/snapshots/2026-02-10T21%3A01%3A32.713612Z"
+]
+},
+{
+"n": 3,
+"verdict": "unknown",
+"summary": "An in-app primer comes before the iOS notification alert and there are in-app reminder toggles. What happens after Don't Allow, including any Settings link, was not observed.",
+"steps": [
+[
+"e",
+"Onboarding: reminders",
+"Owl asks to remind you",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"pri",
+"Primer + iOS alert",
+"\"I'll remind you to practice…\"",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"dec",
+"Allowed?",
+"Allow / Don't Allow",
+2,
+0,
+"dec",
+"seen"
+],
+[
+"deny",
+"Denied: continues?",
+"Onboarding goes on (assumed)",
+3,
+1,
+"screen",
+"unverified"
+],
+[
+"set",
+"Settings > Reminders",
+"Practice reminder, Streak Saver toggles",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"link",
+"Link to iOS Settings?",
+"Not observed",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"pri",
+"",
+0
+],
+[
+"pri",
+"dec",
+"",
+0
+],
+[
+"dec",
+"set",
+"Allow",
+0
+],
+[
+"dec",
+"deny",
+"Don't Allow",
+1
+],
+[
+"deny",
+"link",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 817844ed-f7df-4645-b18b-a9803879821f (primer + iOS alert)",
+"Mobbin screens c8bef260-406c-4e6f-a958-bcb5402099fb (Notifications), ec850b9f-5407-470f-8d3c-548f4ac5c2df (Reminders)"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "The success path is observed end to end: paywall, plan picker, StoreKit, 5-step welcome. Cancel, pending/Ask to Buy and failure outcomes have no source.",
+"steps": [
+[
+"e",
+"Super interstitial",
+"\"TRY FOR $0.00\" / \"NO THANKS\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"plan",
+"Choose a plan",
+"Family / Individual / Monthly",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"\"JUST A BIT LONGER...\" while paying",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"res",
+"Outcome?",
+"Success / cancel / pending / fail",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"wel",
+"Super welcome 1–5",
+"\"Enjoy continuous learning…\"",
+4,
+0,
+"screen",
+"seen"
+],
+[
+"out",
+"Path, Super on",
+"Back on learning path",
+5,
+0,
+"out",
+"seen"
+],
+[
+"cx",
+"Cancel / fail / pending",
+"Handling not observed",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"plan",
+"",
+0
+],
+[
+"plan",
+"sk",
+"",
+0
+],
+[
+"sk",
+"res",
+"",
+0
+],
+[
+"res",
+"wel",
+"success",
+0
+],
+[
+"wel",
+"out",
+"",
+0
+],
+[
+"res",
+"cx",
+"other",
+1
+]
+],
+"sources": [
+"Mobbin flow c71bfa5f-4aab-488b-a2af-d5276353a736 (Subscribing to Super, 19 screens)",
+"https://www.duolingo.com/help/super-duolingo"
+]
+},
+{
+"n": 5,
+"verdict": "partial",
+"summary": "Official docs say Super stays on until the period ends and that progress and streak survive the lapse. No source shows billing-retry or grace-period messaging in the app.",
+"steps": [
+[
+"e",
+"Super lapses",
+"Cancel or renewal fails",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"mng",
+"Manage Subscription",
+"\"notification 3 days before your trial ends\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"why",
+"Cancel survey",
+"\"Why are you canceling Super?\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"keep",
+"Access to period end",
+"Super features until period ends",
+3,
+0,
+"screen",
+"doc"
+],
+[
+"grace",
+"Billing grace notice?",
+"No in-app retry message found",
+3,
+1,
+"dec",
+"unverified"
+],
+[
+"free",
+"Free tier",
+"Energy limits return; progress kept",
+4,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"mng",
+"",
+0
+],
+[
+"mng",
+"why",
+"cancel",
+0
+],
+[
+"why",
+"keep",
+"",
+0
+],
+[
+"keep",
+"free",
+"",
+0
+],
+[
+"e",
+"grace",
+"billing fail",
+1
+],
+[
+"grace",
+"free",
+"",
+1
+]
+],
+"sources": [
+"https://www.duolingo.com/help/cancel-my-super-duolingo-subscription",
+"https://www.duolingo.com/help/super-duolingo (\"progress and streak will not be affected\")",
+"Mobbin screens e937c8a3-ccda-4319-a684-5107b0689fe8 (Manage Subscription), f395f96c-bce1-4424-80ea-1923015c7ec9 (cancel survey), d6a2c6fe-f807-4485-b505-7778c7b59847 (Energy, free tier)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Duolingo is account-based, so signing in brings back progress, and Settings has a \"RESTORE SUBSCRIPTION\" button. The observed plan picker has no restore link.",
+"steps": [
+[
+"e",
+"New device",
+"Fresh install",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"wel",
+"Welcome",
+"\"I already have an account\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"in",
+"Sign in",
+"Progress + streak restored",
+2,
+0,
+"screen",
+"unverified"
+],
+[
+"sub",
+"Super active?",
+"Tied to Apple ID that paid",
+3,
+0,
+"dec",
+"doc"
+],
+[
+"rest",
+"Settings: Restore",
+"\"RESTORE SUBSCRIPTION\" button",
+4,
+1,
+"screen",
+"seen"
+],
+[
+"pw",
+"Paywall: no restore",
+"Choose a plan has no restore link",
+4,
+2,
+"screen",
+"seen"
+],
+[
+"out",
+"Super restored",
+"",
+5,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"wel",
+"",
+0
+],
+[
+"wel",
+"in",
+"",
+0
+],
+[
+"in",
+"sub",
+"",
+0
+],
+[
+"sub",
+"out",
+"yes",
+0
+],
+[
+"sub",
+"rest",
+"no",
+1
+],
+[
+"rest",
+"out",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screens 9c5661df-eb02-48e3-b2d8-1e23fd5f2fc1, 5c8c0436-be5e-42ab-b02b-2d1b3bf7316a (Settings: Restore Subscription)",
+"Mobbin flow c71bfa5f-4aab-488b-a2af-d5276353a736 (plan picker, no restore)",
+"docs/flow-maps/research/02_REFERENCE_APP_FLOWS.md (Figma 46:116 welcome)",
+"https://www.duolingo.com/help/super-duolingo (\"platform where you initially subscribe\")"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "Deletion starts in the app and is explained clearly, but it takes a 4-second disabled button, a confirm sheet and then an email link. The account stays signed in until the email is confirmed.",
+"steps": [
+[
+"e",
+"Settings > Profile",
+"\"DELETE ACCOUNT\" at bottom",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"exp",
+"Explanation screen",
+"7-day abort, sub NOT cancelled",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"wait",
+"Timed button",
+"\"DELETE ACCOUNT (4)\" countdown",
+2,
+0,
+"screen",
+"gap"
+],
+[
+"conf",
+"Confirm sheet",
+"\"Do you wish to delete your account?\"",
+3,
+0,
+"dec",
+"seen"
+],
+[
+"mail",
+"Check your email",
+"Must tap \"Delete my data\" link",
+4,
+0,
+"screen",
+"gap"
+],
+[
+"grace",
+"7-day cancel window",
+"Up to 30 days to erase",
+5,
+0,
+"sys",
+"doc"
+],
+[
+"out",
+"Signed-out app?",
+"Return state not observed",
+6,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"exp",
+"",
+0
+],
+[
+"exp",
+"wait",
+"",
+0
+],
+[
+"wait",
+"conf",
+"",
+0
+],
+[
+"conf",
+"mail",
+"Delete",
+0
+],
+[
+"mail",
+"grace",
+"email link",
+0
+],
+[
+"grace",
+"out",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flows 4aee5b62-da7c-47df-9005-33e4ecca70fb, 0e3f4533-1b14-415e-a429-f7fab9bc82bd, 856dc7c7-826e-40bd-ad8c-3164a0706306",
+"https://www.duolingo.com/help/delete-my-account-and-data"
+]
+},
+{
+"n": 8,
+"verdict": "meets",
+"summary": "Offline is a state, not an error: a quiet \"YOU ARE OFFLINE\" banner sits over the path. Only third-party sources say lessons in the current unit stay playable and sync later.",
+"steps": [
+[
+"e",
+"Connection lost",
+"Airplane mode / no signal",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"ban",
+"Path + banner",
+"\"YOU ARE OFFLINE\" strip at top",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"cache",
+"Lesson cached?",
+"Current-unit lessons only",
+2,
+0,
+"dec",
+"report"
+],
+[
+"play",
+"Play offline lesson",
+"Speaking exercises skipped",
+3,
+0,
+"screen",
+"report"
+],
+[
+"need",
+"Needs connection",
+"Other content blocked",
+3,
+1,
+"screen",
+"report"
+],
+[
+"out",
+"Syncs on reconnect",
+"XP/progress uploaded",
+4,
+0,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"e",
+"ban",
+"",
+0
+],
+[
+"ban",
+"cache",
+"",
+0
+],
+[
+"cache",
+"play",
+"yes",
+0
+],
+[
+"cache",
+"need",
+"no",
+1
+],
+[
+"play",
+"out",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen 2b725fd8-afed-4b61-a1bb-aad9390f63cd (offline banner)",
+"report: https://duolingoguides.com/can-you-use-duolingo-offline/",
+"report: https://breezewiki.discard.no/duolingo/wiki/Mobile"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "No in-app What's New screen tied to updates was observed. App Store release notes are a recurring joke about squashing bugs, not a list of changes. New features show up as promo screens and an opt-in Announcements push channel.",
+"steps": [
+[
+"e",
+"App updated",
+"v7.147.0",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"notes",
+"Release notes",
+"Generic \"squashing those pesky bugs\"",
+1,
+0,
+"sys",
+"gap"
+],
+[
+"wn",
+"In-app What's New?",
+"Not observed",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"promo",
+"Feature promo",
+"e.g. Max \"Use more words…\" intro",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"out",
+"Back to path",
+"",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"notes",
+"",
+0
+],
+[
+"notes",
+"wn",
+"",
+0
+],
+[
+"wn",
+"promo",
+"promos",
+1
+],
+[
+"promo",
+"out",
+"",
+0
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/duolingo-language-lessons/id570060128 (What's New, v7.147.0)",
+"Mobbin screen ff820a71-8379-461d-bd3e-ee50e8662067 (Max feature intro)",
+"Mobbin screen c8bef260-406c-4e6f-a958-bcb5402099fb (\"Announcements: Updates about new features…\")"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "Lessons finish offline and sync later, and during site outages Duolingo pauses requests behind a maintenance page and repairs affected streaks afterwards. The AI Video Call has a daily cap that users say is not stated up front and can cut in early, and no in-app error screen was observed.",
+"steps": [
+[
+"e",
+"Lesson or Video Call",
+"Needs the server to save or reply",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"ok",
+"Server answers?",
+"Lesson save vs AI call",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"q",
+"Saved on device",
+"Progress shown now, sent on reconnect",
+2,
+0,
+"sys",
+"doc"
+],
+[
+"brb",
+"Outage page",
+"\"Big Red Button\" pauses requests",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"fix",
+"Streak repaired",
+"Freeze applied to the missed day",
+3,
+1,
+"out",
+"doc"
+],
+[
+"cap",
+"Call cut off",
+"Daily limit hit, users say mid-call",
+2,
+2,
+"screen",
+"report"
+],
+[
+"up",
+"\"Get unlimited video calls\"",
+"UPGRADE TO MAX / NO THANKS",
+3,
+2,
+"screen",
+"seen"
+],
+[
+"out",
+"Progress kept",
+"No typed work at risk in lessons",
+4,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"ok",
+"",
+0
+],
+[
+"ok",
+"q",
+"offline",
+0
+],
+[
+"q",
+"out",
+"",
+0
+],
+[
+"ok",
+"brb",
+"outage",
+0
+],
+[
+"brb",
+"fix",
+"",
+0
+],
+[
+"ok",
+"cap",
+"AI call",
+0
+],
+[
+"cap",
+"up",
+"",
+1
+]
+],
+"sources": [
+"https://blog.duolingo.com/frontend-prediction/ (offline sessions saved locally, sent when connectivity resumes)",
+"https://blog.duolingo.com/protecting-streaks-from-site-issues/ (BRB pauses requests, informs learners, applies streak freeze)",
+"https://status.duolingo.com/incidents/y8ktgs293v8g ('Errors with video call')",
+"Mobbin flow 7511e23c-104d-46e1-945a-ceb851f4fbe9 (Video call → 'Get unlimited video calls with Duolingo Max')",
+"report: https://reddit.sentinel-team.org/posts/1rsifhb/snapshots/2026-03-13T21%3A11%3A02.770284Z (one-hour cap, 'limit has been exceeded' after a few minutes)"
+]
+},
+{
+"n": 11,
+"verdict": "unknown",
+"summary": "Video Call and Roleplay send voice and text to OpenAI, and the privacy policy reportedly lets users stop sharing audio and turn off session-replay tracking in Settings. The observed Video Call flow starts with no consent step, and no screen of those toggles or of withdrawing was found.",
+"steps": [
+[
+"e",
+"Call Lily +25 XP",
+"Max Video Call tab",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"call",
+"Call starts",
+"No AI-sharing notice in observed flow",
+1,
+0,
+"screen",
+"gap"
+],
+[
+"set",
+"Settings › Privacy settings",
+"Row exists; contents not observed",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"aud",
+"Stop sharing audio?",
+"Policy: opt out in app Settings",
+3,
+0,
+"dec",
+"report"
+],
+[
+"trk",
+"Tracking toggle",
+"Turns off session replay (policy)",
+3,
+1,
+"screen",
+"report"
+],
+[
+"out",
+"AI features after opt-out",
+"Not documented",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"call",
+"",
+0
+],
+[
+"call",
+"set",
+"later",
+1
+],
+[
+"set",
+"aud",
+"",
+0
+],
+[
+"set",
+"trk",
+"",
+0
+],
+[
+"aud",
+"out",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 7511e23c-104d-46e1-945a-ceb851f4fbe9 (Video call: tab → call → review, no consent screen seen)",
+"Mobbin screen 9c5661df-eb02-48e3-b2d8-1e23fd5f2fc1 (Settings: 'Privacy settings' row)",
+"report: https://conductatlas.com/platform/duolingo/duolingo-privacy-policy/user-right-to-opt-out-of-audio-for-product-improvement/ (policy summary: opt out of audio in app Settings)",
+"report: https://conductatlas.com/platform/duolingo/duolingo-privacy-policy/fullstory-and-session-replay-activity-logging/ (Tracking toggle)",
+"report: https://conductatlas.com/platform/duolingo/duolingo-privacy-policy/ai-text-and-audio-shared-with-vendors/ (OpenAI for Video Call/Roleplay)"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "SIGN OUT sits at the foot of Settings and lands on \"Sign back in\", a picker of accounts saved on this device with \"Add another account\" and MANAGE ACCOUNTS. That makes switching easy, but names and emails stay on screen after signing out. Cancelled or wrong sign-in screens were not observed; Help only covers the duplicate-account case.",
+"steps": [
+[
+"e",
+"Settings › SIGN OUT",
+"Below Help Center, Feedback",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"back",
+"\"Sign back in\"",
+"Saved accounts: name + email",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"keep",
+"Account list kept",
+"Names/emails visible signed out",
+2,
+1,
+"screen",
+"gap"
+],
+[
+"add",
+"Add another account",
+"+ row and MANAGE ACCOUNTS",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"err",
+"Wrong details?",
+"Cancel / bad password not observed",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"dup",
+"\"Progress looks different\"",
+"Help: may be a 2nd account; log out",
+4,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"back",
+"",
+0
+],
+[
+"back",
+"keep",
+"",
+1
+],
+[
+"back",
+"add",
+"",
+0
+],
+[
+"add",
+"err",
+"",
+0
+],
+[
+"err",
+"dup",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow a3157feb-b9f0-4fd8-8219-f84b162127c7 (Logging out: 9c5661df → 7e61a85a 'Sign back in')",
+"Mobbin flow f5af281a-e963-4461-8c4e-ca631bd8fcd9 (23b9b688 → 148fb47e 'Choose from accounts saved on this device')",
+"https://www.duolingo.com/help/trouble-accessing-my-account (second account by mistake; log out and try other emails)"
+]
+},
+{
+"n": 13,
+"verdict": "meets",
+"summary": "Progress lives on the account, so any device that signs in gets it, and offline sessions sync on reconnect. The Family Plan is managed in the app: invite by link or search, a confirm sheet, an owner-only Edit to remove someone, and Help says joining or leaving never touches progress or streak.",
+"steps": [
+[
+"e",
+"Sign in on 2nd device",
+"Same account",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"sync",
+"Progress follows account",
+"Offline sessions sent later",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"fam",
+"YOUR FAMILY",
+"\"It's just you so far!\" ADD MEMBERS",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"inv",
+"Invite members",
+"Search, link, share, or from device",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"add",
+"Add to plan?",
+"\"Add Alex Smith…?\" ADD TO PLAN / NO THANKS",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"man",
+"Duolingo Family Plan",
+"Members list, EDIT, 4 spots left",
+4,
+1,
+"screen",
+"seen"
+],
+[
+"rm",
+"Remove or leave",
+"Owner: Manage › Edit › name",
+5,
+1,
+"screen",
+"doc"
+],
+[
+"out",
+"Progress and streak kept",
+"On join, start or leave",
+6,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"sync",
+"",
+0
+],
+[
+"fam",
+"inv",
+"",
+0
+],
+[
+"inv",
+"add",
+"",
+0
+],
+[
+"add",
+"man",
+"",
+0
+],
+[
+"man",
+"rm",
+"",
+0
+],
+[
+"rm",
+"out",
+"",
+0
+]
+],
+"sources": [
+"https://blog.duolingo.com/duolingo-101-how-to-learn-a-language-on-duolingo/ (profile lets you access your account on other devices)",
+"https://blog.duolingo.com/frontend-prediction/ (offline sessions sent on reconnect)",
+"Mobbin flow eedbcb7f-6190-4641-a08e-0008f399df34 (Inviting a user to a family plan, 5 screens)",
+"Mobbin flow 8ae346fb-c291-4c26-b0e8-f5b64be00dd2 (Manage a family plan; screen fd3e8e2e-0b82-4e2f-8223-b410a3e325f9)",
+"https://www.duolingo.com/help/family-plan (remove: Manage › Edit › name › confirm; progress and streak not affected; only manager manages)"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "Most empty states are designed and say what unlocks them (\"Finish 9 lessons to start competing on Leaderboards!\", Friend Streaks with ADD FRIENDS, an empty family row with ADD MEMBERS). Friends › Followers is a bare \"No followers yet\" box with nothing to do.",
+"steps": [
+[
+"e",
+"New account, tabs",
+"Home path always has a next lesson",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"lb",
+"Leaderboards tab",
+"\"Finish 9 lessons to start…\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"fs",
+"Streak › Friends",
+"\"Start Friend Streaks…\" ADD FRIENDS",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"fam",
+"Family Plan",
+"\"It's just you so far!\" ADD MEMBERS",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"fol",
+"Friends › Followers",
+"\"No followers yet\", no action",
+2,
+0,
+"screen",
+"gap"
+],
+[
+"out",
+"Mostly guided",
+"One bare list",
+3,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"lb",
+"",
+0
+],
+[
+"e",
+"fs",
+"",
+0
+],
+[
+"e",
+"fam",
+"",
+0
+],
+[
+"lb",
+"fol",
+"",
+1
+],
+[
+"fol",
+"out",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen baeadfed-3790-43a8-b6f7-0afd4e4368a1 (Leaderboards locked: 'Finish 9 lessons…')",
+"Mobbin screen d1ba4abc-768c-4722-9c11-c2336900bba7 (Friend Streaks empty, ADD FRIENDS)",
+"Mobbin screen 0f7a3251-b2bb-4684-9046-1035f741eed6 ('No followers yet')",
+"Mobbin flow eedbcb7f-6190-4641-a08e-0008f399df34 (empty family: 'It's just you so far!')",
+"Mobbin screen a13f2a69-17ab-48d1-b6bd-9b64b5cd426e (path at current unit)"
+]
+}
+]
+}

@@ -1,0 +1,1055 @@
+{
+"app": "carrot",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Launch shows a logo splash and a joke loading state (\"PRECOGITATING...\") on the Weather tab; whether a relaunch restores the last tab or location was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"s",
+"Splash",
+"CARROT logo",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Loading",
+"\"PRECOGITATING...\" on Weather tab",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Weather",
+"Last location/tab restore not confirmed",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+1
+],
+[
+"s",
+"l",
+"",
+0
+],
+[
+"l",
+"w",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow cdc0bf0c-bbe5-44f7-a8a6-00a8ea6a1eb1 (Onboarding: splash)",
+"Mobbin screens 2c442529-4873-44b3-8762-098dcff29eef, 05efb2a8-26b9-469f-a7c6-a4a01310a653 (loading states)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "CARROT sends precipitation, severe-weather and daily-summary notifications and has Live Activities, but where a tap lands was not observed or documented.",
+"steps": [
+[
+"e",
+"Weather notification",
+"Rain, alerts, Morning/Evening Report",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"la",
+"Live Activity / widget",
+"Listed in 6.9.2 notes",
+0,
+1,
+"entry",
+"doc"
+],
+[
+"d",
+"Tap destination?",
+"Location / alert detail not confirmed",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"w",
+"Weather for location",
+"Assumed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"la",
+"d",
+"tap",
+1
+],
+[
+"d",
+"w",
+"",
+1
+]
+],
+"sources": [
+"http://support.meetcarrot.com/weather/ (\"What types of notifications can CARROT send?\")",
+"https://apps.apple.com/us/app/carrot-weather-alerts-radar/id961390574 (description + version history)",
+"Mobbin screen 04a3b690-dfaa-4640-9bbc-593d50102fb5 (Morning/Evening Report rows)"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Location is asked in onboarding with a purpose string and notifications are asked in context on Settings > Notifications; manual city search works without location, but no denied-state Settings link was observed.",
+"steps": [
+[
+"o",
+"Onboarding",
+"\"Greetings, meatbag.\" > Continue",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"iOS location alert",
+"\"CARROT uses your location to fetch...\"",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Allowed?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"w",
+"Weather (current loc.)",
+"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"l",
+"Locations search",
+"\"Cities and Places of Interest\"",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"n",
+"Notifications ask",
+"Asked on Settings > Notifications",
+0,
+2,
+"sys",
+"seen"
+],
+[
+"x",
+"Denied: Settings link",
+"Not observed",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"o",
+"a",
+"",
+0
+],
+[
+"a",
+"d",
+"",
+0
+],
+[
+"d",
+"w",
+"yes",
+0
+],
+[
+"d",
+"l",
+"no",
+1
+],
+[
+"l",
+"x",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 240dacff-857b-454e-a104-8f278d11b37c (location alert in onboarding)",
+"Mobbin screens 7448bb55-5336-4964-8e87-cc40ddf55a72, b2aec36a-7598-4807-a7a0-af58e48b7a37 (Locations search)",
+"Mobbin screen 8d04c6e7-f179-494a-bc41-0228b5921830 (notification alert on Notifications settings)"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Success path seen: Premium Club paywall (\"Try It Free\", \"Not Now\", \"Restore Purchases\"), \"PURCHASING\" spinner, then \"You're all set.\" alert; cancel, Ask to Buy and failure were not observed.",
+"steps": [
+[
+"p",
+"Premium Club paywall",
+"\"Seven days free, then $4.99/month.\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"Not captured",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"pu",
+"Purchasing",
+"\"PURCHASING\" robot spinner",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Success alert",
+"\"You're all set. Your purchase was successful.\"",
+4,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cancel / pending / fail",
+"No handling observed",
+4,
+1,
+"out",
+"unverified"
+],
+[
+"nn",
+"Not Now",
+"Skip paywall, free app",
+0,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"p",
+"sk",
+"",
+0
+],
+[
+"sk",
+"pu",
+"",
+1
+],
+[
+"pu",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"d",
+"x",
+"other",
+1
+],
+[
+"p",
+"nn",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flow cdc0bf0c-bbe5-44f7-a8a6-00a8ea6a1eb1 (Onboarding > Subscribing)",
+"Mobbin screens f17f6c4a-c0b3-4db0-8478-d2038a2acdb5, 16482737-27b0-40e5-aeaa-95ec99aad169, 69e4d9e9-36ff-4276-a78d-e26402992ecd"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "A free tier exists (Premium-only notification rows show \"N/A\" and \"ULTRA\" locks), but grace-period messaging and downgrade UI after a lapse were not found.",
+"steps": [
+[
+"e",
+"Premium lapses",
+"Renewal fails or cancelled",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free tier",
+"Locked rows: \"N/A\", \"ULTRA\" badges",
+2,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screens d7c0bccd-f811-418b-a1ee-22da5136ce85, 04a3b690-dfaa-4640-9bbc-593d50102fb5 (locked notification rows)",
+"https://apps.apple.com/us/app/carrot-weather-alerts-radar/id961390574 (description + version history)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "No account; purchases restore via \"Restore Purchases\" on the onboarding paywall and a \"Restore\" button on Settings > Premium Club; Premium Family shares via Family Sharing.",
+"steps": [
+[
+"e",
+"New device",
+"Fresh install, no sign-in",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"p",
+"Paywall",
+"\"Restore Purchases\" link",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Settings > Premium Club",
+"\"Restore\" top right",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"fam",
+"Premium Family",
+"Shared with up to 5 via Family Sharing",
+1,
+2,
+"screen",
+"doc"
+],
+[
+"o",
+"Premium unlocked",
+"",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"p",
+"",
+0
+],
+[
+"e",
+"s",
+"",
+0
+],
+[
+"p",
+"o",
+"",
+1
+],
+[
+"s",
+"o",
+"",
+1
+],
+[
+"fam",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen f17f6c4a-c0b3-4db0-8478-d2038a2acdb5 (paywall Restore Purchases)",
+"Mobbin screen 8532b491-0e4c-4248-8a46-c10383e14a2b (Premium Club, Restore)",
+"https://apps.apple.com/us/app/carrot-weather-alerts-radar/id961390574 (description + version history)"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "No account to delete: onboarding has no sign-up and the privacy label lists no data linked to the user, so 5.1.1(v) does not apply (inferred, not stated by the developer).",
+"steps": [
+[
+"o",
+"Onboarding",
+"No sign-up or sign-in step",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"p",
+"Privacy label",
+"\"Data Not Linked to You\" only",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"n",
+"No account to delete",
+"",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"o",
+"p",
+"",
+1
+],
+[
+"p",
+"n",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow cdc0bf0c-bbe5-44f7-a8a6-00a8ea6a1eb1 (Onboarding, 15 screens)",
+"https://apps.apple.com/us/app/carrot-weather-alerts-radar/id961390574 (description + version history) (App Privacy)"
+]
+},
+{
+"n": 8,
+"verdict": "partial",
+"summary": "Release notes say cached weather loads when \"off the grid\", but the offline UI (banner, staleness label) was not observed.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"c",
+"Cached forecast",
+"6.8.0: \"Load cached weather data faster\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"b",
+"Offline indicator",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+0
+],
+[
+"c",
+"b",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/carrot-weather-alerts-radar/id961390574 (description + version history) (6.8.0 notes)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Release notes live in App Store version history (e.g. 6.9.1 Layout Assistant); no in-app What's New screen was found on Mobbin.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. v6.9.2, Oct 9",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Version history",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"w",
+"Weather",
+"No What's New seen in app",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"w",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/carrot-weather-alerts-radar/id961390574 (description + version history)"
+]
+},
+{
+"n": 10,
+"verdict": "unknown",
+"summary": "No data-fetch error screen was found; limits are stated in plain words (\"you can only have 3 map layers\") and a Data Source Quick Switch lets you compare sources, and release notes say cached weather shows when offline.",
+"steps": [
+[
+"e",
+"Weather tab",
+"Forecast request",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Source fails?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"x",
+"Error state",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+],
+[
+"q",
+"Quick Switch",
+"Compare other data sources",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"l",
+"Layer limit alert",
+"\"you can only have 3 map layers\"",
+1,
+2,
+"sys",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+1
+],
+[
+"d",
+"x",
+"yes",
+1
+],
+[
+"d",
+"q",
+"",
+1
+],
+[
+"e",
+"l",
+"Maps",
+0
+]
+],
+"sources": [
+"Mobbin screen c7ff517c-608c-4c3e-8612-4b3a922c37e1 (Data Source Quick Switch)",
+"Mobbin screen c8b9c7ec-c282-457b-9dfe-7afc12a91709 (Layer Limit Reached)",
+"Mobbin screen b3befc27-736e-45da-811d-ec364a415966 (Data Source list)",
+"https://apps.apple.com/us/app/carrot-weather-alerts-radar/id961390574 (description + version history) (6.8.0 cached data)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "No AI or tracking consent (privacy label lists nothing used to track); the closest is notifications: Settings > General explains that alerts store location on CARROT's servers and offers \"Delete Server-Side Data\"; what happens after tapping it was not observed.",
+"steps": [
+[
+"e",
+"Notifications on",
+"Location stored server-side",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"g",
+"Settings > General",
+"Explains what's stored and why",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"x",
+"Delete Server-Side",
+"Red button",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Result",
+"Not observed",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"p",
+"Privacy label",
+"No \"Data Used to Track You\"",
+1,
+1,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+0
+],
+[
+"g",
+"x",
+"",
+0
+],
+[
+"x",
+"o",
+"",
+1
+],
+[
+"e",
+"p",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 91516f1a-f1e3-460c-87e1-688947855afd (Settings > General: Delete Server-Side Data)",
+"https://apps.apple.com/us/app/carrot-weather-alerts-radar/id961390574 (description + version history) (App Privacy)"
+]
+},
+{
+"n": 12,
+"verdict": "meets",
+"summary": "No account and no sign-in: saved locations and settings live in iCloud (\"Saved locations and settings are stored to your iCloud account\") and can be restored from a backup during setup.",
+"steps": [
+[
+"e",
+"First launch",
+"\"Greetings, meatbag.\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"n",
+"No sign-in",
+"Onboarding has no account step",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Restore backup",
+"Restore settings during setup",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"i",
+"iCloud Sync & Backup",
+"Settings > General > Extras",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"o",
+"Ready",
+"Locations + settings back",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"r",
+"",
+0
+],
+[
+"n",
+"i",
+"later",
+1
+],
+[
+"r",
+"o",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flow cdc0bf0c-bbe5-44f7-a8a6-00a8ea6a1eb1 (Onboarding)",
+"Mobbin screen 91516f1a-f1e3-460c-87e1-688947855afd (iCloud Sync & Backup row, storage note)",
+"https://www.iclarified.com/71771/carrot-weather-app-gets-ipad-design-refresh-support-for-split-view-and-slide-over-much-more (2019 release notes: iCloud sync, restore during setup)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "One purchase covers iPhone, iPad, Watch and Apple-silicon Mac, Premium Family shares via Family Sharing, and settings, locations and stations sync via iCloud (settings sync off by default); current Watch/Mac sync behavior was not confirmed.",
+"steps": [
+[
+"e",
+"Second device",
+"iPad / Watch / Mac",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"i",
+"iCloud sync",
+"Locations, stations, settings",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"s",
+"Settings sync",
+"Off by default",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"o",
+"Same setup",
+"On every device",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"f",
+"Premium Family",
+"Up to five via Family Sharing",
+1,
+1,
+"sys",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"i",
+"",
+0
+],
+[
+"i",
+"s",
+"",
+0
+],
+[
+"s",
+"o",
+"on",
+1
+],
+[
+"e",
+"f",
+"family",
+0
+]
+],
+"sources": [
+"http://support.meetcarrot.com/weather/ (FAQ: platforms, Premium Family)",
+"https://www.iclarified.com/71771/carrot-weather-app-gets-ipad-design-refresh-support-for-split-view-and-slide-over-much-more (iCloud sync scope; settings sync off by default)",
+"Mobbin screen 91516f1a-f1e3-460c-87e1-688947855afd (iCloud Sync & Backup)"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "The Locations tab on first use shows only \"Current Location\" under Favorites and a \"Cities and Places of Interest\" search field, with no copy explaining what goes there; the Weather tab fills from location right away.",
+"steps": [
+[
+"e",
+"First use",
+"After onboarding",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"w",
+"Weather tab",
+"Forecast for current location",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Locations tab",
+"Only \"Current Location\" + search",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"s",
+"Search a city",
+"\"Cities and Places of Interest\"",
+2,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"w",
+"",
+0
+],
+[
+"e",
+"l",
+"",
+0
+],
+[
+"l",
+"s",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen e6049feb-bd35-4a69-bef5-bcadb651af2d (Locations, first use)",
+"Mobbin screens 7448bb55-5336-4964-8e87-cc40ddf55a72, b2aec36a-7598-4807-a7a0-af58e48b7a37 (search)",
+"Mobbin flow cdc0bf0c-bbe5-44f7-a8a6-00a8ea6a1eb1 (Weather tab after onboarding)"
+]
+}
+]
+}

@@ -1,0 +1,1314 @@
+{
+"app": "finch",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Relaunch lands on the birdhouse Home with today's goals, sometimes with a mood check-in sheet; whether the last tab/screen is restored was not observed. Data is local-only unless the user made an account.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"h",
+"Home (birdhouse)",
+"Birb, adventure bar, goals, tab bar",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"Mood check-in sheet",
+"\"How are you feeling right now?\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Mood logged toast",
+"\"Your mood is logged!\"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"r",
+"Last tab restored?",
+"Not observed",
+2,
+1,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"h",
+"",
+0
+],
+[
+"h",
+"m",
+"",
+1
+],
+[
+"m",
+"t",
+"",
+0
+],
+[
+"h",
+"r",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 91038415-4ded-44c2-9342-065adb9e82fb (Logging a mood: Home, mood sheet, toast)",
+"https://help.finchcare.com/hc/en-us/articles/37780313999757-Data-Backup-and-Recovery (\"By default, all data is only saved locally\")"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Finch sends several reminder types and shows friend events as in-app sheets with a direct CTA, but where a push tap lands (and in which state) was not observed or documented.",
+"steps": [
+[
+"n",
+"Push from birb",
+"Morning check in / Messages from Lee / Streak",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"d",
+"Where does tap land?",
+"Not documented",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"s",
+"Friend-event sheet",
+"\"Alex shared a daily goal with you!\" View goal",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"g",
+"Goal destination",
+"Assumed after \"View goal\"",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"n",
+"d",
+"tap",
+1
+],
+[
+"d",
+"s",
+"",
+1
+],
+[
+"s",
+"g",
+"View goal",
+1
+]
+],
+"sources": [
+"Mobbin screen 28089b75-d38f-49a4-88e6-a738bd8f08d2 (Notifications settings: Morning check in, Messages from Lee, Streak reminders)",
+"Mobbin screen eaafaa2f-e3ad-4630-bcb4-e341e9f190dd (\"Alex shared a daily goal with you!\")"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Notification asks are soft pre-prompts with a clear decline (\"Maybe later\" / \"Not now\") and resurface in context; core self-care works without permission, but no denied-state Settings link was found.",
+"steps": [
+[
+"p",
+"Onboarding pre-prompt",
+"\"Get reminders from Lee\" Turn on / Maybe later",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS permission alert",
+"Allow / Don't Allow",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"l",
+"Maybe later",
+"Declines without system alert",
+1,
+1,
+"dec",
+"seen"
+],
+[
+"c",
+"Contextual re-ask",
+"\"Get self-care reminders\" Turn on / Not now",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"o",
+"App keeps working",
+"Goals, birb, reflections usable",
+3,
+1,
+"out",
+"doc"
+],
+[
+"x",
+"Denied: Settings link",
+"Not observed",
+3,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"s",
+"Turn on",
+0
+],
+[
+"p",
+"l",
+"",
+0
+],
+[
+"l",
+"c",
+"later",
+1
+],
+[
+"s",
+"c",
+"denied",
+1
+],
+[
+"c",
+"o",
+"Not now",
+0
+],
+[
+"c",
+"x",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 3e88469e-f60a-439d-ac4d-0bd06fd8eae4 (\"Get reminders from Lee\")",
+"Mobbin screen 5df628a7-e72f-4fa8-86e1-1b7544861768 (\"Get self-care reminders\", Micropet lab)",
+"https://help.finchcare.com/hc/en-us/articles/37780200600589-Benefits-of-Finch-Plus (core features free)"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Success path seen end to end (\"Finch is free forever\" intro, 7-day trial screen, StoreKit, \"You're all set\" alert, \"Your 7-day trial has started!\"); cancel, Ask to Buy/pending and failure handling not observed.",
+"steps": [
+[
+"i",
+"Free-forever intro",
+"\"Finch is free forever\" See my FREE offer",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Trial offer",
+"\"Start my free trial now\" / Skip offer",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Success alert",
+"\"You're all set. Your purchase was successful.\"",
+3,
+0,
+"sys",
+"seen"
+],
+[
+"w",
+"Welcome to Finch Plus",
+"\"Your 7-day trial has started!\" Okay!",
+4,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cancel",
+"Back on offer screen (assumed)",
+3,
+1,
+"out",
+"unverified"
+],
+[
+"pf",
+"Pending / failed",
+"No handling observed",
+3,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"i",
+"t",
+"",
+0
+],
+[
+"t",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"ok",
+"w",
+"",
+0
+],
+[
+"d",
+"x",
+"cancel",
+1
+],
+[
+"d",
+"pf",
+"pending/fail",
+1
+]
+],
+"sources": [
+"Mobbin flow 352a16af-ee34-4cff-8274-936a6d643fdc (Subscribing to Finch Plus; screens f58ab869-a56d-4d44-bba4-9c41158451b3, edc93cfd-8841-45e9-a3b2-62ab2008889b)",
+"Mobbin flow a20f4c9b-cc45-4346-9baf-4e8846b5f470 (Choose a subscription plan)"
+]
+},
+{
+"n": 5,
+"verdict": "partial",
+"summary": "Cancel runs through an in-app sheet plus a retention screen; help center says Plus stays until the period ends and core features are free forever, but grace-period messaging and what happens to Plus-only content were not found.",
+"steps": [
+[
+"s",
+"Settings",
+"\"Finch Plus Active\" > Manage your subscription",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"Subscription sheet",
+"\"7 day free trial Ends on…\" Cancel Subscription",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Retention screen",
+"\"Are you sure?\" Keep Plus! / Proceed",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"k",
+"Access to period end",
+"Plus until original expiry date",
+3,
+0,
+"screen",
+"doc"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+3,
+1,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free Finch",
+"Core self-care free forever",
+4,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"s",
+"m",
+"",
+0
+],
+[
+"m",
+"r",
+"",
+0
+],
+[
+"r",
+"k",
+"Proceed",
+0
+],
+[
+"k",
+"f",
+"",
+0
+],
+[
+"k",
+"g",
+"billing fail",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow c089757b-7675-4f00-ade1-0b8d03609418 (Cancel Finch Plus subscription)",
+"https://help.finchcare.com/hc/en-us/articles/37780209444365-Canceling-Finch-Plus",
+"https://help.finchcare.com/hc/en-us/articles/37780200600589-Benefits-of-Finch-Plus"
+]
+},
+{
+"n": 6,
+"verdict": "partial",
+"summary": "Restore Purchase is in both the paywall plan sheet and Settings, and accounts or backup files move data; but data is local-only by default, so a user with no account or backup file loses their birb on a new phone.",
+"steps": [
+[
+"e",
+"New device",
+"First launch",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Has Finch account?",
+"Phone / email login, or backup file",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"l",
+"Log In",
+"Phone code or email + password",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"b",
+"Manual Backup",
+"Log In > Manual Backup file",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"n",
+"No account: fresh birb",
+"Local data lost",
+2,
+2,
+"out",
+"gap"
+],
+[
+"r",
+"Restore Finch Plus",
+"Settings row + paywall \"Restore purchase\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Birb + Plus back",
+"",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"l",
+"yes",
+0
+],
+[
+"d",
+"b",
+"file",
+1
+],
+[
+"d",
+"n",
+"no",
+1
+],
+[
+"l",
+"r",
+"",
+0
+],
+[
+"b",
+"r",
+"",
+1
+],
+[
+"r",
+"o",
+"",
+0
+]
+],
+"sources": [
+"https://help.finchcare.com/hc/en-us/articles/41672084300557-FAQs (Data Transfer to a New Device; \"All Finch data is local unless you have a Finch Account\")",
+"https://help.finchcare.com/hc/en-us/articles/38508647189389-How-to-Restore-Your-Finch-Plus-Subscription",
+"Mobbin screen 42055f49-e0f8-4eb3-8bf8-0cf9cc37649a (Settings \"Restore Finch Plus purchase\")",
+"Mobbin screen 981c04ab-3348-492a-b506-7e456db8b1ae (plan sheet \"Restore purchase\")"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "In-app Settings > Your data > \"Delete data\" with one typed-DELETE confirm that explains device + server deletion; it is labelled data, not account, says nothing about the subscription, and the end state was not observed.",
+"steps": [
+[
+"s",
+"Your data",
+"Cloud Backup, Manual Backup, \"Delete data\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Delete your data?",
+"Device + servers, \"not reversible\" type DELETE",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"u",
+"Subscription note",
+"None shown in dialog",
+2,
+1,
+"screen",
+"gap"
+],
+[
+"o",
+"After deletion",
+"End state not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"c",
+"Delete data",
+0
+],
+[
+"c",
+"o",
+"Delete my data",
+0
+],
+[
+"c",
+"u",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 45ef354c-e56a-4783-8b86-46d74b23eeb1 (Deleting data; screen 07d41300-f0eb-4082-8bbd-aa305eac4155)"
+]
+},
+{
+"n": 8,
+"verdict": "partial",
+"summary": "Help center says Finch can be used offline with only social features needing a connection; but a network failure in a video exercise is a full-screen error, not a quiet state.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"h",
+"Goals, birb, reflections",
+"Work offline (local data)",
+1,
+0,
+"out",
+"doc"
+],
+[
+"s",
+"Social features",
+"Gifts, good vibes, add friends need network",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"v",
+"Video exercise",
+"\"Error loading video… check your internet\"",
+1,
+2,
+"screen",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"h",
+"",
+0
+],
+[
+"e",
+"s",
+"",
+1
+],
+[
+"e",
+"v",
+"",
+1
+]
+],
+"sources": [
+"https://help.finchcare.com/hc/en-us/articles/38108378959245-Troubleshooting-bugs-within-the-app (\"While Finch can be used offline, some features require an internet connection\")",
+"Mobbin screen eaebf4be-46a2-4769-b6d9-189dd755756e (Error loading video)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "No version What's New screen found; Finch announces content (seasonal events, newly unlocked shops) with dismissible sheets, and the help center notes staged feature rollouts.",
+"steps": [
+[
+"e",
+"App updated",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"w",
+"Version What's New",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"s",
+"Season sheet",
+"\"September Season is here!\" × / Check it out!",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"h",
+"Home",
+"",
+2,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"w",
+"",
+1
+],
+[
+"e",
+"s",
+"",
+1
+],
+[
+"s",
+"h",
+"×",
+0
+]
+],
+"sources": [
+"Mobbin screen 131b645d-adec-4d49-81f5-1f01749d3d39 (September Season is here!)",
+"https://help.finchcare.com/hc/en-us/articles/41672084300557-FAQs (\"Partial feature rollouts… make sure the app is updated\")"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "Finch has no AI features. Data is local by default, so the core loop never waits on a server, and Help lists only gifting, good vibes and adding friends as needing a connection. A failed video says why (\"check your internet connection and try again\") but its only buttons are Shuffle and Start the next one, with no Retry. Help keeps a public App Status page.",
+"steps": [
+[
+"e",
+"Network feature used",
+"Video, gift, vibes, add friend",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"loc",
+"Core works offline",
+"Goals/reflections saved on device",
+1,
+1,
+"sys",
+"doc"
+],
+[
+"ok",
+"Connected?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"vid",
+"\"Error loading video\"",
+"\"…check your internet connection…\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"next",
+"Shuffle / Start next",
+"No retry for this video",
+3,
+0,
+"screen",
+"gap"
+],
+[
+"mail",
+"Report issue fails",
+"\"Could not access Apple Mail app\" + email",
+2,
+2,
+"screen",
+"seen"
+],
+[
+"st",
+"Finch App Status",
+"Help page: outages per area",
+3,
+2,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"ok",
+"",
+0
+],
+[
+"e",
+"loc",
+"offline",
+1
+],
+[
+"ok",
+"vid",
+"no",
+0
+],
+[
+"vid",
+"next",
+"",
+0
+],
+[
+"ok",
+"mail",
+"report",
+1
+],
+[
+"mail",
+"st",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen eaebf4be-46a2-4769-b6d9-189dd755756e ('Error loading video', Shuffle / Start)",
+"Mobbin screen 42055f49-e0f8-4eb3-8bf8-0cf9cc37649a ('Could not access Apple Mail app. Please email support@befinch.com!')",
+"https://help.finchcare.com/hc/en-us/articles/38108378959245-Troubleshooting-bugs-within-the-app ('While Finch can be used offline, some features require an internet connection')",
+"https://help.finchcare.com/hc/en-us/articles/38284234302989-Finch-App-Status",
+"https://help.finchcare.com/hc/en-us/articles/37780313999757-Data-Backup-and-Recovery ('By default, all data is only saved locally')"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "No AI or tracking consent was found, so this traces the closest choice: sending your data to Finch's servers through Cloud Backup. It is opt-in by creating an account, Cloud Backups has a clear \"Disable Cloud Backups\" button plus Advanced Data Protection and Wi-Fi-only options, and \"Delete data\" says it erases both device and server copies. What disabling does to copies already on the server was not observed.",
+"steps": [
+[
+"e",
+"Settings › Your data",
+"Cloud Backup: Off/On",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"opt",
+"Create Account",
+"Turns on Cloud Backups (Help)",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"cb",
+"Cloud Backups",
+"Every 24 h; ADP; Wi-Fi only",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"dis",
+"Disable Cloud Backups",
+"One red button",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"srv",
+"Server copy removed?",
+"Not documented",
+4,
+0,
+"out",
+"unverified"
+],
+[
+"del",
+"\"Delete your data?\"",
+"Device + servers; type DELETE",
+3,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"opt",
+"",
+0
+],
+[
+"opt",
+"cb",
+"",
+0
+],
+[
+"cb",
+"dis",
+"",
+0
+],
+[
+"dis",
+"srv",
+"",
+1
+],
+[
+"e",
+"del",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 07d41300-f0eb-4082-8bbd-aa305eac4155 (Your data: Cloud Backup Off, Manual Backup, Export, Delete data)",
+"Mobbin screen c32831a8-1a5d-4715-8396-9910b4cf6c43 (Cloud Backups: 'Backups happen every 24 hours when the app is open', Advanced Data Protection, Only Backup on WiFi, 'Disable Cloud Backups')",
+"Mobbin screen bc185e74-8fb4-494f-b1e1-4bc9bd9b54a4 ('Delete your data?')",
+"https://help.finchcare.com/hc/en-us/articles/41834952026381-Accounts-and-Cloud-Backups (Create Account enables Cloud Backups)"
+]
+},
+{
+"n": 12,
+"verdict": "unknown",
+"summary": "An account is optional, made by verifying a phone number or, for older users, email and password, and Finch otherwise runs local-only. Help covers logging in on a new device (Log In › phone/email, or Manual Backup), but no sign-out control appeared in the Settings or Profile screens observed, and wrong-code or cancelled sign-in was not seen.",
+"steps": [
+[
+"e",
+"First screen",
+"Start, or \"Log In\"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"how",
+"Account type?",
+"Phone code vs email/password",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"bk",
+"Log In › Manual Backup",
+"Load a backup file instead",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"err",
+"Wrong code / cancel",
+"Not observed",
+2,
+0,
+"screen",
+"unverified"
+],
+[
+"set",
+"Settings › Profile",
+"Pet + you; no sign-out seen",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"out",
+"Sign out?",
+"No control observed",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"how",
+"",
+0
+],
+[
+"e",
+"bk",
+"",
+1
+],
+[
+"how",
+"err",
+"",
+1
+],
+[
+"how",
+"set",
+"",
+0
+],
+[
+"set",
+"out",
+"",
+1
+]
+],
+"sources": [
+"https://help.finchcare.com/hc/en-us/articles/41672084300557-FAQs (Data Transfer to a New Device: Log In with phone number or email and password; Log In › Manual Backup)",
+"https://help.finchcare.com/hc/en-us/articles/41834952026381-Accounts-and-Cloud-Backups (new users verify phone number)",
+"Mobbin screens 9f3079cb-12d4-464e-a75e-ca3f169520c6 (Settings: Account section), ff6cc7d1-5257-48da-8101-4039b2152975 (Profile: pet and you, Email Not Set)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "There is no live multi-device sync. Cloud Backup runs once every 24 hours while the app is open, so a second phone restores a snapshot rather than mirroring edits, and Help says Finch has no family plans. Friends work well: add by code, link or contacts, shared goals (\"Alex shared a daily goal with you!\"), Buddy up. Unfriending or leaving was not observed.",
+"steps": [
+[
+"e",
+"Second phone",
+"Log In with account",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"snap",
+"Restores last backup",
+"Backups every 24 h, not live",
+1,
+0,
+"sys",
+"gap"
+],
+[
+"fam",
+"Family plan?",
+"\"Finch does not support family plans\"",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"add",
+"\"Finch is better together\"",
+"Invite / code / link / contacts",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"code",
+"Enter Friend Code",
+"\"Add friend!\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"sh",
+"Shared daily goal",
+"View goal · Buddy up",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"out",
+"Leave / unfriend?",
+"Not observed",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"snap",
+"",
+0
+],
+[
+"snap",
+"fam",
+"",
+1
+],
+[
+"add",
+"code",
+"",
+0
+],
+[
+"code",
+"sh",
+"",
+0
+],
+[
+"sh",
+"out",
+"",
+1
+]
+],
+"sources": [
+"https://help.finchcare.com/hc/en-us/articles/41834952026381-Accounts-and-Cloud-Backups ('Cloud Backup syncs happen automatically in the background once every 24 hours')",
+"https://help.finchcare.com/hc/en-us/articles/41672084300557-FAQs ('Currently, Finch does not support family plans')",
+"Mobbin flow 76a7a1e0-80ce-4fd4-8e80-5d5ca5653194 (Friends: tree, Finch is better together, Enter Friend Code, Buddy up, shared goal eaafaa2f)",
+"Mobbin flow 53f74b11-a075-4903-994a-cc16ad422ed3 (Adding a friend code)"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "Home is never empty, because a new user starts with default goals (\"7 goals left for today!\"), and the Friends tree shows a \"???\" signpost with Add friend. History views explain without helping: the calendar shows \"No activities for this day\" with only a Today button, and mood Insights say \"Add more reflections to see trends.\" with no button.",
+"steps": [
+[
+"e",
+"New birb",
+"Home tab",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"home",
+"Default goals",
+"\"Get out of bed\", \"Brush teeth\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"fr",
+"Friends tree",
+"\"???\" sign · Add friend",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"cal",
+"Calendar day",
+"\"No activities for this day\"",
+2,
+0,
+"screen",
+"gap"
+],
+[
+"ins",
+"Mood Insights",
+"\"Add more reflections…\" no CTA",
+2,
+2,
+"screen",
+"gap"
+],
+[
+"out",
+"Core tabs guided",
+"History views passive",
+3,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"home",
+"",
+0
+],
+[
+"e",
+"fr",
+"",
+0
+],
+[
+"home",
+"cal",
+"",
+1
+],
+[
+"home",
+"ins",
+"",
+1
+],
+[
+"cal",
+"out",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flow 76a7a1e0-80ce-4fd4-8e80-5d5ca5653194 (Home 69d2434c with default goals; Friends tree with Add friend)",
+"Mobbin screen fce1ec9f-8ea8-4a37-b9ea-09512c4cd28d ('No activities for this day', Today)",
+"Mobbin screen 0702a1ed-8322-45a4-9745-53c32a47baf4 (Insights: 'Add more reflections to see trends.')",
+"Mobbin screen aab675a1-f7f7-446c-aa46-2f6f5175ee44 (day page: GOALS / REFLECTIONS with edit pencils)"
+]
+}
+]
+}

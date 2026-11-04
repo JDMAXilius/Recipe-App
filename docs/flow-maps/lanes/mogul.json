@@ -1,0 +1,1033 @@
+{
+"app": "mogul",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Not on Mobbin. Docs say an opted-in iOS contact auto-import runs \"every time you open the app\"; People is the main list in App Store art. Last-state restore is unverified.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning signed-in user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"a",
+"Contact auto-import",
+"1-way sync on every open, if enabled",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"p",
+"People",
+"Last contact per person (\"Called 2 weeks ago\")",
+2,
+0,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"a",
+"",
+1
+],
+[
+"a",
+"p",
+"",
+1
+]
+],
+"sources": [
+"https://resources.mogulnetworking.com/features/ios-contact-importing",
+"Figma iEA3Aeu3ApmJdJabmAudXm node 177:5 (App Store screenshot 2, People)"
+]
+},
+{
+"n": 2,
+"verdict": "partial",
+"summary": "v2.79 added deep links for people and groups, and reminders arrive as push or email (E2E emails are generic and need a click). The signed-out path and the push tap target were not observed.",
+"steps": [
+[
+"n",
+"Reminder push",
+"iOS reminders + important dates",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"m",
+"Reminder email",
+"E2E: generic, \"click on the link\"",
+0,
+1,
+"entry",
+"doc"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"l",
+"Person / group",
+"Deep linking (v2.79)",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"r",
+"Reminders tab",
+"Pending + upcoming reminders",
+2,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"n",
+"d",
+"tap",
+1
+],
+[
+"m",
+"d",
+"link",
+1
+],
+[
+"d",
+"l",
+"yes",
+1
+],
+[
+"d",
+"r",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1367307210 (v2.79: deep linking for people and groups)",
+"https://resources.mogulnetworking.com/features/reminder-emails",
+"Figma node 177:5 (App Store screenshot 5, Reminders)"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Contacts are asked for only when the user taps \"Import iOS Contacts\" in Settings, with CSV/Google import and email reminders as alternatives; iOS denied-state handling and a Settings link were not found.",
+"steps": [
+[
+"s",
+"Settings",
+"\"Import iOS Contacts\" / \"iOS Reminders\"",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"a",
+"iOS permission alert",
+"Contacts / notifications",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Denied?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"c",
+"CSV / Google import",
+"Alternative import paths",
+3,
+1,
+"screen",
+"doc"
+],
+[
+"m",
+"Email reminders",
+"Opt-in alternative to push",
+3,
+2,
+"screen",
+"doc"
+],
+[
+"o",
+"App keeps working",
+"Add people manually",
+4,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"s",
+"a",
+"tap",
+0
+],
+[
+"a",
+"d",
+"",
+0
+],
+[
+"d",
+"c",
+"contacts",
+1
+],
+[
+"d",
+"m",
+"push",
+1
+],
+[
+"c",
+"o",
+"",
+0
+],
+[
+"m",
+"o",
+"",
+0
+]
+],
+"sources": [
+"https://resources.mogulnetworking.com/features/ios-contact-importing",
+"https://resources.mogulnetworking.com/features/reminder-emails",
+"https://resources.mogulnetworking.com/getting-started/what-is-mogul"
+]
+},
+{
+"n": 4,
+"verdict": "unknown",
+"summary": "Mogul Pro is sold in-app ($9.99/mo, $99.99/yr, $49.99 student) next to a \"Free Forever\" Basic plan; no paywall or purchase result was observed.",
+"steps": [
+[
+"b",
+"Basic (free)",
+"Unlimited people and interactions",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"p",
+"Upgrade to Pro",
+"$9.99/mo, $99.99/yr, $49.99 student",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"sk",
+"StoreKit sheet",
+"",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Outcome?",
+"Not observed",
+3,
+0,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"b",
+"p",
+"",
+1
+],
+[
+"p",
+"sk",
+"",
+1
+],
+[
+"sk",
+"d",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1367307210 (In-App Purchases)",
+"https://mogulnetworking.com/pricing"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "A free Basic tier exists without reminders, custom groups, custom fields or E2E, but what happens to existing reminders, groups or encrypted data when Pro ends is not documented.",
+"steps": [
+[
+"e",
+"Pro ends",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace notice",
+"Not documented",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Basic tier",
+"No reminders, groups, custom fields, E2E",
+2,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"https://mogulnetworking.com/pricing"
+]
+},
+{
+"n": 6,
+"verdict": "partial",
+"summary": "Account-based across web, iOS and Mac. With E2E on, a new device must re-enter the encryption password (\"we cannot recover it\"). Restore Purchases is not documented.",
+"steps": [
+[
+"e",
+"New device",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"l",
+"Log in",
+"Same account as web app",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"d",
+"E2E on?",
+"",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"k",
+"Re-enter E2E password",
+"\"Enter your encryption password...\"",
+3,
+0,
+"screen",
+"doc"
+],
+[
+"x",
+"Password lost",
+"\"we cannot recover it\": delete encrypted data",
+4,
+1,
+"out",
+"doc"
+],
+[
+"p",
+"People restored",
+"",
+4,
+0,
+"out",
+"unverified"
+],
+[
+"rp",
+"Restore Purchases",
+"Not documented",
+3,
+2,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+0
+],
+[
+"l",
+"d",
+"",
+0
+],
+[
+"d",
+"k",
+"yes",
+0
+],
+[
+"d",
+"p",
+"no",
+1
+],
+[
+"k",
+"p",
+"",
+0
+],
+[
+"k",
+"x",
+"lost",
+1
+],
+[
+"l",
+"rp",
+"",
+1
+]
+],
+"sources": [
+"https://resources.mogulnetworking.com/features/end-to-end-encryption",
+"https://apps.apple.com/us/app/id1367307210 (v2.70/2.71: encryption password on new devices)"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "Export and deletion are promised \"on both our web and mobile apps\"; docs describe Settings > Data Export & Deletion (web), and v2.72 fixed \"account deletion links\". The in-app confirm flow was not observed.",
+"steps": [
+[
+"c",
+"App Store claim",
+"\"export and delete it at any time\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"s",
+"Settings",
+"\"Data Export & Deletion\" section",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"x",
+"Export Data",
+"CSV of People, Interactions, Reminders",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"d",
+"Delete account",
+"Link (fixed in v2.72); confirm unseen",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"o",
+"Signed out",
+"",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"c",
+"s",
+"",
+1
+],
+[
+"s",
+"x",
+"",
+0
+],
+[
+"s",
+"d",
+"",
+0
+],
+[
+"d",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Figma node 177:5 (App Store screenshot 6, privacy)",
+"https://resources.mogulnetworking.com/features/data-export",
+"https://mogulnetworking.com/pricing (deletion in web and mobile apps)",
+"https://apps.apple.com/us/app/id1367307210 (v2.72)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "Nothing official on offline behavior for this synced, account-based app.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"o",
+"Behavior unknown",
+"No source found",
+1,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://resources.mogulnetworking.com/llms.txt (help index, no offline page)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "The last update was 2.96 (Jan 29, 2024: prompt to log an interaction); release notes appear only in App Store version history, and no in-app What's New was found.",
+"steps": [
+[
+"e",
+"App updates",
+"Last: v2.96, Jan 2024",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Version history only",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"p",
+"People",
+"No What's New seen",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"p",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1367307210 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "unknown",
+"summary": "No AI. Server or sync failures are undocumented; the only documented failure paths are a fixed crash on empty groups (v2.87) and an unrecoverable lost E2E password.",
+"steps": [
+[
+"e",
+"Request fails",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Error shown?",
+"Not documented",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"g",
+"Empty group crash",
+"Fixed in v2.87",
+1,
+1,
+"out",
+"doc"
+],
+[
+"k",
+"Lost E2E password",
+"\"we cannot recover it\"",
+1,
+2,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+1
+],
+[
+"e",
+"g",
+"",
+1
+],
+[
+"e",
+"k",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1367307210 (listing, version history, privacy label) (v2.87 notes)",
+"https://resources.mogulnetworking.com/features/end-to-end-encryption"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "No AI; traced Mixpanel analytics: on by default, tracks actions not content, and v2.90 added an opt-out toggle in Settings > Privacy. Docs describe the web Settings; the iOS toggle was not seen.",
+"steps": [
+[
+"e",
+"Use the app",
+"Mixpanel on by default",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"s",
+"Settings > Privacy",
+"Opt-out toggle (v2.90)",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"o",
+"Tracking off",
+"Actions only, never entered data",
+2,
+0,
+"out",
+"doc"
+],
+[
+"i",
+"iOS toggle?",
+"Not observed",
+1,
+1,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+0
+],
+[
+"s",
+"o",
+"toggle",
+0
+],
+[
+"e",
+"i",
+"",
+1
+]
+],
+"sources": [
+"https://resources.mogulnetworking.com/features/mixpanel-tracking",
+"https://apps.apple.com/us/app/id1367307210 (listing, version history, privacy label) (v2.90 notes; Data Not Linked to You)"
+]
+},
+{
+"n": 12,
+"verdict": "unknown",
+"summary": "Log in uses the web account and E2E users re-enter an encryption password on a new device; sign-in methods, cancelled sign-in and sign out are undocumented.",
+"steps": [
+[
+"e",
+"Open signed out",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"l",
+"Log in",
+"Same account as web",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"k",
+"Encryption password",
+"Window on new device (v2.71)",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"so",
+"Sign out",
+"Not documented",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+1
+],
+[
+"l",
+"k",
+"E2E on",
+0
+],
+[
+"k",
+"so",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1367307210 (listing, version history, privacy label) (v2.71 notes)",
+"https://resources.mogulnetworking.com/features/end-to-end-encryption"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "People, groups and reminders follow the account across web, iOS and Mac (iPhone build), and a new device must authorize E2E; Mogul is single-user with no sharing, and contact import is iOS-only.",
+"steps": [
+[
+"e",
+"Second device",
+"Web, iPhone, Mac",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"l",
+"Log in",
+"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"k",
+"Authorize E2E",
+"Enter encryption password",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"h",
+"Same people + groups",
+"\"managed on both the web and iOS\"",
+3,
+0,
+"out",
+"doc"
+],
+[
+"s",
+"Sharing",
+"None; groups only organize",
+1,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+0
+],
+[
+"l",
+"k",
+"E2E on",
+0
+],
+[
+"k",
+"h",
+"",
+0
+],
+[
+"e",
+"s",
+"",
+1
+]
+],
+"sources": [
+"https://resources.mogulnetworking.com/getting-started/what-is-mogul.md",
+"https://resources.mogulnetworking.com/features/groups.md",
+"https://apps.apple.com/us/app/id1367307210 (listing, version history, privacy label) (v2.71; supported devices)"
+]
+},
+{
+"n": 14,
+"verdict": "unknown",
+"summary": "Not on Mobbin; empty lists were not observed. Docs name the first actions (\"Create Person\", CSV or iOS import, \"New Reminder\"), and v2.87 fixed groups with 0 people crashing the app.",
+"steps": [
+[
+"e",
+"First open",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"p",
+"All People",
+"\"Create Person\" top right",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"i",
+"Import",
+"CSV in Settings; iOS import",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"r",
+"Reminders tab",
+"\"New Reminder\"",
+1,
+2,
+"screen",
+"doc"
+],
+[
+"g",
+"Empty group",
+"Crashed until v2.87",
+2,
+2,
+"out",
+"gap"
+],
+[
+"em",
+"Empty-state copy",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"p",
+"",
+1
+],
+[
+"e",
+"i",
+"",
+1
+],
+[
+"e",
+"r",
+"",
+1
+],
+[
+"p",
+"em",
+"",
+1
+],
+[
+"r",
+"g",
+"group",
+1
+]
+],
+"sources": [
+"https://resources.mogulnetworking.com/getting-started/what-is-mogul.md",
+"https://apps.apple.com/us/app/id1367307210 (listing, version history, privacy label) (v2.87 notes)"
+]
+}
+]
+}

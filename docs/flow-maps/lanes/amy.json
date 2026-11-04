@@ -1,0 +1,902 @@
+{
+"app": "amy",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "No screens observed (not on Mobbin; Figma page 22 has App Store art only). Help docs say data lives in the Amy account with a local iPhone copy; what a relaunch shows is unverified.",
+"steps": [
+[
+"e",
+"Reopen app",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"j",
+"Journal (local copy)",
+"\"this iPhone's copy\" of the account",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"r",
+"Last state restored?",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"j",
+"",
+1
+],
+[
+"j",
+"r",
+"",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/privacy-and-data (\"Clear Local Cache removes this iPhone's copy; your data downloads again\")"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Amy has widgets and an Apple Watch app, but no evidence of what notifications it sends or where a tap or widget link lands.",
+"steps": [
+[
+"e",
+"Widget / notification",
+"Widgets documented; notifications not",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Destination",
+"Not observed",
+1,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help (Add Amy's widgets; Log from your Apple Watch)"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Apple Health is optional; if data is missing the help page gives the manual path Settings > Privacy & Security > Health > Amy, and burned calories/weekly stats need Health read. No in-app denied state was observed.",
+"steps": [
+[
+"c",
+"Connect Apple Health",
+"Optional connector",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"s",
+"Health permission sheet",
+"",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"n",
+"Not seeing data?",
+"Help: manual Settings path",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"l",
+"Logging still works",
+"Burned cals/weekly stats need Health",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"c",
+"s",
+"",
+0
+],
+[
+"s",
+"l",
+"",
+1
+],
+[
+"s",
+"n",
+"denied",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/apple-health"
+]
+},
+{
+"n": 4,
+"verdict": "unknown",
+"summary": "New accounts get a 3-day trial \"with no credit card\" and the plans appear \"the next time you log\" after it ends; the purchase sheet and success, cancel, pending and failure outcomes are undocumented.",
+"steps": [
+[
+"e",
+"Trial ends",
+"\"shows the plans the next time you log\"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"p",
+"Plans",
+"Monthly $9.99 / Yearly $99.99",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"sk",
+"StoreKit sheet",
+"",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"o",
+"Outcome handling",
+"Not observed",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"p",
+"",
+0
+],
+[
+"p",
+"sk",
+"",
+1
+],
+[
+"sk",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/subscription",
+"https://apps.apple.com/us/app/id6753904989 (version history) (in-app purchases)"
+]
+},
+{
+"n": 5,
+"verdict": "misses",
+"summary": "There is no free tier: \"Logging food needs an active trial or subscription\" and \"There's no free plan\", so a lapsed user is blocked from the core action; grace-period messaging and what happens to the journal are not documented.",
+"steps": [
+[
+"e",
+"Subscription lapses",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace notice",
+"Not documented",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"b",
+"Logging blocked",
+"\"needs an active trial or subscription\"",
+2,
+0,
+"out",
+"gap"
+],
+[
+"k",
+"Journal kept?",
+"Not stated",
+2,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"b",
+"",
+0
+],
+[
+"g",
+"k",
+"",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/subscription (\"There's no free plan or student discount\")"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-backed journal (\"Sign Out keeps your data safe in the cloud\") plus a documented \"Restore Subscription\" under Settings > Subscription > Upgrade/See Plans for a new phone or reinstall.",
+"steps": [
+[
+"e",
+"New iPhone",
+"Same Apple Account",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"si",
+"Sign in",
+"Data in the cloud",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"p",
+"Upgrade / See Plans",
+"Settings > Subscription",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"r",
+"Restore Subscription",
+"",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"si",
+"",
+0
+],
+[
+"si",
+"p",
+"not Pro",
+0
+],
+[
+"p",
+"r",
+"",
+0
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/subscription",
+"https://amyfoodjournal.com/help/privacy-and-data"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "In-app Settings > Delete Account; it warns it doesn't cancel the App Store subscription, asks you to type DELETE (or password) and tap \"Delete My Account\"; data gone within 90 days. End state not observed.",
+"steps": [
+[
+"s",
+"Settings (bottom)",
+"Export Data / Delete Account",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"w",
+"Warning",
+"\"doesn't cancel an App Store subscription\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"c",
+"Type DELETE",
+"Or password for email accounts",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"d",
+"Delete My Account",
+"Deleted/anonymized within 90 days",
+3,
+0,
+"out",
+"doc"
+],
+[
+"o",
+"Signed-out state",
+"",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"w",
+"",
+0
+],
+[
+"w",
+"c",
+"",
+0
+],
+[
+"c",
+"d",
+"",
+0
+],
+[
+"d",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/privacy-and-data",
+"https://amyfoodjournal.com/privacy/"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "A local iPhone copy exists and AI food estimates go to Amy's backend, but offline behaviour (queued entries, banner) is undocumented; one vendor page even claims data is stored locally with no account, contradicting the help center.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"j",
+"Local journal copy",
+"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"a",
+"AI estimate offline?",
+"Backend needed; behaviour unknown",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"j",
+"",
+1
+],
+[
+"j",
+"a",
+"log",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/privacy-and-data",
+"https://amyfoodjournal.com/privacy/ (AI and search services)",
+"https://www.amyfoodjournal.com/vs/cronometer (vendor claim: local, no account)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Frequent releases (v1.84: suggestions from foods logged before) are described in App Store notes; no in-app What's New was found.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. v1.84",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Version history only",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"j",
+"Journal",
+"No What's New seen",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"j",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6753904989 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "Docs describe per-line states: \"Failed means Amy couldn't finish\" with \"Retry\" on that line, and \"Queued means you're offline\", worked out once you're back online. The typed line stays and can be edited. No usage limits are documented, and none of this was seen on screen.",
+"steps": [
+[
+"l",
+"Type a food line",
+"Notes-style journal",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"q",
+"Online?",
+"",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"qu",
+"\"Queued\"",
+"Estimated when back online",
+2,
+1,
+"out",
+"doc"
+],
+[
+"f",
+"\"Failed\"",
+"Line kept, \"Retry\" on it",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"e",
+"Edit or retry",
+"\"Edit a line's words…\"",
+3,
+0,
+"out",
+"doc"
+],
+[
+"lim",
+"Limits stated?",
+"None documented",
+1,
+2,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"l",
+"q",
+"",
+0
+],
+[
+"q",
+"qu",
+"no",
+1
+],
+[
+"q",
+"f",
+"error",
+0
+],
+[
+"f",
+"e",
+"Retry",
+0
+],
+[
+"l",
+"lim",
+"",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/logging-food (Failed / Retry / Queued)",
+"https://amyfoodjournal.com/help/photos-barcodes-and-voice (menu scan up to 50 dishes)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "External AI connectors (Claude, ChatGPT) are optional and are removed from the AI app's connectors. API keys are revoked with the trash icon. No consent step or off switch for Amy's built-in AI estimates is documented, and the policy names no AI provider. Nothing was seen on screen.",
+"steps": [
+[
+"c",
+"Connect Amy",
+"Settings → \"View Instructions\"",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"ai",
+"AI app connected",
+"Reads/logs journal on request",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"rm",
+"Remove in AI app",
+"Disconnect connector",
+2,
+0,
+"out",
+"doc"
+],
+[
+"k",
+"Revoke API key",
+"Trash icon next to key",
+2,
+1,
+"out",
+"doc"
+],
+[
+"b",
+"Built-in AI consent?",
+"Not documented",
+1,
+2,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"c",
+"ai",
+"",
+0
+],
+[
+"ai",
+"rm",
+"withdraw",
+0
+],
+[
+"ai",
+"k",
+"",
+1
+],
+[
+"c",
+"b",
+"",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/connectors",
+"https://amyfoodjournal.com/privacy/ ('AI connectors are optional'; 'AI processing' service providers unnamed)"
+]
+},
+{
+"n": 12,
+"verdict": "unknown",
+"summary": "Amy is account-based, but its sign-in methods and error copy are undocumented and no screens are on Mobbin. Docs say \"Sign Out keeps your data safe in the cloud\" and \"Clear Local Cache removes this iPhone's copy\". Whether sign-out clears the local copy isn't stated.",
+"steps": [
+[
+"so",
+"Sign Out",
+"\"keeps your data safe in the cloud\"",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"lc",
+"Local copy cleared?",
+"Not stated",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"cc",
+"Clear Local Cache",
+"\"your data downloads again\"",
+1,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"so",
+"lc",
+"",
+0
+],
+[
+"so",
+"cc",
+"",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/privacy-and-data",
+"Mobbin search 'Amy Food Journal sign in' returned no Amy screens"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Data is \"stored and synced with your Amy account\" across devices. The Watch app \"uses the same account\" as the iPhone, and the iPhone app also runs on iPad (\"Designed for iPad\"). Release notes keep fixing sync (1.69, 1.74, 1.75). There's no household or shared journal.",
+"steps": [
+[
+"i",
+"Sign in on iPhone",
+"Amy account",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"w",
+"Apple Watch",
+"\"uses the same account\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"ip",
+"iPad / Mac",
+"Runs iPhone app",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"s",
+"Synced journal",
+"\"stored and synced with your Amy account\"",
+2,
+0,
+"out",
+"doc"
+],
+[
+"sh",
+"Sharing with others?",
+"None documented",
+2,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"i",
+"w",
+"",
+0
+],
+[
+"i",
+"ip",
+"",
+1
+],
+[
+"w",
+"s",
+"",
+0
+],
+[
+"ip",
+"s",
+"",
+0
+],
+[
+"s",
+"sh",
+"",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help/apple-watch",
+"https://amyfoodjournal.com/privacy/ (synced across devices)",
+"https://apps.apple.com/us/app/id6753904989 (compatibility; v1.69/1.74/1.75 sync notes)"
+]
+},
+{
+"n": 14,
+"verdict": "unknown",
+"summary": "No first-use screens are on Mobbin and the help center doesn't describe the empty journal; the only hint is a \"Log your first meal\" link on the help index. Release notes mention fixes for blank text and saved meals not loading after a fresh launch.",
+"steps": [
+[
+"j",
+"Empty journal",
+"Not observed",
+0,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"\"Log your first meal\"",
+"Help index link",
+1,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"j",
+"f",
+"",
+1
+]
+],
+"sources": [
+"https://amyfoodjournal.com/help (Log your first meal)",
+"https://apps.apple.com/us/app/id6753904989 (v1.71 blank text fix, v1.77 saved meals fresh launch)"
+]
+}
+]
+}

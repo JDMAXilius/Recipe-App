@@ -1,0 +1,1259 @@
+{
+"app": "noom",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "The session persists (help center: there is no logout button) and Today's plan is the observed home; whether a relaunch restores the last tab or lesson was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Signed-in member",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"s",
+"Session kept",
+"No logout button; uninstall to disconnect",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"t",
+"Today's plan",
+"\"Continue learning\", \"Log your meals\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Last tab restored?",
+"Not observed",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+1
+],
+[
+"s",
+"t",
+"",
+0
+],
+[
+"t",
+"r",
+"",
+1
+]
+],
+"sources": [
+"https://www.noom.com/support/faqs/account-management/2025/10/accessing-and-managing-your-noom-account/",
+"Mobbin flow c54dddd8-c61f-466a-a576-716a15ad619b (Today's plan after login)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "No observed notification or deep-link entry and no help-center coverage of where a tap lands; Today shows an unread badge on the coach chat icon only.",
+"steps": [
+[
+"e",
+"Notification / link",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"x",
+"Destination",
+"Not observed",
+2,
+0,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"d",
+"x",
+"yes",
+1
+]
+],
+"sources": [
+"Mobbin flow c54dddd8-c61f-466a-a576-716a15ad619b (Today, chat badge \"2\")",
+"https://www.noom.com/support/faqs/account-management/2025/10/managing-your-noom-access-device-payment-method-notifications/ (email only; no push coverage)"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "The Health primer offers only \"Continue\" (no skip seen) before the iOS sheet; later, Settings > Apps & Devices lets you manage Apple Health, and the help center gives the manual iOS Motion & Fitness path; no in-app Settings link was observed.",
+"steps": [
+[
+"p",
+"Health primer",
+"\"Track your activity automatically\" Continue",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS Health sheet",
+"Read/write toggles",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"c",
+"Connect apps & devices",
+"\"Sync from Apple Health\" Manage",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"h",
+"Help: iOS path",
+"Privacy & Security > Motion & Fitness",
+3,
+1,
+"screen",
+"doc"
+],
+[
+"st",
+"Steps fallback",
+"Switch source to Noom pedometer",
+3,
+2,
+"screen",
+"doc"
+],
+[
+"o",
+"App keeps working",
+"Manual logging still available",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"s",
+"Continue",
+0
+],
+[
+"s",
+"c",
+"denied",
+1
+],
+[
+"c",
+"h",
+"",
+1
+],
+[
+"c",
+"st",
+"",
+1
+],
+[
+"h",
+"o",
+"",
+1
+],
+[
+"st",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen ff0be951-3877-49fd-bef1-51e514a7df1d (Health primer)",
+"Mobbin screen 1a88b510-c43b-486d-bf9a-3fa74f04d45d (Connect apps & devices)",
+"https://www.noom.com/support/faqs/troubleshooting/syncing-and-compatibility/2025/10/trouble-syncing-fitbit-or-steps-to-noom-ios/",
+"https://www.noom.com/support/faqs/troubleshooting/syncing-and-compatibility/2025/10/connecting-devices-and-syncing-data-with-noom-ios/"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Success path seen: trial plan page with a \"Personalized plan saved: 14:32\" countdown, a terms checkbox and Submit, then the StoreKit sheet (\"1-week free trial, $98.99 every 2 months\"), then Today loading; cancel, Ask to Buy and failure were not observed.",
+"steps": [
+[
+"p",
+"Trial plan page",
+"\"Free 7-day trial $0\" + countdown timer",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Agree + Submit",
+"Terms checkbox, \"Submit\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"\"Noom Program\" 1-week free trial",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Today loading",
+"Skeleton cards after Done",
+4,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cancel / pending / fail",
+"No handling observed",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"t",
+"",
+0
+],
+[
+"t",
+"sk",
+"Submit",
+0
+],
+[
+"sk",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"d",
+"x",
+"other",
+1
+]
+],
+"sources": [
+"Mobbin flow 66cc1792-3e8a-45ae-99aa-db66da89f162 (Subscribing to personalised plan)",
+"Mobbin flow 457f96cd-e9b0-4326-aebe-ec421f6fd689 (Subscribing to Noom: \"PERSONALIZED PLAN RESERVED... EXPIRES IN 14:59\")"
+]
+},
+{
+"n": 5,
+"verdict": "partial",
+"summary": "After cancelling you keep full access to the end of the billing cycle, then fall back to the free app with previously logged content still viewable; no grace-period or failed-payment messaging is documented.",
+"steps": [
+[
+"e",
+"Subscription ends",
+"Cancelled or renewal fails",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"c",
+"Access to cycle end",
+"Active \"until the end of the current billing\"...",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"g",
+"Grace period notice",
+"Not documented",
+1,
+1,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free version",
+"\"view your previously logged content\"",
+2,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"cancel",
+0
+],
+[
+"e",
+"g",
+"fail",
+1
+],
+[
+"c",
+"f",
+"",
+0
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"https://www.noom.com/support/faqs/subscription-and-billing/2025/10/how-to-cancel-your-noom-subscription-or-trial/",
+"https://www.noom.com/support/faqs/premium-features/my-program/2015/12/i-am-finished-with-my-program-can-i-continue-to-use-noom-health/"
+]
+},
+{
+"n": 6,
+"verdict": "partial",
+"summary": "Log in on the new phone and data \"usually restores automatically\" (seen: \"Signing you in...\", then Today with weight logged); no Restore Purchases control was observed, and Noom advises using one device only because data doesn't sync across devices.",
+"steps": [
+[
+"w",
+"Welcome",
+"\"Results that last\" Get started / Log in",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Signing you in...",
+"Progress bar",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Today with history",
+"\"Weight logged 64.8 kg\"",
+2,
+0,
+"out",
+"seen"
+],
+[
+"r",
+"Restore Purchases",
+"Not observed",
+2,
+1,
+"screen",
+"unverified"
+],
+[
+"m",
+"One device only",
+"\"use Noom on just one device\"",
+3,
+0,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"w",
+"s",
+"Log in",
+0
+],
+[
+"s",
+"t",
+"",
+0
+],
+[
+"t",
+"m",
+"",
+1
+],
+[
+"s",
+"r",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow c54dddd8-c61f-466a-a576-716a15ad619b (Logging in)",
+"https://www.noom.com/support/faqs/account-management/2025/10/accessing-and-managing-your-noom-account/ (\"your data usually restores automatically\")",
+"https://www.noom.com/support/faqs/question-topics/technical-issues/2019/12/syncing-and-transferring-the-noom-app-and-data-across-devices/"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "Deletion starts in app, but it sits behind Settings > \"Manage Subscription\", which opens a web portal (which can ask for email and password) with one clear confirm (\"permanently deleted... within the next 30 days\", no refund); the help center says to cancel the subscription first, and the account is then logged out everywhere.",
+"steps": [
+[
+"s",
+"Settings",
+"Account > \"Manage Subscription\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Web portal login",
+"\"Account info login\" email + password",
+1,
+0,
+"screen",
+"gap"
+],
+[
+"c",
+"Cancel sub first",
+"Help: cancel, then \"Delete my account\"",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"a",
+"Account Deletion",
+"\"permanently deleted... next 30 days\"",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Account Deleted!",
+"\"processed for deletion\" OK",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Logged out everywhere",
+"\"frozen and logged out on all devices\"",
+4,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"s",
+"l",
+"",
+0
+],
+[
+"l",
+"a",
+"",
+0
+],
+[
+"l",
+"c",
+"",
+1
+],
+[
+"a",
+"d",
+"Delete",
+0
+],
+[
+"d",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 3571e85d-57f6-4635-97d7-0183563a7e54 (Deleting account)",
+"Mobbin flow 3417dd5a-3239-41df-90ef-e77adefb07d4 (Managing subscription: \"Account info login\")",
+"https://www.noom.com/support/faqs/privacy-and-data/2025/10/how-to-export-and-delete-your-noom-data/"
+]
+},
+{
+"n": 8,
+"verdict": "partial",
+"summary": "A full-screen \"Can't connect\" with Retry replaces Health tab content instead of cached data (trigger not labelled as offline); a competitor's audit reports that search and barcode scanning fail offline. No offline banner was observed.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"c",
+"Health: Can't connect",
+"Full screen, \"Retry\", contact Support",
+1,
+0,
+"screen",
+"gap"
+],
+[
+"s",
+"Food search / barcode",
+"Fails offline (third-party audit)",
+1,
+1,
+"screen",
+"report"
+],
+[
+"b",
+"Body scan failed",
+"\"Check your wifi connection\"",
+1,
+2,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"c",
+"",
+1
+],
+[
+"e",
+"s",
+"",
+1
+],
+[
+"e",
+"b",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 2419210e-0800-41b0-b0ce-d45c385858cc (\"Can't connect\")",
+"Mobbin screen 00113173-ef8e-4b93-97c4-fc36c0e2b025 (Body scan failed)",
+"https://nutrola.app/en/blog/offline-calorie-trackers-which-actually-work-2026 (competitor audit, report)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "App Store notes are only \"Bug fixes and improvements.\" (14.42.0, 14.41.0, 14.40.0); no in-app What's New screen was observed.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. 14.42.0",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"\"Bug fixes and improvements.\"",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"t",
+"Today",
+"No What's New seen in app",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"t",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/noom/id634598719 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "AI scan failures explain themselves and offer a way forward (\"No ingredients detected. Please try again with a new photo.\", Face Scan \"Try again\"), but the failed photo is not kept, a network failure shows a bare \"Can't connect\" + Retry, and no usage limits are stated anywhere observed.",
+"steps": [
+[
+"a",
+"Scan meal",
+"Camera or camera-roll photo",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"b",
+"\"Detecting ingredients...\"",
+"Food-fact loading screen",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Detected anything?",
+"",
+2,
+0,
+"dec",
+"seen"
+],
+[
+"d",
+"Red banner on camera",
+"\"No ingredients detected...\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"e",
+"Must retake the photo",
+"\"try again with a new photo\"",
+4,
+0,
+"out",
+"gap"
+],
+[
+"f",
+"Face Scan fails",
+"\"We couldn't process your scan\"",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"g",
+"\"Can't connect\" + Retry",
+"Full-screen, cause unlabelled",
+3,
+2,
+"screen",
+"seen"
+],
+[
+"h",
+"Limits stated first?",
+"No source for AI/scan limits",
+4,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"",
+0
+],
+[
+"b",
+"c",
+"",
+0
+],
+[
+"c",
+"d",
+"no",
+0
+],
+[
+"d",
+"e",
+"",
+0
+],
+[
+"c",
+"f",
+"face scan",
+1
+],
+[
+"c",
+"g",
+"offline",
+1
+],
+[
+"f",
+"h",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 1118d2fb-f05f-4c03-9bba-6149f0ff4ff2 (Scanning a meal: \"No ingredients detected. Please try again with a new photo.\" banner)",
+"Mobbin screen ff8f4b14-6679-48cd-9451-1cc730cda14e (\"Detecting ingredients...\")",
+"Mobbin screen e4639153-79c7-4591-b228-3afd30135933 (\"We couldn't process your scan... scan again now or come back later\", Try again)",
+"Mobbin screen 2419210e-0800-41b0-b0ce-d45c385858cc (\"Can't connect\" Retry)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "Traced the Body scan (third party Prism Labs) consent and Apple Health. Body scan asks with a clear one-time consent checkbox, but withdrawing means a data deletion request in the web subscription portal, not an in-app toggle. AI meal scan has no separate consent screen; Health access is managed in Settings > Apps & Devices.",
+"steps": [
+[
+"a",
+"Start Body scan",
+"Health tab feature",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"b",
+"Consent screen",
+"\"We take your privacy... seriously\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Consent checkbox",
+"Prism Labs; kept up to 3 years",
+2,
+0,
+"dec",
+"seen"
+],
+[
+"d",
+"Withdraw = web request",
+"\"data deletion request\" in portal",
+3,
+0,
+"out",
+"gap"
+],
+[
+"e",
+"Meal scan consent?",
+"None seen before photo AI",
+1,
+1,
+"screen",
+"unverified"
+],
+[
+"f",
+"Apps & Devices",
+"Manage Apple Health in Settings",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"g",
+"Background use stops?",
+"No source",
+3,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"",
+0
+],
+[
+"b",
+"c",
+"",
+0
+],
+[
+"c",
+"d",
+"withdraw",
+1
+],
+[
+"a",
+"e",
+"",
+1
+],
+[
+"e",
+"g",
+"",
+1
+],
+[
+"a",
+"f",
+"Health",
+1
+]
+],
+"sources": [
+"Mobbin screen ed9d6d8d-c21d-4030-91c5-afcf3c553da1 (Body scan consent: Prism Labs, retained no more than 3 years, deletion request via subscription portal, consent checkbox)",
+"Mobbin flow 9a316ce2-b69c-44f9-9436-76c3dbf51708 (Meal logging info: 'Scan meal'... 'We'll then break it down and analyze it for you')",
+"Mobbin screen 1a88b510-c43b-486d-bf9a-3fa74f04d45d (Connect apps & devices)",
+"https://hitconsultant.net/2024/06/28/noom-unveils-ai-powered-food-logging-and-welli-assistant (AI photo logging + Welli launch)"
+]
+},
+{
+"n": 12,
+"verdict": "misses",
+"summary": "Log in offers email/password, \"Relogin with Apple\" and Facebook, and Forgot password ends in a neutral \"Check your inbox\" with Contact support; but there is no sign out at all (help center: uninstall the app to disconnect), and wrong-password and cancelled-Apple states were not observed.",
+"steps": [
+[
+"a",
+"Welcome",
+"\"Get started\" / \"Log in\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"b",
+"Log in to your account",
+"Email, password, Apple, Facebook",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Details correct?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"d",
+"\"Signing you in...\"",
+"Then Today's plan",
+3,
+0,
+"out",
+"seen"
+],
+[
+"e",
+"Reset your password",
+"\"We'll email you a link\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"f",
+"\"Check your inbox\"",
+"Neutral copy + Contact support",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"g",
+"No logout button",
+"Uninstall app to disconnect",
+2,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"",
+0
+],
+[
+"b",
+"c",
+"",
+0
+],
+[
+"c",
+"d",
+"yes",
+0
+],
+[
+"b",
+"e",
+"forgot",
+1
+],
+[
+"e",
+"f",
+"",
+0
+],
+[
+"a",
+"g",
+"sign out",
+1
+]
+],
+"sources": [
+"Mobbin flow c54dddd8-c61f-466a-a576-716a15ad619b (Logging in: cfc2f03f welcome, c617a33b log in, 'Signing you in...')",
+"Mobbin screens fdf17ea6-1cfd-414e-bd26-5f29c5c4e405, 71ecff0f-446f-448a-9560-c39dbf4081df (Reset your password, 'Check your inbox')",
+"https://www.noom.com/support/faqs/account-management/2025/10/accessing-and-managing-your-noom-account/ ('Noom doesn't have a logout button. To disconnect, you'll need to uninstall the app.'; reset link works once, up to 2 hours)"
+]
+},
+{
+"n": 13,
+"verdict": "misses",
+"summary": "Noom says it does not support syncing data across devices and recommends one device only; using iPhone and iPad together can break Apple Health syncing. Social use is a Today 'Add your friends' card, not shared content.",
+"steps": [
+[
+"a",
+"Open on 2nd device",
+"iPad or second iPhone",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"b",
+"Data synced?",
+"\"does not support syncing data\"",
+1,
+0,
+"dec",
+"gap"
+],
+[
+"c",
+"One device advised",
+"\"use Noom on just one device\"",
+2,
+0,
+"out",
+"doc"
+],
+[
+"d",
+"Health sync may break",
+"iPhone + iPad together",
+2,
+1,
+"sys",
+"doc"
+],
+[
+"e",
+"Add your friends",
+"Today card, Seeds reward",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"f",
+"Family Sharing",
+"Listed on App Store; terms unclear",
+2,
+2,
+"sys",
+"unverified"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"",
+0
+],
+[
+"b",
+"c",
+"no",
+0
+],
+[
+"b",
+"d",
+"",
+1
+],
+[
+"a",
+"e",
+"friends",
+1
+],
+[
+"e",
+"f",
+"",
+1
+]
+],
+"sources": [
+"https://www.noom.com/support/faqs/question-topics/technical-issues/2019/12/syncing-and-transferring-the-noom-app-and-data-across-devices/ ('Noom does not support syncing data across devices'; iPad limited; may break Health syncing)",
+"https://www.noom.com/support/faqs/troubleshooting/syncing-and-compatibility/2025/10/connecting-devices-and-syncing-data-with-noom-ios/ (set up from iPhone, not iPad; uninstall from secondary device)",
+"Mobbin screen da9cdf84-3842-42b8-b952-86aba02b2be3 (Today 'Stay on track together / Add your friends')",
+"https://apps.apple.com/us/app/noom/id634598719 (Family Sharing line; subscription coverage unverified)"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "Most first-use surfaces offer an action (Health Trends shows a \"Start tracking\" pill on the empty Calories chart; Log meals lists each slot with + and a \"Learn more\" card), but the Mood graph is a bare \"No Mood Logging data\" line with only a nav-bar +.",
+"steps": [
+[
+"a",
+"First open, no logs",
+"New member",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"b",
+"Health > Trends",
+"Calories: \"Start tracking\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Log meals",
+"Slots with +, \"Learn more\" card",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"d",
+"Mood graph",
+"\"No Mood Logging data\"",
+1,
+2,
+"screen",
+"gap"
+],
+[
+"e",
+"First action offered",
+"Pill or + per meal",
+2,
+0,
+"out",
+"seen"
+],
+[
+"f",
+"Only nav-bar +",
+"No copy on what goes here",
+2,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"a",
+"b",
+"",
+0
+],
+[
+"a",
+"c",
+"",
+1
+],
+[
+"a",
+"d",
+"",
+1
+],
+[
+"b",
+"e",
+"",
+0
+],
+[
+"c",
+"e",
+"",
+0
+],
+[
+"d",
+"f",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen fc1e51d8-caf0-45e6-bf47-d30b2e654c37 (Health Trends, empty Calories 'Start tracking')",
+"Mobbin screen f8e308a2-251f-4050-881c-75a9c83a8f97 (Log meals with 'The power of meal logging' + per slot)",
+"Mobbin flow a2b3f712-e770-454f-a01e-5a2ef122be39 (Logging a mood check in: empty 'No Mood Logging data')"
+]
+}
+]
+}

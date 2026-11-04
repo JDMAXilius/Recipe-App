@@ -1,0 +1,989 @@
+{
+"app": "pappai",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Not on Mobbin. App Store art shows Today as home; first sign-in asks for a nutritionist code (v2.2.1). What a relaunch restores is unverified.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Today",
+"\"Your whole day in one ring\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"First sign-in",
+"Asks if you have a nutritionist code",
+2,
+1,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+1
+],
+[
+"d",
+"t",
+"yes",
+1
+],
+[
+"d",
+"c",
+"no",
+1
+]
+],
+"sources": [
+"Figma iEA3Aeu3ApmJdJabmAudXm node 201:2 (App Store screenshot 3, Today)",
+"https://apps.apple.com/us/app/id6767558871 (v2.2.1 notes)"
+]
+},
+{
+"n": 2,
+"verdict": "partial",
+"summary": "Release notes say tapping an achievement notification opens trophies (v1.0.1); meal, weigh-in and nutritionist-availability notifications exist, but their tap targets and the signed-out case are undocumented.",
+"steps": [
+[
+"a",
+"Achievement push",
+"Achievement / level-up",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"m",
+"Meal / weigh-in reminder",
+"",
+0,
+1,
+"entry",
+"doc"
+],
+[
+"tr",
+"Trophies",
+"\"Tapping a notification opens trophies\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"d",
+"Destination?",
+"Not documented",
+1,
+1,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"a",
+"tr",
+"tap",
+0
+],
+[
+"m",
+"d",
+"tap",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (v1.0.1 notes; description: notifications)"
+]
+},
+{
+"n": 3,
+"verdict": "unknown",
+"summary": "Camera (barcode, meal photo), photos and step/water sync are used, but no denied-state handling is documented; manual food search exists as a non-camera path.",
+"steps": [
+[
+"p",
+"Snap your plate",
+"Photo meal log (Premium)",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS permission alert",
+"Camera / Photos",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Denied?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"f",
+"Food search",
+"Manual add, with data sources",
+3,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"p",
+"s",
+"",
+1
+],
+[
+"s",
+"d",
+"",
+1
+],
+[
+"d",
+"f",
+"fallback",
+1
+]
+],
+"sources": [
+"Figma node 201:2 (App Store screenshot 2, \"Snap your plate.\")",
+"https://apps.apple.com/us/app/id6767558871 (v1.2.4, v2.3.1 food search)"
+]
+},
+{
+"n": 4,
+"verdict": "unknown",
+"summary": "PappAI Premium IAPs ($34.99, $3.99) unlock AI photo recognition, and v2.2.0 added \"clearer messages for AI features not in the plan\"; no paywall or purchase result was observed.",
+"steps": [
+[
+"e",
+"AI feature tapped",
+"Photo recognition",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"m",
+"Not-in-plan message",
+"Clearer copy (v2.2.0)",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"p",
+"Premium offer",
+"$34.99 / $3.99 IAPs",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"sk",
+"StoreKit sheet",
+"",
+3,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Outcome?",
+"Not observed",
+4,
+0,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"m",
+"",
+1
+],
+[
+"m",
+"p",
+"",
+1
+],
+[
+"p",
+"sk",
+"",
+1
+],
+[
+"sk",
+"d",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (In-App Purchases; v2.2.0, v1.2.2 notes)"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "Free logging has no limits and the nutritionist's plan isn't paywalled, so a lapse likely only removes AI photo features; grace-period handling is undocumented.",
+"steps": [
+[
+"e",
+"Premium lapses",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace notice",
+"Not documented",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"f",
+"Free tier",
+"Logging without limits, plan stays",
+2,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (description: free vs Premium)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based sign-in (with nutritionist code), data synced to the nutritionist, and Restore Purchases exists (fixed in v1.2.3). Doc evidence only; where the restore button sits was not seen.",
+"steps": [
+[
+"e",
+"New device",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"l",
+"Sign in",
+"Register / sign in; code-based option",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"t",
+"Plan + diary back",
+"Data shared with your nutritionist",
+2,
+0,
+"out",
+"doc"
+],
+[
+"r",
+"Restore Purchases",
+"\"Fixed Restore Purchases\" (v1.2.3)",
+3,
+0,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+0
+],
+[
+"l",
+"t",
+"",
+0
+],
+[
+"t",
+"r",
+"Premium",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (description; v1.2.3, v2.2.0, v2.0.3 notes)"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "Listing says \"delete your account in the app\" and links pappai.it/en/delete-account (the site was unreachable from here); the in-app confirm flow and result were not observed.",
+"steps": [
+[
+"s",
+"In-app account",
+"\"manage consents and delete your account\"",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"w",
+"Web delete page",
+"pappai.it/en/delete-account",
+0,
+1,
+"screen",
+"doc"
+],
+[
+"c",
+"Confirm",
+"Not observed",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"o",
+"Signed out",
+"",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"c",
+"",
+1
+],
+[
+"c",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (description; privacy links)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "Offline is not described. v2.0.3 mentions protecting \"unsynced data\" across account switches, which suggests local entries queue until sync. Inferred only.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"l",
+"Log meals",
+"Notes mention \"unsynced data\" (v2.0.3)",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"s",
+"Sync on reconnect",
+"Assumed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+1
+],
+[
+"l",
+"s",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (v2.0.3 notes)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Very frequent releases (v2.3.1, Oct 17; 2.0.2 major redesign) documented only in App Store version history; no in-app What's New was found.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. v2.0.2 \"major redesign\"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"App Store notes",
+"Version history only",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"t",
+"Today",
+"No What's New seen",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"t",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "AI photo recognition only suggests editable foods and portions, v2.2.0 added \"Clearer messages\" when an AI feature isn't in the plan, and manual food search remains; AI failure handling is undocumented.",
+"steps": [
+[
+"e",
+"Snap your plate",
+"AI photo recognition",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"d",
+"In plan?",
+"",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"m",
+"Not-in-plan message",
+"\"Clearer messages...\" (v2.2.0)",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"s",
+"Editable suggestions",
+"Foods + portions to review",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"f",
+"AI fails?",
+"Not documented",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"fs",
+"Food search",
+"Manual logging, free",
+4,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"m",
+"no",
+0
+],
+[
+"d",
+"s",
+"yes",
+0
+],
+[
+"s",
+"f",
+"",
+1
+],
+[
+"f",
+"fs",
+"fallback",
+1
+],
+[
+"m",
+"fs",
+"",
+1
+]
+],
+"sources": [
+"Figma iEA3Aeu3ApmJdJabmAudXm node 201:2 (App Store screenshot 2, \"Snap your plate.\")",
+"https://apps.apple.com/us/app/id6767558871 (listing, version history, privacy label) (description; v2.2.0, v2.3.1 notes)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "The listing says you can \"manage consents and delete your account at any time in the app\" and disconnect from your nutritionist yourself; which consents and whether AI asks again were not seen (pappai.it is blocked from this network).",
+"steps": [
+[
+"s",
+"In-app consents",
+"\"manage consents... at any time\"",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"w",
+"Withdraw consent",
+"Which consents: not documented",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"n",
+"Disconnect nutritionist",
+"User can disconnect on their own",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"o",
+"Sharing stops",
+"Assumed after disconnect",
+2,
+1,
+"out",
+"unverified"
+],
+[
+"a",
+"AI asks again?",
+"Not documented",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"w",
+"",
+1
+],
+[
+"w",
+"a",
+"",
+1
+],
+[
+"s",
+"n",
+"",
+1
+],
+[
+"n",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (listing, version history, privacy label) (description; privacy links)",
+"pappai.it/privacy-policy: unreachable (network filter)"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "First sign-in asks whether you have a nutritionist code (v2.2.1) and account switching on one device keeps unsynced data (v2.0.3); cancelled sign-in and what sign out clears are undocumented.",
+"steps": [
+[
+"e",
+"Open signed out",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"si",
+"First sign-in",
+"Asks for nutritionist code (v2.2.1)",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"c",
+"Enter code",
+"Confirm existing details (v2.2.0)",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"sw",
+"Switch account",
+"Unsynced data kept (v2.0.3)",
+2,
+1,
+"out",
+"doc"
+],
+[
+"so",
+"Sign out clears?",
+"Not documented",
+3,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"si",
+"",
+1
+],
+[
+"si",
+"c",
+"code",
+0
+],
+[
+"si",
+"sw",
+"",
+1
+],
+[
+"sw",
+"so",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (listing, version history, privacy label) (v2.2.1, v2.2.0, v2.0.3 notes)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "The diary is shared automatically with the nutritionist, an Apple Watch app (v2.0.2) syncs water and steps without double-counting (v2.3.1), and you can disconnect yourself; a second iPhone sync and iPad were not documented.",
+"steps": [
+[
+"e",
+"Second device",
+"Watch / Mac / Vision",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"w",
+"Apple Watch app",
+"Water sync more reliable (v2.0.3)",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"st",
+"Steps counted once",
+"No Watch double count (v2.3.1)",
+2,
+0,
+"out",
+"doc"
+],
+[
+"n",
+"Nutritionist sees diary",
+"Shared automatically",
+1,
+1,
+"out",
+"doc"
+],
+[
+"x",
+"Disconnect yourself",
+"",
+2,
+1,
+"out",
+"doc"
+],
+[
+"p",
+"Second iPhone sync",
+"Not documented",
+1,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"w",
+"",
+0
+],
+[
+"w",
+"st",
+"",
+0
+],
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"x",
+"",
+1
+],
+[
+"e",
+"p",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id6767558871 (listing, version history, privacy label) (description; v2.0.2, v2.0.3, v2.3.1 notes; compatibility)"
+]
+},
+{
+"n": 14,
+"verdict": "unknown",
+"summary": "Not on Mobbin; App Store art shows only filled screens and a plan \"written by your nutritionist\". What Plan or Diary shows before a nutritionist connects was not observed.",
+"steps": [
+[
+"e",
+"First open",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Has nutritionist code?",
+"Asked at first sign-in",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"p",
+"Plan tab",
+"\"written by your nutritionist\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"em",
+"No plan yet",
+"Empty Plan/Diary not observed",
+2,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+1
+],
+[
+"d",
+"p",
+"yes",
+0
+],
+[
+"d",
+"em",
+"no",
+1
+]
+],
+"sources": [
+"Figma iEA3Aeu3ApmJdJabmAudXm note 204:30 (\"Your plan is written by your nutritionist. Not an algorithm.\")",
+"https://apps.apple.com/us/app/id6767558871 (listing, version history, privacy label) (v2.2.1 notes)"
+]
+}
+]
+}

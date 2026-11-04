@@ -1,0 +1,1110 @@
+{
+"app": "waterllama",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "No account and no sign-in gate, so a relaunch can only land on the day view; whether it restores the last open screen or sheet was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning user, no account",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"h",
+"Day view",
+"\"620ml Hydration • 31% of your goal\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Last screen restored?",
+"Not observed",
+2,
+0,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"h",
+"",
+1
+],
+[
+"h",
+"r",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 4cc78be2-46c0-474a-b4cc-c5e305738a65 (day view, Add or edit drinks list)",
+"Mobbin flow 61cb7294-b923-4b59-91ff-3f327b03a061 (Settings: no account rows)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Smart Reminders fire only when you forget to drink (per FAQ), but where a tapped reminder lands was not observed or documented.",
+"steps": [
+[
+"e",
+"Smart Reminder",
+"Only \"when you forget to drink\"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Tap destination?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"h",
+"Day view",
+"Assumed landing, not confirmed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"d",
+"h",
+"",
+1
+]
+],
+"sources": [
+"https://waterllama.notion.site (FAQ > Reminders: \"How Smart Reminders work\")",
+"Mobbin flow 60e96f7f-375c-496e-af89-5b195c2dcd76 (Setting reminders)"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Notification and Health asks are pre-primed with SKIP, and Health stays reachable later as Settings > \"Apple Health Sync: Connect\"; the reminders FAQ never mentions the iOS notification switch or links to Settings.",
+"steps": [
+[
+"p",
+"Smart Reminders primer",
+"\"REMIND ME TO DRINK\" + SKIP",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"iOS notification alert",
+"\"Don't Allow\" / \"Allow\"",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"hp",
+"Apple Health primer",
+"\"ALLOW APPLE HEALTH ACCESS\" + SKIP",
+0,
+1,
+"screen",
+"seen"
+],
+[
+"hs",
+"Health sheet",
+"Caffeine / Water read+write toggles",
+1,
+1,
+"sys",
+"seen"
+],
+[
+"c",
+"Settings row",
+"\"Apple Health Sync  Connect\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"f",
+"FAQ: no reminders",
+"Reset interval, restart, reinstall; no Settings",
+2,
+0,
+"screen",
+"gap"
+],
+[
+"o",
+"App keeps working",
+"Logging needs neither permission",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"s",
+"",
+0
+],
+[
+"s",
+"f",
+"denied",
+1
+],
+[
+"f",
+"o",
+"",
+1
+],
+[
+"hp",
+"hs",
+"",
+0
+],
+[
+"hs",
+"c",
+"later",
+1
+],
+[
+"c",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screens 1b6523ef-e6c2-4ed5-8d43-c3de0d454104 (notification alert over primer), f12c2d78-ae5b-4107-82f0-5990505a9404, 7ccfe9fb-2185-4234-9c6a-7b24b1a032ae (Health)",
+"Mobbin flow 61cb7294-b923-4b59-91ff-3f327b03a061 (Apple Health Sync: Connect)",
+"https://waterllama.notion.site (FAQ > Reminders: \"What if you don't get Reminders\")"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Success path seen (paywall, StoreKit sheet, \"You're all set.\" alert, plan shown at top of Settings); FAQ covers a purchase that didn't unlock (Restore Purchases); cancel, Ask to Buy and failure were not observed.",
+"steps": [
+[
+"p",
+"Paywall",
+"\"Become a hydration hero!\" Monthly / Lifetime",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"App Store sheet, \"Purchase\"",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"Success alert",
+"\"You're all set. Your purchase was successful.\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"st",
+"Settings plan card",
+"\"Monthly access: 98 items & features\"",
+4,
+0,
+"out",
+"seen"
+],
+[
+"nu",
+"Didn't unlock",
+"FAQ: tap locked feature > Restore Purchases",
+3,
+1,
+"screen",
+"doc"
+],
+[
+"x",
+"Cancel / pending / fail",
+"No handling observed",
+3,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"sk",
+"Get All",
+0
+],
+[
+"sk",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"ok",
+"st",
+"",
+0
+],
+[
+"d",
+"nu",
+"no unlock",
+1
+],
+[
+"d",
+"x",
+"other",
+1
+]
+],
+"sources": [
+"Mobbin flow 2086c051-73ce-4b05-85cc-054de0b7ce3d (Subscribing to Premium)",
+"Mobbin flow fee1cb96-6913-4515-a1b1-9b911c3b9f9c (Subscribing to Waterllama)",
+"Mobbin flow cdee8180-5d07-4967-9584-09924de5bd80 (StoreKit sheet, Supporter IAP)",
+"Mobbin flow 31597a60-7c28-4a18-aec5-2c26d91aaa9a (Subscription detail)",
+"https://waterllama.notion.site/In-app-Purchases-9779b66f97684216a5065d005f570406"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "Premium features are locked behind the paywall and a Lifetime option exists, but lapse, grace-period and downgrade behaviour were not found; the FAQ only covers cancelling via the App Store.",
+"steps": [
+[
+"e",
+"Subscription lapses",
+"Renewal fails or cancelled",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"c",
+"Cancel via App Store",
+"FAQ: App Store > Subscriptions > Cancel",
+1,
+1,
+"sys",
+"doc"
+],
+[
+"f",
+"Free features",
+"Locked features reopen paywall",
+2,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"e",
+"c",
+"",
+1
+],
+[
+"g",
+"f",
+"",
+1
+]
+],
+"sources": [
+"https://waterllama.notion.site/In-app-Purchases-9779b66f97684216a5065d005f570406 (How to Unsubscribe; \"Tap on any locked feature\")",
+"https://apps.apple.com/us/app/-/id1454778585 (monthly, annual or one-time purchase)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "No account: \"Restore Purchases\" sits in the Settings footer and at the bottom of the paywall, and data comes back from automatic iCloud Backup after reinstall, with optional iCloud sync between devices.",
+"steps": [
+[
+"e",
+"New device / reinstall",
+"Same Apple ID",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"ic",
+"iCloud Backup sheet",
+"\"restore it after you reinstall the app\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Restore Purchases",
+"Settings footer link",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"rp",
+"Paywall Restore Purchases",
+"Bottom of purchase popup",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"sy",
+"Sync between devices",
+"\"same iCloud account\", \"Sync All Data\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"o",
+"Premium + history back",
+"",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"ic",
+"",
+0
+],
+[
+"ic",
+"r",
+"",
+0
+],
+[
+"e",
+"sy",
+"",
+1
+],
+[
+"r",
+"o",
+"",
+0
+],
+[
+"rp",
+"o",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screens a7bc4879-b462-4fa7-a5ce-f85d80ea0531 (iCloud Backup), fe89330a-690d-4135-ba3f-e46d8914605b (Sync between devices)",
+"Mobbin flow 61cb7294-b923-4b59-91ff-3f327b03a061 (\"Restore Purchases\" footer, v1.70.2)",
+"https://waterllama.notion.site/In-app-Purchases-9779b66f97684216a5065d005f570406 (Restore Purchases at bottom of popup)"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "Not applicable: Waterllama has no sign-up or account (Settings shows only device, iCloud and Health options), so 5.1.1(v) does not apply; per-entry deletion exists, but no in-app \"delete all data\" control was observed.",
+"steps": [
+[
+"e",
+"No account",
+"No sign-up in app",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"s",
+"Settings",
+"iCloud Backup / Sync, no account rows",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"r",
+"Remove entries",
+"FAQ: \"Remove entries • Add missed drinks\"",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"w",
+"Wipe all data?",
+"No in-app control observed",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+0
+],
+[
+"s",
+"r",
+"",
+1
+],
+[
+"r",
+"w",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flows 61cb7294-b923-4b59-91ff-3f327b03a061, 4a89d8f5-5b87-498d-9807-aefe4c2f90c8 (Settings)",
+"https://waterllama.notion.site (FAQ index)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "Help & Support and What's new say \"Info below is loaded via the internet\", and sync warns the connection \"shouldn't be interrupted\"; how core logging behaves offline was not observed.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"l",
+"Log a drink",
+"Assumed local; not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"h",
+"Help / What's new",
+"\"Info below is loaded via the internet\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"s",
+"Sync between devices",
+"\"Internet connection shouldn't be interrupted\"",
+1,
+2,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+1
+],
+[
+"e",
+"h",
+"",
+1
+],
+[
+"e",
+"s",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow da8ac9d9-b468-4097-af36-042c5fb223c7 (Help and support)",
+"Mobbin flow 3782af2d-33b1-4fb9-b31c-be7d2db87e1e (What's new)",
+"Mobbin screen fe89330a-690d-4135-ba3f-e46d8914605b (Sync)"
+]
+},
+{
+"n": 9,
+"verdict": "partial",
+"summary": "What's new is opt-in: a \"WHAT'S NEW\" pill in Settings opens notes loaded from the web (e.g. \"NOV 1 2021 • 1.42\", \"ALL UPDATES\" to Notion); no automatic post-update screen was observed.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. 1.94.30, App Store notes",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"s",
+"Settings",
+"\"WHAT'S NEW\" pill top right",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"What's new",
+"\"New healthy challenges\" + \"ALL UPDATES\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"n",
+"Notion What's New",
+"\"Dec 2022 • Hero Club 80+ New Characters\"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"a",
+"Auto-shown after update?",
+"Not observed",
+1,
+1,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+1
+],
+[
+"s",
+"w",
+"tap",
+0
+],
+[
+"w",
+"n",
+"ALL UPDATES",
+0
+],
+[
+"e",
+"a",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flows 3782af2d-33b1-4fb9-b31c-be7d2db87e1e (Whats new), 61cb7294-b923-4b59-91ff-3f327b03a061 (Settings > What's new)",
+"https://apps.apple.com/us/app/-/id1454778585 (version history)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "No AI or account server; the sync screen shows percent progress (\"Please don't leave this screen\"), a \"Success!\" alert, and lists on-screen fixes if sync stops (tap Sync All Data on one device first, same iCloud account, email support); a failure alert was not observed.",
+"steps": [
+[
+"e",
+"Tap \"SYNC ALL DATA\"",
+"Sync between devices",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"p",
+"Progress",
+"\"34%\" \"Please don't leave this screen\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Sync succeeds?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"s",
+"\"Success!\" alert",
+"Last sync time updates",
+3,
+0,
+"out",
+"seen"
+],
+[
+"f",
+"Failure alert",
+"Not observed",
+3,
+1,
+"screen",
+"unverified"
+],
+[
+"t",
+"On-screen fixes",
+"Same iCloud account; hello@waterllama.com",
+4,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"p",
+"",
+0
+],
+[
+"p",
+"d",
+"",
+0
+],
+[
+"d",
+"s",
+"yes",
+0
+],
+[
+"d",
+"f",
+"no",
+1
+],
+[
+"f",
+"t",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen fe89330a-690d-4135-ba3f-e46d8914605b and 1a9639d5-72f5-416c-9f24-1b3cfbea599e (sync progress)",
+"Mobbin screen 609682ba-4f8d-4ab4-af22-80678ebd0f75 (Success!)",
+"Mobbin screen 693dc2be-f5f5-42f3-af0d-2c52cff5acb9 (last sync time, troubleshooting tips)"
+]
+},
+{
+"n": 11,
+"verdict": "meets",
+"summary": "Traced Apple Health (no AI, no account, and the App Store privacy label shows no tracking): a skippable primer, then the Health sheet, and Settings > Apple Health Sync keeps a \"SYNC YOUR DATA\" toggle to switch it off; what switching off does to data already written was not documented.",
+"steps": [
+[
+"s",
+"Health Sync primer",
+"\"Auto sync all of your intake\"; SKIP",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"h",
+"Health permission sheet",
+"",
+1,
+0,
+"sys",
+"seen"
+],
+[
+"a",
+"Apple Health Sync",
+"\"SYNC YOUR DATA\" toggle",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Toggle off",
+"Effect on past data not documented",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"h",
+"CONTINUE",
+0
+],
+[
+"h",
+"a",
+"",
+0
+],
+[
+"s",
+"a",
+"SKIP, later",
+1
+],
+[
+"a",
+"o",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen f5caa3d8-8ada-4f72-85bc-07a321ca55b1 (Apple Health Sync primer)",
+"Mobbin screen 7ccfe9fb-2185-4234-9c6a-7b24b1a032ae (Health sheet, from lane 3)",
+"Mobbin screen 0bf3bd98-1cee-4e08-882f-2446007a58f5 (Apple Health Sync toggle)",
+"https://apps.apple.com/us/app/-/id1454778585 (App Privacy: Data Not Linked to You only, no tracking)"
+]
+},
+{
+"n": 12,
+"verdict": "meets",
+"summary": "Not applicable: there is no account, so no sign-in or sign-out; Settings has no account rows, data rides on the device's iCloud account (backup and optional sync), and purchases come back via \"Restore Purchases\".",
+"steps": [
+[
+"o",
+"Open app",
+"No sign-in gate",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"s",
+"Settings",
+"No account rows",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"i",
+"iCloud Backup / Sync",
+"Tied to the iCloud account",
+2,
+0,
+"out",
+"seen"
+],
+[
+"r",
+"\"Restore Purchases\"",
+"Settings footer",
+2,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"o",
+"s",
+"",
+0
+],
+[
+"s",
+"i",
+"",
+0
+],
+[
+"s",
+"r",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 61cb7294-b923-4b59-91ff-3f327b03a061 (Settings: no account rows, Restore Purchases)",
+"Mobbin screen a7bc4879-b462-4fa7-a5ce-f85d80ea0531 (iCloud Backup)",
+"Mobbin screen fe89330a-690d-4135-ba3f-e46d8914605b (Sync between devices)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Data follows the iCloud account through an opt-in \"Sync between devices\" toggle plus a manual \"SYNC ALL DATA\" with warnings not to touch other devices mid-sync; iPad and Apple Watch are supported and purchases \"may be shareable\" with Family Sharing; there is no shared household log.",
+"steps": [
+[
+"e",
+"Second iPhone / iPad",
+"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"t",
+"Sync between devices",
+"Opt-in \"SYNC YOUR DATA\" toggle",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"Manual SYNC ALL DATA",
+"\"Don't interact...on other devices\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"Same iCloud account",
+"Required (on-screen tip)",
+3,
+0,
+"out",
+"seen"
+],
+[
+"w",
+"Apple Watch app",
+"watchOS 10+, reminders",
+1,
+1,
+"out",
+"doc"
+],
+[
+"f",
+"Family Sharing",
+"IAP \"may be shareable\"",
+1,
+2,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"t",
+"",
+0
+],
+[
+"t",
+"m",
+"",
+0
+],
+[
+"m",
+"a",
+"",
+0
+],
+[
+"e",
+"w",
+"Watch",
+1
+],
+[
+"e",
+"f",
+"family",
+1
+]
+],
+"sources": [
+"Mobbin screen f38eabfc-2cbc-4b31-8edc-88219e9ff27c (sync toggle off)",
+"Mobbin screen 693dc2be-f5f5-42f3-af0d-2c52cff5acb9 (Sync All Data, tips)",
+"https://apps.apple.com/us/app/-/id1454778585 (iPad, Apple Watch, Family Sharing)"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "The first-launch day view says \"Add your first sip\" over a llama silhouette with the water glass as the action; other lists (history, calendar) were not observed empty.",
+"steps": [
+[
+"d",
+"Day view (first use)",
+"\"Add your first sip\"",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"g",
+"Water glass button",
+"Logs the first drink",
+1,
+0,
+"out",
+"seen"
+],
+[
+"c",
+"Calendar / history empty",
+"Not observed",
+1,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"d",
+"g",
+"tap",
+0
+],
+[
+"d",
+"c",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 0fadfcf2-381c-4c88-b1af-fa65281d1527 (Add your first sip)"
+]
+}
+]
+}

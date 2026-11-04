@@ -2,7 +2,7 @@
 
 > The app rework (new flow, tabs, paywall states) has its own plan: `REWORK_ROADMAP.md` (2026-11-04).
 
-As of 2026-09-24 · Juan Diego Lugo. Living copy: https://claude.ai/artifact/6HXbQRc9X1nfWpeiHAABRE
+As of 2026-11-04 (top section; the sections below it are the 2026-09/10 launch record) · Juan Diego Lugo. Living copy: https://claude.ai/artifact/6HXbQRc9X1nfWpeiHAABRE
 
 Otto ships with Otto Club for sale. Payments, the store listing text, the age rating and the
 privacy answers are set up; what still blocks submission is the Paid Apps Agreement, a demo
@@ -10,6 +10,47 @@ account, screenshots and build 37.
 
 Priority: **P0** blocks submission · **P1** needed before or on launch day · **P2** can follow.
 Status: `todo` · `doing` · `blocked` · `done`.
+
+## DRAFT, under discussion (2026-11-04): from flow map + scenarios to the shipped app
+
+> **Not approved. Don't start work from this section.** It will be reworked after the visual flow map and scenarios are settled with Juan.
+
+The app's next shape is decided by one map and its edge cases. The map: Figma `r9QxxN5qDQXjW473H7LKgM`, page "Flow map — Otto next (current)", plus `docs/flow-maps/maps/otto.html` (today's app). The edge cases are **14 scenario lanes**, each traced through today's code and measured against Apple's standard. They're in the same Figma page (frame "Scenario lanes — Otto today vs Apple"), under the HTML map, with data in `docs/flow-maps/lanes/otto.json`. The 24 reference apps have the first 9 lanes in the study file `iEA3Aeu3ApmJdJabmAudXm`. Research and verdicts: `docs/flow-maps/research/04_SCENARIO_LANES.md`.
+
+**Otto today, lane by lane** (✓ meets · ◐ partial · ✗ misses):
+
+| # | Scenario | Today | Gap | Fixed by |
+| --- | --- | --- | --- | --- |
+| 1 | Returning launch | ◐ | Always opens Discover, last tab lost | F4 |
+| 2 | Link / notification entry | ✗ | Reminder taps go nowhere; links lose their target after sign-in or purchase | S2, F5 |
+| 3 | Permission denied | ◐ | Mic denial has no Open Settings | S3 (camera done in G9) |
+| 4 | Purchase outcomes | ◐ | Ask to Buy / pending stays locked behind the hard paywall | F2(a) |
+| 5 | Lapse / grace period | ✗ | No billing-problem message; lapsed = hard paywall | S6, F5, F2(a) |
+| 6 | Restore on new device | ✓ | Fresh phone opens on Sign up, not Sign in | F1 |
+| 7 | Delete account | ✓ | Local chats/journal stay on the phone | S1 |
+| 8 | Offline | ◐ | An app update wipes the offline cache; offline launch | S7, F5 (banner + cache done in G14) |
+| 9 | What's New | ✗ | None | S7 |
+| 10 | AI / server error, limits | ◐ | Chat has no Retry; failed photo import loses the photo; limits not shown | S4 |
+| 11 | AI consent withdrawn | ✓ | Consent is per device, not per account | S1, S11 |
+| 12 | Sign-in edges, sign out | ◐ | Raw error text; **sign out leaves the last account's chats, journal, prefs on the phone** | S1, S5 |
+| 13 | Second device, household | ◐ | Chats/journal don't follow the account; Leave has no confirm; failed shared tick dropped | S8, S9 |
+| 14 | Empty states | ◐ | Shopping, chats, journal, Discover no-results have no first action; Cookbook "Explore" goes to "/" | S10, F6 |
+
+**Order of work** (each phase ends in a TestFlight build):
+
+| Phase | Work | Tickets | Owner | Status |
+| --- | --- | --- | --- | --- |
+| 0 | Ship what's on `main`: 1.0.23 (52) + gold-standard fixes G1–G14 (needs a native build: NetInfo). Device checks from the G-ticket log. Live privacy policy still names Anthropic; verify OpenAI no-training. | `TERMINAL_TICKET_RELEASE_1_0_23.md`, `TERMINAL_TICKET_GOLD_STANDARD_GAPS.md` | Juan (build OK, website, OpenAI) + Claude | todo |
+| 1 | Privacy fix: sign out / delete clears the device | S1 | Claude | todo |
+| 2 | Juan's decisions that shape the map (list below) | F2(a–d), G15, G16, S9 | Juan | todo |
+| 3 | Approve the `otto-next` map **with its lanes redrawn as the target**, then gate logic + tests | F1, F3 | Claude → Juan approves | todo |
+| 4 | Scenario coverage, built on the new gate | F4, F5, S2, S6 | Claude | todo |
+| 5 | Small scenario fixes | S3, S4, S5, S7, S8, S10, S11, F6 | Claude | todo |
+| 6 | Motion + native bars (tab bar decision lands here) | M1–M9, G15, G20 | Claude | todo |
+| 7 | Polish Juan picks | G16 (Dark Mode), G17–G19, G21–G23 | Both | todo |
+| 8 | Regenerate `otto.html` from the shipped routes; flip every fixed lane step to "seen" and re-mark verdicts | F7 + ticket rules | Claude | todo |
+
+**Done when** every Otto lane is ✓, or its remaining gap is a logged decision.
 
 ## Where we are (2026-09-24)
 
@@ -197,6 +238,18 @@ Targets from the ASO plan: 200+ ratings at 4.6+ by day 90, re-set against real n
 | Month 2–3 | SEO pages (11 remaining); localization; product-page A/B tests; App Preview video | WEB-7, MKT-6, MKT-7, MKT-3 |
 
 ## Decisions only Juan can make
+
+Flow and scenarios (2026-11-04; these shape the map, so they come first):
+- [ ] Hard paywall or a free tier. Decides lanes 4 and 5: with a free tier, Ask to Buy and lapsed users keep using Otto (F2a)
+- [ ] Account before or after the food questions (F2b)
+- [ ] Which tab opens first, and whether the last tab is restored instead (F2c, F4)
+- [ ] One-time offer on paywall dismiss, yes or no (F2d)
+- [ ] Tab bar: keep the raised ＋ or move chat to a normal tab and "add" to a toolbar button (G15)
+- [ ] Dark Mode now or with the native bars (G16)
+- [ ] Chats and journal: sync to the account, or label them "on this iPhone" (S9)
+- [ ] App Store Connect: turn on the Billing Grace Period for Otto Club (S6)
+
+Launch-era (2026-09 and 10):
 
 - [ ] EU trader status: declare (public contact details in the EU) or exclude EU countries for v1 (ASC-4)
 - [ ] Speech input: on-device recognition or keep Apple server recognition and disclose it (APP-6)

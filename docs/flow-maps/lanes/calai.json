@@ -1,0 +1,1404 @@
+{
+"app": "calai",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Signed-in relaunch goes splash to Home's Today view. No source shows whether the last tab or screen is restored.",
+"steps": [
+[
+"e",
+"Cold launch",
+"Signed-in user reopens app",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"sp",
+"Splash",
+"Black \"Cal AI\" logo on white",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Signed in?",
+"Session kept on device",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"home",
+"Home · Today",
+"Week strip, \"Calories left\", rings",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"wel",
+"Welcome",
+"\"Calorie tracking made easy\"",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"last",
+"Last tab restored?",
+"No observation of tab/state restore",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"sp",
+"",
+0
+],
+[
+"sp",
+"d",
+"",
+0
+],
+[
+"d",
+"home",
+"yes",
+0
+],
+[
+"d",
+"wel",
+"no",
+1
+],
+[
+"home",
+"last",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow f970258c (splash, welcome screen f146e518)",
+"Mobbin flow c7f3ed5d (ends on Home 5ce7bd86)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Cal AI sends notifications (scan finished, Live Activity) and shares group invite links. No source shows where a tapped notification or link lands, signed in or out.",
+"steps": [
+[
+"e",
+"Scan in progress",
+"User leaves app mid-analysis",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"ban",
+"Home banner",
+"\"We'll notify you when the analysis is done\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"la",
+"Live Activity",
+"Dynamic Island shows calories",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"tap",
+"Notification tap",
+"Destination not observed",
+3,
+0,
+"sys",
+"unverified"
+],
+[
+"lnk",
+"Group invite link",
+"calai.app/…/groups/<code> share",
+1,
+1,
+"entry",
+"seen"
+],
+[
+"d",
+"Signed in + paid?",
+"Deep link vs onboarding/paywall",
+4,
+1,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"ban",
+"",
+0
+],
+[
+"ban",
+"la",
+"",
+0
+],
+[
+"la",
+"tap",
+"",
+1
+],
+[
+"lnk",
+"d",
+"",
+1
+],
+[
+"tap",
+"d",
+"",
+1
+]
+],
+"sources": [
+"Mobbin scan flows 6b462ef7 / 787289b6 (notify banner)",
+"Mobbin screen b045b71b (Dynamic Island Live Activity)",
+"Mobbin flow 96998cc0 (group invite link)"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Cal AI primes notification and photo permissions with its own screens, and logging without the camera (database, saved foods) is available. Behavior after a camera denial is not documented, and the only Settings guidance is in the FAQ.",
+"steps": [
+[
+"e",
+"First scan / onboarding",
+"Permission needed",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"pri",
+"Notif primer",
+"\"Reach your goals with notifications\" mock alert",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"cam",
+"Photo primer",
+"\"Your Photos, Your Privacy\" · Continue",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"sys",
+"iOS permission alert",
+"Allow / Don't Allow",
+2,
+0,
+"sys",
+"unverified"
+],
+[
+"den",
+"Denied fallback",
+"No camera-denied screen observed",
+3,
+1,
+"screen",
+"unverified"
+],
+[
+"alt",
+"Manual logging",
+"+ menu: Food Database, Saved foods",
+4,
+1,
+"out",
+"seen"
+],
+[
+"set",
+"Settings app",
+"FAQ: Settings → Notifications → CalAI",
+3,
+0,
+"sys",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"pri",
+"",
+0
+],
+[
+"e",
+"cam",
+"",
+0
+],
+[
+"pri",
+"sys",
+"",
+0
+],
+[
+"cam",
+"sys",
+"",
+0
+],
+[
+"sys",
+"den",
+"deny",
+1
+],
+[
+"den",
+"alt",
+"",
+1
+],
+[
+"sys",
+"set",
+"later",
+1
+]
+],
+"sources": [
+"Mobbin screen 66d99844 (notification primer)",
+"Mobbin screen dcf735f6 (Your Photos, Your Privacy)",
+"Mobbin flow 6b462ef7 (+ menu: Food Database / Scan food)",
+"https://www.calai.app/faq (notifications via phone Settings)",
+"docs/flow-maps/research/02_REFERENCE_APP_FLOWS.md (Apple Health 'Not now')"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "A purchase ends with \"You're all set\" and drops the user on Home. Declining the offer brings a spin-the-wheel discount and an \"80% OFF FOREVER\" one-time offer, and Apple briefly pulled the app in April 2026 for this and for misleading pricing. Pending and failed purchases were not observed.",
+"steps": [
+[
+"pw",
+"Hard paywall",
+"\"Start your 3-day FREE trial to continue\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"Apple purchase confirm",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"ok",
+"Success alert",
+"\"You're all set – Your purchase was successful\"",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"home",
+"Home",
+"Tracking unlocked",
+3,
+0,
+"out",
+"seen"
+],
+[
+"d",
+"Declined?",
+"User closes or cancels",
+1,
+1,
+"dec",
+"seen"
+],
+[
+"spin",
+"Spin wheel",
+"\"Spin to unlock an exclusive discount\"",
+2,
+1,
+"screen",
+"gap"
+],
+[
+"otf",
+"One-time offer",
+"\"80% OFF FOREVER\" · trial toggle",
+3,
+1,
+"screen",
+"gap"
+],
+[
+"pend",
+"Pending / failed",
+"Ask to Buy, failure not observed",
+2,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"pw",
+"sk",
+"Continue",
+0
+],
+[
+"sk",
+"ok",
+"",
+0
+],
+[
+"ok",
+"home",
+"OK",
+0
+],
+[
+"pw",
+"d",
+"",
+1
+],
+[
+"d",
+"spin",
+"close",
+1
+],
+[
+"spin",
+"otf",
+"",
+1
+],
+[
+"sk",
+"pend",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 6cadd7c7 (paywall b730224e → success → Home 5ce7bd86)",
+"Mobbin flow 25b68161 (Unlock CalAI → spin wheel → 80% off one-time offer)",
+"https://www.cultofmac.com/news/why-app-store-pulled-cal-ai-app (Apr 2026: missing IAP option, misleading price display, different flow after decline)"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "Cal AI's own FAQ says the + button opens the paywall when there is no subscription, and logs live in the cloud. Nothing documents a grace-period message or what a lapsed user can still do.",
+"steps": [
+[
+"e",
+"Subscription lapses",
+"Renewal fails or is cancelled",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"gr",
+"Grace period notice",
+"No in-app billing-retry message seen",
+1,
+1,
+"screen",
+"unverified"
+],
+[
+"plus",
+"Tap + to log",
+"Opens paywall without active sub",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"pw",
+"Paywall",
+"\"Restore Purchase\" / \"Already Purchased\"",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"data",
+"Logs kept",
+"\"Data is safely stored in the cloud\"",
+3,
+0,
+"out",
+"doc"
+],
+[
+"free",
+"Free tier?",
+"Manual logging free per 3rd party",
+3,
+1,
+"out",
+"report"
+]
+],
+"edges": [
+[
+"e",
+"gr",
+"",
+1
+],
+[
+"e",
+"plus",
+"",
+0
+],
+[
+"plus",
+"pw",
+"",
+0
+],
+[
+"pw",
+"data",
+"",
+1
+],
+[
+"pw",
+"free",
+"",
+1
+]
+],
+"sources": [
+"https://www.calai.app/faq (paywall via +, Restore Purchase, cloud storage)",
+"https://www.calai.app/ (cancel via phone settings)",
+"https://www.eesel.ai/en/blog/cal-ai-pricing (report: free manual logging, scans need sub)"
+]
+},
+{
+"n": 6,
+"verdict": "partial",
+"summary": "Signing in on a new device with Apple, Google or an email magic link restores the cloud logs. The subscription only comes back through Restore on the paywall, and no Restore link was seen in Settings or Profile.",
+"steps": [
+[
+"e",
+"New device",
+"Fresh install",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"wel",
+"Welcome",
+"\"Already have an account? Sign In\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"si",
+"Sign In sheet",
+"Apple / Google / \"Continue with email\"",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"ml",
+"Magic link",
+"\"Email me a magic link\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"home",
+"Home with logs",
+"Cloud data back on sign-in",
+3,
+0,
+"out",
+"seen"
+],
+[
+"rs",
+"Restore on paywall",
+"\"Terms · Privacy · Restore\"",
+4,
+1,
+"screen",
+"seen"
+],
+[
+"nos",
+"No Restore in Settings",
+"Profile list shows none",
+4,
+2,
+"out",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"wel",
+"",
+0
+],
+[
+"wel",
+"si",
+"Sign In",
+0
+],
+[
+"si",
+"ml",
+"email",
+1
+],
+[
+"si",
+"home",
+"",
+0
+],
+[
+"ml",
+"home",
+"",
+1
+],
+[
+"home",
+"rs",
+"if paywalled",
+1
+],
+[
+"rs",
+"nos",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow c7f3ed5d (welcome → Sign In sheet → Home)",
+"Mobbin flow 503e0e0a (logging in)",
+"Mobbin screens b730224e / 6e269857 (Restore on paywall)",
+"Mobbin screen b0dcdfd6 (Profile/Settings, no Restore row)",
+"https://www.calai.app/faq (new device: use Restore Purchase; data restores on sign-in)"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "Delete Account is in Settings, takes one confirmation and returns to the signed-out welcome screen, which meets 5.1.1(v). The dialog never says what gets deleted or that the App Store subscription keeps billing.",
+"steps": [
+[
+"e",
+"Settings / Profile",
+"\"Account Actions\" → \"Delete Account\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"dlg",
+"Confirm dialog",
+"\"Are you sure you want to permanently delete…\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Yes?",
+"No / Yes (red)",
+2,
+0,
+"dec",
+"seen"
+],
+[
+"exp",
+"No billing notice",
+"Doesn't mention sub keeps billing",
+2,
+1,
+"screen",
+"gap"
+],
+[
+"sp",
+"Splash",
+"Cal AI logo",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"wel",
+"Welcome (signed out)",
+"\"Calorie tracking made easy\"",
+4,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"dlg",
+"",
+0
+],
+[
+"dlg",
+"d",
+"",
+0
+],
+[
+"d",
+"sp",
+"Yes",
+0
+],
+[
+"dlg",
+"exp",
+"",
+1
+],
+[
+"sp",
+"wel",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flow f970258c (Profile → Delete Account → splash → welcome)",
+"Mobbin flow 684e5dc7 (Settings → \"Delete Account?\" No/Yes → welcome)",
+"https://www.calai.app/faq (subscription must be cancelled in phone settings)"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "No source shows Cal AI without a connection. The only hint is a \"Sync Data · Last Synced\" row in Settings, which suggests local data plus sync. AI scanning needs the server.",
+"steps": [
+[
+"e",
+"No connection",
+"Airplane mode / bad signal",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"home",
+"Cached Home?",
+"Not observed offline",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"sync",
+"Sync Data row",
+"\"Last Synced: 3:04 PM\"",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"scan",
+"Scan offline",
+"Behaviour not documented",
+1,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"home",
+"",
+1
+],
+[
+"home",
+"sync",
+"",
+1
+],
+[
+"e",
+"scan",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen b0dcdfd6 (Sync Data · Last Synced)",
+"https://www.calai.app/faq (no offline Q&A; PDF export: 'use stable WiFi')"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Cal AI ships updates every week, and every App Store note reads \"Improvements and tweaks to help you build and be your best\". No in-app What's New screen was observed.",
+"steps": [
+[
+"e",
+"App updated",
+"Weekly release (26.4x)",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"notes",
+"Generic notes",
+"\"Improvements and tweaks…\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"wn",
+"In-app What's New?",
+"Not observed",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"home",
+"Home",
+"Last state (assumed)",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"notes",
+"",
+0
+],
+[
+"notes",
+"wn",
+"",
+1
+],
+[
+"wn",
+"home",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/cal-ai-calorie-tracker/id6480417616 (version history 3.3.5 → 26.44.0)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "A doubtful scan can be fixed in place: \"Fix Issue\", a \"Report Food\" box, and a candid \"Ingredients hidden\" note when the AI isn't confident. For the hard error \"Food items were not processed\" the FAQ's only advice is to reinstall. No retry, timeout or rate-limit screen was observed, and the scan limit only appears as a paywall on +.",
+"steps": [
+[
+"e",
+"Scan food",
+"Photo sent for AI analysis",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"ok",
+"Analysis worked?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"res",
+"Nutrition result",
+"Fix Issue / Done",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"hid",
+"\"Ingredients hidden\"",
+"\"only shows… when it's confident\"",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"rep",
+"Report Food",
+"\"What's the issue with this food log?\"",
+3,
+1,
+"screen",
+"seen"
+],
+[
+"err",
+"Scan not processed",
+"\"Food items were not processed\" FAQ: reinstall",
+2,
+2,
+"screen",
+"gap"
+],
+[
+"lim",
+"No subscription?",
+"+ opens the paywall (FAQ)",
+1,
+2,
+"dec",
+"doc"
+],
+[
+"out",
+"Photo kept on failure?",
+"Not observed",
+3,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"ok",
+"",
+0
+],
+[
+"ok",
+"res",
+"yes",
+0
+],
+[
+"res",
+"hid",
+"",
+1
+],
+[
+"res",
+"rep",
+"",
+0
+],
+[
+"ok",
+"err",
+"no",
+0
+],
+[
+"err",
+"out",
+"",
+1
+],
+[
+"e",
+"lim",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 0fc4d5ed-a420-4fa7-b1a6-ede4432a378f (Nutrition: Fix Issue / Done)",
+"Mobbin screen a71a8386-d1e3-4b59-b537-ac65f2a4fce2 ('Ingredients hidden')",
+"Mobbin screens 42909c5e-f154-46a3-b34d-8969adfcb1e7, 6462ebe7-7ce3-4e5b-b9db-2cc2ea80a289 (Report Food)",
+"https://www.calai.app/faq ('Food items were not processed': 'Try uninstalling and reinstalling the app'; paywall via +)"
+]
+},
+{
+"n": 11,
+"verdict": "unknown",
+"summary": "No AI-specific consent was found. Food photos go to the server for analysis, and the May 2026 privacy notice names no AI vendor and shows no in-app step for granting or withdrawing AI sharing. The closest consent traced is ads: the notice says you opt in or out under profile settings, per device.",
+"steps": [
+[
+"e",
+"First food scan",
+"Camera alert only (lane 3)",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"ai",
+"AI-sharing consent?",
+"None seen; vendor not named",
+1,
+0,
+"dec",
+"gap"
+],
+[
+"prof",
+"Profile › Preferences",
+"Row exists; contents not seen",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"ads",
+"Ad opt-in / opt-out",
+"Notice: via profile settings",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"dev",
+"Per device only",
+"\"browser or device level\"",
+3,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"ai",
+"",
+0
+],
+[
+"prof",
+"ads",
+"",
+0
+],
+[
+"ads",
+"dev",
+"",
+0
+]
+],
+"sources": [
+"https://www.calai.app/privacy (Effective May 21, 2026: no AI vendor named; 'opt in, or opt out of such advertising through our app… visiting your profile settings'; 'reflected at a browser or device level'; withdrawal of consent right)",
+"Mobbin flow 0438a3e5-5923-4114-92cf-de1c7a27ca3b (Profile: Personal Details, Preferences, Language, Upgrade to Family Plan)",
+"Mobbin screen 66d99844 (notification primer, lane 3)"
+]
+},
+{
+"n": 12,
+"verdict": "meets",
+"summary": "Logout sits under Account Actions in Profile and asks \"Log out? Log out of your account?\" with No/Yes. Yes goes through the splash to the signed-out welcome, which offers \"Already have an account? Sign In\". The FAQ says data reappears on signing back in with the same account. Cancelled or failed sign-in was not observed.",
+"steps": [
+[
+"e",
+"Profile › Logout",
+"Account Actions",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"conf",
+"\"Log out?\"",
+"No / Yes",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"spl",
+"Splash",
+"Cal AI logo",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"wel",
+"Welcome",
+"Get Started · \"…? Sign In\"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"in",
+"Sign in again",
+"Same account → data back",
+4,
+0,
+"screen",
+"doc"
+],
+[
+"err",
+"Cancel / wrong account?",
+"Not observed; FAQ: same Apple ID",
+4,
+1,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"conf",
+"",
+0
+],
+[
+"conf",
+"spl",
+"Yes",
+0
+],
+[
+"spl",
+"wel",
+"",
+0
+],
+[
+"wel",
+"in",
+"",
+0
+],
+[
+"in",
+"err",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 8bd4dd6d-2ca3-4514-8823-645d3c1f7d24 (Logging out: b0dcdfd6 → 79ae4138 → 71083ffd → f146e518)",
+"Mobbin flow d4c08686-e6c1-45b9-a425-4ea80a0f6ac4 (Settings → 'Log out?' No/Yes → welcome)",
+"https://www.calai.app/faq ('Try logging back in with the same account you used before'; paywall after purchase: same Apple ID)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Logs live in the cloud, so signing in on another device restores them, and Settings shows \"Sync Data · Last Synced\". Groups (chat, feed, leaderboard) join by a share link, and a Family Plan covers \"Up to 6 members, one plan\". The FAQ admits family invites once dropped people on a free-trial page. Leaving or removing someone was not observed.",
+"steps": [
+[
+"e",
+"Sign in on 2nd device",
+"Same Apple/Google/email",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"sync",
+"Sync Data",
+"\"Last Synced: 3:04 PM\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"grp",
+"Group detail",
+"Invite link: Share / Messages / Copy",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"mem",
+"Members",
+"\"Group Leader\" label",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"fam",
+"Cal AI Family Plan",
+"\"Up to 6 members, one plan\"",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"bug",
+"Invitee sees trial page",
+"FAQ: \"has been fixed\"",
+2,
+2,
+"screen",
+"doc"
+],
+[
+"out",
+"Leave / remove member?",
+"Not observed",
+3,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"sync",
+"",
+0
+],
+[
+"grp",
+"mem",
+"",
+0
+],
+[
+"mem",
+"out",
+"",
+1
+],
+[
+"fam",
+"bug",
+"",
+1
+]
+],
+"sources": [
+"https://www.calai.app/faq ('Your data is safely stored in the cloud'; 'family plan invitation system has been fixed')",
+"Mobbin screen b0dcdfd6-8496-444e-8149-567b872288a3 (Sync Data · Last Synced)",
+"Mobbin flow 3d1c0de7-4455-4b16-a9e0-ea19e9efa1b8 (Group detail: Chat/Feed/Leaderboard, invite link, Members)",
+"Mobbin flow 0438a3e5-5923-4114-92cf-de1c7a27ca3b (Upgrade to family plan)"
+]
+},
+{
+"n": 14,
+"verdict": "meets",
+"summary": "Every empty list seen says what goes there and how to fill it: Home (\"Tap + to add your first meal of the day\"), My Foods (Add food), My Meals (Create meal), Saved foods (a picture of the bookmark to tap), Progress Photos (Upload a Photo). Charts say \"No data to show · This will update as you log more food.\"",
+"steps": [
+[
+"e",
+"New account",
+"Home tab",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"home",
+"Recently uploaded",
+"\"Tap + to add your first meal…\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"mf",
+"My foods / My meals",
+"Add food · Create meal",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"sv",
+"Saved foods",
+"\"No saved foods yet\" + how-to art",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"pr",
+"Progress",
+"\"No data to show\" · Upload a Photo",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"out",
+"No blank screens",
+"Each points at a first action",
+4,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"home",
+"",
+0
+],
+[
+"home",
+"mf",
+"+",
+0
+],
+[
+"mf",
+"sv",
+"",
+0
+],
+[
+"sv",
+"out",
+"",
+0
+],
+[
+"e",
+"pr",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen 928beeca-5bc5-4dfd-bc7a-d52753bb359a (Home empty)",
+"Mobbin screens fd8bfb12-fdcb-410e-b7b4-421f91c43798 (My Foods), ca9a4f01-bcc3-4544-bf49-f1e1a1347c45 (My Meals), 7b9a7fc2-3d82-4f6b-86c2-51b58274edf8 (Saved foods)",
+"Mobbin screen ed32b620-bc5e-439a-972a-e8aefd4e5552 (Progress: No data to show, Upload a Photo)"
+]
+}
+]
+}

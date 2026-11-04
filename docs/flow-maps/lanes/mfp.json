@@ -1,0 +1,1382 @@
+{
+"app": "mfp",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Signed-in users land on Today (seen after log-in), but no source shows whether a cold launch restores the last tab or screen.",
+"steps": [
+[
+"e",
+"Cold launch",
+"Signed in, app was killed",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Session valid?",
+"Account-based app",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Today",
+"Calories, macros, Diary",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Welcome",
+"\"Sign Up For Free\" / \"Log In\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"l",
+"Log In",
+"Email, Google, Apple, Facebook",
+3,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"d",
+"w",
+"no",
+1
+],
+[
+"w",
+"l",
+"",
+0
+],
+[
+"l",
+"t",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flow b323ac43 (Logging in): screens b66dfa85, 7336baf0 → Today",
+"Mobbin flow d030e6c2 (Logging in) → Today d5384da7"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Meal and weigh-in reminders exist, but no screen or doc shows where tapping one lands or what happens when signed out.",
+"steps": [
+[
+"e",
+"Reminder push",
+"Breakfast / Lunch / Weigh-in",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Today / Diary",
+"Assumed landing for meal reminder",
+2,
+0,
+"screen",
+"unverified"
+],
+[
+"w",
+"Welcome / Log In",
+"Deep link kept? unknown",
+2,
+1,
+"screen",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"yes",
+1
+],
+[
+"d",
+"w",
+"no",
+1
+]
+],
+"sources": [
+"Mobbin screen d21ec8df (Reminders: Meals Breakfast/Lunch/Dinner, Weight \"Weekly on Mondays\")",
+"Mobbin screen cc3afa32 (\"Keep me on track with reminders.\")"
+]
+},
+{
+"n": 3,
+"verdict": "partial",
+"summary": "Asks with in-app context first and Help docs point to iOS Settings for camera, but no in-app Settings deep link or denied-state screen was found.",
+"steps": [
+[
+"e",
+"Account created",
+"\"Keep me on track with reminders.\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"s",
+"iOS permission alert",
+"Notifications / Motion / Camera",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Allowed?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"b",
+"Barcode scan works",
+"Camera on",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"k",
+"Scanner black screen",
+"Denied camera",
+3,
+1,
+"screen",
+"doc"
+],
+[
+"g",
+"Help: iOS Settings",
+"Privacy > Camera > MyFitnessPal",
+4,
+1,
+"screen",
+"gap"
+],
+[
+"h",
+"Sleep: Update Permissions",
+"Re-asks for Apple Health in-feature",
+3,
+2,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+0
+],
+[
+"s",
+"d",
+"",
+0
+],
+[
+"d",
+"b",
+"yes",
+0
+],
+[
+"d",
+"k",
+"no",
+0
+],
+[
+"k",
+"g",
+"help article",
+1
+],
+[
+"d",
+"h",
+"Health off",
+1
+]
+],
+"sources": [
+"Mobbin screen cc3afa32 (Account Created toggles: reminders, steps, emails)",
+"Mobbin screen 6e16b655 (Sleep \"Update Permissions\" / \"Tap to sync your sleep data from Apple Health\")",
+"https://support.myfitnesspal.com/hc/en-us/articles/360032271672-The-barcode-scanner-is-not-working-in-the-iOS-app",
+"https://support.myfitnesspal.com/hc/en-us/articles/360032624771-How-do-I-use-the-barcode-scanner-to-log-foods"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Success is clear and celebrated; failure charges nothing but sends users to Apple; a known 'subscription delay' state can last up to six hours; cancel and Ask to Buy not documented.",
+"steps": [
+[
+"p",
+"Paywall",
+"\"Try it free\" / \"Start 1-Month Free Trial\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"s",
+"StoreKit sheet",
+"Apple payment",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"d",
+"Outcome?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"\"You're all set\"",
+"\"Your purchase was successful.\" OK",
+3,
+0,
+"screen",
+"seen"
+],
+[
+"w",
+"Welcome to Premium",
+"\"Try my new tools\"",
+4,
+0,
+"out",
+"seen"
+],
+[
+"dl",
+"Subscription delay error",
+"Paid, confirmation up to 6 hours",
+3,
+1,
+"screen",
+"gap"
+],
+[
+"f",
+"\"Payment didn't go through\"",
+"Not charged; contact Apple",
+3,
+2,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"p",
+"s",
+"",
+0
+],
+[
+"s",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"ok",
+"w",
+"",
+0
+],
+[
+"d",
+"dl",
+"delayed",
+0
+],
+[
+"d",
+"f",
+"failed",
+0
+]
+],
+"sources": [
+"Mobbin flow 3e8f40b1: screens 0ce65583, ea1d92e0, 6d601313",
+"Mobbin flow 1bdd5177 (1-Month Free Trial paywall → success → Today)",
+"https://support.myfitnesspal.com/hc/en-us/articles/360032272412-What-to-do-if-you-see-a-subscription-delay-error-after-purchase",
+"https://support.myfitnesspal.com/hc/en-us/articles/360032272092-Problem-With-Premium-Purchase"
+]
+},
+{
+"n": 5,
+"verdict": "partial",
+"summary": "Premium runs to period end and logged data is kept on the free plan, but no billing-retry or grace-period messaging was found.",
+"steps": [
+[
+"e",
+"Renewal fails / cancels",
+"Apple billing",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"st",
+"Subscription Status",
+"\"Expires March 11, 2026\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Grace period shown?",
+"No source found",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"fr",
+"Free plan",
+"Diary, friends, foods kept",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"st",
+"",
+0
+],
+[
+"st",
+"d",
+"",
+0
+],
+[
+"d",
+"fr",
+"period ends",
+1
+]
+],
+"sources": [
+"Mobbin screen d11f9ab3 (Subscription Status: ACTIVE, \"Manage subscription in Apple App Store\")",
+"https://support.myfitnesspal.com/hc/en-us/articles/41654805275405-Can-I-use-my-FSA-HSA-to-pay-for-Premium (data retained while Premium not active)",
+"https://support.myfitnesspal.com/hc/en-us/articles/360032625371-How-to-cancel-your-Premium-subscription-renewal"
+]
+},
+{
+"n": 6,
+"verdict": "partial",
+"summary": "Premium follows the account, so signing in restores it; no Restore Purchases button seen on either paywall, and Help's fix for a mismatch is log out, reinstall, or contact support.",
+"steps": [
+[
+"e",
+"New iPhone",
+"App installed",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"l",
+"Log In",
+"Same email / Apple / Google",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Premium shows?",
+"Same username",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"t",
+"Today · PREMIUM",
+"Crown badge in header",
+3,
+0,
+"out",
+"seen"
+],
+[
+"fx",
+"Log out, reinstall, support",
+"No Restore button found",
+3,
+1,
+"screen",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+0
+],
+[
+"l",
+"d",
+"",
+0
+],
+[
+"d",
+"t",
+"yes",
+0
+],
+[
+"d",
+"fx",
+"no",
+0
+]
+],
+"sources": [
+"Mobbin flow b323ac43 (Logging in) → Today with \"PREMIUM\" header",
+"Mobbin screens 0ce65583, 63be12d5 (paywalls, no Restore link visible)",
+"https://support.myfitnesspal.com/hc/en-us/articles/360032272092-Problem-With-Premium-Purchase",
+"https://support.myfitnesspal.com/hc/en-us/articles/360039889072-Sign-In-with-Apple-FAQs"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "Deletion can start in-app (More > Help > Delete Account), but it sits under Help, not Settings, and doesn't cancel an App Store subscription; the confirm and end screens weren't observed.",
+"steps": [
+[
+"m",
+"More tab",
+"... Settings, Privacy, Help",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"s",
+"Settings",
+"No delete row; \"Logout\" only",
+1,
+1,
+"screen",
+"gap"
+],
+[
+"h",
+"Help",
+"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"da",
+"Delete Account",
+"Permanent",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"sub",
+"Cancel in iOS first",
+"Deleting doesn't stop billing",
+3,
+1,
+"screen",
+"report"
+],
+[
+"c",
+"Confirm",
+"Email/password re-entry",
+3,
+0,
+"dec",
+"report"
+],
+[
+"w",
+"Welcome (signed out)",
+"\"Sign Up For Free\" / \"Log In\"",
+4,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"m",
+"h",
+"",
+0
+],
+[
+"m",
+"s",
+"",
+1
+],
+[
+"h",
+"da",
+"",
+0
+],
+[
+"da",
+"c",
+"",
+0
+],
+[
+"da",
+"sub",
+"note",
+1
+],
+[
+"c",
+"w",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screens 19970f7d (More: Settings, Privacy, Help, Sync), 2793cbab (Settings: ... Subscription Status, Logout)",
+"Mobbin flow 349e704b (Logging out → Welcome b66dfa85)",
+"https://support.myfitnesspal.com/hc/en-us/articles/360032622451-How-do-I-delete-or-cancel-my-account",
+"report: https://nutrola.app/en/blog/how-to-delete-myfitnesspal-account, https://www.androidauthority.com/how-to-delete-myfitnesspal-account-3225921/"
+]
+},
+{
+"n": 8,
+"verdict": "partial",
+"summary": "The diary syncs ('Last synced' row), but food search needs a connection; reports describe an 'offline mode' alert, not a quiet cached state.",
+"steps": [
+[
+"e",
+"No connection",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"t",
+"Today / Diary",
+"Previously synced data",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"d",
+"Search a food?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"q",
+"Recents / Quick add",
+"Works offline, syncs later",
+3,
+0,
+"screen",
+"report"
+],
+[
+"a",
+"\"Offline mode\" alert",
+"Search fails",
+3,
+1,
+"screen",
+"gap"
+],
+[
+"sy",
+"More > Sync",
+"\"Last synced: 5:59 PM\"",
+4,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"t",
+"",
+0
+],
+[
+"t",
+"d",
+"",
+0
+],
+[
+"d",
+"q",
+"no",
+0
+],
+[
+"d",
+"a",
+"yes",
+0
+],
+[
+"q",
+"sy",
+"reconnect",
+1
+]
+],
+"sources": [
+"Mobbin screen 19970f7d (More: \"Sync Last synced: 5:59 PM\")",
+"report: https://www.ibtimes.com/my-fitness-pal-app-says-offline-mode-app-down-2636021 (2018 'offline mode' alert)",
+"report: https://nutrola.app/en/blog/calorie-tracker-that-works-without-internet-offline-2026 (competitor blog)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Weekly App Store notes are written for people; in-app there are dismissible new-feature intros (GLP-1), but no source shows what triggers them after an update.",
+"steps": [
+[
+"e",
+"App updated",
+"26.44.0, weekly releases",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Feature intro?",
+"Trigger unknown",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"g",
+"GLP-1 intro",
+"\"Support your GLP-1 journey\" · ×",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"t",
+"Today",
+"",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+0
+],
+[
+"d",
+"g",
+"",
+1
+],
+[
+"g",
+"t",
+"× / Log",
+1
+],
+[
+"d",
+"t",
+"none",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/myfitnesspal-calorie-counter/id341232718 (version history 26.42–26.44)",
+"Mobbin screen d5aa715a (GLP-1 intro, \"You can turn off GLP-1 support anytime\")"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "AI logging lets you fix a bad match: Voice Log results come with \"Try Again\" and Log, and Meal Scan lets you search for anything it missed. Help says Voice Log does not work offline and points you to search by name. A server failure at sign-in shows \"Unable to Connect to the Server\", and Help's fix is to reinstall. No usage limits or error screen were observed.",
+"steps": [
+[
+"e",
+"Voice Log / Meal Scan",
+"+ › under the search bar",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"res",
+"\"Your breakfast\"",
+"Items, Try Again / Log",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"miss",
+"Missed a food?",
+"Meal Scan: search from results",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"off",
+"No connection",
+"Voice Log needs Wi-Fi/cell",
+1,
+1,
+"sys",
+"doc"
+],
+[
+"srch",
+"Search by name instead",
+"Help's offline fallback",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"srv",
+"Server error at sign-in",
+"\"Unable to Connect…\" Help: reinstall app",
+1,
+2,
+"screen",
+"gap"
+],
+[
+"out",
+"Logged or fixed",
+"No limit or error screen seen",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"res",
+"",
+0
+],
+[
+"res",
+"miss",
+"",
+0
+],
+[
+"miss",
+"out",
+"",
+0
+],
+[
+"e",
+"off",
+"",
+1
+],
+[
+"off",
+"srch",
+"",
+0
+],
+[
+"e",
+"srv",
+"sign-in",
+1
+]
+],
+"sources": [
+"Mobbin screen 60f51fea-1746-4098-b141-a18944fcf937 (Voice log result: 'Try Again' / 'Log')",
+"Mobbin screen 6f0ef89d-c156-4559-8177-3b4fd75d1062 (Meal scan: 'Tap the button to detect items… or upload a photo')",
+"https://support.myfitnesspal.com/hc/en-us/articles/30332897072269-How-to-log-food-with-your-voice ('Does Voice Logging work offline? No… you can still search for foods by name')",
+"https://support.myfitnesspal.com/hc/en-us/articles/360045761612-Meal-Scan-FAQ (add a food Meal Scan did not spot)",
+"https://support.myfitnesspal.com/hc/en-us/articles/360045754372-Account-Log-In-Issues ('Unable to Connect to the Server': confirm web login, reinstall)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "Traced the personalized-ads and data-sharing consent, since no AI-specific consent was found for Meal Scan or Voice Log. Opting out is in the app under More › Privacy Center › personalization settings, but Help says the choice is per device and per browser. Meal Scan and Voice Log only ask for the iOS camera, microphone and speech permissions.",
+"steps": [
+[
+"e",
+"Sign Up",
+"\"We will collect personal information…\"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"more",
+"More › Privacy",
+"Privacy Center tab",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"pers",
+"Personalization settings",
+"Opt out of targeted ads",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"dev",
+"Per device only",
+"Repeat on each device/browser",
+3,
+0,
+"out",
+"gap"
+],
+[
+"ai",
+"Voice Log first use",
+"Mic + speech recognition alert",
+1,
+1,
+"sys",
+"doc"
+],
+[
+"aic",
+"AI-sharing consent?",
+"None found for scan/voice",
+2,
+1,
+"dec",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"more",
+"later",
+1
+],
+[
+"more",
+"pers",
+"",
+0
+],
+[
+"pers",
+"dev",
+"",
+0
+],
+[
+"e",
+"ai",
+"",
+1
+],
+[
+"ai",
+"aic",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen d1de16b4-d1cb-4d71-aee2-344006718c24 (Sign Up privacy notice)",
+"Mobbin screen 19970f7d (More: Settings, Privacy, Help, Sync)",
+"https://support.myfitnesspal.com/hc/en-us/articles/34887792424973-How-can-I-manage-my-marketing-and-advertising-preferences ('personalization settings within the Privacy Center tab under the More menu'; 'reflected at a browser or device level')",
+"https://support.myfitnesspal.com/hc/en-us/articles/34887713932813 (users may decide on personalized ads)",
+"https://support.myfitnesspal.com/hc/en-us/articles/30332897072269-How-to-log-food-with-your-voice ('Tap Allow if you're asked for microphone and speech recognition permission')"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "Logout lands on the signed-out Welcome screen, and sign-in offers Continue, Google and Apple. Wrong details show \"Invalid Email or Password\", and Help gives the fix: Forgot Password, check spam, Hide My Email forwarding. A cancelled Apple or Google sheet was not observed. Help warns that entries not yet synced are lost on reinstall.",
+"steps": [
+[
+"e",
+"Settings › Logout",
+"Under Subscription Status",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"wel",
+"Welcome screen",
+"Signed out, Log In offered",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"in",
+"Log In",
+"Email, Google or Apple",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"ok",
+"Details right?",
+"",
+3,
+0,
+"dec",
+"doc"
+],
+[
+"bad",
+"\"Invalid Email or Password\"",
+"Help: Forgot Password, check spam",
+4,
+1,
+"screen",
+"doc"
+],
+[
+"can",
+"Cancel Apple sheet",
+"Not observed",
+3,
+2,
+"sys",
+"unverified"
+],
+[
+"out",
+"Back on Today",
+"Diary from server",
+4,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"wel",
+"",
+0
+],
+[
+"wel",
+"in",
+"",
+0
+],
+[
+"in",
+"ok",
+"",
+0
+],
+[
+"ok",
+"out",
+"yes",
+0
+],
+[
+"ok",
+"bad",
+"no",
+0
+],
+[
+"in",
+"can",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 349e704b (Logging out → Welcome b66dfa85)",
+"Mobbin screen 2793cbab (Settings: … Subscription Status, Logout)",
+"Mobbin flow b323ac43 (Logging in → Today)",
+"https://support.myfitnesspal.com/hc/en-us/articles/360045754372-Account-Log-In-Issues ('Invalid Email or Password')",
+"https://support.myfitnesspal.com/hc/en-us/articles/360039889072-Sign-In-with-Apple-FAQs (email forwarding for hidden email)",
+"https://support.myfitnesspal.com/hc/en-us/articles/360032624511-How-do-I-make-sure-I-don-t-lose-my-data-when-I-delete-the-app (unsynced entries)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "The diary follows the login across app and web and syncs on its own when online, with a manual More › Sync row. The Apple Watch app feeds Today, and Help's fix for a stuck watch is More › Sync. Sharing is social (Friends, \"Diary Sharing\" Private/Public/Friends Only/Locked), not a shared household diary, and per-device ad choices don't follow the account.",
+"steps": [
+[
+"e",
+"Same login, new device",
+"iPhone, iPad, web",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"sync",
+"Auto sync when online",
+"More › Sync: \"Last synced\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"watch",
+"Apple Watch app",
+"Workouts land on Today",
+2,
+0,
+"sys",
+"doc"
+],
+[
+"stuck",
+"Not synced?",
+"Help: More › Sync, reopen app",
+3,
+0,
+"dec",
+"doc"
+],
+[
+"fr",
+"Friends",
+"\"You haven't added any friends yet\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"share",
+"Diary Sharing",
+"Private / Public / Friends Only",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"out",
+"Data on every device",
+"No household plan",
+4,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"sync",
+"",
+0
+],
+[
+"sync",
+"watch",
+"",
+0
+],
+[
+"watch",
+"stuck",
+"",
+0
+],
+[
+"stuck",
+"out",
+"",
+0
+],
+[
+"fr",
+"share",
+"",
+0
+]
+],
+"sources": [
+"https://support.myfitnesspal.com/hc/en-us/articles/360032623131-Can-I-access-my-MyFitnessPal-account-on-the-web (syncs automatically with same login)",
+"https://support.myfitnesspal.com/hc/en-us/articles/360032625731-Apple-Watch-App (More › Sync if watch data won't sync)",
+"Mobbin screen 19970f7d ('Sync Last synced: 5:59 PM')",
+"Mobbin screen 2ad824b4-5f14-4d2d-b53c-b6691facd9e3 (Friends empty)",
+"Mobbin screen 9d4ce00f-3fb5-43b0-b51d-41beea69c7d4 (Diary Sharing options)"
+]
+},
+{
+"n": 14,
+"verdict": "partial",
+"summary": "Most empty lists are designed and come with a first action: Water (\"Did you drink water today?\" Log water), My Recipes (\"Mom's Meatloaf Isn't In The Database (Yet).\" Create/Discover/Import), Friends (Add Friends), routines (ADD EXERCISE). Fasting History only says \"No fasts recorded yet.\" and leaves the + in the nav bar.",
+"steps": [
+[
+"e",
+"New account",
+"Today shows goal and + log",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"wat",
+"Water",
+"\"Did you drink water today?\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"rec",
+"My Recipes",
+"\"Mom's Meatloaf Isn't In…\"",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"fr",
+"Friends",
+"Add Friends button",
+1,
+2,
+"screen",
+"seen"
+],
+[
+"rt",
+"Build Routine",
+"\"No Exercises Yet\" ADD EXERCISE",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"fast",
+"Fasting History",
+"\"No fasts recorded yet.\" only",
+2,
+0,
+"screen",
+"gap"
+],
+[
+"out",
+"Mostly guided",
+"One list with no inline action",
+3,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"wat",
+"",
+0
+],
+[
+"e",
+"rec",
+"",
+0
+],
+[
+"e",
+"fr",
+"",
+0
+],
+[
+"rec",
+"rt",
+"",
+1
+],
+[
+"wat",
+"fast",
+"",
+1
+],
+[
+"fast",
+"out",
+"",
+0
+]
+],
+"sources": [
+"Mobbin screen bc6c0459-0a3c-4033-b4d7-f1b23ad26f8f (Water empty)",
+"Mobbin screen 133a7f94-495b-4ee4-82b2-d9f29365c488 (My Recipes empty)",
+"Mobbin screen 2ad824b4-5f14-4d2d-b53c-b6691facd9e3 (Friends empty)",
+"Mobbin screen dbb2308c-a042-46b1-ac1d-2a50bcccc2ce (No Exercises Yet)",
+"Mobbin screen c22cb6ce-61cd-4492-940e-2c84ddf616c0 (Fasting History empty)",
+"Mobbin screen e8cac0cb-8702-4d5c-909d-11d2accb606e (Today with + menu)"
+]
+}
+]
+}

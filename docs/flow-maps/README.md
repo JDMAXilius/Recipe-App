@@ -21,6 +21,7 @@ Published copies (private to Juan): Otto https://claude.ai/artifact/BugVkXp1u6y3
 1. `01_APPLE_AND_INDUSTRY_RULES.md` — HIG + Review Guideline rules that shape a flow, notation, conversion evidence, the 23-scenario checklist
 2. `02_REFERENCE_APP_FLOWS.md` — screen-by-screen sequences + cross-app comparison table
 3. `03_FIGMA_STUDY_FILE.md` — inventory of the PlanFuel Mobbin study file with node ids
+4. `04_SCENARIO_LANES.md`: the 9 edge-case lanes now under every map (returning launch, links, permission denied, purchases, lapse, restore, delete, offline, What's new), with a verdict matrix across apps and the evidence behind each step. Data in `lanes/`.
 
 ## Regenerating the reference maps (`build/`)
 `node docs/flow-maps/build/build.mjs` rewrites `maps/{apple,duolingo,…}.html` from the data in `build.mjs` + `template.html`. `otto.html` and `field-guide.html` are standalone.

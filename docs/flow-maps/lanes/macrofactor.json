@@ -1,0 +1,1193 @@
+{
+"app": "macrofactor",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "unknown",
+"summary": "Help center says launch may need the network to load the account and validate the subscription (expected under 2 s on repeat launches); which tab or screen a relaunch restores was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"Returning signed-in user",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"v",
+"Load account + validate",
+"Needs network if cache is stale",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"d",
+"Subscription active?",
+"",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"h",
+"Dashboard / last tab",
+"Restore not observed",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"p",
+"Paywall",
+"Inactive subscription",
+3,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"v",
+"",
+0
+],
+[
+"v",
+"d",
+"",
+0
+],
+[
+"d",
+"h",
+"yes",
+1
+],
+[
+"d",
+"p",
+"no",
+1
+]
+],
+"sources": [
+"https://help.macrofactorapp.com/en/articles/116-troubleshoot-internet-connectivity",
+"https://help.macrofactorapp.com/en/articles/66-how-to-permanently-delete-your-account-and-data (inactive-subscription path)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "No observed or documented evidence of where a notification or link tap lands, signed in or out.",
+"steps": [
+[
+"e",
+"Notification / link",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Signed in + subscribed?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Destination",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"d",
+"t",
+"yes",
+1
+]
+],
+"sources": [
+"No Mobbin flow or help-center article found for notification/deep-link entry"
+]
+},
+{
+"n": 3,
+"verdict": "unknown",
+"summary": "Apple Health is opt-in from More > Integrations with a toggle; what the app shows after a denied Health, camera or notification permission was not observed or documented.",
+"steps": [
+[
+"s",
+"More > Integrations",
+"Toggle Apple Health",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"h",
+"Health permission sheet",
+"\"If prompted, follow the instructions\"",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"d",
+"Denied?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"o",
+"Fallback / Settings link",
+"Not observed",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"h",
+"",
+0
+],
+[
+"h",
+"d",
+"",
+0
+],
+[
+"d",
+"o",
+"denied",
+1
+]
+],
+"sources": [
+"https://help.macrofactorapp.com/en/articles/65-connect-health-connect-or-apple-health"
+]
+},
+{
+"n": 4,
+"verdict": "partial",
+"summary": "Trial-first paywall with \"Restore Subscription\", plan picker, StoreKit sheet, then \"You're in. Create your account to continue.\"; cancel, Ask to Buy/pending and failure states not observed.",
+"steps": [
+[
+"p",
+"Paywall",
+"\"Try 1 Week for Free\" + Restore Subscription",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Choose a plan",
+"\"Subscribe & Start Trial\"",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"sk",
+"StoreKit sheet",
+"App Store sign-in / confirm",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"d",
+"Outcome?",
+"",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"ok",
+"You're in",
+"\"Create your account to continue\"",
+4,
+0,
+"out",
+"seen"
+],
+[
+"x",
+"Cancel",
+"Back on plan picker (assumed)",
+4,
+1,
+"out",
+"unverified"
+],
+[
+"pf",
+"Pending / failed",
+"No handling observed",
+4,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"c",
+"",
+0
+],
+[
+"c",
+"sk",
+"",
+0
+],
+[
+"sk",
+"d",
+"",
+0
+],
+[
+"d",
+"ok",
+"success",
+0
+],
+[
+"d",
+"x",
+"cancel",
+1
+],
+[
+"d",
+"pf",
+"pending/fail",
+1
+]
+],
+"sources": [
+"Mobbin flow a892d9f7-7077-4e50-a5db-ca4e39788552 (Subscribing to MacroFactor: What you get, plan picker)",
+"Mobbin flow e05e74de-5239-4be6-a7d1-51ffeada61f9 (Subscribing to MacroFactor: App Store sheet)",
+"Mobbin screen b65a9219-04c5-471e-9f93-af66c78f7ed3 (\"You're in. Create your account to continue.\")"
+]
+},
+{
+"n": 5,
+"verdict": "partial",
+"summary": "No free tier: a lapsed subscription leaves the user at the paywall (help center routes inactive users through a three-dot menu), but data is explicitly kept for resubscribing; grace-period messaging was not found.",
+"steps": [
+[
+"e",
+"Subscription lapses",
+"Renewal fails or cancelled",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"g",
+"Grace period notice",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"p",
+"Paywall (no free tier)",
+"Three-dot menu: Delete Account & Data",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"k",
+"Data kept",
+"\"we do not delete your data automatically\"",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"g",
+"",
+1
+],
+[
+"g",
+"p",
+"",
+1
+],
+[
+"p",
+"k",
+"",
+0
+]
+],
+"sources": [
+"https://help.macrofactorapp.com/en/articles/27-is-my-data-lost",
+"https://help.macrofactorapp.com/en/articles/66-how-to-permanently-delete-your-account-and-data",
+"https://help.macrofactorapp.com/en/articles/393-how-macrofactor-subscriptions-and-bundles-work (pricing, no free plan listed)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based: sign in with Apple, Google, Link or Email restores data, the subscription is portable via RevenueCat, and the paywall carries \"Restore Subscription\".",
+"steps": [
+[
+"w",
+"Welcome",
+"Continue with Apple / Google / Link / Email",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"l",
+"Load account",
+"Validates subscription",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"d",
+"Subscription found?",
+"",
+2,
+0,
+"dec",
+"doc"
+],
+[
+"h",
+"Dashboard with history",
+"",
+3,
+0,
+"out",
+"unverified"
+],
+[
+"r",
+"Paywall: Restore",
+"\"Restore Subscription\"",
+3,
+1,
+"screen",
+"seen"
+]
+],
+"edges": [
+[
+"w",
+"l",
+"",
+0
+],
+[
+"l",
+"d",
+"",
+0
+],
+[
+"d",
+"h",
+"yes",
+0
+],
+[
+"d",
+"r",
+"no",
+1
+],
+[
+"r",
+"h",
+"",
+1
+]
+],
+"sources": [
+"Mobbin screen 9c0128e7-fde8-43d3-8ee6-0213b54e7659 (welcome / sign-in options)",
+"Mobbin flow a892d9f7-7077-4e50-a5db-ca4e39788552 (paywall \"Restore Subscription\")",
+"https://help.macrofactorapp.com/en/articles/116-troubleshoot-internet-connectivity (RevenueCat makes subscription portable across platforms)"
+]
+},
+{
+"n": 7,
+"verdict": "meets",
+"summary": "More > Data & Privacy explains permanent deletion and that it does not cancel the subscription, one \"Delete Account\" alert, then the signed-out welcome screen.",
+"steps": [
+[
+"m",
+"More",
+"General > Data & Privacy",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"s",
+"Data & Privacy",
+"Explains loss; won't cancel subscription",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"a",
+"Delete Account alert",
+"\"cannot be undone\" Go Back / Delete Now",
+2,
+0,
+"sys",
+"seen"
+],
+[
+"w",
+"Signed-out welcome",
+"Continue with Apple / Google / Link / Email",
+3,
+0,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"m",
+"s",
+"",
+0
+],
+[
+"s",
+"a",
+"Delete",
+0
+],
+[
+"a",
+"w",
+"Delete Now",
+0
+]
+],
+"sources": [
+"Mobbin flow 92b77087-cd35-4248-a743-ca84bc043726 (Data and privacy)",
+"Mobbin flow 67ba4c8b-49d9-489e-af48-f5c12cb59b50 (Deleting an account: cbf9218c, a6b95d26, 9c0128e7)",
+"https://help.macrofactorapp.com/en/articles/66-how-to-permanently-delete-your-account-and-data"
+]
+},
+{
+"n": 8,
+"verdict": "partial",
+"summary": "\"Limited offline mode\": navigation, history foods, cached search results and editing all keep working, but full database search needs network and a cold launch may hang validating the subscription.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"k",
+"Keeps working",
+"Navigate, history + cached foods, edit data",
+1,
+0,
+"out",
+"doc"
+],
+[
+"s",
+"Full food search",
+"Needs servers",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"l",
+"Cold launch",
+"May load indefinitely to validate subscription",
+1,
+2,
+"screen",
+"gap"
+]
+],
+"edges": [
+[
+"e",
+"k",
+"",
+0
+],
+[
+"e",
+"s",
+"",
+1
+],
+[
+"e",
+"l",
+"relaunch",
+1
+]
+],
+"sources": [
+"https://help.macrofactorapp.com/en/articles/28-does-macrofactor-have-an-offline-mode",
+"https://help.macrofactorapp.com/en/articles/116-troubleshoot-internet-connectivity"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Release notes live on macrofactor.com and the App Store; no in-app What's New screen was found, though one-time feature tutorials (e.g. \"Welcome to MacroFactor AI\") appear in place and can be reset.",
+"steps": [
+[
+"e",
+"App updated",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"w",
+"In-app What's New",
+"Not observed",
+1,
+0,
+"screen",
+"unverified"
+],
+[
+"t",
+"One-time feature intro",
+"\"Welcome to MacroFactor AI\" OK / ×",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"o",
+"Feature in place",
+"",
+2,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"e",
+"w",
+"",
+1
+],
+[
+"e",
+"t",
+"open feature",
+1
+],
+[
+"t",
+"o",
+"OK",
+0
+]
+],
+"sources": [
+"Mobbin screen ba123d07-7dc0-469f-ad8a-e02a4e660623 (Welcome to MacroFactor AI)",
+"Mobbin screen c02f32cb-e822-493f-a852-be49165971a3 (\"Those tutorials only show up once\", Reset Tutorials)",
+"https://macrofactor.com/version-2-1-0/ (web release notes)"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "AI shows progress (\"Uploading...\") and flags \"MacroFactor AI can make mistakes\", and Describe states \"Common foods only\" up front; no AI error, timeout or retry screen was observed, and the help center's only failure advice is relaunching after \"indefinite loading\".",
+"steps": [
+[
+"e",
+"Snap or describe a meal",
+"AI tab in the food logger",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"h",
+"Describe hint",
+"\"Common foods only\" under the field",
+1,
+1,
+"screen",
+"seen"
+],
+[
+"u",
+"Analyzing",
+"\"Uploading...\" over the photo",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Analysis succeeds?",
+"",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"p",
+"AI Plate (editable)",
+"\"AI can make mistakes...verify\"",
+3,
+0,
+"out",
+"seen"
+],
+[
+"f",
+"Error / retry state",
+"Not observed; input kept unknown",
+3,
+1,
+"screen",
+"unverified"
+],
+[
+"l",
+"Relaunch advice",
+"Help: \"Indefinite loading\" = network",
+4,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"u",
+"photo",
+0
+],
+[
+"e",
+"h",
+"describe",
+1
+],
+[
+"h",
+"d",
+"",
+0
+],
+[
+"u",
+"d",
+"",
+0
+],
+[
+"d",
+"p",
+"yes",
+0
+],
+[
+"d",
+"f",
+"no",
+1
+],
+[
+"f",
+"l",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 00b3cdc0-1d91-4ad5-a172-2c5982ed23a3 (Finding foods with MacroFactor AI: Uploading, AI Plate)",
+"Mobbin flow c3180b24-b26a-476a-b474-2856398a4cc0 (Finding foods with AI: AI Describe, \"Common foods only\")",
+"https://help.macrofactorapp.com/en/articles/258-ai-food-logging (no limits or errors documented)",
+"https://help.macrofactorapp.com/en/articles/116-troubleshoot-internet-connectivity"
+]
+},
+{
+"n": 11,
+"verdict": "unknown",
+"summary": "The privacy notice says AI runs on Google services; the observed AI flow goes from a one-time intro to the camera with no consent or provider disclosure seen, and the notice describes no AI-off switch, only that consent can be withdrawn, \"in most cases\" by deleting the entry.",
+"steps": [
+[
+"e",
+"First use of AI tab",
+"",
+0,
+0,
+"entry",
+"seen"
+],
+[
+"i",
+"Welcome to MacroFactor AI",
+"One-time intro (resettable)",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"c",
+"Consent / provider shown?",
+"Not seen in the observed flow",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"a",
+"Camera / AI Plate",
+"Photo sent for analysis",
+3,
+0,
+"out",
+"seen"
+],
+[
+"p",
+"Privacy notice",
+"\"AI services provided by Google\"",
+2,
+1,
+"screen",
+"doc"
+],
+[
+"w",
+"Withdraw = delete entry",
+"No AI-off setting described",
+3,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"i",
+"",
+0
+],
+[
+"i",
+"c",
+"",
+0
+],
+[
+"c",
+"a",
+"",
+0
+],
+[
+"c",
+"p",
+"policy",
+1
+],
+[
+"p",
+"w",
+"",
+0
+]
+],
+"sources": [
+"Mobbin flow 00b3cdc0-1d91-4ad5-a172-2c5982ed23a3 (intro screen ba123d07 then camera)",
+"https://macrofactor.com/privacy/ (last updated Dec 1, 2025: Google AI; \"you may withdraw your consent at any time\")"
+]
+},
+{
+"n": 12,
+"verdict": "partial",
+"summary": "Sign-in offers Apple, Google, Link or Email; More > \"Sign Out\" (older builds: Account > \"Log Out\") goes straight back to the welcome screen with no confirm, marking \"Last Used\" or pre-filling the email; cancelled sign-in, wrong password and whether local data is cleared were not observed.",
+"steps": [
+[
+"s",
+"More / Account",
+"\"Sign Out\" / \"Log Out\" row",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"o",
+"Confirm dialog?",
+"None: 2-screen flow",
+1,
+0,
+"dec",
+"seen"
+],
+[
+"w",
+"Welcome sign-in",
+"Apple, Google, Link, Email; \"Last Used\"",
+2,
+0,
+"out",
+"seen"
+],
+[
+"r",
+"Email sign-in prefilled",
+"\"Continue with Email\" + old address",
+2,
+1,
+"out",
+"seen"
+],
+[
+"c",
+"Cancel / wrong password?",
+"Not observed",
+3,
+0,
+"dec",
+"unverified"
+],
+[
+"x",
+"Local data cleared?",
+"Not documented",
+3,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"o",
+"",
+0
+],
+[
+"o",
+"w",
+"new UI",
+0
+],
+[
+"o",
+"r",
+"older UI",
+1
+],
+[
+"w",
+"c",
+"",
+1
+],
+[
+"r",
+"x",
+"",
+1
+]
+],
+"sources": [
+"Mobbin flow 2bf9b012-a4a9-48fe-baf2-7b62d3e1ec3e (Logging out: More > Sign Out, welcome with \"Last Used\")",
+"Mobbin flow 07885838-bd68-43e3-b5a5-057f453a7bfa (Logging out: Account > Log Out, \"Continue with Email\")",
+"https://help.macrofactorapp.com/en/articles/72-how-to-sign-out-of-the-app (steps only; nothing on data)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "Data lives in the MacroFactor account and follows sign-in to any device, and the Apple Watch app logs food and weight but may need a manual \"Sync All Data\"; there is no household sharing, and a shared recipe link imports the recipe into the other person's account.",
+"steps": [
+[
+"e",
+"New phone or Watch",
+"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"l",
+"Sign in, same MacroFactor ID",
+"Data and RevenueCat sub follow",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"w",
+"Watch app",
+"Logs food, weight, notes",
+2,
+0,
+"screen",
+"doc"
+],
+[
+"f",
+"\"Sync All Data\"",
+"Timeline settings > Account",
+3,
+0,
+"out",
+"doc"
+],
+[
+"r",
+"Share recipe link",
+"\"bring the entire recipe into\" theirs",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"c",
+"Recipient's own copy",
+"Live updates not documented",
+2,
+1,
+"out",
+"unverified"
+],
+[
+"h",
+"No household sharing",
+"None found in help center",
+1,
+2,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"l",
+"",
+0
+],
+[
+"l",
+"w",
+"",
+0
+],
+[
+"w",
+"f",
+"lagging",
+1
+],
+[
+"e",
+"r",
+"share",
+1
+],
+[
+"r",
+"c",
+"",
+0
+],
+[
+"e",
+"h",
+"family",
+1
+]
+],
+"sources": [
+"https://help.macrofactorapp.com/en/articles/116-troubleshoot-internet-connectivity (subscription portable via RevenueCat)",
+"https://help.macrofactorapp.com/en/collections/41-macrofactor-watch-app",
+"https://help.macrofactorapp.com/en/articles/264-how-to-force-data-sync-the-watch-app",
+"https://help.macrofactorapp.com/en/articles/114-share-custom-recipes-and-custom-foods",
+"Mobbin screen 9c0128e7-fde8-43d3-8ee6-0213b54e7659 (sign-in options, from lane 6)"
+]
+},
+{
+"n": 14,
+"verdict": "meets",
+"summary": "Onboarding is a 3-step \"Let's get started\" checklist, the dashboard shows zeroed cards and \"---\" placeholders with a food search bar, and logger lists say what goes there and how to fill them (\"No history yet / Search for foods below\", \"No recipes yet / Use the + above to add recipes\").",
+"steps": [
+[
+"o",
+"Let's get started",
+"Basics > Goal > Program",
+0,
+0,
+"screen",
+"seen"
+],
+[
+"d",
+"Dashboard",
+"\"0 Consumed\", search bar below",
+1,
+0,
+"screen",
+"seen"
+],
+[
+"m",
+"Body Metrics cards",
+"\"---\" until the first entry",
+2,
+0,
+"screen",
+"seen"
+],
+[
+"h",
+"Search: no history",
+"\"No history yet\" \"Search for foods below\"",
+2,
+1,
+"screen",
+"seen"
+],
+[
+"r",
+"Library: no recipes",
+"\"Use the + above to add recipes\"",
+3,
+1,
+"out",
+"seen"
+]
+],
+"edges": [
+[
+"o",
+"d",
+"",
+0
+],
+[
+"d",
+"m",
+"",
+0
+],
+[
+"d",
+"h",
+"+",
+1
+],
+[
+"h",
+"r",
+"Library",
+0
+]
+],
+"sources": [
+"Mobbin screen 9f3ca7fc-8812-44ef-b186-b78ae67a835c and 017a7cb1-677e-44a0-97ce-bdd3b49d42e9 (Let's get started)",
+"Mobbin screen 0a81aa3f-649c-44f9-b5ca-626482d70c50 (empty dashboard)",
+"Mobbin screen b745d030-38ff-4cb2-bc6d-98fc3c8e4b27 (Body Metrics \"---\")",
+"Mobbin screen d171559e-000c-4865-a6ec-9047be7eac6c (No history yet)",
+"Mobbin screen 54b7f90a-8e48-4ee8-acdb-973e77fbaf09 (No recipes yet)"
+]
+}
+]
+}

@@ -1,0 +1,939 @@
+{
+"app": "ellie",
+"researched": "2026-11-04",
+"lanes": [
+{
+"n": 1,
+"verdict": "partial",
+"summary": "Ellie lets people pick a start page (Settings > App Settings) and restores an active Pomodoro after a reload; cross-device \"pick up where you left off\" is a listing claim. Last-screen restore on iOS was not observed.",
+"steps": [
+[
+"e",
+"Reopen app",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"s",
+"Start page",
+"Chosen in Settings > App Settings",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"t",
+"Active timer restored",
+"Pomodoro survives reload",
+2,
+0,
+"out",
+"doc"
+],
+[
+"w",
+"Other device",
+"\"pick up where you left off on the web\"",
+2,
+1,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"",
+1
+],
+[
+"s",
+"t",
+"",
+0
+],
+[
+"s",
+"w",
+"sync",
+1
+]
+],
+"sources": [
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (Settings and personalization; Task timer and Pomodoro)",
+"https://apps.apple.com/us/app/id1602196200 (listing + version history)"
+]
+},
+{
+"n": 2,
+"verdict": "unknown",
+"summary": "Timebox and due-date reminders are documented, but where a tapped notification lands and the signed-out case are not.",
+"steps": [
+[
+"e",
+"Timebox reminder",
+"At or before task time",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"d",
+"Signed in?",
+"",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"t",
+"Destination",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"tap",
+1
+],
+[
+"d",
+"t",
+"yes",
+1
+]
+],
+"sources": [
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (Notifications)"
+]
+},
+{
+"n": 3,
+"verdict": "unknown",
+"summary": "Notifications and the Apple Calendar overlay are opt-in toggles in Ellie's own Settings; what happens when iOS permission is denied, and whether Ellie links to Settings, is undocumented.",
+"steps": [
+[
+"n",
+"Settings > Notifications",
+"\"Timebox notifications\" toggle",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"c",
+"Manage Apple calendars",
+"\"Enable Apple cal events\"",
+0,
+1,
+"screen",
+"doc"
+],
+[
+"s",
+"iOS permission alert",
+"",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"o",
+"Denied handling",
+"Not documented",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"n",
+"s",
+"",
+1
+],
+[
+"c",
+"s",
+"",
+1
+],
+[
+"s",
+"o",
+"denied",
+1
+]
+],
+"sources": [
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (Notifications; Apple calendar integration)"
+]
+},
+{
+"n": 4,
+"verdict": "unknown",
+"summary": "Ellie sells Pro monthly, annual, discounted and a $299.99 lifetime purchase with a 7-day trial; the paywall and purchase outcomes were not observed.",
+"steps": [
+[
+"p",
+"Paywall",
+"Monthly / Annual / Lifetime",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"sk",
+"StoreKit sheet",
+"",
+1,
+0,
+"sys",
+"unverified"
+],
+[
+"o",
+"Outcome handling",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"sk",
+"",
+1
+],
+[
+"sk",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1602196200 (listing + version history) (in-app purchases)",
+"https://ellieplanner.com/pricing"
+]
+},
+{
+"n": 5,
+"verdict": "unknown",
+"summary": "Sources conflict: the pricing page says \"Ellie doesn't have a free plan\" while the App Store says \"The free version of Ellie includes unlimited tasks\"; lapse, grace and data handling are undocumented.",
+"steps": [
+[
+"e",
+"Pro lapses",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"d",
+"Free tier?",
+"Pricing vs App Store disagree",
+1,
+0,
+"dec",
+"doc"
+],
+[
+"o",
+"Data after lapse",
+"Not documented",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"d",
+"",
+1
+],
+[
+"d",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://ellieplanner.com/pricing",
+"https://apps.apple.com/us/app/id1602196200 (listing + version history)"
+]
+},
+{
+"n": 6,
+"verdict": "meets",
+"summary": "Account-based across web, Mac, Windows and iOS (email, Apple or Google sign-in since 4.2.0) so plans follow the account; the listing points to \"Restore Purchases\" in the app.",
+"steps": [
+[
+"e",
+"New device",
+"",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"si",
+"Sign in",
+"Email / Apple / Google",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"h",
+"Plans synced",
+"Same account on every platform",
+2,
+0,
+"out",
+"doc"
+],
+[
+"r",
+"Restore Purchases",
+"For an earlier Pro purchase",
+2,
+1,
+"screen",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"si",
+"",
+0
+],
+[
+"si",
+"h",
+"",
+0
+],
+[
+"si",
+"r",
+"Pro missing",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1602196200 (listing + version history) (4.2.0 notes; Restore Purchases)",
+"https://guide.ellieplanner.com/llms-full.txt (official guide)"
+]
+},
+{
+"n": 7,
+"verdict": "partial",
+"summary": "Settings > Account Data offers Export Data and Delete Account (documented for web/desktop; pricing says also mobile), with Fresh Start as a lighter option; the iOS path and confirmation steps are undocumented.",
+"steps": [
+[
+"s",
+"Settings > Account Data",
+"Export Data / Delete Account",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"f",
+"Fresh Start",
+"Type \"FRESH START\", keeps account",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"c",
+"Confirm delete",
+"Steps not documented",
+1,
+0,
+"dec",
+"unverified"
+],
+[
+"o",
+"Signed out",
+"",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"s",
+"c",
+"",
+0
+],
+[
+"s",
+"f",
+"",
+1
+],
+[
+"c",
+"o",
+"",
+1
+]
+],
+"sources": [
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (Fresh Start; Account data)",
+"https://ellieplanner.com/pricing (\"delete your account from the web and mobile apps\")"
+]
+},
+{
+"n": 8,
+"verdict": "unknown",
+"summary": "Only timer resilience is documented (4.0.13: \"more resilient behavior on slow or offline connections\"; Pomodoro survives a brief disconnect); offline task editing and any banner are undocumented.",
+"steps": [
+[
+"e",
+"Goes offline",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"t",
+"Timer keeps running",
+"Resilient to brief disconnect",
+1,
+0,
+"out",
+"doc"
+],
+[
+"k",
+"Tasks offline?",
+"Not documented",
+1,
+1,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"t",
+"",
+0
+],
+[
+"e",
+"k",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1602196200 (listing + version history) (4.0.13 notes)",
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (Task timer and Pomodoro)"
+]
+},
+{
+"n": 9,
+"verdict": "unknown",
+"summary": "Release notes live in the App Store and a public changelog on the feedback board; no in-app What's New was found.",
+"steps": [
+[
+"e",
+"App updates",
+"e.g. v4.2.1",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"n",
+"Changelog / App Store",
+"feedback.ellieplanner.com/changelog",
+1,
+0,
+"sys",
+"doc"
+],
+[
+"h",
+"Home",
+"No What's New seen",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"n",
+"",
+0
+],
+[
+"n",
+"h",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1602196200 (listing + version history)",
+"https://feedback.ellieplanner.com/changelog/ipad-week-calendar-pomodoro-quick-capture-rich-notes-and-mcp"
+]
+},
+{
+"n": 10,
+"verdict": "partial",
+"summary": "Search failure offers \"Try again\" and v4.0.16 improved upload retries and error messages; the AI assistant is labeled Pro and beta up front, but what it shows when a request fails is undocumented.",
+"steps": [
+[
+"e",
+"Request fails",
+"Search, upload, AI, calendar",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"s",
+"Search unavailable",
+"\"choose Try again\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"u",
+"Upload retry",
+"\"Improved upload retries and error messages\"",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"c",
+"Calendar reconnect",
+"\"Clearer steps when Google... reconnect\"",
+1,
+2,
+"screen",
+"doc"
+],
+[
+"a",
+"AI assistant error?",
+"Not documented",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"l",
+"Limit stated",
+"\"AI Assistant is a Pro feature\" (beta)",
+3,
+0,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"s",
+"search",
+0
+],
+[
+"e",
+"u",
+"upload",
+0
+],
+[
+"e",
+"c",
+"calendar",
+0
+],
+[
+"e",
+"a",
+"AI",
+1
+],
+[
+"a",
+"l",
+"",
+1
+]
+],
+"sources": [
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (Search; AI Assistant)",
+"https://apps.apple.com/us/app/id1602196200 (listing + version history) (4.0.16 notes)",
+"https://feedback.ellieplanner.com/changelog (Oct 5, 2026 entry)"
+]
+},
+{
+"n": 11,
+"verdict": "partial",
+"summary": "The AI Assistant is off until toggled on in Settings > Power Features and can be set to ask before changing data, but Slack AI auto-fill is on by default (\"disable this at any time in the settings\"); the AI provider is not named.",
+"steps": [
+[
+"p",
+"Settings > Power Features",
+"AI Assistant card toggle",
+0,
+0,
+"screen",
+"doc"
+],
+[
+"cm",
+"Confirmation Mode",
+"\"Require confirmation before modifying data\"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"sl",
+"Slack AI auto fill",
+"On by default, no prior ask",
+0,
+1,
+"entry",
+"gap"
+],
+[
+"off",
+"Turn off in Settings",
+"\"disable this at any time\"",
+1,
+1,
+"out",
+"doc"
+],
+[
+"o",
+"Assistant off",
+"Toggle off; background use unverified",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"p",
+"cm",
+"",
+0
+],
+[
+"cm",
+"o",
+"toggle off",
+1
+],
+[
+"sl",
+"off",
+"",
+0
+]
+],
+"sources": [
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (AI Assistant; Slack Integration > AI Auto fill)",
+"https://feedback.ellieplanner.com/changelog (Oct 5, 2026: ask before changing, every device)"
+]
+},
+{
+"n": 12,
+"verdict": "unknown",
+"summary": "Email, Apple and Google sign-in exist since 4.2.0 and Fresh Start keeps the sign-in; cancelled or wrong sign-in and sign out are undocumented.",
+"steps": [
+[
+"e",
+"Open signed out",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"si",
+"Sign in",
+"Email / Apple / Google (4.2.0)",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"d",
+"Cancelled / wrong?",
+"Not documented",
+2,
+0,
+"dec",
+"unverified"
+],
+[
+"f",
+"Fresh Start",
+"Keeps account and sign-in",
+2,
+1,
+"out",
+"doc"
+],
+[
+"so",
+"Sign out",
+"Not documented",
+3,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"si",
+"",
+0
+],
+[
+"si",
+"d",
+"",
+1
+],
+[
+"si",
+"f",
+"",
+1
+],
+[
+"d",
+"so",
+"",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1602196200 (listing + version history) (4.2.0 notes)",
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (Fresh Start)"
+]
+},
+{
+"n": 13,
+"verdict": "partial",
+"summary": "One account across web, Mac, Windows, iPhone and iPad, and the Oct 2026 update keeps task order across devices; Shared lists are an email-only beta and there is no Watch app.",
+"steps": [
+[
+"e",
+"Second device",
+"iPad, Mac, Windows, web",
+0,
+0,
+"entry",
+"doc"
+],
+[
+"si",
+"Sign in same account",
+"",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"h",
+"Tasks keep their place",
+"\"on more than one device\"",
+2,
+0,
+"out",
+"doc"
+],
+[
+"sh",
+"Shared lists (beta)",
+"\"please email me directly\"",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"w",
+"Apple Watch",
+"Not listed in compatibility",
+1,
+2,
+"out",
+"doc"
+]
+],
+"edges": [
+[
+"e",
+"si",
+"",
+0
+],
+[
+"si",
+"h",
+"",
+0
+],
+[
+"e",
+"sh",
+"share",
+1
+],
+[
+"e",
+"w",
+"",
+1
+]
+],
+"sources": [
+"https://feedback.ellieplanner.com/changelog (Oct 5, 2026; Feb 10, 2025 entries)",
+"https://apps.apple.com/us/app/id1602196200 (listing + version history) (supported devices)",
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (Ellie for Windows)"
+]
+},
+{
+"n": 14,
+"verdict": "unknown",
+"summary": "Not on Mobbin; first-use empty screens were not observed. v4.2.1 clarified \"where to find your tasks\" during setup and the guide offers a Getting Started reading list.",
+"steps": [
+[
+"e",
+"First open",
+"",
+0,
+0,
+"entry",
+"unverified"
+],
+[
+"st",
+"Setup: plan tomorrow",
+"\"clearer where to find your tasks\" (4.2.1)",
+1,
+0,
+"screen",
+"doc"
+],
+[
+"g",
+"Getting Started guide",
+"Tasks, Braindump, Timeboxing...",
+1,
+1,
+"screen",
+"doc"
+],
+[
+"em",
+"Empty day / Braindump",
+"Not observed",
+2,
+0,
+"out",
+"unverified"
+]
+],
+"edges": [
+[
+"e",
+"st",
+"",
+1
+],
+[
+"st",
+"em",
+"",
+1
+],
+[
+"e",
+"g",
+"help",
+1
+]
+],
+"sources": [
+"https://apps.apple.com/us/app/id1602196200 (listing + version history) (4.2.1 notes)",
+"https://guide.ellieplanner.com/llms-full.txt (official guide) (Getting Started; Migrating from other tools)",
+"Mobbin search \"Ellie\": no Ellie screens indexed"
+]
+}
+]
+}

@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>__TITLE__</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -93,7 +94,10 @@ for(const [id,title,sub,c,r,st,tag,kind] of APP.nodes){
   d.innerHTML=`<b>${title}</b>${sub?`<i>${sub}</i>`:""}${tag?`<em>${tag}</em>`:""}`;
   canvas.appendChild(d); el[id]=d; maxC=Math.max(maxC,c); maxR=Math.max(maxR,r);
 }
-const W=X0+maxC*CX+NW+40, H=Y0+(maxR+1)*RY+24;
+__LANES_JS__
+const laneC=APP.lanes?Math.max(0,...APP.lanes.lanes.flatMap(l=>l.steps.map(x=>x[3]))):0;
+const W=X0+Math.max(maxC,laneC)*CX+NW+40, H0=Y0+(maxR+1)*RY+24;
+const H=H0+renderLanes(canvas,el,APP.edges,{lanes:APP.lanes,top:H0+40,x0:X0,cx:CX,ry:RY,width:W})+(APP.lanes?40:0);
 canvas.style.width=W+"px"; canvas.style.height=H+"px"; svg.setAttribute("width",W); svg.setAttribute("height",H);
 
 function zones(){
@@ -145,7 +149,7 @@ canvas.addEventListener("click",e=>{const n=e.target.closest(".node"); if(n) foc
 canvas.addEventListener("keydown",e=>{const n=e.target.closest(".node"); if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();focus(n.dataset.id);} if(e.key==="Escape"&&active) focus(active);});
 
 const view=document.getElementById("view"), sizer=document.getElementById("sizer"), notes=document.getElementById("notes");
-let s=1; const fitScale=()=>Math.min(1.2,(view.clientWidth-12)/W,(view.clientHeight-12)/H);
+let s=1; const fitScale=()=>Math.min(1.2,(view.clientWidth-12)/W,(view.clientHeight-12)/H0);
 function setScale(v){ s=Math.max(.25,Math.min(1.8,v)); canvas.style.transform=`scale(${s})`; sizer.style.width=W*s+"px"; sizer.style.height=H*s+"px"; }
 document.getElementById("zi").onclick=()=>setScale(s+.15);
 document.getElementById("zo").onclick=()=>setScale(s-.15);
