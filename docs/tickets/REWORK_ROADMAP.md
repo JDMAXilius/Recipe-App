@@ -3,7 +3,7 @@
 Written 2026-11-04 · updated the same day against `main` at `ac8fd38a` (gold-standard gaps G1–G14 merged) · app at 1.0.23 (build 52).
 Published page: https://claude.ai/artifact/YVGJMYoY6UFK19fKoSK2sa (regenerate with `python3 docs/tickets/build_rework_roadmap.py`).
 Target: `docs/flow-maps/maps/otto-next.html` (current) and Figma "Otto — App Redesign" → page
-"v3 · Flow screens" + "Flow map — Otto next (current)". Apple pass: `docs/flow-maps/research/04_APPLE_DESIGN_FILE_PASS.md`.
+"v3 · Flow screens" + "Flow map — Otto next (current)". Apple pass: `docs/flow-maps/research/05_APPLE_DESIGN_FILE_PASS.md`.
 
 This roadmap is the order of work. It is a plan, not shipped code: nothing below exists yet unless it says **exists**.
 
@@ -179,7 +179,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R8.4 | **What's new** sheet once per major version (kv `lastSeenVersion`). | S | |
 | R8.5 | **Widget** (dinner tonight) — later, with Live Activity. | L | P2 |
 
-### Phase 9 — Apple design pass (from `04_APPLE_DESIGN_FILE_PASS.md`)
+### Phase 9 — Apple design pass (from `05_APPLE_DESIGN_FILE_PASS.md`)
 
 | ID | Work | Notes |
 |---|---|---|
