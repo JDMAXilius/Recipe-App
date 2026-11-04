@@ -22,6 +22,8 @@ nutrition resolve) run in Supabase Edge Functions, **now on OpenAI** (switched f
 - **1.0.23 (52)** code is on `main` (committed 2026-11-03), **not built yet**. Fixes: paid members briefly seeing the paywall (membership now waits for RevenueCat `logIn`, 5 s ceiling), paywall back arrow + auto-leave for members, otter art sizes/aspect ratio, AI consent copy names OpenAI and asks everyone to re-consent. See `TERMINAL_TICKET_RELEASE_1_0_23.md`.
 - **Open risk:** the live privacy policy on ottosapp.com (Otto_Website repo) still names Anthropic; the repo copy `docs/legal/PRIVACY_POLICY.md` is updated. The app says AI data is "not used to train" — verify that setting in the OpenAI dashboard.
 - **Flow redesign** is the next big piece: `TERMINAL_TICKET_FLOW_REDESIGN.md`.
+- **Motion upgrade:** `TERMINAL_TICKET_MOTION.md` (research in `docs/motion/MOTION_RESEARCH.md`).
+- **Gold-standard Figma file** (Apple guidelines, component library, example app, flow map, motion library): `jWn55Rq4u6cbukA2JeqOaI`.
 
 ## House rules (non-negotiable)
 - Never print, log or commit secrets. Never type API keys into third-party sites.

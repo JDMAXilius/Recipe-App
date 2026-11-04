@@ -7,6 +7,7 @@ The live cloud↔terminal handoff docs. A ticket moves to `history/` when its wo
 - **TERMINAL_TICKET_00_START_HERE_CLAUDE_CODE.md** — new session? read this first
 - **TERMINAL_TICKET_RELEASE_1_0_23.md** — build + ship 1.0.23 (52)
 - **TERMINAL_TICKET_FLOW_REDESIGN.md** — rebuild the app flow from the researched model
+- **TERMINAL_TICKET_MOTION.md** — Apple-grade motion, haptics and Liquid Glass (research in `motion/`)
 - **TERMINAL_TICKET_OTTO_RECIPES_KICKOFF.md** — ⏳ NEXT UP for the terminal: Phase 0 legal
   gate → Phase 1 snapshot → Phase 2 ten-recipe pilot
 - **OWN_RECIPE_DB.md** — the otto-recipes data-ownership migration: verdict, research,
@@ -14,7 +15,7 @@ The live cloud↔terminal handoff docs. A ticket moves to `history/` when its wo
 - **NUTRITION_ACCURACY.md** — nutrition-accuracy tickets (T6 ✅, T1 mechanism ✅; most of the
   rest absorbed by OWN_RECIPE_DB — T3 + T2's weight-layer half stay live for user imports)
 
-## `flow-maps/` · `redesign-2026-11/` — Nov 2026 research
+## `flow-maps/` · `redesign-2026-11/` · `motion/` — Nov 2026 research
 Interactive flow maps (Otto today, Apple's model, six reference apps), the research behind them, and the redesign brief + tickets.
 
 ## `reference/` — the current v2 app
