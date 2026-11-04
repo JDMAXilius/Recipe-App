@@ -105,7 +105,7 @@ as needed to handle your request and a reasonable period after — and you can a
 **juandiego@ottosapp.com**. The form sets no cookies and uses no CAPTCHA or tracking.
 
 ### g) How Otto uses AI
-Several App features are powered by a third-party AI provider (**Anthropic**). We send it only what a
+Several App features are powered by a third-party AI provider (**OpenAI**). We send it only what a
 feature needs to do its job:
 - what you type when you **chat with Otto** or **paste recipe text** to import it;
 - **the photo itself**, if you import a recipe by taking or choosing a picture of it;
@@ -119,7 +119,7 @@ U.S. government nutrition database, and the matched result is kept in a shared l
 next person who cooks with the same ingredient doesn't need a fresh lookup — see §7 for how that
 table relates to your account.
 
-Anthropic processes this content to generate the response Otto shows you (a recipe, a chat reply, a
+OpenAI processes this content to generate the response Otto shows you (a recipe, a chat reply, a
 nutrition estimate); we don't use it to train models, and it is not sold or used for advertising.
 
 ## 2. How we use information
@@ -152,7 +152,7 @@ run the App, and only as needed:
   to, and stores your account and content.
 - **Sign-in providers you choose (Apple / Google / Facebook).** Only when you use social sign-in, and
   only to authenticate you.
-- **AI provider (Anthropic).** Powers chat, recipe import, and nutrition-matching — see §1(g) for
+- **AI provider (OpenAI).** Powers chat, recipe import, and nutrition-matching — see §1(g) for
   exactly what we send it.
 - **Payment processor (RevenueCat).** Manages Otto Club subscriptions and tells us your membership
   status; Apple's App Store handles the actual payment.

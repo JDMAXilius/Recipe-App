@@ -52,3 +52,13 @@ export function purchaseErrorMessage(code: string | undefined): string {
   }
 }
 
+
+/** What the launch gate may conclude. Not ready = unknown, whatever the stale info says. */
+export function membershipAnswer(
+  purchasesReady: boolean,
+  info: Parameters<typeof hasClubEntitlement>[0],
+  failed: boolean,
+): { member: boolean; known: boolean } {
+  if (!purchasesReady) return { member: false, known: false };
+  return { member: hasClubEntitlement(info), known: info !== null || failed };
+}

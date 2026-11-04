@@ -50,7 +50,7 @@ export function AuthScreenLayout({
         >
           {hero && (
             <View style={{ alignItems: 'center', marginBottom: space[5] }}>
-              <OttoArt name="hero" size={84} />
+              <OttoArt name="happy" size={180} />
             </View>
           )}
           {/* Centered hero title + subtitle (Figma master board). The shared

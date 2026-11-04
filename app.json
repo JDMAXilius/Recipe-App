@@ -2,7 +2,7 @@
   "expo": {
     "name": "Otto",
     "slug": "otto",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "scheme": "otto",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.otto.recipes",
-      "buildNumber": "51",
+      "buildNumber": "52",
       "supportsTablet": false,
       "usesAppleSignIn": true,
       "infoPlist": {

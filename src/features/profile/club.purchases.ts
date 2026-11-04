@@ -6,7 +6,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import Purchases, { type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
-import { hasClubEntitlement, introTrialDays } from './club.logic';
+import { useAuth } from '@/features/auth/AuthProvider';
+import { hasClubEntitlement, introTrialDays, membershipAnswer } from './club.logic';
 
 // 'unconfirmed' = Apple finished but RevenueCat hasn't granted `club` yet, even
 // after a sync. Never call that a success: the 2026-10-02 sandbox test charged a
@@ -48,8 +49,14 @@ export function openManageSubscriptions(): void {
 export function useMembership(): { member: boolean; known: boolean; failed: boolean } {
   const [info, setInfo] = useState<CustomerInfo | null>(null);
   const [failed, setFailed] = useState(false);
+  const { purchasesReady } = useAuth();
 
   useEffect(() => {
+    // Mid sign-in RevenueCat still describes the anonymous customer: asking now
+    // sent paying members to the paywall. Forget the old answer and wait.
+    setInfo(null);
+    setFailed(false);
+    if (!purchasesReady) return;
     let alive = true;
     // RevenueCat answers from its on-device cache when offline, so a member who
     // has opened Otto before is never locked out by a network blip. Only a
@@ -67,9 +74,9 @@ export function useMembership(): { member: boolean; known: boolean; failed: bool
       alive = false;
       Purchases.removeCustomerInfoUpdateListener(listener);
     };
-  }, []);
+  }, [purchasesReady]);
 
-  return { member: hasClubEntitlement(info), known: info !== null || failed, failed };
+  return { ...membershipAnswer(purchasesReady, info, failed), failed };
 }
 
 export function useClub() {

@@ -19,6 +19,8 @@ export { AI_CONSENT_COPY, type AiConsentState } from './aiConsent.logic';
 
 // Only the two explicit answers are ever stored; anything else reads as
 // "never asked" (kv falls back to null on a failed parse).
+// The key names the provider: a yes given for Anthropic doesn't cover OpenAI, so
+// everyone is asked again after the switch (5.1.2(i)). A new provider = a new key.
 const StoredConsent = z.enum(['granted', 'declined']).nullable();
 
 let cache: AiConsentState | null = null;
@@ -27,7 +29,7 @@ type ConsentRequest = (resolve: (allowed: boolean) => void) => void;
 const requestListeners = new Set<ConsentRequest>();
 
 export async function readAiConsent(): Promise<AiConsentState> {
-  if (cache == null) cache = parseAiConsent(await kv.get('aiConsent', null, StoredConsent));
+  if (cache == null) cache = parseAiConsent(await kv.get('aiConsentOpenAI', null, StoredConsent));
   return cache;
 }
 
@@ -38,7 +40,7 @@ export async function aiConsentGranted(): Promise<boolean> {
 export async function setAiConsent(state: 'granted' | 'declined'): Promise<void> {
   cache = state;
   stateListeners.forEach((l) => l(state));
-  await kv.set('aiConsent', state);
+  await kv.set('aiConsentOpenAI', state);
 }
 
 export async function ensureAiConsent(): Promise<boolean> {

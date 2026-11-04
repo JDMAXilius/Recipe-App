@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image } from 'expo-image';
-import type { ImageSourcePropType } from 'react-native';
+import { Image as RNImage, type ImageSourcePropType } from 'react-native';
 import {
   actionArt,
   ottoArt,
@@ -64,13 +64,18 @@ function resolve(name: OttoArtName): ImageSourcePropType {
 // Decorative unless a caller says otherwise: an Image that isn't an
 // accessibility element has no children to hide, so `accessible={false}` is the
 // whole of it on both platforms — VoiceOver walks straight past to the text.
+// `size` is the longer edge; the box keeps the art's real shape, so wide art
+// doesn't sit in a square with empty bands above and below.
 export function OttoArt({ name, size = 96, label }: OttoArtProps) {
+  const source = resolve(name);
+  const asset = RNImage.resolveAssetSource?.(source as number);
+  const ratio = asset?.width && asset?.height ? asset.width / asset.height : 1;
   return (
     <Image
-      source={resolve(name)}
+      source={source}
       accessible={label != null}
       accessibilityLabel={label}
-      style={{ width: size, height: size }}
+      style={ratio >= 1 ? { width: size, height: size / ratio } : { width: size * ratio, height: size }}
       contentFit="contain"
       transition={200}
     />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Linking,
@@ -24,7 +24,7 @@ import { useAuth } from '@/features/auth';
 // Lean on purpose, like Cal AI / ReciMe / Julienne (Mobbin research 2026-10-04):
 // one headline, two plans, one button, one price line, small Restore/Terms/
 // Privacy. Apple 3.1.2 needs the billed price, period, trial and those links —
-// nothing more. Members (opened from Account) get a close button + Manage.
+// nothing more. Members (opened from Account) get a back button + Manage.
 const TERMS_URL = 'https://ottosapp.com/terms';
 const PRIVACY_URL = 'https://ottosapp.com/privacy';
 const MANAGE_URL = 'https://apps.apple.com/account/subscriptions';
@@ -43,6 +43,12 @@ export function OttoClubScreen() {
   // the tabs could beat the root guard's own membership update and bounce.
   const goHome = () => router.replace('/');
   const close = () => (router.canGoBack() ? router.back() : goHome());
+
+  // A member with nowhere behind them was sent here by mistake (they only belong
+  // here when opened from Account): take them into the app.
+  useEffect(() => {
+    if (club.member && !router.canGoBack()) router.replace('/');
+  }, [club.member, router]);
 
   const yearly = club.yearly?.product;
   const monthly = club.monthly?.product;
@@ -82,10 +88,10 @@ export function OttoClubScreen() {
               style={styles.closeBtn}
               onPress={close}
               accessibilityRole="button"
-              accessibilityLabel="Close"
+              accessibilityLabel="Back"
               hitSlop={8}
             >
-              <Ionicons name="close" size={22} color={colors.ink} />
+              <Ionicons name="chevron-back" size={22} color={colors.ink} />
             </Pressable>
           ) : (
             <View />
@@ -98,7 +104,7 @@ export function OttoClubScreen() {
         </View>
 
         <View style={styles.hero}>
-          <OttoArt name="floating" size={200} />
+          <OttoArt name="floating" size={280} />
           {/* The subscription's name on the screen that sells it (Schedule 2:
               title, length, price, all before purchase). */}
           <Text role="meta">OTTO CLUB</Text>

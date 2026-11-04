@@ -19,13 +19,13 @@ test('nothing leaves for AI without an explicit yes', () => {
 
 test('the sheet names the company, the data, the way out, and a real decline', () => {
   const text = [AI_CONSENT_COPY.lead, ...AI_CONSENT_COPY.bullets, AI_CONSENT_COPY.caption].join(' ');
-  assert.match(text, /Claude/);
-  assert.match(text, /Anthropic/);
+  assert.match(text, /OpenAI/);
+  assert.doesNotMatch(text, /Anthropic|Claude/);
   assert.match(text, /photos/);
   assert.match(text, /Your questions/);
   assert.match(text, /Ingredient names/);
   assert.match(text, /Account › AI features/);
-  // Anthropic's commercial terms: no training on API customer content.
+  // OpenAI's API terms: no training on API customer content by default.
   assert.match(text, /Not used to train AI/);
   assert.equal(AI_CONSENT_COPY.privacyUrl, 'https://ottosapp.com/privacy');
   assert.equal(AI_CONSENT_COPY.allow, 'Allow');

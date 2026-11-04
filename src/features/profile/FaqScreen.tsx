@@ -39,7 +39,7 @@ const FAQS = [
   },
   {
     q: 'What happens to my data and AI?',
-    a: 'Your recipes, saves and plan live in your account. AI features send only what you give them to Claude, by Anthropic, after you allow it. Turn them off in Account › AI features.',
+    a: 'Your recipes, saves and plan live in your account. AI features send only what you give them to OpenAI after you allow it. Turn them off in Account › AI features.',
   },
   {
     q: 'How do I delete my account?',

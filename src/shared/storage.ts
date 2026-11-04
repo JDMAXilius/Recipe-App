@@ -19,7 +19,7 @@ export type StoreKey =
   | 'chats'
   | 'cookRatings'
   | 'reviewPrompt'
-  | 'aiConsent'
+  | 'aiConsentOpenAI'
   | 'rcSynced';
 
 // One namespace + version. Bump the version suffix to invalidate a shape.

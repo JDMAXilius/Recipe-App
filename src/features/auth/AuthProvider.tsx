@@ -28,6 +28,9 @@ export interface AuthValue {
   user: User | null;
   isLoaded: boolean;
   isSignedIn: boolean;
+  /** RevenueCat has switched to this account. Until then a membership answer
+   *  describes the previous (anonymous) customer, so it can't be trusted. */
+  purchasesReady: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   /** true = check your inbox (email confirmation required) */
   signUp: (email: string, password: string) => Promise<boolean>;
@@ -68,6 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // anonymous customer each start and logged an error when already anonymous
   // (audit 2026-10-04, UX ticket F2).
   const lastUid = useRef<string | undefined>(undefined);
+  const [readyUid, setReadyUid] = useState<string | null>(null);
+  // Computed in render, so the render that first has the session is already "not ready".
+  const purchasesReady = !uid || readyUid === uid;
   // After logIn, sync ONCE per account on this phone (not every sign-in): it
   // recovers a purchase Apple completed but RevenueCat missed (seen 2026-10-02),
   // while RevenueCat warns repeated syncs move a subscription between accounts
@@ -79,6 +85,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (previous) Purchases.logOut().catch(() => {});
       return;
     }
+    let alive = true;
+    const ready = () => alive && setReadyUid(uid);
+    // ponytail: 5s ceiling so a stalled network can't hold a member on the splash;
+    // the customer-info listener still corrects the answer if logIn lands later.
+    const timeout = setTimeout(ready, 5000);
     Purchases.logIn(uid)
       .then(async ({ customerInfo }) => {
         if (hasClubEntitlement(customerInfo)) return;
@@ -87,7 +98,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await kv.set('rcSynced', [...synced, uid]);
         await Purchases.syncPurchasesForResult();
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(ready);
+    return () => {
+      alive = false;
+      clearTimeout(timeout);
+    };
   }, [uid]);
 
   const value = useMemo<AuthValue>(
@@ -96,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isLoaded,
       isSignedIn: !!session,
+      purchasesReady,
       signIn: signInWithPassword,
       signUp: signUpWithPassword,
       signOut: signOutQuery,
@@ -107,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       saveUsername: saveUsernameQuery,
       signInWithProvider: signInWithProviderQuery,
     }),
-    [session, user, isLoaded],
+    [session, user, isLoaded, purchasesReady],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
