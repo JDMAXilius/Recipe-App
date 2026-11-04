@@ -66,6 +66,7 @@ export function CookbookScreen() {
       <View
         style={{
           flexDirection: 'row',
+          flexWrap: 'wrap', // large Dynamic Type: the count drops under the title
           alignItems: 'center',
           justifyContent: 'space-between',
           marginBottom: space[4],
@@ -85,6 +86,7 @@ export function CookbookScreen() {
       <View
         style={{
           flexDirection: 'row',
+          flexWrap: 'wrap', // large Dynamic Type: the chip wraps instead of clipping
           alignItems: 'center',
           gap: space[4],
           marginBottom: space[4],

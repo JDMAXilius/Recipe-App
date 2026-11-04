@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo, Pressable, Text as RNText, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radii, space, timing } from '../theme/tokens';
 import { haptics } from '../haptics';
 import { sound } from '../sound';
@@ -33,6 +34,9 @@ export function useToast(): {
   );
 }
 
+// Exported so screens that mirror a toast's lifetime stay in step.
+export const ACTION_TOAST_MS = 6000;
+
 const kindColor: Record<ToastKind, string> = {
   info: colors.ink,
   success: colors.success,
@@ -41,6 +45,14 @@ const kindColor: Record<ToastKind, string> = {
 
 export function ToastHost() {
   const [toast, setToast] = useState<(ToastEvent & { id: number }) | null>(null);
+  const [screenReader, setScreenReader] = useState(false);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    AccessibilityInfo.isScreenReaderEnabled().then(setScreenReader, () => {});
+    const sub = AccessibilityInfo.addEventListener('screenReaderChanged', setScreenReader);
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     const listener = (t: ToastEvent) => setToast({ ...t, id: Date.now() });
@@ -69,11 +81,18 @@ export function ToastHost() {
     AccessibilityInfo.announceForAccessibility(
       toast.actionLabel ? `${toast.message} ${toast.actionLabel} available.` : toast.message,
     );
-    // Toasts with an action linger longer (undo needs a beat), per v1.
-    const ms = toast.actionLabel ? 5000 : 3000;
-    const timer = setTimeout(() => setToast(null), ms);
-    return () => clearTimeout(timer);
   }, [toast]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const hasAction = !!(toast.actionLabel && toast.onAction);
+    // A screen-reader user can't reach a control that times out (WCAG 2.2.1,
+    // audit P0-3): action toasts stay until tapped or replaced by the next one.
+    if (hasAction && screenReader) return;
+    // Otherwise action toasts get ≥ 6 s (undo needs a beat); plain ones 3 s.
+    const timer = setTimeout(() => setToast(null), hasAction ? ACTION_TOAST_MS : 3000);
+    return () => clearTimeout(timer);
+  }, [toast, screenReader]);
 
   if (!toast) return null;
   const interactive = !!(toast.actionLabel && toast.onAction);
@@ -84,7 +103,10 @@ export function ToastHost() {
         position: 'absolute',
         left: space[4],
         right: space[4],
-        bottom: space[7],
+        // Mounted at the app root, so it can't read the tab bar's real height.
+        // Clear the worst case instead: safe area + the 49 pt iOS tab bar + a
+        // gap wide enough for the raised ＋ disc (~18 pt above the bar).
+        bottom: insets.bottom + 49 + space[5],
         alignItems: 'center',
       }}
     >

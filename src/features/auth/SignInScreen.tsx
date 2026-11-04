@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Text } from '@/shared/ui';
+import { Button, TextLink } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
 import { AuthInput } from './components/AuthInput';
@@ -18,6 +18,7 @@ export function SignInScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const passwordRef = useRef<TextInput>(null);
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -44,6 +45,10 @@ export function SignInScreen() {
         placeholder="Email"
         label="Email"
         keyboardType="email-address"
+        textContentType="emailAddress"
+        autoComplete="email"
+        returnKeyType="next"
+        onSubmitEditing={() => passwordRef.current?.focus()}
       />
       <AuthInput
         value={password}
@@ -51,6 +56,11 @@ export function SignInScreen() {
         placeholder="Password"
         label="Password"
         secure
+        ref={passwordRef}
+        textContentType="password"
+        autoComplete="current-password"
+        returnKeyType="go"
+        onSubmitEditing={handleSignIn}
       />
       <View style={{ marginTop: space[2] }}>
         <Button
@@ -61,20 +71,10 @@ export function SignInScreen() {
           loading={loading}
         />
       </View>
-      <Pressable
-        onPress={() => router.push('/(auth)/forgot-password')}
-        accessibilityRole="button"
-        style={{ marginTop: space[4], alignItems: 'center' }}
-      >
-        <Text role="computed">Forgot your password?</Text>
-      </Pressable>
-      <Pressable
-        onPress={() => router.push('/(auth)/sign-up')}
-        accessibilityRole="button"
-        style={{ marginTop: space[3], alignItems: 'center' }}
-      >
-        <Text role="body">New to Otto? Create account</Text>
-      </Pressable>
+      <View style={{ marginTop: space[3] }}>
+        <TextLink title="Forgot your password?" onPress={() => router.push('/(auth)/forgot-password')} />
+        <TextLink title="New to Otto? Create account" onPress={() => router.push('/(auth)/sign-up')} />
+      </View>
       <AuthLegal />
     </AuthScreenLayout>
   );

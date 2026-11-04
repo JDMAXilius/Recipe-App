@@ -1,9 +1,23 @@
 import React from 'react';
-import { Text as RNText, TextInput, View, type KeyboardTypeOptions, type TextStyle } from 'react-native';
+import {
+  Text as RNText,
+  TextInput,
+  View,
+  type KeyboardTypeOptions,
+  type TextInputProps,
+  type TextStyle,
+} from 'react-native';
 import { colors, fonts, radii, space } from '../theme/tokens';
 import { Text } from './Text';
 
-export interface InputProps {
+// Autofill + keyboard-flow props pass straight through (HIG 39 · Text fields).
+type PassThrough = Pick<
+  TextInputProps,
+  'textContentType' | 'autoComplete' | 'passwordRules' | 'returnKeyType' | 'onSubmitEditing'
+>;
+
+export interface InputProps extends PassThrough {
+  ref?: React.Ref<TextInput>;
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
@@ -43,11 +57,16 @@ export function Input({
   autoCapitalize,
   error,
   accessibilityLabel,
+  ref,
+  ...pass
 }: InputProps) {
   return (
     <View style={{ gap: space[1] }}>
       {label ? <Text role="caption">{label}</Text> : null}
       <TextInput
+        ref={ref}
+        {...pass}
+        submitBehavior={pass.returnKeyType === 'next' ? 'submit' : undefined}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}

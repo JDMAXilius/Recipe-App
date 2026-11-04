@@ -41,8 +41,15 @@ export function AiConsentHost() {
     if (remember && !allowed) toast.show(AI_CONSENT_COPY.offToast, 'info');
   };
 
+  // No drag-to-dismiss: a swipe would be a non-answer (answer(false, false)),
+  // not "Not now", so it stays an explicit tap on the buttons below.
   return (
-    <Sheet visible={visible} onClose={() => answer(false, false)} title={AI_CONSENT_COPY.title}>
+    <Sheet
+      visible={visible}
+      onClose={() => answer(false, false)}
+      title={AI_CONSENT_COPY.title}
+      draggable={false}
+    >
       <View style={{ gap: space[3], marginBottom: space[5] }}>
         <Text role="body">{AI_CONSENT_COPY.lead}</Text>
         <View style={{ gap: space[1] }}>

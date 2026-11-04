@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
-import { Pressable, Text as RNText, TextInput, View, type ViewStyle } from 'react-native';
+import {
+  Pressable,
+  Text as RNText,
+  TextInput,
+  View,
+  type TextInputProps,
+  type ViewStyle,
+} from 'react-native';
 import { colors, radii, space } from '@/shared/theme/tokens';
 
 // shared/ui has no text-input primitive (the 8 frozen primitives don't cover
 // forms), so the auth forms style a plain RN TextInput straight from tokens —
 // no hardcoded colors, no per-screen style file. See report-back gaps: an
 // `Input` primitive would be the tidier home for this if ui-systems adds one.
-export interface AuthInputProps {
+// Autofill (Passwords app / strong-password suggestion) and the return-key
+// focus chain pass straight through to the TextInput (HIG 39 · Text fields).
+type PassThrough = Pick<
+  TextInputProps,
+  'textContentType' | 'autoComplete' | 'passwordRules' | 'returnKeyType' | 'onSubmitEditing'
+>;
+
+export interface AuthInputProps extends PassThrough {
+  ref?: React.Ref<TextInput>;
   value: string;
   onChangeText: (value: string) => void;
   placeholder: string;
@@ -34,11 +49,16 @@ export function AuthInput({
   secure = false,
   autoFocus = false,
   keyboardType = 'default',
+  ref,
+  ...pass
 }: AuthInputProps) {
   const [reveal, setReveal] = useState(false);
   return (
     <View style={wrap}>
       <TextInput
+        ref={ref}
+        {...pass}
+        submitBehavior={pass.returnKeyType === 'next' ? 'submit' : undefined}
         style={{ flex: 1, fontSize: 16, color: colors.ink, paddingVertical: space[3] }}
         placeholder={placeholder}
         placeholderTextColor={colors.inkSoft}

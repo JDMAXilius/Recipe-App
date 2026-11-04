@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/shared/theme/tokens';
-import { haptics } from '@/shared/haptics';
 import { TabBarCreateButton } from '@/shared/ui/TabBarCreateButton';
 
 // 5 tabs (FRAMEWORK §2 / spec §Bottom tab bar): Discover · Cookbook · raised ＋ ·
@@ -27,11 +26,13 @@ export default function TabsLayout() {
   // Stack.Protected guard (app/_layout.tsx RootStack).
   return (
     <Tabs
-      screenListeners={{ tabPress: () => haptics.select() }}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.terracotta,
         tabBarInactiveTintColor: colors.inkSoft,
+        // No maxFontSizeMultiplier here: on iOS 13+ react-navigation already
+        // pins tab labels to their base size and serves the Large Content
+        // Viewer on long-press — exactly Apple's own tab bar behaviour.
         tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
         tabBarStyle: {
           backgroundColor: colors.cream,

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Linking,
   Modal,
   PanResponder,
   Platform,
@@ -20,7 +21,7 @@ import { sound } from '@/shared/sound';
 import { kv } from '@/shared/storage';
 import { alarmSound } from '@/shared/assets';
 import { colors, radii, space } from '@/shared/theme/tokens';
-import { pickFromLibrary, takePhoto } from '@/shared/imagePicker';
+import { choosePhoto } from '@/shared/imagePicker';
 import { usePlan } from '@/features/planner';
 import { useJournal } from '@/features/journal';
 import { usePrefs } from '@/features/profile';
@@ -96,12 +97,18 @@ export function CookScreen() {
     );
   };
 
-  // Snap-your-plate (P4): optional, never blocks finishing. Try the camera,
-  // fall back to the library; a null means cancel OR a denied permission —
-  // imagePicker doesn't distinguish, so we just nudge, never crash.
+  // Snap-your-plate (P4): optional, never blocks finishing. Camera or library
+  // is the cook's pick; a denied camera gets the way back to Settings.
   const snapPlate = async () => {
-    const image = (await takePhoto()) ?? (await pickFromLibrary());
-    if (!image) {
+    const image = await choosePhoto();
+    if (image === 'denied') {
+      showToast('Otto needs the camera for that.', 'info', {
+        actionLabel: 'Open Settings',
+        onAction: () => void Linking.openSettings(),
+      });
+      return;
+    }
+    if (image === 'cancelled') {
       showToast('No worries. Snap your plate any time.', 'info');
       return;
     }

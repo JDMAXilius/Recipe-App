@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Text } from '@/shared/ui';
+import { Button, TextLink } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
 import { AuthInput } from './components/AuthInput';
 import { AuthLegal, AuthScreenLayout } from './components/AuthScreenLayout';
 import { SocialAuthButtons } from './components/SocialAuthButtons';
 
-const MIN_PASSWORD = 6;
+const MIN_PASSWORD = 8; // same floor as change/reset password
 
 // Sign-up — first contact. An anonymous guest upgrades IN PLACE (handled in
 // auth.queries.signUp) so their imports/plans/saves keep their owner.
@@ -20,6 +20,7 @@ export function SignUpScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkInbox, setCheckInbox] = useState(false);
+  const passwordRef = useRef<TextInput>(null);
 
   const handleSignUp = async () => {
     if (!email || !password) {
@@ -66,13 +67,23 @@ export function SignUpScreen() {
         placeholder="Email"
         label="Email"
         keyboardType="email-address"
+        textContentType="emailAddress"
+        autoComplete="email"
+        returnKeyType="next"
+        onSubmitEditing={() => passwordRef.current?.focus()}
       />
       <AuthInput
         value={password}
         onChangeText={setPassword}
-        placeholder="Password (6+ characters)"
+        placeholder={`Password (${MIN_PASSWORD}+ characters)`}
         label="Password"
         secure
+        ref={passwordRef}
+        textContentType="newPassword"
+        autoComplete="new-password"
+        passwordRules={`minlength: ${MIN_PASSWORD};`}
+        returnKeyType="go"
+        onSubmitEditing={handleSignUp}
       />
       <View style={{ marginTop: space[2] }}>
         <Button
@@ -83,13 +94,9 @@ export function SignUpScreen() {
           loading={loading}
         />
       </View>
-      <Pressable
-        onPress={() => router.push('/(auth)/sign-in')}
-        accessibilityRole="button"
-        style={{ marginTop: space[4], alignItems: 'center' }}
-      >
-        <Text role="body">Already have an account? Sign in</Text>
-      </Pressable>
+      <View style={{ marginTop: space[3] }}>
+        <TextLink title="Already have an account? Sign in" onPress={() => router.push('/(auth)/sign-in')} />
+      </View>
       <AuthLegal />
     </AuthScreenLayout>
   );

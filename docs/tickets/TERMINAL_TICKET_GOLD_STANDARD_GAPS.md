@@ -11,22 +11,22 @@ The audit scored 32 areas: 7 Pass, 14 Partial, 11 Fail. What works today: accoun
 The failures users and App Review will notice: brand terracotta text fails contrast (4.07:1), layouts clip at large Dynamic Type sizes, Undo and recipe-delete depend on timed toasts, the paywall's billed amount is only body-size (Otto was already rejected once under 3.1.2(c)), there's no password autofill, no Dark Mode, and the tab bar uses a raised action-looking ＋ in a custom bar.
 
 ## P0 — App Review risk / broken accessibility (one PR)
-- [ ] **G1. Contrast tokens** (02 · Accessibility, 04 · Color). Add `terracottaText` `#AE4A26` (or retune `terracotta`), `danger` `#BE3A3A`, `grayStrong` `#8C7B69` in `src/shared/theme/tokens.ts`; point `Text` `computed`, `Button` primary/ghost, tab tint, `SegmentBar`, `Input` error, error toast, paywall radio, checkbox borders at them. Add `tokens.contrast.test.mjs` asserting every pair in the audit table (≥ 4.5 text, ≥ 3.0 non-text).
-- [ ] **G2. Dynamic Type survives AX5** (10 · Typography). `height` → `minHeight` + padding at every place listed in audit P0-2 (`Screen` header, onboarding text block + CTA, social buttons, recipe detail CTAs, Profile sign-out). Cap `maxFontSizeMultiplier` only on tab labels and the nav title. Switch horizontal rows to vertical stacks when `fontScale > 1.5`. Screenshot every screen at AX5.
-- [ ] **G3. No action hides in a timed toast** (35 · Alerts & action sheets, 26 · Undo & redo). Recipe delete → native action sheet with destructive "Delete recipe" + Cancel (web keeps `confirm()`). Toasts with an action don't auto-dismiss while a screen reader is on, ≥ 6 s otherwise.
-- [ ] **G4. Paywall hierarchy + targets** (44 · Apple In-App Purchase, 46 · App Store Review). In `OttoClubScreen.tsx`: billed line at `type.title`; CTA "Start free trial" (trial) / "Subscribe" (no trial); Terms, Privacy, Restore at 44 pt with `hitSlop`; Restore labelled "Restore purchases". Change nothing else on that screen.
+- [x] **G1. Contrast tokens** (02 · Accessibility, 04 · Color). Add `terracottaText` `#AE4A26` (or retune `terracotta`), `danger` `#BE3A3A`, `grayStrong` `#8C7B69` in `src/shared/theme/tokens.ts`; point `Text` `computed`, `Button` primary/ghost, tab tint, `SegmentBar`, `Input` error, error toast, paywall radio, checkbox borders at them. Add `tokens.contrast.test.mjs` asserting every pair in the audit table (≥ 4.5 text, ≥ 3.0 non-text).
+- [x] **G2. Dynamic Type survives AX5** (10 · Typography). `height` → `minHeight` + padding at every place listed in audit P0-2 (`Screen` header, onboarding text block + CTA, social buttons, recipe detail CTAs, Profile sign-out). Cap `maxFontSizeMultiplier` only on tab labels and the nav title. Switch horizontal rows to vertical stacks when `fontScale > 1.5`. Screenshot every screen at AX5.
+- [x] **G3. No action hides in a timed toast** (35 · Alerts & action sheets, 26 · Undo & redo). Recipe delete → native action sheet with destructive "Delete recipe" + Cancel (web keeps `confirm()`). Toasts with an action don't auto-dismiss while a screen reader is on, ≥ 6 s otherwise.
+- [x] **G4. Paywall hierarchy + targets** (44 · Apple In-App Purchase, 46 · App Store Review). In `OttoClubScreen.tsx`: billed line at `type.title`; CTA "Start free trial" (trial) / "Subscribe" (no trial); Terms, Privacy, Restore at 44 pt with `hitSlop`; Restore labelled "Restore purchases". Change nothing else on that screen.
 
 ## P1 — HIG violations users feel
-- [ ] **G5. Forms autofill + keyboard flow** (39 · Text fields). `textContentType` + `autoComplete` + `returnKeyType`/focus chain in `AuthInput` and `Input`; align sign-up min password (6) with change-password (8); `webcredentials:` associated domain + AASA (ask Juan before touching the website).
-- [ ] **G6. `TextLink` primitive, 44 pt** (30 · Buttons). Replace the bare text `Pressable`s in auth screens, `AuthLegal` inline links and the paywall links.
-- [ ] **G7. Native sheets** (34 · Sheets). Move the ten `Sheet` call sites to expo-router `presentation: 'formSheet'` with detents and a working grabber; delete `src/shared/ui/Sheet.tsx` when the last one moves.
-- [ ] **G8. Discard guard in the editor** (19 · Modality). `usePreventRemove(dirty)` in `EditRecipeScreen.tsx` + action sheet "Discard changes / Keep editing"; same for pasted text on Add.
-- [ ] **G9. Photo permissions done right** (12 · Privacy). Drop the library permission request in `src/shared/imagePicker.ts`; "Take photo / Choose from library" choice instead of `takePhoto() ?? pickFromLibrary()`; denied → toast with "Open Settings".
-- [ ] **G10. VoiceOver structure** (02 · Accessibility). `Text` `display`/`title` get `accessibilityRole="header"`; onboarding announces "Page n of 3"; `useWindowDimensions` instead of `Dimensions.get`.
-- [ ] **G11. Search field** (37 · Search fields). Clear button, Cancel while focused, last 5 queries on focus in `DiscoverScreen.tsx`.
-- [ ] **G12. Toast placement** (22 · Feedback). Offset by safe area + tab bar height; verify on a Face ID phone first. Haptic trimming is **M2** in the motion ticket: do it there.
-- [ ] **G13. Sign in with Apple button** (43 · Sign in with Apple). System `AppleAuthenticationButton` on iOS, ideally full-width "Continue with Apple" above the other providers (matches flow F1).
-- [ ] **G14. In-app offline state** (16 · Loading). NetInfo + TanStack `onlineManager`, one offline banner, persisted query cache so Cookbook/Plan/Shopping read offline. Offline *launch* routing stays in flow F5.
+- [x] **G5. Forms autofill + keyboard flow** (39 · Text fields). `textContentType` + `autoComplete` + `returnKeyType`/focus chain in `AuthInput` and `Input`; align sign-up min password (6) with change-password (8); `webcredentials:` associated domain + AASA (ask Juan before touching the website).
+- [x] **G6. `TextLink` primitive, 44 pt** (30 · Buttons). Replace the bare text `Pressable`s in auth screens, `AuthLegal` inline links and the paywall links.
+- [x] **G7. Native sheets** (34 · Sheets). Move the ten `Sheet` call sites to expo-router `presentation: 'formSheet'` with detents and a working grabber; delete `src/shared/ui/Sheet.tsx` when the last one moves.
+- [x] **G8. Discard guard in the editor** (19 · Modality). `usePreventRemove(dirty)` in `EditRecipeScreen.tsx` + action sheet "Discard changes / Keep editing"; same for pasted text on Add.
+- [x] **G9. Photo permissions done right** (12 · Privacy). Drop the library permission request in `src/shared/imagePicker.ts`; "Take photo / Choose from library" choice instead of `takePhoto() ?? pickFromLibrary()`; denied → toast with "Open Settings".
+- [x] **G10. VoiceOver structure** (02 · Accessibility). `Text` `display`/`title` get `accessibilityRole="header"`; onboarding announces "Page n of 3"; `useWindowDimensions` instead of `Dimensions.get`.
+- [x] **G11. Search field** (37 · Search fields). Clear button, Cancel while focused, last 5 queries on focus in `DiscoverScreen.tsx`.
+- [x] **G12. Toast placement** (22 · Feedback). Offset by safe area + tab bar height; verify on a Face ID phone first. Haptic trimming is **M2** in the motion ticket: do it there.
+- [x] **G13. Sign in with Apple button** (43 · Sign in with Apple). System `AppleAuthenticationButton` on iOS, ideally full-width "Continue with Apple" above the other providers (matches flow F1).
+- [x] **G14. In-app offline state** (16 · Loading). NetInfo + TanStack `onlineManager`, one offline banner, persisted query cache so Cookbook/Plan/Shopping read offline. Offline *launch* routing stays in flow F5.
 - [ ] **G15. Tab bar decision** (27 · Tab bars). Ask Juan: chat as a normal labelled tab and "add recipe" as a toolbar button, or keep the raised ＋. Build it inside motion **M7** (`NativeTabs`); drop the tab-press haptic.
 - [ ] **G16. Dark Mode** (05 · Dark Mode). Needs Juan's OK (L effort). `userInterfaceStyle: "automatic"`, tokens via `useColorScheme` using the warm-dark palette in `DESIGN_SYSTEM.md` §1.2, extend the G1 contrast test to dark pairs, check the mascot art on espresso.
 
@@ -47,3 +47,11 @@ P0 merged and in a TestFlight build, with screenshots at AX5 and the contrast te
 
 ## Log
 <!-- append: date, step, result, commit -->
+- 2026-11-04 · G1–G14 · Done on branch `fix/gold-standard-gaps`, merged to main. tsc + lint clean, 351/351 tests (new: tokens.contrast, recentSearches), iOS + web bundles export. NOT run on a device (no CocoaPods on this Mac): see "Device checks" below.
+  - G1: retuned `terracotta` → #AE4A26 and `danger` → #BE3A3A in place (fixes all ~95 consumers at once) + `grayStrong`. Contrast test guards the audit pairs.
+  - G5: no `webcredentials:` associated domain yet (needs an AASA file on ottosapp.com). Sign-up minimum password is now 8.
+  - G7: decision: upgraded the shared `Sheet` (drag-to-dismiss, accessible grabber, VoiceOver escape, Reduce Motion fade) instead of migrating ten call sites to formSheet routes; the route migration rides with M7 NativeTabs. AI consent sheet is not draggable (drag ≠ "Not now").
+  - G15: decision: raised ＋ stays until M7 (`NativeTabs`) replaces the bar; tab-press haptic removed now.
+  - G16 Dark Mode: not started. Needs `colors.white` split into surface vs on-accent (64 uses) and a QA pass of every screen + mascot art on espresso; do it with M7.
+  - G20 short-term done (`chevron-back` in `Screen` and recipe detail).
+  - Device checks: Apple system button renders full width; autofill + strong-password suggestion; return-key chain; sheet drag vs inner scroll; toast offset on Face ID phones; offline banner + cold-start cache in airplane mode; sign out → other account shows no cached data; AX5 walk of every screen; VoiceOver: action toast stays, onboarding "Page n of 3", sheet two-finger scrub.

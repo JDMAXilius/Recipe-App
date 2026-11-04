@@ -6,7 +6,7 @@
 
 export const colors = {
   // accent / brand
-  terracotta: '#C4562E', // computed + interactive ONLY
+  terracotta: '#AE4A26', // computed + interactive ONLY. Was #C4562E: 4.07:1 on cream failed WCAG text contrast (gold-standard audit P0-1)
   accentSoft: '#F3D9CD', // chip fills, selected tiles
   secondary: '#8A5A3B', // chestnut — step temps, minor marks
   gold: '#E8B04B', // ratings / streaks / celebration
@@ -18,8 +18,9 @@ export const colors = {
   creamDeep: '#F3E9DA', // raised/inset — reconciled (was #F2E9DA)
   white: '#FFFFFF',
   border: '#E8DECF', // hairline
-  gray: '#B9A895', // disabled / muted
-  danger: '#D64545', // destructive — reconciled (was #B3402A)
+  gray: '#B9A895', // disabled / decorative only — 2.1:1, never a meaningful mark
+  grayStrong: '#8C7B69', // meaningful borders/icons (unselected radio, checkbox) — ≥3:1 non-text
+  danger: '#BE3A3A', // destructive. Was #D64545: 4.00:1 on cream (audit P0-1)
   success: '#5A7A4F',
 } as const;
 

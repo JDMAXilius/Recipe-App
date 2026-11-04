@@ -7,6 +7,7 @@ import {
   Share,
   Switch,
   TextInput,
+  useWindowDimensions,
   View,
   type TextStyle,
   type ViewStyle,
@@ -68,6 +69,8 @@ export function ProfileScreen() {
   // Third-party AI consent (5.1.2(i)) — the revocable half of the consent sheet.
   const aiConsent = useAiConsent();
   const { user, signOut, saveUsername } = useAuth();
+  // AX sizes: the stat row can't fit three big numbers side by side, so stack.
+  const stackStats = useWindowDimensions().fontScale > 1.5;
   const { member } = useMembership();
   const { saved } = useSaved();
   const { entries } = usePlan();
@@ -132,13 +135,10 @@ export function ProfileScreen() {
     // Alert buttons no-op on web; confirm() keeps web usable. Sign-out is
     // reversible, so one honest tap is enough on native.
     if (Platform.OS === 'web') {
-      if (window.confirm('Sign out of Otto?')) {
-        haptics.notify('warning');
-        void signOut();
-      }
+      // No haptic: a warning buzz says something went wrong, and nothing did.
+      if (window.confirm('Sign out of Otto?')) void signOut();
       return;
     }
-    haptics.notify('warning');
     void signOut();
   };
 
@@ -165,6 +165,8 @@ export function ProfileScreen() {
               autoFocus
               selectTextOnFocus
               returnKeyType="done"
+              textContentType="name"
+              autoComplete="name"
               placeholder="What should Otto call you?"
               placeholderTextColor={colors.inkSoft}
               accessibilityLabel="Your name"
@@ -201,11 +203,14 @@ export function ProfileScreen() {
       {/* YOUR KITCHEN SO FAR — earned numbers, each one a door */}
       <View style={styles.section}>
         <Text role="caption">Your kitchen so far</Text>
-        <View style={styles.statsCard}>
+        <View style={[styles.statsCard, stackStats && styles.statsCardStacked]}>
           {stats.map((stat, i) => (
             <Pressable
               key={stat.label}
-              style={[styles.statCell, i > 0 && styles.statCellDivider]}
+              style={[
+                styles.statCell,
+                i > 0 && (stackStats ? styles.statCellDividerStacked : styles.statCellDivider),
+              ]}
               onPress={() => router.push(stat.to as Href)}
               accessibilityRole="button"
               accessibilityLabel={`${statText(stat.value)} ${stat.label} — open`}
@@ -410,7 +415,8 @@ const styles: Record<string, ViewStyle> = {
     justifyContent: 'center',
     gap: space[2],
     marginTop: space[4],
-    height: 52,
+    minHeight: 52, // grows with Dynamic Type instead of clipping the label
+    paddingVertical: space[2],
     borderRadius: radii.button,
     borderWidth: 1.5,
     borderColor: colors.terracotta,
@@ -427,6 +433,8 @@ const styles: Record<string, ViewStyle> = {
   },
   statCell: { flex: 1, alignItems: 'center', gap: space[1] },
   statCellDivider: { borderLeftWidth: 1, borderLeftColor: colors.creamDeep },
+  statsCardStacked: { flexDirection: 'column', gap: space[3] },
+  statCellDividerStacked: { borderTopWidth: 1, borderTopColor: colors.creamDeep, paddingTop: space[3] },
   deleteRow: { alignItems: 'center', paddingVertical: space[4] },
   versionFooter: { alignItems: 'center' },
 };

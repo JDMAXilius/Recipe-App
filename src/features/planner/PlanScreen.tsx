@@ -294,7 +294,7 @@ const styles: Record<string, ViewStyle> = {
   },
   dayCardToday: { borderWidth: 1.5, borderColor: colors.terracotta },
   dayHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: space[2] },
-  dayHeaderText: { flex: 1, flexDirection: 'row', alignItems: 'baseline', gap: space[2] },
+  dayHeaderText: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', gap: space[2] }, // wraps at large Dynamic Type
   addBtn: {
     width: 36,
     height: 36,

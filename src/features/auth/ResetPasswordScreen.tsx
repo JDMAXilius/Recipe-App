@@ -85,6 +85,11 @@ export function ResetPasswordScreen() {
         label="New password"
         secure
         autoFocus
+        textContentType="newPassword"
+        autoComplete="new-password"
+        passwordRules={`minlength: ${MIN_PASSWORD};`}
+        returnKeyType="done"
+        onSubmitEditing={ready ? handleSave : undefined}
       />
       <View style={{ marginTop: space[2] }}>
         <Button

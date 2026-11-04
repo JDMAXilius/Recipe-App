@@ -1,5 +1,9 @@
 import 'react-native-get-random-values'; // polyfill globalThis.crypto on native (share tokens)
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import { Stack } from 'expo-router';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -10,13 +14,40 @@ import { Splash, canUseApp } from '@/features/onboarding';
 import { NotifSync } from '@/features/notifications';
 import { RC_API_KEY, useMembership } from '@/features/profile/club.purchases';
 import { AiConsentHost, ErrorBoundary, ToastHost } from '@/shared/ui';
+import { OfflineBanner } from '@/shared/ui/OfflineBanner';
+import { supabase } from '@/shared/supabase/client';
+import '@/shared/online'; // NetInfo → onlineManager, AppState → focusManager
 import { timing } from '@/shared/theme/tokens';
 
 // The provider stack: gesture root → error boundary → server state (TanStack
 // Query) → auth (the one allowed context) → toasts → safe area. Lora is loaded
 // here and render gates on it so the serif never flashes system-first.
+// The cache is persisted to AsyncStorage so Cookbook/Plan/Shopping read offline
+// (gap audit P1-12). gcTime must be ≥ the persister's maxAge or restored queries
+// are collected straight away. The buster drops the cache on each app version,
+// so a changed query shape never hydrates stale data. Mutations aren't persisted.
+const WEEK = 7 * 24 * 60 * 60 * 1000;
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 60_000, retry: 1 } },
+  defaultOptions: { queries: { staleTime: 60_000, retry: 1, gcTime: WEEK } },
+});
+const persister = createAsyncStoragePersister({ storage: AsyncStorage, key: 'otto.v2.queryCache' });
+const persistOptions = {
+  persister,
+  maxAge: WEEK,
+  buster: Constants.expoConfig?.version ?? '',
+  dehydrateOptions: { shouldDehydrateMutation: () => false },
+};
+
+// The persisted cache is one user's data: drop it (memory + disk) on sign-out or
+// when a different account signs in, so the next person never sees it.
+let cacheOwner: string | undefined;
+supabase.auth.onAuthStateChange((_event, session) => {
+  const uid = session?.user.id;
+  if (!uid || (cacheOwner && uid !== cacheOwner)) {
+    queryClient.clear();
+    persister.removeClient();
+  }
+  cacheOwner = uid;
 });
 
 // RevenueCat init at module scope, not in an effect: child effects (AuthProvider's
@@ -33,7 +64,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ErrorBoundary>
         <SafeAreaProvider>
-          <QueryClientProvider client={queryClient}>
+          <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
             <AuthProvider>
               {/* Back is the LEFT-EDGE swipe, not a drag from anywhere. The
                   full-screen variant recognised a pan starting mid-screen, so a
@@ -54,12 +85,13 @@ export default function RootLayout() {
                   role-named tokens govern in-app motion, not the OS push. */}
               <RootStack />
               <ToastHost />
+              <OfflineBanner />
               {/* Asks before anything leaves for a third-party AI (5.1.2(i)). */}
               <AiConsentHost />
               {/* Keeps OS reminders in step with the week + prefs from anywhere. */}
               <NotifSync />
             </AuthProvider>
-          </QueryClientProvider>
+          </PersistQueryClientProvider>
         </SafeAreaProvider>
       </ErrorBoundary>
     </GestureHandlerRootView>

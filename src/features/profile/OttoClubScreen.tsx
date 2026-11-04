@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button, Text, OttoArt, useToast } from '@/shared/ui';
+import { Button, Text, TextLink, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { useClub } from './club.purchases';
 import { purchaseErrorMessage } from './club.logic';
@@ -97,9 +97,7 @@ export function OttoClubScreen() {
             <View />
           )}
           {!club.member ? (
-            <Pressable onPress={onRestore} accessibilityRole="button" hitSlop={8}>
-              <RNText style={styles.small}>Restore</RNText>
-            </Pressable>
+            <TextLink title="Restore purchases" onPress={onRestore} />
           ) : null}
         </View>
 
@@ -154,20 +152,22 @@ export function OttoClubScreen() {
             <RNText style={styles.billed}>
               {`${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}`}
             </RNText>
-            <Button title="Continue" variant="primary" size="lg" onPress={onBuy} loading={club.purchasing} />
+            <Button
+              title={trialDays ? 'Start free trial' : 'Subscribe'}
+              variant="primary"
+              size="lg"
+              onPress={onBuy}
+              loading={club.purchasing}
+            />
             <RNText style={styles.fine}>
               {trialDays
                 ? `Free for ${trialDays} days, then billed ${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Renews automatically. Cancel anytime.`
                 : 'Renews automatically. Cancel anytime.'}
             </RNText>
             <View style={styles.legalRow}>
-              <Pressable onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link">
-                <RNText style={styles.legal}>Terms</RNText>
-              </Pressable>
-              <RNText style={styles.fine}>·</RNText>
-              <Pressable onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link">
-                <RNText style={styles.legal}>Privacy</RNText>
-              </Pressable>
+              <TextLink title="Terms" role="link" onPress={() => Linking.openURL(TERMS_URL)} />
+              <RNText style={[styles.fine, { alignSelf: 'center' }]}>·</RNText>
+              <TextLink title="Privacy" role="link" onPress={() => Linking.openURL(PRIVACY_URL)} />
             </View>
           </View>
         )}
@@ -218,7 +218,7 @@ function PlanCard({
       <Ionicons
         name={active ? 'radio-button-on' : 'ellipse-outline'}
         size={22}
-        color={active ? colors.terracotta : colors.gray}
+        color={active ? colors.terracotta : colors.grayStrong}
       />
       <View style={{ flex: 1, gap: 2 }}>
         <View style={styles.planName}>
@@ -248,7 +248,6 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   } as ViewStyle,
-  small: { ...type.caption, color: colors.inkSoft } as TextStyle,
   hero: { alignItems: 'center', gap: space[2] } as ViewStyle,
   center: { alignItems: 'center', gap: space[3], paddingVertical: space[5] } as ViewStyle,
   plan: {
@@ -263,7 +262,7 @@ const styles = {
   } as ViewStyle,
   planActive: { borderColor: colors.terracotta } as ViewStyle,
   planName: { flexDirection: 'row', alignItems: 'center', gap: space[2] } as ViewStyle,
-  billed: { ...type.body, fontWeight: '700', color: colors.ink, textAlign: 'center' } as TextStyle,
+  billed: { ...type.title, color: colors.ink, textAlign: 'center' } as TextStyle,
   fine: { ...type.caption, color: colors.inkSoft, textAlign: 'center' } as TextStyle,
   legalRow: {
     flexDirection: 'row',

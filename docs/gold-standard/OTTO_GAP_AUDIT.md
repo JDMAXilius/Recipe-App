@@ -73,6 +73,8 @@ Proposed replacements (computed): terracotta `#AE4A26` → 5.04 on cream, 4.59 o
 | Localization readiness | Fail | All strings hardcoded English; no `expo-localization`; currency uses `Intl` (good) `OttoClubScreen.tsx:57-58` | 11 · Writing |
 | Ratings prompt | Pass | System prompt after 3rd finished cook, 90-day cooldown, never from a button `reviewPrompt.ts`, `reviewPrompt.logic.ts:8-14` | 25 · Ratings & reviews |
 
+> **Update 2026-11-04:** G1–G14 fixed in code (see the ticket log); rows for contrast, Dynamic Type, toasts, paywall, forms, buttons, sheets, alerts, permissions, VoiceOver, search, offline, SIWA should be re-marked after the device check.
+
 Totals: 7 Pass, 14 Partial, 11 Fail (of which widgets, iPad and localization are absent by choice). Findings: 4 P0, 12 P1, 8 P2.
 
 ---
