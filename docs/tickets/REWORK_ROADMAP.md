@@ -5,7 +5,7 @@ Published page: https://claude.ai/artifact/YVGJMYoY6UFK19fKoSK2sa (regenerate wi
 Target: `docs/flow-maps/maps/otto-next.html` (current) and Figma "Otto — App Redesign" → page
 "v3 · Flow screens" + "Flow map — Otto next (current)". Apple pass: `docs/flow-maps/research/05_APPLE_DESIGN_FILE_PASS.md`.
 
-This roadmap is the order of work. It is a plan, not shipped code: nothing below exists yet unless it says **exists**.
+This file is the **ticket catalogue**. The **order of work** (releases 1.0.24 → 1.4, decision gates, critical path) now lives in `docs/tickets/PRODUCT_ROADMAP.md`. It is a plan, not shipped code: nothing below exists yet unless it says **exists**.
 
 ---
 
@@ -93,6 +93,11 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R0.6 | **Week builder** without an account: `buildFirstWeek(prefs, catalogue) → 7 dinners` using `plan.pick`; respects allergies (hard filter) and skips; tonight first. | M | Pure + tested. Reads `otto_recipes` with the anon key (allowed today). Allergy filtering uses reviewed allergen tags on the ~970 ingredient keys; coverage checked in `docs/product/ALLERGEN_COVERAGE.md` (52+ dinners even for vegetarian + dairy- + gluten-free) |
 | R0.7 | **Feature flag** `flow_v2` (EAS env, default off) so Phases 1–3 can merge before they ship. | S | Gate and tab layout read it once at launch |
 | R0.8 | **Events table + tracking plan** (`docs/product/TRACKING_PLAN.md`): `app_events` table with RLS insert-own, onboarding events buffered on the phone until Save your plan, ~13 events. Privacy answers updated first. | S | Measures the magic moment, activation and the North Star without an SDK |
+| R0.9 | **Action catalogue** `src/shared/actions`: every manual action defined once (zod schema, risk level, runs on server or client, `execute`, `inverse` for undo); generates the AI tools; a test fails when a UI mutation has no action. *(planned, from the AI plan; not started)* | L | Serves the dish sheet, notification buttons, widgets, Siri and the agent |
+| R0.10 | **Atomic `put_in_plan`** replaces swap's delete + insert with one update; `plan_entries.meal` column, default `dinner`. *(planned, from the AI plan; not started)* | S | Today: `usePlan.ts` swap is two calls |
+| R0.11 | **Shopping list as a hook + server state** for solo users (`useShoppingList`), lifted out of `ShoppingScreen.tsx`. *(planned, from the AI plan; not started)* | M | The agent and widgets need the list on the server |
+| R0.12 | **Durable rate limiter** in Postgres and `requireClub` always on for AI functions. *(planned, from the AI plan; not started)* | S | Today's limiter is in memory and resets on cold start |
+| R0.13 | **`agent_actions` table** (RLS own-row; drives Undo and the "Otto did" log) and **AI consent on the account** (covers Siri and widgets; scenario S11). *(planned, from the AI plan; not started)* | M | ADR-0006 amendment |
 
 ### Phase 1 — Getting in (Entry → Welcome → About you → Your plan → Save your plan)
 
@@ -160,6 +165,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R6.2 | ＋ Add in the navigation bar (not a tab): link · text · photo · write it. | S | `AddSheet` exists |
 | R6.3 | **Camera primer** before the first system alert (“Snap a cookbook page”, Continue / Paste a link instead). Choice sheet and denied → Open Settings already exist (G9). | S | One screen in front of `takePhoto()` |
 | R6.4 | Import review (source credited) and editor unchanged in function. | — | |
+| R6.5 | **Snap a dish**: vision names the foods only; the on-device USDA engine counts; ≤2 questions (portion, oil or butter); `~` with a range; closest Otto recipe first; review before save; hide-numbers setting; weighed calibration set before launch. *(planned, from the AI plan; not started)* | L | `docs/learning/research_notes/Otto AI agent research/photo_nutrition.md` |
 
 ### Phase 7 — Account and settings
 
@@ -171,6 +177,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R7.4 | **Privacy & data** screen: AI toggle naming OpenAI (reads/writes `aiConsent`), Download my data, Privacy policy, Delete account. | M | Download = new edge function `export-data` returning JSON of the user's rows (security-builder) |
 | R7.5 | **Delete flow**: explain screen (what goes, download first, billing note) → native destructive confirm → "Your account is deleted" → Welcome. | S | Function exists |
 | R7.6 | Sign out: confirm → Welcome (not sign-in). | S | |
+| R7.7 | **Calendar**: "Subscribe in Calendar" ICS feed of the plan from an Edge Function with a revocable per-user token, plus "Add tonight to Calendar" (`addEventWithForm`). *(planned, from the AI plan; not started)* | M | No Swift needed |
 
 ### Phase 8 — Doors and states
 
@@ -181,6 +188,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R8.3 | **Offline launch**: in-app offline is done (G14), and `useMembership` reads `Purchases.getCustomerInfo()`, which RevenueCat answers from its on-device cache, so a returning member should already open offline (commit `db084fcd`: “RevenueCat's offline cache keeps returning members in”). Remaining: **prove it on a device** in airplane mode (cold start, member and lapsed), make AI actions say they need a connection, keep fail-closed for a fresh install with no cache. | S | Mostly a device check, not new code. `src/features/profile/club.purchases.ts:65` |
 | R8.4 | **What's new** sheet once per major version (kv `lastSeenVersion`). | S | |
 | R8.5 | **Widget** (dinner tonight) — later, with Live Activity. | L | P2 |
+| R8.6 | **Siri and Shortcuts** (App Intents: What's for dinner, Mark cooked, Add to list, Next step) after the SDK-upgrade spike. *(planned, from the AI plan; not started)* | M | Same actions as R0.9 |
 
 ### Phase 9 — Apple design pass (from `05_APPLE_DESIGN_FILE_PASS.md`)
 
@@ -261,3 +269,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 - 2026-11-04 · D7 · Juan: one style only, the original look; no Dark Mode. G16 closed as won't do.
 - 2026-11-04 · R8.3 · corrected: RevenueCat's cache already covers offline member launch (db084fcd); the ticket is now a device check. ADR log started in `docs/adr/` (ADR-0001…0011).
 - 2026-11-04 · magic moment · D8 added; R1.4 reshaped to Tonight-first; R0.8 events + tracking plan; R2.1 paywall variant; R5.6 Cooked it; allergen coverage checked.
+- 2026-11-05 · AI plan tickets added as *planned*: R0.9–R0.13, R6.5, R7.7, R8.6. Sequencing moved to PRODUCT_ROADMAP.md.

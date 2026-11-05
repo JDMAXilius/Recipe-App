@@ -13,6 +13,8 @@ Status: `todo` · `doing` · `blocked` · `done`.
 
 ## DRAFT, under discussion (2026-11-04): from flow map + scenarios to the shipped app
 
+> **Superseded 2026-11-05 by `PRODUCT_ROADMAP.md`** (one release order for the rework + AI plan). Kept for the record.
+>
 > **Not approved. Don't start work from this section.** It will be reworked after the visual flow map and scenarios are settled with Juan.
 
 The app's next shape is decided by one map and its edge cases. The map: Figma `r9QxxN5qDQXjW473H7LKgM`, page "Flow map — Otto next (current)", plus `docs/flow-maps/maps/otto.html` (today's app). The edge cases are **14 scenario lanes**, each traced through today's code and measured against Apple's standard. They're in the same Figma page (frame "Scenario lanes — Otto today vs Apple"), under the HTML map, with data in `docs/flow-maps/lanes/otto.json`. The 24 reference apps have the first 9 lanes in the study file `iEA3Aeu3ApmJdJabmAudXm`. Research and verdicts: `docs/flow-maps/research/04_SCENARIO_LANES.md`.

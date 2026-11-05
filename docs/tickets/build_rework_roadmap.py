@@ -3,7 +3,11 @@ Run: python3 docs/tickets/build_rework_roadmap.py"""
 import html, re, pathlib
 
 HERE = pathlib.Path(__file__).parent
-md = (HERE / "REWORK_ROADMAP.md").read_text()
+import sys
+SRC = sys.argv[1] if len(sys.argv) > 1 else "REWORK_ROADMAP.md"
+OUT = sys.argv[2] if len(sys.argv) > 2 else "rework-roadmap.html"
+PRODUCT = SRC.startswith("PRODUCT")
+md = (HERE / SRC).read_text()
 
 def inline(s):
     s = html.escape(s, quote=False)
@@ -59,9 +63,16 @@ while i < len(lines):
         txt = ln[lvl + 1:].strip(); sid = slug(txt)
         if lvl == 3:
             m = re.match(r"Phase (\d+)\s+—\s+(.*)", txt)
+            r = re.match(r"(?:Release ([\d.]+)|(Foundations))\s+—\s+(.*)", txt)
             if m:
                 toc.append((sid, m.group(1), m.group(2)))
                 out.append(f'<h3 id="{sid}"><span class="ph">P{m.group(1)}</span>{inline(m.group(2))}</h3>')
+                i += 1; continue
+            if r:
+                tag = r.group(1) or "Base"
+                name = r.group(3)
+                toc.append((sid, tag, name))
+                out.append(f'<h3 id="{sid}"><span class="ph">{tag}</span>{inline(name)}</h3>')
                 i += 1; continue
         out.append(f'<h{lvl} id="{sid}">{inline(txt)}</h{lvl}>'); i += 1; continue
     if ln.startswith("> "):
@@ -81,10 +92,24 @@ while i < len(lines):
     para.append(ln.strip()); i += 1
 flush()
 
-strip = "".join(f'<a href="#{s}"><b>P{n}</b><span>{inline(t.split(" (")[0])}</span></a>' for s, n, t in toc)
+strip = "".join(f'<a href="#{s}"><b>{('P'+n) if n.isdigit() else n}</b><span>{inline(t.split(" (")[0])}</span></a>' for s, n, t in toc)
 body = "\n".join(out)
 
-page = f"""<title>Otto Rework Roadmap</title>
+
+if PRODUCT:
+    TITLE = "Otto Product Roadmap"
+    EYEBROW = "Otto · one order of work · planning only"
+    LEDE = ("<p>The rework and the AI next level merged into one release order: safe ground, foundations, "
+            "Tonight is answered, Ask Otto and it's done, Otto everywhere, Snap a dish. Each release has one moment "
+            "and a number that decides whether the next one ships.</p>"
+            "<p>Written 2026-11-05 against main. Nothing here is started or scheduled. Source: "
+            "<code>docs/tickets/PRODUCT_ROADMAP.md</code>; tickets in <code>REWORK_ROADMAP.md</code>.</p>")
+else:
+    TITLE = "Otto Rework Roadmap"
+    EYEBROW = "Otto · ticket catalogue"
+    LEDE = ("<p>Every rework and AI ticket with its size and notes. The order of work lives in the product roadmap.</p>"
+            "<p>Source: <code>docs/tickets/REWORK_ROADMAP.md</code>.</p>")
+page = f"""<title>{TITLE}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@500;700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -122,14 +147,13 @@ a {{ color:var(--accent); }}
 </style>
 <div class="wrap">
 <header>
-  <div class="eyebrow">Otto · plan for the code</div>
+  <div class="eyebrow">{EYEBROW}</div>
   <h1>{inline(title)}</h1>
-  <p>How the app gets from today's flow (sign-up first, 5 tabs) to the Apple-checked flow on the current map: value before the account, a paywall with every outcome drawn, four tabs plus Search, and every door wired.</p>
-  <p>Written 2026-11-04, re-read against main at ac8fd38a (after the Apple gaps G1–G14 landed). Source: <code>docs/tickets/REWORK_ROADMAP.md</code>.</p>
+  {LEDE}
 </header>
 <nav class="strip" aria-label="Phases">{strip}</nav>
 {body}
 </div>
 """
-(HERE / "rework-roadmap.html").write_text(page)
+(HERE / OUT).write_text(page)
 print("ok", len(toc), "phases")

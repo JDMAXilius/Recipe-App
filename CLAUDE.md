@@ -14,7 +14,8 @@ When two docs disagree, the one listed here wins; when a doc disagrees with the 
 | Why is it built this way? | `docs/adr/` (decision records; Status says if a record still holds) |
 | What the app's flow should be | `docs/flow-maps/maps/otto-next.html` + Figma `r9QxxN5qDQXjW473H7LKgM` (page "Flow map — Otto next (current)") |
 | What the app does today, screen by screen and edge case by edge case | `docs/flow-maps/maps/otto.html` + `docs/flow-maps/lanes/otto.json` (traced from code) |
-| Order of the app rework | `docs/tickets/REWORK_ROADMAP.md` |
+| Order of work (releases, gates) | `docs/tickets/PRODUCT_ROADMAP.md` (planning only) |
+| Rework and AI tickets (catalogue) | `docs/tickets/REWORK_ROADMAP.md` |
 | Launch and store operations | `docs/tickets/ROADMAP.md` |
 | System shape, data model, edge-function contracts | `docs/architecture/` (C4, ERD, EDGE_FUNCTIONS) |
 | Design system | `docs/reference/DESIGN_SYSTEM.md` + `src/shared/theme/tokens.ts` (tokens are tested) |
