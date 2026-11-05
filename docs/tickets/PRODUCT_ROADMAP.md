@@ -23,6 +23,8 @@ It supersedes the "DRAFT, under discussion" section at the top of `ROADMAP.md`.
  measuring        on the account   the paywall)       plan, with Undo)      Activity         honest numbers)
 ```
 
+**The design track** runs beside this one, one release ahead: tokens, components, assets and screens from Figma are in `DESIGN_ROADMAP.md`. The design base (D0) starts now with 1.0.24. The 1.1 components (D1) are built during Foundations. Each release's screens wait for its frames to be marked *Ready for dev* (gate DG-3) and its design QA (DG-4).
+
 Three rules shaped this order.
 
 1. **Build each piece once.** The AI plan and the rework both need the same foundations. The action catalogue serves the dish-actions sheet, notification buttons, widgets, Siri and the agent. Preferences on the account serve the first-week reveal's allergy filter and the agent's hard limits. The atomic swap, the server-side shopping list and the durable rate limit are the rest. So they come first, together, before any surface that uses them.

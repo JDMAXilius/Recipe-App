@@ -15,6 +15,7 @@ When two docs disagree, the one listed here wins; when a doc disagrees with the 
 | What the app's flow should be | `docs/flow-maps/maps/otto-next.html` + Figma `r9QxxN5qDQXjW473H7LKgM` (page "Flow map — Otto next (current)") |
 | What the app does today, screen by screen and edge case by edge case | `docs/flow-maps/maps/otto.html` + `docs/flow-maps/lanes/otto.json` (traced from code) |
 | Order of work (releases, gates) | `docs/tickets/PRODUCT_ROADMAP.md` (planning only) |
+| UI/UX from Figma into the app (tokens, components, assets, screens) | `docs/tickets/DESIGN_ROADMAP.md` (planning only) |
 | Rework and AI tickets (catalogue) | `docs/tickets/REWORK_ROADMAP.md` |
 | Launch and store operations | `docs/tickets/ROADMAP.md` |
 | System shape, data model, edge-function contracts | `docs/architecture/` (C4, ERD, EDGE_FUNCTIONS) |

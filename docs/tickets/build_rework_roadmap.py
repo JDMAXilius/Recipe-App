@@ -7,6 +7,7 @@ import sys
 SRC = sys.argv[1] if len(sys.argv) > 1 else "REWORK_ROADMAP.md"
 OUT = sys.argv[2] if len(sys.argv) > 2 else "rework-roadmap.html"
 PRODUCT = SRC.startswith("PRODUCT")
+DESIGN = SRC.startswith("DESIGN")
 md = (HERE / SRC).read_text()
 
 def inline(s):
@@ -63,14 +64,14 @@ while i < len(lines):
         txt = ln[lvl + 1:].strip(); sid = slug(txt)
         if lvl == 3:
             m = re.match(r"Phase (\d+)\s+—\s+(.*)", txt)
-            r = re.match(r"(?:Release ([\d.]+)|(Foundations))\s+—\s+(.*)", txt)
+            r = re.match(r"(?:Release ([\d.]+)|(Foundations)|(D\d))\s+—\s+(.*)", txt)
             if m:
                 toc.append((sid, m.group(1), m.group(2)))
                 out.append(f'<h3 id="{sid}"><span class="ph">P{m.group(1)}</span>{inline(m.group(2))}</h3>')
                 i += 1; continue
             if r:
-                tag = r.group(1) or "Base"
-                name = r.group(3)
+                tag = r.group(1) or r.group(3) or "Base"
+                name = r.group(4)
                 toc.append((sid, tag, name))
                 out.append(f'<h3 id="{sid}"><span class="ph">{tag}</span>{inline(name)}</h3>')
                 i += 1; continue
@@ -96,7 +97,12 @@ strip = "".join(f'<a href="#{s}"><b>{('P'+n) if n.isdigit() else n}</b><span>{in
 body = "\n".join(out)
 
 
-if PRODUCT:
+if DESIGN:
+    TITLE = "Otto Design Roadmap"
+    EYEBROW = "Otto · UI/UX from Figma to the app · planning only"
+    LEDE = ("<p>The design track beside the product roadmap, one release ahead: intake of the final Figma screens, tokens, components, assets, screens and design QA.</p>"
+            "<p>Written 2026-11-05. Nothing here is started. Source: <code>docs/tickets/DESIGN_ROADMAP.md</code>.</p>")
+elif PRODUCT:
     TITLE = "Otto Product Roadmap"
     EYEBROW = "Otto · one order of work · planning only"
     LEDE = ("<p>The rework and the AI next level merged into one release order: safe ground, foundations, "
