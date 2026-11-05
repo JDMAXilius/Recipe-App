@@ -153,7 +153,8 @@ Totals: 7 Pass, 14 Partial, 11 Fail (of which widgets, iPad and localization are
 - **Fix:** drop the library permission request (and `photosPermission` stays only if you ever read the library directly). Replace the `??` chain with a choice: action sheet "Take photo / Choose from library" (or two tiles in AddSheet). Return `'denied' | 'cancelled' | PickedImage` from `imagePicker` and show a toast with "Open Settings" (`Linking.openSettings()`) on denied.
 - **Effort:** S.
 
-### P1-7. No Dark Mode
+### P1-7. No Dark Mode — won't do
+- **Decision (Juan, 2026-11-04, ADR-0007):** Otto keeps one light style; this item is closed and the fix below is not planned.
 - **Wrong:** app forced to light; at night the cream UI is the brightest thing on the phone.
 - **Evidence:** `app.json:8` (`"userInterfaceStyle": "light"`), `tokens.ts:1` ("light-only, plain module"). The warm-dark palette is already specced in `docs/reference/DESIGN_SYSTEM.md` §1.2.
 - **Rule:** 05 · Dark Mode (people expect every app to respect the system setting).
@@ -230,7 +231,7 @@ Totals: 7 Pass, 14 Partial, 11 Fail (of which widgets, iPad and localization are
 ### P2-7. iPad
 - **Evidence:** `app.json:14`.
 - **Rule:** 06 · Layout, 29 · Sidebars & split views.
-- **Fix:** leave off until Dark Mode and Dynamic Type are done; then a two-column Cookbook/Recipe and Plan layout. **Effort:** L.
+- **Fix:** leave off until Dynamic Type is done (Dark Mode is not planned, ADR-0007); then a two-column Cookbook/Recipe and Plan layout. **Effort:** L.
 
 ### P2-8. Widgets and Live Activities
 - **Evidence:** none in the project.

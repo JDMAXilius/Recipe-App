@@ -157,7 +157,7 @@ All validated against Mobbin references (`MOBBIN_COMPARISON.md`):
 | Serving model | Kitchen Stories (Mobbin) — scales ingredients, per-serving constant |
 | Calorie badge on cards | Lifesum, MyFitnessPal (Mobbin) |
 | Filter sheet anatomy | Beli, eBay, Vivino (Mobbin) |
-| Warm dark mode | standard practice for warm-brand apps; keeps mascot coherent at night |
+| ~~Warm dark mode~~ | Rejected 2026-11-04 (ADR-0007): light only, one style |
 
 ---
 ---

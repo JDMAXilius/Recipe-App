@@ -43,7 +43,7 @@ A packaged, paraphrased copy of Apple's Human Interface Guidelines (fetched 2026
 - [ ] Correct presentation for each task (push / sheet / full screen / alert)
 - [ ] Glass only on controls; no glass on glass; one tinted primary
 - [ ] 44 pt targets; Dynamic Type to AX5 without truncation; contrast passes; VoiceOver complete
-- [ ] Dark Mode and Increased Contrast look right
+- [ ] Increased Contrast looks right (Otto: no Dark Mode, light only per ADR-0007; check widgets, Live Activities and the app icon stay legible on dark system backgrounds)
 - [ ] Every motion has a Reduce Motion path; springs not canned curves; interruptible
 - [ ] Permissions just-in-time with primer + denial fallback
 - [ ] Sign in with Apple prominent; account deletion in app

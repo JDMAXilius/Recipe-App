@@ -27,7 +27,7 @@ He likes "some of the stuff" in both, but has not said exactly which parts. v1 c
 - Plan actions with words instead of unlabeled icons
 - Widgets and a lock screen cooking timer
 - Animated, reactive otter moments
-- Dark mode
+- ~~Dark mode~~ — **Decided 2026-11-04 (ADR-0007): no Dark Mode.** Otto keeps one light style.
 
 ## Open decisions to confirm with Juan
 1. Should the look stay fully in the original brand, or should it evolve?

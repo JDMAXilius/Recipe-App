@@ -75,7 +75,7 @@ Welcome, the three questions, the Tonight-first reveal, Save your plan, paywall 
 | D3.5 | Otto's voice and mascot states for thinking, acting, done, couldn't | `05_BRAND_AND_VOICE.md`, `MASCOT.md` |
 
 ### D4 — System surfaces for 1.3 (designed during 1.2 build)
-Tonight widget (small, medium, Lock Screen, StandBy), cook-timer Live Activity and Dynamic Island, notification layouts with "Cooked it" and "Swap", the Siri snippet, calendar event text, Control Center control. Drawn at Apple's template sizes; these need Swift targets, so the designs must respect WidgetKit limits.
+Tonight widget (small, medium, Lock Screen, StandBy), cook-timer Live Activity and Dynamic Island, notification layouts with "Cooked it" and "Swap", the Siri snippet, calendar event text, Control Center control. Drawn at Apple's template sizes; these need Swift targets, so the designs must respect WidgetKit limits. **Light only applies here too (ADR-0007):** iOS shows widgets and Live Activities on dark Lock Screens and in tinted or clear Home Screen modes regardless of the app's setting, so each surface is designed in Otto's cream style with its own background, forced to the light colour scheme in code, and checked for legibility in tinted and clear modes. The app icon gets a deliberate dark and tinted variant (G17) so iOS doesn't auto-generate one.
 
 ### D5 — Camera for 1.4 (designed during 1.3 build)
 Camera and photo picker, "what Otto sees" chips, the two questions, the meal estimate card with `~` and a range, "closest Otto recipe", save as recipe, hide-numbers setting.

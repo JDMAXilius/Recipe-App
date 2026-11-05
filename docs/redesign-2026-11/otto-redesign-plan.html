@@ -109,7 +109,7 @@ a{color:var(--accent)}
     <li><strong>Icon puzzles.</strong> Each planned meal has four unlabeled icons in a row: swap, cooked, leftovers and remove.</li>
     <li><strong>The app has no daily reason to open.</strong> Discover greets you with a catalog, but it does not know what you planned for tonight.</li>
     <li><strong>It stays inside the app.</strong> I found no home screen widget or lock screen timer, even though cooking suits both well.</li>
-    <li><strong>It does not look like current iOS.</strong> The tab bar and sheets are custom drawn, so they miss the newest system look and behavior. Dark mode does not exist either.</li>
+    <li><strong>It does not look like current iOS.</strong> The tab bar and sheets are custom drawn, so they miss the newest system look and behavior. (Dark mode was later ruled out: light only, ADR-0007.)</li>
   </ul>
 </section>
 
@@ -208,7 +208,7 @@ a{color:var(--accent)}
   <h2>What makes it feel alive</h2>
   <ul>
     <li><strong>A living otter.</strong> Interactive animation that reacts: stirs while AI works, cheers when you finish, naps on empty pages. Tools like Rive support this. It needs new animation art, and it will be the largest creative cost.</li>
-    <li><strong>A new visual identity.</strong> Dark mode, a food-first layout and a type and color system that leaves the cream, serif and terracotta formula behind. I would show you 2 or 3 directions in Figma before any code.</li>
+    <li><strong>A new visual identity.</strong> A food-first layout and a type and color system that leaves the cream, serif and terracotta formula behind. I would show you 2 or 3 directions in Figma before any code.</li>
     <li><strong>Native iOS parts.</strong> System tab bar, sheets and search, so Otto gets the current iOS look and feel for free. A short technical test comes first, because some of this is still maturing in Expo, our app framework.</li>
     <li><strong>Motion with a purpose.</strong> Photos that carry from card to full screen, meals that drag between days, and haptics when you check something off.</li>
   </ul>
@@ -232,7 +232,7 @@ a{color:var(--accent)}
     <tbody>
     <tr><td>0 · Fix now</td><td>Paywall bug, image sizes, sign-in otter, correct AI naming. Release 1.0.23.</td><td>1 to 2 days, plus Apple review</td></tr>
     <tr><td>1 · Identity</td><td>2 or 3 visual directions in Figma, covering Plan, Today and sign-in. You choose one.</td><td>About 1 week</td></tr>
-    <tr><td>2 · Foundation</td><td>New colors, type, dark mode, native navigation, shared components, otter animation test.</td><td>1 to 2 weeks</td></tr>
+    <tr><td>2 · Foundation</td><td>New colors, type, native navigation, shared components, otter animation test.</td><td>1 to 2 weeks</td></tr>
     <tr><td>3 · Plan and Today</td><td>The new plan, the home screen and shopping. Most visible change, so it ships first.</td><td>2 to 3 weeks</td></tr>
     <tr><td>4 · First run</td><td>Sign in, onboarding and the new paywall.</td><td>1 to 2 weeks</td></tr>
     <tr><td>5 · Otto and recipes</td><td>Chat with recipe cards, Discover, Cookbook, recipe detail, cook mode.</td><td>2 to 3 weeks</td></tr>

@@ -49,7 +49,7 @@ The app's next shape is decided by one map and its edge cases. The map: Figma `r
 | 4 | Scenario coverage, built on the new gate | F4, F5, S2, S6 | Claude | todo |
 | 5 | Small scenario fixes | S3, S4, S5, S7, S8, S10, S11, F6 | Claude | todo |
 | 6 | Motion + native bars (tab bar decision lands here) | M1–M9, G15, G20 | Claude | todo |
-| 7 | Polish Juan picks | G16 (Dark Mode), G17–G19, G21–G23 | Both | todo |
+| 7 | Polish Juan picks | G17–G19, G21–G23 (G16 Dark Mode dropped, ADR-0007) | Both | todo |
 | 8 | Regenerate `otto.html` from the shipped routes; flip every fixed lane step to "seen" and re-mark verdicts | F7 + ticket rules | Claude | todo |
 
 **Done when** every Otto lane is ✓, or its remaining gap is a logged decision.
@@ -247,7 +247,7 @@ Flow and scenarios (2026-11-04; these shape the map, so they come first):
 - [ ] Which tab opens first, and whether the last tab is restored instead (F2c, F4)
 - [ ] One-time offer on paywall dismiss, yes or no (F2d)
 - [ ] Tab bar: keep the raised ＋ or move chat to a normal tab and "add" to a toolbar button (G15)
-- [ ] Dark Mode now or with the native bars (G16)
+- [x] ~~Dark Mode now or with the native bars (G16)~~ No Dark Mode (ADR-0007)
 - [ ] Chats and journal: sync to the account, or label them "on this iPhone" (S9)
 - [ ] App Store Connect: turn on the Billing Grace Period for Otto Club (S6)
 
