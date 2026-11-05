@@ -43,7 +43,7 @@ camera → "Otto sees: rice, black beans, grilled chicken, lime" (editable chips
 - **Calendar export:** uses the label and an optional time when present, and otherwise makes an all-day item.
 
 ## Where the photo moment sits with a hard paywall
-The photo needs AI, and the AI needs consent, a network call and a cost (about $0.002–0.02 per scan, estimated). Three options:
+The photo needs AI, and the AI needs consent, a network call and a cost (about $0.03–0.04 per scan with gpt-5.1, up to ~$0.07 with one retry; third-party price estimates, see `docs/learning/reports/Otto three magic moments plan.md`). Three options:
 
 | Option | Flow | Trade-off |
 |---|---|---|

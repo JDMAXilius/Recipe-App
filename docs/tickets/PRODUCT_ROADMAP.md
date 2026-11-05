@@ -85,6 +85,7 @@ Sizes are rough (S ≤ ½ day, M ≈ 1–2 days, L ≈ 3–5 days, per ticket) a
 | Platform | SDK upgrade spike (NativeTabs trailing circle with a non-search screen; `expo-app-intents`; widget targets), then upgrade if it passes | G-8, R3.1 spike |
 | Data (security seat) | Preferences with allergies on the account; atomic `put_in_plan` replaces swap + `meal` column; server-side shopping list for solo users and a `useShoppingList` hook; Postgres rate limiter and `requireClub` always on for AI; `agent_actions` table (undo + "Otto did" log) and account-level consent | R0.4, R0.5, R0.10, R0.11, R0.12, R0.13, S11 |
 | Logic | Launch state machine; intent store; onboarding draft and claim; week builder with reviewed allergen tags on ingredient keys; `flow_v2` flag | R0.1, R0.2, R0.3, R0.6, R0.7 |
+| Recipe model v2 | Yield and serving unit ("1 loaf · 10 slices"), grams per serving, nutrition ranges, origin and versions, forks with a parent pointer, `recipe_media` with provenance, cook events, plan item `kind`/`label`/`position`, a separate snap log; additive migration plus a one-time upload of phone-only data | proposed (X2 in `Otto three magic moments plan.md`) |
 | AI groundwork | Cook-time estimates for the 795 recipes (`~`, reviewed sample); recipe image pipeline (user photo → catalogue match → photoreal generated image, tagged "AI image"); vision "identify and reconstruct" mode with a weighed calibration set; device-scoped scan limit (DeviceCheck), needed since G-10 = A | R0.14, R0.15, R6.5 (prep), R0.16 |
 | Actions | `src/shared/actions`: every manual action defined once (schema, risk, where it runs, undo), plus a test that fails when a UI mutation has no action | R0.9 |
 
@@ -164,7 +165,7 @@ SDK spike (G-8) ───────┼─► Foundations ─► 1.1 build ─�
 The long poles are **preferences on the account → week builder** (the allergy filter and the agent's limits wait on it) and **the vision calibration set → Snap any dish** (1.1's headline can't ship on unmeasured accuracy). The agent can be built while 1.1 is in review, but it is released only after 1.1's numbers are in.
 
 ## 5. What is deliberately not on this roadmap
-AI before the account or paywall; realtime speech-to-speech; a custom wake word; EventKit two-way sync; a separate AI price tier; an Otto app inside ChatGPT; Dark Mode (ADR-0007); model-computed calories or accuracy claims. Reasons are in the AI plan, section "What not to build".
+AI before the account beyond the 3-scan Snap any dish demo (ADR-0013); realtime speech-to-speech; a custom wake word; EventKit two-way sync; a separate AI price tier; an Otto app inside ChatGPT; Dark Mode (ADR-0007); model-computed calories or accuracy claims. Reasons are in the AI plan, section "What not to build".
 
 ## 6. Risks to this order
 
