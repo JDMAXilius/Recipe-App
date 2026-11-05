@@ -1,6 +1,6 @@
 # Magic moments v2 — Snap any dish · Otto plans your week
 
-Status: draft · planning only · written 2026-11-05 · source: Juan (2026-11-05), building on `docs/learning/reports/Otto magic moment research.md` and `docs/learning/reports/Otto AI agent research.md`. Decision record: ADR-0013 (Proposed).
+Status: decided · planning only (nothing built) · written 2026-11-05 · Juan decided: painted illustrations, photo option A · source: Juan (2026-11-05), building on `docs/learning/reports/Otto magic moment research.md` and `docs/learning/reports/Otto AI agent research.md`. Decision record: ADR-0013 (Accepted).
 
 ## What changed
 Juan's direction, 2026-11-05:
@@ -53,7 +53,8 @@ The photo needs AI, and the AI needs consent, a network call and a cost (about $
 
 ADR-0009 (value before the account) still holds under A and B. ADR-0005 (hard paywall) holds under all three: nothing is saved or used beyond the demo without an account and Otto Club.
 
-## Two conflicts with earlier decisions, which Juan has to resolve
+## Two conflicts with earlier decisions — resolved 2026-11-05
+**Juan chose: painted illustrations, and option A for the photo.**
 1. **AI food images.** The 2026-07-21 decision says: "no AI food photography presented as real, ever — Otto placeholder art for imageless recipes" (`docs/history/REDESIGN_NOTES.md:718`).
    - **Recommendation:** generated images are illustrations in Otto's painted style, the same look as `assets/food/cat-*`, labelled "Illustration".
    - Never photoreal, never shown as the user's dish. A real photo (the user's, or a catalogue photo) always wins.

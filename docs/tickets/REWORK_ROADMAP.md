@@ -100,7 +100,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R0.13 | **`agent_actions` table** (RLS own-row; drives Undo and the "Otto did" log) and **AI consent on the account** (covers Siri and widgets; scenario S11). *(planned, from the AI plan; not started)* | M | ADR-0006 amendment |
 | R0.14 | **Cook times for the catalogue**: estimate total and active time once for the 795 recipes from their steps, store as `~` estimates with a reviewed sample; powers "30 minutes" requests and filters. *(planned, from magic moments v2; not started)* | M | The catalogue has no time field today |
 | R0.15 | **Recipe image pipeline**: the user's photo first; else the closest catalogue image; else a generated illustration in Otto's painted style, labelled "Illustration", never photoreal. Stored in Storage, generated once per recipe. *(planned, from magic moments v2; not started)* | M | Amends the 2026-07-21 image rule (ADR-0013, gate G-11) |
-| R0.16 | **Device-scoped scan limit** (3 scans before an account) verified with DeviceCheck/App Attest in the scan endpoint, only if gate G-10 picks option A. *(planned, from magic moments v2; not started)* | M | Avoids an open AI endpoint like `canonicalize` |
+| R0.16 | **Device-scoped scan limit** (3 scans before an account) verified with DeviceCheck/App Attest in the scan endpoint; needed (gate G-10 decided A, 2026-11-05). *(planned, from magic moments v2; not started)* | M | Avoids an open AI endpoint like `canonicalize` |
 
 ### Phase 1 — Getting in (Entry → Welcome → About you → Your plan → Save your plan)
 

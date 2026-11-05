@@ -6,7 +6,7 @@ Status: draft · proposed 2026-11-04 · magic moments updated 2026-11-05 (ADR-00
 
 | Number | Definition | Why |
 |---|---|---|
-| **Magic moment 1** | `recipe_from_photo_saved` (after `dish_snapped`) | Snap any dish becomes a saved recipe (ADR-0013, Proposed) |
+| **Magic moment 1** | `recipe_from_photo_saved` (after `dish_snapped`) | Snap any dish becomes a saved recipe (ADR-0013) |
 | **Magic moment 2** | `week_planned_by_otto` committed, then a `item_cooked` from it | Otto plans your week and you cook from it |
 | **Activation** | At least **one planned item cooked** within the 7-day trial (`item_cooked` with `source=plan`) | Cooking something you planned is the promise kept. The threshold of 1 is a starting guess; test 2 and 3 once data exists |
 | **North Star** | **Planned items cooked per active Otto Club household per week** | Grows only when Otto keeps answering dinner and people act on it; can't be gamed by opens or chats |

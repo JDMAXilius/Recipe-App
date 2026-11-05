@@ -36,6 +36,8 @@ If you change code a doc describes, update the doc in the same commit or set its
 - One visual style, light only; no Dark Mode (ADR-0007).
 - Tab bar: Home · Plan · Cookbook · Account + Otto AI in the trailing circle (ADR-0008).
 - AI consent names the provider and is asked before the first AI call (ADR-0006).
+- Magic moments: Snap any dish (photo before the account, 3 scans per device) and Otto plans your week; days are a free list with optional labels (ADR-0013).
+- AI-written recipe images are labelled painted illustrations in Otto's style, never photoreal; a real photo always wins (ADR-0013).
 
 ## Hard rules
 - Never edit the original Otto Figma file `mM0uWkHod9rL1Ff1VJ64Au` or the study file `iEA3Aeu3ApmJdJabmAudXm`; work in `r9QxxN5qDQXjW473H7LKgM`.

@@ -1,6 +1,6 @@
 # ADR-0013: Magic moments are "Snap any dish" and "Otto plans your week"; meals are a free list
 
-- **Status:** Proposed
+- **Status:** Accepted (Juan, 2026-11-05: painted illustrations; photo option A)
 - **Date:** 2026-11-05
 - **Deciders:** Juan (founder) · drafted by Claude
 
@@ -12,7 +12,7 @@ The 2026-11-04 recommendation (rework roadmap D8) made "Tonight is answered", wi
 2. Moment 2 is **Otto plans your week**. The agent's `plan_week` picks catalogue recipes first and writes new ones only where none fit. Allergies are enforced in code, and the plan comes back as a preview the user commits.
 3. **A plan day is an ordered list of items** with an optional label (breakfast, lunch, dinner, snack or custom). No slot is required.
 4. **Images for AI-written recipes.** Reuse a matching catalogue image. Otherwise generate an illustration in Otto's painted style, labelled "Illustration", never photoreal and never presented as the user's dish.
-5. Where the photo moment sits relative to the paywall is decided separately (memo options A/B/C; A recommended).
+5. **The photo comes before the account (option A).** Welcome offers Snap any dish; consent naming OpenAI comes first; up to **3 scans per device** before an account, checked with Apple DeviceCheck/App Attest in the scan endpoint. Saving the recipe needs Save your plan (account), then Otto Club.
 
 ## Consequences
 - **Supersedes** rework roadmap D8 as the headline. "Tonight" becomes the Home card.
@@ -32,3 +32,4 @@ The 2026-11-04 recommendation (rework roadmap D8) made "Tonight is answered", wi
 - `docs/learning/research_notes/Otto AI agent research/photo_nutrition.md` (accuracy, design)
 - `docs/history/REDESIGN_NOTES.md:718` (image rule)
 - `docs/product/ALLERGEN_COVERAGE.md` (catalogue has no cook times)
+- Decided 2026-11-05 by Juan: generated recipe images are labelled painted illustrations; the photo moment uses option A.
