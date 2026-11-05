@@ -97,6 +97,7 @@ Sizes are rough (S ≤ ½ day, M ≈ 1–2 days, L ≈ 3–5 days, per ticket) a
 
 | Area | Work | Tickets |
 |---|---|---|
+| Ways in | Add = Snap a meal · Write or paste · Say it · editor; recipe-page photo transcription removed (ADR-0015) | R6.2, R6.6, R6.7 |
 | **Snap any dish** | Camera → "Otto sees" chips → at most 2 questions → recipe with `~` nutrition and a range → Save · Add to a day · Cook. Closest catalogue recipe first; the user's photo is the image; hide-numbers setting; consent first | R6.5 |
 | Getting in | Launch screen, Welcome (with the snap door per G-10), three questions, week preview, Save your plan, sign in | R1.1–R1.7 |
 | Otto Club | "Keep your week" paywall (A/B with generic), every purchase outcome as a screen, You're all set, reminders primer, Club ended, grace banner, trial reminder | R2.1–R2.8, S6 |

@@ -39,6 +39,8 @@ If you change code a doc describes, update the doc in the same commit or set its
 - Magic moments: Snap any dish (photo before the account, 3 scans per device) and Otto plans your week; days are a free list with optional labels (ADR-0013).
 - AI-written recipe images are photorealistic, generated once, tagged "AI image", and never passed off as a real dish; a real photo always wins (ADR-0014).
 
+- The camera scans meals only (no recipe-page, text or barcode scanning); recipes also come in by free text/paste, voice, or the editor (ADR-0015).
+
 ## Hard rules
 - Never edit the original Otto Figma file `mM0uWkHod9rL1Ff1VJ64Au` or the study file `iEA3Aeu3ApmJdJabmAudXm`; work in `r9QxxN5qDQXjW473H7LKgM`.
 - Never print, log or commit secrets. Don't run `supabase secrets set --env-file`.

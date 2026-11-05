@@ -165,10 +165,12 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | ID | Work | Size | Notes |
 |---|---|---|---|
 | R6.1 | Saved · Mine · Cooked segments; empty: "Tap the paw on any recipe". | S | |
-| R6.2 | ＋ Add in the navigation bar (not a tab): link · text · photo · write it. | S | `AddSheet` exists |
-| R6.3 | **Camera primer** before the first system alert (“Snap a cookbook page”, Continue / Paste a link instead). Choice sheet and denied → Open Settings already exist (G9). | S | One screen in front of `takePhoto()` |
+| R6.2 | ＋ Add in the navigation bar (not a tab), four ways in (ADR-0015): **Snap a meal** (hero) · **Write or paste** (one free box) · **Say it** (voice fills the same box) · **Write it yourself** (the editor, made dynamic). Paste a link stays only if Juan keeps it. | S | `AddSheet` exists; all end in one review card |
+| R6.3 | **Camera primer** before the first system alert, for scanning a meal ("Snap your meal and Otto writes the recipe"), Continue / Not now. Choice sheet and denied → Open Settings already exist (G9). | S | No cookbook-page copy (ADR-0015) |
 | R6.4 | Import review (source credited) and editor unchanged in function. | — | |
 | R6.5 | **Snap any dish** (moment 1 per ADR-0013, release 1.1): vision names the dish and its parts and reconstructs a recipe (amounts, steps); the on-device USDA engine counts; ≤2 questions (portion, oil or butter); `~` with a range; closest Otto recipe first; the user's photo is the recipe image; review before save; hide-numbers setting; weighed calibration set before launch. *(planned, from the AI plan; not started)* | L | `docs/learning/research_notes/Otto AI agent research/photo_nutrition.md` |
+| R6.6 | **Remove recipe-page photo transcription** (ADR-0015): the "Snap a photo" page tile, the transcription prompt and decline rules in `generate-recipe/imageMode.ts`, the page-transcription use of `useImportFromPhoto`, and "Snap a cookbook page" copy; replaced by the meal-scan pipeline (R6.5). *(planned; not started)* | S | Ship together with R6.5 so the camera never disappears |
+| R6.7 | **Write or paste + Say it**: one free text box (type or paste anything) with a mic that dictates into it on the device; Otto structures it into the review card; the editor gains inline add, drag to reorder and "Otto, fill the gaps". *(planned; not started)* | M | Reuses today's `{text}` mode and `useSpeechInput` |
 
 ### Phase 7 — Account and settings
 
@@ -274,3 +276,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 - 2026-11-04 · magic moment · D8 added; R1.4 reshaped to Tonight-first; R0.8 events + tracking plan; R2.1 paywall variant; R5.6 Cooked it; allergen coverage checked.
 - 2026-11-05 · AI plan tickets added as *planned*: R0.9–R0.13, R6.5, R7.7, R8.6. Sequencing moved to PRODUCT_ROADMAP.md.
 - 2026-11-05 · Magic moments v2: R0.10 free lists with labels; R0.14 cook times, R0.15 images, R0.16 scan limit added; R6.5 is moment 1; D8 superseded by ADR-0013.
+- 2026-11-05 · ADR-0015: scan = meals only; R6.2/R6.3 rewritten; R6.6 remove recipe-page photo path; R6.7 write/paste/say it.

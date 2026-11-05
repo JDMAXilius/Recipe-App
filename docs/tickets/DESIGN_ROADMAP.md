@@ -64,6 +64,7 @@ Built and tested in isolation (a component gallery route in the web build), befo
 | D1.8 | **Native alert and sheet styles** for iOS 26: left-aligned alerts, sheets with a grabber | R9.2 | System UI where possible |
 | D1.9 | **Asset batch 1**: Welcome hero painting, launch shell (no art), Otto tab face, empty-state scenes, category art for any new categories | R1.1, R1.2, R3.1 | From Figma `1:9` and `assets/` |
 | D1.11 | **Snap any dish parts** (moved up from D5): camera and picker, "Otto sees" chips, the two questions, the recipe-from-photo card with `~` and a range, "closest Otto recipe", hide-numbers | R6.5 | Moment 1 (ADR-0013) |
+| D1.14 | **Ways in**: Add screen with Snap a meal as the hero, one free Write-or-paste box with a mic (Say it), and the dynamic editor; redraw the Figma "Bring in a recipe" and camera-primer screens without "Snap a cookbook page" | R6.2, R6.3, R6.7 | ADR-0015 |
 | D1.12 | **Free day list**: items in any order, optional label chip (breakfast, lunch, dinner, snack, custom), add from anywhere, drag to reorder | R0.10, R4.1 | No fixed slots |
 | D1.13 | **Image treatment**: user photo, catalogue photo, and the photorealistic generated image for AI recipes with its small "AI image" tag and a "Snap your plate" replace prompt | R0.15 | ADR-0014; painted art stays for categories, mascot and empty states |
 | D1.10 | **Motion and haptics** for these components (press, swap, Undo, Cooked it), using the motion tokens | M1–M8 | `TERMINAL_TICKET_MOTION.md` |
