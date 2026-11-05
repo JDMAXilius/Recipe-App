@@ -1,6 +1,6 @@
 # ADR-0013: Magic moments are "Snap any dish" and "Otto plans your week"; meals are a free list
 
-- **Status:** Accepted (Juan, 2026-11-05: painted illustrations; photo option A)
+- **Status:** Accepted (Juan, 2026-11-05: photo option A) · decision 4 superseded by ADR-0014 (photorealistic AI images, tagged)
 - **Date:** 2026-11-05
 - **Deciders:** Juan (founder) · drafted by Claude
 

@@ -65,7 +65,7 @@ Built and tested in isolation (a component gallery route in the web build), befo
 | D1.9 | **Asset batch 1**: Welcome hero painting, launch shell (no art), Otto tab face, empty-state scenes, category art for any new categories | R1.1, R1.2, R3.1 | From Figma `1:9` and `assets/` |
 | D1.11 | **Snap any dish parts** (moved up from D5): camera and picker, "Otto sees" chips, the two questions, the recipe-from-photo card with `~` and a range, "closest Otto recipe", hide-numbers | R6.5 | Moment 1 (ADR-0013) |
 | D1.12 | **Free day list**: items in any order, optional label chip (breakfast, lunch, dinner, snack, custom), add from anywhere, drag to reorder | R0.10, R4.1 | No fixed slots |
-| D1.13 | **Image treatment**: user photo, catalogue photo, and the labelled painted illustration for AI recipes, with the label style | R0.15 | Never photoreal for generated images |
+| D1.13 | **Image treatment**: user photo, catalogue photo, and the photorealistic generated image for AI recipes with its small "AI image" tag and a "Snap your plate" replace prompt | R0.15 | ADR-0014; painted art stays for categories, mascot and empty states |
 | D1.10 | **Motion and haptics** for these components (press, swap, Undo, Cooked it), using the motion tokens | M1–M8 | `TERMINAL_TICKET_MOTION.md` |
 
 ### D2 — Screens for 1.1 (with the 1.1 build)

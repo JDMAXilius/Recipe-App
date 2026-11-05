@@ -1,13 +1,13 @@
 # Magic moments v2 — Snap any dish · Otto plans your week
 
-Status: decided · planning only (nothing built) · written 2026-11-05 · Juan decided: painted illustrations, photo option A · source: Juan (2026-11-05), building on `docs/learning/reports/Otto magic moment research.md` and `docs/learning/reports/Otto AI agent research.md`. Decision record: ADR-0013 (Accepted).
+Status: decided · planning only (nothing built) · written 2026-11-05 · Juan decided: photo option A; AI images photorealistic and tagged (ADR-0014, replaces painted) · source: Juan (2026-11-05), building on `docs/learning/reports/Otto magic moment research.md` and `docs/learning/reports/Otto AI agent research.md`. Decision record: ADR-0013 (Accepted).
 
 ## What changed
 Juan's direction, 2026-11-05:
 1. **The headline magic moment is "Snap any dish."** Take a picture of any meal and Otto breaks it down into a recipe: the dish, its ingredients, the steps, the servings and honest nutrition. It reconstructs the dish rather than copying anyone's recipe.
 2. **The second magic moment is "Otto plans your week."** Otto builds the week from the 795 catalogue recipes or writes new ones, and answers requests like "something in 30 minutes".
 3. **Meals are a free, dynamic list.** Nothing is fixed to breakfast, lunch or dinner up front. You add things to a day, and optional labels (breakfast, lunch, dinner, snack or your own) come later if you want them.
-4. **AI recipes get an image.** Otto reuses a matching catalogue image when one exists, and otherwise generates one with OpenAI.
+4. **AI recipes get an image.** Otto reuses a matching catalogue image when one exists, and otherwise generates a photorealistic one with OpenAI, tagged "AI image" (ADR-0014).
 5. **Minimal and free.** Fewer required steps; Otto does it, then you adjust ("want to switch this?").
 
 This **replaces** the earlier plan, in which "Tonight is answered" (no AI, before the paywall) was moment 1 and the photo came last in 1.4. "Tonight" survives as the Home card, not as the headline.
@@ -54,11 +54,11 @@ The photo needs AI, and the AI needs consent, a network call and a cost (about $
 ADR-0009 (value before the account) still holds under A and B. ADR-0005 (hard paywall) holds under all three: nothing is saved or used beyond the demo without an account and Otto Club.
 
 ## Two conflicts with earlier decisions — resolved 2026-11-05
-**Juan chose: painted illustrations, and option A for the photo.**
+**Juan chose option A for the photo. Images: first painted illustrations, then changed the same day to photorealistic generated images tagged "AI image" (ADR-0014).**
 1. **AI food images.** The 2026-07-21 decision says: "no AI food photography presented as real, ever — Otto placeholder art for imageless recipes" (`docs/history/REDESIGN_NOTES.md:718`).
-   - **Recommendation:** generated images are illustrations in Otto's painted style, the same look as `assets/food/cat-*`, labelled "Illustration".
-   - Never photoreal, never shown as the user's dish. A real photo (the user's, or a catalogue photo) always wins.
-   - This keeps the rule's intent and gives every recipe a picture.
+   - **Decision (ADR-0014):** generated images are **photorealistic food images**, made once per AI recipe and tagged "AI image", with "Snap your plate" to replace them after cooking.
+   - Never shown as the user's dish and never used in marketing as a cooked result. A real photo (the user's, or a catalogue photo) always wins.
+   - (First recommendation was painted illustrations; Juan chose photoreal the same day.)
 2. **Breakfast and lunch.** The AI plan rejected breakfast and lunch planning for now, to keep "Tonight" sharp. Juan's free list replaces that: no fixed slots, optional labels. The `meal` column (G-9) becomes an optional `label`, and Tonight logic follows the label.
 
 ## What it means for the build

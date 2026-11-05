@@ -51,7 +51,7 @@ Three rules shaped this order.
 | G-8 | Expo SDK upgrade (NativeTabs, App Intents, widgets) | Foundations spike, then 1.1 | Spike first; upgrade if the spike passes | new ADR |
 | G-9 | Plan days are a free list of items with an optional label (breakfast, lunch, dinner, snack, custom) | Foundations | Yes (Juan, 2026-11-05) | ADR-0013 |
 | G-10 | Where "Snap any dish" sits: A) before the account with 3 device-limited scans, B) right after the trial starts, C) both doors on Welcome | Foundations | **Decided: A** (Juan, 2026-11-05), with DeviceCheck/App Attest on the scan endpoint | ADR-0013 |
-| G-11 | AI-written recipes get images: catalogue match first, else a labelled painted illustration (amends the 2026-07-21 "no AI food photography presented as real" rule) | Foundations | **Decided: painted, labelled illustrations, never photoreal** (Juan, 2026-11-05) | ADR-0013 |
+| G-11 | AI-written recipes get images: catalogue match first, else a generated food image (amends the 2026-07-21 "no AI food photography presented as real" rule) | Foundations | **Decided: photorealistic generated images, tagged "AI image", never passed off as a real dish** (Juan, 2026-11-05; ADR-0014 replaces painted) | ADR-0013 |
 | G-12 | Where cook times come from (the catalogue has none) | Foundations | Estimate once from the steps, store with `~`, spot-check a sample; never invent precise minutes | R0.14 |
 
 ---
@@ -85,7 +85,7 @@ Sizes are rough (S ≤ ½ day, M ≈ 1–2 days, L ≈ 3–5 days, per ticket) a
 | Platform | SDK upgrade spike (NativeTabs trailing circle with a non-search screen; `expo-app-intents`; widget targets), then upgrade if it passes | G-8, R3.1 spike |
 | Data (security seat) | Preferences with allergies on the account; atomic `put_in_plan` replaces swap + `meal` column; server-side shopping list for solo users and a `useShoppingList` hook; Postgres rate limiter and `requireClub` always on for AI; `agent_actions` table (undo + "Otto did" log) and account-level consent | R0.4, R0.5, R0.10, R0.11, R0.12, R0.13, S11 |
 | Logic | Launch state machine; intent store; onboarding draft and claim; week builder with reviewed allergen tags on ingredient keys; `flow_v2` flag | R0.1, R0.2, R0.3, R0.6, R0.7 |
-| AI groundwork | Cook-time estimates for the 795 recipes (`~`, reviewed sample); recipe image pipeline (catalogue match → painted illustration, labelled); vision "identify and reconstruct" mode with a weighed calibration set; device-scoped scan limit (DeviceCheck), needed since G-10 = A | R0.14, R0.15, R6.5 (prep), R0.16 |
+| AI groundwork | Cook-time estimates for the 795 recipes (`~`, reviewed sample); recipe image pipeline (user photo → catalogue match → photoreal generated image, tagged "AI image"); vision "identify and reconstruct" mode with a weighed calibration set; device-scoped scan limit (DeviceCheck), needed since G-10 = A | R0.14, R0.15, R6.5 (prep), R0.16 |
 | Actions | `src/shared/actions`: every manual action defined once (schema, risk, where it runs, undo), plus a test that fails when a UI mutation has no action | R0.9 |
 
 **Done when:** all pure-logic tests pass, every UI mutation has an action, RLS tests cover `profiles`, `agent_actions` and the server list, and the SDK decision is recorded.
@@ -180,3 +180,4 @@ AI before the account or paywall; realtime speech-to-speech; a custom wake word;
 <!-- append: date, change -->
 - 2026-11-05 · Written: merges REWORK_ROADMAP, the AI agent plan and the open S/G/A/B/M tickets into one release order. Planning only.
 - 2026-11-05 · Magic moments v2 (Juan): Snap any dish moves to 1.1 as moment 1; Otto plans your week heads 1.2; free meal lists; recipe images; gates G-9 revised, G-10 revised, G-11 and G-12 added; 1.4 folded into 1.1.
+- 2026-11-05 · G-11 changed by Juan: photorealistic generated images, tagged (ADR-0014).

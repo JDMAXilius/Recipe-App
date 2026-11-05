@@ -15,6 +15,7 @@ One short record per decision that shapes Otto's architecture, flow or product m
 | [0009](0009-first-run-shows-value-before-the-account-questions-first-wee.md) | First run shows value before the account: questions → first week → save your plan → paywall | Proposed | 2026-11-04 |
 | [0010](0010-preferences-live-on-the-account-not-only-on-the-phone.md) | Preferences live on the account, not only on the phone | Proposed | 2026-11-04 |
 | [0013](0013-magic-moments-snap-any-dish-and-otto-plans-your-week.md) | Magic moments: Snap any dish and Otto plans your week; meals are a free list | Accepted | 2026-11-05 |
+| [0014](0014-ai-recipe-images-are-photorealistic-and-tagged.md) | AI-written recipe images are photorealistic, tagged "AI image" (supersedes 0013 decision 4) | Accepted | 2026-11-05 |
 | [0011](0011-offline-persist-the-query-cache-never-sync-mutations.md) | Offline: persist the query cache, never sync mutations | Accepted | 2026-11-04 (backfilled) |
 
 Proposed records wait for Juan. When one is accepted, change its Status and date, and update `docs/tickets/REWORK_ROADMAP.md` §3.
