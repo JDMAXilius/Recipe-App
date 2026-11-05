@@ -12,7 +12,7 @@ Companion to `PRODUCT_ROADMAP.md`. That roadmap says *what* ships and in which o
 ```
               NOW                 NEXT                                         LATER
  Product   1.0.24 Safe ground → Foundations → 1.1 Tonight → 1.2 Ask Otto → 1.3 Everywhere → 1.4 Snap a dish
- Design    D0 Intake + base   → D1 Components + assets for 1.1 → D2 screens 1.1 → D3 AI cards (1.2) → D4 system surfaces (1.3) → D5 camera (1.4)
+ Design    D0 Intake + base   → D1 Components + assets for 1.1 → D2 screens 1.1 → D3 AI cards (1.2) → D4 system surfaces (1.3)
                  ▲                      ▲                             ▲
            finals from Juan      components frozen            each release: design QA sign-off before build ends
 ```
@@ -45,6 +45,9 @@ Companion to `PRODUCT_ROADMAP.md`. That roadmap says *what* ships and in which o
 | D0.6 | **Visual QA loop.** The web build plus Playwright screenshots per screen and state, compared with Figma exports. Same harness as the flow-map screens | M | Becomes DG-4's tool |
 | D0.7 | **Retire stale design asks.** T09's "dark mode for key screens" is dropped (ADR-0007). T03's three onboarding paintings become heroes, not a carousel (Apple pass). Mark T01–T10 against what's now decided | S | `docs/redesign-2026-11/tickets/` |
 
+## Design principle: minimal and free (Juan, 2026-11-05)
+Otto does it first and you adjust after. Every screen has one primary action. Fixed steps and required choices give way to sensible defaults with an easy "switch this?" afterwards. Labels and settings are optional and arrive later. Prefer inline edits to forms, and a visible button behind every gesture.
+
 ### D1 — Components and assets for 1.1 (during product Foundations)
 
 Built and tested in isolation (a component gallery route in the web build), before any screen uses them.
@@ -60,6 +63,9 @@ Built and tested in isolation (a component gallery route in the web build), befo
 | D1.7 | **Banners and states**: offline, payment problem, empty states with a first action, not found | R2.7, R8.3, S10, R5.5 | |
 | D1.8 | **Native alert and sheet styles** for iOS 26: left-aligned alerts, sheets with a grabber | R9.2 | System UI where possible |
 | D1.9 | **Asset batch 1**: Welcome hero painting, launch shell (no art), Otto tab face, empty-state scenes, category art for any new categories | R1.1, R1.2, R3.1 | From Figma `1:9` and `assets/` |
+| D1.11 | **Snap any dish parts** (moved up from D5): camera and picker, "Otto sees" chips, the two questions, the recipe-from-photo card with `~` and a range, "closest Otto recipe", hide-numbers | R6.5 | Moment 1 (ADR-0013) |
+| D1.12 | **Free day list**: items in any order, optional label chip (breakfast, lunch, dinner, snack, custom), add from anywhere, drag to reorder | R0.10, R4.1 | No fixed slots |
+| D1.13 | **Image treatment**: user photo, catalogue photo, and the labelled painted illustration for AI recipes, with the label style | R0.15 | Never photoreal for generated images |
 | D1.10 | **Motion and haptics** for these components (press, swap, Undo, Cooked it), using the motion tokens | M1–M8 | `TERMINAL_TICKET_MOTION.md` |
 
 ### D2 — Screens for 1.1 (with the 1.1 build)
@@ -77,8 +83,8 @@ Welcome, the three questions, the Tonight-first reveal, Save your plan, paywall 
 ### D4 — System surfaces for 1.3 (designed during 1.2 build)
 Tonight widget (small, medium, Lock Screen, StandBy), cook-timer Live Activity and Dynamic Island, notification layouts with "Cooked it" and "Swap", the Siri snippet, calendar event text, Control Center control. Drawn at Apple's template sizes; these need Swift targets, so the designs must respect WidgetKit limits. **Light only applies here too (ADR-0007):** iOS shows widgets and Live Activities on dark Lock Screens and in tinted or clear Home Screen modes regardless of the app's setting, so each surface is designed in Otto's cream style with its own background, forced to the light colour scheme in code, and checked for legibility in tinted and clear modes. The app icon gets a deliberate dark and tinted variant (G17) so iOS doesn't auto-generate one.
 
-### D5 — Camera for 1.4 (designed during 1.3 build)
-Camera and photo picker, "what Otto sees" chips, the two questions, the meal estimate card with `~` and a range, "closest Otto recipe", save as recipe, hide-numbers setting.
+### D5 — moved
+The camera work is now D1.11 (Snap any dish is moment 1 in 1.1, ADR-0013).
 
 ### Ongoing
 - Apple polish from the gaps ticket: layered app icon (G17), type scale (G19), large titles (G20), context menus (G21), iPad (G23).
@@ -97,3 +103,4 @@ Camera and photo picker, "what Otto sees" chips, the two questions, the meal est
 ## Log
 <!-- append: date, change -->
 - 2026-11-05 · Written as the design companion to PRODUCT_ROADMAP. Planning only; waits on Juan's finals for DG-1.
+- 2026-11-05 · Magic moments v2: camera parts moved into D1 (D1.11), free day list (D1.12), image treatment (D1.13), minimal-and-free principle; D5 folded in.

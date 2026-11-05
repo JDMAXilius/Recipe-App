@@ -72,7 +72,7 @@ What that means in code, in one breath:
 | D5 | Version | **1.1.0** for the new flow | A flow change this size deserves What's new and a clean review note |
 | D6 | Lock-screen timer (Live Activity) | **Later (P2)** | Needs a native widget extension; not needed for the flow |
 | D7 | Dark Mode (gaps G16) | **Decided (Juan, 2026-11-04): no Dark Mode.** Otto keeps one style, the original cream look. `userInterfaceStyle` stays `"light"` (already set in `app.json`) | No second palette, no `colors.white` split, no dark QA pass. Every new screen is designed and checked once |
-| D8 | The magic moment | **"Tonight is answered"**: the reveal opens on tonight's dinner before the account and paywall; Otto AI is how you change the plan, not the first impression | `docs/learning/reports/Otto magic moment research.md`; depends on ADR-0009 |
+| D8 | The magic moment *(superseded by ADR-0013, 2026-11-05: Snap any dish + Otto plans your week)* | **"Tonight is answered"**: the reveal opens on tonight's dinner before the account and paywall; Otto AI is how you change the plan, not the first impression | `docs/learning/reports/Otto magic moment research.md`; depends on ADR-0009 |
 
 ---
 
@@ -94,10 +94,13 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R0.7 | **Feature flag** `flow_v2` (EAS env, default off) so Phases 1–3 can merge before they ship. | S | Gate and tab layout read it once at launch |
 | R0.8 | **Events table + tracking plan** (`docs/product/TRACKING_PLAN.md`): `app_events` table with RLS insert-own, onboarding events buffered on the phone until Save your plan, ~13 events. Privacy answers updated first. | S | Measures the magic moment, activation and the North Star without an SDK |
 | R0.9 | **Action catalogue** `src/shared/actions`: every manual action defined once (zod schema, risk level, runs on server or client, `execute`, `inverse` for undo); generates the AI tools; a test fails when a UI mutation has no action. *(planned, from the AI plan; not started)* | L | Serves the dish sheet, notification buttons, widgets, Siri and the agent |
-| R0.10 | **Atomic `put_in_plan`** replaces swap's delete + insert with one update; `plan_entries.meal` column, default `dinner`. *(planned, from the AI plan; not started)* | S | Today: `usePlan.ts` swap is two calls |
+| R0.10 | **Atomic `put_in_plan`** replaces swap's delete + insert with one update; plan days become an **ordered free list** with an optional `label` (breakfast, lunch, dinner, snack or custom; null by default), per ADR-0013. *(planned, from the AI plan; not started)* | S | Today: `usePlan.ts` swap is two calls |
 | R0.11 | **Shopping list as a hook + server state** for solo users (`useShoppingList`), lifted out of `ShoppingScreen.tsx`. *(planned, from the AI plan; not started)* | M | The agent and widgets need the list on the server |
 | R0.12 | **Durable rate limiter** in Postgres and `requireClub` always on for AI functions. *(planned, from the AI plan; not started)* | S | Today's limiter is in memory and resets on cold start |
 | R0.13 | **`agent_actions` table** (RLS own-row; drives Undo and the "Otto did" log) and **AI consent on the account** (covers Siri and widgets; scenario S11). *(planned, from the AI plan; not started)* | M | ADR-0006 amendment |
+| R0.14 | **Cook times for the catalogue**: estimate total and active time once for the 795 recipes from their steps, store as `~` estimates with a reviewed sample; powers "30 minutes" requests and filters. *(planned, from magic moments v2; not started)* | M | The catalogue has no time field today |
+| R0.15 | **Recipe image pipeline**: the user's photo first; else the closest catalogue image; else a generated illustration in Otto's painted style, labelled "Illustration", never photoreal. Stored in Storage, generated once per recipe. *(planned, from magic moments v2; not started)* | M | Amends the 2026-07-21 image rule (ADR-0013, gate G-11) |
+| R0.16 | **Device-scoped scan limit** (3 scans before an account) verified with DeviceCheck/App Attest in the scan endpoint, only if gate G-10 picks option A. *(planned, from magic moments v2; not started)* | M | Avoids an open AI endpoint like `canonicalize` |
 
 ### Phase 1 — Getting in (Entry → Welcome → About you → Your plan → Save your plan)
 
@@ -106,7 +109,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R1.1 | **Launch screen** = Welcome's empty cream shell: `expo-splash-screen` config, no logo, no text. Hide it when the gate resolves. Delete `Splash.tsx`'s otter. | S | Apple page 14. Same item as gaps **G18**. The otter + wordmark move onto Welcome |
 | R1.2 | **Welcome** route `app/welcome.tsx`: one screen, painting hero, left-aligned title, Get started · I have an account. Replaces `onboarding.tsx` (3 paintings). | S | Keep the paintings as heroes elsewhere |
 | R1.3 | **Three questions** `app/about/[step].tsx`: Who's eating · How do you eat (diet + allergies) · Anything to skip. "Question n of 3", Skip on each. Writes to the draft. | M | Allergy copy: "Otto will leave these out. Always check labels." |
-| R1.4 | **Tonight is answered** `app/first-week.tsx` (the magic moment): opens on tonight's dinner (tomorrow's after ~8 pm) as a big card sized for the household with its source credited, the rest of the week below with a one-tap Swap per day, and a "Shopping list ready" row. Loads in place, no AI, no account. Save my week. Figma: page "v3 · Flow screens", row "v4 · Magic moment". | M | Target: median under 90 s from launch; `first_week_revealed` |
+| R1.4 | **Week preview** `app/first-week.tsx` (was the magic moment until ADR-0013; now the planning half of first run): opens on tonight's dinner (tomorrow's after ~8 pm) as a big card sized for the household with its source credited, the rest of the week below with a one-tap Swap per day, and a "Shopping list ready" row. Loads in place, no AI, no account. Save my week. Figma: page "v3 · Flow screens", row "v4 · Magic moment". | M | Target: median under 90 s from launch; `first_week_revealed` |
 | R1.5 | **Save your plan** = today's sign-up, moved. The system “Continue with Apple” button already leads (G13); add Google / Facebook below at the same height and the email path. No Skip. After success → `claimDraft` → paywall. | S | `SignUpScreen.tsx` gets a `context="save-plan"` header; autofill already works (G5) |
 | R1.6 | **Sign in** from Welcome: returning person who signs in skips questions (account already onboarded) → gate decides member / paywall. | S | `onboarded_at` stays the "skip questions" flag |
 | R1.7 | Guards: new routes in a `!signedIn` group (welcome, about, first-week); `(auth)` stays signed-out only. | S | Every new route declared in `RootStack` — the existing rule |
@@ -154,7 +157,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R5.2 | Mise en place step before step 1 (gather + check off). | M | |
 | R5.3 | Cook mode timers; **Live Activity** lock-screen timer later (D6). | M / L | |
 | R5.4 | Dinner, done: thumbs, snap the plate, into the journal, rating prompt once. | S | `reviewPrompt` exists |
-| R5.6 | **"Cooked it" on the Tonight card** (Home): one tap marks tonight's planned dinner cooked without opening cook mode, so activation counts people who cook from memory; a quiet weekly count ("4 dinners this week") on Plan, no streak guilt. | S | Feeds `dinner_cooked`; Figma "v4 · Home · Tonight with Cooked it" |
+| R5.6 | **"Cooked it" on the Tonight card** (Home): one tap marks tonight's planned dinner cooked without opening cook mode, so activation counts people who cook from memory; a quiet weekly count ("4 dinners this week") on Plan, no streak guilt. | S | Feeds `item_cooked`; Figma "v4 · Home · Tonight with Cooked it" |
 | R5.5 | **Recipe not found** state for dead links / removed recipes, with similar dishes. | S | |
 
 ### Phase 6 — Cookbook and Add
@@ -165,7 +168,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R6.2 | ＋ Add in the navigation bar (not a tab): link · text · photo · write it. | S | `AddSheet` exists |
 | R6.3 | **Camera primer** before the first system alert (“Snap a cookbook page”, Continue / Paste a link instead). Choice sheet and denied → Open Settings already exist (G9). | S | One screen in front of `takePhoto()` |
 | R6.4 | Import review (source credited) and editor unchanged in function. | — | |
-| R6.5 | **Snap a dish**: vision names the foods only; the on-device USDA engine counts; ≤2 questions (portion, oil or butter); `~` with a range; closest Otto recipe first; review before save; hide-numbers setting; weighed calibration set before launch. *(planned, from the AI plan; not started)* | L | `docs/learning/research_notes/Otto AI agent research/photo_nutrition.md` |
+| R6.5 | **Snap any dish** (moment 1 per ADR-0013, release 1.1): vision names the dish and its parts and reconstructs a recipe (amounts, steps); the on-device USDA engine counts; ≤2 questions (portion, oil or butter); `~` with a range; closest Otto recipe first; the user's photo is the recipe image; review before save; hide-numbers setting; weighed calibration set before launch. *(planned, from the AI plan; not started)* | L | `docs/learning/research_notes/Otto AI agent research/photo_nutrition.md` |
 
 ### Phase 7 — Account and settings
 
@@ -270,3 +273,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 - 2026-11-04 · R8.3 · corrected: RevenueCat's cache already covers offline member launch (db084fcd); the ticket is now a device check. ADR log started in `docs/adr/` (ADR-0001…0011).
 - 2026-11-04 · magic moment · D8 added; R1.4 reshaped to Tonight-first; R0.8 events + tracking plan; R2.1 paywall variant; R5.6 Cooked it; allergen coverage checked.
 - 2026-11-05 · AI plan tickets added as *planned*: R0.9–R0.13, R6.5, R7.7, R8.6. Sequencing moved to PRODUCT_ROADMAP.md.
+- 2026-11-05 · Magic moments v2: R0.10 free lists with labels; R0.14 cook times, R0.15 images, R0.16 scan limit added; R6.5 is moment 1; D8 superseded by ADR-0013.

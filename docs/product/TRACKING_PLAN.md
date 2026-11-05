@@ -1,14 +1,15 @@
 # Tracking plan, North Star and activation
 
-Status: draft · proposed 2026-11-04 · source: `docs/learning/reports/Otto magic moment research.md`. Nothing here is built yet; Otto has no analytics SDK.
+Status: draft · proposed 2026-11-04 · magic moments updated 2026-11-05 (ADR-0013) · source: `docs/learning/reports/Otto magic moment research.md`. Nothing here is built yet; Otto has no analytics SDK.
 
 ## The three numbers
 
 | Number | Definition | Why |
 |---|---|---|
-| **Magic moment** | `first_week_revealed` fired with a Tonight card on screen | The first time Otto answers "what's for dinner tonight", before the account and the paywall |
-| **Activation** | At least **one planned dinner cooked** within the 7-day trial (`dinner_cooked` with `source=plan`) | Cooking a planned dinner is the promise kept. The threshold of 1 is a starting guess; test 2 and 3 once data exists |
-| **North Star** | **Planned dinners cooked per active Otto Club household per week** | Grows only when Otto keeps answering dinner and people act on it; can't be gamed by opens or chats |
+| **Magic moment 1** | `recipe_from_photo_saved` (after `dish_snapped`) | Snap any dish becomes a saved recipe (ADR-0013, Proposed) |
+| **Magic moment 2** | `week_planned_by_otto` committed, then a `item_cooked` from it | Otto plans your week and you cook from it |
+| **Activation** | At least **one planned item cooked** within the 7-day trial (`item_cooked` with `source=plan`) | Cooking something you planned is the promise kept. The threshold of 1 is a starting guess; test 2 and 3 once data exists |
+| **North Star** | **Planned items cooked per active Otto Club household per week** | Grows only when Otto keeps answering dinner and people act on it; can't be gamed by opens or chats |
 
 Guardrails: trial → paid (RevenueCat), refund rate, uninstall within 24 h, AI cost per active household.
 
@@ -23,6 +24,9 @@ Guardrails: trial → paid (RevenueCat), refund rate, uninstall within 24 h, AI 
 |---|---|---|
 | `onboarding_started` | Welcome shown on a fresh install | `variant` |
 | `question_answered` | Each of the 3 questions, answered or skipped | `step` (1–3), `skipped` |
+| `dish_snapped` | A photo is analysed | `matched_catalogue`, `questions_asked`, `before_account` |
+| `recipe_from_photo_saved` | The recipe from a photo is saved | `edits`, `hide_numbers` |
+| `week_planned_by_otto` | An Otto week preview is committed | `items`, `new_recipes`, `constraints` |
 | `first_week_revealed` | The reveal renders with a Tonight card | `ms_since_launch`, `household_size`, `filters_count` |
 | `day_swapped` | A day is swapped, on the reveal or in Plan | `day_offset`, `surface` (`reveal` \| `plan` \| `otto`) |
 | `shopping_list_opened` | List opened | `surface`, `items` |
@@ -32,7 +36,7 @@ Guardrails: trial → paid (RevenueCat), refund rate, uninstall within 24 h, AI 
 | `reminders_answered` | Primer answered | `allowed` |
 | `tonight_card_viewed` | Home opens with a Tonight card | `has_plan` |
 | `cooking_started` | Cook mode opened | `source` (`plan` \| `recipe` \| `otto`) |
-| `dinner_cooked` | "Cooked it" tapped or cook mode finished | `source`, `via` (`button` \| `cook_mode`) |
+| `item_cooked` | "Cooked it" tapped or cook mode finished | `source`, `via` (`button` \| `cook_mode`) |
 | `otto_changed_plan` | Ask Otto put a recipe into a plan day | `day_offset` |
 
 Keep it under 20 events. Every event name and prop lives in this file before it lives in code.
