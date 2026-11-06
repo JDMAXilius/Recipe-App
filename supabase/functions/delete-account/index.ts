@@ -5,7 +5,7 @@
 // storage photos, then RevenueCat, then the auth user last — the reverse
 // order would strand data no one can sign in to reach. Service-role key only
 // via Deno.env; never logged.
-import { getUserId, json, preflight, rateLimited, serviceClient } from "../_shared/http.ts";
+import { getUserId, json, preflight, rateLimitedDurable, serviceClient } from "../_shared/http.ts";
 
 const PHOTO_BUCKET = "recipe-photos";
 
@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
   const userId = await getUserId(req);
   if (!userId) return json(401, { error: "Missing or invalid access token" });
   // Irreversible and never done twice in a row — v1 destructiveLimiter tier.
-  if (rateLimited(`del:${userId}`, 5, 15 * 60 * 1000)) {
+  if (await rateLimitedDurable(`del:${userId}`, 5, 15 * 60 * 1000)) {
     return json(429, { error: "Too many requests — give it a few minutes and try again" });
   }
 

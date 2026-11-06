@@ -4,7 +4,7 @@
 // DORMANT without OPENAI_API_KEY (503). Key comes ONLY from Deno.env and is
 // never logged or echoed (see _shared/openai.ts). Per-user rate limit: this is the most expensive path.
 import { z } from "npm:zod@4";
-import { corsHeaders, getUserId, json, preflight, rateLimited, requireClub } from "../_shared/http.ts";
+import { corsHeaders, getUserId, json, preflight, rateLimitedDurable, requireClub } from "../_shared/http.ts";
 import { askJson, type ChatMessage, logUsage, openaiActive, openaiFetch, truncated } from "../_shared/openai.ts";
 import { checkImage, MAX_TEXT_CHARS, TEXT_INSTRUCTION, VISION_INSTRUCTION } from "./imageMode.ts";
 import { extractMessagePrefix, parseSseLines } from "./streamParse.ts";
@@ -314,7 +314,7 @@ Deno.serve(async (req) => {
   const userId = await getUserId(req);
   if (!userId) return json(401, { error: "Missing or invalid access token" });
   // v1 costlyLimiter budget: 20 per 15 min per user.
-  if (rateLimited(`gen:${userId}`, 20, 15 * 60 * 1000)) {
+  if (await rateLimitedDurable(`gen:${userId}`, 20, 15 * 60 * 1000)) {
     return json(429, { error: "Too many requests. Give it a few minutes and try again" });
   }
   // Hard paywall on the server too (REQUIRE_CLUB=on, 1.0.20+): the app's gate

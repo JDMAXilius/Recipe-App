@@ -15,7 +15,7 @@
 // matters beyond what USDA search + the client's qualifier-strip catch, re-add
 // Stage 1 as a DB-backed canonical-name lookup, not a bundled JSON.
 import { z } from "npm:zod@4";
-import { getUserId, json, preflight, rateLimited, requireClub, serviceClient } from "../_shared/http.ts";
+import { getUserId, json, preflight, rateLimitedDurable, requireClub, serviceClient } from "../_shared/http.ts";
 import { askJson, openaiActive } from "../_shared/openai.ts";
 
 const MODEL = "gpt-5-mini"; // a pick-the-match job, not generation (slug verified live 2026-11-01)
@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
   const userId = await getUserId(req);
   if (!userId) return json(401, { error: "Missing or invalid access token" });
   // AI path — per-user budget (v1 costlyLimiter tier).
-  if (rateLimited(`resolve:${userId}`, 20, 15 * 60 * 1000)) {
+  if (await rateLimitedDurable(`resolve:${userId}`, 20, 15 * 60 * 1000)) {
     return json(429, { error: "Too many requests — give it a few minutes and try again" });
   }
   const gate = await requireClub(userId);
