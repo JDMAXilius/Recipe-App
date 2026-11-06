@@ -77,6 +77,8 @@ export interface UseChat {
   ready: boolean; // history loaded from kv
   send: (text: string) => void;
   pickOption: (option: string) => void;
+  canRetry: boolean;
+  retry: () => void;
 }
 
 export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat {
@@ -164,21 +166,16 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
     [saveCurrentThread],
   );
 
-  const send = useCallback(
-    (text: string) => {
-      if (isSending) return;
-      const userMsg = optionPickToMessage(text, Date.now());
-      if (!userMsg) return;
-      sendSeq.current += 1;
-      const withUser = pruneHistory([...messagesRef.current, userMsg], Date.now());
-      persist(withUser);
+  // One Otto turn over a transcript that already ends with the person's line.
+  const run = useCallback(
+    (transcript: StoredMessage[]) => {
       setResponse(null);
       setError(null);
       setIsSending(true);
       setStreamingText(null);
       // Streaming send: deltas fill the live bubble; the persisted transcript
       // still comes from the final response only (same as the old sendChat).
-      sendChatStreaming(toWireTranscript(withUser), optsRef.current, setStreamingText)
+      sendChatStreaming(toWireTranscript(transcript), optsRef.current, setStreamingText)
         .then((res) => {
           const ottoMsg: StoredMessage = { role: 'assistant', content: res.message, ts: Date.now() };
           persist(pruneHistory([...messagesRef.current, ottoMsg], Date.now()));
@@ -192,10 +189,33 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
           setIsSending(false);
         });
     },
-    [isSending, persist],
+    [persist],
   );
+
+  const send = useCallback(
+    (text: string) => {
+      if (isSending) return;
+      const userMsg = optionPickToMessage(text, Date.now());
+      if (!userMsg) return;
+      sendSeq.current += 1;
+      const withUser = pruneHistory([...messagesRef.current, userMsg], Date.now());
+      persist(withUser);
+      run(withUser);
+    },
+    [isSending, persist, run],
+  );
+
+  // S4: a failed turn keeps the person's line in the transcript; Retry asks
+  // again for it, without typing it twice. Only when the last line is theirs.
+  const canRetry = !!error && !isSending && messages[messages.length - 1]?.role === 'user';
+  const retry = useCallback(() => {
+    const last = messagesRef.current[messagesRef.current.length - 1];
+    if (isSending || last?.role !== 'user') return;
+    sendSeq.current += 1;
+    run(messagesRef.current);
+  }, [isSending, run]);
 
   const pickOption = useCallback((option: string) => send(option), [send]);
 
-  return { messages, response, isSending, streamingText, error, ready, send, pickOption };
+  return { messages, response, isSending, streamingText, error, ready, send, pickOption, canRetry, retry };
 }
