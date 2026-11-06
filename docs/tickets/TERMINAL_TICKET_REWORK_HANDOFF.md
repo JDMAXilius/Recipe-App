@@ -32,12 +32,12 @@
   on every AI call; verify the demo account still gets 200 first).
 
 ## Server
-- [ ] **T7a. Deploy `generate-recipe` first (code ready on main, 2026-11-06).** Already switched to
+- [x] **T7a. Deploy `generate-recipe` first *(done 2026-11-06 by the cloud session: v23; anon → 401. The signed-in satay check is still T3)* (code ready on main, 2026-11-06).** Already switched to
   `rateLimitedDurable` and accepts the chat's new context (`allergies`, `skips`, `week`; B6). Deploy:
   `supabase functions deploy generate-recipe` (verify_jwt on). Smoke: anon → 401; a signed-in chat
   turn with `allergies: ["Peanuts"]` asking for satay must not use peanuts and should say so. Old
   apps send none of the new fields and see no change.
-- [ ] **T7. Redeploy the four functions that still use the in-memory limiter** with
+- [x] **T7. Redeploy the four functions *(done 2026-11-06 by the cloud session from main: generate-recipe v23, import-recipe v17, resolve-nutrition v14, delete-account v16; all four answer 401 to an anon call)* that still use the in-memory limiter** with
   `rateLimitedDurable` (R0.12): ~~`generate-recipe`~~ (T7a), `import-recipe`, `resolve-nutrition`,
   `delete-account`. Change `rateLimited(` → `await rateLimitedDurable(` in each `index.ts` (the
   import too), `npx deno check` each, deploy via the Supabase MCP with `_shared/*` included, and
