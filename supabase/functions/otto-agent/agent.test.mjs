@@ -28,7 +28,7 @@ test('checkArgs: real ids and days only', () => {
 });
 
 test('inverseOf: every write knows how to put things back, and a no-op has nothing to undo', () => {
-  assert.deepEqual(inverseOf('put_in_plan', {}, null, row), { action: 'remove_from_plan', input: { id: 7 }, expect: { id: 7, recipe_id: '52772', day: '2026-11-09' } });
+  assert.deepEqual(inverseOf('put_in_plan', {}, null, row), { action: 'remove_from_plan', input: { id: 7 }, expect: { id: 7, recipe_id: '52772', day: '2026-11-09', note: null, label: 'dinner', cooked: false } });
   const back = inverseOf('remove_from_plan', { id: 7 }, row, null);
   assert.equal(back.action, 'put_in_plan');
   assert.equal(back.input.recipeId, '52772');
@@ -56,6 +56,10 @@ test('undo guard, clean args, request ids and the shuffle', () => {
   assert.equal(stillAsLeft(inv.expect, row), true);
   assert.equal(stillAsLeft(inv.expect, { ...row, recipe_id: '999' }), false); // swapped by hand since
   assert.equal(stillAsLeft(inv.expect, null), false); // gone
+  assert.equal(stillAsLeft(inv.expect, { ...row, note: 'double portion' }), false); // a note added since
+  assert.equal(stillAsLeft(inv.expect, { ...row, cooked: true }), false); // ticked since
+  assert.ok(inverseOf('move_plan_item', { id: 7, day: '2026-11-10' }, { ...row, position: null }, null)); // legacy row still undoable
+  assert.match(checkArgs('put_in_plan', { day: '2026-11-09', recipeId: 'r', label: 'x'.repeat(30) }), /label/);
   assert.deepEqual(cleanArgs('put_in_plan', { day: 'd', recipeId: 'r', user_id: 'x', title: 'evil', note: 'n'.repeat(500) }), { day: 'd', recipeId: 'r', note: 'n'.repeat(200) });
   assert.deepEqual(cleanArgs('move_plan_item', { id: 1, day: 'd', position: 0 }), { id: 1, day: 'd' });
   assert.ok(REQUEST_ID.test('r1abcdefgh'));

@@ -54,8 +54,9 @@ const MAX_ITEMS = 40;
 type Did = { id: number; summary: string; undoable: boolean };
 type Filter = { diet: Diet; allergies: Allergen[]; skips: string[]; cuisines: string[] };
 
-const DIET_RANK: Record<string, number> = { none: 0, vegetarian: 1, vegan: 2 };
-const strictest = (a: string, b: string): Diet => ((DIET_RANK[a] ?? 0) >= (DIET_RANK[b] ?? 0) ? a : b) as Diet;
+const DIET_RANK = new Map<string, number>([["none", 0], ["vegetarian", 1], ["vegan", 2]]);
+const asDiet = (v: unknown): Diet => (typeof v === "string" && DIET_RANK.has(v) ? v : "none") as Diet;
+const strictest = (a: Diet, b: Diet): Diet => ((DIET_RANK.get(a) ?? 0) >= (DIET_RANK.get(b) ?? 0) ? a : b);
 const strings = (v: unknown, max: number): string[] =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x.trim().length > 0).map((x) => x.trim().slice(0, 40)).slice(0, max) : [];
 
@@ -98,8 +99,12 @@ Deno.serve(async (req) => {
 
   const userId = await getUserId(req);
   if (!userId) return json(401, { error: "Missing or invalid access token" });
-  if (await rateLimitedDurable(`agent:${userId}`, 20, 15 * 60 * 1000)) {
-    return json(429, { error: "Otto needs a breather: that's 20 requests in 15 minutes. Try again in a few minutes." });
+  // deno-lint-ignore no-explicit-any
+  const body: any = await req.json().catch(() => ({}));
+  const isUndo = !!body && typeof body === "object" && "undo" in body;
+  // Undo has its own allowance: running out of asks must never block undoing Otto.
+  if (isUndo ? await rateLimitedDurable(`agent-undo:${userId}`, 60, 15 * 60 * 1000) : await rateLimitedDurable(`agent:${userId}`, 20, 15 * 60 * 1000)) {
+    return json(429, { error: isUndo ? "That's a lot of undoing. Try again in a few minutes." : "Otto needs a breather: that's 20 requests in 15 minutes. Try again in a few minutes." });
   }
   const gate = await requireClub(userId);
   if (gate) return gate;
@@ -108,9 +113,6 @@ Deno.serve(async (req) => {
     global: { headers: { Authorization: req.headers.get("authorization") ?? "" } },
     auth: { persistSession: false },
   });
-  // deno-lint-ignore no-explicit-any
-  const body: any = await req.json().catch(() => ({}));
-
   // ---- plan writes, shared by the agent loop and Undo ------------------------
   const ownRow = async (id: number): Promise<PlanRow | null> => {
     const { data } = await db.from("plan_entries").select("*").eq("id", id).eq("user_id", userId).maybeSingle();
@@ -195,15 +197,17 @@ Deno.serve(async (req) => {
   }
 
   // ---- Undo ------------------------------------------------------------------
-  if (body && typeof body === "object" && "undo" in body) {
+  if (isUndo) {
     const id = Number(body.undo);
     if (!Number.isInteger(id) || id <= 0) return json(400, { error: "Invalid body" });
-    const { data: row } = await db.from("agent_actions").select("id, inverse, summary").eq("id", id).maybeSingle();
+    const { data: row, error: rowError } = await db.from("agent_actions").select("id, inverse, summary").eq("id", id).maybeSingle();
+    if (rowError) return json(503, { error: "Otto can't reach your plan right now. Try again in a moment." });
     if (!row) return json(404, { error: "Otto can't find that change." });
     const inv = row.inverse as Step | null;
     if (!inv || !(PLAN_TOOLS as readonly string[]).includes(inv.action)) return json(409, { error: "There's nothing to undo for that one." });
     // Claim it: only the first of two taps gets past this.
-    const { data: claimed } = await db.from("agent_actions").update({ undone_at: new Date().toISOString() }).eq("id", id).is("undone_at", null).select("id");
+    const { data: claimed, error: claimError } = await db.from("agent_actions").update({ undone_at: new Date().toISOString() }).eq("id", id).is("undone_at", null).select("id");
+    if (claimError) return json(503, { error: "Otto can't reach your plan right now. Try again in a moment." });
     if (!claimed?.length) return json(200, { ok: true, already: true });
     const release = () => db.from("agent_actions").update({ undone_at: null }).eq("id", id);
     try {
@@ -237,23 +241,39 @@ Deno.serve(async (req) => {
   if (!requestId) return json(400, { error: "Invalid body" });
   const days = windowFrom(body.today);
 
-  // A replay (a retry after a timeout): say what was already done, don't act again.
-  const { data: earlier, error: earlierError } = await db.from("agent_actions").select("id, summary, inverse").like("idempotency_key", `${requestId}:%`).order("id");
-  if (earlierError) return json(503, { error: "Otto can't reach your plan right now. Try again in a moment." });
-  if (earlier?.length) {
-    return json(200, { message: "Otto already did this.", did: earlier.map((r) => ({ id: r.id, summary: r.summary, undoable: !!r.inverse })) });
+  // One run per requestId. The first run claims a lock row (unique key); a
+  // retry finds it and says what already happened instead of acting again. A
+  // lock with no changes older than the deadline is a run that died before
+  // doing anything, so the retry may go ahead.
+  const LOCK = `${requestId}:lock`;
+  const { error: lockError } = await db.from("agent_actions").insert({ idempotency_key: LOCK, action: "turn", input: {}, inverse: null, summary: "Planning" });
+  if (lockError) {
+    const { data: earlier, error: earlierError } = await db.from("agent_actions").select("id, summary, inverse, action, created_at")
+      .like("idempotency_key", `${requestId}:%`).order("id");
+    if (earlierError || !earlier) return json(503, { error: "Otto can't reach your plan right now. Try again in a moment." });
+    const changes = earlier.filter((r) => r.action !== "turn");
+    const lock = earlier.find((r) => r.action === "turn");
+    const stale = !!lock && Date.now() - Date.parse(lock.created_at) > DEADLINE_MS + 10_000;
+    if (changes.length || !stale) {
+      return json(200, {
+        message: changes.length ? "Otto got this far last time. Ask again for the rest." : "Otto is still working on that. Give it a moment.",
+        did: changes.map((r) => ({ id: r.id, summary: r.summary, undoable: !!r.inverse })),
+      });
+    }
   }
 
   // The filter: the account's answers AND the phone's, the stricter of each.
   const { data: prof, error: profError } = await db.from("profiles").select("diet, allergies, skips, cuisines").eq("user_id", userId).maybeSingle();
   if (profError) return json(503, { error: "Otto can't read your answers right now, so it won't plan. Try again in a moment." });
+  // The account's answers are the base: phone defaults can't be told apart
+  // from "no allergies", so without a profile row Otto doesn't plan at all.
+  if (!prof) return json(409, { error: "Otto needs your answers first: who's eating, allergies and foods to skip. Open Account → Preferences and save them." });
   const phone = body.prefs && typeof body.prefs === "object" ? body.prefs : null;
-  if (!prof && !phone) return json(409, { error: "Otto needs your answers first: who's eating, allergies and foods to skip. Set them in Account → Preferences." });
   filter = {
-    diet: strictest(prof?.diet ?? "none", typeof phone?.diet === "string" ? phone.diet : "none"),
-    allergies: [...new Set([...(prof?.allergies ?? []), ...strings(phone?.allergies, 9)])] as Allergen[],
-    skips: [...new Set([...(prof?.skips ?? []), ...strings(phone?.skips, 20)].map((x) => x.toLowerCase()))],
-    cuisines: prof?.cuisines ?? strings(phone?.cuisines, 6),
+    diet: strictest(asDiet(prof.diet), asDiet(phone?.diet)),
+    allergies: [...new Set([...(prof.allergies ?? []), ...strings(phone?.allergies, 9)])] as Allergen[],
+    skips: [...new Set([...(prof.skips ?? []), ...strings(phone?.skips, 20)].map((x) => x.toLowerCase()))],
+    cuisines: prof.cuisines?.length ? prof.cuisines : strings(phone?.cuisines, 6),
   };
 
   const messages: ToolMessage[] = turns.map((t: { role: "user" | "assistant"; content: string }) => ({ role: t.role, content: t.content }));
@@ -325,8 +345,10 @@ Deno.serve(async (req) => {
                 out = { ok: true, ...(result.created ? { id: result.created.id } : {}) };
               } else {
                 // Not logged = not undoable: put it back now rather than leave a silent change.
-                if (inverse) await write(inverse, true, days);
-                out = { error: "Otto couldn't record that change, so it put it back." };
+                const reverted = inverse ? await write(inverse, true, days) : "nothing to put back";
+                out = typeof reverted === "string"
+                  ? { error: "Otto made that change but couldn't record it. Check the plan." }
+                  : { error: "Otto couldn't record that change, so it put it back." };
               }
             }
           }

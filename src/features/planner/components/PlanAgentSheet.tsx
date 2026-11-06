@@ -43,7 +43,7 @@ export function PlanAgentSheet({ visible, onClose, onChanged, readPrefs }: { vis
       setPending(null);
       setTurns([...next, { role: 'assistant', content: res.message.slice(0, 600) || 'Done.' }]);
       setReply(res.message);
-      setDid((d) => [...res.did, ...d]);
+      setDid((d) => [...res.did.filter((x) => !d.some((y) => y.id === x.id)), ...d]);
       setText('');
       if (res.did.length) {
         haptics.notify('success');

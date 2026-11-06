@@ -72,6 +72,7 @@ export function checkArgs(name: string, a: Args): string | null {
     case 'put_in_plan':
       if (typeof a.day !== 'string' || !DAY.test(a.day)) return 'day must be YYYY-MM-DD';
       if (!isText(a.recipeId, 40)) return 'recipeId is required: use an id from find_dinners';
+      if (a.label != null && !isText(a.label, 24)) return 'label must be a short word or null';
       return null;
     case 'swap_in_plan':
       if (!isId(a.id)) return 'id must be a plan item id from read_week';
@@ -120,7 +121,7 @@ export interface Step {
   input: Args;
   /** What the row must still look like for Undo to be safe. If the person
    *  changed it since, Undo refuses instead of overwriting their edit. */
-  expect?: { id: number } & Partial<Pick<PlanRow, 'title' | 'recipe_id' | 'day' | 'label' | 'cooked'>>;
+  expect?: { id: number } & Partial<Pick<PlanRow, 'title' | 'recipe_id' | 'day' | 'label' | 'cooked' | 'note'>>;
 }
 
 /** Only the fields each tool takes, capped: nothing else is stored or used. */
@@ -154,7 +155,12 @@ export function inverseOf(action: PlanTool, input: Args, before: PlanRow | null,
   switch (action) {
     case 'put_in_plan':
       return created
-        ? { action: 'remove_from_plan', input: { id: created.id }, expect: { id: created.id, recipe_id: created.recipe_id, day: created.day } }
+        ? {
+            action: 'remove_from_plan',
+            input: { id: created.id },
+            // A note, label or tick the person added since means it's theirs now.
+            expect: { id: created.id, recipe_id: created.recipe_id, day: created.day, note: created.note, label: created.label, cooked: created.cooked },
+          }
         : null;
     case 'remove_from_plan':
       return before
@@ -179,12 +185,13 @@ export function inverseOf(action: PlanTool, input: Args, before: PlanRow | null,
         ? {
             action: 'swap_in_plan',
             input: { id: before.id, recipeId: before.recipe_id, title: before.title, image: before.image, category: before.category, note: before.note, kind: before.kind, cooked: before.cooked },
-            expect: { id: before.id, recipe_id: String(input.recipeId) },
+            expect: { id: before.id, recipe_id: String(input.recipeId), note: before.note, label: before.label, cooked: false },
           }
         : null;
     case 'move_plan_item':
-      return before && before.position != null
-        ? { action: 'move_plan_item', input: { id: before.id, day: before.day, position: before.position }, expect: { id: before.id, day: String(input.day) } }
+      // A row from before positions existed (null) goes back to the end of its day.
+      return before
+        ? { action: 'move_plan_item', input: { id: before.id, day: before.day, ...(before.position != null ? { position: before.position } : {}) }, expect: { id: before.id, day: String(input.day) } }
         : null;
     case 'mark_cooked':
       return before && before.cooked !== input.cooked
