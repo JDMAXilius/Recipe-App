@@ -17,6 +17,7 @@ import { AiConsentHost, ErrorBoundary, ToastHost } from '@/shared/ui';
 import { OfflineBanner } from '@/shared/ui/OfflineBanner';
 import { supabase } from '@/shared/supabase/client';
 import { kv } from '@/shared/storage';
+import { flags } from '@/shared/flags';
 import { DraftClaim } from '@/catalogue/DraftClaim';
 import '@/shared/online'; // NetInfo → onlineManager, AppState → focusManager
 import { timing } from '@/shared/theme/tokens';
@@ -57,7 +58,14 @@ supabase.auth.onAuthStateChange((_event, session) => {
 // RevenueCat init at module scope, not in an effect: child effects (AuthProvider's
 // Purchases.logIn) run before the root layout's would, so configure must beat render.
 if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
-Purchases.configure({ apiKey: RC_API_KEY });
+// The key is the App Store one: the web build (visual QA only, D0.6) has no
+// RevenueCat, and a throw here would blank every screen. Membership then
+// stays unknown, so the app itself stays closed (fail closed).
+try {
+  Purchases.configure({ apiKey: RC_API_KEY });
+} catch (e) {
+  console.warn('RevenueCat unavailable on this platform:', (e as Error).message);
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Lora_400Regular, Lora_600SemiBold, Lora_700Bold });
@@ -136,6 +144,17 @@ function RootStack() {
 
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+
+      {/* First run (flowV2, R1.2–R1.4): Welcome for the signed out; the
+          questions and the week for anyone not yet in the app (a signed-in
+          account that never answered comes here too). */}
+      <Stack.Protected guard={flags.flowV2 && !signedIn}>
+        <Stack.Screen name="welcome" />
+      </Stack.Protected>
+      <Stack.Protected guard={flags.flowV2 && !allowed}>
+        <Stack.Screen name="about/[step]" />
+        <Stack.Screen name="first-week" />
       </Stack.Protected>
 
       <Stack.Protected guard={signedIn}>

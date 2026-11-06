@@ -58,15 +58,26 @@ export function resolveLaunch(i: LaunchInput): Launch {
 // first week R1.4, club outcomes R2.2/R2.6) only its row changes. Until then
 // a state opens the closest screen that exists today.
 export const LAUNCH_HREF: Record<Exclude<Launch, 'loading'>, string> = {
-  welcome: '/(auth)/sign-up', // → '/welcome' (R1.2)
+  welcome: '/(auth)/sign-up', // flowV2: '/welcome' (R1.2)
   resumeDraft: '/(auth)/sign-up', // → Save your plan (R1.5)
   signIn: '/(auth)/sign-in',
-  needsPlan: '/onboarding', // → '/about/1' (R1.3)
+  needsPlan: '/onboarding', // flowV2: '/about/1' (R1.3)
   paywall: '/otto-club',
   pending: '/otto-club', // → '/club/pending' (R2.2)
   ended: '/otto-club', // → '/club/ended' (R2.6)
   app: '/(tabs)',
 };
+
+// The rework's screens (flags.flowV2): the first-run questions and week
+// replace sign-up-first. Same rule: one row per state.
+export const LAUNCH_HREF_V2: Partial<typeof LAUNCH_HREF> = {
+  welcome: '/welcome',
+  needsPlan: '/about/1',
+};
+
+export function launchHref(state: Exclude<Launch, 'loading'>, flowV2: boolean): string {
+  return (flowV2 && LAUNCH_HREF_V2[state]) || LAUNCH_HREF[state];
+}
 
 /** The route guard: only a signed-in member uses the app. */
 export function canUseApp(signedIn: boolean, membership: Membership): boolean {

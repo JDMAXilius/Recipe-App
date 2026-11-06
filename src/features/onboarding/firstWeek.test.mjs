@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildFirstWeek, eligibleDinners, firstDayIndex, skipPattern } from './firstWeek.ts';
+import { buildFirstWeek, eligibleDinners, firstDayIndex, looksLikeDinner, shoppingCount, skipPattern, swapDay } from './firstWeek.ts';
 import { allergensIn, fitsDiet } from '../../shared/allergens.ts';
 
 const dish = (id, category, area, ingredients) => ({ id, title: `Dish ${id}`, image: null, category, area, ingredients });
@@ -83,4 +83,33 @@ test('skips match whole words, singular or plural, and keep the cooking oil', ()
   assert.equal(t('tomatoes', 'Tomato Puree'), true);
   assert.equal(t('mushroom', 'Shiitake Mushrooms'), true);
   assert.equal(t('C++', 'anything'), false); // regex characters are literal
+});
+
+test('swap: a different dinner for that day, never one already in the week', () => {
+  const week = buildFirstWeek(shelf, none, days.slice(0, 3), 3);
+  const swapped = swapDay(week, 1, shelf, none, 9);
+  assert.equal(swapped.day, week[1].day);
+  assert.equal(week.some((w) => w.recipeId === swapped.recipeId), false);
+  const vegan = buildFirstWeek(shelf, { ...none, diet: 'vegan' }, days, 1); // all 3 vegan dishes used
+  assert.equal(swapDay(vegan, 0, shelf, { ...none, diet: 'vegan' }, 1), null);
+});
+
+test('shopping count: each ingredient once across the week', () => {
+  const week = [{ day: 'd0', recipeId: '2' }, { day: 'd1', recipeId: '8' }];
+  assert.equal(shoppingCount(week, shelf), 6);
+});
+
+test('dinners, not condiments or sides: seen on the real shelf (2026-11-06)', () => {
+  const no = [
+    { title: 'Ezme', ingredients: ['tomatoes', 'red pepper', 'onion', 'parsley', 'pomegranate molasses'] },
+    { title: 'Muraba-E-Kadu (Pumpkin Jam)', ingredients: ['pumpkin', 'sugar', 'cardamom'] },
+    { title: 'Fasoliyyeh Bi Z-Zayt (Syrian Green Beans with Olive Oil)', ingredients: ['green beans', 'olive oil', 'garlic'] },
+  ];
+  for (const d of no) assert.equal(looksLikeDinner(d), false, d.title);
+  const yes = [
+    { title: 'Falafel Pita Sandwich with Tahini Sauce', ingredients: ['chickpeas', 'pita bread', 'tahini'] },
+    { title: 'Smoky Lentil Chili with Squash', ingredients: ['red lentils', 'squash', 'chipotle'] },
+    { title: 'Chicken Handi', ingredients: ['chicken', 'onion', 'yogurt'] },
+  ];
+  for (const d of yes) assert.equal(looksLikeDinner(d), true, d.title);
 });

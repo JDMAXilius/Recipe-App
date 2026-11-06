@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { kv } from '@/shared/storage';
 import { getListRecipes, listPlan } from './plan.queries';
 import { buildShoppingList, sameSources } from './shoppingList';
-import { weekDays } from './week';
+import { weekDays } from '@/shared/week';
 import type { Runners } from '@/shared/actions/action';
 import type { listActions } from './shopping.actions';
 import {

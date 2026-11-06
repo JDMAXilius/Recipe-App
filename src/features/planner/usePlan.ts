@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
-import { weekDays, type WeekDay } from './week';
+import { weekDays, type WeekDay } from '@/shared/week';
 import { listPlan, planRun } from './plan.queries';
 import { positionAtEnd } from './plan.list';
 import { flags } from '@/shared/flags';

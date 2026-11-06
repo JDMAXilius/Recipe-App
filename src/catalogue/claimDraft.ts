@@ -17,7 +17,7 @@ import { loadDraft } from '@/features/onboarding/useDraft';
 import { markAccountOnboarded } from '@/features/onboarding/useOnboarded';
 import { onboardedFor } from '@/features/onboarding/launch';
 import { listPlan } from '@/features/planner/plan.queries';
-import { weekDays } from '@/features/planner/week';
+import { weekDays } from '@/shared/week';
 import { savePrefs } from '@/features/profile';
 import { actions } from './index';
 

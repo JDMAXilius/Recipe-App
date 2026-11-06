@@ -14,7 +14,8 @@ export interface CatalogueDish {
   image: string | null;
   category: string | null;
   area: string | null;
-  ingredients: string[]; // names (and keys) as written
+  ingredients: string[]; // every form we have (name, key, original line): the allergen check reads them all
+  items?: string[]; // one name per ingredient, for the shopping count
 }
 
 export interface WeekAnswers {
@@ -35,10 +36,27 @@ export interface WeekDish {
 // Not dinners (ALLERGEN_COVERAGE.md method).
 const NOT_DINNER = new Set(['Dessert', 'Side', 'Breakfast', 'Starter']);
 
+// The categories don't separate dinners from jams, dips and sides (the
+// Vegetarian shelf holds Ezme; Miscellaneous holds pumpkin jam), so a dinner
+// must also not be named like a condiment, and must have something to fill a
+// plate: a protein or a starch.
+const CONDIMENT_TITLE = /\b(?:jam|jelly|marmalade|dip|salsa|relish|chutney|pickles?|sauce|dressing|spread|syrup|butter|marinade|seasoning|spice mix|paste|drink|juice|smoothie|lemonade|tea|coffee|cocktail|punch|cake|cookies?|biscuits?|muffins?|pudding|tart)\s*(?:\(|$)/i;
+const SUBSTANCE = /\b(?:chicken|beef|pork|lamb|mutton|goat|turkey|duck|veal|sausages?|bacon|ham\b|mince|meat|steak|fish|salmon|tuna|cod\b|haddock|hake|prawns?|shrimp|mussels?|squid|crab|eggs?\b|tofu|tempeh|paneer|halloumi|cheese|feta|ricotta|mozzarella|beans?\b|lentils?|chickpeas?|dal\b|split peas|quinoa|rice\b|risotto|pasta|spaghetti|penne|macaroni|linguine|lasagne|noodles?|udon|potato(?:es)?|gnocchi|bread|pitta|pita|naan|tortillas?|couscous|bulgh?ur|polenta|barley|freekeh)/i;
+
+// Beans that are a vegetable, not a protein.
+const NOT_SUBSTANCE = /\b(?:green|runner|french|string|broad|long|yard) beans?|bean sprouts|vanilla|cocoa|coffee|jelly beans/i;
+
+export function looksLikeDinner(d: Pick<CatalogueDish, 'title' | 'ingredients'>): boolean {
+  // "Falafel pita with tahini sauce" is a dinner: judge the name before
+  // "with", "in" or "and".
+  const head = d.title.split(/\s+(?:with|in|and|&)\s+/i)[0];
+  return !CONDIMENT_TITLE.test(head) && d.ingredients.some((n) => SUBSTANCE.test(n) && !NOT_SUBSTANCE.test(n));
+}
+
 export function eligibleDinners(catalogue: readonly CatalogueDish[], a: WeekAnswers): CatalogueDish[] {
   const skip = a.skips.map((s) => s.toLowerCase()).filter(Boolean);
   return catalogue.filter((d) => {
-    if (d.category && NOT_DINNER.has(d.category)) return false;
+    if ((d.category && NOT_DINNER.has(d.category)) || !looksLikeDinner(d)) return false;
     const found = allergensIn(d.ingredients);
     if (a.allergies.some((x) => found.has(x))) return false;
     if (!fitsDiet(d.ingredients, a.diet, d.category)) return false;
@@ -94,6 +112,28 @@ export function buildFirstWeek(catalogue: readonly CatalogueDish[], a: WeekAnswe
     week.push({ day, recipeId: pick.id, title: pick.title, image: pick.image, category: pick.category });
   }
   return week;
+}
+
+/** One-tap Swap: a different dinner for one day, from the same filtered
+ *  shelf, never one already in the week and, where possible, not the same
+ *  category as its neighbours. Null when nothing else fits. */
+export function swapDay(week: readonly WeekDish[], index: number, catalogue: readonly CatalogueDish[], a: WeekAnswers, seed: number): WeekDish | null {
+  const day = week[index];
+  if (!day) return null;
+  const used = new Set(week.map((w) => w.recipeId));
+  const near = new Set([week[index - 1]?.category, week[index + 1]?.category].filter(Boolean));
+  const pool = shuffle(eligibleDinners(catalogue, a).filter((d) => !used.has(d.id)), rng(seed));
+  const pick = pool.find((d) => !near.has(d.category)) ?? pool[0];
+  return pick ? { day: day.day, recipeId: pick.id, title: pick.title, image: pick.image, category: pick.category } : null;
+}
+
+/** Ingredients to buy for the week, counted once each (the "Shopping list
+ *  ready" row). */
+export function shoppingCount(week: readonly WeekDish[], catalogue: readonly CatalogueDish[]): number {
+  const byId = new Map(catalogue.map((d) => [d.id, d]));
+  const names = new Set<string>();
+  for (const w of week) for (const n of byId.get(w.recipeId)?.items ?? byId.get(w.recipeId)?.ingredients ?? []) names.add(n.trim().toLowerCase());
+  return names.size;
 }
 
 /** Tonight, or tomorrow once it's late (after 8 pm): the day the week opens on. */

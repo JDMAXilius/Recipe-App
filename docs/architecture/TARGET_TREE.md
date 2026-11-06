@@ -29,9 +29,9 @@ Recipe-App/
 │   ├── _layout.tsx                        ✏️ launch state machine, new route groups (R0.1, R1.7)
 │   ├── index.tsx                          ✏️ reads resolveLaunch (R0.1)
 │   ├── onboarding.tsx                     🗑️ the 3-painting carousel (R1.2, R9.4)
-│   ├── welcome.tsx                        🆕 one screen: Get started · I have an account (R1.2)
-│   ├── about/[step].tsx                   🆕 the three questions (R1.3)
-│   ├── first-week.tsx                     🆕 week preview, tonight first (R1.4)
+│   ├── welcome.tsx                        🆕 done — one screen: Get started · I have an account (R1.2)
+│   ├── about/[step].tsx                   🆕 done — the three questions (R1.3)
+│   ├── first-week.tsx                     🆕 done — week preview, tonight first (R1.4)
 │   ├── search.tsx                         🆕 search pushed from Home (R3.3)
 │   ├── add.tsx                            ✏️ ways in: Snap a meal · Write or paste · Say it · editor (R6.2) · done (first pass)
 │   ├── (auth)/
@@ -87,6 +87,7 @@ Recipe-App/
 │   │   ├── speech/                        🆕 done — moved from chat; used by chat and Add
 │   │   ├── flags.ts                       🆕 done — flowV2
 │   │   ├── yield.ts (+test)               🆕 done — yield · servings · portion
+│   │   ├── week.ts (+test)                ✏️ done — moved from planner (used by onboarding, catalogue)
 │   │   ├── allergens.ts (+test via firstWeek) 🆕 done — keyword allergens + diet fit
 │   │   ├── intent.ts (+test) · useIntent.ts 🆕 done — the link opens after sign-in / purchase (R0.2)
 │   │   ├── events.ts                      🆕 tracking plan events (R0.8)
@@ -101,7 +102,7 @@ Recipe-App/
 │   │   │   ├── OfflineBanner.tsx          ✏️ becomes Banner (offline, payment problem) (D1.7)
 │   │   │   ├── TabBarCreateButton.tsx     🗑️ the ＋ tab (R3.4)
 │   │   │   ├── TabBarOttoButton.tsx       🆕 the Otto circle (D1.1)
-│   │   │   ├── Chip.tsx                   🆕 labels, "Otto sees", filters (D1.11, D1.12)
+│   │   │   ├── Chip.tsx                   🆕 done — labels, "Otto sees", filters (D1.11, D1.12)
 │   │   │   ├── WeekStrip.tsx              🆕 real dates, tonight first (D1.4)
 │   │   │   └── AiImageTag.tsx             🆕 "AI image" tag (D1.13)
 │   │   ├── lib/ (fdaCalories, format)     ✅
@@ -116,9 +117,9 @@ Recipe-App/
 │   │   ├── onboarding/
 │   │   │   ├── OnboardingScreen.tsx       🗑️ carousel (R1.2)
 │   │   │   ├── Splash.tsx                 🗑️ logo splash (R1.1)
-│   │   │   ├── WelcomeScreen.tsx          🆕 (R1.2)
-│   │   │   ├── QuestionScreen.tsx         🆕 (R1.3)
-│   │   │   ├── FirstWeekScreen.tsx        🆕 (R1.4)
+│   │   │   ├── WelcomeScreen.tsx          🆕 done (R1.2)
+│   │   │   ├── QuestionScreen.tsx         🆕 done (R1.3) · firstRun.store.ts · onboarding.queries.ts
+│   │   │   ├── FirstWeekScreen.tsx        🆕 done (R1.4)
 │   │   │   ├── launch.ts (+test)          🆕 done — resolveLaunch, replaces gate.ts (R0.1)
 │   │   │   ├── gate.ts (+test)            🗑️ done — replaced by launch.ts
 │   │   │   ├── onboarding.draft.ts (+test)🆕 done — answers + week before the account (R0.3)

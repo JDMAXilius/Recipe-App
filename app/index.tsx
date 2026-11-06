@@ -1,6 +1,7 @@
 import { Redirect, type Href } from 'expo-router';
 import { useAuth } from '@/features/auth';
-import { LAUNCH_HREF, Splash, resolveLaunch, useDraft, useOnboarded } from '@/features/onboarding';
+import { Splash, launchHref, resolveLaunch, useDraft, useOnboarded } from '@/features/onboarding';
+import { flags } from '@/shared/flags';
 import { useMembership } from '@/features/profile';
 import { useIntent } from '@/shared/useIntent';
 
@@ -23,5 +24,5 @@ export default function Index() {
   // A link that came in before sign-in or the paywall opens now (R0.2).
   const intent = useIntent(launch === 'app');
   if (launch === 'loading' || (launch === 'app' && intent === undefined)) return <Splash />;
-  return <Redirect href={(launch === 'app' && intent ? intent : LAUNCH_HREF[launch]) as Href} />;
+  return <Redirect href={(launch === 'app' && intent ? intent : launchHref(launch, flags.flowV2)) as Href} />;
 }

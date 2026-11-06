@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canUseApp, LAUNCH_HREF, onboardedFor, resolveLaunch } from './launch.ts';
+import { canUseApp, LAUNCH_HREF, launchHref, onboardedFor, resolveLaunch } from './launch.ts';
 
 const base = { authReady: true, signedIn: false, onboarded: false, hasDraft: false, membership: 'unknown', purchasePending: false };
 const at = (over) => resolveLaunch({ ...base, ...over });
@@ -53,4 +53,11 @@ test('onboardedFor: per account when signed in, per phone when signed out', () =
   assert.equal(onboardedFor([], undefined), false);
   assert.equal(onboardedFor(['a'], undefined), true);
   assert.equal(onboardedFor(true, undefined), true);
+});
+
+test('the rework opens Welcome and the questions; everything else is unchanged', () => {
+  assert.equal(launchHref('welcome', true), '/welcome');
+  assert.equal(launchHref('needsPlan', true), '/about/1');
+  assert.equal(launchHref('welcome', false), '/(auth)/sign-up');
+  assert.equal(launchHref('app', true), '/(tabs)');
 });

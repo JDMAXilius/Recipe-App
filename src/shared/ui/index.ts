@@ -15,6 +15,7 @@ export {
 export { PawMark, type PawMarkProps } from './PawMark';
 export { OttoArt, type OttoArtProps, type OttoArtName } from './OttoArt';
 export { Bounceable, type BounceableProps } from './Bounceable';
+export { Chip, type ChipProps } from './Chip';
 export { OttoIdle, type OttoIdleProps } from './OttoIdle';
 export {
   OttoLoading,

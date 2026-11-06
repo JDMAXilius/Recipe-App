@@ -4,7 +4,7 @@
 // prefix — because the shopping-list resolver (getListRecipes) keys off exactly
 // that prefix. Get this wrong and a planned dish silently drops from the list.
 import type { SavedRecipe } from '@/features/cookbook';
-import type { WeekDay } from './week';
+import type { WeekDay } from '@/shared/week';
 import type { PlanEntry, AddPlanInput } from './plan.types';
 
 // A recipe the user chose in the picker, normalized across both cookbook
