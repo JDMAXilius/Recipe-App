@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Image, Pressable, Text as RNText, TextInput, View, type TextStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { OttoArt, OttoError, OttoIdle, OttoLoading, Text } from '@/shared/ui';
 import { colors, overlay, radii, space, type } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
@@ -13,6 +13,7 @@ import { FilterSheet } from './components/FilterSheet';
 import { RecipeCard } from './RecipeCard';
 import { useAreas, useCategories, useDiscover, useFeatured, useSearch } from './recipe.queries';
 import { track } from '@/shared/track';
+import { ottoHref } from '@/shared/flags';
 
 // Discover — Home + Search merged (v1 tab decision). Scroll rhythm:
 // greeting → search pill → Otto's pick hero → painted category tiles → grid.
@@ -32,7 +33,9 @@ const heroTitle: TextStyle = { ...type.title, color: colors.white };
 // Text-button ink for Cancel / Clear: interactive, so terracotta (tokens rule).
 const textButton: TextStyle = { ...type.body, fontWeight: '600', color: colors.terracotta };
 
-export function DiscoverScreen() {
+/** `top`: what Home puts above the sections (Tonight, This week). With it,
+ *  the small Tonight band steps aside (the card says it bigger). */
+export function DiscoverScreen({ top }: { top?: React.ReactNode } = {}) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -160,6 +163,8 @@ export function DiscoverScreen() {
         <OttoIdle name="happy" reactTo="save" size={64} />
       </View>
 
+      {top}
+
       {/* Filter button + search pill */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
         <Pressable
@@ -276,7 +281,7 @@ export function DiscoverScreen() {
       {!isSearching && (
         <>
           {/* Tonight band — today's planned dish, only when one exists. */}
-          {tonight ? (
+          {tonight && !top ? (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={`Tonight: ${tonight.title}`}
@@ -314,7 +319,7 @@ export function DiscoverScreen() {
             accessibilityLabel="Ask Otto for a recipe"
             onPress={() => {
               haptics.select();
-              router.push('/create');
+              router.push(ottoHref() as Href);
             }}
             style={{
               flexDirection: 'row',

@@ -76,7 +76,7 @@ widgets and Siri all call the same thing.
 | `useAuth()` | hook | auth | all |
 | `useSaved()` | hook | cookbook | recipes, profile |
 | `useNutrition(recipe)` | hook | nutrition | recipes (detail), cook |
-| `usePlan()` | hook | planner | recipes (add-to-week), profile, cook (cooked-state), planner shopping |
+| `usePlan()` | hook | planner | recipes (add-to-week), profile (club welcome), cook (cooked-state), planner shopping, home (Tonight, This week) |
 | `useCookedState()` | hook | cook | cookbook (Cooked filter) |
 | `useMyRecipes()` | hook | cookbook | profile ("yours" stat) |
 | `NutritionCard` | component | nutrition | recipes (detail), cook (finish screen) |

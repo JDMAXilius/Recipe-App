@@ -25,3 +25,4 @@ export {
 } from './OttoStates';
 export { Screen, type ScreenProps } from './Screen';
 export { AiConsentHost } from './AiConsentHost';
+export { WeekStrip, type StripDay } from './WeekStrip';

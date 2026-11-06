@@ -2,10 +2,11 @@
 // Read-only list of on-device chat threads: tap a row to reopen that thread in
 // the chat (/create?chat=<id>) and pick it back up. Everything is local (kv
 // 'chats' via the chat feature's loadThreads); Otto keeps the last 30 days.
+import { ottoHref } from '@/shared/flags';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useRouter, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OttoIdle, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
@@ -103,7 +104,7 @@ export default function ChatsScreen() {
             {g.rows.map((t) => (
               <Pressable
                 key={t.id}
-                onPress={() => router.push(`/create?chat=${t.id}`)}
+                onPress={() => router.push(ottoHref(t.id) as Href)}
                 accessibilityRole="button"
                 accessibilityLabel={`Reopen chat: ${t.title}`}
                 style={{

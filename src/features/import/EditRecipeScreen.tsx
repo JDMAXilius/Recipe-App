@@ -7,7 +7,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useLocalSearchParams, useNavigation, useRouter, type Href } from 'expo-router';
 import { usePreventRemove } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,7 +20,7 @@ import { showActionSheet } from '@/shared/actionSheet';
 import { RecipeInput } from './components/RecipeInput';
 import { SnapSummary } from './components/SnapSummary';
 import { MAX_SERVINGS, formatYield, parseYield, singular, unitLabel } from '@/shared/yield';
-import { flags } from '@/shared/flags';
+import { flags, ottoHref } from '@/shared/flags';
 import {
   cloneDraft,
   draftToAsk,
@@ -190,7 +190,7 @@ export function EditRecipeScreen() {
     haptics.select();
     const ask = draftToAsk(form);
     if (ask) setOttoAsk(ask);
-    router.push('/create');
+    router.push(ottoHref() as Href);
   };
 
   // Pick a photo of the dish from the library → upload to the recipe-photos
