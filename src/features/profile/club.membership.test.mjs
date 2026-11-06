@@ -14,7 +14,8 @@ test('mid sign-in the answer is unknown, never "not a member"', () => {
 
 test('once ready: member, ended, never, and a failed fetch fails closed', () => {
   assert.equal(membershipState(true, info({ club: {} }), false), 'member');
-  assert.equal(membershipState(true, info({}, { club: {} }), false), 'ended');
+  assert.equal(membershipState(true, info({}, { club: { periodType: 'NORMAL' } }), false), 'ended');
+  assert.equal(membershipState(true, info({}, { club: { periodType: 'TRIAL' } }), false), 'none'); // trial cancelled before it charged
   assert.equal(membershipState(true, info({}), false), 'none');
   assert.equal(membershipState(true, null, true), 'none');
   assert.equal(hasClubEntitlement(null), false);

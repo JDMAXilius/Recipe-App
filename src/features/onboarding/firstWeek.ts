@@ -41,14 +41,20 @@ export function eligibleDinners(catalogue: readonly CatalogueDish[], a: WeekAnsw
     if (d.category && NOT_DINNER.has(d.category)) return false;
     const found = allergensIn(d.ingredients);
     if (a.allergies.some((x) => found.has(x))) return false;
-    if (!fitsDiet(d.ingredients, a.diet)) return false;
-    const text = `${d.title} ${d.ingredients.join(' ')}`.toLowerCase();
-    return !skip.some((s) => text.includes(singularish(s)));
+    if (!fitsDiet(d.ingredients, a.diet, d.category)) return false;
+    const text = [d.title, ...d.ingredients].join(' | ');
+    return !skip.some((s) => skipPattern(s).test(text));
   });
 }
 
-// "mushrooms" should also skip "mushroom"; "tomatoes" → "tomato".
-const singularish = (s: string) => s.replace(/(?:es|s)$/, (m) => (s.length > 4 ? '' : m));
+// A skipped food matches as a whole word, singular or plural ("eggs" skips
+// "Egg Yolks", "cherries" skips "Cherry Tomatoes", "apples" never skips
+// pineapple), but not its cooking oil: skipping olives keeps olive oil.
+export function skipPattern(food: string): RegExp {
+  const f = food.trim().toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const stem = f.endsWith('ies') ? `${f.slice(0, -3)}(?:y|ies)` : f.endsWith('oes') || /(?:ches|shes|xes|sses)$/.test(f) ? `${f.slice(0, -2)}(?:es)?` : f.endsWith('s') && !f.endsWith('ss') ? `${f.slice(0, -1)}s?` : `${f}(?:s|es)?`;
+  return new RegExp(`\\b${stem}\\b(?! oil)`, 'i');
+}
 
 // Mulberry32: tiny, seeded, good enough to shuffle a shelf.
 function rng(seed: number) {

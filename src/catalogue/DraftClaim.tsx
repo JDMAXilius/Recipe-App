@@ -10,12 +10,12 @@ export function DraftClaim() {
   const { session } = useAuth();
   const { hasDraft } = useDraft();
   const qc = useQueryClient();
-  const userId = session?.user.id;
+  const user = session?.user;
 
   useEffect(() => {
-    if (!userId || !hasDraft) return;
+    if (!user || !hasDraft) return;
     let alive = true;
-    claimDraft(userId)
+    claimDraft(user)
       .then(() => {
         if (!alive) return;
         void qc.invalidateQueries({ queryKey: ['plan'] });
@@ -25,7 +25,7 @@ export function DraftClaim() {
     return () => {
       alive = false;
     };
-  }, [userId, hasDraft, qc]);
+  }, [user, hasDraft, qc]);
 
   return null;
 }

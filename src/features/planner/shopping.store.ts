@@ -46,7 +46,7 @@ export const writeLocalList = store.write;
 
 export function useLocalList() {
   const qc = useQueryClient();
-  const query = useQuery({ queryKey: LOCAL_LIST_KEY, queryFn: readLocalList, staleTime: 0 });
+  const query = useQuery({ queryKey: LOCAL_LIST_KEY, queryFn: readLocalList, staleTime: 0, networkMode: 'always' }); // a phone read: runs offline
   const update = useMemo(
     () =>
       optimisticUpdate(

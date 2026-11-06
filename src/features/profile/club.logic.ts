@@ -56,7 +56,7 @@ export function purchaseErrorMessage(code: string | undefined): string {
 /** What the launch may conclude about Otto Club. Not ready = unknown, whatever
  *  stale info says (mid sign-in RevenueCat still describes the anonymous
  *  customer). A failed fetch is a known "none": fail closed onto the paywall.
- *  ended = the entitlement exists in `all` but not in `active`. */
+ *  ended = a paid entitlement exists in `all` but not in `active`. */
 export function membershipState(
   purchasesReady: boolean,
   info: (CustomerInfoLike & { entitlements: { all?: Record<string, unknown> } }) | null | undefined,
@@ -64,5 +64,8 @@ export function membershipState(
 ): 'unknown' | 'member' | 'ended' | 'none' {
   if (!purchasesReady || (!info && !failed)) return 'unknown';
   if (hasClubEntitlement(info)) return 'member';
-  return info?.entitlements.all?.[CLUB_ENTITLEMENT] ? 'ended' : 'none';
+  // RevenueCat keeps expired entitlements in `all`, trials too: a trial
+  // cancelled before it charged is not a returning member.
+  const past = info?.entitlements.all?.[CLUB_ENTITLEMENT] as { periodType?: string } | undefined;
+  return past && past.periodType !== 'TRIAL' ? 'ended' : 'none';
 }

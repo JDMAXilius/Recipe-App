@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildFirstWeek, eligibleDinners, firstDayIndex } from './firstWeek.ts';
+import { buildFirstWeek, eligibleDinners, firstDayIndex, skipPattern } from './firstWeek.ts';
 import { allergensIn, fitsDiet } from '../../shared/allergens.ts';
 
 const dish = (id, category, area, ingredients) => ({ id, title: `Dish ${id}`, image: null, category, area, ingredients });
@@ -69,4 +69,18 @@ test('the person\'s cuisines come first; too few dishes gives a shorter week, ne
 test('late evening opens on tomorrow', () => {
   assert.equal(firstDayIndex(new Date(2026, 10, 6, 19, 59)), 0);
   assert.equal(firstDayIndex(new Date(2026, 10, 6, 20, 0)), 1);
+});
+
+test('skips match whole words, singular or plural, and keep the cooking oil', () => {
+  const t = (food, text) => skipPattern(food).test(text);
+  assert.equal(t('eggs', 'Egg Yolks'), true);
+  assert.equal(t('eggs', 'Eggplant'), false);
+  assert.equal(t('cherries', 'Cherry Tomatoes'), true);
+  assert.equal(t('anchovies', 'Anchovy Fillet'), true);
+  assert.equal(t('olives', 'Black Olives'), true);
+  assert.equal(t('olives', 'Olive Oil'), false);
+  assert.equal(t('apples', 'Pineapple Chunks'), false);
+  assert.equal(t('tomatoes', 'Tomato Puree'), true);
+  assert.equal(t('mushroom', 'Shiitake Mushrooms'), true);
+  assert.equal(t('C++', 'anything'), false); // regex characters are literal
 });

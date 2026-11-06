@@ -9,8 +9,9 @@ export const DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 const dish = z.object({
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   recipeId: z.string().min(1),
-  title: z.string().min(1),
-  image: z.string().nullable(),
+  // Same limits as put_in_plan, so a stored dish can always be claimed.
+  title: z.string().min(1).max(200),
+  image: z.url({ protocol: /^https$/ }).nullable(),
   category: z.string().nullable(),
 });
 

@@ -10,11 +10,14 @@ export const loadDraft = async () => readDraft(await kv.get<unknown>('onboarding
 
 export function useDraft() {
   const qc = useQueryClient();
-  const query = useQuery({ queryKey: DRAFT_KEY, queryFn: loadDraft, staleTime: 0 });
+  // A phone read: it must run offline too (the default networkMode waits
+  // for a connection, and the launch would wait with it).
+  const query = useQuery({ queryKey: DRAFT_KEY, queryFn: loadDraft, staleTime: 0, networkMode: 'always' });
   return {
     draft: query.data ?? null,
-    /** null while the phone is still being read: the launch waits. */
-    hasDraft: query.isSuccess ? query.data !== null : null,
+    /** null until the phone has been read on this mount: a cached answer
+     *  from before could send the launch through the wrong door. */
+    hasDraft: query.isSuccess && query.isFetchedAfterMount ? query.data !== null : null,
     save: async (answers: Record<string, unknown>, week: DraftDish[]) => {
       await kv.set('onboardingDraft', newDraft(answers, week, Date.now()));
       await qc.invalidateQueries({ queryKey: DRAFT_KEY });

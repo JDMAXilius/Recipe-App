@@ -14,6 +14,18 @@ import { onboardedFor } from './launch';
 
 const Stored = z.union([z.boolean(), z.array(z.string())]);
 
+/** Record that this account has its answers (the claimed draft, or the
+ *  onboarding screen): on the phone at once, on the account best-effort. */
+export async function markAccountOnboarded(uid: string): Promise<string[]> {
+  const stored = await kv.get('onboarded', false as z.infer<typeof Stored>, Stored);
+  const ids = Array.isArray(stored) ? stored : [];
+  const next = ids.includes(uid) ? ids : [...ids, uid];
+  await kv.set('onboarded', next);
+  // Offline, the local list still lets this phone through.
+  await supabase.auth.updateUser({ data: { onboarded_at: new Date().toISOString() } }).catch(() => {});
+  return next;
+}
+
 export function useOnboarded(user: User | null | undefined) {
   const [stored, setStored] = useState<boolean | string[] | null>(null);
   const uid = user?.id;
@@ -30,14 +42,8 @@ export function useOnboarded(user: User | null | undefined) {
 
   const markOnboarded = useCallback(async () => {
     if (!uid) return;
-    const ids = [...(Array.isArray(stored) ? stored : []), uid];
-    await kv.set('onboarded', ids);
-    setStored(ids);
-    // Best-effort: offline, the local list still lets this phone through.
-    await supabase.auth
-      .updateUser({ data: { onboarded_at: new Date().toISOString() } })
-      .catch(() => {});
-  }, [uid, stored]);
+    setStored(await markAccountOnboarded(uid));
+  }, [uid]);
 
   const onAccount = Boolean(user?.user_metadata?.onboarded_at);
   const onboarded = stored === null ? null : onAccount || onboardedFor(stored, uid);
