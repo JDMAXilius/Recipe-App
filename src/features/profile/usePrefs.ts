@@ -96,6 +96,16 @@ function setCuisines(cuisines: string[]) {
   persistPrefs();
   emit();
 }
+function update(patch: Partial<Prefs>) {
+  state = { ...state, ...normalizePrefs({ ...state, ...patch }), unitSystem: state.unitSystem };
+  persistPrefs();
+  emit();
+}
+const setHousehold = (household: Prefs['household']) => update({ household });
+const toggleAllergy = (a: Prefs['allergies'][number]) =>
+  update({ allergies: state.allergies.includes(a) ? state.allergies.filter((x) => x !== a) : [...state.allergies, a] });
+const addSkip = (food: string) => update({ skips: [...state.skips, food] });
+const removeSkip = (food: string) => update({ skips: state.skips.filter((s) => s !== food) });
 function toggleCuisine(area: string) {
   const has = state.cuisines.includes(area);
   setCuisines(has ? state.cuisines.filter((c) => c !== area) : [...state.cuisines, area]);
@@ -113,7 +123,7 @@ function setUnitSystem(raw: string) {
   emit();
 }
 
-const actions = { setDiet, setCuisines, toggleCuisine, setUnitSystem } as const;
+const actions = { setDiet, setCuisines, toggleCuisine, setUnitSystem, setHousehold, toggleAllergy, addSkip, removeSkip } as const;
 
 export type UsePrefs = PrefsState & typeof actions;
 

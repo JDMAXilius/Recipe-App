@@ -179,7 +179,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | ID | Work | Size | Notes |
 |---|---|---|---|
 | R7.1 | Membership: plan, renewal date, Manage (`showManageSubscriptions`), Restore, **Request a refund** (`beginRefundRequestForActiveEntitlement`, iOS 15+). | S | |
-| R7.2 | Preferences = the 3 questions, editable (R0.5 fields). | S | |
+| R7.2 | *(built 2026-11-06 behind flowV2)* Preferences = the 3 questions, editable (R0.5 fields). | S | |
 | R7.3 | Notifications: dinner + timer reminders; no marketing. | — | Exists |
 | R7.4 | **Privacy & data** screen: AI toggle naming OpenAI (reads/writes `aiConsent`), Download my data, Privacy policy, Delete account. | M | Download = new edge function `export-data` returning JSON of the user's rows (security-builder) |
 | R7.5 | **Delete flow**: explain screen (what goes, download first, billing note) → native destructive confirm → "Your account is deleted" → Welcome. | S | Function exists |
@@ -310,3 +310,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 - 2026-11-06 · R3.2/R3.4/R5.6 + R3.1 (JS fallback): under flowV2 the tabs are Home · Plan · Cookbook · Account + the Otto circle (`TabBarOttoButton`, otter face, ring when open); the ＋ tab is hidden with href:null, not removed. Home = `features/home` (TonightCard: Start cooking · Cooked it · Swap; empty "Open. No plans, no guilt."; This week `WeekStrip`) in Discover's new `top` slot. `ottoHref()` is the one route to Otto AI. NativeTabs (iOS 26 bar) waits for the SDK spike (G-8).
 - 2026-11-06 · R4.1/R4.2/R4.4 built behind flowV2: open days read "Open. No plans, no guilt."; long-press opens one dish sheet (cooked · swap · move to another day · leftovers tomorrow · label · remove); remove offers Undo (`entryToInput`, +1 test); "Otto, plan my week" / "fill the open days" uses the first-week rules on the empty days only (`catalogue/usePlanMyWeek.ts`). R4.3 (picker with Discover · Ask Otto) and R4.5 (Shopping as a Plan segment) still to do.
 - 2026-11-06 · R0.4 done: `profiles` (own row, cascades with the account) applied; usePrefs reads the account's copy after the kv cache (a new phone gets the answers) and pushes on every save, under flowV2. RLS suite +6 cases (84/84 local). R6.1 already met.
+- 2026-11-06 · R7.2 built behind flowV2: Preferences gains who's eating (adjustable), allergies (chips + the labels note) and foods to skip; usePrefs gains setHousehold / toggleAllergy / addSkip / removeSkip, saved to the phone and the account.
