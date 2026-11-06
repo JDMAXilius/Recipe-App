@@ -206,16 +206,23 @@ Deno.serve(async (req) => {
     const { data: claimed } = await db.from("agent_actions").update({ undone_at: new Date().toISOString() }).eq("id", id).is("undone_at", null).select("id");
     if (!claimed?.length) return json(200, { ok: true, already: true });
     const release = () => db.from("agent_actions").update({ undone_at: null }).eq("id", id);
-    if (inv.expect && !stillAsLeft(inv.expect, await ownRow(inv.expect.id))) {
+    try {
+      if (inv.expect && !stillAsLeft(inv.expect, await ownRow(inv.expect.id))) {
+        await release();
+        return json(409, { error: "That dinner has changed since Otto made the change. Change it by hand on the plan." });
+      }
+      const result = await write(inv, true, []);
+      if (typeof result === "string") {
+        await release();
+        return json(409, { error: result });
+      }
+      return json(200, { ok: true, summary: `Undid: ${row.summary}` });
+    } catch (error) {
+      // A throw must not leave it marked undone when nothing was put back.
       await release();
-      return json(409, { error: "That dinner has changed since Otto made the change. Change it by hand on the plan." });
+      console.error("otto-agent undo failed", (error as Error).message);
+      return json(502, { error: "Otto couldn't undo that right now. Try again in a moment." });
     }
-    const result = await write(inv, true, []);
-    if (typeof result === "string") {
-      await release();
-      return json(409, { error: result });
-    }
-    return json(200, { ok: true, summary: `Undid: ${row.summary}` });
   }
 
   // ---- a chat turn ------------------------------------------------------------
@@ -281,7 +288,8 @@ Deno.serve(async (req) => {
         }
         const problem = checkArgs(name, raw);
         const args = cleanArgs(name, raw);
-        if (++calls > CAPS.calls) out = { error: "That's as much as Otto can do in one go." };
+        if (left() < 5_000) out = { error: "Otto ran out of time for this one." }; // writes count against the deadline too
+        else if (++calls > CAPS.calls) out = { error: "That's as much as Otto can do in one go." };
         else if (problem) out = { error: problem };
         else if (name === "read_week") {
           const { data } = await db.from("plan_entries").select("id, day, title, label, kind, cooked, recipe_id")
