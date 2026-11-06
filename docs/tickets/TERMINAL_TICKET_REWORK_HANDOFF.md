@@ -29,6 +29,15 @@
      actually fixes it: forks and clones keep the old history either way.
   Tick each line here and say so in the roadmap Log.
 
+- [ ] **T17. Apply the security hardening migration** if the cloud session couldn't (its apply asks
+  a confirmation that never reached Juan). Run `supabase/migrations/20261107020000_security_hardening.sql`
+  in the Supabase SQL editor as one script (it passed 115/115 in the RLS suite on a local stack).
+  Then rename the file to the version Supabase records (`list_migrations`), drop its "NOT YET
+  APPLIED" line, and check: `select policyname from pg_policies where tablename='resolved_ingredients'`
+  returns nothing; the app's kitchen screen still joins with an existing code. If the storage
+  policy part says "skipped", create `recipe_photos_delete_own_folder` in the dashboard as the
+  notice says.
+
 ## Now (release 1.0.24 and the device checkpoint)
 - [x] **T1. Release build 1.0.24 (53).** *(built and on TestFlight 2026-11-06; review waits on T5)* Follow `docs/tickets/CHECKPOINT_1.md` §1. Privacy answers
   first (T5). `eas build -p ios --profile production`, then `eas submit -p ios --profile production`.
