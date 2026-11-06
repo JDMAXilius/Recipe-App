@@ -20,7 +20,10 @@ import {
   type IngredientPair,
   type RecipeSize,
   type RecipeSource,
+  toSavePayload,
 } from './draft';
+import type { Runners } from '@/shared/actions/action';
+import type { recipeActions } from './recipe.actions';
 import { ingredientsWithGrams, retryOnTransportFailure } from './save.compute';
 import { flags } from '@/shared/flags';
 
@@ -332,33 +335,56 @@ export async function deleteUserRecipe(id: number): Promise<void> {
   if (error) throw error;
 }
 
+// --- actions (R0.9) --------------------------------------------------------
+export const recipeRun = {
+  save: async ({ id, recipe }, ctx) => {
+    if (id == null) {
+      const created = await createUserRecipe(ctx.userId, recipe);
+      return { result: created, undo: { action: 'delete_my_recipe', input: { id: created } } };
+    }
+    const before = ctx.wantUndo ? toSavePayload(await getUserRecipe(id)) : null;
+    await updateUserRecipe(id, recipe);
+    return { result: id, undo: before?.ok ? { action: 'save_my_recipe', input: { id, recipe: before.recipe } } : null };
+  },
+  remove: async ({ id }, _ctx) => {
+    await deleteUserRecipe(id);
+    return { result: null, undo: null };
+  },
+} satisfies Runners<typeof recipeActions>;
+
 // --- hooks (TanStack Query) ----------------------------------------------
 
 export function useImportFromUrl() {
+  // action-exempt: reads a link into a draft for review; saves nothing
   return useMutation({ mutationFn: (url: string) => importFromUrl(url) });
 }
 
 export function useGenerateRecipe() {
+  // action-exempt: writes a draft for review; saves nothing
   return useMutation({ mutationFn: (input: GenerateInput) => generateRecipe(input) });
 }
 
 export function useImportFromText() {
+  // action-exempt: reads text into a draft for review; saves nothing
   return useMutation({ mutationFn: (text: string) => importFromText(text) });
 }
 
 export function useImportRecipePage() {
+  // action-exempt: reads a photo into a draft for review; saves nothing
   return useMutation({
     mutationFn: ({ image, mimeType }: { image: string; mimeType: string }) => importRecipePage(image, mimeType),
   });
 }
 
 export function useScanMeal() {
+  // action-exempt: reads a meal photo into a draft for review; saves nothing
   return useMutation({
     mutationFn: ({ image, mimeType }: { image: string; mimeType: string }) => scanMeal(image, mimeType),
   });
 }
 
 export function useUploadRecipePhoto() {
+  // action-exempt: stores the photo file; save_my_recipe records it on the recipe
   return useMutation({
     mutationFn: ({ base64, mimeType }: { base64: string; mimeType?: string | null }) =>
       uploadRecipePhoto(base64, mimeType),
@@ -398,13 +424,8 @@ function invalidateUserRecipe(qc: ReturnType<typeof useQueryClient>, id: number,
 export function useSaveRecipe() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, userId, recipe }: SaveInput): Promise<number> => {
-      if (id != null) {
-        await updateUserRecipe(id, recipe);
-        return id;
-      }
-      return createUserRecipe(userId, recipe);
-    },
+    mutationFn: ({ id, userId, recipe }: SaveInput): Promise<number> =>
+      recipeRun.save({ id: id ?? undefined, recipe }, { userId }).then((o) => o.result),
     onSuccess: (id, { userId }) => invalidateUserRecipe(qc, id, userId),
   });
 }
@@ -417,7 +438,7 @@ export interface DeleteInput {
 export function useDeleteRecipe() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id }: DeleteInput) => deleteUserRecipe(id),
+    mutationFn: ({ id, userId }: DeleteInput) => recipeRun.remove({ id }, { userId }),
     onSuccess: (_r, { id, userId }) => invalidateUserRecipe(qc, id, userId),
   });
 }

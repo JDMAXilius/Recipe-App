@@ -98,6 +98,37 @@
     }
   },
   {
+    "risk": "confirm",
+    "touches": [
+      "myRecipes",
+      "recipe",
+      "nutrition",
+      "plan-list"
+    ],
+    "flag": null,
+    "tool": {
+      "type": "function",
+      "function": {
+        "name": "delete_my_recipe",
+        "description": "Delete one of the user's own recipes for good.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "description": "The user's recipe id (the number in \"u-12\")"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      }
+    }
+  },
+  {
     "risk": "safe",
     "touches": [
       "household-list"
@@ -471,6 +502,196 @@
           },
           "required": [
             "itemKey"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "risk": "safe",
+    "touches": [
+      "myRecipes",
+      "recipe",
+      "nutrition",
+      "plan-list"
+    ],
+    "flag": null,
+    "tool": {
+      "type": "function",
+      "function": {
+        "name": "save_my_recipe",
+        "description": "Save one of the user's own recipes: a new one without an id, or replace an existing one with its id.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991,
+              "description": "The user's recipe id (the number in \"u-12\")"
+            },
+            "recipe": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "imported",
+                    "manual",
+                    "otto"
+                  ]
+                },
+                "sourceUrl": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sourceName": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "image": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "category": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 60
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "area": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 60
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "servings": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 200
+                },
+                "ingredients": {
+                  "maxItems": 60,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "measure": {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "required": [
+                      "measure",
+                      "name"
+                    ]
+                  }
+                },
+                "steps": {
+                  "maxItems": 40,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1500
+                  }
+                },
+                "size": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "yield": {
+                          "type": "object",
+                          "properties": {
+                            "qty": {
+                              "type": "number",
+                              "exclusiveMinimum": 0,
+                              "maximum": 200
+                            },
+                            "unit": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 24
+                            }
+                          },
+                          "required": [
+                            "qty",
+                            "unit"
+                          ]
+                        },
+                        "servingUnit": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 24
+                        }
+                      },
+                      "required": [
+                        "yield",
+                        "servingUnit"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "source",
+                "sourceUrl",
+                "sourceName",
+                "title",
+                "image",
+                "category",
+                "area",
+                "servings",
+                "ingredients",
+                "steps",
+                "size"
+              ]
+            }
+          },
+          "required": [
+            "recipe"
           ]
         }
       }

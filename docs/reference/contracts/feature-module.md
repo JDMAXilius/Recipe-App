@@ -65,7 +65,9 @@ widgets and Siri all call the same thing.
 - `npm run actions:manifest` writes `supabase/functions/_shared/actions.json`
   (the tools the server can offer the model). `src/catalogue/catalogue.test.mjs`
   fails when that file is stale, when a name is invalid or repeated, or when
-  a `mutationFn` doesn't call a runner (outside its listed pending files).
+  a `useMutation` call neither calls a runner nor carries an
+  `// action-exempt: <reason>` comment just above it (AI drafts, photo
+  upload and share links are exempt: they change nothing in the app).
 
 ## Cross-feature allowlist (hooks AND components)
 

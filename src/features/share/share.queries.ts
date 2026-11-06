@@ -62,6 +62,7 @@ async function currentUserId(): Promise<string> {
 // built by the caller). user_id is supplied to satisfy NOT NULL; RLS forces
 // it to equal auth.uid(), so a forged owner column is rejected server-side.
 export function useCreateRecipeShare() {
+  // action-exempt: makes a public link to hand to the share sheet; changes nothing in the app
   return useMutation({
     mutationFn: async (recipeId: number): Promise<string> => {
       const slug = mintToken();
@@ -77,6 +78,7 @@ export function useCreateRecipeShare() {
 
 // Snapshot a shopping list behind a public token. payload is the list JSON.
 export function useCreateListShare() {
+  // action-exempt: a public snapshot of the list the Shopping screen built
   return useMutation({
     mutationFn: async (payload: Json): Promise<string> => {
       const token = mintToken();

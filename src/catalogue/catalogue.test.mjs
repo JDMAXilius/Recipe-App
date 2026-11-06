@@ -21,35 +21,52 @@ test('supabase/functions/_shared/actions.json is current (npm run actions:manife
   assert.deepEqual(file, JSON.parse(JSON.stringify(toManifest(allSpecs))));
 });
 
-// Writes not yet behind an action, each with its reason. Shrink this list;
-// never grow it without a ticket.
-const PENDING = {
-  'src/features/import/import.queries.ts': 'saving a recipe from a draft: next catalogue slice',
-  'src/features/share/share.queries.ts': 'makes a share link; not app state',
-};
-
 const files = (dir) =>
   readdirSync(dir).flatMap((f) => {
     const p = join(dir, f);
     return statSync(p).isDirectory() ? files(p) : /\.tsx?$/.test(f) ? [p] : [];
   });
 
-test('every UI mutation goes through an action runner', () => {
+// Every useMutation(...) call, whole (parens balanced), with the two lines
+// before it, where an `// action-exempt: <reason>` comment goes.
+export function mutationCalls(src) {
+  const out = [];
+  for (const m of src.matchAll(/useMutation\(/g)) {
+    let depth = 0;
+    let end = m.index;
+    for (let i = m.index + 'useMutation'.length; i < src.length; i++) {
+      if (src[i] === '(') depth++;
+      else if (src[i] === ')' && --depth === 0) {
+        end = i + 1;
+        break;
+      }
+    }
+    const before = src.slice(0, m.index).split('\n').slice(-3).join('\n');
+    out.push({ before, call: src.slice(m.index, end) });
+  }
+  return out;
+}
+
+test('every UI mutation goes through an action runner, or says why not', () => {
   const offenders = [];
+  let checked = 0;
   for (const p of files(join(root, 'src/features'))) {
-    const rel = relative(root, p);
-    if (PENDING[rel]) continue;
     const src = readFileSync(p, 'utf8');
-    // each mutationFn body (to the next mutation option) must call a runner
-    for (const m of src.matchAll(/mutationFn:([\s\S]*?)(?=\n\s*on[A-Z]\w*:|\n\s*\}\);)/g)) {
-      if (!/\w+Run\.\w+\(/.test(m[1])) offenders.push(`${rel}: ${m[1].trim().split('\n')[0]}`);
+    for (const { before, call } of mutationCalls(src)) {
+      checked++;
+      if (/\w+Run\.\w+\(/.test(call) || /action-exempt: \S/.test(before)) continue;
+      offenders.push(`${relative(root, p)}: ${call.split('\n').slice(0, 2).join(' ').trim()}`);
     }
   }
-  assert.deepEqual(offenders, [], 'call a *Run runner from the feature\'s *.queries.ts, or add a spec');
+  assert.ok(checked >= 20, `found only ${checked} mutations; the scan is broken`);
+  assert.deepEqual(offenders, [], 'call a *Run runner from the feature\'s *.queries.ts, or mark it // action-exempt: <reason>');
 });
 
-test('the pending list only names files that still have mutations', () => {
-  for (const rel of Object.keys(PENDING)) {
-    assert.match(readFileSync(join(root, rel), 'utf8'), /mutationFn:/, `${rel} is done; remove it from PENDING`);
-  }
+test('the scan sees through one-liners and nested parens', () => {
+  const src = "x\n// action-exempt: a draft\nreturn useMutation({ mutationFn: (u) => f(g(u)) });\nconst m = useMutation({ mutationFn: (v) => planRun.add(v, ctx()) });\nconst bad = useMutation({ mutationFn: (v) => write(v) });";
+  const calls = mutationCalls(src);
+  assert.equal(calls.length, 3);
+  assert.match(calls[0].before, /action-exempt/);
+  assert.match(calls[1].call, /planRun\.add\(v, ctx\(\)\) \}\)$/);
+  assert.doesNotMatch(calls[2].call, /Run\./);
 });
