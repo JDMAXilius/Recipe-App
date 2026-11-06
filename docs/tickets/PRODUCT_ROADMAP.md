@@ -122,7 +122,7 @@ Sizes are rough (S ≤ ½ day, M ≈ 1–2 days, L ≈ 3–5 days, per ticket) a
 |---|---|---|
 | Plan my week | `plan_week`: catalogue first (filters in code), new recipes only where nothing fits, each with an image from R0.15; time limits use R0.14 estimates; preview card, one tap commits | R0.9, R0.14, R0.15 |
 | Agent | `otto-agent` Edge Function (Responses API, tool loop capped at 6 steps, user's token so RLS applies); the 17 tools from the action catalogue; answers as cards; "Otto did" log with Undo; Stop; Report a response (guideline 1.2) | R3.4 (agent) |
-| Rules | Single reversible changes act then Undo; a whole week or a new recipe is a preview you tap; prefs and calendar confirm; allergies, diet, deletes, billing and household are never visible to the AI | AI plan |
+| Rules | Single reversible changes act then Undo; a whole week or a new recipe is a preview you tap; prefs and calendar confirm; allergies, diet, deletes, billing and household are never *changed* by the AI (it reads allergies and diet as context — Juan, 2026-11-06) | AI plan |
 | Voice | Dictation seeded with this week's recipe names; cook-mode voice ("next", "back", "timer 8 minutes") on the device; spoken replies with `expo-speech` in cook mode | R5.3 (voice part) |
 | Suggestions | At most one suggestion card on Home, triggered by code from the catalogue, AI only when tapped; quiet by default | R4.x |
 | Chats | Chats and journal follow the account, or say clearly they stay on this phone | S9 |

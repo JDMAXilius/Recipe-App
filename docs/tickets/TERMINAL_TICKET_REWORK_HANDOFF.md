@@ -27,9 +27,11 @@
   meal photos to OpenAI, on-device dictation. Policy paragraphs go to the Otto_Website repo. Before
   the rework build ships (R10.3): allergies, foods to skip and the week's dish names go to OpenAI
   with each Ask Otto turn (B6) — truth table row 18 item 4.
-- [ ] **T6. Console jobs (Juan).** App Store Connect: turn on Billing Grace Period (R2.7). Supabase: delete the retired `canonicalize` function (it answers
-  410 today); turn on leaked-password protection. Decide `REQUIRE_CLUB=on` (server checks Otto Club
-  on every AI call; verify the demo account still gets 200 first).
+- [ ] **T6. Console jobs.** Done: `canonicalize` deleted; `REQUIRE_CLUB=on` (Juan confirmed
+  2026-11-06: keep it on). **Left for Terminal (Juan asked you to do it, Chrome is fine):** App Store
+  Connect → the app → Subscriptions → Billing Grace Period → turn it on (16 days, all renewals,
+  production + sandbox). Read the page back after saving and tick this. **On hold (Juan):**
+  leaked-password protection needs the Supabase Pro plan; not now.
 
 ## Server
 - [x] **T7a. Deploy `generate-recipe` first *(done 2026-11-06 by the cloud session: v23; anon → 401. The signed-in satay check is still T3)* (code ready on main, 2026-11-06).** Already switched to
