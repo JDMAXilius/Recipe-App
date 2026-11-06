@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { FlatList, Image, Pressable, useWindowDimensions, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
-import { OttoArt, OttoIdle, Screen, Text } from '@/shared/ui';
+import { Button, OttoArt, OttoIdle, Screen, Text } from '@/shared/ui';
+import { flags } from '@/shared/flags';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useJournal } from './useJournal';
 import type { JournalEntry } from './journal.logic';
@@ -26,6 +27,9 @@ export function JournalScreen() {
           <Text role="caption">
             Finish a cook and snap your plate. This is where the good memories live.
           </Text>
+          {flags.flowV2 && (
+            <Button title="Find something to cook" variant="primary" onPress={() => router.dismissTo('/(tabs)/cookbook')} />
+          )}
         </View>
       </Screen>
     );

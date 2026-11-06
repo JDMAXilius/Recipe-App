@@ -46,7 +46,7 @@ export function PlanTab({ planMyWeek }: Pick<PlanScreenProps, 'planMyWeek'>) {
       {segment === 'week' ? (
         <PlanScreen embedded planMyWeek={planMyWeek} onOpenShopping={() => select('shopping')} />
       ) : (
-        <ShoppingScreen embedded />
+        <ShoppingScreen embedded onPlan={() => select('week')} />
       )}
     </View>
   );

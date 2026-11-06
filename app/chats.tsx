@@ -2,13 +2,13 @@
 // Read-only list of on-device chat threads: tap a row to reopen that thread in
 // the chat (ottoHref(id): the Otto tab, or /create with the flag off) and pick it back up. Everything is local (kv
 // 'chats' via the chat feature's loadThreads); Otto keeps the last 30 days.
-import { ottoHref } from '@/shared/flags';
+import { flags, openOtto, ottoHref } from '@/shared/flags';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter, type Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { OttoIdle, Text } from '@/shared/ui';
+import { Button, OttoIdle, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { loadThreads, type ChatThread } from '@/features/chat';
 
@@ -95,6 +95,7 @@ export default function ChatsScreen() {
           <View style={{ alignItems: 'center', gap: space[4], paddingTop: space[7] }}>
             <OttoIdle name="sleepy" size={120} />
             <Text role="body">Nothing here yet. Ask Otto for a recipe and it’ll show up.</Text>
+            {flags.flowV2 && <Button title="Ask Otto" variant="primary" onPress={() => openOtto(router)} />}
           </View>
         ) : null}
 

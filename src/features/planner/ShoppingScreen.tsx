@@ -13,7 +13,7 @@ import {
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Text, OttoArt, OttoIdle, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
+import { Button, Text, OttoArt, OttoIdle, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
 import { ACTION_TOAST_MS } from '@/shared/ui/Toast';
 import { haptics } from '@/shared/haptics';
 import { flags } from '@/shared/flags';
@@ -83,7 +83,9 @@ function Frame({ embedded, right, children }: { embedded?: boolean; right?: Reac
   );
 }
 
-export function ShoppingScreen({ embedded }: { embedded?: boolean } = {}) {
+/** onPlan (R4.5 + S10): in the Plan tab, the empty list's first action
+ *  switches to the Week segment instead of pushing a route. */
+export function ShoppingScreen({ embedded, onPlan }: { embedded?: boolean; onPlan?: () => void } = {}) {
   const router = useRouter();
   const { show } = useToast();
   const {
@@ -660,6 +662,13 @@ export function ShoppingScreen({ embedded }: { embedded?: boolean } = {}) {
                 <OttoIdle name="thinking" size={120} sway />
                 <Text role="title">Nothing to buy yet</Text>
                 <Text role="body">Plan a dish and it lands here.</Text>
+                {flags.flowV2 && (
+                  <Button
+                    title="Plan a meal"
+                    variant="primary"
+                    onPress={() => (onPlan ? onPlan() : router.push('/(tabs)/plan?view=week'))}
+                  />
+                )}
               </View>
             ) : items.length === 0 && allItems.length > 0 ? (
               // The week HAS ingredients — the shopper has taken every one off.
