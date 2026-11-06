@@ -4,6 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  entryToInput,
   savedToPick,
   mineToPick,
   pickToAddInput,
@@ -84,4 +85,10 @@ test('tonightEntry: null when nothing planned today or entry has no recipe', () 
   assert.equal(tonightEntry([entry({ day: '2026-07-22' })], '2026-07-21'), null);
   assert.equal(tonightEntry([entry({ recipe_id: null })], '2026-07-21'), null);
   assert.equal(tonightEntry([], '2026-07-21'), null);
+});
+
+test('entryToInput puts a removed item back as it was, not cooked', () => {
+  const e = { id: 9, user_id: 'u', day: '2026-11-07', recipe_id: '52772', title: 'Teriyaki', image: null, category: 'Chicken', note: null, cooked: true, created_at: '', label: 'dinner', kind: 'recipe', position: 2048 };
+  assert.deepEqual(entryToInput(e), { day: '2026-11-07', recipeId: '52772', title: 'Teriyaki', image: null, category: 'Chicken', note: null, label: 'dinner', kind: 'recipe', position: 2048 });
+  assert.equal(entryToInput({ ...e, recipe_id: null }), null);
 });

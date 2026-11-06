@@ -17,11 +17,11 @@ import { sound } from '@/shared/sound';
 import { colors, radii, shadow, space, type } from '@/shared/theme/tokens';
 import { usePlan } from './usePlan';
 import { RecipePickerSheet } from './components/RecipePickerSheet';
-import { pickToAddInput, leftoversCarry, nextInWeek, type PickItem } from './plan.pick';
-import { isLeftover, MEAL_LABELS, sortDay } from './plan.list';
+import { entryToInput, pickToAddInput, leftoversCarry, nextInWeek, type PickItem } from './plan.pick';
+import { isLeftover, MEAL_LABELS, positionAtEnd, sortDay } from './plan.list';
 import { showActionSheet } from '@/shared/actionSheet';
 import { flags } from '@/shared/flags';
-import type { PlanEntry } from './plan.types';
+import type { AddPlanInput, PlanEntry } from './plan.types';
 import { track } from '@/shared/track';
 
 // A picker target: which day the pick lands on, and (for a swap) the entry it
@@ -37,11 +37,14 @@ interface PickerTarget {
 // recipes feature's job (recipes → usePlan().add), so this screen is the
 // week's home: view, mark cooked, remove, build the list.
 
-export function PlanScreen() {
+/** planMyWeek (R4.4, composed by the route): dinners for the empty days,
+ *  built with the first-week rules from the person's answers. */
+export function PlanScreen({ planMyWeek }: { planMyWeek?: (emptyDays: string[], planned: string[]) => Promise<AddPlanInput[]> } = {}) {
   const router = useRouter();
   const { show } = useToast();
-  const { entries, days, isLoading, isError, isSuccess, refetch, add, remove, swap, setCooked, setLabel } =
+  const { entries, days, isLoading, isError, isSuccess, refetch, add, remove, swap, setCooked, setLabel, move } =
     usePlan();
+  const [planning, setPlanning] = useState(false);
   const [picker, setPicker] = useState<PickerTarget | null>(null);
 
   const byDay: Record<string, PlanEntry[]> = {};
@@ -91,8 +94,56 @@ export function PlanScreen() {
     try {
       await remove(entry.id);
       haptics.impact('light'); // a commit (motion.md §2) — add/carry already do
+      const back = entryToInput(entry);
+      // Undo puts it back where it was (a new row, so not marked cooked).
+      show(`${entry.title} off the plan.`, 'info', back ? { actionLabel: 'Undo', onAction: () => void add(back) } : undefined);
     } catch {
       show("Couldn't remove that. Try again.", 'error');
+    }
+  };
+
+  // R4.2: one sheet for everything a dish can do (long-press, flowV2).
+  const dishActions = async (entry: PlanEntry, entryDay: string) => {
+    const canCarry = Boolean(entry.recipe_id) && nextInWeek(entryDay, days) != null && !isLeftover(entry);
+    const items: { label: string; run: () => unknown }[] = [
+      { label: entry.cooked ? 'Not cooked yet' : 'Cooked it', run: () => toggleCooked(entry) },
+      { label: 'Swap', run: () => setPicker({ day: entryDay, entryId: entry.id }) },
+      { label: 'Move to another day', run: () => moveEntry(entry) },
+      ...(canCarry ? [{ label: 'Leftovers tomorrow', run: () => carryLeftovers(entry, entryDay) }] : []),
+      { label: entry.label ? 'Change label' : 'Add a label', run: () => chooseLabel(entry) },
+      { label: 'Remove', run: () => removeEntry(entry) },
+    ];
+    const i = await showActionSheet({ title: entry.title, options: items.map((x) => x.label), destructiveIndex: items.length - 1 });
+    if (i != null) void items[i].run();
+  };
+
+  const moveEntry = async (entry: PlanEntry) => {
+    const others = days.filter((d) => d.key !== String(entry.day).slice(0, 10));
+    const i = await showActionSheet({ title: `Move ${entry.title} to…`, options: others.map((d) => `${d.label} · ${d.sub}`) });
+    if (i == null) return;
+    const to = others[i].key;
+    try {
+      await move(entry.id, to, positionAtEnd(sortDay(byDay[to] || [])));
+      haptics.select();
+    } catch {
+      show("Couldn't move that. Try again.", 'error');
+    }
+  };
+
+  // R4.4: fill only the empty days, never touching what's planned.
+  const emptyDays = days.filter((d) => (byDay[d.key]?.length ?? 0) === 0).map((d) => d.key);
+  const ottoPlans = async () => {
+    if (!planMyWeek || emptyDays.length === 0) return;
+    setPlanning(true);
+    try {
+      const picks = await planMyWeek(emptyDays, entries.map((e) => e.recipe_id).filter((id): id is string => !!id));
+      for (const p of picks) await add(p);
+      haptics.notify('success');
+      show(picks.length ? `Otto planned ${picks.length} ${picks.length === 1 ? 'dinner' : 'dinners'}.` : 'Nothing fits your answers for those days yet.', picks.length ? 'success' : 'info');
+    } catch {
+      show("Couldn't plan the week. Try again.", 'error');
+    } finally {
+      setPlanning(false);
     }
   };
 
@@ -152,13 +203,17 @@ export function PlanScreen() {
         )}
       </View>
 
-      {planned > 0 && (
-        <View style={{ marginBottom: space[4] }}>
-          <Button
-            title="Shopping list"
-            variant="secondary"
-            onPress={() => router.push('/shopping')}
-          />
+      {(planned > 0 || (flags.flowV2 && planMyWeek && emptyDays.length > 0)) && (
+        <View style={{ marginBottom: space[4], gap: space[2] }}>
+          {flags.flowV2 && planMyWeek && emptyDays.length > 0 && !isLoading && !isError && (
+            <Button
+              title={planned === 0 ? 'Otto, plan my week' : `Otto, fill ${emptyDays.length === 1 ? 'the open day' : `the ${emptyDays.length} open days`}`}
+              variant="primary"
+              loading={planning}
+              onPress={ottoPlans}
+            />
+          )}
+          {planned > 0 && <Button title="Shopping list" variant="secondary" onPress={() => router.push('/shopping')} />}
         </View>
       )}
 
@@ -198,7 +253,7 @@ export function PlanScreen() {
               </View>
 
               {dayEntries.length === 0 ? (
-                <Text role="caption">Nothing planned</Text>
+                <Text role="caption">{flags.flowV2 ? 'Open. No plans, no guilt.' : 'Nothing planned'}</Text>
               ) : (
                 dayEntries.map((entry) => {
                   const canCarry = Boolean(entry.recipe_id) && nextInWeek(day.key, days) != null;
@@ -209,7 +264,8 @@ export function PlanScreen() {
                         accessibilityRole="button"
                         accessibilityLabel={`Open ${entry.title}`}
                         onPress={() => entry.recipe_id && router.push(`/recipe/${entry.recipe_id}`)}
-                        onLongPress={flags.flowV2 ? () => chooseLabel(entry) : undefined}
+                        onLongPress={flags.flowV2 ? () => dishActions(entry, day.key) : undefined}
+                        accessibilityHint={flags.flowV2 ? 'Long-press for cooked, swap, move, leftovers, label or remove' : undefined}
                       >
                         {entry.image ? (
                           <Image source={{ uri: entry.image }} style={styles.thumb as ImageStyle} />

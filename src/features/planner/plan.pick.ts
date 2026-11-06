@@ -80,3 +80,20 @@ export function nextInWeek(dayKey: string, days: WeekDay[]): string | null {
   const i = days.findIndex((d) => d.key === dayKey);
   return i >= 0 && i < days.length - 1 ? days[i + 1].key : null;
 }
+
+/** Put a removed item back as it was (Undo): same day, dish, label, kind
+ *  and place. A fresh row, so it isn't marked cooked. */
+export function entryToInput(entry: PlanEntry): AddPlanInput | null {
+  if (!entry.recipe_id) return null;
+  return {
+    day: String(entry.day).slice(0, 10),
+    recipeId: entry.recipe_id,
+    title: entry.title,
+    image: entry.image,
+    category: entry.category,
+    note: entry.note,
+    label: entry.label,
+    kind: (entry.kind as AddPlanInput['kind']) ?? 'recipe',
+    ...(entry.position != null ? { position: entry.position } : {}),
+  };
+}

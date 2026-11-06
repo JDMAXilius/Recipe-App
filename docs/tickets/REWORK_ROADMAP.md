@@ -144,10 +144,10 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 
 | ID | Work | Size | Notes |
 |---|---|---|---|
-| R4.1 | Week view: date strip, tonight first, empty days read "Open. No plans, no guilt." | M | Dates exist (`weekDays`) |
-| R4.2 | Dish actions sheet: cooked · swap · move to another day · leftovers tomorrow · remove. | M | `move` = update `day`; leftovers = copy entry with a note |
+| R4.1 | Week view *(built 2026-11-06 behind flowV2)*: date strip, tonight first, empty days read "Open. No plans, no guilt." | M | Dates exist (`weekDays`) |
+| R4.2 | Dish actions sheet *(built 2026-11-06 behind flowV2)*: cooked · swap · move to another day · leftovers tomorrow · remove. | M | `move` = update `day`; leftovers = copy entry with a note |
 | R4.3 | Open day → Pick a meal (Saved · Discover · Ask Otto). | S | |
-| R4.4 | Otto plans my week: fill only empty days with `buildFirstWeek` rules. | S | Reuses R0.6 |
+| R4.4 | Otto plans my week *(built 2026-11-06 behind flowV2)*: fill only empty days with `buildFirstWeek` rules. | S | Reuses R0.6 |
 | R4.5 | Shopping list as a Plan segment (by aisle, each item names its recipe); `/shopping` stays as a deep link target. | M | `shoppingList.ts` exists |
 | R4.6 | Share with household from the list (invite · join · one live list). | S | Household exists; move the entry point |
 
@@ -308,3 +308,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 - 2026-11-06 · G-2/B4: truth table names OpenAI and lists every change the App Store answers must cover (meal photos, product interaction, on-device dictation, coming allergies); the exact policy paragraphs are written for the website repo.
 - 2026-11-06 · R2.2–R2.6 built behind flowV2: `ClubOutcomeScreens.tsx` (waiting for approval: opens on its own when the entitlement arrives, Check again, Choose another way; You're all set naming tonight's dinner, then the one reminders ask; Everything is still here → Rejoin), `club.pending.ts` (48 h Ask to Buy flag feeding the launch), routes `/club/pending|welcome|ended`; paywall: error → native alert "Nothing was charged", restore none → alert, ok → "Purchases restored". `ended` now opens its own screen. Not on a device.
 - 2026-11-06 · R3.2/R3.4/R5.6 + R3.1 (JS fallback): under flowV2 the tabs are Home · Plan · Cookbook · Account + the Otto circle (`TabBarOttoButton`, otter face, ring when open); the ＋ tab is hidden with href:null, not removed. Home = `features/home` (TonightCard: Start cooking · Cooked it · Swap; empty "Open. No plans, no guilt."; This week `WeekStrip`) in Discover's new `top` slot. `ottoHref()` is the one route to Otto AI. NativeTabs (iOS 26 bar) waits for the SDK spike (G-8).
+- 2026-11-06 · R4.1/R4.2/R4.4 built behind flowV2: open days read "Open. No plans, no guilt."; long-press opens one dish sheet (cooked · swap · move to another day · leftovers tomorrow · label · remove); remove offers Undo (`entryToInput`, +1 test); "Otto, plan my week" / "fill the open days" uses the first-week rules on the empty days only (`catalogue/usePlanMyWeek.ts`). R4.3 (picker with Discover · Ask Otto) and R4.5 (Shopping as a Plan segment) still to do.
