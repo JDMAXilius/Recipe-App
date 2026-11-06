@@ -10,7 +10,7 @@ const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('The day, YYYY-MM-D
 const dish = {
   recipeId: z.string().min(1).describe('Recipe id: a catalogue id ("52772") or one of the user\'s own ("u-12")'),
   title: z.string().min(1).max(200),
-  // https only. R0.11: the agent should name a recipe and let the server fill
+  // https only. Agent (1.3): it should name a recipe and let the server fill
   // title and image, rather than send them.
   image: z.url({ protocol: /^https$/ }).nullable().optional(),
   category: z.string().nullable().optional(),
