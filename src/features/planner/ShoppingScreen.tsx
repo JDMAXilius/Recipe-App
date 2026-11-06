@@ -16,6 +16,7 @@ import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-quer
 import { Text, OttoArt, OttoIdle, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
 import { ACTION_TOAST_MS } from '@/shared/ui/Toast';
 import { haptics } from '@/shared/haptics';
+import { flags } from '@/shared/flags';
 import { sound } from '@/shared/sound';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { buildShoppingListShareText, ShareListCard, ShoppingListBanner } from '@/features/share';
@@ -721,6 +722,30 @@ export function ShoppingScreen({ embedded }: { embedded?: boolean } = {}) {
             <AddItemRow onAdd={addCustom} />
           </View>
         </View>
+
+        {/* R4.6 (flowV2): the kitchen door lives on the list it shares. */}
+        {flags.flowV2 && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={isShared ? 'Your kitchen shares this list' : 'Shop together. Invite someone to this list.'}
+            onPress={() => {
+              haptics.select();
+              router.push('/household');
+            }}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: space[3], padding: space[4], marginTop: space[4], borderRadius: radii.card, backgroundColor: colors.creamDeep }}
+          >
+            <Ionicons name="people-outline" size={22} color={colors.ink} />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text role="body">{isShared ? 'Shared with your kitchen' : 'Shop together'}</Text>
+              <Text role="caption">
+                {isShared
+                  ? `${memberIds.length} ${memberIds.length === 1 ? 'person' : 'people'} see this list as it changes`
+                  : 'Invite someone and you both tick off one live list'}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.inkSoft} />
+          </Pressable>
+        )}
 
         {/* Offscreen share render (native only): the recipient-facing card the
             share sheet snapshots — bullets + open items, not this screen's

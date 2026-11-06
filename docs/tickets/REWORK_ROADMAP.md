@@ -149,7 +149,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R4.3 | Open day → Pick a meal *(built 2026-11-06 behind flowV2)* (Saved · Discover · Ask Otto). | S | |
 | R4.4 | Otto plans my week *(built 2026-11-06 behind flowV2)*: fill only empty days with `buildFirstWeek` rules. | S | Reuses R0.6 |
 | R4.5 | Shopping list as a Plan segment *(built 2026-11-06 behind flowV2)* (by aisle, each item names its recipe); `/shopping` stays as a deep link target. | M | `shoppingList.ts` exists |
-| R4.6 | Share with household from the list (invite · join · one live list). | S | Household exists; move the entry point |
+| R4.6 | *(built 2026-11-06 behind flowV2)* Share with household from the list (invite · join · one live list). | S | Household exists; move the entry point |
 
 ### Phase 5 — Recipe and cook
 
@@ -327,3 +327,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 - 2026-11-06 · Review fixes (independent refuter on R3.3–R6.3, no flag-off leaks found): Ask Otto from a screen pushed over the tabs (Search, Add, the editor, a dead recipe) mounted a SECOND tab navigator (second tab bar, back to the wrong screen) — `openOtto()` goes back to the open tabs first (`dismissTo`, flowV2); an ask now starts a fresh chat instead of landing in a reopened thread; Home's and the Sunday reminder's plan links say `?view=week`, so they never land on the Shopping segment; the last-tab restore checks where the person is when the read returns (a quick tap wins); a search sent before the recent list loads no longer replaces the saved five.
 - 2026-11-06 · R7.1 built behind flowV2: a member's Otto Club screen shows the plan (· free trial) and "Renews on Dec 4, 2026" / "Ends on …" (`memberSummary`, +1 test), Manage subscription (Apple's sheet), Restore purchases and Request a refund (`beginRefundRequestForActiveEntitlement`; sent → "Apple has your request", failed → points to reportaproblem.apple.com).
 - 2026-11-06 · R8.4 built behind flowV2: a What's new sheet on Home once per release (major.minor; a patch never repeats it — `shared/whatsNew.ts`, +2 tests; kv `lastSeenVersion`, kept on sign-out). Upgraders see it; a new install marks the release seen on Welcome. Notes exist for 1.1 only (four lines, each a thing 1.1 does), so nothing shows until the version is bumped at R10.1.
+- 2026-11-06 · R4.6 built behind flowV2: under the list, "Shop together — invite someone and you both tick off one live list", or once shared "Shared with your kitchen · N people see this list as it changes"; both open the kitchen screen (invite · join · leave), which already does the work.
