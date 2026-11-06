@@ -8,6 +8,8 @@
 import { useEffect, useState } from 'react';
 import { kv } from '@/shared/storage';
 import { onForget } from '@/shared/forget';
+import { flags } from '@/shared/flags';
+import { fetchAccountPrefs, pushAccountPrefs } from './profile.queries';
 import { deriveUnitSystem, type UnitSystem } from './profile.logic';
 import {
   DEFAULT_PREFS,
@@ -44,14 +46,42 @@ function hydrate(): Promise<void> {
     ]);
     state = { ...normalizePrefs(rawPrefs), unitSystem: deriveUnitSystem(rawUnit) };
     emit();
+    void syncFromAccount();
   })();
   return hydrating;
 }
 
-// Everything but the unit system (its own key). Moves to the account in R0.4.
+// R0.4: the account's copy wins (a new phone gets the answers); an account
+// with no row yet takes the phone's. Offline or signed out: the kv cache
+// stands. Under flowV2 only, until the App Privacy answers say so.
+async function syncFromAccount(): Promise<void> {
+  if (!flags.flowV2) return;
+  try {
+    const row = await fetchAccountPrefs();
+    if (row) {
+      state = { ...normalizePrefs(row), unitSystem: state.unitSystem };
+      const { unitSystem: _unit, ...prefs } = state;
+      void kv.set('prefs', prefs);
+      emit();
+    } else {
+      await pushPrefs();
+    }
+  } catch {
+    // offline: keep the cache, try again on the next write
+  }
+}
+
+const pushPrefs = async () => {
+  if (!flags.flowV2) return;
+  const { unitSystem: _unit, ...prefs } = state;
+  await pushAccountPrefs(prefs).catch(() => {});
+};
+
+// Everything but the unit system (its own key); also to the account (R0.4).
 const persistPrefs = () => {
   const { unitSystem: _unit, ...prefs } = state;
   void kv.set('prefs', prefs);
+  void pushPrefs();
 };
 
 // Setters are module-level (stable identity) — writes persist best-effort and

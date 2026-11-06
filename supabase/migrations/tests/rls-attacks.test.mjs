@@ -302,6 +302,22 @@ async function eventsAndJoins(A, B) {
   check("joins: anon cannot join", r.status === 401 || r.status === 403 || (r.status === 400 && /Sign in/.test(JSON.stringify(r.data))), `status ${r.status} ${JSON.stringify(r.data)}`);
 }
 
+// profiles (R0.4): own row only.
+async function profilesOwnRow(A, B) {
+  let r = await rest("/rest/v1/profiles", { method: "POST", token: A.token, body: { user_id: A.id, diet: "vegan", allergies: ["peanut"] } });
+  check("profiles: A can write A's row", r.status === 201, `status ${r.status} ${JSON.stringify(r.data)}`);
+  r = await rest("/rest/v1/profiles", { method: "POST", token: B.token, body: { user_id: A.id, diet: "none" } });
+  check("profiles: B cannot write A's row", r.status === 401 || r.status === 403 || r.status === 409, `status ${r.status}`);
+  r = await rest(`/rest/v1/profiles?user_id=eq.${A.id}&select=user_id`, { token: B.token });
+  check("profiles: B reads none of A's", r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
+  r = await rest(`/rest/v1/profiles?user_id=eq.${A.id}`, { method: "PATCH", token: B.token, body: { diet: "none" }, headers: { prefer: "return=representation" } });
+  check("profiles: B cannot change A's", r.status === 200 && rows(r).length === 0, `status ${r.status}`);
+  r = await rest("/rest/v1/profiles?select=user_id");
+  check("profiles: anon reads none", r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
+  r = await rest(`/rest/v1/profiles?user_id=eq.${A.id}&select=diet`, { token: A.token });
+  check("profiles: A reads A's own", r.status === 200 && rows(r)[0]?.diet === "vegan", JSON.stringify(r.data));
+}
+
 const A = await signUp("a");
 const B = await signUp("b");
 console.log(`Signed up throwaway users A=${A.email} B=${B.email} (deleted at the end via delete-account)`);
@@ -311,6 +327,7 @@ await attackAsB(A, B);
 await enumerationAsAnon(B);
 await definerFunctions(A, B);
 await eventsAndJoins(A, B);
+await profilesOwnRow(A, B);
 
 // Clean up through the real account-deletion path, so the run leaves nothing
 // behind in prod AND exercises delete-account end to end.

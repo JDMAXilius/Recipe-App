@@ -329,6 +329,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      profiles: {
+        Row: {
+          allergies: string[];
+          cuisines: string[];
+          diet: string;
+          household: Json;
+          skips: string[];
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          allergies?: string[];
+          cuisines?: string[];
+          diet?: string;
+          household?: Json;
+          skips?: string[];
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          allergies?: string[];
+          cuisines?: string[];
+          diet?: string;
+          household?: Json;
+          skips?: string[];
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       recipe_shares: {
         Row: {
           created_at: string | null;
