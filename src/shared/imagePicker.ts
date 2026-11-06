@@ -39,7 +39,18 @@ export async function pickFromLibrary(opts: { base64?: boolean } = {}): Promise<
   return toPicked(result);
 }
 
-export async function takePhoto(opts: { base64?: boolean } = {}): Promise<PickResult> {
+export interface PhotoOpts {
+  base64?: boolean;
+  /** R6.3: runs only before the FIRST camera alert (permission not asked
+   *  yet). false = "Not now": no system alert, nothing used up. */
+  primer?: () => Promise<boolean>;
+}
+
+export async function takePhoto(opts: PhotoOpts = {}): Promise<PickResult> {
+  if (opts.primer) {
+    const now = await ImagePicker.getCameraPermissionsAsync();
+    if (now.status === 'undetermined' && !(await opts.primer())) return 'cancelled';
+  }
   const perm = await ImagePicker.requestCameraPermissionsAsync();
   if (!perm.granted) return 'denied';
   const result = await ImagePicker.launchCameraAsync({
@@ -52,7 +63,7 @@ export async function takePhoto(opts: { base64?: boolean } = {}): Promise<PickRe
 // Camera or library is the person's call, asked up front — cancelling the
 // camera must not open the library behind their back. Web skips the sheet: a
 // browser's file input already offers the camera on phones.
-export async function choosePhoto(opts: { base64?: boolean } = {}): Promise<PickResult> {
+export async function choosePhoto(opts: PhotoOpts = {}): Promise<PickResult> {
   if (Platform.OS === 'web') return pickFromLibrary(opts);
   const choice = await showActionSheet({
     title: 'Add a photo',

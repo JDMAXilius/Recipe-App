@@ -15,7 +15,8 @@
   Plan tab Week · Shopping segment (R4.5) — the list scrolls, ticks and shares as on `/shopping`;
   the meal picker's Find in Discover / Ask Otto doors (R4.3); quit on Plan, relaunch → opens on
   Plan; open a recipe link while quit → the recipe wins (R3.5). Home search field → Search screen;
-  a nonsense word → Ask Otto opens with "Write me a recipe for …" in the box (R3.3).
+  a nonsense word → Ask Otto opens with "Write me a recipe for …" in the box (R3.3). Fresh install:
+  Cookbook ＋ → Snap a meal → Take photo shows Otto's primer before the iOS alert (R6.2/R6.3).
 - [ ] **T4. Kitchen handover (A3).** Run `supabase/migrations/20261106060000_household_owner_handover.sql`
   in the Supabase SQL editor (the MCP apply asks a confirmation that never reaches Juan). Then
   rename the file to the version Supabase records and remove its "NOT YET APPLIED" note.

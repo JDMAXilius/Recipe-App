@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { OttoLoading, Text } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
+import { flags } from '@/shared/flags';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useCookedState } from '@/features/cook';
 import { useSaved } from './useSaved';
@@ -73,11 +74,27 @@ export function CookbookScreen() {
         }}
       >
         <Text role="display">Cookbook</Text>
-        {items.length > 0 ? (
-          <Text role="meta">
-            {items.length} {items.length === 1 ? 'recipe' : 'recipes'}
-          </Text>
-        ) : null}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
+          {items.length > 0 ? (
+            <Text role="meta">
+              {items.length} {items.length === 1 ? 'recipe' : 'recipes'}
+            </Text>
+          ) : null}
+          {/* R6.2 (flowV2): the ＋ tab is gone; Add lives here, in the bar. */}
+          {flags.flowV2 && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Add a recipe"
+              onPress={() => {
+                haptics.select();
+                router.push('/add');
+              }}
+              style={{ width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.terracotta, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Ionicons name="add" size={26} color={colors.white} />
+            </Pressable>
+          )}
+        </View>
       </View>
 
       {/* Segment row — quiet text tabs + terracotta painted-daub underline

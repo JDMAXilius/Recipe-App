@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react';
-import { ActivityIndicator, Linking, Pressable, ScrollView, View, type ViewStyle } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, Text as RNText, View, type ViewStyle } from 'react-native';
 import { useNavigation, useRouter, type Href } from 'expo-router';
 import { usePreventRemove } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Screen, Text, useToast } from '@/shared/ui';
-import { colors, radii, space } from '@/shared/theme/tokens';
+import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { RecipeInput } from './components/RecipeInput';
 import { useImportFromText, useImportFromUrl, useImportRecipePage, useScanMeal } from './import.queries';
 import { flags, ottoHref } from '@/shared/flags';
@@ -46,6 +46,15 @@ const tileActive: ViewStyle = {
   backgroundColor: colors.accentSoft,
   borderColor: colors.terracotta,
 };
+
+// R6.3: said once, before iOS asks for the camera. Meals only (ADR-0015).
+const cameraPrimer = () =>
+  new Promise<boolean>((resolve) =>
+    Alert.alert('Snap your meal', 'Otto looks at the dish and writes the recipe. Next, iPhone asks to use the camera.', [
+      { text: 'Not now', style: 'cancel', onPress: () => resolve(false) },
+      { text: 'Continue', onPress: () => resolve(true) },
+    ], { cancelable: true, onDismiss: () => resolve(false) }),
+  );
 
 export function AddSheet({ onClose }: AddSheetProps) {
   const router = useRouter();
@@ -148,7 +157,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
   const snap = async (read: (photo: { image: string; mimeType: string }) => Promise<Draft>) => {
     setError(null);
     if (!(await ensureAiConsent())) return;
-    const picked = await choosePhoto({ base64: true });
+    const picked = await choosePhoto({ base64: true, primer: flags.flowV2 ? cameraPrimer : undefined });
     if (picked === 'denied') {
       toast.show('Otto needs the camera for that.', 'info', {
         actionLabel: 'Open Settings',
@@ -213,8 +222,22 @@ export function AddSheet({ onClose }: AddSheetProps) {
         <View style={{ gap: space[4] }}>
           <Text role="display">Add a recipe</Text>
 
+          {/* R6.2 (flowV2): Snap a meal is the hero; the other ways sit under it. */}
+          {flags.flowV2 && (
+            <Pressable
+              onPress={snapMeal}
+              accessibilityRole="button"
+              accessibilityLabel="Snap a meal. Otto writes the recipe from a photo of the dish."
+              style={{ backgroundColor: colors.terracotta, borderRadius: radii.card, padding: space[5], gap: space[3], minHeight: 140, justifyContent: 'flex-end' }}
+            >
+              <Ionicons name="camera" size={32} color={colors.white} />
+              <RNText style={[type.title, { color: colors.white }]}>Snap a meal</RNText>
+              <RNText style={[type.body, { color: colors.white }]}>Otto writes the recipe from a photo of the dish.</RNText>
+            </Pressable>
+          )}
+
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[3] }}>
-            <Tile icon="camera-outline" label={flags.flowV2 ? 'Snap a meal' : 'Snap a photo'} onPress={snapMeal} />
+            {!flags.flowV2 && <Tile icon="camera-outline" label="Snap a photo" onPress={snapMeal} />}
             <Tile icon="link" label="Paste a link" active={mode === 'link'} onPress={() => tap('link')} />
             <Tile
               icon="document-text-outline"
