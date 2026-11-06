@@ -160,7 +160,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R5.3 | Cook mode timers; **Live Activity** lock-screen timer later (D6). | M / L | |
 | R5.4 | Dinner, done: thumbs, snap the plate, into the journal, rating prompt once. | S | `reviewPrompt` exists |
 | R5.6 | *(built 2026-11-06 behind flowV2; not seen on a device: needs a signed-in member)* **"Cooked it" on the Tonight card** (Home): one tap marks tonight's planned dinner cooked without opening cook mode, so activation counts people who cook from memory; a quiet weekly count ("4 dinners this week") on Plan, no streak guilt. | S | Feeds `item_cooked`; Figma "v4 · Home · Tonight with Cooked it" |
-| R5.5 | **Recipe not found** state for dead links / removed recipes, with similar dishes. | S | |
+| R5.5 | *(built 2026-11-06 behind flowV2)* **Recipe not found** state for dead links / removed recipes, with similar dishes. | S | |
 
 ### Phase 6 — Cookbook and Add
 
@@ -318,3 +318,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 - 2026-11-06 · R4.5 built behind flowV2: the Plan tab is `PlanTab` — Week · Shopping segment on top; Shopping is the same list (aisles, each row names its dishes) shown without a back button, and the week's "Shopping list" button switches the segment. `/shopping` stays as the deep link. Not checked on a device (needs a signed-in account; T3).
 - 2026-11-06 · R3.5 built behind flowV2: the four main tabs are remembered (`shared/lastTab.ts`, +2 tests; kv `lastTab`, kept on sign-out) and a cold launch that lands on Home goes back to the last one once; a deep link wins, Otto is never restored. R3.6 done: Cookbook's empty-state Explore opens the Home tab (`/(tabs)`); Ask Otto's unreachable signed-out view is gone (the route guards keep signed-out people out; it renders nothing for the frame before the redirect).
 - 2026-11-06 · R3.3 built behind flowV2: Home's search field opens `app/search.tsx` (`recipes/SearchScreen.tsx`): empty → recent 5 + browse by kind (category tiles); typing → results with kind chips (`search.logic.ts`, +2 tests); nothing found → "Ask Otto for …" puts the words in Otto's composer (the editor's one-slot hand-off, set by the route). Recent searches moved onto kv `recentSearches` (same stored name) and are now removed on sign-out — before, a person's searches stayed on the phone.
+- 2026-11-06 · R5.5 built behind flowV2: a recipe that isn't there opens `RecipeGone` (plain words, Otto's pick in its place, Search · Ask Otto · Take me back — back works from a cold link); a failed read now shows the retry state instead of "Recipe not found". "Similar dishes" is Otto's pick: a missing recipe has no category to match.

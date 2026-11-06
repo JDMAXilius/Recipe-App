@@ -4,7 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
-import { Bounceable, Button, PawMark, Sheet, Text, useToast } from '@/shared/ui';
+import { Bounceable, Button, OttoError, PawMark, Sheet, Text, useToast } from '@/shared/ui';
+import { flags } from '@/shared/flags';
+import { RecipeGone } from './components/RecipeGone';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 // Pure text enricher — tints detected temps/durations (semantic-ink: computed).
@@ -49,7 +51,7 @@ export function RecipeDetailScreen() {
   const insets = useSafeAreaInsets();
   const recipeId = String(id ?? '');
 
-  const { data: recipe, isLoading } = useRecipe(recipeId);
+  const { data: recipe, isLoading, isError, refetch } = useRecipe(recipeId);
   const { data: related = [] } = useRelated(recipe);
   const { isSaved, toggle } = useSaved();
   const { days, add } = usePlan();
@@ -76,6 +78,18 @@ export function RecipeDetailScreen() {
         <Text role="body">Getting the recipe ready…</Text>
       </View>
     );
+  }
+
+  if (flags.flowV2 && !recipe) {
+    // A read that failed is not a recipe that's gone (R5.5).
+    if (isError) {
+      return (
+        <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: insets.top }}>
+          <OttoError onRetry={() => void refetch()} />
+        </View>
+      );
+    }
+    return <RecipeGone onBack={goBack} />;
   }
 
   if (!recipe) {
