@@ -31,6 +31,8 @@ rate limit → club gate → key present → body validation.
 
 ## `generate-recipe`
 
+> 2026-11-06: its photo (vision) mode is **legacy** (ADR-0015). No current client sends it; it stays only for builds ≤1.0.23 and is removed with R6.6.
+
 **Purpose.** All recipe text from OpenAI: Ask Otto chat (JSON or streamed),
 photo transcription, pasted-text transcription, and one-shot generation
 (`generate-recipe/index.ts:1-5`). The body's keys pick the mode, checked in this
@@ -337,6 +339,26 @@ string when the model output is unusable or the call fails (`:235-238`, `:240-24
 **Tests.** None for the function.
 
 ---
+
+## `scan-meal` (new, 2026-11-06 · not deployed)
+
+Snap a meal (ADR-0013, ADR-0015): one photo of food → the recipe of the whole dish the portion came from (2 slices of banana bread → the loaf, served by the slice).
+
+| Field | Contract |
+|---|---|
+| Purpose | Identify the dish and reconstruct its full recipe (batch yield, servings in a natural unit, the photographed portion, ingredients weight-first, steps). No calories: the app computes nutrition on the device at save |
+| Method | `POST` |
+| Auth | `getUserId` (401) → `requireClub` (402 when `REQUIRE_CLUB=on`). The pre-account scan (3 per device, DeviceCheck/App Attest) is R0.16 and not built |
+| Rate limit | 10 per 15 min per user (isolate-local, like the others) |
+| Request | `{ image: base64, mimeType: image/jpeg \| image/png \| image/webp }`, checked by `_shared/image.ts` (413 too big, 400 malformed) |
+| Model | `gpt-5.1`, strict `SCAN_SCHEMA` (`scan-meal/scan.ts`), effort medium, 55 s timeout |
+| Checks | `checkScan` in code: enough ingredients and steps; baked archetypes make a whole batch of ≥4 servings; leavening ≤ 6% and sugar ≤ 150% of flour; single meals ≤ 8 servings; portion ≤ servings. Failures get **one** retry with the issues as feedback; anything still off is returned in `scan.checks` and shown to the user |
+| Response 200 | The editor's draft fields (`title, servings, category, area, ingredients, steps, image: null, source: "otto", sourceUrl: null, sourceName: null`) plus `scan: { archetype, seen[], portion, yield, servingUnit, questions[≤2], assumptions[], checks[], closest }`. `closest` is the best title match in `otto_recipes` (read via the service client) |
+| Errors | 401, 402, 405, 413, 400, 422 (no food: the model's kind decline), 429, 502 (model lost the plot), 503 (no key) |
+| Env | `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `REQUIRE_CLUB`, `REVENUECAT_SECRET_KEY` |
+| Client | `scanMeal` / `useScanMeal` in `src/features/import/import.queries.ts`; Add screen tile "Snap a meal" (behind `flags.flowV2`) |
+| Tests | `scan-meal/scan.test.mjs` with contract fixtures in `scan-meal/fixtures/` (model outputs, not photos). The photo calibration set (real meals with known recipes) is still to build (R6.5) |
+| Storage | The photo is not stored by this function |
 
 ## Open questions / risks
 

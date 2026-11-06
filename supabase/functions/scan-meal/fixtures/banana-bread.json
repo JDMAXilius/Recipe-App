@@ -1,0 +1,22 @@
+{
+  "is_food": true, "decline_reason": null,
+  "dish": "Banana bread", "archetype": "loaf",
+  "seen": [{ "name": "banana bread", "confident": true }, { "name": "walnuts", "confident": false }],
+  "portion": { "count": 2, "unit": "slice" },
+  "yield": { "qty": 1, "unit": "loaf" },
+  "servings": { "count": 10, "unit": "slice" },
+  "category": "Bread", "area": null,
+  "ingredients": [
+    { "measure": "250 g", "name": "plain flour" },
+    { "measure": "1 tsp", "name": "baking soda" },
+    { "measure": "0.5 tsp", "name": "salt" },
+    { "measure": "115 g", "name": "butter, melted" },
+    { "measure": "150 g", "name": "brown sugar" },
+    { "measure": "2", "name": "eggs" },
+    { "measure": "350 g", "name": "ripe bananas, mashed" },
+    { "measure": "1 tsp", "name": "vanilla extract" }
+  ],
+  "steps": ["Heat the oven to 175 C and line a loaf tin.", "Whisk the flour, baking soda and salt.", "Beat the butter and sugar, then the eggs, bananas and vanilla.", "Fold in the dry ingredients and bake for about 60 minutes."],
+  "questions": ["Were there walnuts in it?"],
+  "assumptions": ["A standard 23 x 13 cm loaf tin."]
+}

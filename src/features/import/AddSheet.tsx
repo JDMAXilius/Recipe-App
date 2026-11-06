@@ -6,15 +6,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { Button, Screen, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { RecipeInput } from './components/RecipeInput';
-import { useImportFromText, useImportFromUrl, useImportFromPhoto } from './import.queries';
+import { useImportFromText, useImportFromUrl, useScanMeal } from './import.queries';
+import { flags } from '@/shared/flags';
 import { emptyDraft, setDraft } from './draft';
 import { choosePhoto } from '@/shared/imagePicker';
 import { ensureAiConsent } from '@/shared/aiConsent';
 import { showActionSheet } from '@/shared/actionSheet';
 
 // "Add a recipe" — a pushed full SCREEN with a back button (founder call:
-// no longer a bottom modal). A 2×2 tile grid — paste a link, paste text, snap
-// a photo, write it myself — over one Ask Otto button (UX audit 07: no
+// no longer a bottom modal). A 2×2 tile grid — snap a meal, paste a link,
+// write or paste, write it myself — over one Ask Otto button. The camera scans
+// MEALS only (ADR-0015); it appears once scan-meal is live (flags.flowV2) (UX audit 07: no
 // mascot, no captions; the hint lives in the placeholder). Every path ALWAYS lands the user in the editor (or the
 // chat tab): an import failure carries its URL into manual entry, so it never
 // dead-ends.
@@ -64,12 +66,12 @@ export function AddSheet({ onClose }: AddSheetProps) {
     }).then((i) => i === 0 && navigation.dispatch(data.action));
   });
   const importMut = useImportFromUrl();
-  const photoMut = useImportFromPhoto();
+  const scanMut = useScanMeal();
   const textMut = useImportFromText();
   // Free tier: the three AI-backed paths below are counted. "Write it myself"
   // is not, and must never be — manual entry is free forever, and it is also
   // the honest fallback we offer when a gate closes.
-  const busy = importMut.isPending || photoMut.isPending || textMut.isPending;
+  const busy = importMut.isPending || scanMut.isPending || textMut.isPending;
 
   // Hand a draft to the editor and open it. Reset local state so a re-opened
   // sheet starts clean.
@@ -123,16 +125,15 @@ export function AddSheet({ onClose }: AddSheetProps) {
     }
   };
 
-  // Snap a recipe → Claude reads the photo → same review-first editor. Camera
-  // or library is the user's pick; cancel just backs out, a denied camera gets
-  // the way back to Settings — the ＋ never dead-ends.
-  const snapRecipe = async () => {
+  // Snap a meal → Otto works out the recipe of the whole dish → the same
+  // review-first editor. Consent before the camera opens; a denied camera gets
+  // the way back to Settings, so the ＋ never dead-ends.
+  const snapMeal = async () => {
     setError(null);
-    // Consent BEFORE the camera opens: ask before the shutter, never after the shot.
     if (!(await ensureAiConsent())) return;
     const picked = await choosePhoto({ base64: true });
     if (picked === 'denied') {
-      toast.show('Otto needs the camera for that.', 'info', {
+      toast.show('Otto needs the camera to see your meal.', 'info', {
         actionLabel: 'Open Settings',
         onAction: () => void Linking.openSettings(),
       });
@@ -140,17 +141,17 @@ export function AddSheet({ onClose }: AddSheetProps) {
     }
     if (picked === 'cancelled') return;
     if (!picked.base64) {
-      setError("Otto couldn't read that photo. Try a clearer shot.");
+      setError("Otto couldn't see that photo. Try another shot.");
       return;
     }
     try {
-      const draft = await photoMut.mutateAsync({
+      const draft = await scanMut.mutateAsync({
         image: picked.base64,
         mimeType: picked.mimeType ?? 'image/jpeg',
       });
       openEditor(draft);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Otto couldn't read that photo. Try a clearer shot.");
+      setError(err instanceof Error ? err.message : "Otto couldn't work that dish out. Try another shot.");
     }
   };
 
@@ -187,21 +188,21 @@ export function AddSheet({ onClose }: AddSheetProps) {
       {busy ? (
         <View style={{ paddingVertical: space[5], gap: space[3], alignItems: 'center' }}>
           <ActivityIndicator color={colors.terracotta} />
-          <Text role="title">Otto&apos;s reading it…</Text>
+          <Text role="title">{scanMut.isPending ? 'Otto’s working out the recipe…' : 'Otto’s reading it…'}</Text>
         </View>
       ) : (
         <View style={{ gap: space[4] }}>
           <Text role="display">Add a recipe</Text>
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[3] }}>
+            {flags.flowV2 && <Tile icon="camera-outline" label="Snap a meal" onPress={snapMeal} />}
             <Tile icon="link" label="Paste a link" active={mode === 'link'} onPress={() => tap('link')} />
             <Tile
               icon="document-text-outline"
-              label="Paste text"
+              label="Write or paste"
               active={mode === 'text'}
               onPress={() => tap('text')}
             />
-            <Tile icon="camera-outline" label="Snap a photo" onPress={snapRecipe} />
             <Tile icon="create-outline" label="Write it myself" onPress={writeMyself} />
           </View>
 

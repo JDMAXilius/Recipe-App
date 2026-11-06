@@ -1,0 +1,19 @@
+{
+  "is_food": true, "decline_reason": null,
+  "dish": "Chicken burrito bowl", "archetype": "bowl",
+  "seen": [{ "name": "rice", "confident": true }, { "name": "black beans", "confident": true }, { "name": "grilled chicken", "confident": true }, { "name": "lime", "confident": true }],
+  "portion": { "count": 1, "unit": "bowl" },
+  "yield": { "qty": 2, "unit": "bowl" },
+  "servings": { "count": 2, "unit": "bowl" },
+  "category": "Chicken", "area": "Mexican",
+  "ingredients": [
+    { "measure": "300 g", "name": "chicken thighs" },
+    { "measure": "150 g", "name": "long-grain rice" },
+    { "measure": "240 g", "name": "black beans, drained" },
+    { "measure": "1 tbsp", "name": "olive oil" },
+    { "measure": "1", "name": "lime" }
+  ],
+  "steps": ["Cook the rice.", "Season and grill the chicken in the oil.", "Warm the beans and build the bowls with lime."],
+  "questions": ["About how much rice was in the bowl?", "Was it cooked in oil or butter?"],
+  "assumptions": ["Chicken thighs, grilled in olive oil."]
+}

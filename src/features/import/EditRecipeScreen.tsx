@@ -18,6 +18,8 @@ import { useAuth } from '@/features/auth';
 import { pickFromLibrary } from '@/shared/imagePicker';
 import { showActionSheet } from '@/shared/actionSheet';
 import { RecipeInput } from './components/RecipeInput';
+import { SnapSummary } from './components/SnapSummary';
+import { unitLabel } from '@/shared/yield';
 import {
   cloneDraft,
   draftToAsk,
@@ -274,6 +276,8 @@ export function EditRecipeScreen() {
           <Text role="display">{heading}</Text>
         </View>
 
+        {form.snap && <SnapSummary snap={form.snap} size={form.size ?? null} servings={form.servings} />}
+
         {/* Manual creation and edit — not import review ("Review import"). */}
         {form.mode !== 'import' && (
           <Pressable
@@ -390,7 +394,9 @@ export function EditRecipeScreen() {
         />
 
         <View style={{ marginTop: space[4], marginBottom: space[2] }}>
-          <Text role="caption">SERVINGS</Text>
+          <Text role="caption">
+            {form.size ? `SERVINGS · ${unitLabel(form.size.servingUnit, form.servings).toUpperCase()}` : 'SERVINGS'}
+          </Text>
         </View>
         <View style={[rowStyle, { gap: space[4] }]}>
           <Button
@@ -401,7 +407,7 @@ export function EditRecipeScreen() {
           <Text role="title">{String(form.servings)}</Text>
           <Button
             title="+"
-            onPress={() => patch({ servings: Math.min(24, form.servings + 1) })}
+            onPress={() => patch({ servings: Math.min(48, form.servings + 1) })}
             variant="secondary"
           />
         </View>

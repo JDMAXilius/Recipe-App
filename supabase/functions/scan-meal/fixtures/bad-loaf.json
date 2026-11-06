@@ -1,0 +1,16 @@
+{
+  "is_food": true, "decline_reason": null,
+  "dish": "Banana bread", "archetype": "loaf",
+  "seen": [{ "name": "banana bread", "confident": true }],
+  "portion": { "count": 2, "unit": "slice" },
+  "yield": { "qty": 1, "unit": "serving" },
+  "servings": { "count": 1, "unit": "serving" },
+  "category": "Bread", "area": null,
+  "ingredients": [
+    { "measure": "250 g", "name": "plain flour" },
+    { "measure": "5 tbsp", "name": "baking soda" },
+    { "measure": "150 g", "name": "sugar" }
+  ],
+  "steps": ["Mix.", "Bake."],
+  "questions": [], "assumptions": []
+}

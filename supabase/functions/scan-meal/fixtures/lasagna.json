@@ -1,0 +1,19 @@
+{
+  "is_food": true, "decline_reason": null,
+  "dish": "Beef lasagna", "archetype": "tray",
+  "seen": [{ "name": "lasagna", "confident": true }],
+  "portion": { "count": 1, "unit": "piece" },
+  "yield": { "qty": 1, "unit": "tray" },
+  "servings": { "count": 8, "unit": "piece" },
+  "category": "Pasta", "area": "Italian",
+  "ingredients": [
+    { "measure": "500 g", "name": "beef mince" },
+    { "measure": "700 ml", "name": "passata" },
+    { "measure": "250 g", "name": "lasagna sheets" },
+    { "measure": "500 ml", "name": "milk" },
+    { "measure": "100 g", "name": "parmesan, grated" }
+  ],
+  "steps": ["Brown the beef and simmer it with the passata.", "Make a white sauce with the milk.", "Layer sheets, meat and sauce, top with parmesan and bake."],
+  "questions": [],
+  "assumptions": ["A 20 x 30 cm dish."]
+}

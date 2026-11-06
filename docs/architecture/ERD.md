@@ -185,6 +185,8 @@ RLS: S/I/U/D own, `to authenticated` (`20260721090001_favorites.sql:20-39`).
 
 ### `recipes` — the user's own recipes (imported, generated, written)
 
+> **Pending migration (2026-11-06, not applied):** `20261106120000_recipe_size.sql` adds `yield_qty numeric`, `yield_unit text`, `serving_unit text` (all nullable) for "1 loaf · 10 slices". The app writes them only when `EXPO_PUBLIC_FLOW_V2=true`.
+
 Created `20260721090002_recipes.sql:5-23`; CHECK `visibility in ('private','public')` at `:26-31`.
 
 | Column | Type | Null | Meaning | PII |

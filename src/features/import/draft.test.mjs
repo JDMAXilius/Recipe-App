@@ -143,3 +143,21 @@ test('cloneDraft: arrays do not alias the source', () => {
   c.ingredients[0].name = 'flour';
   assert.equal(d.ingredients[0].name, 'egg'); // original untouched
 });
+
+// --- recipe size (ADR-0013: 1 loaf · 10 slices) ------------------------------
+
+test('toSavePayload carries the recipe size, and a manual draft has none', () => {
+  const blank = toSavePayload({ ...emptyDraft(), title: 'Soup' });
+  assert.equal(blank.ok, true);
+  assert.equal(blank.recipe.size, null);
+  const size = { yield: { qty: 1, unit: 'loaf' }, servingUnit: 'slice' };
+  const sized = toSavePayload({ ...emptyDraft(), title: 'Banana bread', servings: 10, size });
+  assert.deepEqual(sized.recipe.size, size);
+});
+
+test('changing the yield or serving unit makes the draft dirty', () => {
+  const base = { ...emptyDraft(), size: { yield: { qty: 1, unit: 'loaf' }, servingUnit: 'slice' } };
+  assert.equal(isDirty(cloneDraft(base), base), false);
+  assert.equal(isDirty({ ...base, size: { yield: { qty: 2, unit: 'loaf' }, servingUnit: 'slice' } }, base), true);
+  assert.equal(isDirty({ ...base, size: null }, base), true);
+});

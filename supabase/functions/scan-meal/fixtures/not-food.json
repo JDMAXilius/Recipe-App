@@ -1,0 +1,6 @@
+{
+  "is_food": false, "decline_reason": "That looks like a houseplant, not a meal.",
+  "dish": "", "archetype": "plate", "seen": [],
+  "portion": { "count": 0, "unit": "" }, "yield": { "qty": 0, "unit": "" }, "servings": { "count": 0, "unit": "" },
+  "category": null, "area": null, "ingredients": [], "steps": [], "questions": [], "assumptions": []
+}

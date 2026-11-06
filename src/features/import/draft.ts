@@ -8,7 +8,26 @@
 //     "Write it myself" (ported from mobile/lib/draftStore.js).
 //  2. The editor's save validation + dirty-state — the pure bits worth a test.
 
+import type { Portion, Yield } from '@/shared/yield';
+
 export type IngredientPair = { measure: string; name: string };
+
+// How big the recipe is: the batch it makes and the unit it divides into
+// (1 loaf · 10 slices). servings stays the count; this adds the words.
+export interface RecipeSize {
+  yield: Yield;
+  servingUnit: string;
+}
+
+// What a meal scan adds for the review card only (never saved as-is).
+export interface SnapInfo {
+  portion: Portion;
+  seen: { name: string; confident: boolean }[];
+  questions: string[];
+  assumptions: string[];
+  checks: string[]; // anything the server's checks still flagged
+  closest: { id: string; title: string } | null;
+}
 
 // provenance drives the editor's attribution row + card stamps.
 export type RecipeSource = 'imported' | 'manual' | 'otto';
@@ -31,6 +50,8 @@ export interface Draft {
   servings: number;
   ingredients: IngredientPair[];
   steps: string[];
+  size?: RecipeSize | null;
+  snap?: SnapInfo | null;
 }
 
 // What toSavePayload hands the recipes-table insert/update (minus user_id,
@@ -46,6 +67,7 @@ export interface CleanRecipe {
   servings: number;
   ingredients: IngredientPair[];
   steps: string[];
+  size: RecipeSize | null;
 }
 
 const DEFAULT_SERVINGS = 1; // new recipes default to 1 (founder call 2026-07-21)
@@ -220,11 +242,15 @@ export function toSavePayload(draft: Draft): SaveResult {
       servings: draft.servings,
       ingredients,
       steps,
+      size: draft.size ?? null,
     },
   };
 }
 
 // --- dirty-state ----------------------------------------------------------
+
+const sizeKey = (d: Draft) =>
+  d.size ? `${d.size.yield.qty}|${d.size.yield.unit}|${d.size.servingUnit}` : '';
 
 // Compares the editable content of two drafts (not source/mode metadata).
 // Drives the "discard your changes?" guard: a manual draft is dirty the moment
@@ -237,6 +263,7 @@ export function isDirty(current: Draft, baseline: Draft): boolean {
     current.category !== baseline.category ||
     current.area !== baseline.area ||
     current.servings !== baseline.servings ||
+    sizeKey(current) !== sizeKey(baseline) ||
     current.steps.length !== baseline.steps.length ||
     current.ingredients.length !== baseline.ingredients.length
   ) {

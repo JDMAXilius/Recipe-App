@@ -276,6 +276,7 @@ export type Database = {
           ingredients: Json
           nutrition: Json | null
           servings: number | null
+          serving_unit: string | null
           source: string
           source_name: string | null
           source_url: string | null
@@ -285,6 +286,8 @@ export type Database = {
           user_id: string
           visibility: string
           youtube_url: string | null
+          yield_qty: number | null
+          yield_unit: string | null
         }
         Insert: {
           area?: string | null
@@ -295,6 +298,7 @@ export type Database = {
           ingredients?: Json
           nutrition?: Json | null
           servings?: number | null
+          serving_unit?: string | null
           source: string
           source_name?: string | null
           source_url?: string | null
@@ -304,6 +308,8 @@ export type Database = {
           user_id: string
           visibility?: string
           youtube_url?: string | null
+          yield_qty?: number | null
+          yield_unit?: string | null
         }
         Update: {
           area?: string | null
@@ -314,6 +320,7 @@ export type Database = {
           ingredients?: Json
           nutrition?: Json | null
           servings?: number | null
+          serving_unit?: string | null
           source?: string
           source_name?: string | null
           source_url?: string | null
@@ -323,6 +330,8 @@ export type Database = {
           user_id?: string
           visibility?: string
           youtube_url?: string | null
+          yield_qty?: number | null
+          yield_unit?: string | null
         }
         Relationships: []
       }

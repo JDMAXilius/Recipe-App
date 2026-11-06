@@ -18,9 +18,11 @@ import {
   type CleanRecipe,
   type Draft,
   type IngredientPair,
+  type RecipeSize,
   type RecipeSource,
 } from './draft';
 import { ingredientsWithGrams, retryOnTransportFailure } from './save.compute';
+import { flags } from '@/shared/flags';
 
 // --- edge functions -------------------------------------------------------
 
@@ -96,13 +98,37 @@ export async function importFromText(text: string): Promise<Draft> {
   return toDraft(DraftResponseSchema.parse(data), 'manual');
 }
 
-// Photo → review-ready draft. Claude reads the shot (cookbook page, card,
-// screenshot) via generate-recipe's vision mode; the user reviews the
-// transcription in the editor before any save. 'imported' (not 'otto') — Otto
-// copied down someone else's recipe, he didn't dream it up.
-export async function importFromPhoto(image: string, mimeType: string): Promise<Draft> {
-  const data = await invokeEdge('generate-recipe', { image, mimeType });
-  return toDraft(DraftResponseSchema.parse(data), 'imported');
+// Snap a meal (ADR-0013/0015): a photo of FOOD → the recipe of the whole dish,
+// reviewed in the editor before any save. 'otto' because Otto reconstructed it.
+const ScanResponseSchema = DraftResponseSchema.extend({
+  scan: z.object({
+    archetype: z.string(),
+    seen: z.array(z.object({ name: z.string(), confident: z.boolean() })),
+    portion: z.object({ count: z.number(), unit: z.string() }),
+    yield: z.object({ qty: z.number(), unit: z.string() }),
+    servingUnit: z.string(),
+    questions: z.array(z.string()),
+    assumptions: z.array(z.string()),
+    checks: z.array(z.string()),
+    closest: z.object({ id: z.string(), title: z.string() }).nullable(),
+  }),
+});
+
+export async function scanMeal(image: string, mimeType: string): Promise<Draft> {
+  const parsed = ScanResponseSchema.parse(await invokeEdge('scan-meal', { image, mimeType }));
+  const { scan } = parsed;
+  return {
+    ...toDraft(parsed, 'otto'),
+    size: { yield: scan.yield, servingUnit: scan.servingUnit },
+    snap: {
+      portion: scan.portion,
+      seen: scan.seen,
+      questions: scan.questions,
+      assumptions: scan.assumptions,
+      checks: scan.checks,
+      closest: scan.closest,
+    },
+  };
 }
 
 // --- recipe-photo storage --------------------------------------------------
@@ -187,6 +213,25 @@ function rowToDraft(row: Tables<'recipes'>): Draft {
     servings: row.servings ?? 1,
     ingredients: pairs.length ? pairs : [emptyIngredient()],
     steps: steps.length ? steps : [''],
+    size: sizeFromRow(row),
+  };
+}
+
+// The size columns exist only once 20261106120000_recipe_size is applied; an
+// older database simply returns no such keys and the recipe reads as servings.
+function sizeFromRow(row: Tables<'recipes'>): RecipeSize | null {
+  if (!row.yield_qty || !row.yield_unit) return null;
+  return { yield: { qty: Number(row.yield_qty), unit: row.yield_unit }, servingUnit: row.serving_unit ?? 'serving' };
+}
+
+// Written only when the flag is on, so a build pointed at a database without
+// the migration never sends columns it doesn't have.
+function sizeColumns(size: RecipeSize | null) {
+  if (!flags.flowV2) return {};
+  return {
+    yield_qty: size?.yield.qty ?? null,
+    yield_unit: size?.yield.unit ?? null,
+    serving_unit: size?.servingUnit ?? null,
   };
 }
 
@@ -203,6 +248,7 @@ function toInsert(userId: string, recipe: CleanRecipe): TablesInsert<'recipes'> 
     servings: recipe.servings,
     ingredients: recipe.ingredients,
     steps: recipe.steps,
+    ...sizeColumns(recipe.size),
   };
 }
 
@@ -262,6 +308,7 @@ export async function updateUserRecipe(id: number, recipe: CleanRecipe): Promise
         ingredients: extras.ingredients,
         nutrition: extras.nutrition,
         steps: recipe.steps,
+        ...sizeColumns(recipe.size),
         updated_at: new Date().toISOString(),
       })
       .eq('id', id),
@@ -288,10 +335,9 @@ export function useImportFromText() {
   return useMutation({ mutationFn: (text: string) => importFromText(text) });
 }
 
-export function useImportFromPhoto() {
+export function useScanMeal() {
   return useMutation({
-    mutationFn: ({ image, mimeType }: { image: string; mimeType: string }) =>
-      importFromPhoto(image, mimeType),
+    mutationFn: ({ image, mimeType }: { image: string; mimeType: string }) => scanMeal(image, mimeType),
   });
 }
 
