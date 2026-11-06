@@ -124,3 +124,16 @@ export function memberSummary(info: CustomerInfoLike | null | undefined, format:
   const next = ok ? `${e.willRenew ? 'Renews' : 'Ends'} on ${format(when)}` : null;
   return { plan, next, trial: e.periodType === 'TRIAL' };
 }
+
+/** R2.1 A/B: half of accounts see "Keep your week." (their own tonight and
+ *  week) instead of the generic benefit lines. Stable per account (FNV-1a of
+ *  the user id), so a person never flips between visits. */
+export function paywallVariant(userId: string | null | undefined): 'generic' | 'your_week' {
+  if (!userId) return 'generic';
+  let h = 0x811c9dc5;
+  for (let i = 0; i < userId.length; i++) {
+    h ^= userId.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h % 2 === 0 ? 'your_week' : 'generic';
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -18,7 +18,8 @@ import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { openManageSubscriptions, requestRefund, useClub } from './club.purchases';
 import { usePurchasePending } from './club.pending';
 import { flags } from '@/shared/flags';
-import { introTrialDays, purchaseErrorMessage, trialEndDate } from './club.logic';
+import { introTrialDays, paywallVariant, purchaseErrorMessage, trialEndDate } from './club.logic';
+import { tonightEntry, usePlan } from '@/features/planner';
 import { useDeleteAccount } from './useDeleteAccount';
 import { useAuth } from '@/features/auth';
 import { track } from '@/shared/track';
@@ -48,7 +49,14 @@ export function OttoClubScreen() {
   const [plan, setPlan] = useState<'year' | 'month'>('year');
   const club = useClub();
   const pending = usePurchasePending();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  // R2.1 A/B (flowV2): "Keep your week." restates the person's own tonight and
+  // week; with nothing planned it falls back to the generic lines (and says so
+  // in paywall_viewed, so the comparison stays honest).
+  const { entries, days, isSuccess: planLoaded } = usePlan();
+  const upcoming = entries.filter((e) => !e.cooked);
+  const tonight = tonightEntry(entries, days[0].key);
+  const yourWeek = flags.flowV2 && !club.member && paywallVariant(user?.id) === 'your_week' && upcoming.length > 0;
   // Hard paywall: a non-member can't reach Account, so its exits live here
   // (Apple 5.1.1(v): in-app deletion for every account, subscribed or not).
   const del = useDeleteAccount(club.member);
@@ -74,7 +82,13 @@ export function OttoClubScreen() {
   const perMonth = (price: number, currency: string) =>
     new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(price);
 
-  useEffect(() => track('paywall_viewed', { variant: 'generic' }), []);
+  const viewed = useRef(false);
+  useEffect(() => {
+    if (viewed.current) return;
+    if (flags.flowV2 && !planLoaded) return; // decide the variant on the real week
+    viewed.current = true;
+    track('paywall_viewed', { variant: yourWeek ? 'your_week' : 'generic' });
+  }, [planLoaded, yourWeek]);
 
   const onBuy = async () => {
     const pkg = plan === 'year' ? club.yearly : club.monthly;
@@ -143,8 +157,18 @@ export function OttoClubScreen() {
           {/* The subscription's name on the screen that sells it (Schedule 2:
               title, length, price, all before purchase). */}
           <Text role="meta">OTTO CLUB</Text>
-          <Text role="display">{club.member ? "You're in the Club" : 'Cook more. Plan less.'}</Text>
-          {flags.flowV2 && !club.member ? (
+          <Text role="display">{club.member ? "You're in the Club" : yourWeek ? 'Keep your week.' : 'Cook more. Plan less.'}</Text>
+          {yourWeek ? (
+            <View style={{ gap: space[1], alignItems: 'center' }}>
+              {tonight && !tonight.cooked && <Text role="body">{`Tonight: ${tonight.title}`}</Text>}
+              <Text role="caption">
+                {(() => {
+                  const more = upcoming.length - (tonight && !tonight.cooked ? 1 : 0);
+                  return more > 0 ? `${more} more ${more === 1 ? 'dinner' : 'dinners'} planned, and the shopping list ready.` : 'Your shopping list is ready.';
+                })()}
+              </Text>
+            </View>
+          ) : flags.flowV2 && !club.member ? (
             <View style={{ gap: space[2], alignSelf: 'stretch' }}>
               {BENEFITS.map(([icon, line]) => (
                 <View key={line} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>

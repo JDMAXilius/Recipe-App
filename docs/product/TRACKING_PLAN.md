@@ -31,7 +31,7 @@ Guardrails: trial → paid (RevenueCat), refund rate, uninstall within 24 h, AI 
 | `day_swapped` | A day is swapped, on the reveal or in Plan | `day_offset`, `surface` (`reveal` \| `plan` \| `otto`) |
 | `shopping_list_opened` | List opened | `surface`, `items` |
 | `plan_saved` | An account is created (Save your plan, or today's sign-up door) | `method` (`apple` \| `google` \| `facebook` \| `email`) |
-| `paywall_viewed` | Paywall shown | `variant` (`generic` \| `your_week`) |
+| `paywall_viewed` | Paywall shown | `variant` (`generic` \| `your_week`): what was SHOWN. Assignment is 50/50 by account (`paywallVariant`); an empty week shows `generic` |
 | `purchase_result` | Every purchase attempt, from `BuyResult` (one event; `result=ok` is the trial start) | `product`, `result` (`ok` \| `pending` \| `cancelled` \| `error` \| `unconfirmed`) |
 | `reminders_answered` | Primer answered | `allowed` |
 | `tonight_card_viewed` | Home opens with a Tonight card | `has_plan` |

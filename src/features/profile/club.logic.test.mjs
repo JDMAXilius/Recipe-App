@@ -83,3 +83,12 @@ test('memberSummary: plan from the product, renews vs ends, trial', async () => 
   assert.equal(memberSummary(info(null), f), null);
   assert.equal(memberSummary(info({ productIdentifier: 'x', expirationDate: null }), f).next, null);
 });
+
+test('paywallVariant: stable per id, roughly half and half, generic without an id', async () => {
+  const { paywallVariant } = await import('./club.logic.ts');
+  assert.equal(paywallVariant(null), 'generic');
+  assert.equal(paywallVariant('abc'), paywallVariant('abc'));
+  let week = 0;
+  for (let i = 0; i < 1000; i++) if (paywallVariant(`00000000-0000-4000-8000-${String(i).padStart(12, '0')}`) === 'your_week') week++;
+  assert.ok(week > 400 && week < 600, `split was ${week}/1000`);
+});
