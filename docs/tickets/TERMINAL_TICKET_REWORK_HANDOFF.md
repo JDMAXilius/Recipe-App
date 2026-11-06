@@ -81,8 +81,9 @@
 ## Terminal status (2026-11-06)
 - T1: 1.0.24 (53) built (`e8bfabc1`), uploaded, VALID on TestFlight. Not sent for review: waits on T5.
 - T2: rework 1.0.24 (54) built (`79b7d5a5`), VALID, reaches "Otto Team (auto)" (internal, 2 testers). TestFlight opens 54 by default; 53 is under Previous Builds. `app.json` stays at 53.
-- T7: the four functions switched to `await rateLimitedDurable(` on branch `terminal/t7-durable-limits` (`deno check` passes). **Not deployed:** the auto-mode classifier blocks `deploy_edge_function` in the terminal. Juan: allow it once, or the cloud session deploys from this branch.
+- T7: all four functions use `await rateLimitedDurable(` on main (`deno check` passes). **Not deployed:** the auto-mode classifier blocks `deploy_edge_function` in the terminal. Juan: allow it once, or the cloud session deploys from main. T7a and T7 are one deploy round.
 - T4: not run. Production SQL that deletes rows needs Juan in the SQL editor; Docker is off here, so no local dry run either.
+- Typecheck on main failed once the typed routes were regenerated (`openOtto` took a hand-rolled router type that expo-router's `Router` doesn't match): now `Pick<Router, …>` with an `Href`. Cloud session: regenerate `.expo/types` (run `npx expo start` once) before trusting `tsc`.
 
 ## Device findings (T3)
 _Add one line per problem: screen · what you did · what happened · screenshot name._

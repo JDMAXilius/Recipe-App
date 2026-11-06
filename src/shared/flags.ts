@@ -6,6 +6,8 @@
 // plan). Its database columns (20261106042712_recipe_size,
 // 20261106042714_plan_list) are applied to production; it stays off in
 // shipped builds until the rework release (R10.1).
+import type { Href, Router } from 'expo-router';
+
 export const flags = {
   flowV2: process.env.EXPO_PUBLIC_FLOW_V2 === 'true',
 } as const;
@@ -18,7 +20,8 @@ export const ottoHref = (chatId?: string) =>
  *  a dead recipe). A push or replace there mounts a second tab navigator on
  *  the root stack (a second tab bar; back lands on the screen you left).
  *  flowV2: go back to the tabs already open, then to Otto. */
-export function openOtto(router: { dismissTo: (h: string) => void; push: (h: string) => void; replace: (h: string) => void }, how: 'push' | 'replace' = 'push'): void {
-  if (flags.flowV2) router.dismissTo(ottoHref());
-  else router[how](ottoHref());
+export function openOtto(router: Pick<Router, 'dismissTo' | 'push' | 'replace'>, how: 'push' | 'replace' = 'push'): void {
+  const href = ottoHref() as Href;
+  if (flags.flowV2) router.dismissTo(href);
+  else router[how](href);
 }
