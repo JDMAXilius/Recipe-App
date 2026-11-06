@@ -6,9 +6,9 @@
 > `docs/tickets/REWORK_ROADMAP.md` → Log. House rules: `TERMINAL_TICKET_00_START_HERE_CLAUDE_CODE.md`.
 
 ## Now (release 1.0.24 and the device checkpoint)
-- [ ] **T1. Release build 1.0.24 (53).** Follow `docs/tickets/CHECKPOINT_1.md` §1. Privacy answers
+- [x] **T1. Release build 1.0.24 (53).** *(built and on TestFlight 2026-11-06; review waits on T5)* Follow `docs/tickets/CHECKPOINT_1.md` §1. Privacy answers
   first (T5). `eas build -p ios --profile production`, then `eas submit -p ios --profile production`.
-- [ ] **T2. Rework preview build (switch on).** `eas build -p ios --profile rework` with a build
+- [x] **T2. Rework preview build (switch on).** *(1.0.24 (54) on TestFlight, internal group only)* `eas build -p ios --profile rework` with a build
   number above the release (54). TestFlight **internal group only**, never sent for review.
 - [ ] **T3. Device check with Juan.** `CHECKPOINT_1.md` §3 (20 min). Put each problem as a line
   under "Device findings" below; the cloud session fixes them. On the rework build (T2), also:
