@@ -3,9 +3,6 @@
 -- called by delete-account before the auth user goes) now hands a shared
 -- kitchen to its longest-standing other member; a kitchen nobody else is in
 -- goes with the account.
--- NOT YET APPLIED: the apply waits on a confirmation (the function body
--- deletes rows) that never reached Juan. Run it from the SQL editor, then
--- rename this file to the version Supabase records.
 create or replace function public.admin_delete_user_data(p_user_id text)
 returns void
 language plpgsql

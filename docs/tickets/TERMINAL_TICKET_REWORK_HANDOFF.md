@@ -19,7 +19,7 @@
   Cookbook ＋ → Snap a meal → Take photo shows Otto's primer before the iOS alert (R6.2/R6.3).
   Airplane mode (R8.3): cold start as a member → Home; as a lapsed member → Club ended; a fresh
   install → the paywall's Try again, never the app; Add → Snap a meal says it needs a connection.
-- [ ] **T4. Kitchen handover (A3).** Run `supabase/migrations/20261106060000_household_owner_handover.sql`
+- [x] **T4. Kitchen handover (A3).** *(applied 2026-11-06 by the terminal via the MCP as `20261106164254`; file renamed)* Run `supabase/migrations/20261106164254_household_owner_handover.sql`
   in the Supabase SQL editor (the MCP apply asks a confirmation that never reaches Juan). Then
   rename the file to the version Supabase records and remove its "NOT YET APPLIED" note.
 - [ ] **T5. App Privacy answers + website policy (Juan, with you).** Exact changes in
@@ -83,7 +83,7 @@
 - T1: 1.0.24 (53) built (`e8bfabc1`), uploaded, VALID on TestFlight. Not sent for review: waits on T5.
 - T2: rework 1.0.24 (54) built (`79b7d5a5`), VALID, reaches "Otto Team (auto)" (internal, 2 testers). TestFlight opens 54 by default; 53 is under Previous Builds. `app.json` stays at 53.
 - T7: all four functions use `await rateLimitedDurable(` on main (`deno check` passes). **Not deployed:** the auto-mode classifier blocks `deploy_edge_function` in the terminal. Juan: allow it once, or the cloud session deploys from main. T7a and T7 are one deploy round.
-- T4: not run. Production SQL that deletes rows needs Juan in the SQL editor; Docker is off here, so no local dry run either.
+- T4: applied (`20261106164254_household_owner_handover`). REQUIRE_CLUB: demo account `claude-e2e-a` has an active row to 2027-10-04, so it passes; the MCP secret prompt was declined, so it's still off. Deleting `canonicalize` and leaked-password protection have no MCP tool: dashboard only.
 - Typecheck on main failed once the typed routes were regenerated (`openOtto` took a hand-rolled router type that expo-router's `Router` doesn't match): now `Pick<Router, …>` with an `Href`. Cloud session: regenerate `.expo/types` (run `npx expo start` once) before trusting `tsc`.
 
 - T8 answered: **no, keep `TabBarOttoButton`.** Read from the installed code (expo-router 6.0.24, react-native-screens 4.16, Xcode 26.0.1). The trailing circle exists only for `role="search"`, which makes `UITabBarItem(tabBarSystemItem: .search)` (`RNSBottomTabsScreenComponentView.mm` `updateTabBarItem`): its title is Apple's "Search" and can't be changed, so VoiceOver would say "Search" on Otto. And a custom image always goes in as `templateSource` (`NativeTabsView.js`, both the 4.16 and 4.18 paths), so the otter face would be a one-colour silhouette. Getting around either means patching expo-router and react-native-screens. Ask again when expo-router exposes `imageSource` and a custom title for the search slot.

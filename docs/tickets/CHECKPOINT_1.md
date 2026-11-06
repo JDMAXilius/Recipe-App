@@ -46,6 +46,6 @@ Write down anything that looks, reads or feels wrong; a screenshot and one line 
 12. Ask to Buy (a sandbox child account): expect "Waiting for approval".
 
 ## 4. Console jobs (one sitting)
-- Supabase SQL editor: run `supabase/migrations/20261106060000_household_owner_handover.sql` (A3), then tell Claude.
+- ~~Supabase SQL editor: A3 handover~~ applied 2026-11-06 (`20261106164254`).
 - App Store Connect: privacy answers (above); website policy paragraphs in `docs/legal/APP_PRIVACY_TRUTH_TABLE.md`.
 - Supabase dashboard: delete the retired `canonicalize` function; turn on leaked-password protection; decide `REQUIRE_CLUB=on`.
