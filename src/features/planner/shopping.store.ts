@@ -16,9 +16,13 @@ import { buildShoppingList, sameSources } from './shoppingList';
 import { weekDays } from '@/shared/week';
 import type { Runners } from '@/shared/actions/action';
 import type { listActions } from './shopping.actions';
+import { flags } from '@/shared/flags';
+import { supabase } from '@/shared/supabase/client';
+import type { Json } from '@/types/database';
 import {
   EMPTY_LOCAL,
   EMPTY_STORED,
+  newerCopy,
   addCustom,
   fromStored,
   optimisticUpdate,
@@ -32,13 +36,69 @@ import {
   toStored,
   unhide,
   type LocalList,
+  type StoredList,
 } from './shopping.local';
 
 export const LOCAL_LIST_KEY = ['shopping-local'] as const;
 
+// R0.11 (flowV2): the account keeps a copy (shopping_lists), so a new phone
+// gets the list and Otto (1.2) can change it on the server. kv stays the
+// phone's truth and works offline; a save mirrors up, and opening the list
+// takes whichever copy is newer.
+async function signedInId(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
+async function pushRemote(state: StoredList & { savedAt: number }): Promise<void> {
+  const uid = await signedInId();
+  if (!uid) return;
+  await supabase
+    .from('shopping_lists')
+    .upsert({ user_id: uid, state: state as unknown as Json, saved_at: new Date(state.savedAt).toISOString() }, { onConflict: 'user_id' });
+}
+
+async function pullRemote(late: { current: boolean }): Promise<void> {
+  if (!flags.flowV2) return;
+  const uid = await signedInId();
+  if (!uid) return;
+  const local = await kv.get('shoppingState', EMPTY_STORED, storedSchema);
+  const { data, error } = await supabase.from('shopping_lists').select('state, saved_at').eq('user_id', uid).maybeSingle();
+  if (error || late.current) return; // offline, refused or too late: the phone's copy stands
+  const remoteAt = data ? Date.parse(data.saved_at) : null;
+  const pick = newerCopy(local.savedAt, Number.isFinite(remoteAt) ? remoteAt : null);
+  if (pick === 'remote' && data) {
+    await kv.set('shoppingState', { ...storedSchema.parse(data.state), savedAt: remoteAt! });
+  } else if (pick === 'local' && local.savedAt != null) {
+    const up = { ...local, savedAt: local.savedAt };
+    pushes = pushes.then(() => pushRemote(up)).catch(() => undefined);
+  }
+}
+
+// Pushes go up one at a time, in save order, so an older save can't land last.
+let pushes: Promise<unknown> = Promise.resolve();
+const PULL_MS = 3000; // a slow network never holds the list back
+
 const store = serialStore(
   async () => fromStored(await kv.get('shoppingState', EMPTY_STORED, storedSchema)),
-  (l) => kv.set('shoppingState', toStored(l)),
+  async (l) => {
+    const stored = { ...toStored(l), savedAt: Date.now() };
+    await kv.set('shoppingState', flags.flowV2 ? stored : toStored(l));
+    if (flags.flowV2) pushes = pushes.then(() => pushRemote(stored)).catch(() => undefined);
+  },
+  () => {
+    // A pull that runs past PULL_MS writes nothing: the queue has moved on.
+    const late = { current: false };
+    return Promise.race([
+      pullRemote(late),
+      new Promise<void>((resolve) =>
+        setTimeout(() => {
+          late.current = true;
+          resolve();
+        }, PULL_MS),
+      ),
+    ]);
+  },
 );
 
 export const readLocalList = store.read;

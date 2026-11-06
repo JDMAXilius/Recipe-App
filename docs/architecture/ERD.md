@@ -390,6 +390,9 @@ In the Realtime publication (`20260722120000_households_shared_shopping_list.sql
 ### `app_events` — product interaction events (R0.8)
 Migration `20261106050937_app_events.sql` (applied 2026-11-06). `id` identity, `user_id uuid not null → auth.users on delete cascade`, `device_id text` (8–64), `name text` (`^[a-z][a-z0-9_]{2,40}$`), `props jsonb` (≤ 2 KB), `app_version`, `occurred_at`, `created_at`. RLS: insert own row only (`user_id = auth.uid()`); no select/update/delete policy, so clients read nothing. Written in batches by `src/shared/track.ts`; event names and props in `src/shared/events.ts` and `docs/product/TRACKING_PLAN.md`.
 
+### `shopping_lists` — the personal list's state on the account (R0.11)
+Migration `20261106213429_shopping_lists.sql` (applied 2026-11-06). `user_id uuid pk → auth.users on delete cascade`, `state jsonb` (the kv `shoppingState` blob: ticks, extras, dropped dishes, removed rows; ≤ 64 KB), `saved_at timestamptz`. RLS: select, insert and update own row. Under flowV2 every save mirrors up and opening the list takes the newer copy (`shopping.store.ts`). A shared kitchen's list stays in `household_list_state`.
+
 ### `agent_actions` — what Otto did, and how to undo it (R0.13)
 Migration `20261106213056_agent_actions_ai_consent.sql` (applied 2026-11-06). `id bigint identity pk`, `user_id uuid → auth.users on delete cascade` (default `auth.uid()`), `idempotency_key text` (unique per user: a retried model call can't act twice), `action text` (the action catalogue name), `input jsonb`, `inverse jsonb` (replayed by Undo), `summary text` (the "Otto did" line), `created_at`, `undone_at`. RLS: select and insert own; update own, and only the `undone_at` column is granted. Written by the agent edge function (1.2) with the person's token. Nothing writes it yet.
 

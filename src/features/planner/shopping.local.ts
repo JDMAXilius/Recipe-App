@@ -31,6 +31,9 @@ export const storedSchema = z
     // match id-keyed rows again, so they are dropped on read: the shopper sees
     // their rows back, not data lost.
     removedV: z.number().optional(),
+    // R0.11: when this copy was saved (ms), to pick the newer of the phone's
+    // and the account's copies. Absent = from before the account kept one.
+    savedAt: z.number().optional(),
   })
   .catch({ checked: {}, custom: [], excluded: [], removed: [], removedV: REMOVED_IDENTITY_V });
 export type StoredList = z.infer<typeof storedSchema>;
@@ -90,13 +93,24 @@ export function setDropped(l: LocalList, recipeId: string, dropped: boolean): Lo
   return { ...l, excluded: dropped ? [...l.excluded, recipeId] : l.excluded.filter((id) => id !== recipeId) };
 }
 
+/** R0.11: which copy wins when the phone and the account disagree. The newer
+ *  save wins; a phone copy with no time (from before the account kept one)
+ *  loses to any account copy, and an equal time means nothing to do. */
+export function newerCopy(localSavedAt: number | undefined, remoteSavedAt: number | null): 'local' | 'remote' | 'same' {
+  if (remoteSavedAt == null) return localSavedAt == null ? 'same' : 'local';
+  if (localSavedAt == null || remoteSavedAt > localSavedAt) return 'remote';
+  return remoteSavedAt === localSavedAt ? 'same' : 'local';
+}
+
 // --- store mechanics (pure, so the tests can drive them) -------------------
 
 type Edit = (l: LocalList) => LocalList;
 
 // Every read and write goes through one queue: a read never sees half a write
 // and two writes never interleave.
-export function serialStore(load: () => Promise<LocalList>, save: (l: LocalList) => Promise<void>) {
+/** pull (R0.11): runs before a READ, in the same queue — the account copy is
+ *  checked when the list is opened, never inside a write. */
+export function serialStore(load: () => Promise<LocalList>, save: (l: LocalList) => Promise<void>, pull?: () => Promise<void>) {
   let queue: Promise<unknown> = Promise.resolve();
   const serial = <T>(job: () => Promise<T>): Promise<T> => {
     const run = queue.then(job, job);
@@ -104,7 +118,10 @@ export function serialStore(load: () => Promise<LocalList>, save: (l: LocalList)
     return run;
   };
   return {
-    read: () => serial(load),
+    read: () => serial(async () => {
+      if (pull) await pull().catch(() => undefined);
+      return load();
+    }),
     /** Apply an edit to the stored list; returns the list before and after. */
     write: (edit: Edit) =>
       serial(async () => {

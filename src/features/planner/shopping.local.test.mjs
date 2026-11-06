@@ -83,3 +83,26 @@ test('quick edits in a row never flash back: the cache waits for the last write'
   assert.deepEqual(seen.slice(0, 3), [1, 2, 3]); // optimistic
   assert.ok(seen.slice(3).every((n) => n === 3), `flashed back: ${seen}`); // only the final write sets it
 });
+
+test('newerCopy: the newer save wins; an untimed phone copy loses to the account', async () => {
+  const { newerCopy } = await import('./shopping.local.ts');
+  assert.equal(newerCopy(200, 100), 'local');
+  assert.equal(newerCopy(100, 200), 'remote');
+  assert.equal(newerCopy(100, 100), 'same');
+  assert.equal(newerCopy(undefined, 100), 'remote');
+  assert.equal(newerCopy(100, null), 'local');
+  assert.equal(newerCopy(undefined, null), 'same');
+});
+
+test('serialStore: pull runs before a read, never inside a write, and a failed pull still reads', async () => {
+  const seen = [];
+  let disk = EMPTY_LOCAL;
+  const store = serialStore(
+    async () => { seen.push('load'); return disk; },
+    async (l) => { seen.push('save'); disk = l; },
+    async () => { seen.push('pull'); throw new Error('offline'); },
+  );
+  await store.read();
+  await store.write((l) => tick(l, 'k', true));
+  assert.deepEqual(seen, ['pull', 'load', 'load', 'save']);
+});

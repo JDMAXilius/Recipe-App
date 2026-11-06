@@ -15,6 +15,12 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      shopping_lists: {
+        Row: { saved_at: string; state: Json; user_id: string };
+        Insert: { saved_at?: string; state?: Json; user_id: string };
+        Update: { saved_at?: string; state?: Json; user_id?: string };
+        Relationships: [];
+      };
       agent_actions: {
         Row: {
           action: string;
