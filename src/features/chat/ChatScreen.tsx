@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +15,7 @@ import { ChatEmptyState } from './components/ChatEmptyState';
 import { Composer } from './components/Composer';
 import { Transcript } from './components/Transcript';
 import { useChat } from './useChat';
-import { useSpeechInput } from './useSpeechInput';
+import { useSpeechInput } from '@/shared/speech/useSpeechInput';
 import type { ChatRecipe } from './chat.types';
 
 // Chat with Otto — the ＋ (create) tab. The primary way to make
@@ -108,7 +108,10 @@ export function ChatScreen() {
   // Web Speech API is missing, the Composer hides the Speak pill outright.
   const speech = useSpeechInput(setDraft, (kind) => {
     if (kind === 'denied') {
-      show('Otto needs the microphone for that. You can allow it in Settings.', 'error');
+      show('Otto needs the microphone for that.', 'info', {
+        actionLabel: 'Open Settings',
+        onAction: () => void Linking.openSettings(),
+      });
     } else {
       show('Otto couldn’t hear that. Try again.', 'error');
     }

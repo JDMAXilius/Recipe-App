@@ -8,6 +8,7 @@ import { colors, radii, space } from '@/shared/theme/tokens';
 import { RecipeInput } from './components/RecipeInput';
 import { useImportFromText, useImportFromUrl, useScanMeal } from './import.queries';
 import { flags } from '@/shared/flags';
+import { useSpeechInput } from '@/shared/speech/useSpeechInput';
 import { emptyDraft, setDraft } from './draft';
 import { choosePhoto } from '@/shared/imagePicker';
 import { ensureAiConsent } from '@/shared/aiConsent';
@@ -72,6 +73,19 @@ export function AddSheet({ onClose }: AddSheetProps) {
   // is not, and must never be — manual entry is free forever, and it is also
   // the honest fallback we offer when a gate closes.
   const busy = importMut.isPending || scanMut.isPending || textMut.isPending;
+
+  // Say it (ADR-0015): talk the recipe through; the words land in the same
+  // Write-or-paste box, and Otto sorts it exactly like typed text.
+  const speech = useSpeechInput(setText, (kind) => {
+    if (kind === 'denied') {
+      toast.show('Otto needs the microphone for that.', 'info', {
+        actionLabel: 'Open Settings',
+        onAction: () => void Linking.openSettings(),
+      });
+    } else {
+      toast.show('Otto couldn’t hear that. Try again.', 'error');
+    }
+  });
 
   // Hand a draft to the editor and open it. Reset local state so a re-opened
   // sheet starts clean.
@@ -231,12 +245,28 @@ export function AddSheet({ onClose }: AddSheetProps) {
                   setText(t);
                   setError(null);
                 }}
-                placeholder="Paste a recipe from a note, DM or email"
+                placeholder="Write it, paste it, or say it. Ingredients and steps, any order"
                 accessibilityLabel="Recipe text"
                 multiline
                 autoFocus
               />
-              <Button title="Sort it out" onPress={startTextImport} variant="primary" size="lg" />
+              {speech.available && (
+                <Button
+                  title={speech.listening ? 'Stop' : 'Say it'}
+                  onPress={() => speech.toggle(text)}
+                  variant="secondary"
+                  size="lg"
+                />
+              )}
+              <Button
+                title="Sort it out"
+                onPress={() => {
+                  if (speech.listening) speech.stop();
+                  void startTextImport();
+                }}
+                variant="primary"
+                size="lg"
+              />
             </View>
           )}
 

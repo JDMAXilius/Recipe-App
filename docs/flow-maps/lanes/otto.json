@@ -333,7 +333,7 @@
 "src/shared/imagePicker.ts:24-26,42-44,55-63",
 "src/features/import/AddSheet.tsx:131-138, src/features/cook/CookScreen.tsx:103-108 (actionLabel 'Open Settings' → Linking.openSettings)",
 "src/features/notifications/notifications.queries.ts:27-37 (canAskAgain=false → no re-ask), src/features/notifications/NotificationsScreen.tsx:25-33,44-54",
-"src/features/chat/ChatScreen.tsx:109-111 ('…You can allow it in Settings.', 'error', no action); src/features/chat/useSpeechInput.ts:93-96",
+"src/features/chat/ChatScreen.tsx:109-111 ('…You can allow it in Settings.', 'error', no action); src/shared/speech/useSpeechInput.ts:93-96",
 "app.json:100-104 (purpose strings)",
 "docs/tickets/TERMINAL_TICKET_GOLD_STANDARD_GAPS.md G9 (done); TERMINAL_TICKET_FLOW_REDESIGN.md F5"
 ]
