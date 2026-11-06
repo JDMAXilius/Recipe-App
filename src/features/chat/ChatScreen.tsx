@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarHeightContext } from '@react-navigation/bottom-tabs';
-import { Button, OttoIdle, Screen, Text, useToast } from '@/shared/ui';
+import { Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { ensureAiConsent } from '@/shared/aiConsent';
@@ -167,18 +167,9 @@ export function ChatScreen() {
     [router],
   );
 
-  if (!isSignedIn) {
-    return (
-      <Screen title="Ask Otto" onBack={() => router.back()}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: space[6], gap: space[4] }}>
-          <OttoIdle name="happy" size={140} />
-          <Text role="title">Chat with Otto</Text>
-          <Text role="body">Sign in and Otto will cook up a recipe with you, one question at a time.</Text>
-          <Button title="Sign in" onPress={() => router.push('/sign-in')} variant="primary" size="lg" />
-        </View>
-      </Screen>
-    );
-  }
+  // The route guards keep signed-out people out (an account is required,
+  // ADR-0005); this only covers the frame between sign-out and the redirect.
+  if (!isSignedIn) return null;
 
   const empty = chat.messages.length === 0 && !isSending;
 

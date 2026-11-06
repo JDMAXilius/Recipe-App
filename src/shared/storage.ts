@@ -25,7 +25,8 @@ export type StoreKey =
   | 'cookRatings'
   | 'reviewPrompt'
   | 'aiConsentOpenAI'
-  | 'rcSynced';
+  | 'rcSynced'
+  | 'lastTab';
 
 // One namespace + version. Bump the version suffix to invalidate a shape.
 const NS = 'otto.v2';

@@ -192,7 +192,7 @@ export function CookbookScreen() {
             <EmptyState
               segment={segment}
               cookedOnly={cookedOnly}
-              onExplore={() => router.push('/')}
+              onExplore={() => router.push('/(tabs)')}
               onAdd={() => router.push('/add')}
             />
           )

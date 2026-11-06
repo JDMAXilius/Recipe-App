@@ -1,9 +1,41 @@
-import { Tabs } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Tabs, usePathname, useRouter, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/shared/theme/tokens';
 import { TabBarCreateButton } from '@/shared/ui/TabBarCreateButton';
 import { TabBarOttoButton } from '@/shared/ui/TabBarOttoButton';
 import { flags } from '@/shared/flags';
+import { kv } from '@/shared/storage';
+import { restoreTarget, tabForPath } from '@/shared/lastTab';
+
+// R3.5: the last tab comes back once per cold launch (module scope, not state:
+// a remount of the tabs must not jump the person again).
+let restoreDone = false;
+
+function useRestoreLastTab(enabled: boolean) {
+  const pathname = usePathname();
+  const router = useRouter();
+  // Saving waits for the read, so the first Home render can't overwrite the
+  // tab it is about to restore.
+  const [ready, setReady] = useState(restoreDone);
+  useEffect(() => {
+    if (!enabled || restoreDone) return;
+    restoreDone = true;
+    const at = pathname;
+    void kv.get<unknown>('lastTab', null).then((saved) => {
+      const to = restoreTarget(at, saved);
+      if (to) router.navigate(to as Href);
+      setReady(true);
+    });
+    // Once, on the first mount only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!enabled || !ready) return;
+    const tab = tabForPath(pathname);
+    if (tab) void kv.set('lastTab', tab);
+  }, [enabled, ready, pathname]);
+}
 
 // 5 tabs (FRAMEWORK §2 / spec §Bottom tab bar): Discover · Cookbook · raised ＋ ·
 // Plan · Account. Ionicons filled when focused, outline otherwise; the center
@@ -25,6 +57,7 @@ function tabIcon(base: string) {
 
 export default function TabsLayout() {
   const v2 = flags.flowV2;
+  useRestoreLastTab(v2);
   // Sign-in + Otto Club are enforced once, for every route, by the root
   // Stack.Protected guard (app/_layout.tsx RootStack).
   return (
