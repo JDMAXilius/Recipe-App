@@ -2,6 +2,189 @@
   {
     "risk": "safe",
     "touches": [
+      "household-list"
+    ],
+    "flag": null,
+    "tool": {
+      "type": "function",
+      "function": {
+        "name": "add_to_list",
+        "description": "Add an item of the user's own to the shared shopping list.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "householdId": {
+              "description": "Leave out: the user's household is found for you",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "risk": "safe",
+    "touches": [
+      "household-list"
+    ],
+    "flag": null,
+    "tool": {
+      "type": "function",
+      "function": {
+        "name": "check_list_item",
+        "description": "Tick an item on the shared shopping list, or untick it.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "householdId": {
+              "description": "Leave out: the user's household is found for you",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "itemKey": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "The shopping list item key"
+            },
+            "checked": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "itemKey",
+            "checked"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "risk": "safe",
+    "touches": [
+      "household"
+    ],
+    "flag": null,
+    "tool": {
+      "type": "function",
+      "function": {
+        "name": "create_household",
+        "description": "Start a shared kitchen the user can invite people to.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "displayName": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "The name others see for the user"
+            }
+          },
+          "required": [
+            "displayName"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "risk": "safe",
+    "touches": [
+      "household-list"
+    ],
+    "flag": null,
+    "tool": {
+      "type": "function",
+      "function": {
+        "name": "hide_list_item",
+        "description": "Take a planned ingredient off the shared shopping list for everyone, or put it back.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "householdId": {
+              "description": "Leave out: the user's household is found for you",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "itemKey": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "The shopping list item key"
+            },
+            "removed": {
+              "type": "boolean"
+            },
+            "sources": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The recipe ids the ingredient came from"
+            }
+          },
+          "required": [
+            "itemKey",
+            "removed",
+            "sources"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "risk": "safe",
+    "touches": [
+      "household"
+    ],
+    "flag": null,
+    "tool": {
+      "type": "function",
+      "function": {
+        "name": "join_household",
+        "description": "Join a shared kitchen with its invite code.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 12
+            },
+            "displayName": {
+              "type": "string",
+              "maxLength": 40
+            }
+          },
+          "required": [
+            "code",
+            "displayName"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "risk": "safe",
+    "touches": [
       "plan"
     ],
     "flag": "flowV2",
@@ -36,6 +219,31 @@
             "id",
             "label"
           ]
+        }
+      }
+    }
+  },
+  {
+    "risk": "confirm",
+    "touches": [
+      "household"
+    ],
+    "flag": null,
+    "tool": {
+      "type": "function",
+      "function": {
+        "name": "leave_household",
+        "description": "Leave the shared kitchen; the shared list and plans stop being shared.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "householdId": {
+              "description": "Leave out: the user's household is found for you",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
         }
       }
     }
@@ -229,6 +437,40 @@
           },
           "required": [
             "id"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "risk": "safe",
+    "touches": [
+      "household-list"
+    ],
+    "flag": null,
+    "tool": {
+      "type": "function",
+      "function": {
+        "name": "remove_own_list_item",
+        "description": "Delete an item the user added to the shared shopping list.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "householdId": {
+              "description": "Leave out: the user's household is found for you",
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "itemKey": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "The shopping list item key"
+            }
+          },
+          "required": [
+            "itemKey"
           ]
         }
       }

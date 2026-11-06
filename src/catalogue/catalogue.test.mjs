@@ -24,7 +24,6 @@ test('supabase/functions/_shared/actions.json is current (npm run actions:manife
 // Writes not yet behind an action, each with its reason. Shrink this list;
 // never grow it without a ticket.
 const PENDING = {
-  'src/features/household/useHousehold.ts': 'shopping list and household: next catalogue slice',
   'src/features/import/import.queries.ts': 'saving a recipe from a draft: next catalogue slice',
   'src/features/share/share.queries.ts': 'makes a share link; not app state',
 };

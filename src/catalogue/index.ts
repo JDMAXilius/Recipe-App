@@ -4,9 +4,11 @@
 import { bind, type Action } from '@/shared/actions/action';
 import { planRun } from '@/features/planner/plan.queries';
 import { savedRun } from '@/features/cookbook/saved.queries';
+import { householdRun } from '@/features/household/household.queries';
 import { specGroups } from './specs';
 
 export const actions: readonly Action[] = [
   ...bind(specGroups.plan, planRun),
   ...bind(specGroups.saved, savedRun),
+  ...bind(specGroups.household, householdRun),
 ];

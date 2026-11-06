@@ -4,6 +4,8 @@
 // live in household_list_state (realtime, so a tick on one phone shows on
 // another). RLS confines every row to the caller's household.
 import { supabase } from '@/shared/supabase/client';
+import type { Runners } from '@/shared/actions/action';
+import type { householdActions } from './household.actions';
 
 export interface Household {
   id: string;
@@ -92,11 +94,12 @@ export async function joinHousehold(userId: string, code: string, displayName: s
   if (error) throw error;
   const householdId = data as string;
   if (displayName) {
-    await supabase
+    const { error: nameErr } = await supabase
       .from('household_members')
       .update({ display_name: displayName })
       .eq('household_id', householdId)
       .eq('user_id', userId);
+    if (nameErr) throw nameErr;
   }
   return householdId;
 }
@@ -152,22 +155,28 @@ export async function setChecked(
   checked: boolean,
   userId: string,
 ): Promise<void> {
-  await supabase
+  // Writes throw like reads: a swallowed error left the optimistic tick on
+  // screen with nothing saved and no rollback.
+  const { error } = await supabase
     .from('household_list_state')
     .upsert(
       { household_id: householdId, item_key: itemKey, checked, updated_by: userId, updated_at: new Date().toISOString() },
       { onConflict: 'household_id,item_key' },
     );
+  if (error) throw error;
 }
 
-export async function addCustomItem(householdId: string, name: string, userId: string): Promise<void> {
-  await supabase.from('household_list_state').insert({
+export async function addCustomItem(householdId: string, name: string, userId: string): Promise<string> {
+  const itemKey = `custom-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+  const { error } = await supabase.from('household_list_state').insert({
     household_id: householdId,
-    item_key: `custom-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
+    item_key: itemKey,
     custom_name: name,
     checked: false,
     updated_by: userId,
   });
+  if (error) throw error;
+  return itemKey;
 }
 
 // A removal is a row like a check-off is — upsert keyed the same way, so a
@@ -200,9 +209,61 @@ export async function setItemRemoved(
 }
 
 export async function removeCustomItem(householdId: string, itemKey: string): Promise<void> {
-  await supabase
+  const { error } = await supabase
     .from('household_list_state')
     .delete()
     .eq('household_id', householdId)
     .eq('item_key', itemKey);
+  if (error) throw error;
 }
+
+async function getListRow(householdId: string, itemKey: string): Promise<ListStateRow | null> {
+  const { data, error } = await supabase
+    .from('household_list_state')
+    .select('item_key, checked, custom_name, removed, removed_sources, removed_at')
+    .eq('household_id', householdId)
+    .eq('item_key', itemKey)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+// --- actions (R0.9) --------------------------------------------------------
+// Otto doesn't pass a household id; the screen does (no extra read per tick).
+async function householdOf(given: string | undefined, userId: string): Promise<string> {
+  if (given) return given;
+  const household = await getMyHousehold(userId);
+  if (!household) throw new Error('You are not in a shared kitchen.');
+  return household.id;
+}
+
+export const householdRun = {
+  check: async ({ householdId, itemKey, checked }, ctx) => {
+    const id = await householdOf(householdId, ctx.userId);
+    await setChecked(id, itemKey, checked, ctx.userId);
+    return { result: null, undo: { action: 'check_list_item', input: { householdId: id, itemKey, checked: !checked } } };
+  },
+  addItem: async ({ householdId, name }, ctx) => {
+    const id = await householdOf(householdId, ctx.userId);
+    const itemKey = await addCustomItem(id, name, ctx.userId);
+    return { result: itemKey, undo: { action: 'remove_own_list_item', input: { householdId: id, itemKey } } };
+  },
+  removeItem: async ({ householdId, itemKey }, ctx) => {
+    const id = await householdOf(householdId, ctx.userId);
+    const before = ctx.wantUndo ? await getListRow(id, itemKey) : null;
+    await removeCustomItem(id, itemKey);
+    const name = before?.custom_name;
+    return { result: null, undo: name ? { action: 'add_to_list', input: { householdId: id, name } } : null };
+  },
+  hideItem: async ({ householdId, itemKey, removed, sources }, ctx) => {
+    const id = await householdOf(householdId, ctx.userId);
+    await setItemRemoved(id, itemKey, removed, sources, ctx.userId);
+    return { result: null, undo: { action: 'hide_list_item', input: { householdId: id, itemKey, removed: !removed, sources } } };
+  },
+  create: async ({ displayName }, ctx) => ({ result: await createHousehold(ctx.userId, displayName), undo: null }),
+  join: async ({ code, displayName }, ctx) => ({ result: await joinHousehold(ctx.userId, code, displayName), undo: null }),
+  leave: async ({ householdId }, ctx) => {
+    await leaveHousehold(await householdOf(householdId, ctx.userId), ctx.userId);
+    return { result: null, undo: null };
+  },
+} satisfies Runners<typeof householdActions>;

@@ -7,16 +7,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/shared/supabase/client';
 import { useAuth } from '@/features/auth';
 import {
-  addCustomItem,
-  createHousehold,
   getListState,
   getMembers,
   getMyHousehold,
-  joinHousehold,
-  leaveHousehold,
-  removeCustomItem,
-  setChecked,
-  setItemRemoved,
+  householdRun,
   type Household,
   type HouseholdMember,
   type ListStateRow,
@@ -84,16 +78,15 @@ export function useHousehold(): UseHousehold {
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
 
   const createMut = useMutation({
-    mutationFn: (displayName: string) => createHousehold(userId as string, displayName),
+    mutationFn: (displayName: string) => householdRun.create({ displayName }, { userId: userId as string }),
     onSuccess: invalidate,
   });
   const joinMut = useMutation({
-    mutationFn: (v: { code: string; displayName: string }) =>
-      joinHousehold(userId as string, v.code, v.displayName),
+    mutationFn: (v: { code: string; displayName: string }) => householdRun.join(v, { userId: userId as string }),
     onSuccess: invalidate,
   });
   const leaveMut = useMutation({
-    mutationFn: () => leaveHousehold(household?.id ?? '', userId as string),
+    mutationFn: () => householdRun.leave({ householdId: household?.id }, { userId: userId as string }),
     onSuccess: invalidate,
   });
 
@@ -161,10 +154,12 @@ export function useSharedList(householdId: string | null): UseSharedList {
     if (ctx) qc.setQueryData(key, ctx.prev);
   };
   const settle = () => qc.invalidateQueries({ queryKey: key });
+  // Writes go through the action runners (R0.9), the same calls Otto makes.
+  const ctx = () => ({ userId: userId as string });
+  const hid = () => householdId as string;
 
   const toggleMut = useMutation({
-    mutationFn: (v: { itemKey: string; checked: boolean }) =>
-      setChecked(householdId as string, v.itemKey, v.checked, userId as string),
+    mutationFn: (v: { itemKey: string; checked: boolean }) => householdRun.check({ ...v, householdId: hid() }, ctx()),
     onMutate: async (v) => {
       const prev = await snapshot();
       const next = prev.some((r) => r.item_key === v.itemKey)
@@ -187,7 +182,7 @@ export function useSharedList(householdId: string | null): UseSharedList {
     onSettled: settle,
   });
   const addMut = useMutation({
-    mutationFn: (name: string) => addCustomItem(householdId as string, name, userId as string),
+    mutationFn: (name: string) => householdRun.addItem({ householdId: hid(), name }, ctx()),
     onMutate: async (name) => {
       const prev = await snapshot();
       qc.setQueryData<ListStateRow[]>(key, [
@@ -207,7 +202,7 @@ export function useSharedList(householdId: string | null): UseSharedList {
     onSettled: settle,
   });
   const removeMut = useMutation({
-    mutationFn: (itemKey: string) => removeCustomItem(householdId as string, itemKey),
+    mutationFn: (itemKey: string) => householdRun.removeItem({ householdId: hid(), itemKey }, ctx()),
     onMutate: async (itemKey) => {
       const prev = await snapshot();
       qc.setQueryData<ListStateRow[]>(key, prev.filter((r) => r.item_key !== itemKey));
@@ -218,7 +213,7 @@ export function useSharedList(householdId: string | null): UseSharedList {
   });
   const setRemovedMut = useMutation({
     mutationFn: (v: { itemKey: string; removed: boolean; sources: string[] | null }) =>
-      setItemRemoved(householdId as string, v.itemKey, v.removed, v.sources, userId as string),
+      householdRun.hideItem({ ...v, householdId: hid() }, ctx()),
     onMutate: async (v) => {
       const prev = await snapshot();
       const patch = {

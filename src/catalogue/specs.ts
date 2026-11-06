@@ -3,7 +3,8 @@
 // to read several features (feature-module.md, "Actions").
 import { planActions } from '../features/planner/plan.actions';
 import { savedActions } from '../features/cookbook/saved.actions';
+import { householdActions } from '../features/household/household.actions';
 
-export const specGroups = { plan: planActions, saved: savedActions } as const;
+export const specGroups = { plan: planActions, saved: savedActions, household: householdActions } as const;
 
 export const allSpecs = Object.values(specGroups).flatMap((g) => Object.values(g));
