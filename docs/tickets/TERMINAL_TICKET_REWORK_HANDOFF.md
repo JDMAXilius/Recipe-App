@@ -82,7 +82,7 @@
 ## Terminal status (2026-11-06)
 - T1: 1.0.24 (53) built (`e8bfabc1`), uploaded, VALID on TestFlight. Not sent for review: waits on T5.
 - T2: rework 1.0.24 (54) built (`79b7d5a5`), VALID, reaches "Otto Team (auto)" (internal, 2 testers). TestFlight opens 54 by default; 53 is under Previous Builds. `app.json` stays at 53.
-- T7: all four functions use `await rateLimitedDurable(` on main (`deno check` passes). **Not deployed:** the auto-mode classifier blocks `deploy_edge_function` in the terminal. Juan: allow it once, or the cloud session deploys from main. T7a and T7 are one deploy round.
+- T7: all four functions use `await rateLimitedDurable(` on main (`deno check` passes). Deployed by the cloud session from main (2026-11-06): generate-recipe v23, import-recipe v17, resolve-nutrition v14, delete-account v16; anon → 401 on all four.
 - T4: applied (`20261106164254_household_owner_handover`). REQUIRE_CLUB: demo account `claude-e2e-a` has an active row to 2027-10-04, so it passes. Then via Chrome: `REQUIRE_CLUB=on` saved (digest matches `on`), `canonicalize` deleted from production (stub and config entry removed from the repo; the original is in git history). Leaked-password protection needs the Supabase **Pro plan**; the project is on Free, so it stays off.
 - Typecheck on main failed once the typed routes were regenerated (`openOtto` took a hand-rolled router type that expo-router's `Router` doesn't match): now `Pick<Router, …>` with an `Href`. Cloud session: regenerate `.expo/types` (run `npx expo start` once) before trusting `tsc`.
 
