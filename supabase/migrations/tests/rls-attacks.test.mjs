@@ -374,6 +374,37 @@ async function shoppingListOwnRow(A, B) {
   check("list: A reads A's own", r.status === 200 && rows(r)[0]?.state?.checked?.onion === true, JSON.stringify(r.data));
 }
 
+// Security hardening (2026-11-06 audit): invites expire, the owner rotates
+// codes and removes members; the nutrition cache isn't public; list payloads
+// are capped.
+async function hardening(A, C) {
+  const hid = A_ROWS.households?.id;
+  let r = await rest("/rest/v1/rpc/rotate_invite_code", { method: "POST", token: A.token, body: {} });
+  check("invite: the owner gets a fresh 10-character code", r.status === 200 && typeof r.data === "string" && r.data.length === 10, `status ${r.status} ${JSON.stringify(r.data)}`);
+  const code = r.data;
+  r = await rest("/rest/v1/rpc/join_household", { method: "POST", token: C.token, body: { code } });
+  check("invite: a valid code joins", r.status === 200 && r.data === hid, `status ${r.status} ${JSON.stringify(r.data)}`);
+  r = await rest("/rest/v1/rpc/rotate_invite_code", { method: "POST", token: C.token, body: {} });
+  check("invite: a member who isn't the owner can't rotate the code", r.status >= 400, `status ${r.status}`);
+  r = await rest("/rest/v1/rpc/remove_household_member", { method: "POST", token: C.token, body: { member: A.id } });
+  check("invite: a member can't remove the owner", r.status >= 400, `status ${r.status}`);
+  r = await rest("/rest/v1/rpc/remove_household_member", { method: "POST", token: A.token, body: { member: C.id } });
+  check("invite: the owner can remove a member", r.status === 200 && r.data === true, `status ${r.status} ${JSON.stringify(r.data)}`);
+  r = await rest(`/rest/v1/households?id=eq.${hid}&select=id`, { token: C.token });
+  check("invite: a removed member reads nothing", r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
+  r = await rest("/rest/v1/rpc/rotate_invite_code", { method: "POST", token: A.token, body: {} });
+  r = await rest("/rest/v1/rpc/join_household", { method: "POST", token: C.token, body: { code } });
+  check("invite: an old code stops working after a new one", r.status === 200 && r.data === null, `status ${r.status} ${JSON.stringify(r.data)}`);
+  r = await rest("/rest/v1/rpc/rotate_invite_code", { method: "POST", body: {} });
+  check("invite: anon can't rotate", r.status >= 400, `status ${r.status}`);
+  for (const [who, token] of [["anon", null], ["A", A.token]]) {
+    r = await rest("/rest/v1/resolved_ingredients?select=name&limit=1", { token });
+    check(`cache: ${who} can't read typed ingredient names`, r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
+  }
+  r = await rest("/rest/v1/list_shares", { method: "POST", token: A.token, body: { user_id: A.id, token: tok(), payload: { big: "x".repeat(70000) } } });
+  check("shares: an oversized list payload is refused", r.status >= 400, `status ${r.status}`);
+}
+
 const A = await signUp("a");
 const B = await signUp("b");
 console.log(`Signed up throwaway users A=${A.email} B=${B.email} (deleted at the end via delete-account)`);
@@ -386,13 +417,15 @@ await eventsAndJoins(A, B);
 await profilesOwnRow(A, B);
 await agentActionsOwnRows(A, B);
 await shoppingListOwnRow(A, B);
+const C = await signUp("c");
+await hardening(A, C);
 await rateLimitsServiceOnly(A);
 
 // Clean up through the real account-deletion path, so the run leaves nothing
 // behind in prod AND exercises delete-account end to end.
 // A local stack (RLS_URL) runs without edge functions and is thrown away
 // whole, so there is nothing to clean.
-for (const u of process.env.RLS_URL ? [] : [A, B]) {
+for (const u of process.env.RLS_URL ? [] : [A, B, C]) {
   const r = await rest("/functions/v1/delete-account", { method: "POST", token: u.token });
   check(`cleanup: delete-account removes ${u.email}`, r.status === 200, `status ${r.status} ${JSON.stringify(r.data)}`);
 }
