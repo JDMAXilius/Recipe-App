@@ -12,5 +12,5 @@ test('every kv key is forgotten, handed over or kept, exactly once', () => {
   const decided = [...list('PERSONAL'), ...list('HANDOVER'), ...list('KEPT')];
   assert.deepEqual([...keys].sort(), [...new Set(decided)].sort().filter((k) => keys.includes(k)));
   assert.equal(decided.length, new Set(decided).size, 'a key is in two lists');
-  for (const k of ['chats', 'journal', 'prefs', 'aiConsentOpenAI', 'notifPrefs']) assert.ok(list('PERSONAL').includes(k), k);
+  for (const k of ['chats', 'journal', 'prefs', 'aiConsentOpenAI', 'shoppingState', 'cookRatings']) assert.ok(list('PERSONAL').includes(k), k);
 });

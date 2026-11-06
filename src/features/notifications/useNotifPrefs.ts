@@ -23,13 +23,9 @@ const listeners = new Set<() => void>();
 let hydrated = false;
 const emit = () => listeners.forEach((l) => l());
 
-// S1: reminders were the last person's: cancel them and start from defaults.
-onForget(async () => {
-  state = DEFAULT_PREFS;
-  hydrated = false;
-  emit();
-  await Notifications.cancelAllScheduledNotificationsAsync();
-});
+// S1: the settings are the phone's (kept), but the reminders scheduled for the
+// last person's plan go; NotifSync schedules the next person's.
+onForget(() => Notifications.cancelAllScheduledNotificationsAsync());
 
 async function hydrate() {
   if (hydrated) return;

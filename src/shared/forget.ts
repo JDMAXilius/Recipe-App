@@ -5,13 +5,14 @@
 import { kv, type StoreKey } from './storage';
 
 /** Kept on purpose: the phone's, not the person's ("onboarded" = this phone
- *  has been used; rcSynced only skips a RevenueCat sync per uid). The events
+ *  has been used; rcSynced only skips a RevenueCat sync per uid; reminder
+ *  settings are the phone's, the scheduled reminders are cancelled). The events
  *  queue is dropped by track.ts in its own order. forget.test.mjs fails when
  *  a new key isn't in one of the three lists. */
-export const KEPT: StoreKey[] = ['unitSystem', 'soundsEnabled', 'firstSaveCelebrated', 'reviewPrompt', 'onboarded', 'deviceId', 'rcSynced', 'eventsQueue'];
+export const KEPT: StoreKey[] = ['notifPrefs', 'unitSystem', 'soundsEnabled', 'firstSaveCelebrated', 'reviewPrompt', 'onboarded', 'deviceId', 'rcSynced', 'eventsQueue'];
 
 /** The person's data: cleared on every sign-out, and on a signed-out launch. */
-export const PERSONAL: StoreKey[] = ['prefs', 'notifPrefs', 'journal', 'chats', 'cookRatings', 'aiConsentOpenAI', 'shoppingState', 'household', 'householdRecent'];
+export const PERSONAL: StoreKey[] = ['prefs', 'journal', 'chats', 'cookRatings', 'aiConsentOpenAI', 'shoppingState', 'household', 'householdRecent'];
 
 /** Waiting for the NEXT account (draft week, remembered link, queued events):
 /** Waiting for the NEXT account (draft week, remembered link): cleared only
