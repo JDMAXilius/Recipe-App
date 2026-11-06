@@ -21,6 +21,7 @@ export interface EventProps {
   item_cooked: { source: 'plan' | 'recipe' | 'otto'; via: 'button' | 'cook_mode' };
   dish_snapped: { ok: boolean; before_account: boolean; questions_asked: number; matched_catalogue: boolean };
   recipe_from_photo_saved: { edited: boolean };
+  week_planned_by_otto: { items: number; new_recipes: number; constraints: number };
 }
 export type EventName = keyof EventProps;
 

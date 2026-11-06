@@ -10,6 +10,9 @@ import type { Href, Router } from 'expo-router';
 
 export const flags = {
   flowV2: process.env.EXPO_PUBLIC_FLOW_V2 === 'true',
+  // 1.2 "Otto plans your week": the plan agent (otto-agent). Only on top of
+  // the rework, and off until the function is deployed and checked.
+  agent: process.env.EXPO_PUBLIC_FLOW_V2 === 'true' && process.env.EXPO_PUBLIC_OTTO_AGENT === 'true',
 } as const;
 
 /** Where Otto AI lives: the trailing Otto tab (flowV2, R3.4) or the old ＋ tab. */

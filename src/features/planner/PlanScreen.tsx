@@ -17,6 +17,8 @@ import { sound } from '@/shared/sound';
 import { colors, radii, shadow, space, type } from '@/shared/theme/tokens';
 import { usePlan } from './usePlan';
 import { RecipePickerSheet } from './components/RecipePickerSheet';
+import { PlanAgentSheet } from './components/PlanAgentSheet';
+import { useQueryClient } from '@tanstack/react-query';
 import { entryToInput, pickToAddInput, leftoversCarry, nextInWeek, type PickItem } from './plan.pick';
 import { isLeftover, MEAL_LABELS, positionAtEnd, sortDay } from './plan.list';
 import { showActionSheet } from '@/shared/actionSheet';
@@ -54,6 +56,9 @@ export function PlanScreen({ planMyWeek, embedded, onOpenShopping }: PlanScreenP
     usePlan();
   const [planning, setPlanning] = useState(false);
   const [picker, setPicker] = useState<PickerTarget | null>(null);
+  // 1.2 (flags.agent): the plan agent's sheet.
+  const [agentOpen, setAgentOpen] = useState(false);
+  const qc = useQueryClient();
 
   const byDay: Record<string, PlanEntry[]> = {};
   for (const e of entries) {
@@ -228,8 +233,11 @@ export function PlanScreen({ planMyWeek, embedded, onOpenShopping }: PlanScreenP
         )}
       </View>
 
-      {(planned > 0 || (flags.flowV2 && planMyWeek && emptyDays.length > 0)) && (
+      {(planned > 0 || flags.agent || (flags.flowV2 && planMyWeek && emptyDays.length > 0)) && (
         <View style={{ marginBottom: space[4], gap: space[2] }}>
+          {flags.agent && !isLoading && !isError && (
+            <Button title="Plan with Otto" variant="secondary" onPress={() => setAgentOpen(true)} />
+          )}
           {flags.flowV2 && planMyWeek && emptyDays.length > 0 && !isLoading && !isError && (
             <Button
               title={planned === 0 ? 'Otto, plan my week' : `Otto, fill ${emptyDays.length === 1 ? 'the open day' : `the ${emptyDays.length} open days`}`}
@@ -378,6 +386,9 @@ export function PlanScreen({ planMyWeek, embedded, onOpenShopping }: PlanScreenP
       )}
       </ScrollView>
 
+      {flags.agent && (
+        <PlanAgentSheet visible={agentOpen} onClose={() => setAgentOpen(false)} onChanged={() => void qc.invalidateQueries({ queryKey: ['plan'] })} />
+      )}
       <RecipePickerSheet
         visible={picker != null}
         title={picker?.entryId != null ? 'Swap in a dish' : "What's cooking?"}

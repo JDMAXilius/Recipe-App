@@ -39,7 +39,7 @@ Guardrails: trial → paid (RevenueCat), refund rate, uninstall within 24 h, AI 
 | `item_cooked` | "Cooked it" tapped or cook mode finished | `source`, `via` (`button` \| `cook_mode`) |
 | `otto_changed_plan` | Ask Otto put a recipe into a plan day | `day_offset` |
 
-**Not wired yet** (their screens don't exist): `week_planned_by_otto`, `reminders_answered`, `otto_changed_plan`. `shopping_list_opened` uses `surface=list` until the Plan segment lands.
+**Not wired yet** (their screens don't exist): `reminders_answered`, `otto_changed_plan`. `week_planned_by_otto` is wired in the plan agent's sheet (1.2, behind `EXPO_PUBLIC_OTTO_AGENT`): `items` = changes made, `new_recipes` = 0 (the agent only plans catalogue dishes in v1), `constraints` = 1 when the ask was more than a few words. `shopping_list_opened` uses `surface=list` until the Plan segment lands.
 
 Keep it under 20 events. Every event name and prop lives in this file before it lives in code.
 
