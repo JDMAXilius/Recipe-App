@@ -98,6 +98,14 @@ export async function importFromText(text: string): Promise<Draft> {
   return toDraft(DraftResponseSchema.parse(data), 'manual');
 }
 
+// LEGACY (ADR-0015): a photo of a recipe PAGE, transcribed by generate-recipe's
+// vision mode. Shown only while flags.flowV2 is off, so the shipped app keeps
+// a camera until Snap a meal ships; removed with R6.6.
+export async function importRecipePage(image: string, mimeType: string): Promise<Draft> {
+  const data = await invokeEdge('generate-recipe', { image, mimeType });
+  return toDraft(DraftResponseSchema.parse(data), 'imported');
+}
+
 // Snap a meal (ADR-0013/0015): a photo of FOOD → the recipe of the whole dish,
 // reviewed in the editor before any save. 'otto' because Otto reconstructed it.
 const ScanResponseSchema = DraftResponseSchema.extend({
@@ -119,6 +127,9 @@ export async function scanMeal(image: string, mimeType: string): Promise<Draft> 
   const { scan } = parsed;
   return {
     ...toDraft(parsed, 'otto'),
+    // The user's own photo is the recipe image (ADR-0013). Kept as a data URI
+    // for the review screen and uploaded only if they save (EditRecipeScreen).
+    image: `data:${mimeType};base64,${image}`,
     size: { yield: scan.yield, servingUnit: scan.servingUnit },
     snap: {
       portion: scan.portion,
@@ -333,6 +344,12 @@ export function useGenerateRecipe() {
 
 export function useImportFromText() {
   return useMutation({ mutationFn: (text: string) => importFromText(text) });
+}
+
+export function useImportRecipePage() {
+  return useMutation({
+    mutationFn: ({ image, mimeType }: { image: string; mimeType: string }) => importRecipePage(image, mimeType),
+  });
 }
 
 export function useScanMeal() {

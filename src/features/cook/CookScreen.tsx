@@ -33,6 +33,7 @@ import { StepCard } from './components/StepCard';
 import { TimerHub, type AvailableTimer } from './components/TimerHub';
 import type { CookTimer } from './cook.types';
 import { noteFinishedCook } from './reviewPrompt';
+import { MAX_SERVINGS } from '@/shared/yield';
 
 type Phase = 'prep' | 'steps' | 'done';
 type OpenSheet = null | 'ingredients' | 'timers' | 'jump';
@@ -427,7 +428,7 @@ export function CookScreen() {
             </Text>
             <View style={{ flexDirection: 'row', gap: space[3] }}>
               <Stepper label="Decrease servings" symbol="−" onPress={() => setServings((s) => Math.max(1, s - 1))} />
-              <Stepper label="Increase servings" symbol="+" onPress={() => setServings((s) => Math.min(24, s + 1))} />
+              <Stepper label="Increase servings" symbol="+" onPress={() => setServings((s) => Math.min(MAX_SERVINGS, s + 1))} />
             </View>
           </View>
 

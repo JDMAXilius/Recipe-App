@@ -76,8 +76,22 @@ export interface ScanRecipe {
 export type Shaped = { ok: true; recipe: ScanRecipe } | { ok: false; decline: string } | null;
 
 const str = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
-const unit = (v: unknown) => str(v, 24).toLowerCase() || "serving";
+// Units are stored singular ("slices" → "slice"); the app pluralises for display.
+// Mirrors src/shared/yield.ts singular() (Deno can't import app code).
+const SINGULAR: Record<string, string> = {
+  loaves: "loaf", patties: "patty", berries: "berry", sandwiches: "sandwich", dishes: "dish",
+  glasses: "glass", batches: "batch", boxes: "box", peaches: "peach", tomatoes: "tomato", potatoes: "potato",
+};
+export function singular(u: string): string {
+  if (SINGULAR[u]) return SINGULAR[u];
+  if (/ss$/.test(u) || Object.values(SINGULAR).includes(u)) return u;
+  return /s$/.test(u) ? u.slice(0, -1) : u;
+}
+const unit = (v: unknown) => singular(str(v, 24).toLowerCase()) || "serving";
 const positive = (v: unknown, fallback: number) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? v : fallback);
+// Same cap as the app's MAX_SERVINGS. A value past it is capped AND said so in
+// assumptions: the nutrition divisor must never change silently.
+export const MAX_SERVINGS = 200;
 
 // deno-lint-ignore no-explicit-any
 export function shapeScan(data: any): Shaped {
@@ -92,6 +106,10 @@ export function shapeScan(data: any): Shaped {
     .map((p: any) => ({ measure: str(p.measure, 80), name: str(p.name, 200) }));
   const steps = (Array.isArray(data.steps) ? data.steps : []).map((s: unknown) => str(s, 1500)).filter(Boolean).slice(0, 40);
   if (ingredients.length === 0 || steps.length === 0) return null;
+  const assumptions = (Array.isArray(data.assumptions) ? data.assumptions : []).map((a: unknown) => str(a, 200)).filter(Boolean).slice(0, 5);
+  const rawServings = Math.round(positive(data.servings?.count, 1));
+  const rawYield = positive(data.yield?.qty, 1);
+  if (rawServings > MAX_SERVINGS || rawYield > MAX_SERVINGS) assumptions.push(`Capped at ${MAX_SERVINGS}; check the servings and the amounts.`);
   return {
     ok: true,
     recipe: {
@@ -100,14 +118,14 @@ export function shapeScan(data: any): Shaped {
       // deno-lint-ignore no-explicit-any
       seen: (Array.isArray(data.seen) ? data.seen : []).slice(0, 12).map((s: any) => ({ name: str(s?.name, 60), confident: s?.confident === true })).filter((s: { name: string }) => s.name),
       portion: { count: positive(data.portion?.count, 1), unit: unit(data.portion?.unit) },
-      yield: { qty: positive(data.yield?.qty, 1), unit: unit(data.yield?.unit) },
-      servings: { count: Math.min(48, Math.round(positive(data.servings?.count, 1))), unit: unit(data.servings?.unit) },
+      yield: { qty: Math.min(MAX_SERVINGS, rawYield), unit: unit(data.yield?.unit) },
+      servings: { count: Math.max(1, Math.min(MAX_SERVINGS, rawServings)), unit: unit(data.servings?.unit) },
       category: data.category ? str(data.category, 60) : null,
       area: data.area ? str(data.area, 60) : null,
       ingredients,
       steps,
       questions: (Array.isArray(data.questions) ? data.questions : []).map((q: unknown) => str(q, 140)).filter(Boolean).slice(0, 2),
-      assumptions: (Array.isArray(data.assumptions) ? data.assumptions : []).map((a: unknown) => str(a, 200)).filter(Boolean).slice(0, 5),
+      assumptions,
     },
   };
 }

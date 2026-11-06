@@ -114,6 +114,13 @@ export function cloneDraft(d: Draft): Draft {
   };
 }
 
+// A snapped meal's photo rides in the draft as a data URI until save, when the
+// editor uploads it and swaps in the URL. null for anything else.
+export function splitDataUri(uri: string): { mimeType: string; base64: string } | null {
+  const m = /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/s.exec(uri);
+  return m ? { mimeType: m[1], base64: m[2] } : null;
+}
+
 // --- the hand-off shelf ---------------------------------------------------
 
 let slot: Draft | null = null;

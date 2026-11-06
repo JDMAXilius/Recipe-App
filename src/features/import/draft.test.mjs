@@ -12,6 +12,7 @@ import {
   setOttoAsk,
   takeDraft,
   takeOttoAsk,
+  splitDataUri,
   toSavePayload,
 } from './draft.ts';
 
@@ -160,4 +161,10 @@ test('changing the yield or serving unit makes the draft dirty', () => {
   assert.equal(isDirty(cloneDraft(base), base), false);
   assert.equal(isDirty({ ...base, size: { yield: { qty: 2, unit: 'loaf' }, servingUnit: 'slice' } }, base), true);
   assert.equal(isDirty({ ...base, size: null }, base), true);
+});
+
+test('splitDataUri: a snapped photo splits into mime and base64; anything else is null', () => {
+  assert.deepEqual(splitDataUri('data:image/jpeg;base64,AAAA'), { mimeType: 'image/jpeg', base64: 'AAAA' });
+  assert.equal(splitDataUri('https://example.com/a.jpg'), null);
+  assert.equal(splitDataUri('data:image/gif;base64,AAAA'), null);
 });

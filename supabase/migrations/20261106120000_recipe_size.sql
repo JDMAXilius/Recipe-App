@@ -8,7 +8,7 @@
 
 alter table public.recipes
   add column if not exists yield_qty numeric
-    check (yield_qty is null or (yield_qty > 0 and yield_qty <= 100)),
+    check (yield_qty is null or (yield_qty > 0 and yield_qty <= 200)),
   add column if not exists yield_unit text
     check (yield_unit is null or char_length(yield_unit) between 1 and 24),
   add column if not exists serving_unit text

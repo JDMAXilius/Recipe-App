@@ -28,15 +28,15 @@ export function SnapSummary({ snap, size, servings }: { snap: SnapInfo; size: Re
     <View style={card} accessibilityLabel="What Otto worked out from your photo">
       <View style={{ gap: space[1] }}>
         {size && <Text role="title">{describeYield(size.yield, s)}</Text>}
-        <Text role="body">{describePortion(snap.portion, s)}</Text>
+        <Text role="body">{describePortion(snap.portion, s, size?.yield)}</Text>
       </View>
 
       {snap.seen.length > 0 && (
         <View style={{ gap: space[2] }}>
           <Text role="meta">OTTO SEES</Text>
           <View style={chipRow}>
-            {snap.seen.map((item) => (
-              <View key={item.name} style={chip(item.confident)}>
+            {snap.seen.map((item, i) => (
+              <View key={`${i}-${item.name}`} style={chip(item.confident)}>
                 <Text role="caption">{item.confident ? item.name : `${item.name}?`}</Text>
               </View>
             ))}
@@ -44,8 +44,8 @@ export function SnapSummary({ snap, size, servings }: { snap: SnapInfo; size: Re
         </View>
       )}
 
-      {[...snap.questions, ...snap.checks].map((text) => (
-        <View key={text} style={line}>
+      {[...snap.questions, ...snap.checks].map((text, i) => (
+        <View key={`${i}-${text}`} style={line}>
           <Ionicons name="help-circle-outline" size={18} color={colors.secondary} />
           <View style={{ flex: 1 }}>
             <Text role="caption">{text}</Text>

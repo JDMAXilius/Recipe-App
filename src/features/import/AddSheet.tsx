@@ -6,10 +6,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Button, Screen, Text, useToast } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { RecipeInput } from './components/RecipeInput';
-import { useImportFromText, useImportFromUrl, useScanMeal } from './import.queries';
+import { useImportFromText, useImportFromUrl, useImportRecipePage, useScanMeal } from './import.queries';
 import { flags } from '@/shared/flags';
 import { useSpeechInput } from '@/shared/speech/useSpeechInput';
-import { emptyDraft, setDraft } from './draft';
+import { emptyDraft, setDraft, type Draft } from './draft';
 import { choosePhoto } from '@/shared/imagePicker';
 import { ensureAiConsent } from '@/shared/aiConsent';
 import { showActionSheet } from '@/shared/actionSheet';
@@ -68,11 +68,12 @@ export function AddSheet({ onClose }: AddSheetProps) {
   });
   const importMut = useImportFromUrl();
   const scanMut = useScanMeal();
+  const pageMut = useImportRecipePage();
   const textMut = useImportFromText();
   // Free tier: the three AI-backed paths below are counted. "Write it myself"
   // is not, and must never be — manual entry is free forever, and it is also
   // the honest fallback we offer when a gate closes.
-  const busy = importMut.isPending || scanMut.isPending || textMut.isPending;
+  const busy = importMut.isPending || scanMut.isPending || pageMut.isPending || textMut.isPending;
 
   // Say it (ADR-0015): talk the recipe through; the words land in the same
   // Write-or-paste box, and Otto sorts it exactly like typed text.
@@ -142,12 +143,13 @@ export function AddSheet({ onClose }: AddSheetProps) {
   // Snap a meal → Otto works out the recipe of the whole dish → the same
   // review-first editor. Consent before the camera opens; a denied camera gets
   // the way back to Settings, so the ＋ never dead-ends.
-  const snapMeal = async () => {
+  const snapMeal = () => snap(flags.flowV2 ? scanMut.mutateAsync : pageMut.mutateAsync);
+  const snap = async (read: (photo: { image: string; mimeType: string }) => Promise<Draft>) => {
     setError(null);
     if (!(await ensureAiConsent())) return;
     const picked = await choosePhoto({ base64: true });
     if (picked === 'denied') {
-      toast.show('Otto needs the camera to see your meal.', 'info', {
+      toast.show('Otto needs the camera for that.', 'info', {
         actionLabel: 'Open Settings',
         onAction: () => void Linking.openSettings(),
       });
@@ -159,13 +161,13 @@ export function AddSheet({ onClose }: AddSheetProps) {
       return;
     }
     try {
-      const draft = await scanMut.mutateAsync({
+      const draft = await read({
         image: picked.base64,
         mimeType: picked.mimeType ?? 'image/jpeg',
       });
       openEditor(draft);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Otto couldn't work that dish out. Try another shot.");
+      setError(err instanceof Error ? err.message : "Otto couldn't read that photo. Try another shot.");
     }
   };
 
@@ -209,7 +211,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
           <Text role="display">Add a recipe</Text>
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[3] }}>
-            {flags.flowV2 && <Tile icon="camera-outline" label="Snap a meal" onPress={snapMeal} />}
+            <Tile icon="camera-outline" label={flags.flowV2 ? 'Snap a meal' : 'Snap a photo'} onPress={snapMeal} />
             <Tile icon="link" label="Paste a link" active={mode === 'link'} onPress={() => tap('link')} />
             <Tile
               icon="document-text-outline"

@@ -49,10 +49,17 @@ test('garbage and empty recipes shape to null', () => {
 });
 
 test('shaping clamps and normalises what the model sends', () => {
-  const r = shapeScan({ ...fixture('banana-bread'), archetype: 'spaceship', servings: { count: 999.4, unit: 'SLICE' }, questions: ['a', 'b', 'c'] }).recipe;
+  const r = shapeScan({ ...fixture('banana-bread'), archetype: 'spaceship', servings: { count: 999.4, unit: 'SLICES' }, questions: ['a', 'b', 'c'] }).recipe;
   assert.equal(r.archetype, 'plate');
-  assert.deepEqual(r.servings, { count: 48, unit: 'slice' });
+  assert.deepEqual(r.servings, { count: 200, unit: 'slice' });
+  assert.match(r.assumptions.at(-1), /Capped at 200/); // never a silent cap
   assert.equal(r.questions.length, 2);
+  // servings never round to zero
+  assert.equal(shapeScan({ ...fixture('banana-bread'), servings: { count: 0.4, unit: 'slice' } }).recipe.servings.count, 1);
+  // a 120-cookie batch fits without a cap or a note
+  const cookies = shapeScan({ ...fixture('banana-bread'), archetype: 'batch', yield: { qty: 120, unit: 'cookies' }, servings: { count: 120, unit: 'cookies' } }).recipe;
+  assert.deepEqual(cookies.servings, { count: 120, unit: 'cookie' });
+  assert.equal(cookies.assumptions.some((a) => /Capped/.test(a)), false);
 });
 
 test('gramsOf reads weights and small spoon measures', () => {

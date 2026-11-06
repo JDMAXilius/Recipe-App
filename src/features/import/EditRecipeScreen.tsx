@@ -19,7 +19,8 @@ import { pickFromLibrary } from '@/shared/imagePicker';
 import { showActionSheet } from '@/shared/actionSheet';
 import { RecipeInput } from './components/RecipeInput';
 import { SnapSummary } from './components/SnapSummary';
-import { unitLabel } from '@/shared/yield';
+import { MAX_SERVINGS, formatYield, parseYield, singular, unitLabel } from '@/shared/yield';
+import { flags } from '@/shared/flags';
 import {
   cloneDraft,
   draftToAsk,
@@ -29,6 +30,7 @@ import {
   parseEditId,
   setOttoAsk,
   takeDraft,
+  splitDataUri,
   toSavePayload,
   type Draft,
 } from './draft';
@@ -126,10 +128,13 @@ export function EditRecipeScreen() {
     editId == null ? (takeDraft() ?? emptyDraft()) : null,
   );
   const [baseline, setBaseline] = useState<Draft | null>(() => (form ? cloneDraft(form) : null));
+  // The Makes field's raw text, so typing "2 lo…" isn't fought by parsing.
+  const [sizeText, setSizeText] = useState(() => (form?.size ? formatYield(form.size.yield) : ''));
 
   useEffect(() => {
     if (editId != null && draftQuery.data && baseline == null) {
       setForm(draftQuery.data);
+      setSizeText(draftQuery.data.size ? formatYield(draftQuery.data.size.yield) : '');
       setBaseline(cloneDraft(draftQuery.data));
     }
   }, [editId, draftQuery.data, baseline]);
@@ -209,7 +214,20 @@ export function EditRecipeScreen() {
   };
 
   const save = async () => {
-    const result = toSavePayload(form);
+    // A snapped meal's photo is uploaded only now, when the user keeps it.
+    let toSave = form;
+    const pending = splitDataUri(form.image);
+    if (pending && user) {
+      try {
+        const url = await uploadMut.mutateAsync(pending);
+        toSave = { ...form, image: url };
+        patch({ image: url });
+      } catch {
+        show('Couldn’t upload the photo. Saving the recipe without it.', 'info');
+        toSave = { ...form, image: '' };
+      }
+    }
+    const result = toSavePayload(toSave);
     if (!result.ok) {
       show(result.error, 'error');
       return;
@@ -407,10 +425,39 @@ export function EditRecipeScreen() {
           <Text role="title">{String(form.servings)}</Text>
           <Button
             title="+"
-            onPress={() => patch({ servings: Math.min(48, form.servings + 1) })}
+            onPress={() => patch({ servings: Math.min(MAX_SERVINGS, form.servings + 1) })}
             variant="secondary"
           />
         </View>
+
+        {/* Recipe size (ADR-0013): what the batch is and the unit a serving
+            counts in. Editable, so a scan's guess can be put right. */}
+        {(flags.flowV2 || form.size) && (
+          <View style={[rowStyle, { gap: space[3], marginTop: space[3] }]}>
+            <View style={{ flex: 1 }}>
+              <RecipeInput
+                value={sizeText}
+                onChangeText={(t) => {
+                  setSizeText(t);
+                  const y = parseYield(t);
+                  patch({ size: y ? { yield: y, servingUnit: form.size?.servingUnit ?? 'serving' } : null });
+                }}
+                placeholder="1 loaf"
+                label="MAKES"
+                accessibilityLabel="What the recipe makes, for example 1 loaf"
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <RecipeInput
+                value={form.size?.servingUnit ?? ''}
+                onChangeText={(t) => form.size && patch({ size: { ...form.size, servingUnit: singular(t) || 'serving' } })}
+                placeholder="slice"
+                label="SERVED AS"
+                accessibilityLabel="The unit one serving is counted in, for example slice"
+              />
+            </View>
+          </View>
+        )}
 
         <View style={{ marginTop: space[5], marginBottom: space[2] }}>
           <Text role="caption">INGREDIENTS</Text>
