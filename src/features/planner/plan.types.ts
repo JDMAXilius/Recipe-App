@@ -20,3 +20,6 @@ export interface AddPlanInput {
   kind?: PlanKind;
   position?: number;
 }
+
+// The dish part of a plan item: what a swap replaces.
+export type PlanDish = Pick<AddPlanInput, 'recipeId' | 'title' | 'image' | 'category' | 'note' | 'kind'>;

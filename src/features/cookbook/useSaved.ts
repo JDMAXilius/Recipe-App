@@ -10,7 +10,7 @@ import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { kv } from '@/shared/storage';
 import { ottoBus } from '@/shared/bus';
-import { deleteFavorite, fetchFavorites, insertFavorite } from './saved.queries';
+import { fetchFavorites, savedRun } from './saved.queries';
 import { applyOptimisticToggle, deriveSavedIds } from './cookbook.logic';
 import type { SavedRecipe } from './cookbook.types';
 
@@ -45,8 +45,9 @@ export function useSaved() {
       // cache: React Query runs onMutate (which optimistically flips the cache)
       // BEFORE mutationFn, so reading the cache here inverts the DB op (a Save
       // would delete, an Unsave would insert a duplicate).
-      if (wasSaved) await deleteFavorite(userId, recipe.recipeId);
-      else await insertFavorite(userId, recipe);
+      // Through the action runners (R0.9), the same calls Otto makes.
+      if (wasSaved) await savedRun.unsave({ recipeId: recipe.recipeId }, { userId });
+      else await savedRun.save(recipe, { userId });
     },
     onMutate: async ({ recipe }: { recipe: SavedRecipe; wasSaved: boolean }) => {
       const key = savedKey(userId);

@@ -3,7 +3,9 @@
 import { supabase } from '@/shared/supabase/client';
 import { parseIngredientLine, type IngredientPair } from '@/features/nutrition/engine/parse';
 import { fetchSeedRecipe } from '@/features/recipes/seed.loader';
-import type { PlanEntry, AddPlanInput } from './plan.types';
+import type { PlanEntry, AddPlanInput, PlanDish } from './plan.types';
+import type { Outcome, Runners } from '@/shared/actions/action';
+import type { planActions } from './plan.actions';
 import { flags } from '@/shared/flags';
 import type { RecipeForList, ParsedIngredient } from './shoppingList';
 
@@ -55,7 +57,7 @@ function listColumns(input: AddPlanInput) {
 // Swap in ONE write: the slot keeps its id, day and position and takes the new
 // dish. (It used to be delete + insert, which an interrupted call could leave
 // half done.) Works on today's schema; the label is kept as the user set it.
-export async function replacePlanEntry(id: number, input: AddPlanInput): Promise<void> {
+export async function replacePlanEntry(id: number, input: PlanDish): Promise<void> {
   const { error } = await supabase
     .from('plan_entries')
     .update({
@@ -86,10 +88,60 @@ export async function removePlanEntry(id: number): Promise<void> {
   if (error) throw error;
 }
 
+export async function getPlanEntry(id: number): Promise<PlanEntry | null> {
+  const { data, error } = await supabase.from('plan_entries').select('*').eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function setPlanEntryCooked(id: number, cooked: boolean): Promise<void> {
   const { error } = await supabase.from('plan_entries').update({ cooked }).eq('id', id);
   if (error) throw error;
 }
+
+// --- actions (R0.9) --------------------------------------------------------
+// The runners behind planActions. Undo is worked out only when the caller asks
+// (ctx.wantUndo): the screen keeps its own optimistic cache and skips the read.
+
+const dishOf = (e: PlanEntry) =>
+  e.recipe_id ? { recipeId: e.recipe_id, title: e.title, image: e.image, category: e.category, note: e.note } : null;
+
+export const planRun = {
+  add: async (input, ctx): Promise<Outcome<PlanEntry>> => {
+    const row = await addPlanEntry(ctx.userId, input);
+    return { result: row, undo: { action: 'remove_from_plan', input: { id: row.id } } };
+  },
+  remove: async ({ id }, ctx) => {
+    const before = ctx.wantUndo ? await getPlanEntry(id) : null;
+    await removePlanEntry(id);
+    const dish = before && dishOf(before);
+    const undo = before && dish
+      ? { action: 'put_in_plan', input: { day: before.day, ...dish, label: before.label, kind: before.kind as AddPlanInput['kind'], ...(before.position != null ? { position: before.position } : {}) } }
+      : null;
+    return { result: null, undo };
+  },
+  swap: async ({ id, ...input }, ctx) => {
+    const before = ctx.wantUndo ? await getPlanEntry(id) : null;
+    await replacePlanEntry(id, input);
+    const dish = before && dishOf(before);
+    return { result: null, undo: dish ? { action: 'swap_in_plan', input: { id, ...dish } } : null };
+  },
+  setCooked: async ({ id, cooked }, _ctx) => {
+    await setPlanEntryCooked(id, cooked);
+    return { result: null, undo: { action: 'mark_cooked', input: { id, cooked: !cooked } } };
+  },
+  setLabel: async ({ id, label }, ctx) => {
+    const before = ctx.wantUndo ? await getPlanEntry(id) : null;
+    await setPlanEntryLabel(id, label);
+    return { result: null, undo: before ? { action: 'label_plan_item', input: { id, label: before.label } } : null };
+  },
+  move: async ({ id, day, position }, ctx) => {
+    const before = ctx.wantUndo ? await getPlanEntry(id) : null;
+    await movePlanEntry(id, day, position);
+    const undo = before?.position != null ? { action: 'move_plan_item', input: { id, day: before.day, position: before.position } } : null;
+    return { result: null, undo };
+  },
+} satisfies Runners<typeof planActions>;
 
 // --- shopping list source data -------------------------------------------
 

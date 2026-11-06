@@ -2,15 +2,7 @@ import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth';
 import { weekDays, type WeekDay } from './week';
-import {
-  listPlan,
-  addPlanEntry,
-  movePlanEntry,
-  removePlanEntry,
-  replacePlanEntry,
-  setPlanEntryCooked,
-  setPlanEntryLabel,
-} from './plan.queries';
+import { listPlan, planRun } from './plan.queries';
 import { positionAtEnd } from './plan.list';
 import { flags } from '@/shared/flags';
 import type { PlanEntry, AddPlanInput } from './plan.types';
@@ -74,6 +66,8 @@ export function usePlan(): UsePlan {
     queryFn: () => listPlan(userId as string, days[0].key, days[6].key),
   });
 
+  // Writes go through the action runners (R0.9), the same calls Otto makes.
+  const ctx = () => ({ userId: userId as string });
   const invalidate = () => qc.invalidateQueries({ queryKey: key });
   const snapshot = async () => {
     await qc.cancelQueries({ queryKey: key });
@@ -93,7 +87,7 @@ export function usePlan(): UsePlan {
   };
 
   const addMut = useMutation({
-    mutationFn: (input: AddPlanInput) => addPlanEntry(userId as string, input),
+    mutationFn: (input: AddPlanInput) => planRun.add(input, ctx()).then((o) => o.result),
     onMutate: async (input: AddPlanInput) => {
       const ctx = await snapshot();
       qc.setQueryData<PlanEntry[]>(key, [...ctx.prev, tempEntry(userId as string, input)]);
@@ -104,7 +98,7 @@ export function usePlan(): UsePlan {
   });
 
   const removeMut = useMutation({
-    mutationFn: (id: number) => removePlanEntry(id),
+    mutationFn: (id: number) => planRun.remove({ id }, ctx()).then(() => undefined),
     onMutate: async (id: number) => {
       const ctx = await snapshot();
       qc.setQueryData<PlanEntry[]>(key, ctx.prev.filter((e) => e.id !== id));
@@ -117,7 +111,7 @@ export function usePlan(): UsePlan {
   // Swap = one update of the slot (replacePlanEntry): it keeps its id, day,
   // label and position. Optimistic: the dish changes on tap, a failure rolls back.
   const swapMut = useMutation({
-    mutationFn: ({ oldId, input }: { oldId: number; input: AddPlanInput }) => replacePlanEntry(oldId, input),
+    mutationFn: ({ oldId, input }: { oldId: number; input: AddPlanInput }) => planRun.swap({ ...input, id: oldId }, ctx()),
     onMutate: async ({ oldId, input }: { oldId: number; input: AddPlanInput }) => {
       const ctx = await snapshot();
       qc.setQueryData<PlanEntry[]>(key, ctx.prev.map((e) =>
@@ -132,7 +126,7 @@ export function usePlan(): UsePlan {
   });
 
   const labelMut = useMutation({
-    mutationFn: ({ id, label }: { id: number; label: string | null }) => setPlanEntryLabel(id, label),
+    mutationFn: (v: { id: number; label: string | null }) => planRun.setLabel(v, ctx()).then(() => undefined),
     onMutate: async ({ id, label }: { id: number; label: string | null }) => {
       const ctx = await snapshot();
       qc.setQueryData<PlanEntry[]>(key, ctx.prev.map((e) => (e.id === id ? { ...e, label } : e)));
@@ -143,7 +137,7 @@ export function usePlan(): UsePlan {
   });
 
   const moveMut = useMutation({
-    mutationFn: ({ id, day, position }: { id: number; day: string; position: number }) => movePlanEntry(id, day, position),
+    mutationFn: (v: { id: number; day: string; position: number }) => planRun.move(v, ctx()).then(() => undefined),
     onMutate: async ({ id, day, position }: { id: number; day: string; position: number }) => {
       const ctx = await snapshot();
       qc.setQueryData<PlanEntry[]>(key, ctx.prev.map((e) => (e.id === id ? { ...e, day, position } : e)));
@@ -154,8 +148,7 @@ export function usePlan(): UsePlan {
   });
 
   const cookedMut = useMutation({
-    mutationFn: ({ id, cooked }: { id: number; cooked: boolean }) =>
-      setPlanEntryCooked(id, cooked),
+    mutationFn: (v: { id: number; cooked: boolean }) => planRun.setCooked(v, ctx()).then(() => undefined),
     // Optimistic like add/remove/swap — the flame + strike-through must flip on
     // tap, not after the round-trip (that lag read as "cooked doesn't work").
     onMutate: async ({ id, cooked }: { id: number; cooked: boolean }) => {

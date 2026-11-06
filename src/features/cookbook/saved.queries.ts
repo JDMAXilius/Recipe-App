@@ -4,6 +4,8 @@
 import { supabase } from '@/shared/supabase/client';
 import type { Database } from '@/types/database';
 import type { SavedRecipe } from './cookbook.types';
+import type { Runners } from '@/shared/actions/action';
+import type { savedActions } from './saved.actions';
 
 type FavoriteRow = Database['public']['Tables']['favorites']['Row'];
 type FavoriteInsert = Database['public']['Tables']['favorites']['Insert'];
@@ -55,3 +57,27 @@ export async function deleteFavorite(userId: string, recipeId: number): Promise<
     .eq('recipe_id', recipeId);
   if (error) throw error;
 }
+
+export async function getFavorite(userId: string, recipeId: number): Promise<SavedRecipe | null> {
+  const { data, error } = await supabase
+    .from('favorites')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('recipe_id', recipeId)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? toSavedRecipe(data) : null;
+}
+
+// --- actions (R0.9) --------------------------------------------------------
+export const savedRun = {
+  save: async (recipe, ctx) => {
+    await insertFavorite(ctx.userId, recipe);
+    return { result: null, undo: { action: 'unsave_recipe', input: { recipeId: recipe.recipeId } } };
+  },
+  unsave: async ({ recipeId }, ctx) => {
+    const before = ctx.wantUndo ? await getFavorite(ctx.userId, recipeId) : null;
+    await deleteFavorite(ctx.userId, recipeId);
+    return { result: null, undo: before ? { action: 'save_recipe', input: before } : null };
+  },
+} satisfies Runners<typeof savedActions>;

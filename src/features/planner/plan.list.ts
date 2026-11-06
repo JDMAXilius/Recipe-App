@@ -8,7 +8,8 @@
 // order, after any positioned rows.
 
 export const MEAL_LABELS = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
-export type PlanKind = 'recipe' | 'food' | 'leftover' | 'note' | 'out';
+export const PLAN_KINDS = ['recipe', 'food', 'leftover', 'note', 'out'] as const;
+export type PlanKind = (typeof PLAN_KINDS)[number];
 
 export const STEP = 1024; // spacing for new positions; ~50 halvings before a rebalance
 const MIN_GAP = 1e-6;

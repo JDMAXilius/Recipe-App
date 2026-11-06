@@ -44,6 +44,29 @@ features/<name>/
 7. **Tokens/primitives from `@/shared/ui` + `@/shared/theme`** — a feature
    defining its own colors/fonts/buttons is a review failure.
 
+## Actions (R0.9)
+
+Every change a person can make by hand is an **action**, defined once
+(`src/shared/actions/action.ts`), so the screen, Otto, notification buttons,
+widgets and Siri all call the same thing.
+
+- **Spec** in `features/<name>/<name>.actions.ts`: `name` (snake_case tool
+  name), one-sentence `summary`, `risk` (`safe` | `confirm`), `touches` (query
+  domains to refresh), zod `input`, optional `flag`. Pure, relative imports
+  only, so `node --test` loads it.
+- **Runner** in the feature's `*.queries.ts` as `<name>Run`, typed
+  `satisfies Runners<typeof <name>Actions>`. It returns `{ result, undo }`;
+  it reads the state an undo needs only when `ctx.wantUndo` is set.
+- **Hooks** call runners in `mutationFn` and keep their own optimistic cache.
+  Untrusted callers go through `dispatch()`, which validates the input.
+- **Catalogue** `src/catalogue/`: `specs.ts` lists every spec (pure);
+  `index.ts` binds them to runners. It is the one place besides `app/` that
+  reads several features.
+- `npm run actions:manifest` writes `supabase/functions/_shared/actions.json`
+  (the tools the server can offer the model). `src/catalogue/catalogue.test.mjs`
+  fails when that file is stale, when a name is invalid or repeated, or when
+  a `mutationFn` doesn't call a runner (outside its listed pending files).
+
 ## Cross-feature allowlist (hooks AND components)
 
 | Export | Kind | Exported by | Consumed by |
