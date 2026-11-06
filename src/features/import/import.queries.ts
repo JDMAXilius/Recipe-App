@@ -283,13 +283,13 @@ export async function getUserRecipe(id: number): Promise<Draft> {
 // on nutrition.
 async function computeSaveExtras(
   recipe: CleanRecipe,
-): Promise<{ ingredients: Json; nutrition: Json }> {
+): Promise<{ ingredients: NonNullable<Json>; nutrition: Json }> {
   const nutrition = await resolveNutrition({
     ingredients: recipe.ingredients,
     servings: recipe.servings,
   });
   return {
-    ingredients: ingredientsWithGrams(recipe.ingredients) as unknown as Json,
+    ingredients: ingredientsWithGrams(recipe.ingredients) as unknown as NonNullable<Json>, // the column is not null
     nutrition: (nutrition as NutritionValue | null) as unknown as Json,
   };
 }

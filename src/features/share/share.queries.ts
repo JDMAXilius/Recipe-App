@@ -80,7 +80,7 @@ export function useCreateRecipeShare() {
 export function useCreateListShare() {
   // action-exempt: a public snapshot of the list the Shopping screen built
   return useMutation({
-    mutationFn: async (payload: Json): Promise<string> => {
+    mutationFn: async (payload: NonNullable<Json>): Promise<string> => {
       const token = mintToken();
       const user_id = await currentUserId();
       const { error } = await supabase
