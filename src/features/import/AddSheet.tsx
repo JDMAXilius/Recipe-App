@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, Text as RNText, View, type ViewStyle } from 'react-native';
-import { useNavigation, useRouter, type Href } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import { usePreventRemove } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Screen, Text, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { RecipeInput } from './components/RecipeInput';
 import { useImportFromText, useImportFromUrl, useImportRecipePage, useScanMeal } from './import.queries';
-import { flags, ottoHref } from '@/shared/flags';
+import { flags, openOtto } from '@/shared/flags';
 import { useSpeechInput } from '@/shared/speech/useSpeechInput';
 import { emptyDraft, setDraft, type Draft } from './draft';
 import { choosePhoto } from '@/shared/imagePicker';
@@ -306,7 +306,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
 
           <Button
             title="Ask Otto to write one"
-            onPress={() => router.replace(ottoHref() as Href)}
+            onPress={() => openOtto(router, 'replace')}
             variant="secondary"
             size="lg"
           />

@@ -5,6 +5,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarHeightContext } from '@react-navigation/bottom-tabs';
 import { Text, useToast } from '@/shared/ui';
+import { flags } from '@/shared/flags';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { ensureAiConsent } from '@/shared/aiConsent';
@@ -95,8 +96,12 @@ export function ChatScreen() {
     useCallback(() => {
       if (!isSignedIn) return; // leave it for after sign-in — don't burn the slot
       const ask = takeOttoAsk();
-      if (ask) setDraft(ask);
-    }, [isSignedIn]),
+      if (!ask) return;
+      // flowV2: an ask is a new conversation. A reopened thread (sticky
+      // ?chat=) would otherwise get "Write me a recipe for …" in its composer.
+      if (flags.flowV2 && chatParam) router.setParams({ chat: undefined });
+      setDraft(ask);
+    }, [isSignedIn, chatParam, router]),
   );
 
   const toBottom = useCallback(() => {

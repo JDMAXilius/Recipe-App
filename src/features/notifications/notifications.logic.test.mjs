@@ -89,6 +89,6 @@ test('taps: a tonight nudge opens its first recipe; Sunday opens the plan; trial
     { trialEndsAt: new Date(2026, 6, 30, 15).toISOString() },
   );
   assert.equal(out.find((n) => n.id === 'tonight-2026-07-24').href, '/recipe/52772');
-  assert.equal(out.find((n) => n.id.startsWith('sunday-')).href, '/plan');
+  assert.equal(out.find((n) => n.id.startsWith('sunday-')).href, '/plan?view=week');
   assert.ok(out.some((n) => n.id.startsWith('trial-')));
 });

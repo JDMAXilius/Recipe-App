@@ -43,10 +43,11 @@ export function SearchScreen({ onAskOtto }: SearchScreenProps) {
   // New words, new results: an old kind chip would hide them.
   useEffect(() => setKind(null), [debounced]);
 
+  // From storage, not the on-screen list: a search sent before the list has
+  // loaded must add to the saved five, not replace them.
   const remember = (q: string) => {
-    const next = addRecent(recent, q);
-    setRecent(next);
-    saveRecent(next);
+    setRecent((cur) => addRecent(cur, q));
+    void loadRecent().then((saved) => saveRecent(addRecent(saved, q)));
   };
   const run = (q: string) => {
     setBrowse(null);

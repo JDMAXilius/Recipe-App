@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Tabs, usePathname, useRouter, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/shared/theme/tokens';
@@ -18,12 +18,15 @@ function useRestoreLastTab(enabled: boolean) {
   // Saving waits for the read, so the first Home render can't overwrite the
   // tab it is about to restore.
   const [ready, setReady] = useState(restoreDone);
+  // Where the person is NOW: a tab tapped or a link opened while the read was
+  // in flight wins over the remembered tab.
+  const live = useRef(pathname);
+  live.current = pathname;
   useEffect(() => {
     if (!enabled || restoreDone) return;
     restoreDone = true;
-    const at = pathname;
     void kv.get<unknown>('lastTab', null).then((saved) => {
-      const to = restoreTarget(at, saved);
+      const to = restoreTarget(live.current, saved);
       if (to) router.navigate(to as Href);
       setReady(true);
     });

@@ -31,12 +31,12 @@ export function HomeTop() {
             .then(() => track('item_cooked', { source: 'plan', via: 'button' }))
             .catch(() => show("Couldn't save that. Try again.", 'error'));
         }}
-        onSwap={() => router.push('/(tabs)/plan')}
-        onPlan={() => router.push('/(tabs)/plan')}
+        onSwap={() => router.push('/(tabs)/plan?view=week')}
+        onPlan={() => router.push('/(tabs)/plan?view=week')}
       />
       <View style={{ gap: space[2] }}>
         <Text role="title">This week</Text>
-        <WeekStrip days={week} onPress={() => router.push('/(tabs)/plan')} />
+        <WeekStrip days={week} onPress={() => router.push('/(tabs)/plan?view=week')} />
       </View>
     </View>
   );

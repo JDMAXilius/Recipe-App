@@ -112,7 +112,7 @@ export function computeNotifications(
         date: when,
         title: 'Tonight in your kitchen',
         body: `${dishes[0]}${more}. Ready to start cooking?`,
-        href: firstRecipe.has(day) ? `/recipe/${firstRecipe.get(day)}` : '/plan',
+        href: firstRecipe.has(day) ? `/recipe/${firstRecipe.get(day)}` : '/plan?view=week',
       });
     }
   }
@@ -124,7 +124,7 @@ export function computeNotifications(
       date: when,
       title: 'Plan your week',
       body: 'A fresh week ahead. What are you cooking?',
-      href: '/plan',
+      href: '/plan?view=week',
     });
   }
 

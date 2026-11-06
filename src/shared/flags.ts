@@ -13,3 +13,12 @@ export const flags = {
 /** Where Otto AI lives: the trailing Otto tab (flowV2, R3.4) or the old ＋ tab. */
 export const ottoHref = (chatId?: string) =>
   `${flags.flowV2 ? '/(tabs)/otto' : '/create'}${chatId ? `?chat=${chatId}` : ''}`;
+
+/** Open Otto AI from a screen pushed OVER the tabs (Search, Add, the editor,
+ *  a dead recipe). A push or replace there mounts a second tab navigator on
+ *  the root stack (a second tab bar; back lands on the screen you left).
+ *  flowV2: go back to the tabs already open, then to Otto. */
+export function openOtto(router: { dismissTo: (h: string) => void; push: (h: string) => void; replace: (h: string) => void }, how: 'push' | 'replace' = 'push'): void {
+  if (flags.flowV2) router.dismissTo(ottoHref());
+  else router[how](ottoHref());
+}

@@ -4,11 +4,11 @@
 // screen shows the retry state for that, never "not found".
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { useRouter, type Href } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, OttoArt, Text } from '@/shared/ui';
 import { colors, space } from '@/shared/theme/tokens';
-import { ottoHref } from '@/shared/flags';
+import { openOtto } from '@/shared/flags';
 import { RecipeCard } from '../RecipeCard';
 import { isUserRecipeRef, useFeatured } from '../recipe.queries';
 import type { SeedId } from '@/types/ids';
@@ -40,7 +40,7 @@ export function RecipeGone({ onBack }: { onBack: () => void }) {
       )}
       <View style={{ alignSelf: 'stretch', gap: space[2] }}>
         <Button title="Search recipes" variant="primary" onPress={() => router.replace('/search')} />
-        <Button title="Ask Otto" variant="secondary" onPress={() => router.replace(ottoHref() as Href)} />
+        <Button title="Ask Otto" variant="secondary" onPress={() => openOtto(router, 'replace')} />
         <Button title="Take me back" variant="ghost" onPress={onBack} />
       </View>
     </ScrollView>
