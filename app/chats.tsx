@@ -72,7 +72,7 @@ export default function ChatsScreen() {
         <Pressable
           onPress={() => router.back()}
           accessibilityRole="button"
-          accessibilityLabel="Close"
+          accessibilityLabel={flags.flowV2 ? 'Go back' : 'Close'}
           style={{
             width: 40,
             height: 40,
@@ -82,7 +82,7 @@ export default function ChatsScreen() {
             justifyContent: 'center',
           }}
         >
-          <Ionicons name="close" size={22} color={colors.ink} />
+          <Ionicons name={flags.flowV2 ? "chevron-back" : "close"} size={22} color={colors.ink} />
         </Pressable>
       </View>
 

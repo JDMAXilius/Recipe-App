@@ -40,7 +40,9 @@ export const fonts = { display: 'Lora', body: 'system' } as const;
 export const type = {
   display: { fontFamily: 'Lora_700Bold', fontSize: 30, lineHeight: 34 },
   title: { fontFamily: 'Lora_600SemiBold', fontSize: 22, lineHeight: 26 },
-  body: { fontSize: 15, lineHeight: 22 },
+  // G19 (flowV2): Apple's default body is 17 pt. Today's build keeps 15 until
+  // the rework ships, so the two builds can be compared side by side.
+  body: process.env.EXPO_PUBLIC_FLOW_V2 === 'true' ? { fontSize: 17, lineHeight: 24 } : { fontSize: 15, lineHeight: 22 },
   label: { fontSize: 13, fontWeight: '600' as const },
   caption: { fontSize: 13, lineHeight: 18 }, // lowercase secondary — the app's role="caption"
   meta: {

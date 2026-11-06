@@ -33,8 +33,8 @@ The failures users and App Review will notice: brand terracotta text fails contr
 ## P2 — polish (Juan picks)
 - [ ] **G17.** Layered app icon with dark / clear / tinted appearances (03 · App icons).
 - [ ] **G18.** Plain cream launch screen, no otter art (14 · Launching).
-- [ ] **G19.** Type scale to Apple defaults: body 17 (10 · Typography). Do it after G2.
-- [ ] **G20.** `chevron-back` everywhere now; native large-title headers after M7 (28 · Toolbars & navigation bars).
+- [x] **G19.** *(done 2026-11-06 behind flowV2: body 17/24; seen on the web build's question screens; AX sizes still a device check)* Type scale to Apple defaults: body 17 (10 · Typography). Do it after G2.
+- [x] **G20.** *(chevron-back now everywhere: Recent chats and cook mode's Previous step moved under flowV2; native large titles wait on M7)* `chevron-back` everywhere now; native large-title headers after M7 (28 · Toolbars & navigation bars).
 - [ ] **G21.** Pull-to-refresh, recipe-card context menu, swipe-to-remove on plan entries (32 · Lists & tables, 31 · Menus). Coordinate the menu preview with motion M8.
 - [ ] **G22.** Localization scaffolding (`t()` + `expo-localization`), only when a second language is planned (11 · Writing).
 - [ ] **G23.** iPad layouts, after G2 (06 · Layout). Widgets / Live Activities stay in motion **M9**.

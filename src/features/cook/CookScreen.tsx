@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, OttoArt, OttoError, Sheet, Text, useToast } from '@/shared/ui';
 import { haptics } from '@/shared/haptics';
+import { flags } from '@/shared/flags';
 import { sound } from '@/shared/sound';
 import { kv } from '@/shared/storage';
 import { alarmSound } from '@/shared/assets';
@@ -561,7 +562,7 @@ export function CookScreen() {
             accessibilityLabel="Previous step"
             style={{ width: 52, height: 52, borderRadius: radii.card, backgroundColor: colors.creamDeep, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Ionicons name="arrow-back" size={22} color={colors.ink} />
+            <Ionicons name={flags.flowV2 ? "chevron-back" : "arrow-back"} size={22} color={colors.ink} />
           </Pressable>
         )}
         <View style={{ flex: 1 }}>
