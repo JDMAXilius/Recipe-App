@@ -5,9 +5,14 @@ import { weekDays, type WeekDay } from './week';
 import {
   listPlan,
   addPlanEntry,
+  movePlanEntry,
   removePlanEntry,
+  replacePlanEntry,
   setPlanEntryCooked,
+  setPlanEntryLabel,
 } from './plan.queries';
+import { positionAtEnd } from './plan.list';
+import { flags } from '@/shared/flags';
 import type { PlanEntry, AddPlanInput } from './plan.types';
 
 export interface UsePlan {
@@ -24,6 +29,9 @@ export interface UsePlan {
   remove: (id: number) => Promise<void>;
   swap: (oldId: number, input: AddPlanInput) => Promise<void>;
   setCooked: (id: number, cooked: boolean) => Promise<void>;
+  /** Free-list (ADR-0013); only call when flags.flowV2 is on. */
+  setLabel: (id: number, label: string | null) => Promise<void>;
+  move: (id: number, day: string, position: number) => Promise<void>;
 }
 
 // An optimistic placeholder row so a picked/swapped dish appears instantly.
@@ -40,6 +48,9 @@ function tempEntry(userId: string, input: AddPlanInput): PlanEntry {
     note: input.note ?? null,
     cooked: false,
     created_at: new Date().toISOString(),
+    label: input.label ?? null,
+    kind: input.kind ?? 'recipe',
+    position: input.position ?? null,
   };
 }
 
@@ -72,6 +83,15 @@ export function usePlan(): UsePlan {
     if (ctx) qc.setQueryData(key, ctx.prev);
   };
 
+  // A new item lands at the end of its day (free list). Position comes from
+  // the cached week, so it's computed once, here, for both the optimistic row
+  // and the write.
+  const withPosition = (input: AddPlanInput): AddPlanInput => {
+    if (!flags.flowV2 || input.position != null) return input;
+    const day = (qc.getQueryData<PlanEntry[]>(key) ?? []).filter((e) => e.day === input.day);
+    return { ...input, position: positionAtEnd(day) };
+  };
+
   const addMut = useMutation({
     mutationFn: (input: AddPlanInput) => addPlanEntry(userId as string, input),
     onMutate: async (input: AddPlanInput) => {
@@ -94,19 +114,39 @@ export function usePlan(): UsePlan {
     onSettled: invalidate,
   });
 
-  // Swap = remove the old entry + add the replacement, one gesture. Optimistic:
-  // the slot's dish changes on tap; a failed round-trip rolls the whole swap back.
+  // Swap = one update of the slot (replacePlanEntry): it keeps its id, day,
+  // label and position. Optimistic: the dish changes on tap, a failure rolls back.
   const swapMut = useMutation({
-    mutationFn: async ({ oldId, input }: { oldId: number; input: AddPlanInput }) => {
-      await removePlanEntry(oldId);
-      await addPlanEntry(userId as string, input);
-    },
+    mutationFn: ({ oldId, input }: { oldId: number; input: AddPlanInput }) => replacePlanEntry(oldId, input),
     onMutate: async ({ oldId, input }: { oldId: number; input: AddPlanInput }) => {
       const ctx = await snapshot();
-      qc.setQueryData<PlanEntry[]>(key, [
-        ...ctx.prev.filter((e) => e.id !== oldId),
-        tempEntry(userId as string, input),
-      ]);
+      qc.setQueryData<PlanEntry[]>(key, ctx.prev.map((e) =>
+        e.id === oldId
+          ? { ...e, recipe_id: input.recipeId, title: input.title, image: input.image ?? null, category: input.category ?? null, note: input.note ?? null, cooked: false }
+          : e,
+      ));
+      return ctx;
+    },
+    onError: (_e, _v, ctx) => rollback(ctx),
+    onSettled: invalidate,
+  });
+
+  const labelMut = useMutation({
+    mutationFn: ({ id, label }: { id: number; label: string | null }) => setPlanEntryLabel(id, label),
+    onMutate: async ({ id, label }: { id: number; label: string | null }) => {
+      const ctx = await snapshot();
+      qc.setQueryData<PlanEntry[]>(key, ctx.prev.map((e) => (e.id === id ? { ...e, label } : e)));
+      return ctx;
+    },
+    onError: (_e, _v, ctx) => rollback(ctx),
+    onSettled: invalidate,
+  });
+
+  const moveMut = useMutation({
+    mutationFn: ({ id, day, position }: { id: number; day: string; position: number }) => movePlanEntry(id, day, position),
+    onMutate: async ({ id, day, position }: { id: number; day: string; position: number }) => {
+      const ctx = await snapshot();
+      qc.setQueryData<PlanEntry[]>(key, ctx.prev.map((e) => (e.id === id ? { ...e, day, position } : e)));
       return ctx;
     },
     onError: (_e, _v, ctx) => rollback(ctx),
@@ -134,9 +174,11 @@ export function usePlan(): UsePlan {
     isSuccess: query.isSuccess,
     isError: query.isError,
     refetch: () => void query.refetch(),
-    add: (input) => addMut.mutateAsync(input),
+    add: (input) => addMut.mutateAsync(withPosition(input)),
     remove: (id) => removeMut.mutateAsync(id),
     swap: (oldId, input) => swapMut.mutateAsync({ oldId, input }).then(() => undefined),
     setCooked: (id, cooked) => cookedMut.mutateAsync({ id, cooked }),
+    setLabel: (id, label) => labelMut.mutateAsync({ id, label }),
+    move: (id, day, position) => moveMut.mutateAsync({ id, day, position }),
   };
 }

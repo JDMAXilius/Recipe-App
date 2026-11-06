@@ -1,4 +1,5 @@
 import type { Tables } from '@/types/database';
+import type { PlanKind } from './plan.list';
 
 // plan_entries row, straight from the generated DB types (feature-module.md §5:
 // DB shapes come from @/types/database, never redeclared here).
@@ -14,4 +15,8 @@ export interface AddPlanInput {
   image?: string | null;
   category?: string | null;
   note?: string | null;
+  // Free-list fields (ADR-0013), sent only when flags.flowV2 is on.
+  label?: string | null;
+  kind?: PlanKind;
+  position?: number;
 }

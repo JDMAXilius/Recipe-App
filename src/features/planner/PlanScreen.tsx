@@ -18,6 +18,9 @@ import { colors, radii, shadow, space, type } from '@/shared/theme/tokens';
 import { usePlan } from './usePlan';
 import { RecipePickerSheet } from './components/RecipePickerSheet';
 import { pickToAddInput, leftoversCarry, nextInWeek, type PickItem } from './plan.pick';
+import { isLeftover, MEAL_LABELS, sortDay } from './plan.list';
+import { showActionSheet } from '@/shared/actionSheet';
+import { flags } from '@/shared/flags';
 import type { PlanEntry } from './plan.types';
 
 // A picker target: which day the pick lands on, and (for a swap) the entry it
@@ -36,7 +39,7 @@ interface PickerTarget {
 export function PlanScreen() {
   const router = useRouter();
   const { show } = useToast();
-  const { entries, days, isLoading, isError, isSuccess, refetch, add, remove, swap, setCooked } =
+  const { entries, days, isLoading, isError, isSuccess, refetch, add, remove, swap, setCooked, setLabel } =
     usePlan();
   const [picker, setPicker] = useState<PickerTarget | null>(null);
 
@@ -106,6 +109,21 @@ export function PlanScreen() {
     }
   };
 
+  // Free list (ADR-0013): a label is optional and set after the fact. Long
+  // press opens the choice; the last option clears it.
+  const chooseLabel = async (entry: PlanEntry) => {
+    if (!flags.flowV2) return;
+    const options = [...MEAL_LABELS.map((l) => l[0].toUpperCase() + l.slice(1)), 'No label'];
+    const pick = await showActionSheet({ title: `What is ${entry.title}?`, options });
+    if (pick == null) return;
+    try {
+      await setLabel(entry.id, pick < MEAL_LABELS.length ? MEAL_LABELS[pick] : null);
+      haptics.select();
+    } catch {
+      show("Couldn't update Otto's week. Try again.", 'error');
+    }
+  };
+
   // Cook once, eat twice: carry a dish to tomorrow tagged as leftovers.
   const carryLeftovers = async (entry: PlanEntry, entryDay: string) => {
     const nextDay = nextInWeek(entryDay, days);
@@ -151,7 +169,7 @@ export function PlanScreen() {
         <OttoError message="We couldn't reach Otto's week." onRetry={refetch} />
       ) : (
         days.map((day, index) => {
-          const dayEntries = byDay[day.key] || [];
+          const dayEntries = sortDay(byDay[day.key] || []);
           return (
             <View key={day.key} style={[styles.dayCard, index === 0 && styles.dayCardToday]}>
               <View style={styles.dayHeader}>
@@ -189,6 +207,7 @@ export function PlanScreen() {
                         accessibilityRole="button"
                         accessibilityLabel={`Open ${entry.title}`}
                         onPress={() => entry.recipe_id && router.push(`/recipe/${entry.recipe_id}`)}
+                        onLongPress={flags.flowV2 ? () => chooseLabel(entry) : undefined}
                       >
                         {entry.image ? (
                           <Image source={{ uri: entry.image }} style={styles.thumb as ImageStyle} />
@@ -205,7 +224,11 @@ export function PlanScreen() {
                           >
                             {entry.title}
                           </RNText>
-                          {entry.note === 'leftovers' && <Text role="caption">Leftovers</Text>}
+                          {(entry.label || isLeftover(entry)) && (
+                            <Text role="caption">
+                              {[entry.label, isLeftover(entry) ? 'leftovers' : null].filter(Boolean).join(' · ')}
+                            </Text>
+                          )}
                         </View>
                       </Pressable>
 
@@ -236,7 +259,7 @@ export function PlanScreen() {
                             color={entry.cooked ? colors.terracotta : colors.inkSoft}
                           />
                         </Pressable>
-                        {canCarry && entry.note !== 'leftovers' && (
+                        {canCarry && !isLeftover(entry) && (
                           <Pressable
                             accessibilityRole="button"
                             accessibilityLabel={`Add ${entry.title} as leftovers tomorrow`}

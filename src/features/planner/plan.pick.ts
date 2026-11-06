@@ -40,7 +40,9 @@ export function tonightEntry(
   todayKey: string,
 ): PlanEntry | null {
   const today = entries.filter((e) => e.day === todayKey && e.recipe_id);
-  return today.find((e) => !e.cooked) ?? today[0] ?? null;
+  // Free list (ADR-0013): an item the user labelled dinner wins.
+  const pending = today.filter((e) => !e.cooked);
+  return pending.find((e) => e.label === 'dinner') ?? pending[0] ?? today[0] ?? null;
 }
 
 // A pick dropped onto a day → the add payload. note stays null: a fresh pick
@@ -67,7 +69,8 @@ export function leftoversCarry(entry: PlanEntry, day: string): AddPlanInput | nu
     title: entry.title,
     image: entry.image,
     category: entry.category,
-    note: 'leftovers',
+    note: 'leftovers', // read by builds without the kind column
+    kind: 'leftover',
   };
 }
 

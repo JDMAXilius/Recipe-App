@@ -211,7 +211,10 @@ export type Database = {
           day: string
           id: number
           image: string | null
+          kind: string
+          label: string | null
           note: string | null
+          position: number | null
           recipe_id: string | null
           title: string
           user_id: string
@@ -223,7 +226,10 @@ export type Database = {
           day: string
           id?: number
           image?: string | null
+          kind?: string
+          label?: string | null
           note?: string | null
+          position?: number | null
           recipe_id?: string | null
           title: string
           user_id: string
@@ -235,7 +241,10 @@ export type Database = {
           day?: string
           id?: number
           image?: string | null
+          kind?: string
+          label?: string | null
           note?: string | null
+          position?: number | null
           recipe_id?: string | null
           title?: string
           user_id?: string

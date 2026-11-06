@@ -217,6 +217,8 @@ RLS:
 
 ### `plan_entries` — the week planner
 
+> **Pending migration (2026-11-06, not applied):** `20261106130000_plan_list.sql` adds `position double precision`, `label text`, `kind text default 'recipe'` (recipe · food · leftover · note · out) and an index on `(user_id, day, position)`; it carries legacy `note='leftovers'` into `kind`. The app writes them only when `EXPO_PUBLIC_FLOW_V2=true`. Swap is now one `UPDATE` of the row on any schema.
+
 Created `20260721090003_plan_entries.sql:3-14`.
 
 | Column | Type | Null | Meaning | PII |

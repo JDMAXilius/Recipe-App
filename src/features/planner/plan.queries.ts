@@ -4,6 +4,7 @@ import { supabase } from '@/shared/supabase/client';
 import { parseIngredientLine, type IngredientPair } from '@/features/nutrition/engine/parse';
 import { fetchSeedRecipe } from '@/features/recipes/seed.loader';
 import type { PlanEntry, AddPlanInput } from './plan.types';
+import { flags } from '@/shared/flags';
 import type { RecipeForList, ParsedIngredient } from './shoppingList';
 
 // --- plan_entries ---------------------------------------------------------
@@ -36,11 +37,48 @@ export async function addPlanEntry(userId: string, input: AddPlanInput): Promise
       image: input.image ?? null,
       category: input.category ?? null,
       note: input.note ?? null,
+      ...listColumns(input),
     })
     .select()
     .single();
   if (error) throw error;
   return data;
+}
+
+// The free-list columns exist only once 20261106130000_plan_list is applied;
+// a build with the flag off never sends them.
+function listColumns(input: AddPlanInput) {
+  if (!flags.flowV2) return {};
+  return { label: input.label ?? null, kind: input.kind ?? 'recipe', ...(input.position != null ? { position: input.position } : {}) };
+}
+
+// Swap in ONE write: the slot keeps its id, day and position and takes the new
+// dish. (It used to be delete + insert, which an interrupted call could leave
+// half done.) Works on today's schema; the label is kept as the user set it.
+export async function replacePlanEntry(id: number, input: AddPlanInput): Promise<void> {
+  const { error } = await supabase
+    .from('plan_entries')
+    .update({
+      recipe_id: input.recipeId,
+      title: input.title,
+      image: input.image ?? null,
+      category: input.category ?? null,
+      note: input.note ?? null,
+      cooked: false,
+      ...(flags.flowV2 ? { kind: input.kind ?? 'recipe' } : {}),
+    })
+    .eq('id', id);
+  if (error) throw error;
+}
+
+export async function setPlanEntryLabel(id: number, label: string | null): Promise<void> {
+  const { error } = await supabase.from('plan_entries').update({ label }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function movePlanEntry(id: number, day: string, position: number): Promise<void> {
+  const { error } = await supabase.from('plan_entries').update({ day, position }).eq('id', id);
+  if (error) throw error;
 }
 
 export async function removePlanEntry(id: number): Promise<void> {
