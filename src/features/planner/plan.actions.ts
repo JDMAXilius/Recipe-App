@@ -10,11 +10,13 @@ const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe('The day, YYYY-MM-D
 const dish = {
   recipeId: z.string().min(1).describe('Recipe id: a catalogue id ("52772") or one of the user\'s own ("u-12")'),
   title: z.string().min(1).max(200),
-  image: z.string().nullable().optional(),
+  // https only. R0.11: the agent should name a recipe and let the server fill
+  // title and image, rather than send them.
+  image: z.url({ protocol: /^https$/ }).nullable().optional(),
   category: z.string().nullable().optional(),
   note: z.string().max(200).nullable().optional(),
 };
-const label = z.string().max(24).nullable().describe('breakfast, lunch, dinner, snack, the user\'s own word, or null');
+const label = z.string().trim().min(1).max(24).nullable().describe('breakfast, lunch, dinner, snack, the user\'s own word, or null');
 
 export const planActions = defineActions({
   add: {
@@ -36,7 +38,7 @@ export const planActions = defineActions({
     summary: 'Replace the dish of a plan item with another; the item keeps its day, label and place.',
     risk: 'safe',
     touches: ['plan'],
-    input: z.object({ id, ...dish }),
+    input: z.object({ id, ...dish, kind: z.enum(PLAN_KINDS).optional(), cooked: z.boolean().optional() }),
   },
   setCooked: {
     name: 'mark_cooked',

@@ -156,7 +156,11 @@ export function useSharedList(householdId: string | null): UseSharedList {
   const settle = () => qc.invalidateQueries({ queryKey: key });
   // Writes go through the action runners (R0.9), the same calls Otto makes.
   const ctx = () => ({ userId: userId as string });
-  const hid = () => householdId as string;
+  // Never fall back to a lookup here: the screen only writes with a household.
+  const hid = () => {
+    if (!householdId) throw new Error('No shared kitchen.');
+    return householdId;
+  };
 
   const toggleMut = useMutation({
     mutationFn: (v: { itemKey: string; checked: boolean }) => householdRun.check({ ...v, householdId: hid() }, ctx()),

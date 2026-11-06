@@ -4,6 +4,7 @@
 // live in household_list_state (realtime, so a tick on one phone shows on
 // another). RLS confines every row to the caller's household.
 import { supabase } from '@/shared/supabase/client';
+import { changed } from '@/shared/supabase/rows';
 import type { Runners } from '@/shared/actions/action';
 import type { householdActions } from './household.actions';
 
@@ -209,12 +210,16 @@ export async function setItemRemoved(
 }
 
 export async function removeCustomItem(householdId: string, itemKey: string): Promise<void> {
-  const { error } = await supabase
+  // Only the user's own items: a planned ingredient's row holds everyone's
+  // tick and hide, and deleting it would reset those for the whole household.
+  const res = await supabase
     .from('household_list_state')
     .delete()
     .eq('household_id', householdId)
-    .eq('item_key', itemKey);
-  if (error) throw error;
+    .eq('item_key', itemKey)
+    .not('custom_name', 'is', null)
+    .select('item_key');
+  changed(res, 'That list item');
 }
 
 async function getListRow(householdId: string, itemKey: string): Promise<ListStateRow | null> {
@@ -238,10 +243,13 @@ async function householdOf(given: string | undefined, userId: string): Promise<s
 }
 
 export const householdRun = {
+  // Undo only when something changed (ticking a ticked item undoes nothing).
   check: async ({ householdId, itemKey, checked }, ctx) => {
     const id = await householdOf(householdId, ctx.userId);
+    const before = ctx.wantUndo ? await getListRow(id, itemKey) : null;
     await setChecked(id, itemKey, checked, ctx.userId);
-    return { result: null, undo: { action: 'check_list_item', input: { householdId: id, itemKey, checked: !checked } } };
+    const was = before?.checked ?? false;
+    return { result: null, undo: ctx.wantUndo && was !== checked ? { action: 'check_list_item', input: { householdId: id, itemKey, checked: was } } : null };
   },
   addItem: async ({ householdId, name }, ctx) => {
     const id = await householdOf(householdId, ctx.userId);
@@ -255,10 +263,17 @@ export const householdRun = {
     const name = before?.custom_name;
     return { result: null, undo: name ? { action: 'add_to_list', input: { householdId: id, name } } : null };
   },
+  // A hide is matched to its recipes (sources); the undo of a restore puts
+  // back the sources the hide had, not the null a restore carries.
   hideItem: async ({ householdId, itemKey, removed, sources }, ctx) => {
     const id = await householdOf(householdId, ctx.userId);
+    const before = ctx.wantUndo ? await getListRow(id, itemKey) : null;
     await setItemRemoved(id, itemKey, removed, sources, ctx.userId);
-    return { result: null, undo: { action: 'hide_list_item', input: { householdId: id, itemKey, removed: !removed, sources } } };
+    const was = before?.removed ?? false;
+    const undo = ctx.wantUndo && was !== removed && (!was || before?.removed_sources?.length)
+      ? { action: 'hide_list_item', input: { householdId: id, itemKey, removed: was, sources: was ? before?.removed_sources ?? null : null } }
+      : null;
+    return { result: null, undo };
   },
   create: async ({ displayName }, ctx) => ({ result: await createHousehold(ctx.userId, displayName), undo: null }),
   join: async ({ code, displayName }, ctx) => ({ result: await joinHousehold(ctx.userId, code, displayName), undo: null }),

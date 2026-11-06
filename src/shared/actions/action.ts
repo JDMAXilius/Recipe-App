@@ -72,16 +72,23 @@ export type Dispatched =
 // The one door for untrusted callers (the model, a notification payload):
 // unknown name or bad input is an answer, not a throw, so the agent can fix
 // its call. Input is validated here; the UI calls runners directly.
-export async function dispatch(actions: readonly Action[], step: Step, ctx: ActionContext): Promise<Dispatched> {
+export async function dispatch(
+  actions: readonly Action[],
+  step: Step,
+  ctx: ActionContext,
+  enabled: Partial<Record<NonNullable<ActionSpec['flag']>, boolean>> = {},
+): Promise<Dispatched> {
   const action = actions.find((a) => a.name === step.action);
   if (!action) return { ok: false, error: `No action named ${step.action}.` };
+  if (action.flag && !enabled[action.flag]) return { ok: false, error: `${step.action} isn't available in this version.` };
   const parsed = action.input.safeParse(step.input);
   if (!parsed.success) return { ok: false, error: z.prettifyError(parsed.error) };
   try {
     const { result, undo } = await action.run(parsed.data, { ...ctx, wantUndo: ctx.wantUndo ?? true });
     return { ok: true, result, undo: undo ?? null, touches: action.touches };
   } catch (error) {
-    return { ok: false, error: (error as Error).message || 'That did not work.' };
+    const message = error instanceof Error ? error.message : typeof error === 'object' && error && 'message' in error ? String(error.message) : '';
+    return { ok: false, error: message || 'That did not work.' };
   }
 }
 

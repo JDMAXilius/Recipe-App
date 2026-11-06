@@ -8,6 +8,7 @@ import { defineActions } from '../../shared/actions/action';
 // runner looks it up.
 const householdId = z.string().uuid().optional().describe('Leave out: the user\'s household is found for you');
 const itemKey = z.string().min(1).max(200).describe('The shopping list item key');
+const ownKey = z.string().startsWith('custom-').max(200).describe('The key of an item the user added (custom-…)');
 const list = ['household-list'] as const;
 
 export const householdActions = defineActions({
@@ -30,19 +31,22 @@ export const householdActions = defineActions({
     summary: 'Delete an item the user added to the shared shopping list.',
     risk: 'safe',
     touches: list,
-    input: z.object({ householdId, itemKey }),
+    input: z.object({ householdId, itemKey: ownKey }),
   },
   hideItem: {
     name: 'hide_list_item',
     summary: 'Take a planned ingredient off the shared shopping list for everyone, or put it back.',
     risk: 'safe',
     touches: list,
-    input: z.object({
-      householdId,
-      itemKey,
-      removed: z.boolean(),
-      sources: z.array(z.string()).nullable().describe('The recipe ids the ingredient came from'),
-    }),
+    input: z
+      .object({
+        householdId,
+        itemKey,
+        removed: z.boolean(),
+        sources: z.array(z.string()).nullable().describe('The recipe ids the ingredient came from; required to hide'),
+      })
+      // A hide without its recipes matches no row on the list: a silent no-op.
+      .refine((v) => !v.removed || (v.sources?.length ?? 0) > 0, { message: 'Give the recipe ids the ingredient came from.' }),
   },
   create: {
     name: 'create_household',

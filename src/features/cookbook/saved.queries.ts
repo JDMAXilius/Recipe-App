@@ -2,6 +2,7 @@
 // Screens never import supabase-js — they go through useSaved(), which calls these.
 
 import { supabase } from '@/shared/supabase/client';
+import { changed } from '@/shared/supabase/rows';
 import type { Database } from '@/types/database';
 import type { SavedRecipe } from './cookbook.types';
 import type { Runners } from '@/shared/actions/action';
@@ -50,12 +51,10 @@ export async function insertFavorite(userId: string, recipe: SavedRecipe): Promi
 }
 
 export async function deleteFavorite(userId: string, recipeId: number): Promise<void> {
-  const { error } = await supabase
-    .from('favorites')
-    .delete()
-    .eq('user_id', userId)
-    .eq('recipe_id', recipeId);
-  if (error) throw error;
+  changed(
+    await supabase.from('favorites').delete().eq('user_id', userId).eq('recipe_id', recipeId).select('recipe_id'),
+    'That saved recipe',
+  );
 }
 
 export async function getFavorite(userId: string, recipeId: number): Promise<SavedRecipe | null> {
@@ -71,9 +70,11 @@ export async function getFavorite(userId: string, recipeId: number): Promise<Sav
 
 // --- actions (R0.9) --------------------------------------------------------
 export const savedRun = {
+  // Saving one already saved is a no-op, so there's nothing to undo.
   save: async (recipe, ctx) => {
+    const was = ctx.wantUndo ? await getFavorite(ctx.userId, recipe.recipeId) : null;
     await insertFavorite(ctx.userId, recipe);
-    return { result: null, undo: { action: 'unsave_recipe', input: { recipeId: recipe.recipeId } } };
+    return { result: null, undo: was ? null : { action: 'unsave_recipe', input: { recipeId: recipe.recipeId } } };
   },
   unsave: async ({ recipeId }, ctx) => {
     const before = ctx.wantUndo ? await getFavorite(ctx.userId, recipeId) : null;

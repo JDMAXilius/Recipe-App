@@ -1,10 +1,12 @@
 // ALL Supabase calls for the planner domain (feature-module.md §3). Screens
 // never import supabase-js; they go through usePlan()/these functions.
 import { supabase } from '@/shared/supabase/client';
+import { changed } from '@/shared/supabase/rows';
 import { parseIngredientLine, type IngredientPair } from '@/features/nutrition/engine/parse';
 import { fetchSeedRecipe } from '@/features/recipes/seed.loader';
 import type { PlanEntry, AddPlanInput, PlanDish } from './plan.types';
-import type { Outcome, Runners } from '@/shared/actions/action';
+import type { ActionContext, Outcome, Runners } from '@/shared/actions/action';
+import type { PlanKind } from './plan.list';
 import type { planActions } from './plan.actions';
 import { flags } from '@/shared/flags';
 import type { RecipeForList, ParsedIngredient } from './shoppingList';
@@ -57,8 +59,10 @@ function listColumns(input: AddPlanInput) {
 // Swap in ONE write: the slot keeps its id, day and position and takes the new
 // dish. (It used to be delete + insert, which an interrupted call could leave
 // half done.) Works on today's schema; the label is kept as the user set it.
+const ITEM = 'That plan item';
+
 export async function replacePlanEntry(id: number, input: PlanDish): Promise<void> {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('plan_entries')
     .update({
       recipe_id: input.recipeId,
@@ -66,26 +70,24 @@ export async function replacePlanEntry(id: number, input: PlanDish): Promise<voi
       image: input.image ?? null,
       category: input.category ?? null,
       note: input.note ?? null,
-      cooked: false,
+      cooked: input.cooked ?? false,
       ...(flags.flowV2 ? { kind: input.kind ?? 'recipe' } : {}),
     })
-    .eq('id', id);
-  if (error) throw error;
+    .eq('id', id)
+    .select('id');
+  changed({ data, error }, ITEM);
 }
 
 export async function setPlanEntryLabel(id: number, label: string | null): Promise<void> {
-  const { error } = await supabase.from('plan_entries').update({ label }).eq('id', id);
-  if (error) throw error;
+  changed(await supabase.from('plan_entries').update({ label }).eq('id', id).select('id'), ITEM);
 }
 
 export async function movePlanEntry(id: number, day: string, position: number): Promise<void> {
-  const { error } = await supabase.from('plan_entries').update({ day, position }).eq('id', id);
-  if (error) throw error;
+  changed(await supabase.from('plan_entries').update({ day, position }).eq('id', id).select('id'), ITEM);
 }
 
 export async function removePlanEntry(id: number): Promise<void> {
-  const { error } = await supabase.from('plan_entries').delete().eq('id', id);
-  if (error) throw error;
+  changed(await supabase.from('plan_entries').delete().eq('id', id).select('id'), ITEM);
 }
 
 export async function getPlanEntry(id: number): Promise<PlanEntry | null> {
@@ -95,8 +97,7 @@ export async function getPlanEntry(id: number): Promise<PlanEntry | null> {
 }
 
 export async function setPlanEntryCooked(id: number, cooked: boolean): Promise<void> {
-  const { error } = await supabase.from('plan_entries').update({ cooked }).eq('id', id);
-  if (error) throw error;
+  changed(await supabase.from('plan_entries').update({ cooked }).eq('id', id).select('id'), ITEM);
 }
 
 // --- actions (R0.9) --------------------------------------------------------
@@ -104,39 +105,53 @@ export async function setPlanEntryCooked(id: number, cooked: boolean): Promise<v
 // (ctx.wantUndo): the screen keeps its own optimistic cache and skips the read.
 
 const dishOf = (e: PlanEntry) =>
-  e.recipe_id ? { recipeId: e.recipe_id, title: e.title, image: e.image, category: e.category, note: e.note } : null;
+  e.recipe_id
+    ? { recipeId: e.recipe_id, title: e.title, image: e.image, category: e.category, note: e.note, kind: e.kind as PlanKind, cooked: e.cooked }
+    : null;
+
+// Undo reads only the caller's own row: a partner's row is readable (shared
+// household) but the write below would have refused it anyway.
+const ownRow = async (id: number, ctx: ActionContext) => {
+  if (!ctx.wantUndo) return null;
+  const row = await getPlanEntry(id);
+  return row && row.user_id === ctx.userId ? row : null;
+};
 
 export const planRun = {
   add: async (input, ctx): Promise<Outcome<PlanEntry>> => {
     const row = await addPlanEntry(ctx.userId, input);
     return { result: row, undo: { action: 'remove_from_plan', input: { id: row.id } } };
   },
+  // The undo re-adds the item: a new id, not cooked (put_in_plan never is).
   remove: async ({ id }, ctx) => {
-    const before = ctx.wantUndo ? await getPlanEntry(id) : null;
+    const before = await ownRow(id, ctx);
     await removePlanEntry(id);
     const dish = before && dishOf(before);
     const undo = before && dish
-      ? { action: 'put_in_plan', input: { day: before.day, ...dish, label: before.label, kind: before.kind as AddPlanInput['kind'], ...(before.position != null ? { position: before.position } : {}) } }
+      ? { action: 'put_in_plan', input: { day: before.day, recipeId: dish.recipeId, title: dish.title, image: dish.image, category: dish.category, note: dish.note, label: before.label, kind: dish.kind, ...(before.position != null ? { position: before.position } : {}) } }
       : null;
     return { result: null, undo };
   },
   swap: async ({ id, ...input }, ctx) => {
-    const before = ctx.wantUndo ? await getPlanEntry(id) : null;
+    const before = await ownRow(id, ctx);
     await replacePlanEntry(id, input);
     const dish = before && dishOf(before);
     return { result: null, undo: dish ? { action: 'swap_in_plan', input: { id, ...dish } } : null };
   },
-  setCooked: async ({ id, cooked }, _ctx) => {
+  // Undo only when something changed: re-marking a cooked item cooked has
+  // nothing to undo.
+  setCooked: async ({ id, cooked }, ctx) => {
+    const before = await ownRow(id, ctx);
     await setPlanEntryCooked(id, cooked);
-    return { result: null, undo: { action: 'mark_cooked', input: { id, cooked: !cooked } } };
+    return { result: null, undo: before && before.cooked !== cooked ? { action: 'mark_cooked', input: { id, cooked: before.cooked } } : null };
   },
   setLabel: async ({ id, label }, ctx) => {
-    const before = ctx.wantUndo ? await getPlanEntry(id) : null;
+    const before = await ownRow(id, ctx);
     await setPlanEntryLabel(id, label);
-    return { result: null, undo: before ? { action: 'label_plan_item', input: { id, label: before.label } } : null };
+    return { result: null, undo: before && before.label !== label ? { action: 'label_plan_item', input: { id, label: before.label } } : null };
   },
   move: async ({ id, day, position }, ctx) => {
-    const before = ctx.wantUndo ? await getPlanEntry(id) : null;
+    const before = await ownRow(id, ctx);
     await movePlanEntry(id, day, position);
     const undo = before?.position != null ? { action: 'move_plan_item', input: { id, day: before.day, position: before.position } } : null;
     return { result: null, undo };

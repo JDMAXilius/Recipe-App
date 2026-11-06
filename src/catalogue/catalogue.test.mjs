@@ -54,7 +54,8 @@ test('every UI mutation goes through an action runner, or says why not', () => {
     const src = readFileSync(p, 'utf8');
     for (const { before, call } of mutationCalls(src)) {
       checked++;
-      if (/\w+Run\.\w+\(/.test(call) || /action-exempt: \S/.test(before)) continue;
+      const code = call.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, ''); // a runner named in a comment doesn't count
+      if (/\w+Run\.\w+\(/.test(code) || /action-exempt: \S/.test(before)) continue;
       offenders.push(`${relative(root, p)}: ${call.split('\n').slice(0, 2).join(' ').trim()}`);
     }
   }

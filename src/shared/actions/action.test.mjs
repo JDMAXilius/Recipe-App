@@ -41,3 +41,12 @@ test('toTool is a plain Chat Completions function tool', () => {
   assert.equal('$schema' in tool.function.parameters, false);
   assert.deepEqual(tool.function.parameters.required, ['n']);
 });
+
+test('dispatch refuses a flagged action unless its flag is on, and survives odd throws', async () => {
+  const flagged = bind(
+    defineActions({ f: { name: 'flag_thing', summary: 'Flagged.', risk: 'safe', touches: [], input: z.object({}), flag: 'flowV2' } }),
+    { f: async () => { throw null; } },
+  );
+  assert.deepEqual(await dispatch(flagged, { action: 'flag_thing', input: {} }, { userId: 'u' }), { ok: false, error: "flag_thing isn't available in this version." });
+  assert.deepEqual(await dispatch(flagged, { action: 'flag_thing', input: {} }, { userId: 'u' }, { flowV2: true }), { ok: false, error: 'That did not work.' });
+});

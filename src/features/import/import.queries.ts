@@ -11,6 +11,7 @@ import { FunctionsHttpError } from '@supabase/supabase-js';
 import * as Crypto from 'expo-crypto';
 import { z } from 'zod';
 import { supabase } from '@/shared/supabase/client';
+import { changed } from '@/shared/supabase/rows';
 import { resolveNutrition, type NutritionValue } from '@/features/nutrition';
 import type { Json, TablesInsert, Tables } from '@/types/database';
 import {
@@ -310,7 +311,7 @@ export async function updateUserRecipe(id: number, recipe: CleanRecipe): Promise
   const extras = await computeSaveExtras(recipe);
   // user_id/source stay put; only editable content + the recomputed
   // grams/nutrition + updated_at move.
-  const { error } = await retryOnTransportFailure(() =>
+  const { data, error } = await retryOnTransportFailure(() =>
     supabase
       .from('recipes')
       .update({
@@ -325,14 +326,14 @@ export async function updateUserRecipe(id: number, recipe: CleanRecipe): Promise
         ...sizeColumns(recipe.size),
         updated_at: new Date().toISOString(),
       })
-      .eq('id', id),
+      .eq('id', id)
+      .select('id'),
   );
-  if (error) throw error;
+  changed({ data, error }, 'That recipe');
 }
 
 export async function deleteUserRecipe(id: number): Promise<void> {
-  const { error } = await supabase.from('recipes').delete().eq('id', id);
-  if (error) throw error;
+  changed(await supabase.from('recipes').delete().eq('id', id).select('id'), 'That recipe');
 }
 
 // --- actions (R0.9) --------------------------------------------------------

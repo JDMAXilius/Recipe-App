@@ -169,7 +169,7 @@
                   "type": "null"
                 }
               ],
-              "description": "The recipe ids the ingredient came from"
+              "description": "The recipe ids the ingredient came from; required to hide"
             }
           },
           "required": [
@@ -237,6 +237,7 @@
               "anyOf": [
                 {
                   "type": "string",
+                  "minLength": 1,
                   "maxLength": 24
                 },
                 {
@@ -382,7 +383,8 @@
             "image": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "format": "uri"
                 },
                 {
                   "type": "null"
@@ -414,6 +416,7 @@
               "anyOf": [
                 {
                   "type": "string",
+                  "minLength": 1,
                   "maxLength": 24
                 },
                 {
@@ -495,9 +498,9 @@
             },
             "itemKey": {
               "type": "string",
-              "minLength": 1,
               "maxLength": 200,
-              "description": "The shopping list item key"
+              "pattern": "^custom-.*",
+              "description": "The key of an item the user added (custom-…)"
             }
           },
           "required": [
@@ -808,7 +811,8 @@
             "image": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "string",
+                  "format": "uri"
                 },
                 {
                   "type": "null"
@@ -835,6 +839,19 @@
                   "type": "null"
                 }
               ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "recipe",
+                "food",
+                "leftover",
+                "note",
+                "out"
+              ]
+            },
+            "cooked": {
+              "type": "boolean"
             }
           },
           "required": [

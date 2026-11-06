@@ -22,4 +22,7 @@ export interface AddPlanInput {
 }
 
 // The dish part of a plan item: what a swap replaces.
-export type PlanDish = Pick<AddPlanInput, 'recipeId' | 'title' | 'image' | 'category' | 'note' | 'kind'>;
+export type PlanDish = Pick<AddPlanInput, 'recipeId' | 'title' | 'image' | 'category' | 'note' | 'kind'> & {
+  /** Swap clears the tick unless told otherwise (undo restores it). */
+  cooked?: boolean;
+};
