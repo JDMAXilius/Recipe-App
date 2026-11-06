@@ -5,7 +5,8 @@ import { planActions } from '../features/planner/plan.actions';
 import { savedActions } from '../features/cookbook/saved.actions';
 import { householdActions } from '../features/household/household.actions';
 import { recipeActions } from '../features/import/recipe.actions';
+import { listActions } from '../features/planner/shopping.actions';
 
-export const specGroups = { plan: planActions, saved: savedActions, household: householdActions, recipe: recipeActions } as const;
+export const specGroups = { plan: planActions, saved: savedActions, household: householdActions, recipe: recipeActions, list: listActions } as const;
 
 export const allSpecs = Object.values(specGroups).flatMap((g) => Object.values(g));

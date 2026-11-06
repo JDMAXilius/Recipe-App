@@ -6,6 +6,7 @@ import { planRun } from '@/features/planner/plan.queries';
 import { savedRun } from '@/features/cookbook/saved.queries';
 import { householdRun } from '@/features/household/household.queries';
 import { recipeRun } from '@/features/import/import.queries';
+import { listRun } from '@/features/planner/shopping.store';
 import { specGroups } from './specs';
 
 export const actions: readonly Action[] = [
@@ -13,4 +14,5 @@ export const actions: readonly Action[] = [
   ...bind(specGroups.saved, savedRun),
   ...bind(specGroups.household, householdRun),
   ...bind(specGroups.recipe, recipeRun),
+  ...bind(specGroups.list, listRun),
 ];

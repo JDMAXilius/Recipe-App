@@ -13,13 +13,11 @@ import {
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { z } from 'zod';
 import { Text, OttoArt, OttoIdle, OttoLoading, OttoError, Screen, useToast } from '@/shared/ui';
 import { ACTION_TOAST_MS } from '@/shared/ui/Toast';
 import { haptics } from '@/shared/haptics';
 import { sound } from '@/shared/sound';
 import { colors, radii, space } from '@/shared/theme/tokens';
-import { kv } from '@/shared/storage';
 import { buildShoppingListShareText, ShareListCard, ShoppingListBanner } from '@/features/share';
 import { useHousehold, useSharedList, getHouseholdWeekDishes } from '@/features/household';
 import { usePlan } from './usePlan';
@@ -27,21 +25,32 @@ import { getListRecipes } from './plan.queries';
 import {
   buildShoppingList,
   isRemoved,
-  normalizeRemoved,
   pruneRemoved,
-  sameSources,
   AISLES,
   type RemovedEntry,
   type ShoppingItem,
 } from './shoppingList';
+import {
+  addCustom as addCustomTo,
+  hide,
+  newCustomKey,
+  removeCustom as removeCustomFrom,
+  setDropped,
+  tick,
+  unhide,
+  untick,
+  type LocalList,
+} from './shopping.local';
+import { useLocalList } from './shopping.store';
 import { HoldToRemoveRow } from './components/HoldToRemoveRow';
 
 // Shopping list (roadmap Phase 4): built from the current week, one row per
 // ingredient with summed quantities + provenance, aisle sections, whole-row
-// check-off that never reorders. Check state is client-only (a boolean map)
-// and is NOT an input to buildShoppingList — so ticking an item can never
-// move it. Check state + custom extras persist to kv ('shoppingState') so the
-// list survives leaving the screen; the derived rows always rebuild from plan.
+// check-off that never reorders. Check state is a boolean map and is NOT an
+// input to buildShoppingList — so ticking an item can never move it. The
+// personal list's own state (ticks, extras, drops, removals) lives in
+// shopping.store.ts (kv, shared with Otto's actions); the derived rows always
+// rebuild from plan.
 //
 // Three grades of "I don't need this": drop a whole DISH (chip ×), delete a
 // custom extra (its ×), or throw ONE ingredient off by holding the row and
@@ -52,34 +61,6 @@ import { HoldToRemoveRow } from './components/HoldToRemoveRow';
 // without a way back: the "N hidden · Show them" line is always there while
 // anything is hidden, not just for the 5s the undo toast lives.
 
-// Bump when the MEANING of a removal's `sources` changes. 2 = recipe ids.
-const REMOVED_IDENTITY_V = 2;
-
-// The kv blob, validated before trust (storage.ts:24-26 rule): a corrupt or
-// hand-edited value must degrade per FIELD (catch), never throw mid-hydration —
-// a stored `null` used to crash the async hydrate and nothing persisted for the
-// whole session. `removed` stays unknown here; normalizeRemoved is its guard.
-const storedStateSchema = z
-  .object({
-    checked: z.record(z.string(), z.boolean()).catch({}),
-    custom: z.array(z.object({ key: z.string(), name: z.string() })).catch([]),
-    excluded: z.array(z.string()).catch([]),
-    removed: z.unknown().optional(),
-    // Removal-identity version. v1 (or absent) = sources were dish TITLES, as
-    // shipped in builds 33/34; those entries can never match id-keyed sources
-    // again, so they are dropped on read rather than left to rot in the blob.
-    // Fail-open by design: the shopper sees their rows back, not data lost.
-    removedV: z.number().optional(),
-  })
-  .catch({ checked: {}, custom: [], excluded: [], removed: [], removedV: REMOVED_IDENTITY_V });
-type StoredShoppingState = z.infer<typeof storedStateSchema>;
-const EMPTY_STORED: StoredShoppingState = {
-  checked: {},
-  custom: [],
-  excluded: [],
-  removed: [],
-  removedV: REMOVED_IDENTITY_V,
-};
 
 export function ShoppingScreen() {
   const router = useRouter();
@@ -140,7 +121,18 @@ export function ShoppingScreen() {
 
   // Source recipes the shopper dropped (chip ×). Persisted, and pruned to what's
   // actually on the week so a removed-then-replanned dish comes back.
-  const [excluded, setExcluded] = useState<string[]>([]);
+  // Personal list state (shopping.store.ts): one store for the screen and
+  // Otto, in the app-level cache, so an Undo works after the screen is gone.
+  const { list: local, hydrated, update } = useLocalList();
+  const { checked, custom, excluded, removed: localRemoved } = local;
+  const updateRemoved = useCallback(
+    (fn: (prev: RemovedEntry[]) => RemovedEntry[]) =>
+      update((l: LocalList) => {
+        const removed = fn(l.removed);
+        return removed === l.removed ? l : { ...l, removed };
+      }),
+    [update],
+  );
   const activeRecipeIds = useMemo(
     () => recipeIds.filter((id) => !excluded.includes(id)),
     [recipeIds, excluded],
@@ -171,7 +163,6 @@ export function ShoppingScreen() {
   // consulted at all in shared mode. Every consumer below — rows, counts,
   // share text, share card — reads `items`, so a removed thing is gone from ALL
   // of them, not just hidden on screen.
-  const [localRemoved, setLocalRemoved] = useState<RemovedEntry[]>([]);
   const sharedRemoved = useMemo<RemovedEntry[]>(
     () =>
       shared.rows
@@ -192,8 +183,6 @@ export function ShoppingScreen() {
     [allItems, removed],
   );
 
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [custom, setCustom] = useState<{ key: string; name: string }[]>([]);
 
   // Unified check/custom access — the household's realtime state when shared,
   // local state otherwise. The rest of the screen reads only these.
@@ -205,38 +194,6 @@ export function ShoppingScreen() {
     ? shared.rows.filter((r) => r.custom_name).map((r) => ({ key: r.item_key, name: r.custom_name as string }))
     : custom;
 
-  // Persistence (contract: persistence.md). Hydrate once on mount, then mirror
-  // every change back to kv. `hydrated` is STATE, not a ref: rows must not
-  // render (and removals must not be pruned) against the empty defaults while
-  // the load is still in flight — a removal made in that window was silently
-  // overwritten by the resolving hydrate.
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => {
-    (async () => {
-      const saved = await kv.get('shoppingState', EMPTY_STORED, storedStateSchema);
-      setChecked(saved.checked);
-      setCustom(saved.custom);
-      setExcluded(saved.excluded);
-      // `removed` landed after the first shipped shape — normalizeRemoved
-      // absorbs anything (missing field, pre-release `string[]`, junk):
-      // dropped, never guessed at — a bare name carries no source set, and
-      // inventing one would resurrect the hide-that-ingredient-forever bug.
-      // Pre-v2 blobs keyed removals on dish TITLES — dead weight against
-      // id-keyed rows, so they're dropped rather than silently kept forever.
-      setLocalRemoved(saved.removedV === REMOVED_IDENTITY_V ? normalizeRemoved(saved.removed) : []);
-      setHydrated(true);
-    })();
-  }, []);
-  useEffect(() => {
-    if (!hydrated) return;
-    kv.set('shoppingState', {
-      checked,
-      custom,
-      excluded,
-      removed: localRemoved,
-      removedV: REMOVED_IDENTITY_V,
-    });
-  }, [hydrated, checked, custom, excluded, localRemoved]);
   // Prune exclusions to dishes still on the week — but only once the week's
   // source has genuinely LOADED. A momentary short member list (a refetch, a
   // placeholder) used to resurrect a dish the shopper dropped; and `!isLoading`
@@ -255,11 +212,11 @@ export function ShoppingScreen() {
       : planSuccess);
   useEffect(() => {
     if (!weekSettled || !hydrated) return;
-    setExcluded((prev) => {
-      const next = prev.filter((id) => recipeIds.includes(id));
-      return next.length === prev.length ? prev : next;
+    update((l) => {
+      const next = l.excluded.filter((id) => recipeIds.includes(id));
+      return next.length === l.excluded.length ? l : { ...l, excluded: next };
     });
-  }, [weekSettled, hydrated, recipeIds]);
+  }, [weekSettled, hydrated, recipeIds, update]);
   // Same prune for hand-removed rows, against the ingredients the week actually
   // produces now. getListRecipes is best-effort per dish (a failed fetch yields
   // fewer recipes), so pruning is gated PER ENTRY inside pruneRemoved: an entry
@@ -278,15 +235,15 @@ export function ShoppingScreen() {
       resolvedIds: (listQuery.data ?? []).map((r) => r.id),
       activeIds: activeRecipeIds,
     };
-    setLocalRemoved((prev) => pruneRemoved(prev, liveKeys, build));
-  }, [isShared, listSettled, weekSettled, hydrated, allItems, listQuery.data, activeRecipeIds]);
+    updateRemoved((prev) => pruneRemoved(prev, liveKeys, build));
+  }, [isShared, listSettled, weekSettled, hydrated, allItems, listQuery.data, activeRecipeIds, updateRemoved]);
 
   // The shared-household hooks hand back fresh function identities every
   // render, which would defeat the memoized rows below. Read them through a
   // latest ref so the row callbacks can be stable AND always act on current
   // state (a stale closure here would toggle the wrong row).
-  const liveRef = useRef({ isShared, shared });
-  liveRef.current = { isShared, shared };
+  const liveRef = useRef({ isShared, shared, update });
+  liveRef.current = { isShared, shared, update };
 
   const toggle = useCallback((key: string) => {
     haptics.select();
@@ -294,7 +251,7 @@ export function ShoppingScreen() {
     if (sharedNow) {
       const on = list.rows.some((r) => r.item_key === key && r.checked);
       list.toggle(key, !on);
-    } else setChecked((prev) => ({ ...prev, [key]: !prev[key] }));
+    } else liveRef.current.update((l) => tick(l, key, !l.checked[key]));
   }, []);
 
   const addCustom = useCallback((name: string) => {
@@ -302,41 +259,15 @@ export function ShoppingScreen() {
     const { isShared: sharedNow, shared: list } = liveRef.current;
     if (sharedNow) list.addCustom(name);
     // Date.now() key — a re-used index would collide checkboxes after removals.
-    else setCustom((prev) => [...prev, { key: `custom-${Date.now()}-${Math.floor(Math.random() * 1e6)}`, name }]);
+    else liveRef.current.update((l) => addCustomTo(l, newCustomKey(), name));
   }, []);
 
-  // The undo toast outlives this screen (ToastHost is app-root): tapping Undo
-  // after navigating away used to call setState on an unmounted screen — React
-  // dropped it silently, the toast dismissed as if it worked, and kv kept the
-  // removal. Local-mode changes therefore write THROUGH to kv when the screen
-  // is gone; shared-mode changes are mutations on the app-level query client
-  // and survive unmount on their own.
+  // The undo toast outlives this screen (ToastHost is app-root). Both lists
+  // live in the app-level query cache, so an Undo after leaving still lands.
   // Undo can't be toast-only (a timed control VoiceOver users may never reach,
   // audit P0-3): the last removed extra keeps an on-screen Restore line.
   // ponytail: last one only, session-only — a list if shoppers ask for more.
   const [lastCustom, setLastCustom] = useState<{ key: string; name: string } | null>(null);
-  const unmounted = useRef(false);
-  useEffect(
-    () => () => {
-      unmounted.current = true;
-    },
-    [],
-  );
-  const applyLocalRemoved = useCallback((fn: (prev: RemovedEntry[]) => RemovedEntry[]) => {
-    if (!unmounted.current) {
-      setLocalRemoved(fn);
-      return;
-    }
-    void (async () => {
-      const saved = await kv.get('shoppingState', EMPTY_STORED, storedStateSchema);
-      const current = saved.removedV === REMOVED_IDENTITY_V ? normalizeRemoved(saved.removed) : [];
-      await kv.set('shoppingState', {
-        ...saved,
-        removed: fn(current),
-        removedV: REMOVED_IDENTITY_V,
-      });
-    })();
-  }, []);
 
   // Hold-then-drag committed (or the accessibility action fired): the row goes,
   // the basket count drops with it, and a toast holds the door open for a
@@ -354,7 +285,7 @@ export function ShoppingScreen() {
       const entry: RemovedEntry = { key: item.key, sources: item.sources, at: Date.now() };
       const { isShared: sharedNow, shared: list } = liveRef.current;
       if (sharedNow) list.setRemoved(item.key, true, item.sources);
-      else applyLocalRemoved((prev) => (isRemoved(item, prev) ? prev : [...prev, entry]));
+      else updateRemoved((prev) => (isRemoved(item, prev) ? prev : [...prev, entry]));
 
       const now = Date.now();
       const stillUp = now - undoBatch.current.at < UNDO_TOAST_MS;
@@ -368,16 +299,11 @@ export function ShoppingScreen() {
           undoBatch.current = { entries: [], at: 0 };
           const { isShared: sharedUndo, shared: listUndo } = liveRef.current;
           if (sharedUndo) for (const b of batch) listUndo.setRemoved(b.key, false, null);
-          else
-            applyLocalRemoved((prev) =>
-              prev.filter(
-                (r) => !batch.some((b) => b.key === r.key && sameSources(b.sources, r.sources)),
-              ),
-            );
+          else liveRef.current.update((l) => unhide(l, batch));
         },
       });
     },
-    [show, applyLocalRemoved],
+    [show, updateRemoved],
   );
 
   // The always-available way back: put every row this build is hiding back on
@@ -395,35 +321,20 @@ export function ShoppingScreen() {
       if (sharedNow) {
         for (const key of keys)
           if (list.rows.some((r) => r.item_key === key && r.checked)) list.toggle(key, false);
-      } else {
-        setChecked((prev) => {
-          const next = { ...prev };
-          for (const key of keys) delete next[key];
-          return next;
-        });
-      }
+      } else liveRef.current.update((l) => untick(l, keys));
     };
     if (sharedNow) for (const r of restoring) list.setRemoved(r.key, false, null);
-    else
-      applyLocalRemoved((prev) =>
-        prev.filter((p) => !restoring.some((h) => h.key === p.key && sameSources(h.sources, p.sources))),
-      );
+    else liveRef.current.update((l) => unhide(l, restoring));
     uncheck(restoring.map((r) => r.key));
     show(restoring.length === 1 ? 'Back on the list.' : `${restoring.length} back on the list.`, 'info', {
       actionLabel: 'Undo',
       onAction: () => {
         const { isShared: sharedUndo, shared: listUndo } = liveRef.current;
         if (sharedUndo) for (const r of restoring) listUndo.setRemoved(r.key, true, r.sources);
-        else
-          applyLocalRemoved((prev) => [
-            ...prev,
-            ...restoring
-              .filter((h) => !prev.some((p) => p.key === h.key && sameSources(p.sources, h.sources)))
-              .map((h) => ({ ...h, at: Date.now() })),
-          ]);
+        else liveRef.current.update((l) => hide(l, restoring.map((h) => ({ ...h, at: Date.now() }))));
       },
     });
-  }, [hiddenItems, show, applyLocalRemoved]);
+  }, [hiddenItems, show]);
 
   // Custom extras leave through the SAME door as ingredients (one remove
   // affordance, founder: "swipe to remove but no button") — and never silently:
@@ -438,29 +349,8 @@ export function ShoppingScreen() {
       listUndo.addCustom(name); // a query mutation — survives unmount
       return;
     }
-    // The toast outlives this screen, so the local path writes through
-    // to kv when we're gone (same law as the ingredient undo), and the
-    // row comes back UNTICKED — a restored row still marked "got it"
-    // is a lie.
-    if (!unmounted.current) {
-      setChecked((prev) => {
-        const next = { ...prev };
-        delete next[key];
-        return next;
-      });
-      setCustom((prev) => [...prev, { key, name }]);
-      return;
-    }
-    void (async () => {
-      const saved = await kv.get('shoppingState', EMPTY_STORED, storedStateSchema);
-      const checkedNext = { ...saved.checked };
-      delete checkedNext[key];
-      await kv.set('shoppingState', {
-        ...saved,
-        checked: checkedNext,
-        custom: [...saved.custom, { key, name }],
-      });
-    })();
+    // Comes back UNTICKED — a restored row still marked "got it" is a lie.
+    liveRef.current.update((l) => addCustomTo(l, key, name));
   }, []);
 
   const removeCustom = useCallback(
@@ -468,7 +358,7 @@ export function ShoppingScreen() {
       haptics.impact('light'); // a commit — and this one is a real DB delete
       const { isShared: sharedNow, shared: list } = liveRef.current;
       if (sharedNow) list.removeCustom(key);
-      else setCustom((prev) => prev.filter((c) => c.key !== key));
+      else liveRef.current.update((l) => removeCustomFrom(l, key));
       setLastCustom({ key, name });
       const label = name.charAt(0).toUpperCase() + name.slice(1);
       show(`${label} — off the list.`, 'info', {
@@ -664,7 +554,7 @@ export function ShoppingScreen() {
                     key={id}
                     onPress={() => {
                       haptics.select();
-                      setExcluded((prev) => [...prev, id]);
+                      update((l) => setDropped(l, id, true));
                     }}
                     accessibilityRole="button"
                     accessibilityLabel={`Remove ${recipeTitles.get(id) ?? 'this dish'} from the list`}
