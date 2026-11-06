@@ -183,6 +183,7 @@ function RootStack() {
         <Stack.Screen name="recipe/edit" />
         <Stack.Screen name="recipe/cook/[id]" options={{ gestureEnabled: false, fullScreenGestureEnabled: false }} />
         <Stack.Screen name="shopping" />
+        <Stack.Screen name="search" options={{ animation: 'fade' }} />
         <Stack.Screen name="chats" />
         <Stack.Screen name="journal" />
         <Stack.Screen name="household" />

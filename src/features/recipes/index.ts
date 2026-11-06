@@ -3,5 +3,6 @@
 // Everything else (queries, the mealdb transform seam, scaling glue) stays
 // feature-private.
 export { DiscoverScreen } from './DiscoverScreen';
+export { SearchScreen } from './SearchScreen';
 export { RecipeDetailScreen } from './RecipeDetailScreen';
 export { RecipeCard } from './RecipeCard';

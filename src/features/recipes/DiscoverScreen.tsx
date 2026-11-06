@@ -13,7 +13,7 @@ import { FilterSheet } from './components/FilterSheet';
 import { RecipeCard } from './RecipeCard';
 import { useAreas, useCategories, useDiscover, useFeatured, useSearch } from './recipe.queries';
 import { track } from '@/shared/track';
-import { ottoHref } from '@/shared/flags';
+import { flags, ottoHref } from '@/shared/flags';
 
 // Discover — Home + Search merged (v1 tab decision). Scroll rhythm:
 // greeting → search pill → Otto's pick hero → painted category tiles → grid.
@@ -200,32 +200,57 @@ export function DiscoverScreen({ top }: { top?: React.ReactNode } = {}) {
             />
           ) : null}
         </Pressable>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: colors.creamDeep,
-            borderRadius: radii.pill,
-            paddingHorizontal: space[4],
-            minHeight: 48,
-            justifyContent: 'center',
-          }}
-        >
-          <TextInput
-            ref={inputRef}
-            value={query}
-            onChangeText={setQuery}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            onSubmitEditing={() => remember(query)}
-            placeholder="What are we cooking today?"
-            placeholderTextColor={colors.inkSoft}
-            returnKeyType="search"
-            enablesReturnKeyAutomatically
-            clearButtonMode="while-editing"
+        {flags.flowV2 ? (
+          // R3.3: the field opens the Search screen; Home stays Home.
+          <Pressable
+            accessibilityRole="search"
             accessibilityLabel="Search recipes"
-            style={{ fontSize: 16, color: colors.ink }}
-          />
-        </View>
+            onPress={() => {
+              haptics.select();
+              router.push('/search');
+            }}
+            style={{
+              flex: 1,
+              backgroundColor: colors.creamDeep,
+              borderRadius: radii.pill,
+              paddingHorizontal: space[4],
+              minHeight: 48,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: space[2],
+            }}
+          >
+            <Ionicons name="search" size={18} color={colors.inkSoft} />
+            <RNText style={{ fontSize: 16, color: colors.inkSoft }}>What are we cooking today?</RNText>
+          </Pressable>
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: colors.creamDeep,
+              borderRadius: radii.pill,
+              paddingHorizontal: space[4],
+              minHeight: 48,
+              justifyContent: 'center',
+            }}
+          >
+            <TextInput
+              ref={inputRef}
+              value={query}
+              onChangeText={setQuery}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              onSubmitEditing={() => remember(query)}
+              placeholder="What are we cooking today?"
+              placeholderTextColor={colors.inkSoft}
+              returnKeyType="search"
+              enablesReturnKeyAutomatically
+              clearButtonMode="while-editing"
+              accessibilityLabel="Search recipes"
+              style={{ fontSize: 16, color: colors.ink }}
+            />
+          </View>
+        )}
         {focused ? (
           <Pressable
             accessibilityRole="button"
