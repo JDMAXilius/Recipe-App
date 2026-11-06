@@ -1,6 +1,6 @@
 # Otto — Edge Function contracts
 
-Status: current · Last verified at commit `0cbfaa9f` · 2026-11-04
+Status: needs re-audit (2026-11-06: canonicalize deleted; scan-meal, export-data and otto-agent added below; every AI and destructive function now uses `rateLimitedDurable`, so the per-function "isolate-local" rate-limit lines are out of date) · Last verified at commit `0cbfaa9f` · 2026-11-04
 
 Seven functions live in `supabase/functions/*` (plus `_shared/`). All are Deno,
 served at `https://<project>.supabase.co/functions/v1/<name>`. Secrets are read
@@ -310,37 +310,13 @@ in this repo). No app code calls it.
 
 ---
 
-## `canonicalize`
+## `canonicalize` (deleted 2026-11-06)
 
-**Purpose.** One-time batch tool for the `otto_recipes` migration: one TheMealDB
-recipe plus the allowed usdaTable keys in, one canonical record out. Text only, no
-DB writes (`canonicalize/index.ts:1-13`).
-
-| Item | Contract |
-|---|---|
-| Route | `POST /functions/v1/canonicalize` (`:210-213`) |
-| Auth | No user check; "the batch driver calls with the anon key" (`:11-13`, `:215-219`) |
-| Rate limit | One global key `canon`, 1000 per hour per isolate (`:220-222`) |
-| Request | `{ recipe: { id: 1..64 chars, title: 1..300, category?, area?, instructions: 1..20000, ingredient_lines: [1..300 chars] 1..120 }, keys: [1..120 chars] 1..2000 }` (`:23-33`) |
-| Response 200 | `{ record: { id, title, category|null, area|null, servings (1..100), instructions:[string], ingredients:[{ original, key|null, grams, cooked, frying_medium, note|null }] } }`; keys not in the allowlist become null (`:169-208`, `:239`) |
-| Model | `gpt-5.1`, 8000 tokens, 120 s, no `reasoning_effort` (`:20`, `:143-145`) |
-
-**Errors.** 400 invalid body (`:229`), 405 (`:213`), 429 (`:221`), 502 with a `detail`
-string when the model output is unusable or the call fails (`:235-238`, `:240-244`),
-503 `OPENAI_API_KEY` unset (`:223-225`).
-
-**External calls.** OpenAI only.
-
-**Env var names.** `OPENAI_API_KEY`.
-
-**Called by.** `tools/canonicalize-recipes.mjs:57` (hard-coded project URL) and
-`:684` (`--run-batch`). No app code.
-
-**Tests.** None for the function.
+The one-time batch tool for the `otto_recipes` migration. It answered 410 after the migration and was deleted from production and the repo (T6); the original is in git history.
 
 ---
 
-## `scan-meal` (new, 2026-11-06 · not deployed)
+## `scan-meal` (deployed 2026-11-06, v2)
 
 Snap a meal (ADR-0013, ADR-0015): one photo of food → the recipe of the whole dish the portion came from (2 slices of banana bread → the loaf, served by the slice).
 
@@ -349,7 +325,7 @@ Snap a meal (ADR-0013, ADR-0015): one photo of food → the recipe of the whole 
 | Purpose | Identify the dish and reconstruct its full recipe (batch yield, servings in a natural unit, the photographed portion, ingredients weight-first, steps). No calories: the app computes nutrition on the device at save |
 | Method | `POST` |
 | Auth | `getUserId` (401) → `requireClub` (402 when `REQUIRE_CLUB=on`). The pre-account scan (3 per device, DeviceCheck/App Attest) is R0.16 and not built |
-| Rate limit | 10 per 15 min per user (isolate-local, like the others) |
+| Rate limit | 10 per 15 min per user, `rateLimitedDurable` (Postgres, R0.12) |
 | Request | `{ image: base64, mimeType: image/jpeg \| image/png \| image/webp }`, checked by `_shared/image.ts` (413 too big, 400 malformed) |
 | Model | `gpt-5.1`, strict `SCAN_SCHEMA` (`scan-meal/scan.ts`), effort medium, 55 s timeout |
 | Checks | `checkScan` in code: enough ingredients and steps; baked archetypes make a whole batch of ≥4 servings; leavening ≤ 6% and sugar ≤ 150% of flour; single meals ≤ 8 servings; portion ≤ servings. Failures get **one** retry with the issues as feedback; anything still off is returned in `scan.checks` and shown to the user. A retry that throws keeps the first answer and its checks. Servings are rounded, at least 1 and capped at 200 (yield too); a cap is always written into `assumptions` |
@@ -359,6 +335,33 @@ Snap a meal (ADR-0013, ADR-0015): one photo of food → the recipe of the whole 
 | Client | `scanMeal` / `useScanMeal` in `src/features/import/import.queries.ts`; Add screen tile "Snap a meal" (behind `flags.flowV2`) |
 | Tests | `scan-meal/scan.test.mjs` with contract fixtures in `scan-meal/fixtures/` (model outputs, not photos). The photo calibration set (real meals with known recipes) is still to build (R6.5) |
 | Storage | The photo is not stored by this function |
+
+## `export-data` (deployed 2026-11-06, v4)
+
+"Download my data" (R7.4). `POST`, `getUserId` (401), 5 per hour (`rateLimitedDurable`). Reads with the caller's token, so RLS decides: `profiles`, `recipes`, `favorites`, `plan_entries`, `recipe_shares`, `list_shares`, `household_members`, `memberships`, `shopping_lists`, `agent_actions`; one JSON document. Product events are write-only and not listed. Client: `exportMyData` in `src/features/profile/profile.queries.ts`.
+
+---
+
+## `otto-agent` (1.2 · written 2026-11-06 · not deployed until reviewed)
+
+The plan agent behind "Plan with Otto" (`flags.agent`).
+
+| Field | Contract |
+|---|---|
+| Method / auth | `POST`, `getUserId` (401) → 20 per 15 min (`rateLimitedDurable`, 429) → `requireClub` (402) |
+| Turn request | `{ messages: [{role: user\|assistant, content ≤600}] (last 12, ends with user), today: YYYY-MM-DD (±36 h of the server), requestId: 8–64 chars }` |
+| Undo request | `{ undo: agent_actions.id }` → replays its `inverse`, marks `undone_at`; 404 unknown, 409 nothing to undo |
+| Response | `{ message, did: [{ id, summary, undoable }] }`; errors keep `did` so partial work is shown |
+| Model | `gpt-5.1` with function calling (`_shared/openai.ts` `askTools`), effort low, 60 s a round |
+| Tools | `read_week`, `find_dinners` (catalogue filtered by the household's allergies, diet and skips in code: `eligibleDinners` from `src/features/onboarding/firstWeek.ts`), and the six plan actions from `tools.json` (generated with the action manifest) |
+| Rules in code | the caller's token for every read and write (RLS); a dish must be on the filtered shelf (titles and images from the catalogue, never the model); days inside the 7-day window; 6 rounds, 14 calls, 7 writes a turn; each write logged in `agent_actions` with its inverse and an idempotency key |
+| Never offered | preferences, deletes, billing, the household, the person's own recipes, the shopping list |
+| Logs | token counts only (`logUsage`); never prompts or outputs |
+| Env | `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (rate limit and club check only), `REQUIRE_CLUB`, `REVENUECAT_SECRET_KEY` |
+| Client | `src/features/planner/agent.queries.ts`, `components/PlanAgentSheet.tsx` |
+| Tests | `otto-agent/agent.test.mjs` (tool list, argument checks, inverses, summaries, keys) |
+
+---
 
 ## Open questions / risks
 
