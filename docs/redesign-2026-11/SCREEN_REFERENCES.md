@@ -1,6 +1,6 @@
 # Screen references: redesign decisions
 
-> Written 2026-11-04. Figma: Otto file `r9QxxN5qDQXjW473H7LKgM`, page **"Screen references — redesign decisions"** (11 sections). Each section shows Otto's v3 screen first, then the reference apps' real screens, then the takeaways. Concept options for Today, the Recipes hub and Create a recipe are on page **"Concepts — redesign options"**. Reference screens come from the study file `iEA3Aeu3ApmJdJabmAudXm` (Mobbin captures) unless marked Mobbin.
+> Written 2026-11-04. Figma: Otto file `r9QxxN5qDQXjW473H7LKgM`, page **"Screen references — redesign decisions"** (15 sections). Each section shows Otto's v3 screen first, then the reference apps' real screens, then the takeaways. Concept options for Today, the Recipes hub and Create a recipe are on page **"Concepts — redesign options"**, and a first full draft of the reworked app (100 screens in four areas) is on page **"v4 · First draft (rework)"**. Reference screens come from the study file `iEA3Aeu3ApmJdJabmAudXm` (Mobbin captures) unless marked Mobbin.
 > **Status: input for design, not approved.** The decisions at the end of each section are Juan's.
 > ChatGPT package (images + one ticket per screen): `Otto_Screen_References.zip`.
 
@@ -19,6 +19,10 @@ Pick one section. Read the decision and look at the Figma section (or the matchi
 9. Cook mode
 10. Paywall and purchase outcomes
 11. Talking to the AI
+12. Sign up / sign in
+13. Account & settings
+14. System states
+15. Search
 
 ## 1. Questionnaire: personalization questions
 
@@ -449,3 +453,164 @@ v3 'Chat, start' (68:1187): 'Chat with Otto / What are you hungry for?' with thr
 - [ ] After 'Add to the week', does Otto ask which day, or pick the next open dinner?
 - [ ] 'Not now' on consent: is chat disabled, or does Otto offer non-AI search instead?
 - [ ] Show a thinking trace, or just the one-line 'Checking your kitchen' summary?
+
+## 12. Sign up / sign in
+
+**Decision:** How loud is Sign in with Apple, and how do email, errors, forgot password and 'I have an account' sit around it?
+
+**Otto today (v3 frames):** Sign up, Sign in, Forgot password, Sign up with email.
+
+v3 Sign up (68:135): 'Pull up a stool.' / 'Save recipes, plan dinners. Otto remembers.', a row of three equal 76×44 icon buttons (Apple, Google, Facebook), 'or', Email + Password, 'Join Otto's kitchen', 'Already have an account? Sign in'. Sign in (68:170): 'Back to the kitchen?' / 'Otto kept your place.', same icon row, 'Sign in', 'Forgot your password?', 'New here? Pull up a stool'. Forgot password (68:206): 'Happens to everyone. Otto will email you a link to set a new one.', 'Send me a link', 'Remembered it? Sign in'. Sign up with email (70:301): 'Use any email. Otto saves your first week to it.' No error state on any frame; Apple is an icon, not a full-width button.
+
+| App | Flow | Look at | What they do | Source |
+|---|---|---|---|---|
+| Crouton | Creating an account | 4–9 | Apple next to email from the first screen. 'Sign In' shows Email/Password, a blue 'Sign in', 'Forgot password' and a full-width black 'Sign in with Apple', with 'Create Account' at the bottom. 'Create Account' leads with 'Continue with Email' over 'Sign in with Apple', then 'Enter Details' (Email, Password, Confirm new password, 'Passwords must be at least 6 characters long', 'Create') with a spinner on the button while it saves. | study `28:4006` |
+| MacroFactor | Creating an account | 1–6 | Three stacked full-width buttons under 'YOU'RE IN. CREATE YOUR ACCOUNT TO CONTINUE.': black 'Continue with Apple', then 'Continue with Google' and 'Continue with Email'. Email is its own screen ('Continue with Email', Email, Password with an eye, 'Create Account'), followed by 'FIRST 30 DAYS' and two consent toggles ('I agree to the terms of the Health Disclaimer') before 'Accept and Continue'. | study `43:147` |
+| Yazio | Creating account | 1–3 | 'Sign in to start your journey with Yazio!' with three equal outlined buttons: 'Sign Up With Apple', 'Continue With Google', 'Sign Up With E-mail'. 'Get Started' is a plain two-row form (E-mail Address, Password) whose 'Sign up' button stays grey until both are filled. | study `28:2761` |
+| Cherrypick | Creating an account | 1–3 | The account ask comes after onboarding: 'Your meal matches are ready! Create an account to save your answers and your personalised recommendations.' Fields First name, Email, Password ('12 characters minimum', eye toggle), 'Invite code (optional)', an email opt-in Yes/No, and 'Create Account'. 'Skip' sits top right. | study `28:1880` |
+| MyFitnessPal | Forgot password | 1–5 | 'Log In' has Email/Password, 'Forgot password?', 'OR' and three social buttons ('Continue with Google', 'Continue with Apple', 'Continue with Facebook'). 'Forgot Password' is one field and 'Submit' with an 'Email not recognized?' link. The reset finishes on the web: 'Password reset' then 'Password reset!' / 'RETURN TO LOGIN'. | study `37:368` |
+| Headspace | Resetting password | 1–4 | 'Log in' with 'Forgot password?' in blue and round social icons (Apple, Facebook, Google, Spotify) under 'or'. 'Reset Password' is one field, 'Send', and 'We'll email you a link to reset your password'. The confirmation never says whether the account exists: 'If your account is associated with this email address you will receive an email…' plus 'Back to Login'. | study `28:8243` |
+| Kraken | Sign in (invalid credentials) | — | Error as one pink card under the fields: 'Invalid credentials / Please check your credentials and try again.' The email stays filled, 'Forgot password or username?' sits above 'Continue', and 'Create an account' is the second button. | [Mobbin](https://mobbin.com/screens/298c6c1f-d996-45ad-9ee2-59ec7d26d9d8) |
+| Navan | Sign in (wrong password) | — | Inline field error: the Password field turns red with '⊘ Wrong username or password' under it, the email shows with a 'Change' link, then 'Forgot password?', 'Continue', 'OR' and 'Login with Google'. | [Mobbin](https://mobbin.com/screens/201389d9-c8a3-42d4-ac48-d48e1c2cf474) |
+
+**Patterns across apps**
+- Sign in with Apple is a full-width black button, first or right under the email form (Crouton 'Sign in with Apple', MacroFactor 'Continue with Apple', Yazio 'Sign Up With Apple'). Nobody shrinks it to an icon.
+- Email is a separate step or a secondary button ('Continue with Email' in Crouton and MacroFactor, 'Sign Up With E-mail' in Yazio), so the first screen is three stacked choices, not a form.
+- Password rules sit under the field before you fail ('Passwords must be at least 6 characters long', Cherrypick '12 characters minimum').
+- Errors are inline and specific: a red field plus one line ('Wrong username or password' in Navan), or one card above the button ('Invalid credentials / Please check your credentials and try again.' in Kraken).
+- Forgot password is a single field and a privacy-safe confirmation ('If your account is associated with this email address you will receive an email…' in Headspace; MFP adds 'Email not recognized?').
+
+**Options for Otto**
+- Make Sign in with Apple a full-width black button at the top of Sign up and Sign in (Crouton/MacroFactor order: Apple, then 'Continue with email'), and drop the three equal icons. Keep Google as a quiet second row if we keep it at all; Facebook can go.
+- Move Email + Password to 'Sign up with email' only, so the first screen is two buttons plus 'Already have an account? Sign in'.
+- Add the hint 'At least 8 characters' under Password and an inline error state for Sign in ('That email and password don’t match.') with 'Forgot your password?' right under it.
+- Forgot password: after 'Send me a link', show Headspace's neutral 'If there’s an Otto account for this email, a link is on its way.' with 'Back to sign in'.
+
+**Juan's decisions**
+- [ ] Do we keep Google sign-in at all on iOS, or Apple + email only?
+- [ ] Does 'Sign up with email' need a confirm-password field (Crouton) or a show/hide eye (MacroFactor, Cherrypick)?
+- [ ] Account before or after onboarding answers? Cherrypick asks after ('Your meal matches are ready! Create an account to save your answers').
+
+## 13. Account & settings
+
+**Decision:** What lives on the Account screen, and how do household join/leave, notifications, AI/data, subscription, sign out and delete account work?
+
+**Otto today (v3 frames):** Account, Preferences, Notifications, Privacy & data, Membership, Share with household, Sign out, Delete account, Delete account · explain, Account deleted.
+
+v3 Account (76:188): 'Your kitchen' with '2 adults · 1 kid · Otto Club', rows Otto Club (Yearly), Household (Our list), Cooking journal (12 dishes), Preferences, Notifications, Privacy & data, Help & FAQ, Sign out, Delete account. Sign out (76:273) is an alert: 'Your recipes and plans stay saved to your account.' Delete account (76:369) alert: 'This deletes your recipes, plans and lists. Apple keeps billing Otto Club until you cancel it in Settings.' Delete account · explain (84:739) lists 'WHAT GETS DELETED' plus 'Download your data first'; Account deleted (84:764) closes it. Privacy & data (84:687) has one AI toggle 'Use Otto’s AI for chat and imports' with plain OpenAI copy. Notifications (76:526): Dinner reminder · 5:00 pm, Cook timers, Plan your week · Sundays, 'Never marketing.' Membership (76:422): $39.99/year, renews Nov 4, 2027, Manage subscription / Restore purchases / Request a refund. Household join is only 'Invite with a link' / 'Join with a code instead' on Share with household (76:695); there is no leave-household or member list.
+
+| App | Flow | Look at | What they do | Source |
+|---|---|---|---|---|
+| Crouton | Adding a household | 1–5 | Empty state 'No Household / Add a household to share your recipes and meal plan' with a green 'Add Household' button. 'Add Household' is a sheet with one Name field and 'Add'. A 'Household Sync' alert explains the wait ('…need to be resynced. This may take several minutes. Please do not close Crouton.'), then a 'Household' card: 'Alex · 1 member', 'Edit', 'Add Members'. | study `28:4778` |
+| Crouton | Removing a household | 1–4 | The household card's ⋯ opens a popover: 'Resyncing will associate all of your recipes and meal plan with the household', 'Resync with Household' and a red 'Remove Household'. A 'Removing…' HUD, then back to 'No Household'. | study `28:4878` |
+| Cherrypick | Household | 1–3 | 'You' tab: 'Alex / You're set to Sainsbury's change', a 'Your Pro trial ends in 7 days' banner, Preferences tiles (Diets, Dislikes 3, Goals 2) and Account rows (Orders, Invite friends, Household, Health Settings). Household is 'How many servings do you usually need?' (− 1 servings +) plus 'Who's at home?' steppers for Adults, Children and Infants, and 'Done'. | study `28:2236` |
+| Flo | Stop sharing with a partner | 1–6 | 'Flo for Partners / You’re always in control' with 'Stop sharing'. A sheet 'What will happen when I stop sharing?' splits 'If you paid:' / 'If your partner paid:' with red ✕ lines ('Your partner won’t see your data.'), then 'What next for your partner?', 'Yes, stop sharing' or 'I want to keep sharing my data', a spinner 'Cancelling his access to your data', and 'You’ve stopped sharing … You can share it again anytime.' | study `28:747` |
+| Duolingo | Deleting an account | 1–6 | 'Profile' with a red 'DELETE ACCOUNT' at the bottom. 'Delete Account' is a full page of consequences ('erase all of your personal data… cannot be undone… 7 day grace period') and 'This action will NOT cancel an existing Duolingo subscription.' The button counts down 'DELETE ACCOUNT (5)'…(3) before it unlocks, a sheet asks 'Do you wish to delete your account?', and it ends on 'Check your email'. | study `46:4833` |
+| Bevel | Bevel AI settings | 2–6 | 'Bevel Intelligence' sheet: master toggle, 'Personality · Guardian', a medical disclaimer, 'Weekly limits 5% used' and 'Extra credits', toggles for 'Expanded thinking steps' and 'Suggested follow-ups', 'Ghost mode' ('Default to ghost mode', 'Persistent knowledge', 'Chat history · 1 hour'), 'Data Sharing · Reproductive health', 'Model selection · Standard', 'Beta features', and destructive 'Delete all chats' / 'Delete all files' / 'Delete all data'. | study `36:3107` |
+| Nike | Notifications | — | Four toggles, each with a one-line reason: 'Notify Me / Never miss a drop…' (with 'Edit Schedule'), 'Articles, Events & Training Tips', 'Nike Member Rewards & Promos', 'Latest Products & Bestsellers'. | [Mobbin](https://mobbin.com/screens/a3b3002a-4e23-4c8b-9361-51b6d804825d) |
+| Quicken | Notification Preferences | — | A master card 'Pause all notification / Take a break, pause all notification.' sits above 'Customize notifications'. With it on, every row below ('Achievement badge earned', 'Bill paid'…) greys out and reads 'Disabled'. | [Mobbin](https://mobbin.com/screens/a67919a5-de03-4df3-b275-71e4fb6fa930) |
+
+**Patterns across apps**
+- Household is an object you can see: a name, '1 member', 'Edit' and 'Add Members', with a ⋯ menu holding 'Remove Household' (Crouton). The empty state says why to have one ('Add a household to share your recipes and meal plan').
+- Leaving or stopping sharing explains consequences first, in a sheet, with a keep option as the second button (Flo 'What will happen when I stop sharing?', 'Yes, stop sharing' / 'I want to keep sharing my data', then 'You’ve stopped sharing … You can share it again anytime.').
+- Delete account is two steps: a full page that states what is lost and that the subscription isn't cancelled (Duolingo 'This action will NOT cancel an existing Duolingo subscription'), then a destructive confirm. Duolingo adds a short countdown on the button and a 7-day grace period.
+- AI settings get their own page with plain toggles and usage (Bevel Intelligence: on/off, 'Weekly limits 5% used', 'Ghost mode', 'Delete all chats').
+- Notification settings are one toggle per kind with a one-line description (Nike), and some add a master 'Pause all notification' (Quicken).
+
+**Options for Otto**
+- Give Household its own screen behind the Account row: household name, members with avatars, 'Invite' and a ⋯ with 'Leave household' (or 'Remove household' for the owner), like Crouton.
+- Leaving the household gets a Flo-style sheet: 'What happens when you leave' (you stop seeing Our list and the shared plan; your own recipes stay) with 'Leave household' and 'Stay'.
+- Keep the current two-step delete (explain page, then confirm) and keep the Apple billing line, as Duolingo does; consider a 7-day 'changed your mind' window.
+- Add a one-line description under each Notifications toggle (Nike) and keep 'Never marketing.' as the footer.
+- Privacy & data already matches Bevel's plain-toggle approach; add 'Delete my chats with Otto' under the AI toggle.
+
+**Juan's decisions**
+- [ ] Can a member leave a household, or only the owner removes them? What happens to Our list for the person who leaves?
+- [ ] Delete account: immediate, or a 7-day grace period like Duolingo?
+- [ ] Does Account show the household members inline under 'Your kitchen', or only on the Household screen?
+
+## 14. System states
+
+**Decision:** How do offline, errors, billing problems, What's New, permission-denied and empty states look, and where do they appear (banner, toast, full screen, sheet)?
+
+**Otto today (v3 frames):** Offline launch, Payment problem, Club ended, What’s new, Camera primer, Not found, Purchase couldn’t be completed.
+
+v3 Offline launch (73:364): Home stays usable with a strip 'You’re offline. Your plan and list still work.' Payment problem (84:416): Home with 'Apple couldn’t renew Otto Club. You keep access for now.' and 'Update'. Club ended (84:477): 'Your Otto Club has ended. Every recipe, plan and list is still here, waiting for you.' with 'Resubscribe' / 'Restore purchases'. What’s new (84:557): a sheet over Home with three items ('Ask Otto by voice', 'Plan by dates', 'Search, its own tab') and 'Continue'. Camera primer (84:676): 'Snap a cookbook page … The photo isn’t kept.' with 'Continue' / 'Paste a link instead'. Not found (83:605): 'Otto couldn’t find that one. This recipe was removed. Here are a few like it.' There is no camera-denied fallback and no generic empty state.
+
+| App | Flow | Look at | What they do | Source |
+|---|---|---|---|---|
+| Finch | Notifications | 2–3 | An empty notifications sheet that just says 'You're all caught up!'. With items it lists cards ('Baby Minty & Alex sent you Encouragement! · 1m ago') and a 'Clear all' pill. | study `44:2819` |
+| Qantas Airways | Trips (offline) | — | Full-page offline state inside the tab: a crossed-out wifi icon, 'You’re not connected / You’re offline. Please check your connection. [IN01]', a red 'Try again', and a dark toast above the tab bar 'Unable to update. Please make sure you have an internet connection and try again.' | [Mobbin](https://mobbin.com/screens/18f77caf-19d5-4199-98b4-a36f34096d23) |
+| Particle News | Home (offline) | — | An orange 'No Internet Connection' pill drops over the header while the page below shows 'There was an issue / A network error occurred: cannot parse response'. | [Mobbin](https://mobbin.com/screens/fa68f741-7d4e-4962-9c7e-15e3bf70d084) |
+| Facebook | Feed error | — | The error replaces only the broken module: gear icons, 'Feed isn't available right now / There may be a technical problem. Refresh to try again.' and a blue 'Reload page', while stories and 'People you may know' still load around it. | [Mobbin](https://mobbin.com/screens/4ecaa84d-2715-42a5-acb7-47b550651e00) |
+| Warby Parker | Order (payment declined) | — | An 'Error' tag over the order, then one red-bordered card: 'Please update your payment method for order no. 546203419 / When we tried to bill your order, your card was declined.' with a blue 'Update card info'. | [Mobbin](https://mobbin.com/screens/1011a84c-072f-494a-ae2e-66691a7c22cf) |
+| Brink | Latest Changes | — | A What's New sheet: app icon, 'Latest Changes in Brink', 'Version 1.2.33', five icon rows with a bold title and one line ('Short Clips Control', 'Smarter Up Next', 'Bug Fixes and Polish'), and one black 'Continue'. | [Mobbin](https://mobbin.com/screens/6ce682e7-7484-4653-b71d-262d30544ea7) |
+| DICK’S Sporting Goods | Scanner (camera permission) | — | The scanner stays black with the line 'Please allow camera permissions to begin scanning products.' and a full-width 'GO TO SETTINGS', shown behind the system alert '“DICK'S” Would Like to Access the Camera'. | [Mobbin](https://mobbin.com/screens/aef99718-d836-4d09-a1a4-529bb2bcdcdf) |
+| Walmart | Scanner (camera primer) | — | A pre-permission sheet over the scanner: phone-camera illustration, 'Camera access required / We'll need permission to access your camera when the app is in use to scan barcodes, QR codes and more.' and 'Continue'. | [Mobbin](https://mobbin.com/screens/00dc50a7-3c1b-4eb2-9def-cee8e3ee111c) |
+
+**Patterns across apps**
+- Offline keeps the screen and adds one strip or toast; a full-screen error is only used when there is truly nothing to show (Qantas 'You’re not connected … Try again' plus a toast; Particle 'No Internet Connection' pill on top of the page).
+- Errors say what happened in plain words and give one action ('Feed isn't available right now … Reload page' in Facebook, 'Connection error … Retry' in Opera).
+- Billing problems are one bordered card with one button, not a modal ('Please update your payment method … your card was declined' / 'Update card info' in Warby Parker).
+- What's New is a short sheet: version, three to five icon rows with a bold title and one line, and one 'Continue' (Brink 'Latest Changes in Brink · Version 1.2.33').
+- Permission denied keeps the camera space and says why with a 'GO TO SETTINGS' button (DICK'S 'Please allow camera permissions to begin scanning products.'); the good pre-prompt explains before iOS asks (Walmart 'Camera access required … Continue').
+- Empty states are friendly and short ('You're all caught up!' in Finch).
+
+**Options for Otto**
+- Keep the offline strip on Home and reuse it on Plan, Cookbook and Shopping. Use a toast for failed actions ('Couldn’t save. Otto will try again when you’re back online.').
+- Payment problem already matches Warby Parker's one-card pattern; add the grace end date ('You keep access until Nov 18').
+- What’s new matches Brink; add the version line and an icon per row.
+- Add a 'Camera off' fallback after Camera primer when access is denied: 'Otto can’t see the page. Turn on Camera in Settings.' with 'Open Settings' and 'Paste a link instead', like DICK'S.
+- Add a generic error screen for 'Otto can’t reach the kitchen' with 'Try again' (Opera/Facebook) for when there is no cached data.
+
+**Juan's decisions**
+- [ ] Should offline be a persistent strip or a toast that fades?
+- [ ] Is the payment banner dismissible, or does it stay until Apple resolves billing?
+- [ ] Does What's New show on every update or only for big releases?
+
+## 15. Search
+
+**Decision:** What does Search show before you type (recent, suggestions), how do filters and no-results work, and is voice a first-class input?
+
+**Otto today (v3 frames):** Search, Search results, Search + filters.
+
+v3 Search (83:407): '‹ Home', field 'Recipes, ingredients, what’s in the fridge', 'Browse by kind' chips (Beef, Chicken, Seafood, Vegetarian, Pasta, Soup, Breakfast, Dessert) and 'Recent' (teriyaki, quick dinners, salmon). Search results (83:476): 'teriyaki', filter chips 'Under 30 min', 'Family size', 'Vegetarian', '3 recipes' rows (Teriyaki chicken casserole · 35 min · about 450 cal · for 3 …), and 'Not what you’re after? Ask Otto for it.' Search + filters (73:281): 'quick dinners' with an 'OTTO'S PICK' card (Shakshuka · 30 min · Vegetarian · 720 CAL) and a filter icon. No mic in the field, no filters sheet, no no-results frame, no 'Clear' on Recent.
+
+| App | Flow | Look at | What they do | Source |
+|---|---|---|---|---|
+| Crouton | Searching Crouton | 2–4 | Search over the library, grouped by kind. Empty field 'Folders, Recipes and More' shows Tags (High-Protein, Main dish, Meal Prep), Folders and Recipes. Typing 'Chicken' narrows to two recipe rows that show the matched ingredient ('Ingredients: 4 cups unsalted chicken stock or broth + 1 more'), and tags can be toggled on as outlined chips. | study `28:4248` |
+| Cherrypick | Searching Cherrypick | 2–4 | 'Search for meals' with 'Filters' and 'Sort by Relevance' under the field. Results are two-column photo cards with author ('By Cherrypick'), rating and time ('4.8 · 55 mins'), a 'Vegetarian' tag, a bookmark and an 'Add to shop' button on every card. | study `28:1922` |
+| Yazio | Filtering recipes | 2–7 | A 'Filter' sheet with 'Reset': 'Popular Filters' photo tiles (Breakfast, Low Carb, High Protein, Quickly Prepared), 'Favorites Only', an 'Energy Value' slider and grouped chips (Meals, Preparation Method, Diets). The blue button counts live: 'See 921 Recipes' → 'See 681' → 'See 94'. Results keep 'Low Carb ×' and 'Quickly Prepared ×' as chips under the field. | study `28:3543` |
+| Noom | Searching for recipe | 1–3 | Field 'Try searching “Chicken”' with a 'FILTER' button. A partial word ('Chice') shows a stacked-books illustration and 'We couldn't find any matching recipes / Try searching for a more generic name, or browse all recipes.' 'Chicken' returns rows with calories and a '% of daily calorie budget' line. | study `35:2391` |
+| Lifesum | Searching recipes | 1–4 | 'Find recipes' sits over the browse page (BREAKFAST, LUNCH with See all). Typing dims the page, and the search turns into a green 'STEAK ×' chip with a count badge '1' and two results with kcal and a heart. | study `45:1323` |
+| MyFitnessPal | Logging a meal (voice input) | 2–5 | Voice inside search. 'Search Food' has All / My Meals / My Recipes / My Foods tabs and a row of tools (Barcode scan, Voice log, Meal scan, Quick add). 'Voice log' shows an example '"I had 1 cup of Kirkland Greek yogurt, honey, and some grapes."', 'Start Voice Logging', a listening animation, then 'Your breakfast' (Egg 72 cal, Bacon 77 cal) with 'Try Again' / 'Log' and a 'Foods Logged!' toast. | study `37:1136` |
+| Keeta | Search (recent + popular) | — | Before typing: 'Recent searches' as chips (Kiyo, Japanese Restaurant · Kooyas · Japanese · Sushi) with a trash icon and an expand chevron, 'Popular searches' chips (Burgers, Pizza, Bakery, Cakes) and 'Popular brands' logos, with a mic on the keyboard. | [Mobbin](https://mobbin.com/screens/7e41c973-187c-4adc-b4c6-ada4a86e1705) |
+| CREME | Search (recent) | — | Recipe-app search in dark mode: field 'What’s cooking?' with a filter button and ✕, 'Recent' as recipe rows with thumbnail and creator ('Ricotta Girella with Raw Tomato Sauce · Francesco Sarvonio'), and the keyboard mic for dictation. | [Mobbin](https://mobbin.com/screens/81c1a9c1-6a37-44fe-a2bc-557a58ee9b1b) |
+
+**Patterns across apps**
+- Before typing: recent searches with 'Clear all' plus a few suggestions (Keeta 'Recent searches' chips with a trash icon and 'Popular searches'; CREME 'Recent' as recipe rows with thumbnails).
+- Results are grouped by type with tags first (Crouton: Tags, Folders, Recipes), and picked tags become selected chips you can tap off (Crouton, Lifesum 'STEAK ×').
+- Filters are one sheet with grouped chips and a live count on the button ('See 921 Recipes' → 'See 94 Recipes' in Yazio, with 'Reset' top right). Applied filters come back as removable chips over the results ('Low Carb ×', 'Quickly Prepared ×').
+- No results has a picture, a plain line and a next step ('We couldn't find any matching recipes / Try searching for a more generic name, or browse all recipes.' in Noom).
+- Voice is a mic on the search screen that turns speech into structured items you can fix before saving (MFP 'Voice log': '"I had 1 cup of Kirkland Greek yogurt…"' → 'Your breakfast' list with 'Try Again' / 'Log').
+
+**Options for Otto**
+- Add a mic in the Search field. Voice goes to Ask Otto ('Say what’s in the fridge') and comes back as recipe matches, like MFP's voice log.
+- Give 'Recent' a 'Clear' and add one row of suggestions under it (Keeta).
+- Add a filters sheet behind the filter icon with grouped chips (Time, Diet, Course, Cuisine) and a live 'Show 12 recipes' button (Yazio). Applied filters stay as the chips on Search results.
+- Design a no-results state: 'Otto couldn’t find “…”', 'Try a simpler word, or ask Otto to make it', with 'Ask Otto' as the button. Keep the existing 'Not what you’re after?' line as the bottom row of normal results.
+
+**Juan's decisions**
+- [ ] Does voice search go to Ask Otto (a written recipe) or only filter the library?
+- [ ] Recent searches: on-device only, or synced across household members?
+- [ ] Is 'Search + filters' (Otto's pick card) its own screen, or the same as Search results?
+
+## v4 first draft (Figma page "v4 · First draft (rework)")
+
+Four areas, 100 phones, each row with a note card (what changed vs v3, references used, Apple rule, scenario gap closed):
+- **A · Getting in** (26): launch shell, Welcome (Sign in with Apple first), 7 questions with a correct "QUESTION n OF 7" count, building + first-week reveal, account with error states, paywall (billed amount largest, Monthly $4.99/month, dated trial timeline) with success / cancelled / failed / Ask to Buy, reminders primer + denial fallback.
+- **B · Today, Plan & Shopping** (21): Dinner-first Today with checklist, Otto's idea card, empty and after-dinner states, billing-problem banner; week plan with swap, leftovers and an AI plan review before it commits; shopping by aisle, shared live with the household, "Always have" pantry; reminder tap opening tonight's recipe.
+- **C · Recipes, Cook & Create** (25): Recipes tab with Discover | Cookbook, shared search, filters, no-results and empty states; recipe detail with servings scaler and "Add to this week"; cook mode with keep-screen-on notice, named timers, Live Activity idea, "Dinner, done"; one-box Create with camera primer/denial, write-it-myself, ask Otto, waiting, shared review, AI error that keeps the photo, limit state.
+- **D · Otto, Account & system states** (28): chat with consent at first send, answer card → Add to this week / Save / Cook, error with retry, mic fallback; Account sheet (preferences, notifications, AI data off, Otto Club, household join/leave); sign out that clears this iPhone; delete account; offline, What's New, Club ended ("Your 42 recipes are safe"), returning paywall, last-tab restore.
+
+Draft decisions to confirm (from the designers' notes): 7 questions (roadmap R1.3 says 3); building screen kept only while the real plan call runs; no paywall close (no free tier); trial on both plans (check App Store Connect); Shopping as its own tab (roadmap R4.5 has it inside Plan); one shared search on Recipes; AI consent at first send; "Add to this week" picks the next open dinner with Undo; sign-out copy says chats and journal leave with sign-out (S9).
