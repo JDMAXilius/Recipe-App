@@ -7,17 +7,31 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "ios": { "simulator": true }
+      "ios": {
+        "simulator": true
+      }
     },
     "preview": {
       "distribution": "internal",
-      "ios": { "simulator": false }
+      "ios": {
+        "simulator": false
+      }
     },
     "production": {
       "environment": "production",
       "credentialsSource": "local",
-      "ios": { "image": "macos-tahoe-26.5-xcode-26.6" },
-      "android": { "buildType": "app-bundle" }
+      "ios": {
+        "image": "macos-tahoe-26.5-xcode-26.6"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "rework": {
+      "extends": "production",
+      "env": {
+        "EXPO_PUBLIC_FLOW_V2": "true"
+      }
     }
   },
   "submit": {
