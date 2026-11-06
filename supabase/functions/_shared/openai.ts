@@ -81,3 +81,35 @@ export async function askJson(o: AskOptions, timeoutMs: number): Promise<any> {
     return null;
   }
 }
+
+// otto-agent (1.2): one round of function calling. Returns the model's message
+// (text and/or tool_calls), or null when it ran out of room or refused.
+export type ToolMessage =
+  | { role: "user" | "assistant"; content: string | null; tool_calls?: ToolCall[] }
+  | { role: "tool"; tool_call_id: string; content: string };
+export type ToolCall = { id: string; type: "function"; function: { name: string; arguments: string } };
+
+export async function askTools(
+  o: { model: string; system: string; messages: ToolMessage[]; tools: unknown[]; maxTokens: number; effort?: string },
+  timeoutMs: number,
+): Promise<{ content: string | null; tool_calls?: ToolCall[] } | null> {
+  const response = await fetch(OPENAI_URL, {
+    method: "POST",
+    headers: { authorization: `Bearer ${Deno.env.get("OPENAI_API_KEY")!}`, "content-type": "application/json" },
+    body: JSON.stringify({
+      model: o.model,
+      max_completion_tokens: o.maxTokens,
+      messages: [{ role: "system", content: o.system }, ...o.messages],
+      tools: o.tools,
+      tool_choice: "auto",
+      ...(o.effort ? { reasoning_effort: o.effort } : {}),
+    }),
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  if (!response.ok) throw new Error(`OpenAI answered ${response.status}`);
+  const data = await response.json();
+  const choice = data.choices?.[0];
+  logUsage(o.model, data.usage, choice?.finish_reason);
+  if (!choice || truncated(choice.finish_reason) || choice.message?.refusal) return null;
+  return { content: choice.message?.content ?? null, tool_calls: choice.message?.tool_calls };
+}

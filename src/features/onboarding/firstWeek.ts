@@ -6,7 +6,7 @@
 // heuristic, always shown with LEAVE_OUT_NOTE) · the diet must fit the
 // ingredients · skipped foods are out · no dish twice · no two days running
 // from the same category · the person's cuisines come first.
-import { allergensIn, fitsDiet, type Allergen, type Diet } from '../../shared/allergens';
+import { allergensIn, fitsDiet, type Allergen, type Diet } from '../../shared/allergens.ts';
 
 export interface CatalogueDish {
   id: string;

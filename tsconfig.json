@@ -3,12 +3,30 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/features/*": ["./src/features/*"],
-      "@/shared/*": ["./src/shared/*"],
-      "@/catalogue/*": ["./src/catalogue/*"],
-      "@/types/*": ["./src/types/*"]
-    }
+      "@/features/*": [
+        "./src/features/*"
+      ],
+      "@/shared/*": [
+        "./src/shared/*"
+      ],
+      "@/catalogue/*": [
+        "./src/catalogue/*"
+      ],
+      "@/types/*": [
+        "./src/types/*"
+      ]
+    },
+    "allowImportingTsExtensions": true
   },
-  "include": ["app/**/*", "src/**/*", "expo-env.d.ts", ".expo/types/**/*.ts"],
-  "exclude": ["node_modules", "mobile", "backend"]
+  "include": [
+    "app/**/*",
+    "src/**/*",
+    "expo-env.d.ts",
+    ".expo/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "mobile",
+    "backend"
+  ]
 }
