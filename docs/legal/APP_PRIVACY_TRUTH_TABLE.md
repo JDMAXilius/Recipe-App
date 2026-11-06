@@ -3,6 +3,30 @@
 Status: needs re-audit (2026-11-06: dictation on-device where supported, row 14; product interaction events added, row 20; ADR-0010 will put allergies on the account) · last audited at 1.0.17 (build 35); app is now 1.0.23 (build 52) and main added a persisted offline query cache (app/_layout.tsx) and NetInfo — re-check before the next submission.
 
 **Audit date:** 2026-07-25 · **App version audited:** `app.json` 1.0.17, iOS build 35
+
+## 2026-11-06 corrections (read before the next submission)
+
+The rows below were audited at 1.0.17 and still name **Anthropic** and its models in rows 7, 12 and 13.
+The AI vendor is now **OpenAI** (vendor table updated); every "Anthropic" in those rows reads as OpenAI.
+Changes since the audit that the App Store answers must cover:
+
+1. **Photos (row 7):** Snap a meal sends a photo of food to OpenAI through `scan-meal` (signed in, Otto
+   Club, not stored by Otto). Same category: User Content → Photos or Videos, linked, not tracking.
+2. **Product interaction (row 20, new):** `app_events`. Usage Data → Product Interaction, linked, not
+   tracking.
+3. **Audio (row 14):** dictation stays on the phone where supported; older phones still use Apple.
+4. **Coming with R0.4 (ADR-0010):** household size, diet, allergies and skips on the account. Health &
+   Fitness or Other User Content (allergies can imply health), linked, not tracking. Not yet live.
+5. **Sign-out** now clears the person's data from the phone (S1).
+
+### Policy changes for the website repo (`legal/PRIVACY_POLICY.md`, §1(g) and the vendor list)
+
+- Add to what is sent to OpenAI: "photos of meals you snap, so Otto can work out the recipe".
+- Add a short section: "**How you use the app.** We record simple events (for example, that a week was
+  planned or a dish was cooked) linked to your account, to improve Otto. They are not used for
+  advertising or shared with anyone. They are deleted with your account."
+- Voice: "Dictation runs on your phone when it supports it; on older phones Apple's speech service
+  turns your voice into text. Otto only receives the text."
 **Method:** code walk only. No app code and no policy text was changed in this pass.
 **Rule used:** every row cites `file:line`. Where the code cannot settle a question (what a
 vendor does on its own servers), the row says **UNKNOWN** and names the test that would settle it.
@@ -51,7 +75,7 @@ Apple's definition used throughout:
 | Vendor | What reaches it | Evidence |
 |---|---|---|
 | **Supabase** (auth, Postgres, Storage, Edge Functions) | Everything in rows 1-3, 5-7, 10-13, 15-16 | `src/shared/supabase/client.ts:28-39`; all migrations |
-| **Anthropic** | Chat text, pasted recipe text, recipe photos, ingredient names | `generate-recipe/index.ts:14, 176, 242`; `resolve-nutrition/index.ts:21, 63`; `canonicalize/index.ts:26, 150` (dev-time batch tool, no user data) |
+| **OpenAI** (since the 2026-10 switch; was Anthropic) | Chat text, pasted recipe text and captions, **meal photos (Snap a meal, `scan-meal`)**, legacy recipe-page photos (flag off only), ingredient names | `supabase/functions/_shared/openai.ts` (`api.openai.com/v1/chat/completions`); models `gpt-5.1` (chat, import, scan) and `gpt-5-mini` (nutrition matching). `canonicalize` is retired (410) |
 | **RevenueCat** | Supabase user UUID, purchase/entitlement state, SDK device metadata | `app/_layout.tsx:29`; `AuthProvider.tsx:63`; `revenuecat-webhook/index.ts:43-46` |
 | **Apple** | Sign-in identity; **dictated audio** (server-side speech recognition); StoreKit purchases | `oauth.native.ts:25-40`; `useSpeechInput.ts:90` + `SpeechRecognitionOptions.swift:21` |
 | **Google / Facebook** | Sign-in identity, only if that button is used | `oauth.native.ts:54-60` |
