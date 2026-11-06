@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { Image, Pressable, ScrollView, View, type ImageStyle, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter, type Href } from 'expo-router';
+import { flags, ottoHref } from '@/shared/flags';
 import { Sheet, Text } from '@/shared/ui';
 import { colors, radii, space } from '@/shared/theme/tokens';
 import { useSaved, useMyRecipes } from '@/features/cookbook';
@@ -18,6 +20,7 @@ export interface RecipePickerSheetProps {
 }
 
 export function RecipePickerSheet({ visible, title, onPick, onClose }: RecipePickerSheetProps) {
+  const router = useRouter();
   const { saved } = useSaved();
   const { recipes: mine } = useMyRecipes();
 
@@ -28,6 +31,13 @@ export function RecipePickerSheet({ visible, title, onPick, onClose }: RecipePic
 
   return (
     <Sheet visible={visible} onClose={onClose} title={title}>
+      {/* R4.3 (flowV2): the other two ways to fill a day. */}
+      {flags.flowV2 && (
+        <View style={styles.doors}>
+          <Door icon="compass-outline" label="Find in Discover" onPress={() => { onClose(); router.push('/(tabs)'); }} />
+          <Door icon="sparkles-outline" label="Ask Otto" onPress={() => { onClose(); router.push(ottoHref() as Href); }} />
+        </View>
+      )}
       {items.length === 0 ? (
         <Text role="caption">
           Your cookbook is empty. Save a recipe or write your own, then plan it here.
@@ -63,7 +73,18 @@ export function RecipePickerSheet({ visible, title, onPick, onClose }: RecipePic
   );
 }
 
+function Door({ icon, label, onPress }: { icon: keyof typeof Ionicons.glyphMap; label: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.door}>
+      <Ionicons name={icon} size={20} color={colors.terracotta} />
+      <Text role="body">{label}</Text>
+    </Pressable>
+  );
+}
+
 const styles: Record<string, ViewStyle> = {
+  doors: { flexDirection: 'row', gap: space[2], marginBottom: space[3] },
+  door: { flex: 1, minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space[2], borderRadius: radii.button, backgroundColor: colors.creamDeep },
   // Cap the list so a big cookbook doesn't push the sheet off-screen.
   list: { maxHeight: 380 },
   row: {
