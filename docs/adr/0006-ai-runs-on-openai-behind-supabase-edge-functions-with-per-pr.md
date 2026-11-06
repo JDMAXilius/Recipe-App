@@ -13,6 +13,9 @@ All model calls happen server-side in Edge Functions through `supabase/functions
 ## Consequences
 Good: keys stay server-side; switching provider is one shared module plus a new consent key. Bad: docs written before 1.0.22 still say Claude (fixed 2026-11-04); consent is per device, not per account (scenario ticket S11).
 
+## Amendment (2026-11-06, R0.13)
+Consent also lives on the account: `profiles.ai_consent` (granted · declined), `ai_consent_provider`, `ai_consent_at`. Under flowV2 the app writes it with every answer and, on a phone with no answer, reads it from the account. An answer for another provider reads as unasked. Sign-out still clears the phone's copy. The server does not enforce it yet: builds before the rework don't write it, so a server check would cut off their AI. That check comes with the agent (1.2), for Siri and widgets that have no sheet to ask.
+
 ## Options considered
 - Call the model from the app (rejected: exposes keys)
 - Keep Anthropic (changed in 1.0.22; rationale not recorded in the commit)

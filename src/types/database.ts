@@ -15,6 +15,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agent_actions: {
+        Row: {
+          action: string;
+          created_at: string;
+          id: number;
+          idempotency_key: string;
+          input: Json;
+          inverse: Json | null;
+          summary: string;
+          undone_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          action: string;
+          created_at?: string;
+          id?: never;
+          idempotency_key: string;
+          input?: Json;
+          inverse?: Json | null;
+          summary: string;
+          undone_at?: string | null;
+          user_id?: string;
+        };
+        Update: {
+          action?: string;
+          created_at?: string;
+          id?: never;
+          idempotency_key?: string;
+          input?: Json;
+          inverse?: Json | null;
+          summary?: string;
+          undone_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       app_events: {
         Row: {
           app_version: string | null;
@@ -331,6 +367,9 @@ export type Database = {
       };
       profiles: {
         Row: {
+          ai_consent: string | null;
+          ai_consent_at: string | null;
+          ai_consent_provider: string | null;
           allergies: string[];
           cuisines: string[];
           diet: string;
@@ -340,6 +379,9 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          ai_consent?: string | null;
+          ai_consent_at?: string | null;
+          ai_consent_provider?: string | null;
           allergies?: string[];
           cuisines?: string[];
           diet?: string;
@@ -349,6 +391,9 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          ai_consent?: string | null;
+          ai_consent_at?: string | null;
+          ai_consent_provider?: string | null;
           allergies?: string[];
           cuisines?: string[];
           diet?: string;

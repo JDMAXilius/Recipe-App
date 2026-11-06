@@ -15,6 +15,48 @@ import { z } from 'zod';
 import { kv } from './storage';
 import { onForget } from './forget';
 import { mayUseAi, parseAiConsent, type AiConsentState } from './aiConsent.logic';
+import { flags } from './flags';
+import { supabase } from './supabase/client';
+
+// R0.13 (flowV2): the answer also lives on the account (profiles.ai_consent),
+// so a new phone keeps it and surfaces with no sheet (Siri, widgets) can read
+// it. It names the provider: an answer for another provider reads as unasked.
+// Update only, never insert: a consent-only insert would create a profile of
+// default preferences that then outranks the phone's real answers (usePrefs).
+const PROVIDER = 'openai';
+
+async function accountUserId(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
+async function pushAccount(state: 'granted' | 'declined'): Promise<void> {
+  if (!flags.flowV2) return;
+  try {
+    const uid = await accountUserId();
+    if (!uid) return;
+    await supabase
+      .from('profiles')
+      .update({ ai_consent: state, ai_consent_provider: PROVIDER, ai_consent_at: new Date().toISOString() })
+      .eq('user_id', uid);
+  } catch {
+    // best-effort: the phone's answer still stands
+  }
+}
+
+async function readAccount(): Promise<AiConsentState | null> {
+  if (!flags.flowV2) return null;
+  try {
+    const uid = await accountUserId();
+    if (!uid) return null;
+    const { data } = await supabase.from('profiles').select('ai_consent, ai_consent_provider').eq('user_id', uid).maybeSingle();
+    if (!data || data.ai_consent_provider !== PROVIDER) return null;
+    const state = parseAiConsent(data.ai_consent);
+    return state === 'unknown' ? null : state;
+  } catch {
+    return null;
+  }
+}
 
 export { AI_CONSENT_COPY, type AiConsentState } from './aiConsent.logic';
 
@@ -31,12 +73,25 @@ const requestListeners = new Set<ConsentRequest>();
 
 // S1: a yes is one person's; the next person is asked again.
 onForget(() => {
-  cache = 'unknown';
+  // null, not 'unknown': the next read checks the next person's phone and account.
+  cache = null;
   stateListeners.forEach((l) => l('unknown'));
 });
 
 export async function readAiConsent(): Promise<AiConsentState> {
-  if (cache == null) cache = parseAiConsent(await kv.get('aiConsentOpenAI', null, StoredConsent));
+  if (cache == null) {
+    const local = parseAiConsent(await kv.get('aiConsentOpenAI', null, StoredConsent));
+    if (local === 'unknown') {
+      // A new phone: the account may already know the answer.
+      const remote = await readAccount();
+      if (remote && cache == null) {
+        cache = remote;
+        void kv.set('aiConsentOpenAI', remote);
+        return remote;
+      }
+    } else void pushAccount(local); // an answer from before the account kept one
+    if (cache == null) cache = local;
+  }
   return cache;
 }
 
@@ -48,6 +103,7 @@ export async function setAiConsent(state: 'granted' | 'declined'): Promise<void>
   cache = state;
   stateListeners.forEach((l) => l(state));
   await kv.set('aiConsentOpenAI', state);
+  void pushAccount(state);
 }
 
 export async function ensureAiConsent(): Promise<boolean> {

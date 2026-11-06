@@ -328,6 +328,35 @@ async function rateLimitsServiceOnly(A) {
   check("limits: the table is not readable", r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
 }
 
+// agent_actions + account consent (R0.13): own rows only; once written, only
+// undone_at may change; a retried call can't log twice.
+async function agentActionsOwnRows(A, B) {
+  const row = { idempotency_key: `k-${A.id}`, action: "put_in_plan", input: { day: "2026-11-09" }, inverse: { id: 1 }, summary: "Put Tacos on Monday" };
+  let r = await rest("/rest/v1/agent_actions", { method: "POST", token: A.token, body: row, headers: { prefer: "return=representation" } });
+  check("agent: A can log A's action", r.status === 201 && rows(r)[0]?.user_id === A.id, `status ${r.status} ${JSON.stringify(r.data)}`);
+  const id = rows(r)[0]?.id;
+  r = await rest("/rest/v1/agent_actions", { method: "POST", token: A.token, body: row });
+  check("agent: the same idempotency key can't log twice", r.status === 409, `status ${r.status}`);
+  r = await rest("/rest/v1/agent_actions", { method: "POST", token: B.token, body: { ...row, idempotency_key: `k2-${A.id}`, user_id: A.id } });
+  check("agent: B cannot log as A", r.status >= 400, `status ${r.status}`);
+  r = await rest(`/rest/v1/agent_actions?user_id=eq.${A.id}&select=id`, { token: B.token });
+  check("agent: B reads none of A's", r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
+  r = await rest(`/rest/v1/agent_actions?id=eq.${id}`, { method: "PATCH", token: B.token, body: { undone_at: new Date().toISOString() }, headers: { prefer: "return=representation" } });
+  check("agent: B cannot undo A's", r.status === 200 && rows(r).length === 0, `status ${r.status}`);
+  r = await rest(`/rest/v1/agent_actions?id=eq.${id}`, { method: "PATCH", token: A.token, body: { summary: "Rewritten" } });
+  check("agent: A cannot rewrite what Otto did", r.status >= 400, `status ${r.status}`);
+  r = await rest(`/rest/v1/agent_actions?id=eq.${id}`, { method: "PATCH", token: A.token, body: { undone_at: new Date().toISOString() }, headers: { prefer: "return=representation" } });
+  check("agent: A can mark A's undone", r.status === 200 && rows(r)[0]?.undone_at, `status ${r.status} ${JSON.stringify(r.data)}`);
+  r = await rest("/rest/v1/agent_actions?select=id");
+  check("agent: anon reads none", r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
+  r = await rest(`/rest/v1/profiles?user_id=eq.${A.id}`, { method: "PATCH", token: A.token, body: { ai_consent: "granted", ai_consent_provider: "openai", ai_consent_at: new Date().toISOString() }, headers: { prefer: "return=representation" } });
+  check("consent: A can store A's answer", r.status === 200 && rows(r)[0]?.ai_consent === "granted", `status ${r.status} ${JSON.stringify(r.data)}`);
+  r = await rest(`/rest/v1/profiles?user_id=eq.${A.id}`, { method: "PATCH", token: A.token, body: { ai_consent: "maybe" } });
+  check("consent: only granted or declined", r.status >= 400, `status ${r.status}`);
+  r = await rest(`/rest/v1/profiles?user_id=eq.${A.id}`, { method: "PATCH", token: B.token, body: { ai_consent: "declined" }, headers: { prefer: "return=representation" } });
+  check("consent: B cannot change A's", r.status === 200 && rows(r).length === 0, `status ${r.status}`);
+}
+
 const A = await signUp("a");
 const B = await signUp("b");
 console.log(`Signed up throwaway users A=${A.email} B=${B.email} (deleted at the end via delete-account)`);
@@ -338,6 +367,7 @@ await enumerationAsAnon(B);
 await definerFunctions(A, B);
 await eventsAndJoins(A, B);
 await profilesOwnRow(A, B);
+await agentActionsOwnRows(A, B);
 await rateLimitsServiceOnly(A);
 
 // Clean up through the real account-deletion path, so the run leaves nothing

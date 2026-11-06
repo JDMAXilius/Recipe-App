@@ -390,8 +390,11 @@ In the Realtime publication (`20260722120000_households_shared_shopping_list.sql
 ### `app_events` — product interaction events (R0.8)
 Migration `20261106050937_app_events.sql` (applied 2026-11-06). `id` identity, `user_id uuid not null → auth.users on delete cascade`, `device_id text` (8–64), `name text` (`^[a-z][a-z0-9_]{2,40}$`), `props jsonb` (≤ 2 KB), `app_version`, `occurred_at`, `created_at`. RLS: insert own row only (`user_id = auth.uid()`); no select/update/delete policy, so clients read nothing. Written in batches by `src/shared/track.ts`; event names and props in `src/shared/events.ts` and `docs/product/TRACKING_PLAN.md`.
 
+### `agent_actions` — what Otto did, and how to undo it (R0.13)
+Migration `20261106213056_agent_actions_ai_consent.sql` (applied 2026-11-06). `id bigint identity pk`, `user_id uuid → auth.users on delete cascade` (default `auth.uid()`), `idempotency_key text` (unique per user: a retried model call can't act twice), `action text` (the action catalogue name), `input jsonb`, `inverse jsonb` (replayed by Undo), `summary text` (the "Otto did" line), `created_at`, `undone_at`. RLS: select and insert own; update own, and only the `undone_at` column is granted. Written by the agent edge function (1.2) with the person's token. Nothing writes it yet.
+
 ### `profiles` — food preferences on the account (R0.4, ADR-0010)
-Migration `20261106140640_profiles.sql` (applied 2026-11-06). `user_id uuid pk → auth.users on delete cascade`, `household jsonb` ({adults, kids}), `diet` (none · vegetarian · vegan), `allergies text[]` (≤ 9), `skips text[]` (≤ 12), `cuisines text[]`, `updated_at`. RLS: select, insert and update own row. The app syncs it under flowV2 (`usePrefs` → `profile.queries`), kv as the offline cache.
+Migration `20261106140640_profiles.sql` (applied 2026-11-06). `user_id uuid pk → auth.users on delete cascade`, `household jsonb` ({adults, kids}), `diet` (none · vegetarian · vegan), `allergies text[]` (≤ 9), `skips text[]` (≤ 12), `cuisines text[]`, `updated_at`, and since R0.13 `ai_consent` (granted · declined), `ai_consent_provider`, `ai_consent_at`. RLS: select, insert and update own row. The app syncs it under flowV2 (`usePrefs` → `profile.queries`), kv as the offline cache.
 
 ### `household_join_attempts` — join tries (A2)
 Migration `20261106050413_household_join_attempts.sql` (applied 2026-11-06). `user_id → auth.users on delete cascade`, `at`. RLS on, no policies: only `join_household` (SECURITY DEFINER) writes it, to allow 10 tries per 15 minutes.
