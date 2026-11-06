@@ -95,7 +95,9 @@ export function ShoppingScreen() {
   // member's week and the check-offs + custom items are shared in realtime
   // (household_list_state). Otherwise it's the personal week with local state.
   const { household, memberIds, isLoading: householdLoading } = useHousehold();
-  const shared = useSharedList(household?.id ?? null);
+  const shared = useSharedList(household?.id ?? null, () =>
+    show("That didn't save to the shared list. Check your connection and try again.", 'error'),
+  );
   const isShared = !!household;
 
   // Source dishes (id + title): everyone's week when shared, else mine.

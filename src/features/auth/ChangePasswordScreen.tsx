@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Button, TextLink, useToast } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
+import { authErrorMessage } from './authErrors';
 import { AuthInput } from './components/AuthInput';
 import { AuthScreenLayout } from './components/AuthScreenLayout';
 
@@ -37,7 +38,7 @@ export function ChangePasswordScreen() {
       show('Password changed.', 'success');
       router.back();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't change it just now. Try again.");
+      setError(authErrorMessage(err, 'password'));
     } finally {
       setLoading(false);
     }

@@ -1,3 +1,4 @@
+import { authErrorMessage } from './authErrors';
 import React, { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -48,7 +49,7 @@ export function ResetPasswordScreen() {
       await updatePassword(password);
       router.replace('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't save that password. Try again.");
+      setError(authErrorMessage(err, 'password'));
     } finally {
       setLoading(false);
     }

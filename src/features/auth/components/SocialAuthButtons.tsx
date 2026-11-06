@@ -1,3 +1,4 @@
+import { authErrorMessage } from '../authErrors';
 import React, { useState } from 'react';
 import { ActivityIndicator, Image, Pressable, Text as RNText, View, type ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -48,7 +49,7 @@ export function SocialAuthButtons({ mode = 'sign-in', onError }: SocialAuthButto
       if (mode === 'sign-up') track('plan_saved', { method: provider });
       // success: AuthProvider sees the session and route guards redirect home
     } catch (err) {
-      onError?.(err instanceof Error ? err.message : "Sign-in didn't finish. Try again.");
+      onError?.(authErrorMessage(err));
     } finally {
       setBusy(null);
     }

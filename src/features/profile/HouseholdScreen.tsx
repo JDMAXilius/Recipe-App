@@ -1,3 +1,4 @@
+import { confirmDestructive } from '@/shared/confirm';
 import React, { useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -47,13 +48,30 @@ export function HouseholdScreen() {
     try {
       await join(c, name.trim());
       show("You're in. The shared list is on your Shopping screen.", 'success');
-    } catch {
-      show('No kitchen with that code. Double-check it.', 'error');
+    } catch (err) {
+      // S8: say which of the three it was.
+      const m = err instanceof Error ? err.message : '';
+      show(
+        /Too many tries/.test(m)
+          ? 'Too many tries. Wait a few minutes and try again.'
+          : /No kitchen/.test(m)
+            ? 'No kitchen with that code. Double-check it.'
+            : /network|fetch/i.test(m)
+              ? 'No connection. Check your internet and try again.'
+              : "Couldn't join just now. Try again.",
+        'error',
+      );
     } finally {
       setBusy(null);
     }
   };
   const doLeave = async () => {
+    const sure = await confirmDestructive({
+      title: 'Leave this kitchen?',
+      message: 'The shared list leaves this phone. The others keep it, and you can join again with the code.',
+      confirm: 'Leave',
+    });
+    if (!sure) return;
     setBusy('leave');
     try {
       await leave();

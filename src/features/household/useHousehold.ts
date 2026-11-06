@@ -114,7 +114,8 @@ export interface UseSharedList {
 
 // The realtime shared check/custom state for a household's list. Null household
 // → inert (personal list handles its own local state).
-export function useSharedList(householdId: string | null): UseSharedList {
+/** onError: a shared write failed and was rolled back (S8: say so, don't drop it). */
+export function useSharedList(householdId: string | null, onError?: () => void): UseSharedList {
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const qc = useQueryClient();
@@ -152,6 +153,7 @@ export function useSharedList(householdId: string | null): UseSharedList {
   };
   const rollback = (_e: unknown, _v: unknown, ctx: { prev: ListStateRow[] } | undefined) => {
     if (ctx) qc.setQueryData(key, ctx.prev);
+    onError?.();
   };
   const settle = () => qc.invalidateQueries({ queryKey: key });
   // Writes go through the action runners (R0.9), the same calls Otto makes.

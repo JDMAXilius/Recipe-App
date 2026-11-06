@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Button, TextLink } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
+import { authErrorMessage } from './authErrors';
 import { AuthInput } from './components/AuthInput';
 import { AuthLegal, AuthScreenLayout } from './components/AuthScreenLayout';
 import { SocialAuthButtons } from './components/SocialAuthButtons';
@@ -48,7 +49,7 @@ export function SignUpScreen({ savePlan }: { savePlan?: SavePlanContext | null }
       track('plan_saved', { method: 'email' });
       if (confirm) setCheckInbox(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't create your account. Try again.");
+      setError(authErrorMessage(err, 'sign-up'));
     } finally {
       setLoading(false);
     }

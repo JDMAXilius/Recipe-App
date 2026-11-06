@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Button, TextLink } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
+import { authErrorMessage } from './authErrors';
 import { AuthInput } from './components/AuthInput';
 import { AuthScreenLayout } from './components/AuthScreenLayout';
 
@@ -28,7 +29,7 @@ export function ForgotPasswordScreen() {
       await sendPasswordReset(email);
       setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't send that just now. Try again.");
+      setError(authErrorMessage(err, 'reset'));
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import { flags } from '@/shared/flags';
 import { Button, TextLink } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
+import { authErrorMessage } from './authErrors';
 import { AuthInput } from './components/AuthInput';
 import { AuthLegal, AuthScreenLayout } from './components/AuthScreenLayout';
 import { SocialAuthButtons } from './components/SocialAuthButtons';
@@ -31,7 +32,7 @@ export function SignInScreen() {
     try {
       await signIn(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign in failed. Try again.');
+      setError(authErrorMessage(err, 'sign-in'));
     } finally {
       setLoading(false);
     }
