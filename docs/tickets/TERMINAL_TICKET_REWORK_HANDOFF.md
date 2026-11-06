@@ -17,6 +17,8 @@
   Plan; open a recipe link while quit → the recipe wins (R3.5). Home search field → Search screen;
   a nonsense word → Ask Otto opens with "Write me a recipe for …" in the box (R3.3). Fresh install:
   Cookbook ＋ → Snap a meal → Take photo shows Otto's primer before the iOS alert (R6.2/R6.3).
+  Airplane mode (R8.3): cold start as a member → Home; as a lapsed member → Club ended; a fresh
+  install → the paywall's Try again, never the app; Add → Snap a meal says it needs a connection.
 - [ ] **T4. Kitchen handover (A3).** Run `supabase/migrations/20261106060000_household_owner_handover.sql`
   in the Supabase SQL editor (the MCP apply asks a confirmation that never reaches Juan). Then
   rename the file to the version Supabase records and remove its "NOT YET APPLIED" note.

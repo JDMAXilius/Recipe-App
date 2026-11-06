@@ -27,3 +27,8 @@ export function useOnline(): boolean {
     () => onlineManager.isOnline(),
   );
 }
+
+/** Right now, outside React. TanStack PAUSES a mutation while offline (it
+ *  doesn't fail), so an AI call started offline would spin until the
+ *  connection returns: callers ask first and say so (R8.3). */
+export const isOnline = (): boolean => onlineManager.isOnline();

@@ -14,6 +14,7 @@ import { choosePhoto } from '@/shared/imagePicker';
 import { ensureAiConsent } from '@/shared/aiConsent';
 import { showActionSheet } from '@/shared/actionSheet';
 import { track } from '@/shared/track';
+import { isOnline } from '@/shared/online';
 
 // "Add a recipe" — a pushed full SCREEN with a back button (founder call:
 // no longer a bottom modal). A 2×2 tile grid — snap a meal, paste a link,
@@ -113,6 +114,13 @@ export function AddSheet({ onClose }: AddSheetProps) {
 
   const writeMyself = () => openEditor(emptyDraft(null));
 
+  // R8.3: Otto's reading needs the internet; writing it yourself doesn't.
+  const offline = () => {
+    if (!flags.flowV2 || isOnline()) return false;
+    setError('Otto needs a connection for that. Write it yourself works offline.');
+    return true;
+  };
+
   const startImport = async () => {
     const target = url.trim();
     if (!LOOKS_LIKE_URL.test(target)) {
@@ -120,7 +128,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
       return;
     }
     setError(null);
-    if (!(await ensureAiConsent())) return;
+    if (offline() || !(await ensureAiConsent())) return;
     try {
       const draft = await importMut.mutateAsync(target);
       openEditor(draft);
@@ -141,7 +149,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
       return;
     }
     setError(null);
-    if (!(await ensureAiConsent())) return;
+    if (offline() || !(await ensureAiConsent())) return;
     try {
       const draft = await textMut.mutateAsync(body);
       openEditor(draft);
@@ -156,7 +164,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
   const snapMeal = () => snap(flags.flowV2 ? scanMut.mutateAsync : pageMut.mutateAsync);
   const snap = async (read: (photo: { image: string; mimeType: string }) => Promise<Draft>) => {
     setError(null);
-    if (!(await ensureAiConsent())) return;
+    if (offline() || !(await ensureAiConsent())) return;
     const picked = await choosePhoto({ base64: true, primer: flags.flowV2 ? cameraPrimer : undefined });
     if (picked === 'denied') {
       toast.show('Otto needs the camera for that.', 'info', {
@@ -170,6 +178,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
       setError("Otto couldn't see that photo. Try another shot.");
       return;
     }
+    if (offline()) return; // the connection can drop while the camera is open
     try {
       const draft = await read({
         image: picked.base64,
