@@ -17,17 +17,21 @@ nutrition resolve) run in Supabase Edge Functions, **now on OpenAI** (switched f
 6. `docs/tickets/ROADMAP.md` — release history and current state.
 7. Project skills in `.claude/skills/` (notably `otto-lead`, `tickets`) and agents in `.claude/agents/`.
 
-## Current state (2026-11-03)
-- **1.0.22 (51)** submitted to App Review (OpenAI switch, share link → App Store). Was WAITING_FOR_REVIEW on 2026-11-02; check with `node ~/.claude/skills/eas-ios-testflight/scripts/asc.mjs` before acting.
-- **1.0.23 (52)** code is on `main` (committed 2026-11-03), **not built yet**. Fixes: paid members briefly seeing the paywall (membership now waits for RevenueCat `logIn`, 5 s ceiling), paywall back arrow + auto-leave for members, otter art sizes/aspect ratio, AI consent copy names OpenAI and asks everyone to re-consent. See `TERMINAL_TICKET_RELEASE_1_0_23.md`.
-- **Open risk:** the live privacy policy on ottosapp.com (Otto_Website repo) still names Anthropic; the repo copy `docs/legal/PRIVACY_POLICY.md` is updated. The app says AI data is "not used to train" — verify that setting in the OpenAI dashboard.
-- **Flow redesign** is the next big piece: `TERMINAL_TICKET_FLOW_REDESIGN.md`.
-- **Motion upgrade:** `TERMINAL_TICKET_MOTION.md` (research in `docs/motion/MOTION_RESEARCH.md`).
-- **Gold-standard Figma file** (Apple guidelines, component library, example app, flow map, motion library): `jWn55Rq4u6cbukA2JeqOaI`.
+## Current state (2026-11-06)
+- **`main` = 1.0.24 (53) + the rework, switch off.** 71 commits merged from `claude/new-session-izhr2i`:
+  Snap a meal, the action catalogue, first run (Welcome, 3 questions, first week, Save your plan),
+  paywall outcomes, Home + Otto tab, Plan actions, prefs on the account, events, security fixes.
+  Everything new is behind `EXPO_PUBLIC_FLOW_V2` (`src/shared/flags.ts`), off in shipped builds.
+- **Your list:** `TERMINAL_TICKET_REWORK_HANDOFF.md` (builds, device check, SQL, native work).
+  **The device checklist:** `CHECKPOINT_1.md`.
+- **Roadmaps:** `PRODUCT_ROADMAP.md` (releases), `REWORK_ROADMAP.md` (tickets + Log),
+  `DESIGN_ROADMAP.md`, the file plan `docs/architecture/TARGET_TREE.md`.
+- **Checks:** `npm run typecheck`, `npm run lint`, `npm test`; database rules: `npm run test:rls`
+  (Docker; a throwaway local Supabase, never production). There is no GitHub CI; pushes go to main.
 
 ## House rules (non-negotiable)
 - Never print, log or commit secrets. Never type API keys into third-party sites.
-- Never run `supabase secrets set --env-file` with the local `.env` (empty values overwrite live secrets). Supabase CLI isn't installed; deploy functions via the Supabase MCP (`deploy_edge_function`).
+- Never run `supabase secrets set --env-file` with the local `.env` (empty values overwrite live secrets). Deploy functions via the Supabase MCP (`deploy_edge_function`); `npx supabase` works for local stacks (`npm run test:rls`).
 - `gh` CLI isn't installed; use the GitHub API with the git credential token.
 - Never edit the original Otto Figma file `mM0uWkHod9rL1Ff1VJ64Au` or the study file `iEA3Aeu3ApmJdJabmAudXm`. Work in `r9QxxN5qDQXjW473H7LKgM` or a new file.
 - Before committing: `npx tsc --noEmit` and the unit tests (`npm test`) must pass. Commit only when Juan asks; branch off `main` for code work.
