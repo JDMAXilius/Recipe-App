@@ -4,7 +4,7 @@
 // there (the Reminders screen shows a "phone only" note instead).
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import { computeNotifications, type NotifPrefs } from './notifications.logic';
+import { computeNotifications, type NotifExtra, type NotifPrefs } from './notifications.logic';
 import type { PlanEntry } from '@/features/planner';
 
 const web = Platform.OS === 'web';
@@ -41,21 +41,28 @@ export async function ensurePermission(): Promise<boolean> {
 // current plan + prefs. Called on enable, on prefs change, and on plan change —
 // cancel-all-first is what makes repeated calls safe.
 export async function syncNotifications(
-  entries: Pick<PlanEntry, 'day' | 'title' | 'cooked'>[],
+  entries: Pick<PlanEntry, 'day' | 'title' | 'cooked' | 'recipe_id'>[],
   prefs: NotifPrefs,
+  extra: NotifExtra = {},
 ): Promise<void> {
   if (web) return;
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
     if (!prefs.tonight && !prefs.sunday) return;
-    for (const n of computeNotifications(entries, prefs, new Date())) {
+    for (const n of computeNotifications(entries, prefs, new Date(), extra)) {
       await Notifications.scheduleNotificationAsync({
         identifier: n.id,
-        content: { title: n.title, body: n.body },
+        content: { title: n.title, body: n.body, data: n.href ? { href: n.href } : {} },
         trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: n.date },
       });
     }
   } catch {
     // best-effort — a scheduling failure never blocks the UI
   }
+}
+
+/** The href a tapped reminder carries (R8.2), or null. */
+export function tappedHref(response: Notifications.NotificationResponse | null | undefined): string | null {
+  const href = response?.notification.request.content.data?.href;
+  return typeof href === 'string' && href.startsWith('/') ? href : null;
 }

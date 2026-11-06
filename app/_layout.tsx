@@ -110,7 +110,7 @@ export default function RootLayout() {
               {/* Asks before anything leaves for a third-party AI (5.1.2(i)). */}
               <AiConsentHost />
               {/* Keeps OS reminders in step with the week + prefs from anywhere. */}
-              <NotifSync />
+              {flags.flowV2 ? <NotifSyncWithTrial /> : <NotifSync />}
               {/* Puts the pre-account week and answers on the account, once. */}
               <DraftClaim />
             </AuthProvider>
@@ -194,4 +194,11 @@ function RootStack() {
       </Stack.Protected>
     </Stack>
   );
+}
+
+// R2.8 (flowV2): reminders also carry the free trial's end, read from the
+// membership here (app/ composes profile + notifications).
+function NotifSyncWithTrial() {
+  const { trialEndsAt } = useMembership();
+  return <NotifSync trialEndsAt={trialEndsAt} />;
 }

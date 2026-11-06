@@ -66,3 +66,29 @@ test('sunday on → next Sunday at 9am', () => {
   // Wed 7/22 → coming Sunday is 7/26
   assert.equal(out[0].id, 'sunday-2026-07-26');
 });
+
+test('trial reminder: 2 days before the end at 10:00, only with a reminder on, never past', async () => {
+  const { trialReminder } = await import('./notifications.logic.ts');
+  const end = new Date(2026, 6, 30, 15, 0, 0, 0).toISOString();
+  const n = trialReminder(end, true, now);
+  assert.equal(n.date.getTime(), new Date(2026, 6, 28, 10, 0, 0, 0).getTime());
+  assert.equal(n.href, '/otto-club');
+  assert.equal(trialReminder(end, false, now), null);
+  assert.equal(trialReminder(null, true, now), null);
+  assert.equal(trialReminder('not a date', true, now), null);
+  // ends tomorrow: the 2-days-before moment has passed
+  assert.equal(trialReminder(new Date(2026, 6, 23, 15).toISOString(), true, now), null);
+});
+
+test('taps: a tonight nudge opens its first recipe; Sunday opens the plan; trial rides along', () => {
+  const prefs = { ...DEFAULT_PREFS, tonight: true, sunday: true };
+  const out = computeNotifications(
+    [{ day: '2026-07-24', title: 'Ramen', cooked: false, recipe_id: '52772' }],
+    prefs,
+    now,
+    { trialEndsAt: new Date(2026, 6, 30, 15).toISOString() },
+  );
+  assert.equal(out.find((n) => n.id === 'tonight-2026-07-24').href, '/recipe/52772');
+  assert.equal(out.find((n) => n.id.startsWith('sunday-')).href, '/plan');
+  assert.ok(out.some((n) => n.id.startsWith('trial-')));
+});

@@ -21,9 +21,39 @@ export interface PlannedNotification {
   date: Date;
   title: string;
   body: string;
+  /** Where a tap opens (R8.2). Absent: the app just opens. */
+  href?: string;
 }
 
-type PlanRow = Pick<PlanEntry, 'day' | 'title' | 'cooked'>;
+type PlanRow = Pick<PlanEntry, 'day' | 'title' | 'cooked'> & { recipe_id?: string | null };
+
+/** Account facts that aren't in the plan. trialEndsAt: a renewing free
+ *  trial's end (RevenueCat expirationDate, ISO). */
+export interface NotifExtra {
+  trialEndsAt?: string | null;
+}
+
+const TRIAL_HOUR = 10;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** R2.8: two days before the trial ends, at 10:00 local that day — never in
+ *  the night, never in the past, and only while some reminder is on. */
+export function trialReminder(trialEndsAt: string | null | undefined, remindersOn: boolean, now: Date): PlannedNotification | null {
+  if (!trialEndsAt || !remindersOn) return null;
+  const end = new Date(trialEndsAt);
+  if (Number.isNaN(end.getTime())) return null;
+  const day = new Date(end.getTime() - 2 * DAY_MS);
+  const when = new Date(day.getFullYear(), day.getMonth(), day.getDate(), TRIAL_HOUR, 0, 0, 0);
+  if (when.getTime() <= now.getTime() || when.getTime() >= end.getTime()) return null;
+  const date = end.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+  return {
+    id: `trial-${toDayKey(end)}`,
+    date: when,
+    title: 'Your free trial ends in 2 days',
+    body: `Otto Club starts on ${date}. You can change or cancel it in Account.`,
+    href: '/otto-club',
+  };
+}
 
 const SUNDAY_HOUR = 9;
 
@@ -58,27 +88,31 @@ export function computeNotifications(
   entries: PlanRow[],
   prefs: NotifPrefs,
   now: Date,
+  extra: NotifExtra = {},
 ): PlannedNotification[] {
   const out: PlannedNotification[] = [];
 
   if (prefs.tonight) {
     // Group uncooked dishes by day, preserving plan order within a day.
     const byDay = new Map<string, string[]>();
+    const firstRecipe = new Map<string, string>();
     for (const e of entries) {
       if (e.cooked || !e.day || !e.title) continue;
       const list = byDay.get(e.day) ?? [];
       list.push(e.title);
       byDay.set(e.day, list);
+      if (e.recipe_id && !firstRecipe.has(e.day)) firstRecipe.set(e.day, e.recipe_id);
     }
     for (const [day, dishes] of byDay) {
       const when = dayAt(day, prefs.hour);
       if (when.getTime() <= now.getTime()) continue; // past — skip
-      const extra = dishes.length > 1 ? ` and ${dishes.length - 1} more` : '';
+      const more = dishes.length > 1 ? ` and ${dishes.length - 1} more` : '';
       out.push({
         id: `tonight-${day}`,
         date: when,
         title: 'Tonight in your kitchen',
-        body: `${dishes[0]}${extra}. Ready to start cooking?`,
+        body: `${dishes[0]}${more}. Ready to start cooking?`,
+        href: firstRecipe.has(day) ? `/recipe/${firstRecipe.get(day)}` : '/plan',
       });
     }
   }
@@ -90,8 +124,12 @@ export function computeNotifications(
       date: when,
       title: 'Plan your week',
       body: 'A fresh week ahead. What are you cooking?',
+      href: '/plan',
     });
   }
+
+  const trial = trialReminder(extra.trialEndsAt, prefs.tonight || prefs.sunday, now);
+  if (trial) out.push(trial);
 
   return out.sort((a, b) => a.date.getTime() - b.date.getTime());
 }

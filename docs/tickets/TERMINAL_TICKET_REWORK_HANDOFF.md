@@ -23,7 +23,7 @@
 - [ ] **T5. App Privacy answers + website policy (Juan, with you).** Exact changes in
   `docs/legal/APP_PRIVACY_TRUTH_TABLE.md` → "2026-11-06 corrections": Product Interaction (events),
   meal photos to OpenAI, on-device dictation. Policy paragraphs go to the Otto_Website repo.
-- [ ] **T6. Console jobs (Juan).** Supabase: delete the retired `canonicalize` function (it answers
+- [ ] **T6. Console jobs (Juan).** App Store Connect: turn on Billing Grace Period (R2.7). Supabase: delete the retired `canonicalize` function (it answers
   410 today); turn on leaked-password protection. Decide `REQUIRE_CLUB=on` (server checks Otto Club
   on every AI call; verify the demo account still gets 200 first).
 
@@ -49,6 +49,10 @@
   upgrade. The actions they call already exist (`src/catalogue`, 22 actions).
 - [ ] **T12. Sandbox purchase matrix (R10.2).** New install → trial; cancel; fail; Ask to Buy (a
   sandbox child: expect "Waiting for approval"); restore none / found; lapse; grace; reinstall.
+  Rework build: a sandbox trial with a reminder on schedules "Your free trial ends in 2 days" (R2.8;
+  sandbox trials are minutes long, so check it is scheduled, or skipped when too close); a billing
+  failure shows Home's "Apple couldn't take your last payment" line → Update opens Apple's sheet
+  (R2.7); tapping a dinner reminder opens that recipe, warm and from a quit app (R8.2).
 
 ## Batch jobs (need a secret on your machine)
 - [ ] **T13. Cook times for the catalogue (R0.14).** A one-time script over the 795 `otto_recipes`

@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import Purchases, { type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
 import { useAuth } from '@/features/auth/AuthProvider';
-import { hasClubEntitlement, introTrialDays, membershipState } from './club.logic';
+import { clubDates, hasClubEntitlement, introTrialDays, membershipState, type ClubDates } from './club.logic';
 
 // 'unconfirmed' = Apple finished but RevenueCat hasn't granted `club` yet, even
 // after a sync. Never call that a success: the 2026-10-02 sandbox test charged a
@@ -46,7 +46,7 @@ export function openManageSubscriptions(): void {
  * listener already answers locally and keeps fresh after a purchase or a
  * restore. `useClub()` (the paywall's hook) is the one that needs products.
  */
-export function useMembership(): { state: ReturnType<typeof membershipState>; member: boolean; known: boolean; failed: boolean } {
+export function useMembership(): { state: ReturnType<typeof membershipState>; member: boolean; known: boolean; failed: boolean } & ClubDates {
   const [info, setInfo] = useState<CustomerInfo | null>(null);
   const [failed, setFailed] = useState(false);
   const { purchasesReady } = useAuth();
@@ -77,7 +77,8 @@ export function useMembership(): { state: ReturnType<typeof membershipState>; me
   }, [purchasesReady]);
 
   const state = membershipState(purchasesReady, info, failed);
-  return { state, member: state === 'member', known: state !== 'unknown', failed };
+  const dates = clubDates(purchasesReady ? info : null);
+  return { state, member: state === 'member', known: state !== 'unknown', failed, ...dates };
 }
 
 export function useClub() {

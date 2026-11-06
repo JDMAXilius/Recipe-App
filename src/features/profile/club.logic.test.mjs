@@ -45,3 +45,15 @@ test('purchase errors read as sentences, never as bare codes', () => {
   }
 });
 
+
+test('clubDates: a renewing trial has an end; a cancelled one or a paid plan has none', async () => {
+  const { clubDates } = await import('./club.logic.ts');
+  const info = (club) => ({ entitlements: { active: club ? { club } : {} } });
+  const end = '2026-11-20T10:00:00Z';
+  assert.deepEqual(clubDates(info({ periodType: 'TRIAL', willRenew: true, expirationDate: end })), { trialEndsAt: end, billingIssue: false });
+  assert.equal(clubDates(info({ periodType: 'TRIAL', willRenew: false, expirationDate: end })).trialEndsAt, null);
+  assert.equal(clubDates(info({ periodType: 'NORMAL', willRenew: true, expirationDate: end })).trialEndsAt, null);
+  assert.equal(clubDates(info({ periodType: 'NORMAL', billingIssueDetectedAt: end })).billingIssue, true);
+  assert.deepEqual(clubDates(info(null)), { trialEndsAt: null, billingIssue: false });
+  assert.deepEqual(clubDates(null), { trialEndsAt: null, billingIssue: false });
+});

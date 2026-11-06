@@ -69,3 +69,22 @@ export function membershipState(
   const past = info?.entitlements.all?.[CLUB_ENTITLEMENT] as { periodType?: string } | undefined;
   return past && past.periodType !== 'TRIAL' ? 'ended' : 'none';
 }
+
+/** What the trial reminder (R2.8) and the grace banner (R2.7) need from the
+ *  active entitlement. A trial counts only while it will renew: a cancelled
+ *  trial never charges, so there is nothing to remind about. */
+export interface ClubDates {
+  trialEndsAt: string | null;
+  billingIssue: boolean;
+}
+
+export function clubDates(info: CustomerInfoLike | null | undefined): ClubDates {
+  const e = info?.entitlements.active[CLUB_ENTITLEMENT] as
+    | { periodType?: string; expirationDate?: string | null; willRenew?: boolean; billingIssueDetectedAt?: string | null }
+    | undefined;
+  if (!e) return { trialEndsAt: null, billingIssue: false };
+  return {
+    trialEndsAt: e.periodType === 'TRIAL' && e.willRenew && e.expirationDate ? e.expirationDate : null,
+    billingIssue: !!e.billingIssueDetectedAt,
+  };
+}
