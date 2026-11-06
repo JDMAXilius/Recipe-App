@@ -10,6 +10,7 @@ import { space } from '@/shared/theme/tokens';
 import { track } from '@/shared/track';
 import { usePlan, tonightEntry } from '@/features/planner';
 import { TonightCard } from './components/TonightCard';
+import { WhatsNewSheet } from './components/WhatsNewSheet';
 
 export function HomeTop() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export function HomeTop() {
 
   return (
     <View style={{ gap: space[4] }}>
+      <WhatsNewSheet />
       <TonightCard
         dish={tonight ? { title: tonight.title, image: tonight.image, category: tonight.category, cooked: tonight.cooked } : null}
         onCook={() => tonight?.recipe_id && router.push(`/recipe/cook/${tonight.recipe_id}`)}

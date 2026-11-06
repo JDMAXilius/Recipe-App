@@ -27,7 +27,8 @@ export type StoreKey =
   | 'aiConsentOpenAI'
   | 'rcSynced'
   | 'lastTab'
-  | 'recentSearches';
+  | 'recentSearches'
+  | 'lastSeenVersion';
 
 // One namespace + version. Bump the version suffix to invalidate a shape.
 const NS = 'otto.v2';

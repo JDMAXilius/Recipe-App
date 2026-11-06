@@ -9,7 +9,7 @@ import { kv, type StoreKey } from './storage';
  *  settings are the phone's, the scheduled reminders are cancelled). The events
  *  queue is dropped by track.ts in its own order. forget.test.mjs fails when
  *  a new key isn't in one of the three lists. */
-export const KEPT: StoreKey[] = ['notifPrefs', 'unitSystem', 'soundsEnabled', 'firstSaveCelebrated', 'reviewPrompt', 'onboarded', 'deviceId', 'rcSynced', 'eventsQueue', 'lastTab'];
+export const KEPT: StoreKey[] = ['notifPrefs', 'unitSystem', 'soundsEnabled', 'firstSaveCelebrated', 'reviewPrompt', 'onboarded', 'deviceId', 'rcSynced', 'eventsQueue', 'lastTab', 'lastSeenVersion'];
 
 /** The person's data: cleared on every sign-out, and on a signed-out launch. */
 export const PERSONAL: StoreKey[] = ['prefs', 'journal', 'chats', 'cookRatings', 'aiConsentOpenAI', 'shoppingState', 'household', 'householdRecent', 'purchasePending', 'recentSearches'];

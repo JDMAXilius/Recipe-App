@@ -4,6 +4,7 @@
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { Image } from 'expo-image';
+import { markReleaseSeen } from '@/shared/useWhatsNew';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text } from '@/shared/ui';
@@ -15,6 +16,8 @@ export function WelcomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   useEffect(() => track('onboarding_started', { variant: 'v2' }), []);
+  // R8.4: a new install has nothing to catch up on; What's new is for upgraders.
+  useEffect(() => markReleaseSeen(), []);
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: insets.top }}>
       <Image
