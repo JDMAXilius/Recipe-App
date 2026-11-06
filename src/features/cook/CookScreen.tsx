@@ -34,6 +34,7 @@ import { TimerHub, type AvailableTimer } from './components/TimerHub';
 import type { CookTimer } from './cook.types';
 import { noteFinishedCook } from './reviewPrompt';
 import { MAX_SERVINGS } from '@/shared/yield';
+import { track } from '@/shared/track';
 
 type Phase = 'prep' | 'steps' | 'done';
 type OpenSheet = null | 'ingredients' | 'timers' | 'jump';
@@ -53,6 +54,13 @@ export function CookScreen() {
   const recipeId = String(id);
   const router = useRouter();
   const { entries, setCooked } = usePlan();
+  const planned = entries.some((e) => String(e.recipe_id) === recipeId && !e.cooked);
+  const startedRef = useRef(false);
+  useEffect(() => {
+    if (startedRef.current || !recipeId) return;
+    startedRef.current = true;
+    track('cooking_started', { source: planned ? 'plan' : 'recipe' });
+  }, [recipeId, planned]);
   const { addEntry: addJournalEntry } = useJournal();
   const { show: showToast } = useToast();
   const { unitSystem } = usePrefs();
@@ -248,6 +256,7 @@ export function CookScreen() {
     sound.play('allDone');
     setPhase('done');
     void noteFinishedCook();
+    track('item_cooked', { source: planned ? 'plan' : 'recipe', via: 'cook_mode' });
     // Cook-completion (planner allowlist): mark every plan entry for this recipe
     // cooked. usePlan invalidates ['plan', userId] → useCookedState updates.
     entries

@@ -7,6 +7,7 @@ import { haptics } from '@/shared/haptics';
 import { useAuth } from '../AuthProvider';
 import { SOCIAL_PROVIDERS, providerLabel, type AuthMode, type SocialProvider } from '../social';
 import { AppleSignInButton } from './AppleSignInButton';
+import { track } from '@/shared/track';
 
 // Social sign-in (ported from mobile/components/SocialAuthButtons.jsx, matched to
 // the Figma master board): a compact CENTERED ROW of icon-only brand buttons —
@@ -44,6 +45,7 @@ export function SocialAuthButtons({ mode = 'sign-in', onError }: SocialAuthButto
     setBusy(provider);
     try {
       await signInWithProvider(provider, mode);
+      if (mode === 'sign-up') track('plan_saved', { method: provider });
       // success: AuthProvider sees the session and route guards redirect home
     } catch (err) {
       onError?.(err instanceof Error ? err.message : "Sign-in didn't finish. Try again.");

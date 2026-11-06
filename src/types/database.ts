@@ -22,6 +22,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_events: {
+        Row: {
+          app_version: string | null
+          created_at: string
+          device_id: string
+          id: number
+          name: string
+          occurred_at: string
+          props: Json
+          user_id: string
+        }
+        Insert: {
+          app_version?: string | null
+          created_at?: string
+          device_id: string
+          id?: never
+          name: string
+          occurred_at: string
+          props?: Json
+          user_id: string
+        }
+        Update: {
+          app_version?: string | null
+          created_at?: string
+          device_id?: string
+          id?: never
+          name?: string
+          occurred_at?: string
+          props?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           category: string | null

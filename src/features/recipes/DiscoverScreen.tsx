@@ -12,6 +12,7 @@ import { CategoryTiles } from './components/CategoryTiles';
 import { FilterSheet } from './components/FilterSheet';
 import { RecipeCard } from './RecipeCard';
 import { useAreas, useCategories, useDiscover, useFeatured, useSearch } from './recipe.queries';
+import { track } from '@/shared/track';
 
 // Discover — Home + Search merged (v1 tab decision). Scroll rhythm:
 // greeting → search pill → Otto's pick hero → painted category tiles → grid.
@@ -76,8 +77,14 @@ export function DiscoverScreen() {
   const areasQuery = useAreas();
   const featuredQuery = useFeatured();
   // Tonight band: today's planned dish, if any (planner → recipes allowlist).
-  const { entries, days } = usePlan();
+  const { entries, days, isSuccess: planLoaded } = usePlan();
   const tonight = tonightEntry(entries, days[0].key);
+  const tonightSeen = useRef(false);
+  useEffect(() => {
+    if (tonightSeen.current || !planLoaded) return;
+    tonightSeen.current = true;
+    track('tonight_card_viewed', { has_plan: !!tonight });
+  }, [planLoaded, tonight]);
   const discoverQuery = useDiscover(selectedCategory, activeAreas);
   const searchQuery = useSearch(debounced);
   const isSearching = debounced.length > 0;

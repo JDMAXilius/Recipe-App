@@ -4,7 +4,7 @@
 // shopping list count. No AI, nothing leaves the phone but the catalogue read.
 // "Save my week" keeps the answers and the week as the draft (R0.3) and goes
 // on to Save your plan (sign-up) — or, already signed in, back to the launch.
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -21,6 +21,7 @@ import { buildFirstWeek, firstDayIndex, shoppingCount, swapDay, type WeekDish } 
 import { useAnswers } from './firstRun.store';
 import { useDinnerShelf } from './onboarding.queries';
 import { useDraft } from './useDraft';
+import { LAUNCHED_AT, track } from '@/shared/track';
 
 export function FirstWeekScreen() {
   const router = useRouter();
@@ -45,6 +46,17 @@ export function FirstWeekScreen() {
     [shelf.data, weekAnswers, days, seed],
   );
   const week = built.map((d, i) => swaps[i] ?? d);
+  const revealed = useRef(false);
+  useEffect(() => {
+    if (revealed.current || built.length === 0) return;
+    revealed.current = true;
+    track('first_week_revealed', {
+      ms_since_launch: Date.now() - LAUNCHED_AT,
+      household_size: answers.household.adults + answers.household.kids,
+      filters_count: answers.allergies.length + answers.skips.length + (answers.diet === 'none' ? 0 : 1),
+      dinners: built.length,
+    });
+  }, [built.length, answers]);
   const servings = Math.max(1, Math.ceil(answers.household.adults + answers.household.kids / 2));
 
   const swap = (i: number) => {
@@ -52,6 +64,7 @@ export function FirstWeekScreen() {
     const next = swapDay(week, i, shelf.data, weekAnswers, seed + i * 7919 + Object.keys(swaps).length);
     if (next) {
       haptics.select();
+      track('day_swapped', { day_offset: i, surface: 'reveal' });
       setSwaps((s) => ({ ...s, [i]: next }));
     }
   };

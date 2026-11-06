@@ -387,6 +387,12 @@ Created `20260722120000_households_shared_shopping_list.sql:19-27`; `removed`,
 RLS: one `FOR ALL` policy, members only (`20260723120000_harden_security_definer_functions.sql:46-49`).
 In the Realtime publication (`20260722120000_households_shared_shopping_list.sql:70`).
 
+### `app_events` — product interaction events (R0.8)
+Migration `20261106050937_app_events.sql` (applied 2026-11-06). `id` identity, `user_id uuid not null → auth.users on delete cascade`, `device_id text` (8–64), `name text` (`^[a-z][a-z0-9_]{2,40}$`), `props jsonb` (≤ 2 KB), `app_version`, `occurred_at`, `created_at`. RLS: insert own row only (`user_id = auth.uid()`); no select/update/delete policy, so clients read nothing. Written in batches by `src/shared/track.ts`; event names and props in `src/shared/events.ts` and `docs/product/TRACKING_PLAN.md`.
+
+### `household_join_attempts` — join tries (A2)
+Migration `20261106050413_household_join_attempts.sql` (applied 2026-11-06). `user_id → auth.users on delete cascade`, `at`. RLS on, no policies: only `join_household` (SECURITY DEFINER) writes it, to allow 10 tries per 15 minutes.
+
 ### Dropped tables
 
 | Table | Created | Dropped |

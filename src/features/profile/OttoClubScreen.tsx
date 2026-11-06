@@ -18,6 +18,7 @@ import { useClub } from './club.purchases';
 import { purchaseErrorMessage } from './club.logic';
 import { useDeleteAccount } from './useDeleteAccount';
 import { useAuth } from '@/features/auth';
+import { track } from '@/shared/track';
 
 // Otto Club paywall — a HARD paywall (Juan, 2026-10-04): a signed-in non-member
 // can't use Otto without starting the trial, so there is no X and no "Not now".
@@ -57,10 +58,13 @@ export function OttoClubScreen() {
   const perMonth = (price: number, currency: string) =>
     new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(price);
 
+  useEffect(() => track('paywall_viewed', { variant: 'generic' }), []);
+
   const onBuy = async () => {
     const pkg = plan === 'year' ? club.yearly : club.monthly;
     if (!pkg) return;
     const result = await club.buy(pkg);
+    track('purchase_result', { product: pkg.product.identifier, result: typeof result === 'object' ? 'error' : result === 'ok' || result === 'pending' || result === 'unconfirmed' ? result : 'cancelled' });
     if (result === 'ok') goHome();
     else if (result === 'unconfirmed')
       show("Apple confirmed it, but it hasn't unlocked yet. Tap Restore.", 'info');

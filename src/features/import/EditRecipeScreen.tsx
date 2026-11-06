@@ -40,6 +40,7 @@ import {
   useSaveRecipe,
   useUploadRecipePhoto,
 } from './import.queries';
+import { track } from '@/shared/track';
 
 // ONE editor, two fill states (Crouton pattern): import-review arrives
 // pre-filled ("Review import"), manual arrives blank. Steps are
@@ -238,6 +239,7 @@ export function EditRecipeScreen() {
     }
     try {
       const id = await saveMut.mutateAsync({ id: editId, userId: user.id, recipe: result.recipe });
+      if (form.snap && editId == null) track('recipe_from_photo_saved', { edited: unsaved });
       haptics.notify('success');
       show(editId != null ? 'Changes saved.' : 'Saved to your cookbook.', 'success');
       leaving.current = true;

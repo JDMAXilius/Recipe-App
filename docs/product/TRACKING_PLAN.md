@@ -1,6 +1,6 @@
 # Tracking plan, North Star and activation
 
-Status: draft · proposed 2026-11-04 · magic moments updated 2026-11-05 (ADR-0013) · source: `docs/learning/reports/Otto magic moment research.md`. Nothing here is built yet; Otto has no analytics SDK.
+Status: current · Last verified against code 2026-11-06 · source: `docs/learning/reports/Otto magic moment research.md`. Built (R0.8): `app_events` table (applied), `src/shared/events.ts` (names + props, the code twin of the table below), `src/shared/track.ts` (phone queue, batch write). No analytics SDK.
 
 ## The three numbers
 
@@ -24,20 +24,22 @@ Guardrails: trial → paid (RevenueCat), refund rate, uninstall within 24 h, AI 
 |---|---|---|
 | `onboarding_started` | Welcome shown on a fresh install | `variant` |
 | `question_answered` | Each of the 3 questions, answered or skipped | `step` (1–3), `skipped` |
-| `dish_snapped` | A photo is analysed | `matched_catalogue`, `questions_asked`, `before_account` |
-| `recipe_from_photo_saved` | The recipe from a photo is saved | `edits`, `hide_numbers` |
+| `dish_snapped` | A photo is analysed | `ok`, `matched_catalogue`, `questions_asked`, `before_account` |
+| `recipe_from_photo_saved` | The recipe from a photo is saved | `edited` |
 | `week_planned_by_otto` | An Otto week preview is committed | `items`, `new_recipes`, `constraints` |
-| `first_week_revealed` | The reveal renders with a Tonight card | `ms_since_launch`, `household_size`, `filters_count` |
+| `first_week_revealed` | The reveal renders with a Tonight card | `ms_since_launch`, `household_size`, `filters_count`, `dinners` |
 | `day_swapped` | A day is swapped, on the reveal or in Plan | `day_offset`, `surface` (`reveal` \| `plan` \| `otto`) |
 | `shopping_list_opened` | List opened | `surface`, `items` |
-| `plan_saved` | Account created from Save your plan | `method` (`apple` \| `google` \| `facebook` \| `email`) |
+| `plan_saved` | An account is created (Save your plan, or today's sign-up door) | `method` (`apple` \| `google` \| `facebook` \| `email`) |
 | `paywall_viewed` | Paywall shown | `variant` (`generic` \| `your_week`) |
-| `trial_started` / `purchase_failed` / `purchase_pending` | From `BuyResult` | `product`, `result` |
+| `purchase_result` | Every purchase attempt, from `BuyResult` (one event; `result=ok` is the trial start) | `product`, `result` (`ok` \| `pending` \| `cancelled` \| `error` \| `unconfirmed`) |
 | `reminders_answered` | Primer answered | `allowed` |
 | `tonight_card_viewed` | Home opens with a Tonight card | `has_plan` |
 | `cooking_started` | Cook mode opened | `source` (`plan` \| `recipe` \| `otto`) |
 | `item_cooked` | "Cooked it" tapped or cook mode finished | `source`, `via` (`button` \| `cook_mode`) |
 | `otto_changed_plan` | Ask Otto put a recipe into a plan day | `day_offset` |
+
+**Not wired yet** (their screens don't exist): `week_planned_by_otto`, `reminders_answered`, `otto_changed_plan`. `shopping_list_opened` uses `surface=list` until the Plan segment lands.
 
 Keep it under 20 events. Every event name and prop lives in this file before it lives in code.
 

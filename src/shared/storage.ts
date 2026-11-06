@@ -15,6 +15,8 @@ export type StoreKey =
   | 'shoppingState'
   | 'onboardingDraft'
   | 'intent'
+  | 'eventsQueue'
+  | 'deviceId'
   | 'household'
   | 'householdRecent'
   | 'journal'

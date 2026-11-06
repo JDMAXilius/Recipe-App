@@ -43,6 +43,7 @@ import {
 } from './shopping.local';
 import { useLocalList } from './shopping.store';
 import { HoldToRemoveRow } from './components/HoldToRemoveRow';
+import { track } from '@/shared/track';
 
 // Shopping list (roadmap Phase 4): built from the current week, one row per
 // ingredient with summed quantities + provenance, aisle sections, whole-row
@@ -402,6 +403,18 @@ export function ShoppingScreen() {
   // chiming for a list completed yesterday, or by a partner. Shared mode was
   // worse: shared.rows always arrive after mount.
   const listReady = isShared ? !shared.isLoading : listSettled || allItems.length === 0;
+  // Once per visit, when the rows are real (R0.8).
+  const openedRef = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      openedRef.current = false;
+    }, []),
+  );
+  useEffect(() => {
+    if (openedRef.current || !hydrated || !listReady) return;
+    openedRef.current = true;
+    track('shopping_list_opened', { surface: 'list', items: total });
+  }, [hydrated, listReady, total]);
   useEffect(() => {
     if (!hydrated || !listReady) return;
     const prev = lastSeen.current;

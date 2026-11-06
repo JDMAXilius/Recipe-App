@@ -13,6 +13,7 @@ import { emptyDraft, setDraft, type Draft } from './draft';
 import { choosePhoto } from '@/shared/imagePicker';
 import { ensureAiConsent } from '@/shared/aiConsent';
 import { showActionSheet } from '@/shared/actionSheet';
+import { track } from '@/shared/track';
 
 // "Add a recipe" — a pushed full SCREEN with a back button (founder call:
 // no longer a bottom modal). A 2×2 tile grid — snap a meal, paste a link,
@@ -165,8 +166,10 @@ export function AddSheet({ onClose }: AddSheetProps) {
         image: picked.base64,
         mimeType: picked.mimeType ?? 'image/jpeg',
       });
+      track('dish_snapped', { ok: true, before_account: false, questions_asked: draft.snap?.questions.length ?? 0, matched_catalogue: !!draft.snap?.closest });
       openEditor(draft);
     } catch (err) {
+      track('dish_snapped', { ok: false, before_account: false, questions_asked: 0, matched_catalogue: false });
       setError(err instanceof Error ? err.message : "Otto couldn't read that photo. Try another shot.");
     }
   };

@@ -22,6 +22,7 @@ import { isLeftover, MEAL_LABELS, sortDay } from './plan.list';
 import { showActionSheet } from '@/shared/actionSheet';
 import { flags } from '@/shared/flags';
 import type { PlanEntry } from './plan.types';
+import { track } from '@/shared/track';
 
 // A picker target: which day the pick lands on, and (for a swap) the entry it
 // replaces. entryId absent = plain add; present = swap that slot.
@@ -80,6 +81,7 @@ export function PlanScreen() {
     haptics.select();
     try {
       await setCooked(entry.id, !entry.cooked);
+      if (!entry.cooked) track('item_cooked', { source: 'plan', via: 'button' });
     } catch {
       show("Couldn't mark that. Try again.", 'error');
     }

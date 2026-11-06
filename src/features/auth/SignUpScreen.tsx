@@ -7,6 +7,7 @@ import { useAuth } from './AuthProvider';
 import { AuthInput } from './components/AuthInput';
 import { AuthLegal, AuthScreenLayout } from './components/AuthScreenLayout';
 import { SocialAuthButtons } from './components/SocialAuthButtons';
+import { track } from '@/shared/track';
 
 const MIN_PASSWORD = 8; // same floor as change/reset password
 
@@ -43,7 +44,9 @@ export function SignUpScreen({ savePlan }: { savePlan?: SavePlanContext | null }
     setError(null);
     setLoading(true);
     try {
-      if (await signUp(email, password)) setCheckInbox(true);
+      const confirm = await signUp(email, password);
+      track('plan_saved', { method: 'email' });
+      if (confirm) setCheckInbox(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't create your account. Try again.");
     } finally {

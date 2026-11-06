@@ -11,6 +11,7 @@ import { colors, radii, space } from '@/shared/theme/tokens';
 import { haptics } from '@/shared/haptics';
 import { ALLERGENS, LEAVE_OUT_NOTE, type Diet } from '@/shared/allergens';
 import { setAnswers, useAnswers } from './firstRun.store';
+import { track } from '@/shared/track';
 
 const STEPS = 3;
 const DIETS: { key: Diet; label: string }[] = [
@@ -24,10 +25,14 @@ export function QuestionScreen({ step }: { step: number }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const n = Math.min(STEPS, Math.max(1, Math.round(step) || 1));
-  const next = () => router.push(n === STEPS ? '/first-week' : `/about/${n + 1}`);
+  const go = () => router.push(n === STEPS ? '/first-week' : `/about/${n + 1}`);
+  const answer = (skipped: boolean) => {
+    track('question_answered', { step: n as 1 | 2 | 3, skipped });
+    go();
+  };
 
   return (
-    <Screen onBack={() => router.back()} right={<SkipButton onPress={next} />}>
+    <Screen onBack={() => router.back()} right={<SkipButton onPress={() => answer(true)} />}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: space[6], paddingBottom: space[6], gap: space[5] }}>
         <Text role="meta">{`Question ${n} of ${STEPS}`}</Text>
         {n === 1 && <WhoIsEating />}
@@ -35,7 +40,7 @@ export function QuestionScreen({ step }: { step: number }) {
         {n === 3 && <AnythingToSkip />}
       </ScrollView>
       <View style={{ paddingHorizontal: space[6], paddingBottom: Math.max(insets.bottom, space[4]) + space[2] }}>
-        <Button title={n === STEPS ? 'Show my week' : 'Continue'} variant="primary" size="lg" onPress={next} />
+        <Button title={n === STEPS ? 'Show my week' : 'Continue'} variant="primary" size="lg" onPress={() => answer(false)} />
       </View>
     </Screen>
   );

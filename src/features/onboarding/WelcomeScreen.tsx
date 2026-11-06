@@ -1,7 +1,7 @@
 // Welcome (R1.2): the one first-launch screen. A painting, a left-aligned
 // promise, and two doors: Get started (the questions, no account yet) and
 // I have an account. Replaces the three-painting carousel under flowV2.
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -9,10 +9,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text } from '@/shared/ui';
 import { colors, space } from '@/shared/theme/tokens';
 import { onboardingArt } from '@/shared/assets';
+import { track } from '@/shared/track';
 
 export function WelcomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  useEffect(() => track('onboarding_started', { variant: 'v2' }), []);
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream, paddingTop: insets.top }}>
       <Image

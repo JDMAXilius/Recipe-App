@@ -17,6 +17,7 @@ import { AiConsentHost, ErrorBoundary, ToastHost } from '@/shared/ui';
 import { OfflineBanner } from '@/shared/ui/OfflineBanner';
 import { supabase } from '@/shared/supabase/client';
 import { kv } from '@/shared/storage';
+import { dropQueuedEvents, flushEvents } from '@/shared/track';
 import { flags } from '@/shared/flags';
 import { DraftClaim } from '@/catalogue/DraftClaim';
 import '@/shared/online'; // NetInfo → onlineManager, AppState → focusManager
@@ -46,6 +47,10 @@ const persistOptions = {
 let cacheOwner: string | undefined;
 supabase.auth.onAuthStateChange((_event, session) => {
   const uid = session?.user.id;
+  // Events: a signed-out phone keeps its queue (it's the coming account's);
+  // a user signing out or switching drops theirs. A session writes the queue.
+  if (cacheOwner && uid !== cacheOwner) dropQueuedEvents();
+  if (uid) flushEvents();
   if (!uid || (cacheOwner && uid !== cacheOwner)) {
     queryClient.clear();
     persister.removeClient();
