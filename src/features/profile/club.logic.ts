@@ -88,3 +88,18 @@ export function clubDates(info: CustomerInfoLike | null | undefined): ClubDates 
     billingIssue: !!e.billingIssueDetectedAt,
   };
 }
+
+/** R2.1: the day a free trial started now would end, for "Free until Nov 11".
+ *  Calendar units (a MONTH trial ends on the same date next month), as
+ *  StoreKit counts them. null when there is no free trial. */
+export function trialEndDate(intro: IntroPriceLike | null | undefined, now: Date): Date | null {
+  if (!introTrialDays(intro) || !intro) return null;
+  const d = new Date(now.getTime());
+  const n = intro.periodNumberOfUnits;
+  if (intro.periodUnit === 'DAY') d.setDate(d.getDate() + n);
+  else if (intro.periodUnit === 'WEEK') d.setDate(d.getDate() + 7 * n);
+  else if (intro.periodUnit === 'MONTH') d.setMonth(d.getMonth() + n);
+  else if (intro.periodUnit === 'YEAR') d.setFullYear(d.getFullYear() + n);
+  else return null;
+  return d;
+}

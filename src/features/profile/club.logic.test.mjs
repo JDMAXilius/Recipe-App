@@ -57,3 +57,13 @@ test('clubDates: a renewing trial has an end; a cancelled one or a paid plan has
   assert.deepEqual(clubDates(info(null)), { trialEndsAt: null, billingIssue: false });
   assert.deepEqual(clubDates(null), { trialEndsAt: null, billingIssue: false });
 });
+
+test('trialEndDate: calendar units from now; none without a free trial', async () => {
+  const { trialEndDate } = await import('./club.logic.ts');
+  const now = new Date(2026, 10, 4, 12);
+  const week = { price: 0, periodUnit: 'WEEK', periodNumberOfUnits: 1 };
+  assert.equal(trialEndDate(week, now).getDate(), 11);
+  assert.equal(trialEndDate({ price: 0, periodUnit: 'MONTH', periodNumberOfUnits: 1 }, new Date(2026, 0, 15)).getMonth(), 1);
+  assert.equal(trialEndDate({ ...week, price: 0.99 }, now), null);
+  assert.equal(trialEndDate(null, now), null);
+});

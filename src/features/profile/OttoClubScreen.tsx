@@ -18,7 +18,7 @@ import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { useClub } from './club.purchases';
 import { usePurchasePending } from './club.pending';
 import { flags } from '@/shared/flags';
-import { purchaseErrorMessage } from './club.logic';
+import { introTrialDays, purchaseErrorMessage, trialEndDate } from './club.logic';
 import { useDeleteAccount } from './useDeleteAccount';
 import { useAuth } from '@/features/auth';
 import { track } from '@/shared/track';
@@ -32,6 +32,14 @@ import { track } from '@/shared/track';
 const TERMS_URL = 'https://ottosapp.com/terms';
 const PRIVACY_URL = 'https://ottosapp.com/privacy';
 const MANAGE_URL = 'https://apps.apple.com/account/subscriptions';
+
+// R2.1 (flowV2): what the Club is, in four lines, each a thing the app does.
+const BENEFITS: [keyof typeof Ionicons.glyphMap, string][] = [
+  ['calendar-outline', 'Otto plans your week for who\'s eating'],
+  ['camera-outline', 'Snap any dish and get the recipe'],
+  ['basket-outline', 'One shopping list, by aisle, shared at home'],
+  ['sparkles-outline', 'Ask Otto anything while you cook'],
+];
 
 export function OttoClubScreen() {
   const router = useRouter();
@@ -57,8 +65,12 @@ export function OttoClubScreen() {
 
   const yearly = club.yearly?.product;
   const monthly = club.monthly?.product;
-  const trialDays = club.trialDays;
   const selected = plan === 'year' ? yearly : monthly;
+  // flowV2 (R2.1): the trial is read from the plan on screen (a monthly plan
+  // without one must not promise it) and dated: "Free until Nov 11".
+  const trialDays = flags.flowV2 ? introTrialDays(selected?.introPrice) : club.trialDays;
+  const trialEnds = flags.flowV2 ? trialEndDate(selected?.introPrice, new Date()) : null;
+  const period = plan === 'year' ? 'year' : 'month';
   const perMonth = (price: number, currency: string) =>
     new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(price);
 
@@ -132,11 +144,24 @@ export function OttoClubScreen() {
               title, length, price, all before purchase). */}
           <Text role="meta">OTTO CLUB</Text>
           <Text role="display">{club.member ? "You're in the Club" : 'Cook more. Plan less.'}</Text>
-          <Text role="caption">
-            {club.member
-              ? 'Every recipe, plan and question, unlimited.'
-              : 'Unlimited imports, plans and Ask Otto.'}
-          </Text>
+          {flags.flowV2 && !club.member ? (
+            <View style={{ gap: space[2], alignSelf: 'stretch' }}>
+              {BENEFITS.map(([icon, line]) => (
+                <View key={line} style={{ flexDirection: 'row', alignItems: 'center', gap: space[3] }}>
+                  <Ionicons name={icon} size={20} color={colors.terracotta} />
+                  <View style={{ flex: 1 }}>
+                    <Text role="body">{line}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text role="caption">
+              {club.member
+                ? 'Every recipe, plan and question, unlimited.'
+                : 'Unlimited imports, plans and Ask Otto.'}
+            </Text>
+          )}
         </View>
 
         {club.member ? (
@@ -185,9 +210,11 @@ export function OttoClubScreen() {
               loading={club.purchasing}
             />
             <RNText style={styles.fine}>
-              {trialDays
-                ? `Free for ${trialDays} days, then billed ${selected?.priceString}/${plan === 'year' ? 'year' : 'month'}. Renews automatically. Cancel anytime.`
-                : 'Renews automatically. Cancel anytime.'}
+              {trialEnds
+                ? `Free until ${trialEnds.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}, then ${selected?.priceString}/${period}. Renews automatically. Cancel anytime in Settings.`
+                : trialDays
+                  ? `Free for ${trialDays} days, then billed ${selected?.priceString}/${period}. Renews automatically. Cancel anytime.`
+                  : 'Renews automatically. Cancel anytime.'}
             </RNText>
             <View style={styles.legalRow}>
               <TextLink title="Terms" role="link" onPress={() => Linking.openURL(TERMS_URL)} />
