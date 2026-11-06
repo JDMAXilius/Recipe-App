@@ -9,7 +9,7 @@
 // cached durably in resolved_ingredients (service-role write; clients read-only
 // by policy). Keys come ONLY from Deno.env; never logged.
 //
-// ponytail: dropped the old Stage-1 "Claude vs the bundled table" match — it
+// ponytail: dropped the old Stage-1 "model vs the bundled table" match — it
 // required shipping the 962-row table into the function, and the client already
 // does the table match. If British-synonym coverage (aubergine→eggplant) ever
 // matters beyond what USDA search + the client's qualifier-strip catch, re-add

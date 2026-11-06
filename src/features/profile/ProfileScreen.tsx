@@ -270,8 +270,8 @@ export function ProfileScreen() {
             />
           </View>
           {/* Otto and AI — the switch behind the consent sheet. Off means
-              Ask Otto, imports and nutrition matching send nothing to
-              Anthropic; the rest of Otto is unchanged. */}
+              Ask Otto, imports, Snap a meal and nutrition matching send
+              nothing to OpenAI; the rest of Otto is unchanged. */}
           <View style={[styles.unitRow, styles.rowDivider]}>
             <Ionicons name="sparkles-outline" size={20} color={colors.inkSoft} style={{ marginRight: space[3] }} />
             <View style={{ flex: 1, marginRight: space[3] }}>

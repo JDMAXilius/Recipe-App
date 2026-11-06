@@ -57,7 +57,7 @@ export async function resolveNutrition(
   const local = computeNutrition(input);
   const missing = unmatchedNames(input);
   if (!missing.length) return local;
-  // The resolver matches names with Anthropic's model, so it runs only after
+  // The resolver matches names with OpenAI's model, so it runs only after
   // the person has said yes (5.1.2(i)). Silent check, never a prompt over a
   // recipe card: without consent the local USDA table stands, and below the
   // coverage floor the card shows its labelled `~` estimate, as it always has.

@@ -1,4 +1,4 @@
-// Shared plumbing for the 5 edge functions (FRAMEWORK §5).
+// Shared plumbing for the edge functions (FRAMEWORK §5).
 // Service-role key comes ONLY from Deno.env and is never logged or echoed.
 import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2";
 import { clubRequired, entitlementExpiry, isActiveMembership } from "./membership.ts";

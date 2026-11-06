@@ -254,6 +254,15 @@ async function tiktokCaption(url: URL): Promise<{ text: string; author: string |
   }
 }
 
+// B2: generate-recipe's own answers that the person should hear as they are
+// (Otto Club lapsed, too many requests, AI off) — not as "couldn't read it".
+class PassThrough extends Error {
+  constructor(readonly status: number, message: string) {
+    super(message);
+  }
+}
+const PASS_THROUGH = new Set([402, 429, 503]);
+
 const isTikTok = (url: URL) => /(^|\.)tiktok\.com$/i.test(url.hostname);
 
 // Hands the caption to generate-recipe's {text} transcription with the
@@ -274,6 +283,10 @@ async function transcribeCaption(
     body: JSON.stringify({ text: caption.text.slice(0, 8000) }),
     signal: AbortSignal.timeout(90000),
   });
+  if (PASS_THROUGH.has(res.status)) {
+    const body = await res.json().catch(() => null);
+    throw new PassThrough(res.status, typeof body?.error === "string" ? body.error : "Otto can't do that right now.");
+  }
   if (!res.ok) return null; // 422 = no recipe in the caption; the caller says so
   const r = await res.json();
   const host = target.hostname.replace(/^www\./, "");
@@ -384,6 +397,7 @@ Deno.serve(async (req) => {
     }
     return json(200, draft);
   } catch (error) {
+    if (error instanceof PassThrough) return json(error.status, { error: error.message });
     console.warn("import failed", (error as Error).message); // message only — never the key material
     return json(422, { error: "Couldn't read that page" });
   }

@@ -121,7 +121,7 @@ export function ChatScreen() {
   const onSend = useCallback(async () => {
     const text = draft.trim();
     if (!text) return;
-    // Consent first (5.1.2(i)): nothing goes to Anthropic until they've said
+    // Consent first (5.1.2(i)): nothing goes to OpenAI until they've said
     // yes, and before the draft clears, so the words are still there if they allow.
     if (!(await ensureAiConsent())) return;
     // Send can land mid-dictation (the Speak pill now stays put beside it): stop

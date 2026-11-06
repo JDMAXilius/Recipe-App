@@ -12,10 +12,10 @@
 
 ## B — correctness and drift
 - [ ] **B1. Regenerate `src/types/database.ts`**: last generated 2026-07-23, before the `memberships` migration; `memberships` is missing.
-- [ ] **B2. `import-recipe` hides 402 / 429 / 503 from `generate-recipe` behind a 422**, so a lapsed member or a rate limit reads as "couldn't read that recipe". Pass the status through.
-- [ ] **B3. Code comments that still name Anthropic / Claude / Sonnet**: `ChatScreen.tsx:121`, `chat.queries.ts:29`, `import.queries.ts:99`, `AddSheet.tsx:126`, `nutrition.queries.ts:60`, `nutrition/engine/lookup.ts:4`, `ProfileScreen.tsx:274`, `resolve-nutrition/index.ts:12`. `_shared/http.ts:1` says 5 functions (there are 7).
+- [x] **B2.*(done 2026-11-06: 402/429/503 from generate-recipe pass through; import-recipe v16)*  `import-recipe` hides 402 / 429 / 503 from `generate-recipe` behind a 422**, so a lapsed member or a rate limit reads as "couldn't read that recipe". Pass the status through.
+- [x] **B3.*(done 2026-11-06; the frozen nutrition engine's history comments and aiConsent's provider note are left as true history)*  Code comments that still name Anthropic / Claude / Sonnet**: `ChatScreen.tsx:121`, `chat.queries.ts:29`, `import.queries.ts:99`, `AddSheet.tsx:126`, `nutrition.queries.ts:60`, `nutrition/engine/lookup.ts:4`, `ProfileScreen.tsx:274`, `resolve-nutrition/index.ts:12`. `_shared/http.ts:1` says 5 functions (there are 7).
 - [ ] **B4. Privacy**: `docs/legal/APP_PRIVACY_TRUTH_TABLE.md` still names Anthropic as the AI vendor (rows 7, 12, 13, 17, vendor table); the live privacy policy too (ROADMAP Phase 0). Juan re-audits before the next submission; answers are an attestation.
-- [ ] **B5. `supabase/config.toml`**: per-function `verify_jwt` is only in the dashboard (all on except `revenuecat-webhook`). Commit a config so a redeploy can't flip it.
+- [x] **B5.*(done 2026-11-06: supabase/config.toml)*  `supabase/config.toml`**: per-function `verify_jwt` is only in the dashboard (all on except `revenuecat-webhook`). Commit a config so a redeploy can't flip it.
 - [ ] **B6. Ask Otto never sends diet or cuisines** (`ChatScreen.tsx:81`), so allergies and diet are ignored in chat. Ties to ADR-0010 (prefs on the account).
 
 ## Rules
