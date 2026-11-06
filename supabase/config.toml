@@ -438,8 +438,5 @@ verify_jwt = true
 [functions.content]
 verify_jwt = true
 
-[functions.canonicalize]
-verify_jwt = true
-
 [functions.export-data]
 verify_jwt = true
