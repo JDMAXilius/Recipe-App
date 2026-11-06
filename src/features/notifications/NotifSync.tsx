@@ -16,7 +16,7 @@ import { flags } from '@/shared/flags';
 export function NotifSync({ trialEndsAt }: { trialEndsAt?: string | null } = {}) {
   const { entries, isLoading, isSuccess, setCooked } = usePlan();
   const prefs = useNotifPrefs();
-  useNotificationTaps(flags.flowV2, { ready: isSuccess, setCooked });
+  useNotificationTaps(flags.flowV2, { ready: isSuccess, entries, setCooked });
   const trial = flags.flowV2 ? trialEndsAt ?? null : null;
 
   useEffect(() => {

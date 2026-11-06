@@ -17,8 +17,8 @@ export default function Otto() {
       diet: prefs.diet,
       cuisines: prefs.cuisines.slice(0, 6),
       allergies: ALLERGENS.filter((a) => prefs.allergies.includes(a.key)).map((a) => a.label),
-      skips: prefs.skips.slice(0, 20).map((s) => s.slice(0, 40)),
-      week: [...new Set(entries.filter((e) => !e.cooked && e.title).map((e) => e.title.slice(0, 120)))].slice(0, 21),
+      skips: prefs.skips.map((s) => s.trim().slice(0, 40)).filter(Boolean).slice(0, 20),
+      week: [...new Set(entries.filter((e) => !e.cooked).map((e) => (e.title ?? '').trim().slice(0, 120)).filter(Boolean))].slice(0, 21),
     }),
     [prefs.household, prefs.diet, prefs.cuisines, prefs.allergies, prefs.skips, entries],
   );

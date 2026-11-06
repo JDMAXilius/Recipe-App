@@ -13,7 +13,7 @@ export interface EventProps {
   first_week_revealed: { ms_since_launch: number; household_size: number; filters_count: number; dinners: number };
   day_swapped: { day_offset: number; surface: Surface };
   plan_saved: { method: 'apple' | 'google' | 'facebook' | 'email' };
-  paywall_viewed: { variant: 'generic' | 'your_week' };
+  paywall_viewed: { variant: 'generic' | 'your_week'; assigned?: 'generic' | 'your_week' };
   purchase_result: { product: string; result: 'ok' | 'pending' | 'cancelled' | 'error' | 'unconfirmed' };
   shopping_list_opened: { surface: Surface; items: number };
   tonight_card_viewed: { has_plan: boolean };

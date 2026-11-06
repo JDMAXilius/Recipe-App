@@ -53,10 +53,13 @@ export function OttoClubScreen() {
   // R2.1 A/B (flowV2): "Keep your week." restates the person's own tonight and
   // week; with nothing planned it falls back to the generic lines (and says so
   // in paywall_viewed, so the comparison stays honest).
-  const { entries, days, isSuccess: planLoaded } = usePlan();
+  const { entries, days, isSuccess, isError } = usePlan();
+  // Decided once the read answers either way (or there is no account to read).
+  const planLoaded = isSuccess || isError || !user;
+  const assigned = paywallVariant(user?.id);
   const upcoming = entries.filter((e) => !e.cooked);
   const tonight = tonightEntry(entries, days[0].key);
-  const yourWeek = flags.flowV2 && !club.member && paywallVariant(user?.id) === 'your_week' && upcoming.length > 0;
+  const yourWeek = flags.flowV2 && !club.member && assigned === 'your_week' && upcoming.length > 0;
   // Hard paywall: a non-member can't reach Account, so its exits live here
   // (Apple 5.1.1(v): in-app deletion for every account, subscribed or not).
   const del = useDeleteAccount(club.member);
@@ -87,8 +90,9 @@ export function OttoClubScreen() {
     if (viewed.current) return;
     if (flags.flowV2 && !planLoaded) return; // decide the variant on the real week
     viewed.current = true;
-    track('paywall_viewed', { variant: yourWeek ? 'your_week' : 'generic' });
-  }, [planLoaded, yourWeek]);
+    // assigned = the arm (analyse by this: intent to treat); variant = what showed.
+    track('paywall_viewed', { variant: yourWeek ? 'your_week' : 'generic', ...(flags.flowV2 ? { assigned } : {}) });
+  }, [planLoaded, yourWeek, assigned]);
 
   const onBuy = async () => {
     const pkg = plan === 'year' ? club.yearly : club.monthly;

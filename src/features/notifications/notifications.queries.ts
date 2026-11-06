@@ -72,7 +72,10 @@ export async function syncNotifications(
         content: {
           title: n.title,
           body: n.body,
-          data: { ...(n.href ? { href: n.href } : {}), ...(n.entryId != null ? { entryId: n.entryId } : {}) },
+          data: {
+            ...(n.href ? { href: n.href } : {}),
+            ...(flags.flowV2 && n.entryId != null ? { entryId: n.entryId, entryTitle: n.entryTitle, entryDay: n.entryDay } : {}),
+          },
           ...buttons,
         },
         trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: n.date },
@@ -90,10 +93,27 @@ export function tappedHref(response: Notifications.NotificationResponse | null |
 }
 
 /** The action a reminder button carries (R8.2): which button, for which entry. */
-export function tappedAction(response: Notifications.NotificationResponse | null | undefined): { action: 'cooked' | 'swap'; entryId: number } | null {
+export interface DinnerAction {
+  action: 'cooked' | 'swap';
+  entryId: number;
+  /** What the banner said: a delivered banner can outlive a swap or move. */
+  title: string | null;
+  day: string | null;
+}
+
+export function tappedAction(response: Notifications.NotificationResponse | null | undefined): DinnerAction | null {
   if (!response) return null;
   const action = response.actionIdentifier;
-  const entryId = response.notification.request.content.data?.entryId;
+  const data = response.notification.request.content.data ?? {};
+  const entryId = data.entryId;
   if ((action !== DINNER_ACTIONS.cooked && action !== DINNER_ACTIONS.swap) || typeof entryId !== 'number') return null;
-  return { action, entryId };
+  return {
+    action,
+    entryId,
+    title: typeof data.entryTitle === 'string' ? data.entryTitle : null,
+    day: typeof data.entryDay === 'string' ? data.entryDay : null,
+  };
 }
+
+/** One key per delivered tap: the launch response also reaches the listener. */
+export const responseKey = (r: Notifications.NotificationResponse) => `${r.notification.request.identifier}:${r.actionIdentifier}`;

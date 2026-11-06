@@ -53,7 +53,7 @@ function messageForStatus(status: number, bodyError?: string): string {
       return 'Sign in to chat with Otto.';
     case 429:
       return flags.flowV2
-        ? 'Otto needs a breather: that’s 20 chats in 15 minutes. Try again in a few minutes.'
+        ? 'Otto needs a breather: that’s 20 requests in 15 minutes. Try again in a few minutes.'
         : 'Otto needs a breather. Give it a few minutes and try again.';
     case 503:
       return "Otto's kitchen is still being wired up. Check back soon.";
@@ -136,8 +136,15 @@ export async function sendChatStreaming(
 
   // S4 (flowV2): a turn that hasn't started answering in 60 s is called, so
   // the person isn't left watching a spinner; the line stays for Try again.
+  // The server streams headers at once and waits on OpenAI inside the body,
+  // so the clock runs until the FIRST event, not until the headers.
   const abort = flags.flowV2 ? new AbortController() : null;
-  const timer = abort ? setTimeout(() => abort.abort(), 60_000) : null;
+  let timer = abort ? setTimeout(() => abort.abort(), 60_000) : null;
+  const stopClock = () => {
+    if (timer) clearTimeout(timer);
+    timer = null;
+  };
+  const TOO_LONG = 'Otto took too long on that one. Try again.';
   const response = await fetch(`${supabaseUrl}/functions/v1/generate-recipe`, {
     signal: abort?.signal,
     method: 'POST',
@@ -149,16 +156,11 @@ export async function sendChatStreaming(
     body: JSON.stringify({ messages, ...opts, stream: true }),
   })
     .catch(() => {
-      throw new Error(
-        abort?.signal.aborted
-          ? 'Otto took too long on that one. Try again.'
-          : "Otto can't reach the kitchen. Check your connection and try again.",
-      );
-    })
-    .finally(() => {
-      if (timer) clearTimeout(timer);
+      stopClock();
+      throw new Error(abort?.signal.aborted ? TOO_LONG : "Otto can't reach the kitchen. Check your connection and try again.");
     });
 
+  if (!response.ok || !response.body || (response.headers.get('content-type') ?? '').includes('application/json')) stopClock();
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as { error?: string } | null;
     throw new Error(messageForStatus(response.status, body?.error));
@@ -177,13 +179,16 @@ export async function sendChatStreaming(
   let accumulated = '';
   try {
     for (;;) {
-      const { done, value } = await reader.read();
+      const { done, value } = await reader.read().catch((err: unknown) => {
+        throw abort?.signal.aborted ? new Error(TOO_LONG) : err;
+      });
       const chunk = done ? decoder.decode() : decoder.decode(value, { stream: true });
       const fed = feedSse(chunk, carry);
       carry = fed.carry;
       for (const raw of fed.events) {
         const parsed = SseEventSchema.safeParse(raw);
         if (!parsed.success) continue;
+        stopClock(); // Otto has started answering
         const event = parsed.data;
         if (event.type === 'delta' && event.text != null) {
           accumulated += event.text;
@@ -197,6 +202,7 @@ export async function sendChatStreaming(
       if (done) break;
     }
   } finally {
+    stopClock();
     void reader.cancel().catch(() => undefined);
   }
   // Stream closed without a done event — the reply is incomplete, so fail

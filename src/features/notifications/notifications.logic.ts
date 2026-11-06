@@ -27,6 +27,8 @@ export interface PlannedNotification {
    *  (two dishes: which one was cooked? The tap opens the app instead). */
   category?: 'dinner';
   entryId?: number;
+  entryTitle?: string;
+  entryDay?: string;
 }
 
 export const DINNER_ACTIONS = { cooked: 'cooked', swap: 'swap' } as const;
@@ -121,7 +123,9 @@ export function computeNotifications(
         title: 'Tonight in your kitchen',
         body: `${dishes[0]}${more}. Ready to start cooking?`,
         href: firstRecipe.has(day) ? `/recipe/${firstRecipe.get(day)}` : '/plan?view=week',
-        ...(dishes.length === 1 && ids.get(day)?.length === 1 ? { category: 'dinner' as const, entryId: ids.get(day)![0] } : {}),
+        ...(dishes.length === 1 && ids.get(day)?.length === 1
+          ? { category: 'dinner' as const, entryId: ids.get(day)![0], entryTitle: dishes[0], entryDay: day }
+          : {}),
       });
     }
   }

@@ -666,7 +666,7 @@ export function ShoppingScreen({ embedded, onPlan }: { embedded?: boolean; onPla
                   <Button
                     title="Plan a meal"
                     variant="primary"
-                    onPress={() => (onPlan ? onPlan() : router.push('/(tabs)/plan?view=week'))}
+                    onPress={() => (onPlan ? onPlan() : router.dismissTo('/(tabs)/plan?view=week'))}
                   />
                 )}
               </View>

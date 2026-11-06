@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -158,6 +159,12 @@ export function EditRecipeScreen() {
   const [aboutOpen, setAboutOpen] = useState(false);
   // R6.7: the ingredient row a return just added, so its name field opens focused.
   const [focusRow, setFocusRow] = useState<number | null>(null);
+  // R6.7: stable row keys (flowV2), moved with their rows, so a moved row keeps
+  // its own field and VoiceOver focus follows it. Index keys would hand the
+  // focused handle to whichever row slid into its place.
+  const ingKeys = useRef<number[]>([]);
+  const stepKeys = useRef<number[]>([]);
+  const nextKey = useRef(0);
   // The picture-link field hides behind the Add photo tap (UX audit 07).
   const [photoTapped, setPhotoTapped] = useState(false);
 
@@ -170,31 +177,49 @@ export function EditRecipeScreen() {
   }
 
   const patch = (next: Partial<Draft>) => setForm((f) => (f ? { ...f, ...next } : f));
+  const syncKeys = (ref: { current: number[] }, n: number) => {
+    while (ref.current.length < n) ref.current.push(nextKey.current++);
+    if (ref.current.length > n) ref.current.length = n;
+  };
+  syncKeys(ingKeys, form.ingredients.length);
+  syncKeys(stepKeys, form.steps.length);
 
   const setIngredient = (index: number, field: 'measure' | 'name', value: string) =>
     patch({
       ingredients: form.ingredients.map((r, i) => (i === index ? { ...r, [field]: value } : r)),
     });
-  const removeIngredient = (index: number) =>
+  const removeIngredient = (index: number) => {
+    if (form.ingredients.length > 1) ingKeys.current.splice(index, 1);
     patch({
       ingredients:
         form.ingredients.length > 1 ? form.ingredients.filter((_, i) => i !== index) : form.ingredients,
     });
+  };
   const setStep = (index: number, value: string) =>
     patch({ steps: form.steps.map((r, i) => (i === index ? value : r)) });
-  const removeStep = (index: number) =>
+  const removeStep = (index: number) => {
+    if (form.steps.length > 1) stepKeys.current.splice(index, 1);
     patch({ steps: form.steps.length > 1 ? form.steps.filter((_, i) => i !== index) : form.steps });
+  };
 
   // R6.7 (flowV2): move a row up or down — long-press the handle, or the
   // VoiceOver actions on it. A drag gesture can come later; this works today
   // and for everyone.
+  const announceMove = (what: string, index: number, by: number, count: number) => {
+    const to = index + by;
+    if (to >= 0 && to < count) AccessibilityInfo.announceForAccessibility(`${what} moved to position ${to + 1}`);
+  };
   const moveIngredient = (index: number, by: number) => {
     haptics.select();
+    ingKeys.current = moveBy(ingKeys.current, index, by);
     patch({ ingredients: moveBy(form.ingredients, index, by) });
+    announceMove('Ingredient', index, by, form.ingredients.length);
   };
   const moveStep = (index: number, by: number) => {
     haptics.select();
+    stepKeys.current = moveBy(stepKeys.current, index, by);
     patch({ steps: moveBy(form.steps, index, by) });
+    announceMove('Step', index, by, form.steps.length);
   };
   const moveMenu = async (what: string, index: number, count: number, move: (i: number, by: number) => void) => {
     const options = [index > 0 ? 'Move up' : null, index < count - 1 ? 'Move down' : null].filter(Boolean) as string[];
@@ -487,7 +512,7 @@ export function EditRecipeScreen() {
           <Text role="caption">INGREDIENTS</Text>
         </View>
         {form.ingredients.map((row, index) => (
-          <View key={index} style={[rowStyle, { marginBottom: space[2] }]}>
+          <View key={flags.flowV2 ? ingKeys.current[index] : index} style={[rowStyle, { marginBottom: space[2] }]}>
             <View style={{ width: 96 }}>
               <RecipeInput
                 value={row.measure}
@@ -507,6 +532,7 @@ export function EditRecipeScreen() {
                 onSubmitEditing={
                   flags.flowV2 && index === form.ingredients.length - 1 && row.name.trim()
                     ? () => {
+                        ingKeys.current = insertAfter(ingKeys.current, index, nextKey.current++);
                         patch({ ingredients: insertAfter(form.ingredients, index, emptyIngredient()) });
                         setFocusRow(index + 1);
                       }
@@ -552,7 +578,7 @@ export function EditRecipeScreen() {
           <Text role="caption">STEPS (OPTIONAL)</Text>
         </View>
         {form.steps.map((step, index) => (
-          <View key={index} style={[rowStyle, { marginBottom: space[2], alignItems: 'flex-start' }]}>
+          <View key={flags.flowV2 ? stepKeys.current[index] : index} style={[rowStyle, { marginBottom: space[2], alignItems: 'flex-start' }]}>
             <View style={{ paddingTop: space[3] }}>
               <Text role="computed">{String(index + 1)}</Text>
             </View>

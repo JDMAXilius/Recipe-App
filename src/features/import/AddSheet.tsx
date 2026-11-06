@@ -66,7 +66,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
   const [text, setText] = useState('');
   const [error, setError] = useState<string | null>(null);
   // S4 (flowV2): the photo of a failed snap, so Try again doesn't mean a new shot.
-  const [failedPhoto, setFailedPhoto] = useState<{ image: string; mimeType: string } | null>(null);
+  const [failedPhoto, setFailedPhoto] = useState<{ image: string; mimeType: string; message: string } | null>(null);
   // Pasted text is the one thing here that's work to redo; back / edge-swipe
   // asks before throwing it away. `handingOff` lets the editor hand-off
   // through — the text was used, not lost (a state reset lands too late).
@@ -195,19 +195,21 @@ export function AddSheet({ onClose }: AddSheetProps) {
       openEditor(draft);
     } catch (err) {
       track('dish_snapped', { ok: false, before_account: false, questions_asked: 0, matched_catalogue: false });
-      setError(err instanceof Error ? err.message : "Otto couldn't read that photo. Try another shot.");
-      if (flags.flowV2) setFailedPhoto(photo);
+      const message = err instanceof Error ? err.message : "Otto couldn't read that photo. Try another shot.";
+      setError(message);
+      if (flags.flowV2) setFailedPhoto({ ...photo, message });
     }
   };
 
   const retryPhoto = () => {
     if (!failedPhoto || offline()) return;
     setError(null);
-    void readPhoto(scanMut.mutateAsync, failedPhoto);
+    void readPhoto(scanMut.mutateAsync, { image: failedPhoto.image, mimeType: failedPhoto.mimeType });
   };
 
   const tap = (m: Exclude<Mode, null>) => {
     setError(null);
+    setFailedPhoto(null);
     setMode((cur) => (cur === m ? null : m));
   };
 
@@ -324,7 +326,7 @@ export function AddSheet({ onClose }: AddSheetProps) {
           {error != null && (
             <View accessibilityRole="alert" style={{ gap: space[2], alignItems: 'flex-start' }}>
               <Text role="computed">{error}</Text>
-              {failedPhoto && <Button title="Try again with this photo" variant="secondary" onPress={retryPhoto} />}
+              {failedPhoto && failedPhoto.message === error && <Button title="Try again with this photo" variant="secondary" onPress={retryPhoto} />}
             </View>
           )}
 
