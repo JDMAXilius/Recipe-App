@@ -11,7 +11,10 @@
 - [ ] **T2. Rework preview build (switch on).** `eas build -p ios --profile rework` with a build
   number above the release (54). TestFlight **internal group only**, never sent for review.
 - [ ] **T3. Device check with Juan.** `CHECKPOINT_1.md` §3 (20 min). Put each problem as a line
-  under "Device findings" below; the cloud session fixes them.
+  under "Device findings" below; the cloud session fixes them. On the rework build (T2), also:
+  Plan tab Week · Shopping segment (R4.5) — the list scrolls, ticks and shares as on `/shopping`;
+  the meal picker's Find in Discover / Ask Otto doors (R4.3); quit on Plan, relaunch → opens on
+  Plan; open a recipe link while quit → the recipe wins (R3.5).
 - [ ] **T4. Kitchen handover (A3).** Run `supabase/migrations/20261106060000_household_owner_handover.sql`
   in the Supabase SQL editor (the MCP apply asks a confirmation that never reaches Juan). Then
   rename the file to the version Supabase records and remove its "NOT YET APPLIED" note.
