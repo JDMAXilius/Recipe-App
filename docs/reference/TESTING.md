@@ -103,13 +103,10 @@ call the definer functions, write events as someone else, and guess kitchen
 codes past the join limit. The attacks failing is the pass (78 checks,
 2026-11-06).
 
-- **CI** (`.github/workflows/ci.yml`, job `rls`): `supabase start` builds a
-  throwaway local database from `supabase/migrations`, then the suite runs
-  against it with `RLS_URL` / `RLS_ANON_KEY`. Never production.
-- **Local**: Docker running, then
-  `npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit,realtime,postgres-meta`,
-  `eval "$(npx supabase status -o env)"`,
-  `RLS_URL="$API_URL" RLS_ANON_KEY="$ANON_KEY" node supabase/migrations/tests/rls-attacks.test.mjs`.
+- **Run it**: Docker running, then `npm run test:rls` (`scripts/rls-local.sh`):
+  a throwaway local database built from `supabase/migrations`, the attacks,
+  then the stack stops. Never production. Not in CI: Otto pushes straight to
+  main and doesn't use GitHub's CI, so run it before pushing a migration.
 - Without `RLS_URL` the script reads `.env.development`, which is the
   production project: that run creates two real accounts and deletes them
   through `delete-account`. Only do it on purpose.
