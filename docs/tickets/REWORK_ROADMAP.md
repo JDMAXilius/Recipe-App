@@ -148,7 +148,7 @@ and features; 9 is the Apple polish pass; 10 is release. Sizes are rough: S ≤ 
 | R4.2 | Dish actions sheet *(built 2026-11-06 behind flowV2)*: cooked · swap · move to another day · leftovers tomorrow · remove. | M | `move` = update `day`; leftovers = copy entry with a note |
 | R4.3 | Open day → Pick a meal *(built 2026-11-06 behind flowV2)* (Saved · Discover · Ask Otto). | S | |
 | R4.4 | Otto plans my week *(built 2026-11-06 behind flowV2)*: fill only empty days with `buildFirstWeek` rules. | S | Reuses R0.6 |
-| R4.5 | Shopping list as a Plan segment (by aisle, each item names its recipe); `/shopping` stays as a deep link target. | M | `shoppingList.ts` exists |
+| R4.5 | Shopping list as a Plan segment *(built 2026-11-06 behind flowV2)* (by aisle, each item names its recipe); `/shopping` stays as a deep link target. | M | `shoppingList.ts` exists |
 | R4.6 | Share with household from the list (invite · join · one live list). | S | Household exists; move the entry point |
 
 ### Phase 5 — Recipe and cook
@@ -315,3 +315,4 @@ matrix passes on a device; every new pure function has tests; `ROADMAP.md` and
 - 2026-11-06 · R7.4/R7.6: Download my data (`export-data`, reads with the caller's token so RLS decides; deployed v1, verify_jwt). Sign-out confirms and a used, signed-out phone opens on Welcome under flowV2.
 - 2026-11-06 · R0.12: `rate_limits` + `rate_limit_hit` applied (service role only, checked inside the function; RLS suite +3, 87/87; positive check locally: 2 allowed, 3rd refused). `rateLimitedDurable` in `_shared/http.ts`, used by scan-meal (v2) and export-data (v2); generate-recipe, import-recipe, resolve-nutrition and delete-account switch on their next deploy. REQUIRE_CLUB=on is Juan's switch (it blocks AI for anyone the membership mirror misses).
 - 2026-11-06 · R4.3 built behind flowV2: the meal picker opens with two doors above the Saved list — Find in Discover (Home tab) and Ask Otto (`ottoHref()`); the sheet closes first.
+- 2026-11-06 · R4.5 built behind flowV2: the Plan tab is `PlanTab` — Week · Shopping segment on top; Shopping is the same list (aisles, each row names its dishes) shown without a back button, and the week's "Shopping list" button switches the segment. `/shopping` stays as the deep link. Not checked on a device (needs a signed-in account; T3).

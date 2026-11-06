@@ -63,7 +63,26 @@ import { track } from '@/shared/track';
 // anything is hidden, not just for the 5s the undo toast lives.
 
 
-export function ShoppingScreen() {
+// Pushed (/shopping, a deep link target) it has its own header and back; as
+// the Plan tab's Shopping segment (R4.5) it drops both and keeps the actions.
+function Frame({ embedded, right, children }: { embedded?: boolean; right?: React.ReactNode; children: React.ReactNode }) {
+  const router = useRouter();
+  if (!embedded) {
+    return (
+      <Screen title="Shopping list" onBack={() => router.back()} right={right}>
+        {children}
+      </Screen>
+    );
+  }
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.cream }}>
+      {right != null && <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: space[2] }}>{right}</View>}
+      {children}
+    </View>
+  );
+}
+
+export function ShoppingScreen({ embedded }: { embedded?: boolean } = {}) {
   const router = useRouter();
   const { show } = useToast();
   const {
@@ -487,9 +506,9 @@ export function ShoppingScreen() {
 
   if (loading) {
     return (
-      <Screen title="Shopping list" onBack={() => router.back()}>
+      <Frame embedded={embedded}>
         <OttoLoading message="Counting the pantry…" />
-      </Screen>
+      </Frame>
     );
   }
 
@@ -502,16 +521,15 @@ export function ShoppingScreen() {
   const nothingToShow = allItems.length === 0 && customList.length === 0;
   if ((planError && nothingToShow && !isShared) || (listQuery.isError && nothingToShow)) {
     return (
-      <Screen title="Shopping list" onBack={() => router.back()}>
+      <Frame embedded={embedded}>
         <OttoError onRetry={() => (planError ? qc.invalidateQueries({ queryKey: ['plan'] }) : listQuery.refetch())} />
-      </Screen>
+      </Frame>
     );
   }
 
   return (
-    <Screen
-      title="Shopping list"
-      onBack={() => router.back()}
+    <Frame
+      embedded={embedded}
       right={
         <>
           <Pressable
@@ -721,7 +739,7 @@ export function ShoppingScreen() {
           </View>
         )}
       </ScrollView>
-    </Screen>
+    </Frame>
   );
 }
 

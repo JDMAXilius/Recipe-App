@@ -39,7 +39,15 @@ interface PickerTarget {
 
 /** planMyWeek (R4.4, composed by the route): dinners for the empty days,
  *  built with the first-week rules from the person's answers. */
-export function PlanScreen({ planMyWeek }: { planMyWeek?: (emptyDays: string[], planned: string[]) => Promise<AddPlanInput[]> } = {}) {
+export interface PlanScreenProps {
+  planMyWeek?: (emptyDays: string[], planned: string[]) => Promise<AddPlanInput[]>;
+  /** Inside PlanTab (R4.5): the tab owns the top inset, and "Shopping list"
+   *  switches the segment instead of pushing /shopping. */
+  embedded?: boolean;
+  onOpenShopping?: () => void;
+}
+
+export function PlanScreen({ planMyWeek, embedded, onOpenShopping }: PlanScreenProps = {}) {
   const router = useRouter();
   const { show } = useToast();
   const { entries, days, isLoading, isError, isSuccess, refetch, add, remove, swap, setCooked, setLabel, move } =
@@ -209,7 +217,7 @@ export function PlanScreen({ planMyWeek }: { planMyWeek?: (emptyDays: string[], 
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.cream }}>
+    <SafeAreaView edges={embedded ? [] : ['top']} style={{ flex: 1, backgroundColor: colors.cream }}>
       <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.header}>
         <Text role="display">Otto&apos;s week</Text>
@@ -230,7 +238,7 @@ export function PlanScreen({ planMyWeek }: { planMyWeek?: (emptyDays: string[], 
               onPress={ottoPlans}
             />
           )}
-          {planned > 0 && <Button title="Shopping list" variant="secondary" onPress={() => router.push('/shopping')} />}
+          {planned > 0 && <Button title="Shopping list" variant="secondary" onPress={() => (onOpenShopping ? onOpenShopping() : router.push('/shopping'))} />}
         </View>
       )}
 

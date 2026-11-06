@@ -1,9 +1,10 @@
-import { PlanScreen } from '@/features/planner';
+import { PlanScreen, PlanTab } from '@/features/planner';
 import { usePlanMyWeek } from '@/catalogue/usePlanMyWeek';
 import { flags } from '@/shared/flags';
 
-// Plan (R4): "Otto, plan my week" is composed here (catalogue), under flowV2.
+// Plan (R4): under flowV2 the tab is Week · Shopping (R4.5) and "Otto, plan my
+// week" is composed here (catalogue).
 export default function Plan() {
   const planMyWeek = usePlanMyWeek(flags.flowV2);
-  return <PlanScreen planMyWeek={flags.flowV2 ? planMyWeek : undefined} />;
+  return flags.flowV2 ? <PlanTab planMyWeek={planMyWeek} /> : <PlanScreen />;
 }
