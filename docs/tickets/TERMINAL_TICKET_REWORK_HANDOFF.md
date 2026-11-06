@@ -44,7 +44,7 @@
   smoke-test: an anon call still answers 401. `verify_jwt` per `supabase/config.toml`.
 
 ## Native work (needs Xcode, a device or the iOS 26 SDK)
-- [ ] **T8. NativeTabs spike (G-8 / R3.1).** Can `expo-router/unstable-native-tabs` on the iOS 26
+- [x] **T8. NativeTabs spike (G-8 / R3.1).** Can `expo-router/unstable-native-tabs` on the iOS 26
   SDK host the Otto circle as the trailing tab with the otter face and no search field? If yes,
   swap `app/(tabs)/_layout.tsx` under flowV2; if no, keep `TabBarOttoButton` (works today).
 - [ ] **T9. Three scans before an account (R0.16, G-10 = A).** App Attest / DeviceCheck: a native
@@ -84,6 +84,8 @@
 - T7: all four functions use `await rateLimitedDurable(` on main (`deno check` passes). **Not deployed:** the auto-mode classifier blocks `deploy_edge_function` in the terminal. Juan: allow it once, or the cloud session deploys from main. T7a and T7 are one deploy round.
 - T4: not run. Production SQL that deletes rows needs Juan in the SQL editor; Docker is off here, so no local dry run either.
 - Typecheck on main failed once the typed routes were regenerated (`openOtto` took a hand-rolled router type that expo-router's `Router` doesn't match): now `Pick<Router, …>` with an `Href`. Cloud session: regenerate `.expo/types` (run `npx expo start` once) before trusting `tsc`.
+
+- T8 answered: **no, keep `TabBarOttoButton`.** Read from the installed code (expo-router 6.0.24, react-native-screens 4.16, Xcode 26.0.1). The trailing circle exists only for `role="search"`, which makes `UITabBarItem(tabBarSystemItem: .search)` (`RNSBottomTabsScreenComponentView.mm` `updateTabBarItem`): its title is Apple's "Search" and can't be changed, so VoiceOver would say "Search" on Otto. And a custom image always goes in as `templateSource` (`NativeTabsView.js`, both the 4.16 and 4.18 paths), so the otter face would be a one-colour silhouette. Getting around either means patching expo-router and react-native-screens. Ask again when expo-router exposes `imageSource` and a custom title for the search slot.
 
 ## Device findings (T3)
 _Add one line per problem: screen · what you did · what happened · screenshot name._
