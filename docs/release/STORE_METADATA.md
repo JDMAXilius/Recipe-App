@@ -267,6 +267,41 @@ Account deletion is in Profile > Delete account and removes all server-side data
 
 ---
 
+## 7b. App Review Notes for 1.1 (the rework, draft — R10.4)
+
+Use this in place of §7 for the first build with `flow_v2` on. Every line is checked against the
+rework code as of 2026-11-06; re-read it against the build that is submitted.
+
+```
+Please sign in with the demo account in the Demo Account fields. It is already set up (household,
+a planned week, a shopping list), so it opens on Home with tonight's dinner. Nothing is empty.
+
+New install path, if you want to see it: Welcome → three short questions (who's eating, how they
+eat including allergies, foods to skip) → a week of dinners built on the phone from Otto's own
+recipe catalogue, before any account → Save your plan (Sign in with Apple, Google, Facebook or
+email) → the Otto Club screen.
+
+Otto Club (auto-renewable subscription): yearly $39.99 or monthly $4.99, each with a 1-week free
+trial. The billed price is the largest price on the screen; the trial terms are dated ("Free
+until …"). Restore purchases, Terms and Privacy are on that screen. A member can also manage the
+subscription and request a refund (Apple's own sheet) from Account → Otto Club.
+
+AI: Otto uses OpenAI on our server for the chat (Otto tab), for "Snap a meal" (a photo of a
+dish becomes a recipe), and for turning pasted text or a link's caption into a recipe. The app
+asks before the first AI request and names OpenAI. The camera is used only for photos of meals.
+Every AI recipe opens for review before it is saved; nutrition is labelled an estimate, and the
+allergy filter says "Otto will leave these out. Always check labels."
+
+Web access: no in-app browser. Recipe videos play in an embedded YouTube player inside the
+recipe card; a recipe's source link opens in the system browser sheet.
+
+Sharing: a shopping list can be shared with people the user invites by code. Nothing is public:
+no feed, no comments, no profiles.
+
+Account deletion: Account → Delete account. It removes the person's data on our server and
+revokes Sign in with Apple. Account → Download my data exports it first.
+```
+
 ## 8. Open before this can be submitted
 
 - [ ] **A5** decided — iPad in or out. Gates the iPad screenshot row above. Note the live
