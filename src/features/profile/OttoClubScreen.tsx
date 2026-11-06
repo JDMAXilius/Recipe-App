@@ -15,7 +15,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text, TextLink, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
-import { useClub } from './club.purchases';
+import { openManageSubscriptions, requestRefund, useClub } from './club.purchases';
 import { usePurchasePending } from './club.pending';
 import { flags } from '@/shared/flags';
 import { introTrialDays, purchaseErrorMessage, trialEndDate } from './club.logic';
@@ -164,7 +164,31 @@ export function OttoClubScreen() {
           )}
         </View>
 
-        {club.member ? (
+        {club.member && flags.flowV2 ? (
+          // R7.1: what the person has and what happens next, then Apple's own
+          // sheets: manage (change or cancel), restore, request a refund.
+          <View style={{ gap: space[3] }}>
+            {club.summary && (
+              <View style={{ gap: 2 }}>
+                <Text role="body">{[club.summary.plan ?? 'Otto Club', club.summary.trial ? 'free trial' : null].filter(Boolean).join(' · ')}</Text>
+                {club.summary.next && <Text role="caption">{club.summary.next}</Text>}
+              </View>
+            )}
+            <Button title="Manage subscription" variant="secondary" onPress={openManageSubscriptions} />
+            <View style={styles.legalRow}>
+              <TextLink title="Restore purchases" onPress={onRestore} />
+              <RNText style={[styles.fine, { alignSelf: 'center' }]}>·</RNText>
+              <TextLink
+                title="Request a refund"
+                onPress={async () => {
+                  const r = await requestRefund();
+                  if (r === 'sent') show('Apple has your request. They will email you.', 'success');
+                  else if (r === 'failed') show("Apple's refund page didn't open. Try reportaproblem.apple.com.", 'error');
+                }}
+              />
+            </View>
+          </View>
+        ) : club.member ? (
           <Pressable onPress={() => Linking.openURL(MANAGE_URL)} accessibilityRole="link">
             <RNText style={styles.link}>Manage subscription</RNText>
           </Pressable>

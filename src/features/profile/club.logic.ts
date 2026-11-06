@@ -103,3 +103,24 @@ export function trialEndDate(intro: IntroPriceLike | null | undefined, now: Date
   else return null;
   return d;
 }
+
+/** R7.1: the member's own line on Membership — which plan, and what happens
+ *  next ("Renews on Dec 4" / "Ends on Dec 4"). null for a non-member. */
+export interface MemberSummary {
+  plan: 'Yearly' | 'Monthly' | null;
+  next: string | null;
+  trial: boolean;
+}
+
+export function memberSummary(info: CustomerInfoLike | null | undefined, format: (d: Date) => string): MemberSummary | null {
+  const e = info?.entitlements.active[CLUB_ENTITLEMENT] as
+    | { productIdentifier?: string; expirationDate?: string | null; willRenew?: boolean; periodType?: string }
+    | undefined;
+  if (!e) return null;
+  const id = e.productIdentifier ?? '';
+  const plan = /year|annual/i.test(id) ? 'Yearly' : /month/i.test(id) ? 'Monthly' : null;
+  const when = e.expirationDate ? new Date(e.expirationDate) : null;
+  const ok = when && !Number.isNaN(when.getTime());
+  const next = ok ? `${e.willRenew ? 'Renews' : 'Ends'} on ${format(when)}` : null;
+  return { plan, next, trial: e.periodType === 'TRIAL' };
+}

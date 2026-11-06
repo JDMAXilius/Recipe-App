@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import Purchases, { type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
 import { useAuth } from '@/features/auth/AuthProvider';
-import { clubDates, hasClubEntitlement, introTrialDays, membershipState, type ClubDates } from './club.logic';
+import { clubDates, hasClubEntitlement, introTrialDays, memberSummary, membershipState, type ClubDates } from './club.logic';
 
 // 'unconfirmed' = Apple finished but RevenueCat hasn't granted `club` yet, even
 // after a sync. Never call that a success: the 2026-10-02 sandbox test charged a
@@ -29,6 +29,17 @@ async function syncedInfo(): Promise<CustomerInfo | null> {
 // The one place the RevenueCat key lives (_layout configures with it). Public
 // App Store SDK key — safe to ship in the binary.
 export const RC_API_KEY = 'appl_BUeOnXkZitkSNMjkCbkTJxicpaN';
+
+/** R7.1: Apple's own refund sheet (iOS 15+). 'sent' = Apple has the request;
+ *  'cancelled' = closed without sending; 'failed' = it couldn't open. */
+export async function requestRefund(): Promise<'sent' | 'cancelled' | 'failed'> {
+  try {
+    const status = await Purchases.beginRefundRequestForActiveEntitlement();
+    return status === Purchases.REFUND_REQUEST_STATUS.SUCCESS ? 'sent' : status === Purchases.REFUND_REQUEST_STATUS.USER_CANCELLED ? 'cancelled' : 'failed';
+  } catch {
+    return 'failed';
+  }
+}
 
 // Apple's own subscription sheet in-app; Apple's web page if it can't open.
 // Account's Otto Club row and the delete-account alert both route here.
@@ -147,6 +158,7 @@ export function useClub() {
 
   return {
     member: hasClubEntitlement(info),
+    summary: memberSummary(info, (d) => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })),
     yearly,
     monthly,
     // trial length comes from the store's intro offer (yearly is the preselected

@@ -67,3 +67,19 @@ test('trialEndDate: calendar units from now; none without a free trial', async (
   assert.equal(trialEndDate({ ...week, price: 0.99 }, now), null);
   assert.equal(trialEndDate(null, now), null);
 });
+
+test('memberSummary: plan from the product, renews vs ends, trial', async () => {
+  const { memberSummary } = await import('./club.logic.ts');
+  const f = (d) => d.toISOString().slice(0, 10);
+  const info = (club) => ({ entitlements: { active: club ? { club } : {} } });
+  assert.deepEqual(
+    memberSummary(info({ productIdentifier: 'otto_club_yearly', expirationDate: '2026-12-04T10:00:00Z', willRenew: true, periodType: 'NORMAL' }), f),
+    { plan: 'Yearly', next: 'Renews on 2026-12-04', trial: false },
+  );
+  const m = memberSummary(info({ productIdentifier: 'otto_club_monthly', expirationDate: '2026-12-04T10:00:00Z', willRenew: false, periodType: 'TRIAL' }), f);
+  assert.equal(m.plan, 'Monthly');
+  assert.equal(m.next, 'Ends on 2026-12-04');
+  assert.equal(m.trial, true);
+  assert.equal(memberSummary(info(null), f), null);
+  assert.equal(memberSummary(info({ productIdentifier: 'x', expirationDate: null }), f).next, null);
+});
