@@ -16,7 +16,7 @@ import { NutritionCard, type NutritionRecipe } from '@/features/nutrition';
 import { ShareCard, shareRecipeCard, type ShareRecipe } from '@/features/share';
 import { useSaved } from '@/features/cookbook';
 import { usePlan } from '@/features/planner';
-import { usePrefs } from '@/features/profile';
+import { servingsFor, usePrefs } from '@/features/profile';
 import { RecipeCard } from './RecipeCard';
 import { ParallaxHero } from './components/ParallaxHero';
 import { VideoEmbed } from './components/VideoEmbed';
@@ -55,7 +55,7 @@ export function RecipeDetailScreen() {
   const { data: related = [] } = useRelated(recipe);
   const { isSaved, toggle } = useSaved();
   const { days, add } = usePlan();
-  const { unitSystem } = usePrefs();
+  const { unitSystem, household } = usePrefs();
   const { show } = useToast();
   const shareCardRef = useRef<View>(null); // captured to a PNG by shareRecipeCard
 
@@ -65,10 +65,15 @@ export function RecipeDetailScreen() {
   // fallback and keeps scrolling jump-free).
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  // Every recipe opens at one serving (founder call): the stepper starts at 1
+  // Today every recipe opens at one serving (founder call; flowV2 changes it
+  // below): the stepper starts at 1
   // and scales the list down to a single portion. The true yield stays in
   // baseServings so the scale factor keeps an honest denominator.
-  const [servings, setServings] = useState(1);
+  // flowV2 (R5.1): it opens sized for the household the person told Otto
+  // about (a kid counts as half), like the first week's "Sized for N". The
+  // person's own tap wins from then on; before it, the answers decide.
+  const [picked, setServings] = useState<number | null>(null);
+  const servings = picked ?? (flags.flowV2 ? servingsFor(household) : 1);
   const [planOpen, setPlanOpen] = useState(false);
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/(tabs)'));
 
