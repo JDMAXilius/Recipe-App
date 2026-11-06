@@ -13,3 +13,5 @@ export { FaqScreen } from './FaqScreen';
 // src/features/notifications); the old profile stubs were removed.
 // Membership (hard paywall, 2026-10-04): the launch gate and the paywall read it.
 export { useMembership } from './club.purchases';
+export { ClubPendingScreen, ClubWelcomeScreen, ClubEndedScreen } from './ClubOutcomeScreens';
+export { usePurchasePending } from './club.pending';

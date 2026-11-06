@@ -73,6 +73,8 @@ export const LAUNCH_HREF: Record<Exclude<Launch, 'loading'>, string> = {
 export const LAUNCH_HREF_V2: Partial<typeof LAUNCH_HREF> = {
   welcome: '/welcome',
   needsPlan: '/about/1',
+  pending: '/club/pending',
+  ended: '/club/ended',
 };
 
 export function launchHref(state: Exclude<Launch, 'loading'>, flowV2: boolean): string {

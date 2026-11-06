@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Linking,
   Pressable,
   ScrollView,
@@ -15,6 +16,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Text, TextLink, OttoArt, useToast } from '@/shared/ui';
 import { colors, radii, space, type } from '@/shared/theme/tokens';
 import { useClub } from './club.purchases';
+import { usePurchasePending } from './club.pending';
+import { flags } from '@/shared/flags';
 import { purchaseErrorMessage } from './club.logic';
 import { useDeleteAccount } from './useDeleteAccount';
 import { useAuth } from '@/features/auth';
@@ -36,6 +39,7 @@ export function OttoClubScreen() {
   const { show } = useToast();
   const [plan, setPlan] = useState<'year' | 'month'>('year');
   const club = useClub();
+  const pending = usePurchasePending();
   const { signOut } = useAuth();
   // Hard paywall: a non-member can't reach Account, so its exits live here
   // (Apple 5.1.1(v): in-app deletion for every account, subscribed or not).
@@ -65,17 +69,32 @@ export function OttoClubScreen() {
     if (!pkg) return;
     const result = await club.buy(pkg);
     track('purchase_result', { product: pkg.product.identifier, result: typeof result === 'object' ? 'error' : result === 'ok' || result === 'pending' || result === 'unconfirmed' ? result : 'cancelled' });
-    if (result === 'ok') goHome();
+    // R2.2: cancelled → stay, no message; error → a native alert ("nothing was
+    // charged"); pending → the waiting screen; unconfirmed → the honest toast.
+    if (result === 'ok') {
+      if (flags.flowV2) router.replace('/club/welcome');
+      else goHome();
+    }
     else if (result === 'unconfirmed')
       show("Apple confirmed it, but it hasn't unlocked yet. Tap Restore.", 'info');
-    else if (result === 'pending') show('Waiting for Apple to approve the purchase.', 'info');
-    else if (typeof result === 'object') show(purchaseErrorMessage(result.error), 'error');
+    else if (result === 'pending') {
+      if (flags.flowV2) void pending.set(true).then(() => router.replace('/club/pending'));
+      else show('Waiting for Apple to approve the purchase.', 'info');
+    } else if (typeof result === 'object') {
+      if (flags.flowV2) Alert.alert("That didn't go through", `${purchaseErrorMessage(result.error)} Nothing was charged.`);
+      else show(purchaseErrorMessage(result.error), 'error');
+    }
   };
   const onRestore = async () => {
     const result = await club.restore();
-    if (result === 'ok') goHome();
-    else if (result === 'none') show('No Otto Club membership found on this Apple ID.', 'info');
-    else show(purchaseErrorMessage(result.error), 'error');
+    // R2.3: ok → "Purchases restored" then Home; none → a native alert, stay.
+    if (result === 'ok') {
+      show('Purchases restored.', 'success');
+      goHome();
+    } else if (result === 'none') {
+      if (flags.flowV2) Alert.alert('Nothing to restore', 'There’s no Otto Club on this Apple ID. If you joined with another one, sign in to it in Settings, then tap Restore.');
+      else show('No Otto Club membership found on this Apple ID.', 'info');
+    } else show(purchaseErrorMessage(result.error), 'error');
   };
 
   return (

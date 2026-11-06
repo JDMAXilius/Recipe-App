@@ -166,6 +166,10 @@ function RootStack() {
         <Stack.Screen name="onboarding" />
         {/* No swipe-back: a non-member has nowhere behind the paywall to go. */}
         <Stack.Screen name="otto-club" options={{ gestureEnabled: state === 'member' }} />
+        {/* Club outcomes (R2.2–R2.6): waiting, you're all set, ended. */}
+        <Stack.Screen name="club/pending" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="club/welcome" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="club/ended" options={{ gestureEnabled: false }} />
       </Stack.Protected>
 
       <Stack.Protected guard={allowed}>

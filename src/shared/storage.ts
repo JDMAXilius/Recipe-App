@@ -17,6 +17,7 @@ export type StoreKey =
   | 'intent'
   | 'eventsQueue'
   | 'deviceId'
+  | 'purchasePending'
   | 'household'
   | 'householdRecent'
   | 'journal'

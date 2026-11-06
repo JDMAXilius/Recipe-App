@@ -2,7 +2,7 @@ import { Redirect, type Href } from 'expo-router';
 import { useAuth } from '@/features/auth';
 import { Splash, launchHref, resolveLaunch, useDraft, useOnboarded } from '@/features/onboarding';
 import { flags } from '@/shared/flags';
-import { useMembership } from '@/features/profile';
+import { useMembership, usePurchasePending } from '@/features/profile';
 import { useIntent } from '@/shared/useIntent';
 
 // The launch entry (`/`): gathers the signals, asks resolveLaunch (pure,
@@ -12,6 +12,7 @@ export default function Index() {
   const { onboarded } = useOnboarded(session?.user);
   const { state } = useMembership();
   const { hasDraft } = useDraft();
+  const pending = usePurchasePending();
 
   const launch = resolveLaunch({
     authReady: isLoaded,
@@ -19,7 +20,7 @@ export default function Index() {
     onboarded,
     hasDraft,
     membership: state,
-    purchasePending: false, // Ask to Buy waiting arrives with R2.2
+    purchasePending: pending.pending,
   });
   // A link that came in before sign-in or the paywall opens now (R0.2).
   const intent = useIntent(launch === 'app');

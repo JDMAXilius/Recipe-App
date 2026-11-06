@@ -12,7 +12,7 @@ import { kv, type StoreKey } from './storage';
 export const KEPT: StoreKey[] = ['notifPrefs', 'unitSystem', 'soundsEnabled', 'firstSaveCelebrated', 'reviewPrompt', 'onboarded', 'deviceId', 'rcSynced', 'eventsQueue'];
 
 /** The person's data: cleared on every sign-out, and on a signed-out launch. */
-export const PERSONAL: StoreKey[] = ['prefs', 'journal', 'chats', 'cookRatings', 'aiConsentOpenAI', 'shoppingState', 'household', 'householdRecent'];
+export const PERSONAL: StoreKey[] = ['prefs', 'journal', 'chats', 'cookRatings', 'aiConsentOpenAI', 'shoppingState', 'household', 'householdRecent', 'purchasePending'];
 
 /** Waiting for the NEXT account (draft week, remembered link, queued events):
 /** Waiting for the NEXT account (draft week, remembered link): cleared only

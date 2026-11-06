@@ -48,10 +48,7 @@ Recipe-App/
 │   │   ├── account.tsx                    🆕 Account tab (was profile.tsx) (ADR-0008)
 │   │   ├── create.tsx                     🗑️ the ＋ tab (R3.4)
 │   │   └── otto.tsx                       🆕 Otto AI as a tab root (R3.4)
-│   ├── club/
-│   │   ├── pending.tsx                    🆕 Ask to Buy / waiting (R2.2)
-│   │   ├── welcome.tsx                    🆕 "You're all set" (R2.4)
-│   │   └── ended.tsx                      🆕 Club ended, everything still here (R2.6)
+│   ├── club/                              🆕 done — pending · welcome · ended (R2.2–R2.6)
 │   ├── r/[slug].tsx                       🆕 shared recipe link (R8.1)
 │   ├── l/[token].tsx                      🆕 shared list link (R8.1)
 │   ├── privacy.tsx                        🆕 Privacy & data (R7.4)

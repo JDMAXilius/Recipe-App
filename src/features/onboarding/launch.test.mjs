@@ -60,4 +60,7 @@ test('the rework opens Welcome and the questions; everything else is unchanged',
   assert.equal(launchHref('needsPlan', true), '/about/1');
   assert.equal(launchHref('welcome', false), '/(auth)/sign-up');
   assert.equal(launchHref('app', true), '/(tabs)');
+  assert.equal(launchHref('pending', true), '/club/pending');
+  assert.equal(launchHref('ended', true), '/club/ended');
+  assert.equal(launchHref('ended', false), '/otto-club');
 });
