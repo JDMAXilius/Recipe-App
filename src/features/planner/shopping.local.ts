@@ -89,3 +89,55 @@ export function setDropped(l: LocalList, recipeId: string, dropped: boolean): Lo
   if (l.excluded.includes(recipeId) === dropped) return l;
   return { ...l, excluded: dropped ? [...l.excluded, recipeId] : l.excluded.filter((id) => id !== recipeId) };
 }
+
+// --- store mechanics (pure, so the tests can drive them) -------------------
+
+type Edit = (l: LocalList) => LocalList;
+
+// Every read and write goes through one queue: a read never sees half a write
+// and two writes never interleave.
+export function serialStore(load: () => Promise<LocalList>, save: (l: LocalList) => Promise<void>) {
+  let queue: Promise<unknown> = Promise.resolve();
+  const serial = <T>(job: () => Promise<T>): Promise<T> => {
+    const run = queue.then(job, job);
+    queue = run.catch(() => undefined);
+    return run;
+  };
+  return {
+    read: () => serial(load),
+    /** Apply an edit to the stored list; returns the list before and after. */
+    write: (edit: Edit) =>
+      serial(async () => {
+        const before = await load();
+        const after = edit(before);
+        if (after !== before) await save(after);
+        return { before, after };
+      }),
+  };
+}
+
+// Optimistic edits: the cache moves now, storage follows in order, and when
+// the last queued write lands the cache takes storage's result (which also
+// carries anything Otto wrote meanwhile). Edits must be deterministic.
+export function optimisticUpdate(
+  cache: { get: () => LocalList | undefined; set: (l: LocalList) => void },
+  write: (edit: Edit) => Promise<{ after: LocalList }>,
+) {
+  let pending = 0;
+  return (edit: Edit): Promise<void> => {
+    const prev = cache.get();
+    if (prev) {
+      const next = edit(prev);
+      if (next === prev) return Promise.resolve();
+      cache.set(next);
+    }
+    pending++;
+    return write(edit)
+      .then(({ after }) => {
+        if (pending === 1) cache.set(after);
+      })
+      .finally(() => {
+        pending--;
+      });
+  };
+}

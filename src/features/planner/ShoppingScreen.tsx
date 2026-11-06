@@ -242,8 +242,8 @@ export function ShoppingScreen() {
   // render, which would defeat the memoized rows below. Read them through a
   // latest ref so the row callbacks can be stable AND always act on current
   // state (a stale closure here would toggle the wrong row).
-  const liveRef = useRef({ isShared, shared, update });
-  liveRef.current = { isShared, shared, update };
+  const liveRef = useRef({ isShared, shared, update, checked });
+  liveRef.current = { isShared, shared, update, checked };
 
   const toggle = useCallback((key: string) => {
     haptics.select();
@@ -251,7 +251,11 @@ export function ShoppingScreen() {
     if (sharedNow) {
       const on = list.rows.some((r) => r.item_key === key && r.checked);
       list.toggle(key, !on);
-    } else liveRef.current.update((l) => tick(l, key, !l.checked[key]));
+    } else {
+      // The target is decided once, here: an edit runs on two copies (store rule).
+      const on = !liveRef.current.checked[key];
+      liveRef.current.update((l) => tick(l, key, on));
+    }
   }, []);
 
   const addCustom = useCallback((name: string) => {
@@ -259,7 +263,10 @@ export function ShoppingScreen() {
     const { isShared: sharedNow, shared: list } = liveRef.current;
     if (sharedNow) list.addCustom(name);
     // Date.now() key — a re-used index would collide checkboxes after removals.
-    else liveRef.current.update((l) => addCustomTo(l, newCustomKey(), name));
+    else {
+      const key = newCustomKey(); // made once, outside the edit (store rule)
+      liveRef.current.update((l) => addCustomTo(l, key, name));
+    }
   }, []);
 
   // The undo toast outlives this screen (ToastHost is app-root). Both lists
@@ -331,7 +338,10 @@ export function ShoppingScreen() {
       onAction: () => {
         const { isShared: sharedUndo, shared: listUndo } = liveRef.current;
         if (sharedUndo) for (const r of restoring) listUndo.setRemoved(r.key, true, r.sources);
-        else liveRef.current.update((l) => hide(l, restoring.map((h) => ({ ...h, at: Date.now() }))));
+        else {
+          const at = Date.now();
+          liveRef.current.update((l) => hide(l, restoring.map((h) => ({ ...h, at }))));
+        }
       },
     });
   }, [hiddenItems, show]);

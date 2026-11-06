@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { EMPTY_LOCAL, addCustom, fromStored, hide, removeCustom, setDropped, tick, toStored, unhide, untick } from './shopping.local.ts';
+import { EMPTY_LOCAL, newCustomKey, optimisticUpdate, serialStore, addCustom, fromStored, hide, removeCustom, setDropped, tick, toStored, unhide, untick } from './shopping.local.ts';
 
 test('edits return the same object when nothing changes (no write, nothing to undo)', () => {
   const l = EMPTY_LOCAL;
@@ -43,4 +43,43 @@ test('stored blob: v2 removals kept, older removals dropped, round trip', () => 
   assert.deepEqual(fromStored({ checked: {}, custom: [], excluded: [], removed, removedV: 1 }).removed, []);
   const l = hide(EMPTY_LOCAL, removed);
   assert.deepEqual(fromStored(toStored(l)), l);
+});
+
+// --- store mechanics --------------------------------------------------------
+
+function harness(initial = EMPTY_LOCAL) {
+  let disk = initial;
+  const store = serialStore(async () => disk, async (l) => { disk = l; });
+  let cached = initial;
+  const update = optimisticUpdate({ get: () => cached, set: (l) => { cached = l; } }, store.write);
+  return { store, update, disk: () => disk, cache: () => cached };
+}
+
+test('an extra added, ticked and removed lands the same way in the cache and on disk', async () => {
+  const h = harness();
+  const key = newCustomKey(); // made once, outside the edit (store rule)
+  await h.update((l) => addCustom(l, key, 'Batteries'));
+  await h.update((l) => tick(l, key, true));
+  assert.deepEqual(h.disk(), h.cache());
+  await h.update((l) => removeCustom(l, key));
+  assert.deepEqual(h.disk().custom, []);
+  assert.deepEqual(h.cache(), h.disk());
+});
+
+test('a change Otto writes meanwhile reaches the screen when the next edit lands', async () => {
+  const h = harness();
+  await h.store.write((l) => tick(l, 'milk', true)); // Otto: disk only
+  await h.update((l) => setDropped(l, '52772', true)); // the screen's next edit
+  assert.deepEqual(h.cache().checked, { milk: true });
+  assert.deepEqual(h.cache(), h.disk());
+});
+
+test('quick edits in a row never flash back: the cache waits for the last write', async () => {
+  const h = harness();
+  const seen = [];
+  let cached = EMPTY_LOCAL;
+  const update = optimisticUpdate({ get: () => cached, set: (l) => { cached = l; seen.push(Object.keys(l.checked).length); } }, h.store.write);
+  await Promise.all([update((l) => tick(l, 'a', true)), update((l) => tick(l, 'b', true)), update((l) => tick(l, 'c', true))]);
+  assert.deepEqual(seen.slice(0, 3), [1, 2, 3]); // optimistic
+  assert.ok(seen.slice(3).every((n) => n === 3), `flashed back: ${seen}`); // only the final write sets it
 });
