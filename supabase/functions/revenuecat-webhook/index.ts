@@ -55,11 +55,25 @@ Deno.serve(async (req) => {
     return json(200, { ignored: "no supabase user id" });
   }
 
-  const rcRes = await fetch(
-    `https://api.revenuecat.com/v1/subscribers/${appUserId}`,
-    { headers: { Authorization: `Bearer ${Deno.env.get("REVENUECAT_SECRET_KEY")}` } },
-  );
-  // Non-2xx → 502 so RevenueCat retries the webhook later.
+  // A missing key is a setup fault, not a RevenueCat outage: say so once,
+  // plainly, and let RevenueCat retry once it's set (A4).
+  const rcKey = Deno.env.get("REVENUECAT_SECRET_KEY");
+  if (!rcKey) {
+    console.error("REVENUECAT_SECRET_KEY is not set: memberships can't be mirrored until it is");
+    return json(503, { error: "not configured" });
+  }
+  // Same 6 s bound as every other upstream call; non-2xx or a timeout → 502
+  // so RevenueCat retries the webhook later.
+  let rcRes: Response;
+  try {
+    rcRes = await fetch(`https://api.revenuecat.com/v1/subscribers/${appUserId}`, {
+      headers: { Authorization: `Bearer ${rcKey}` },
+      signal: AbortSignal.timeout(6000),
+    });
+  } catch (error) {
+    console.error("revenuecat fetch failed", (error as Error).name);
+    return json(502, { error: "revenuecat fetch failed" });
+  }
   if (!rcRes.ok) {
     console.error("revenuecat fetch failed", rcRes.status);
     return json(502, { error: "revenuecat fetch failed" });

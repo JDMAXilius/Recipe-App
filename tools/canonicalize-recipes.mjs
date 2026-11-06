@@ -7,7 +7,9 @@
 //   --rank [N=10]       rank the bronze corpus worst-first → the pilot list
 //   --emit <id>         write the canonicalizer INPUT payload for one recipe
 //   --land <file.json>  zod-validate the canonicalizer's OUTPUT and upsert silver
-//   --run-batch         Phase 2 FULL run: canonicalize all un-landed bronze via the
+//   --run-batch         (needs the retired `canonicalize` function redeployed from
+//                       git history first: it answers 410 since 2026-11-06)
+//                       Phase 2 FULL run: canonicalize all un-landed bronze via the
 //                       DEPLOYED `canonicalize` edge fn + zod-land each. RESUMABLE
 //                       (work set = bronze ids not yet in recipes.json), failure-
 //                       isolated (a zod/network fail is logged, never aborts the run).
