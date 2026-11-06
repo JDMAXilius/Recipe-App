@@ -64,6 +64,11 @@ function messageForStatus(status: number, bodyError?: string): string {
 export interface ChatOptions {
   diet?: string;
   cuisines?: string[];
+  // flowV2 (R3.4 v1, B6): what the person told Otto, composed by the route.
+  servings?: number;
+  allergies?: string[];
+  skips?: string[];
+  week?: string[];
 }
 
 // Zod details are for developers; a shape mismatch shows users ONE friendly

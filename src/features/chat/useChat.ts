@@ -81,6 +81,10 @@ export interface UseChat {
 
 export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat {
   const { threadId, ...chatOpts } = opts;
+  // Read at send time: `send` is memoised, and prefs or the week can change
+  // after the screen mounts.
+  const optsRef = useRef(chatOpts);
+  optsRef.current = chatOpts;
   const [messages, setMessages] = useState<StoredMessage[]>([]);
   const [response, setResponse] = useState<ChatResponse | null>(null);
   const [isSending, setIsSending] = useState(false);
@@ -174,7 +178,7 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
       setStreamingText(null);
       // Streaming send: deltas fill the live bubble; the persisted transcript
       // still comes from the final response only (same as the old sendChat).
-      sendChatStreaming(toWireTranscript(withUser), chatOpts, setStreamingText)
+      sendChatStreaming(toWireTranscript(withUser), optsRef.current, setStreamingText)
         .then((res) => {
           const ottoMsg: StoredMessage = { role: 'assistant', content: res.message, ts: Date.now() };
           persist(pruneHistory([...messagesRef.current, ottoMsg], Date.now()));
@@ -188,7 +192,6 @@ export function useChat(opts: ChatOptions & { threadId?: string } = {}): UseChat
           setIsSending(false);
         });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isSending, persist],
   );
 

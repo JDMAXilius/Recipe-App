@@ -16,7 +16,7 @@
 - [x] **B3.*(done 2026-11-06; the frozen nutrition engine's history comments and aiConsent's provider note are left as true history)*  Code comments that still name Anthropic / Claude / Sonnet**: `ChatScreen.tsx:121`, `chat.queries.ts:29`, `import.queries.ts:99`, `AddSheet.tsx:126`, `nutrition.queries.ts:60`, `nutrition/engine/lookup.ts:4`, `ProfileScreen.tsx:274`, `resolve-nutrition/index.ts:12`. `_shared/http.ts:1` says 5 functions (there are 7).
 - [ ] **B4. Privacy** *(2026-11-06: truth table vendor corrected and a corrections section added with the exact policy changes; Juan edits the website policy and the App Store answers)*: `docs/legal/APP_PRIVACY_TRUTH_TABLE.md` still names Anthropic as the AI vendor (rows 7, 12, 13, 17, vendor table); the live privacy policy too (ROADMAP Phase 0). Juan re-audits before the next submission; answers are an attestation.
 - [x] **B5.*(done 2026-11-06: supabase/config.toml)*  `supabase/config.toml`**: per-function `verify_jwt` is only in the dashboard (all on except `revenuecat-webhook`). Commit a config so a redeploy can't flip it.
-- [ ] **B6. Ask Otto never sends diet or cuisines** (`ChatScreen.tsx:81`), so allergies and diet are ignored in chat. Ties to ADR-0010 (prefs on the account).
+- [x] **B6. Ask Otto never sends diet or cuisines** *(done 2026-11-06 behind flowV2; deploy T7a)* (`ChatScreen.tsx:81`), so allergies and diet are ignored in chat. Ties to ADR-0010 (prefs on the account).
 
 ## Rules
 Code changes in small PRs; `npm run typecheck`, `npm run lint`, `npm test` once per PR. Production changes (A1 delete, A2/A3 migrations) only after Juan says yes. Update `docs/architecture/` and its Status line in the same commit.

@@ -4,7 +4,7 @@
 // DORMANT without OPENAI_API_KEY (503). Key comes ONLY from Deno.env and is
 // never logged or echoed (see _shared/openai.ts). Per-user rate limit: this is the most expensive path.
 import { z } from "npm:zod@4";
-import { corsHeaders, getUserId, json, preflight, rateLimited, requireClub } from "../_shared/http.ts";
+import { corsHeaders, getUserId, json, preflight, rateLimitedDurable, requireClub } from "../_shared/http.ts";
 import { askJson, type ChatMessage, logUsage, openaiActive, openaiFetch, truncated } from "../_shared/openai.ts";
 import { checkImage, MAX_TEXT_CHARS, TEXT_INSTRUCTION, VISION_INSTRUCTION } from "./imageMode.ts";
 import { extractMessagePrefix, parseSseLines } from "./streamParse.ts";
@@ -19,6 +19,11 @@ const commonFields = {
   servings: z.coerce.number().int().min(1).max(24).optional(),
   diet: z.string().trim().max(40).optional(),
   cuisines: z.array(z.string().trim().max(40)).max(6).optional(),
+  // Rework (flowV2, B6): what the person told Otto. Allergies are big-9 labels;
+  // skips are their own words; week is this week's planned dish titles.
+  allergies: z.array(z.string().trim().min(1).max(40)).max(9).optional(),
+  skips: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
+  week: z.array(z.string().trim().min(1).max(120)).max(21).optional(),
 };
 const generateBody = z.object({
   prompt: z.string().trim().min(3).max(MAX_PROMPT_CHARS),
@@ -303,6 +308,17 @@ function contextLines(body: z.infer<typeof generateBody> | z.infer<typeof chatBo
   if (Array.isArray(body.cuisines) && body.cuisines.length) {
     context.push(`Cuisines they enjoy (a lean, not a rule): ${body.cuisines.slice(0, 6).join(", ")}`);
   }
+  if (Array.isArray(body.allergies) && body.allergies.length) {
+    context.push(
+      `Allergies in the household — never use these or anything made from them, and say so if a dish they ask for usually has one: ${body.allergies.join(", ")}`,
+    );
+  }
+  if (Array.isArray(body.skips) && body.skips.length) {
+    context.push(`Foods they skip — leave out unless they ask: ${body.skips.join(", ")}`);
+  }
+  if (Array.isArray(body.week) && body.week.length) {
+    context.push(`Already planned this week (avoid repeating these): ${body.week.join("; ")}`);
+  }
   return context;
 }
 
@@ -314,7 +330,7 @@ Deno.serve(async (req) => {
   const userId = await getUserId(req);
   if (!userId) return json(401, { error: "Missing or invalid access token" });
   // v1 costlyLimiter budget: 20 per 15 min per user.
-  if (rateLimited(`gen:${userId}`, 20, 15 * 60 * 1000)) {
+  if (await rateLimitedDurable(`gen:${userId}`, 20, 15 * 60 * 1000)) {
     return json(429, { error: "Too many requests. Give it a few minutes and try again" });
   }
   // Hard paywall on the server too (REQUIRE_CLUB=on, 1.0.20+): the app's gate

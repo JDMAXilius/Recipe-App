@@ -24,14 +24,21 @@
   rename the file to the version Supabase records and remove its "NOT YET APPLIED" note.
 - [ ] **T5. App Privacy answers + website policy (Juan, with you).** Exact changes in
   `docs/legal/APP_PRIVACY_TRUTH_TABLE.md` → "2026-11-06 corrections": Product Interaction (events),
-  meal photos to OpenAI, on-device dictation. Policy paragraphs go to the Otto_Website repo.
+  meal photos to OpenAI, on-device dictation. Policy paragraphs go to the Otto_Website repo. Before
+  the rework build ships (R10.3): allergies, foods to skip and the week's dish names go to OpenAI
+  with each Ask Otto turn (B6) — truth table row 18 item 4.
 - [ ] **T6. Console jobs (Juan).** App Store Connect: turn on Billing Grace Period (R2.7). Supabase: delete the retired `canonicalize` function (it answers
   410 today); turn on leaked-password protection. Decide `REQUIRE_CLUB=on` (server checks Otto Club
   on every AI call; verify the demo account still gets 200 first).
 
 ## Server
+- [ ] **T7a. Deploy `generate-recipe` first (code ready on main, 2026-11-06).** Already switched to
+  `rateLimitedDurable` and accepts the chat's new context (`allergies`, `skips`, `week`; B6). Deploy:
+  `supabase functions deploy generate-recipe` (verify_jwt on). Smoke: anon → 401; a signed-in chat
+  turn with `allergies: ["Peanuts"]` asking for satay must not use peanuts and should say so. Old
+  apps send none of the new fields and see no change.
 - [ ] **T7. Redeploy the four functions that still use the in-memory limiter** with
-  `rateLimitedDurable` (R0.12): `generate-recipe`, `import-recipe`, `resolve-nutrition`,
+  `rateLimitedDurable` (R0.12): ~~`generate-recipe`~~ (T7a), `import-recipe`, `resolve-nutrition`,
   `delete-account`. Change `rateLimited(` → `await rateLimitedDurable(` in each `index.ts` (the
   import too), `npx deno check` each, deploy via the Supabase MCP with `_shared/*` included, and
   smoke-test: an anon call still answers 401. `verify_jwt` per `supabase/config.toml`.

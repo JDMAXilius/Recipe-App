@@ -17,6 +17,9 @@ Changes since the audit that the App Store answers must cover:
 3. **Audio (row 14):** dictation stays on the phone where supported; older phones still use Apple.
 4. **Coming with R0.4 (ADR-0010):** household size, diet, allergies and skips on the account. Health &
    Fitness or Other User Content (allergies can imply health), linked, not tracking. Not yet live.
+   In the rework build (flowV2) Ask Otto also sends the household size, diet, allergies (plain
+   labels), foods to skip and this week's dish names to OpenAI with each turn, so the recipe fits
+   the home (B6). Same disclosure: OpenAI named as the processor, used only to answer, not tracking.
 5. **Sign-out** now clears the person's data from the phone (S1).
 
 ### Policy changes for the website repo (`legal/PRIVACY_POLICY.md`, §1(g) and the vendor list)

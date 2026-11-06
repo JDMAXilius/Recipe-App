@@ -15,6 +15,7 @@ import { stageOttoRecipe, takeOttoAsk } from '@/features/import';
 import { ChatEmptyState } from './components/ChatEmptyState';
 import { Composer } from './components/Composer';
 import { Transcript } from './components/Transcript';
+import type { ChatOptions } from './chat.queries';
 import { useChat } from './useChat';
 import { useSpeechInput } from '@/shared/speech/useSpeechInput';
 import type { ChatRecipe } from './chat.types';
@@ -66,7 +67,9 @@ function HeaderButton({
   );
 }
 
-export function ChatScreen() {
+/** context (flowV2): the household, diet, allergies, skips and this week,
+ *  composed by the Otto route so the chat cooks for this home. */
+export function ChatScreen({ context }: { context?: ChatOptions } = {}) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   // Real tab bar height (safe-area included) — the keyboard offset must clear
@@ -79,7 +82,7 @@ export function ChatScreen() {
   const { isSignedIn } = useAuth();
   // ?chat=<id> — arriving from Recent chats reopens that thread.
   const { chat: chatParam } = useLocalSearchParams<{ chat?: string }>();
-  const chat = useChat({ threadId: chatParam });
+  const chat = useChat({ threadId: chatParam, ...context });
   const [draft, setDraft] = useState('');
   const scrollRef = useRef<ScrollView>(null);
   // Destructured so the callbacks below can depend on the stable pieces (the
