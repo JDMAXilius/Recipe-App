@@ -35,10 +35,14 @@ export interface ListStateRow {
 
 // Unambiguous invite code — no O/0/I/1 to misread over text.
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+// A2: from the CSPRNG (react-native-get-random-values polyfills it on native),
+// never Math.random. 32 symbols divide 256 evenly, so byte % 32 is uniform.
+// Six characters stay: older builds cap the join field at 6. Guessing is
+// bounded by the join attempt limit in join_household.
 function newCode(): string {
-  let s = '';
-  for (let i = 0; i < 6; i++) s += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
-  return s;
+  const bytes = new Uint8Array(6);
+  globalThis.crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => ALPHABET[b % ALPHABET.length]).join('');
 }
 
 // The caller's household (a user is in at most one — the first membership wins).
@@ -93,6 +97,8 @@ export async function createHousehold(userId: string, displayName: string): Prom
 export async function joinHousehold(userId: string, code: string, displayName: string): Promise<string> {
   const { data, error } = await supabase.rpc('join_household', { code });
   if (error) throw error;
+  // A wrong code is null, not an error (so the attempt limit can count it).
+  if (!data) throw new Error('No kitchen with that code');
   const householdId = data as string;
   if (displayName) {
     const { error: nameErr } = await supabase
