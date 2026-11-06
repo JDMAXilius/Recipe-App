@@ -92,3 +92,22 @@ test('taps: a tonight nudge opens its first recipe; Sunday opens the plan; trial
   assert.equal(out.find((n) => n.id.startsWith('sunday-')).href, '/plan?view=week');
   assert.ok(out.some((n) => n.id.startsWith('trial-')));
 });
+
+test('dinner buttons only on a one-dish day that knows its entry', () => {
+  const prefs = { ...DEFAULT_PREFS, tonight: true };
+  const out = computeNotifications(
+    [
+      { day: '2026-07-24', title: 'Ramen', cooked: false, id: 7 },
+      { day: '2026-07-25', title: 'Soup', cooked: false, id: 8 },
+      { day: '2026-07-25', title: 'Bread', cooked: false, id: 9 },
+      { day: '2026-07-26', title: 'Tacos', cooked: false },
+    ],
+    prefs,
+    now,
+  );
+  const by = (d) => out.find((n) => n.id === `tonight-${d}`);
+  assert.equal(by('2026-07-24').category, 'dinner');
+  assert.equal(by('2026-07-24').entryId, 7);
+  assert.equal(by('2026-07-25').category, undefined);
+  assert.equal(by('2026-07-26').category, undefined);
+});

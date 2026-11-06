@@ -23,9 +23,15 @@ export interface PlannedNotification {
   body: string;
   /** Where a tap opens (R8.2). Absent: the app just opens. */
   href?: string;
+  /** R8.2 buttons: 'dinner' = Cooked it · Swap, for a day with ONE dish
+   *  (two dishes: which one was cooked? The tap opens the app instead). */
+  category?: 'dinner';
+  entryId?: number;
 }
 
-type PlanRow = Pick<PlanEntry, 'day' | 'title' | 'cooked'> & { recipe_id?: string | null };
+export const DINNER_ACTIONS = { cooked: 'cooked', swap: 'swap' } as const;
+
+type PlanRow = Pick<PlanEntry, 'day' | 'title' | 'cooked'> & { recipe_id?: string | null; id?: number };
 
 /** Account facts that aren't in the plan. trialEndsAt: a renewing free
  *  trial's end (RevenueCat expirationDate, ISO). */
@@ -96,12 +102,14 @@ export function computeNotifications(
     // Group uncooked dishes by day, preserving plan order within a day.
     const byDay = new Map<string, string[]>();
     const firstRecipe = new Map<string, string>();
+    const ids = new Map<string, number[]>();
     for (const e of entries) {
       if (e.cooked || !e.day || !e.title) continue;
       const list = byDay.get(e.day) ?? [];
       list.push(e.title);
       byDay.set(e.day, list);
       if (e.recipe_id && !firstRecipe.has(e.day)) firstRecipe.set(e.day, e.recipe_id);
+      if (typeof e.id === 'number') ids.set(e.day, [...(ids.get(e.day) ?? []), e.id]);
     }
     for (const [day, dishes] of byDay) {
       const when = dayAt(day, prefs.hour);
@@ -113,6 +121,7 @@ export function computeNotifications(
         title: 'Tonight in your kitchen',
         body: `${dishes[0]}${more}. Ready to start cooking?`,
         href: firstRecipe.has(day) ? `/recipe/${firstRecipe.get(day)}` : '/plan?view=week',
+        ...(dishes.length === 1 && ids.get(day)?.length === 1 ? { category: 'dinner' as const, entryId: ids.get(day)![0] } : {}),
       });
     }
   }

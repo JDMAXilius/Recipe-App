@@ -61,7 +61,8 @@
   Rework build: a sandbox trial with a reminder on schedules "Your free trial ends in 2 days" (R2.8;
   sandbox trials are minutes long, so check it is scheduled, or skipped when too close); a billing
   failure shows Home's "Apple couldn't take your last payment" line → Update opens Apple's sheet
-  (R2.7); tapping a dinner reminder opens that recipe, warm and from a quit app (R8.2). As a member:
+  (R2.7); tapping a dinner reminder opens that recipe, warm and from a quit app (R8.2); long-press it →
+  Cooked it ticks that dinner and opens the week, Swap opens the week (both warm and quit). As a member:
   Account → Otto Club shows the plan and "Renews on …"; Request a refund opens Apple's sheet (R7.1).
 
 - [ ] **T15. Native launch screen (R1.1, G18) — with the switch flip (R10.1), not in 1.0.24.** In

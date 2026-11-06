@@ -14,9 +14,9 @@ import { flags } from '@/shared/flags';
 /** trialEndsAt (R2.8, composed by the root layout from the membership): a
  *  renewing trial's end; flowV2 only. */
 export function NotifSync({ trialEndsAt }: { trialEndsAt?: string | null } = {}) {
-  const { entries, isLoading } = usePlan();
+  const { entries, isLoading, isSuccess, setCooked } = usePlan();
   const prefs = useNotifPrefs();
-  useNotificationTaps(flags.flowV2);
+  useNotificationTaps(flags.flowV2, { ready: isSuccess, setCooked });
   const trial = flags.flowV2 ? trialEndsAt ?? null : null;
 
   useEffect(() => {
