@@ -54,6 +54,13 @@
   failure shows Home's "Apple couldn't take your last payment" line → Update opens Apple's sheet
   (R2.7); tapping a dinner reminder opens that recipe, warm and from a quit app (R8.2).
 
+- [ ] **T15. Native launch screen (R1.1, G18) — with the switch flip (R10.1), not in 1.0.24.** In
+  `app.json` replace `"splash": null` with the `expo-splash-screen` plugin:
+  `["expo-splash-screen", { "backgroundColor": "#FAF4EA" }]` (cream, no image, no text), run
+  `npx expo prebuild --clean` or a fresh EAS build, and check on a device that the launch goes cream →
+  Welcome (or Home) with no white flash and no otter. The in-app splash is already plain cream
+  under flowV2.
+
 ## Batch jobs (need a secret on your machine)
 - [ ] **T13. Cook times for the catalogue (R0.14).** A one-time script over the 795 `otto_recipes`
   that estimates total and active minutes from the steps (gpt-5-mini, strict schema), stored as
