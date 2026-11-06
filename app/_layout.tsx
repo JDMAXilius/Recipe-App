@@ -16,7 +16,7 @@ import { RC_API_KEY, useMembership } from '@/features/profile/club.purchases';
 import { AiConsentHost, ErrorBoundary, ToastHost } from '@/shared/ui';
 import { OfflineBanner } from '@/shared/ui/OfflineBanner';
 import { supabase } from '@/shared/supabase/client';
-import { kv } from '@/shared/storage';
+import { forgetPersonalData } from '@/shared/forget';
 import { dropQueuedEvents, flushEvents } from '@/shared/track';
 import { flags } from '@/shared/flags';
 import { DraftClaim } from '@/catalogue/DraftClaim';
@@ -54,8 +54,8 @@ supabase.auth.onAuthStateChange((_event, session) => {
   if (!uid || (cacheOwner && uid !== cacheOwner)) {
     queryClient.clear();
     persister.removeClient();
-    // The personal shopping list is one user's data too (ticks, extras).
-    void kv.remove('shoppingState');
+    // S1: chats, journal, prefs, AI consent, reminders, the personal list…
+    void forgetPersonalData({ personLeft: !!cacheOwner && uid !== cacheOwner });
   }
   cacheOwner = uid;
 });

@@ -7,6 +7,7 @@
 // useSyncExternalStore only if tearing shows up.
 import { useEffect, useState } from 'react';
 import { kv } from '@/shared/storage';
+import { onForget } from '@/shared/forget';
 import { deriveUnitSystem, type UnitSystem } from './profile.logic';
 import {
   DEFAULT_PREFS,
@@ -28,6 +29,13 @@ const emit = () => listeners.forEach((l) => l());
 
 // Load once from kv, then notify. Best-effort: a failed read leaves defaults.
 // One promise, so a writer can wait for it and never be overwritten by it.
+// S1: the next person starts from the defaults and reads their own storage.
+onForget(() => {
+  state = { ...DEFAULT_PREFS, unitSystem: state.unitSystem };
+  hydrating = null;
+  emit();
+});
+
 function hydrate(): Promise<void> {
   hydrating ??= (async () => {
     const [rawPrefs, rawUnit] = await Promise.all([

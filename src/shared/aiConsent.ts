@@ -13,6 +13,7 @@
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { kv } from './storage';
+import { onForget } from './forget';
 import { mayUseAi, parseAiConsent, type AiConsentState } from './aiConsent.logic';
 
 export { AI_CONSENT_COPY, type AiConsentState } from './aiConsent.logic';
@@ -27,6 +28,12 @@ let cache: AiConsentState | null = null;
 const stateListeners = new Set<(s: AiConsentState) => void>();
 type ConsentRequest = (resolve: (allowed: boolean) => void) => void;
 const requestListeners = new Set<ConsentRequest>();
+
+// S1: a yes is one person's; the next person is asked again.
+onForget(() => {
+  cache = 'unknown';
+  stateListeners.forEach((l) => l('unknown'));
+});
 
 export async function readAiConsent(): Promise<AiConsentState> {
   if (cache == null) cache = parseAiConsent(await kv.get('aiConsentOpenAI', null, StoredConsent));

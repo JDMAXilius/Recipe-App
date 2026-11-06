@@ -7,6 +7,8 @@
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { kv } from '@/shared/storage';
+import { onForget } from '@/shared/forget';
+import * as Notifications from 'expo-notifications';
 import { DEFAULT_PREFS, type NotifPrefs } from './notifications.logic';
 
 // Validate-before-trust: a corrupt/legacy blob falls back to defaults.
@@ -20,6 +22,14 @@ let state: NotifPrefs = DEFAULT_PREFS;
 const listeners = new Set<() => void>();
 let hydrated = false;
 const emit = () => listeners.forEach((l) => l());
+
+// S1: reminders were the last person's: cancel them and start from defaults.
+onForget(async () => {
+  state = DEFAULT_PREFS;
+  hydrated = false;
+  emit();
+  await Notifications.cancelAllScheduledNotificationsAsync();
+});
 
 async function hydrate() {
   if (hydrated) return;
