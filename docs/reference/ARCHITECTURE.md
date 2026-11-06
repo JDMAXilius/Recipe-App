@@ -65,7 +65,7 @@ Every file is a route. Groups in `(parens)` don't add a URL segment.
 | Path | Screen |
 |---|---|
 | `app/_layout.tsx` | Root: providers + stack |
-| `app/index.tsx` | Launch gate → onboarding / sign-in / tabs (`resolveRoute`) |
+| `app/index.tsx` | Launch: asks `resolveLaunch` where to open (welcome, sign-in, questions, paywall, pending, ended, app) |
 | `app/onboarding.tsx` | Painted intro (no account wall) |
 | `app/(tabs)/_layout.tsx` | Bottom tab bar (5 tabs; raised center ＋) |
 | `app/(tabs)/index.tsx` | **Discover** (search, category tiles, Otto's pick) |
@@ -109,7 +109,7 @@ the Supabase client — no raw `fetch` in screens). `index.ts` is the public sea
 | `chat/` | Otto chat: `chat.logic.ts`, `useChat`, calls `generate-recipe` in chat mode |
 | `share/` | Share cards, share text/image, capability tokens (`token.ts`), `share.queries.ts` |
 | `notifications/` | Notif prefs + `NotifSync`; expo-notifications wiring |
-| `onboarding/` | Splash, onboarding screen, first-run `gate.ts` / `resolveRoute` |
+| `onboarding/` | Splash, onboarding screen, launch decision `launch.ts` (`resolveLaunch`, `LAUNCH_HREF`, `canUseApp`) |
 | `profile/` | Account screen + sub-screens (FAQ, Household, Otto Club, Preferences), prefs logic |
 
 ### 2.4 Shared — `src/shared/*`

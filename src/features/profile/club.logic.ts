@@ -53,12 +53,16 @@ export function purchaseErrorMessage(code: string | undefined): string {
 }
 
 
-/** What the launch gate may conclude. Not ready = unknown, whatever the stale info says. */
-export function membershipAnswer(
+/** What the launch may conclude about Otto Club. Not ready = unknown, whatever
+ *  stale info says (mid sign-in RevenueCat still describes the anonymous
+ *  customer). A failed fetch is a known "none": fail closed onto the paywall.
+ *  ended = the entitlement exists in `all` but not in `active`. */
+export function membershipState(
   purchasesReady: boolean,
-  info: Parameters<typeof hasClubEntitlement>[0],
+  info: (CustomerInfoLike & { entitlements: { all?: Record<string, unknown> } }) | null | undefined,
   failed: boolean,
-): { member: boolean; known: boolean } {
-  if (!purchasesReady) return { member: false, known: false };
-  return { member: hasClubEntitlement(info), known: info !== null || failed };
+): 'unknown' | 'member' | 'ended' | 'none' {
+  if (!purchasesReady || (!info && !failed)) return 'unknown';
+  if (hasClubEntitlement(info)) return 'member';
+  return info?.entitlements.all?.[CLUB_ENTITLEMENT] ? 'ended' : 'none';
 }

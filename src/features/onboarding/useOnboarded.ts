@@ -10,7 +10,7 @@ import type { User } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { kv } from '@/shared/storage';
 import { supabase } from '@/shared/supabase/client';
-import { onboardedFor } from './gate';
+import { onboardedFor } from './launch';
 
 const Stored = z.union([z.boolean(), z.array(z.string())]);
 

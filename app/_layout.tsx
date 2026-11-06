@@ -109,9 +109,9 @@ export default function RootLayout() {
 // sends the user to `index`, the launch gate, which picks the right door.
 function RootStack() {
   const { session } = useAuth();
-  const { member, known } = useMembership();
+  const { state } = useMembership();
   const signedIn = !!session;
-  const allowed = canUseApp(signedIn, known ? member : null);
+  const allowed = canUseApp(signedIn, state);
 
   return (
     // Back is the LEFT-EDGE swipe, not a drag from anywhere: a full-screen pan
@@ -138,7 +138,7 @@ function RootStack() {
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="onboarding" />
         {/* No swipe-back: a non-member has nowhere behind the paywall to go. */}
-        <Stack.Screen name="otto-club" options={{ gestureEnabled: member }} />
+        <Stack.Screen name="otto-club" options={{ gestureEnabled: state === 'member' }} />
       </Stack.Protected>
 
       <Stack.Protected guard={allowed}>

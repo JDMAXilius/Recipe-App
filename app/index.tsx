@@ -1,22 +1,23 @@
 import { Redirect, type Href } from 'expo-router';
 import { useAuth } from '@/features/auth';
-import { Splash, resolveRoute, useOnboarded } from '@/features/onboarding';
+import { LAUNCH_HREF, Splash, resolveLaunch, useOnboarded } from '@/features/onboarding';
 import { useMembership } from '@/features/profile';
 
-// The launch entry (`/`). Resolves auth + the first-run flag, then either holds
-// on the splash (still loading) or redirects. Decision lives in resolveRoute
-// (pure, tested); this file only wires state → <Redirect>.
+// The launch entry (`/`): gathers the signals, asks resolveLaunch (pure,
+// tested) where to open, and redirects. Nothing is decided here.
 export default function Index() {
   const { isLoaded, session } = useAuth();
   const { onboarded } = useOnboarded(session?.user);
-  const { member, known } = useMembership();
+  const { state } = useMembership();
 
-  const route = resolveRoute({
+  const launch = resolveLaunch({
+    authReady: isLoaded,
+    signedIn: !!session,
     onboarded,
-    isLoaded,
-    hasSession: !!session,
-    member: known ? member : null,
+    hasDraft: false, // the onboarding draft arrives with R0.3
+    membership: state,
+    purchasePending: false, // Ask to Buy waiting arrives with R2.2
   });
-  if (!route) return <Splash />;
-  return <Redirect href={route as Href} />;
+  if (launch === 'loading') return <Splash />;
+  return <Redirect href={LAUNCH_HREF[launch] as Href} />;
 }

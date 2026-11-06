@@ -11,7 +11,7 @@ nutrition resolve) run in Supabase Edge Functions, **now on OpenAI** (switched f
 ## Read in this order
 1. `docs/README.md` — how docs are organized (tickets / reference / history).
 2. `docs/reference/ARCHITECTURE.md`, `CONTEXT_ENGINEERING.md`, `DESIGN_SYSTEM.md`, `SCREEN_MAP.md` — the codebase map, task→file map, tokens, screens.
-3. `app/_layout.tsx` (route guards: signed out → auth only; signed in non-member → onboarding + paywall; members → app) and `src/features/onboarding/gate.ts` (`resolveRoute`, `canUseApp`).
+3. `app/_layout.tsx` (route guards: signed out → auth only; signed in non-member → onboarding + paywall; members → app) and `src/features/onboarding/launch.ts` (`resolveLaunch`, `LAUNCH_HREF`, `canUseApp`).
 4. `docs/flow-maps/README.md` then open `docs/flow-maps/maps/otto.html` (today's app) and `apple.html` (the target model). Skim `research/01` and `research/02`.
 5. `docs/redesign-2026-11/README.md` + `docs/redesign-2026-11/docs/02_WHAT_JUAN_WANTS.md` — what Juan wants from the redesign.
 6. `docs/tickets/ROADMAP.md` — release history and current state.

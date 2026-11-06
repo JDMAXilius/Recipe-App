@@ -1,6 +1,6 @@
 // Public surface of the onboarding feature (feature-module.md). Thin app/ routes
-// (index gate, onboarding, _layout splash) mount these; nothing else leaks.
+// (index launch, onboarding, _layout splash) mount these; nothing else leaks.
 export { OnboardingScreen } from './OnboardingScreen';
 export { Splash } from './Splash';
 export { useOnboarded } from './useOnboarded';
-export { canUseApp, resolveRoute, type GateRoute, type GateInput } from './gate';
+export { canUseApp, LAUNCH_HREF, resolveLaunch, type Launch, type LaunchInput, type Membership } from './launch';

@@ -64,7 +64,7 @@ Recipe-App/
 ## 3. Sitemap / navigation graph
 
 ```
-app/index (launch gate: resolveRoute(onboarded, isLoaded, hasSession))
+app/index (launch: resolveLaunch → LAUNCH_HREF)
 │
 ├── onboarding            [first run, no account wall]
 ├── (auth)                [not signed in] → sign-in ⇄ sign-up, forgot-password
@@ -82,7 +82,7 @@ add                URL import / photo / write-it-myself ─▶ recipe/edit
 shopping · household  personal + realtime shared list
 ```
 
-**Auth gating.** `app/index.tsx` resolves the launch route from auth + the first-run flag (`resolveRoute`, pure/tested). `(tabs)/_layout.tsx` redirects to `(auth)/sign-in` if the session clears while inside the app.
+**Auth gating.** `app/index.tsx` asks `resolveLaunch` (pure, tested) where to open, from auth, the first-run flag, the draft and Otto Club. `(tabs)/_layout.tsx` redirects to `(auth)/sign-in` if the session clears while inside the app.
 
 ---
 

@@ -117,8 +117,8 @@ Recipe-App/
 │   │   │   ├── WelcomeScreen.tsx          🆕 (R1.2)
 │   │   │   ├── QuestionScreen.tsx         🆕 (R1.3)
 │   │   │   ├── FirstWeekScreen.tsx        🆕 (R1.4)
-│   │   │   ├── launch.ts (+test)          🆕 resolveLaunch, replaces gate.ts (R0.1)
-│   │   │   ├── gate.ts (+test)            🗑️ replaced by launch.ts
+│   │   │   ├── launch.ts (+test)          🆕 done — resolveLaunch, replaces gate.ts (R0.1)
+│   │   │   ├── gate.ts (+test)            🗑️ done — replaced by launch.ts
 │   │   │   ├── onboarding.draft.ts (+test)🆕 answers + week before the account (R0.3)
 │   │   │   ├── firstWeek.ts (+test)       🆕 buildFirstWeek (R0.6)
 │   │   │   └── useOnboarded.ts, index.ts  ✅

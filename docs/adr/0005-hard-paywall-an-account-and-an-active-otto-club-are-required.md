@@ -19,5 +19,5 @@ Good: one clear model, deep links can't bypass it. Bad: Ask to Buy (pending) and
 
 ## Evidence
 - commits `2f1433aa`, `db084fcd`, `a9d0bc4b` (2026-10-03/04)
-- `src/features/onboarding/gate.ts`
+- `src/features/onboarding/launch.ts`
 - `app/_layout.tsx`
