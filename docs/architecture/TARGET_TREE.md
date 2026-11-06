@@ -86,6 +86,7 @@ Recipe-App/
 │   │   ├── speech/                        🆕 done — moved from chat; used by chat and Add
 │   │   ├── flags.ts                       🆕 done — flowV2
 │   │   ├── yield.ts (+test)               🆕 done — yield · servings · portion
+│   │   ├── allergens.ts (+test via firstWeek) 🆕 done — keyword allergens + diet fit
 │   │   ├── intent.ts                      🆕 pending link after sign-in / purchase (R0.2)
 │   │   ├── events.ts                      🆕 tracking plan events (R0.8)
 │   │   ├── storage.ts                     ✏️ new kv keys (draft, intent, last tab)
@@ -120,7 +121,7 @@ Recipe-App/
 │   │   │   ├── launch.ts (+test)          🆕 done — resolveLaunch, replaces gate.ts (R0.1)
 │   │   │   ├── gate.ts (+test)            🗑️ done — replaced by launch.ts
 │   │   │   ├── onboarding.draft.ts (+test)🆕 answers + week before the account (R0.3)
-│   │   │   ├── firstWeek.ts (+test)       🆕 buildFirstWeek (R0.6)
+│   │   │   ├── firstWeek.ts (+test)       🆕 done — buildFirstWeek (R0.6)
 │   │   │   └── useOnboarded.ts, index.ts  ✅
 │   │   ├── home/                          🆕 the Home tab (R3.2)
 │   │   │   ├── HomeScreen.tsx             🆕 Tonight · This week · Discover
@@ -189,7 +190,7 @@ Recipe-App/
 │   │   │   ├── ClubPendingScreen.tsx      🆕 (R2.2)
 │   │   │   ├── ClubWelcomeScreen.tsx      🆕 (R2.4)
 │   │   │   ├── ClubEndedScreen.tsx        🆕 (R2.6)
-│   │   │   ├── profile.prefs.ts (+test)   ✏️ household, diet, allergies, skips (R0.5)
+│   │   │   ├── profile.prefs.ts (+test)   ✏️ done — household, diet, allergies, skips (R0.5)
 │   │   │   ├── profile.queries.ts, usePrefs.ts  ✏️ prefs on the account (R0.4)
 │   │   │   ├── club.purchases.ts          ✏️ refund request (R7.1)
 │   │   │   └── everything else            ✅

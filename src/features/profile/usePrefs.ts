@@ -38,7 +38,11 @@ async function hydrate() {
   emit();
 }
 
-const persistPrefs = () => void kv.set('prefs', { diet: state.diet, cuisines: state.cuisines });
+// Everything but the unit system (its own key). Moves to the account in R0.4.
+const persistPrefs = () => {
+  const { unitSystem: _unit, ...prefs } = state;
+  void kv.set('prefs', prefs);
+};
 
 // Setters are module-level (stable identity) — writes persist best-effort and
 // never block the UI (kv.set swallows its own failures).
