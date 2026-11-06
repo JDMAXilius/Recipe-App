@@ -1,5 +1,5 @@
 import 'react-native-get-random-values'; // polyfill globalThis.crypto on native (share tokens)
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, defaultShouldDehydrateQuery, type Query } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -39,7 +39,11 @@ const persistOptions = {
   persister,
   maxAge: WEEK,
   buster: Constants.expoConfig?.version ?? '',
-  dehydrateOptions: { shouldDehydrateMutation: () => false },
+  dehydrateOptions: {
+    shouldDehydrateMutation: () => false,
+    // Large or person-sensitive reads opt out with meta.persist = false.
+    shouldDehydrateQuery: (q: Query) => q.meta?.persist !== false && defaultShouldDehydrateQuery(q),
+  },
 };
 
 // The persisted cache is one user's data: drop it (memory + disk) on sign-out or

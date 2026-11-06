@@ -94,9 +94,14 @@ export function PlanScreen({ planMyWeek }: { planMyWeek?: (emptyDays: string[], 
     try {
       await remove(entry.id);
       haptics.impact('light'); // a commit (motion.md §2) — add/carry already do
-      const back = entryToInput(entry);
-      // Undo puts it back where it was (a new row, so not marked cooked).
-      show(`${entry.title} off the plan.`, 'info', back ? { actionLabel: 'Undo', onAction: () => void add(back) } : undefined);
+      // Undo puts it back where it was (a new row, so not marked cooked). flowV2:
+      // the free-list columns (label, kind, place) only exist there.
+      const back = flags.flowV2 ? entryToInput(entry) : null;
+      if (back)
+        show(`${entry.title} off the plan.`, 'info', {
+          actionLabel: 'Undo',
+          onAction: () => void add(back).catch(() => show("Couldn't put it back. Add it again from the day.", 'error')),
+        });
     } catch {
       show("Couldn't remove that. Try again.", 'error');
     }
@@ -137,11 +142,23 @@ export function PlanScreen({ planMyWeek }: { planMyWeek?: (emptyDays: string[], 
     setPlanning(true);
     try {
       const picks = await planMyWeek(emptyDays, entries.map((e) => e.recipe_id).filter((id): id is string => !!id));
-      for (const p of picks) await add(p);
-      haptics.notify('success');
-      show(picks.length ? `Otto planned ${picks.length} ${picks.length === 1 ? 'dinner' : 'dinners'}.` : 'Nothing fits your answers for those days yet.', picks.length ? 'success' : 'info');
-    } catch {
-      show("Couldn't plan the week. Try again.", 'error');
+      let saved = 0;
+      for (const p of picks) {
+        try {
+          await add(p);
+          saved++;
+        } catch {
+          // keep going; the count below says what landed
+        }
+      }
+      const word = (n: number) => `${n} ${n === 1 ? 'dinner' : 'dinners'}`;
+      if (picks.length === 0) show('Nothing fits your answers for those days yet.', 'info');
+      else if (saved === picks.length) {
+        haptics.notify('success');
+        show(`Otto planned ${word(saved)}.`, 'success');
+      } else show(`Otto planned ${word(saved)} of ${picks.length}. Try again for the rest.`, 'error');
+    } catch (err) {
+      show(err instanceof Error && err.message ? err.message : "Couldn't plan the week. Try again.", 'error');
     } finally {
       setPlanning(false);
     }

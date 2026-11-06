@@ -35,6 +35,8 @@ export async function fetchDinnerShelf(): Promise<CatalogueDish[]> {
     }));
 }
 
-export function useDinnerShelf() {
-  return useQuery({ queryKey: ['dinner-shelf'], queryFn: fetchDinnerShelf, staleTime: 24 * 60 * 60 * 1000 });
+/** `enabled`: false until a screen actually needs the shelf (it's large).
+ *  meta.persist false: kept in memory, never written to the offline cache. */
+export function useDinnerShelf(enabled = true) {
+  return useQuery({ queryKey: ['dinner-shelf'], queryFn: fetchDinnerShelf, staleTime: 24 * 60 * 60 * 1000, enabled, meta: { persist: false } });
 }

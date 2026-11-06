@@ -1,6 +1,6 @@
 // Recent chats (Figma 228:510) — reached from the clock in the ＋ tab header.
 // Read-only list of on-device chat threads: tap a row to reopen that thread in
-// the chat (/create?chat=<id>) and pick it back up. Everything is local (kv
+// the chat (ottoHref(id): the Otto tab, or /create with the flag off) and pick it back up. Everything is local (kv
 // 'chats' via the chat feature's loadThreads); Otto keeps the last 30 days.
 import { ottoHref } from '@/shared/flags';
 import { useCallback, useMemo, useState } from 'react';

@@ -29,6 +29,9 @@ import { usePlan } from '@/features/planner';
 import { usePrefs } from './usePrefs';
 import { UNIT_SEGMENTS, cookedCount, earnedStats, statText } from './profile.logic';
 import { useDeleteAccount } from './useDeleteAccount';
+import { exportMyData } from './profile.queries';
+import { flags } from '@/shared/flags';
+import { confirmDestructive } from '@/shared/confirm';
 import { openManageSubscriptions, useMembership } from './club.purchases';
 
 // "You" — Account (Mobbin account study, ported from v1). Warm header, cold
@@ -131,12 +134,29 @@ export function ProfileScreen() {
     void Linking.openURL(url).catch(() => {});
   };
 
+  // R7.4: everything Otto keeps about you, as one JSON document to save or send.
+  const downloadData = async () => {
+    try {
+      await Share.share({ message: await exportMyData(), title: 'My Otto data' });
+    } catch {
+      show("Couldn't get your data just now. Try again.", 'error');
+    }
+  };
+
   const onSignOut = () => {
     // Alert buttons no-op on web; confirm() keeps web usable. Sign-out is
     // reversible, so one honest tap is enough on native.
     if (Platform.OS === 'web') {
       // No haptic: a warning buzz says something went wrong, and nothing did.
       if (window.confirm('Sign out of Otto?')) void signOut();
+      return;
+    }
+    // R7.6 (flowV2): a native confirm first; signed out, the phone opens on
+    // Welcome (which has "I have an account"), not the sign-in form.
+    if (flags.flowV2) {
+      void confirmDestructive({ title: 'Sign out of Otto?', message: 'Your recipes and plans stay on your account.', confirm: 'Sign out' }).then(
+        (yes) => yes && void signOut(),
+      );
       return;
     }
     void signOut();
@@ -327,6 +347,9 @@ export function ProfileScreen() {
             divided
             onPress={() => void WebBrowser.openBrowserAsync(PRIVACY_URL)}
           />
+          {flags.flowV2 && (
+            <SettingsRow icon="download-outline" label="Download my data" divided onPress={downloadData} />
+          )}
           <SettingsRow
             icon="document-text-outline"
             label="Terms"

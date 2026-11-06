@@ -163,8 +163,6 @@ export function DiscoverScreen({ top }: { top?: React.ReactNode } = {}) {
         <OttoIdle name="happy" reactTo="save" size={64} />
       </View>
 
-      {top}
-
       {/* Filter button + search pill */}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
         <Pressable
@@ -280,6 +278,8 @@ export function DiscoverScreen({ top }: { top?: React.ReactNode } = {}) {
 
       {!isSearching && (
         <>
+          {top}
+
           {/* Tonight band — today's planned dish, only when one exists. */}
           {tonight && !top ? (
             <Pressable

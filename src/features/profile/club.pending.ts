@@ -18,6 +18,7 @@ export function usePurchasePending() {
     queryFn: async () => pendingStillOpen(await kv.get<unknown>('purchasePending', null), Date.now()),
     networkMode: 'always',
     staleTime: 0,
+    meta: { persist: false }, // a stale cached 'true' must not steer a launch
   });
   const set = async (on: boolean) => {
     if (on) await kv.set('purchasePending', Date.now());

@@ -58,6 +58,8 @@ test('onboardedFor: per account when signed in, per phone when signed out', () =
 test('the rework opens Welcome and the questions; everything else is unchanged', () => {
   assert.equal(launchHref('welcome', true), '/welcome');
   assert.equal(launchHref('needsPlan', true), '/about/1');
+  assert.equal(launchHref('signIn', true), '/welcome');
+  assert.equal(launchHref('signIn', false), '/(auth)/sign-in');
   assert.equal(launchHref('welcome', false), '/(auth)/sign-up');
   assert.equal(launchHref('app', true), '/(tabs)');
   assert.equal(launchHref('pending', true), '/club/pending');

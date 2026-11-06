@@ -49,7 +49,9 @@ export default function TabsLayout() {
           this build's set is hidden with href: null, never removed, so its
           route still resolves. */}
       <Tabs.Screen name="index" options={{ title: v2 ? 'Home' : 'Discover', tabBarIcon: tabIcon(v2 ? 'home' : 'restaurant') }} />
-      {v2 && <Tabs.Screen name="plan" options={{ title: 'Plan', tabBarIcon: tabIcon('calendar') }} />}
+      {/* Plan sits second in flowV2, fourth otherwise: an array keeps
+          expo-router's children Screens-only (a `false` child warns). */}
+      {v2 ? [<Tabs.Screen key="plan" name="plan" options={{ title: 'Plan', tabBarIcon: tabIcon('calendar') }} />] : []}
       <Tabs.Screen name="cookbook" options={{ title: 'Cookbook', tabBarIcon: tabIcon('paw') }} />
       <Tabs.Screen
         name="create"
@@ -65,7 +67,7 @@ export default function TabsLayout() {
             : { title: 'Create', tabBarLabel: () => null, tabBarButton: (props) => <TabBarCreateButton {...props} /> }
         }
       />
-      {!v2 && <Tabs.Screen name="plan" options={{ title: 'Plan', tabBarIcon: tabIcon('calendar') }} />}
+      {v2 ? [] : [<Tabs.Screen key="plan" name="plan" options={{ title: 'Plan', tabBarIcon: tabIcon('calendar') }} />]}
       <Tabs.Screen name="profile" options={{ title: 'Account', tabBarIcon: tabIcon('person') }} />
       <Tabs.Screen
         name="otto"

@@ -21,9 +21,13 @@ import { colors, radii, shadow } from '@/shared/theme/tokens';
 const SIZE = 58;
 const LIFT = -26; // how far the disc stands proud of the bar
 
-export function TabBarCreateButton({ onPress, accessibilityState }: BottomTabBarButtonProps) {
+export function TabBarCreateButton(props: BottomTabBarButtonProps) {
+  const { onPress } = props;
+  // react-navigation 7 passes the selected state as aria-selected.
+  const selected = Boolean(props['aria-selected'] ?? props.accessibilityState?.selected);
+  const accessibilityState = { selected };
   const { style, pop } = usePressPop();
-  const isOnScreen = !!accessibilityState?.selected;
+  const isOnScreen = selected;
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Pressable

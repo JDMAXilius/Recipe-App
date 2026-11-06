@@ -17,7 +17,7 @@ export function HomeTop() {
   const { entries, days, setCooked } = usePlan();
   const tonight = tonightEntry(entries, days[0].key);
 
-  const week = days.map((d) => ({ ...d, planned: entries.filter((e) => e.day === d.key).length }));
+  const week = days.map((d) => ({ key: d.key, planned: entries.filter((e) => e.day === d.key).length }));
 
   return (
     <View style={{ gap: space[4] }}>
@@ -27,8 +27,9 @@ export function HomeTop() {
         onCooked={() => {
           if (!tonight) return;
           haptics.notify('success');
-          track('item_cooked', { source: 'plan', via: 'button' });
-          void setCooked(tonight.id, true).catch(() => show("Couldn't save that. Try again.", 'error'));
+          void setCooked(tonight.id, true)
+            .then(() => track('item_cooked', { source: 'plan', via: 'button' }))
+            .catch(() => show("Couldn't save that. Try again.", 'error'));
         }}
         onSwap={() => router.push('/(tabs)/plan')}
         onPlan={() => router.push('/(tabs)/plan')}

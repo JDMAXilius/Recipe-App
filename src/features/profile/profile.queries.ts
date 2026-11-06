@@ -46,3 +46,10 @@ export async function pushAccountPrefs(prefs: {
     .upsert({ user_id: userId, ...prefs, updated_at: new Date().toISOString() });
   if (error) throw error;
 }
+
+/** Download my data (R7.4): the caller's own rows as JSON (export-data). */
+export async function exportMyData(): Promise<string> {
+  const { data, error } = await supabase.functions.invoke('export-data', { method: 'POST', body: {} });
+  if (error) throw error;
+  return JSON.stringify(data, null, 2);
+}

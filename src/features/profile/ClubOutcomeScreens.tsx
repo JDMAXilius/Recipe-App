@@ -63,6 +63,11 @@ export function ClubPendingScreen() {
  *  the only place the app asks for it. */
 export function ClubWelcomeScreen({ onRemind }: { onRemind: () => Promise<void> }) {
   const router = useRouter();
+  const { state } = useMembership();
+  // Only right after a purchase: a known non-member (a stray link) goes back.
+  useEffect(() => {
+    if (state === 'none' || state === 'ended') router.replace('/');
+  }, [state, router]);
   const { entries, days } = usePlan();
   const tonight = tonightEntry(entries, days[0].key);
   const [asked, setAsked] = useState(false);
@@ -90,9 +95,15 @@ export function ClubWelcomeScreen({ onRemind }: { onRemind: () => Promise<void> 
 /** Was a member, isn't now. Nothing is deleted (ADR-0005). */
 export function ClubEndedScreen() {
   const router = useRouter();
+  const { state } = useMembership();
+  // Renewed in Settings or a billing retry landed: on into the app.
+  useEffect(() => {
+    if (state === 'member') router.replace('/');
+  }, [state, router]);
   return (
     <Outcome art="sleepy" title="Everything is still here" body="Your recipes, plans and lists are saved. Rejoin Otto Club to pick up where you left off.">
-      <Button title="Rejoin Otto Club" variant="primary" size="lg" onPress={() => router.push('/otto-club')} />
+      {/* replace, not push: "ended" must not stay behind the app in the stack */}
+      <Button title="Rejoin Otto Club" variant="primary" size="lg" onPress={() => router.replace('/otto-club')} />
     </Outcome>
   );
 }

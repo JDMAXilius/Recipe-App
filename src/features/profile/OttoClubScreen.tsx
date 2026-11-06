@@ -81,7 +81,9 @@ export function OttoClubScreen() {
       if (flags.flowV2) void pending.set(true).then(() => router.replace('/club/pending'));
       else show('Waiting for Apple to approve the purchase.', 'info');
     } else if (typeof result === 'object') {
-      if (flags.flowV2) Alert.alert("That didn't go through", `${purchaseErrorMessage(result.error)} Nothing was charged.`);
+      // No "nothing was charged": after a failed sync or a receipt in use
+      // elsewhere, Apple may well have charged. Say only what we know.
+      if (flags.flowV2) Alert.alert("That didn't finish", purchaseErrorMessage(result.error));
       else show(purchaseErrorMessage(result.error), 'error');
     }
   };
@@ -89,7 +91,7 @@ export function OttoClubScreen() {
     const result = await club.restore();
     // R2.3: ok → "Purchases restored" then Home; none → a native alert, stay.
     if (result === 'ok') {
-      show('Purchases restored.', 'success');
+      if (flags.flowV2) show('Purchases restored.', 'success');
       goHome();
     } else if (result === 'none') {
       if (flags.flowV2) Alert.alert('Nothing to restore', 'There’s no Otto Club on this Apple ID. If you joined with another one, sign in to it in Settings, then tap Restore.');

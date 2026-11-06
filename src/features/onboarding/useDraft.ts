@@ -12,7 +12,7 @@ export function useDraft() {
   const qc = useQueryClient();
   // A phone read: it must run offline too (the default networkMode waits
   // for a connection, and the launch would wait with it).
-  const query = useQuery({ queryKey: DRAFT_KEY, queryFn: loadDraft, staleTime: 0, networkMode: 'always' });
+  const query = useQuery({ queryKey: DRAFT_KEY, queryFn: loadDraft, staleTime: 0, networkMode: 'always', meta: { persist: false } });
   return {
     draft: query.data ?? null,
     /** null until the phone has been read on this mount: a cached answer

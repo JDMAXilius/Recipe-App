@@ -71,6 +71,24 @@ async function syncFromAccount(): Promise<void> {
   }
 }
 
+/** For a decision that must honour allergies (R4.4): the stored answers,
+ *  refreshed from the account; throws when the account can't be read, so a
+ *  caller never plans on an empty allergy list by accident. */
+export async function readPrefsForPlanning(): Promise<Prefs> {
+  await hydrate();
+  if (flags.flowV2) {
+    const row = await fetchAccountPrefs().catch(() => {
+      throw new Error("Couldn't check your food answers. Check your connection and try again.");
+    });
+    if (row) {
+      state = { ...normalizePrefs(row), unitSystem: state.unitSystem };
+      emit();
+    }
+  }
+  const { unitSystem: _unit, ...prefs } = state;
+  return prefs;
+}
+
 const pushPrefs = async () => {
   if (!flags.flowV2) return;
   const { unitSystem: _unit, ...prefs } = state;

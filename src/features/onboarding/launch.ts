@@ -72,6 +72,7 @@ export const LAUNCH_HREF: Record<Exclude<Launch, 'loading'>, string> = {
 // replace sign-up-first. Same rule: one row per state.
 export const LAUNCH_HREF_V2: Partial<typeof LAUNCH_HREF> = {
   welcome: '/welcome',
+  signIn: '/welcome', // R7.6: Welcome has "I have an account"
   needsPlan: '/about/1',
   pending: '/club/pending',
   ended: '/club/ended',

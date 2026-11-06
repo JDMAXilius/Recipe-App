@@ -11,9 +11,14 @@ import { colors, radii } from '../theme/tokens';
 
 const SIZE = 48;
 
-export function TabBarOttoButton({ onPress, accessibilityState }: BottomTabBarButtonProps) {
+export function TabBarOttoButton(props: BottomTabBarButtonProps) {
+  const { onPress } = props;
+  // react-navigation 7 passes the selected state as aria-selected, not
+  // accessibilityState; read both.
+  const selected = Boolean(props['aria-selected'] ?? props.accessibilityState?.selected);
+  const accessibilityState = { selected };
   const { style, pop } = usePressPop();
-  const open = !!accessibilityState?.selected;
+  const open = selected;
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Pressable

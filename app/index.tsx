@@ -24,6 +24,8 @@ export default function Index() {
   });
   // A link that came in before sign-in or the paywall opens now (R0.2).
   const intent = useIntent(launch === 'app');
-  if (launch === 'loading' || (launch === 'app' && intent === undefined)) return <Splash />;
+  // A paywall answer waits for the Ask to Buy flag: a relaunch while a
+  // purchase waits for approval must open the waiting screen.
+  if (launch === 'loading' || (launch === 'app' && intent === undefined) || (launch === 'paywall' && !pending.known)) return <Splash />;
   return <Redirect href={(launch === 'app' && intent ? intent : launchHref(launch, flags.flowV2)) as Href} />;
 }
