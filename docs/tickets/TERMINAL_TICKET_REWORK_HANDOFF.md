@@ -78,5 +78,11 @@
 - [ ] **T14. AI recipe images (R0.15, ADR-0014).** Generated once per AI recipe, photoreal,
   tagged "AI image", stored in Storage. Needs the image model choice and its key.
 
+## Terminal status (2026-11-06)
+- T1: 1.0.24 (53) built (`e8bfabc1`), uploaded, VALID on TestFlight. Not sent for review: waits on T5.
+- T2: rework 1.0.24 (54) built (`79b7d5a5`), VALID, reaches "Otto Team (auto)" (internal, 2 testers). TestFlight opens 54 by default; 53 is under Previous Builds. `app.json` stays at 53.
+- T7: the four functions switched to `await rateLimitedDurable(` on branch `terminal/t7-durable-limits` (`deno check` passes). **Not deployed:** the auto-mode classifier blocks `deploy_edge_function` in the terminal. Juan: allow it once, or the cloud session deploys from this branch.
+- T4: not run. Production SQL that deletes rows needs Juan in the SQL editor; Docker is off here, so no local dry run either.
+
 ## Device findings (T3)
 _Add one line per problem: screen · what you did · what happened · screenshot name._
