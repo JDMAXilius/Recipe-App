@@ -88,7 +88,7 @@ Recipe-App/
 │   │   ├── flags.ts                       🆕 done — flowV2
 │   │   ├── yield.ts (+test)               🆕 done — yield · servings · portion
 │   │   ├── allergens.ts (+test via firstWeek) 🆕 done — keyword allergens + diet fit
-│   │   ├── intent.ts                      🆕 pending link after sign-in / purchase (R0.2)
+│   │   ├── intent.ts (+test) · useIntent.ts 🆕 done — the link opens after sign-in / purchase (R0.2)
 │   │   ├── events.ts                      🆕 tracking plan events (R0.8)
 │   │   ├── storage.ts                     ✏️ new kv keys (draft, intent, last tab)
 │   │   ├── assets.ts                      ✏️ asset batch 1 (D1.9)

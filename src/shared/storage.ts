@@ -14,6 +14,7 @@ export type StoreKey =
   | 'soundsEnabled'
   | 'shoppingState'
   | 'onboardingDraft'
+  | 'intent'
   | 'household'
   | 'householdRecent'
   | 'journal'
