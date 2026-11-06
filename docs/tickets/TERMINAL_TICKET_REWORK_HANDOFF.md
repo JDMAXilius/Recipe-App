@@ -5,6 +5,30 @@
 > need a Mac, a device, a native module, a console or a secret. Tick items here and say so in
 > `docs/tickets/REWORK_ROADMAP.md` → Log. House rules: `TERMINAL_TICKET_00_START_HERE_CLAUDE_CODE.md`.
 
+## URGENT — security (found by the 2026-11-06 audit; the GitHub repo is PUBLIC)
+- [ ] **T16. Rotate what leaked into the public git history.** Do these before anything else.
+  1. **Apple distribution certificate.** Commit `53b67ebb` removed `mobile/credentials/ios/dist.p12`
+     and `mobile/credentials.json` (with the p12 password), but they are still in history and
+     readable by anyone who clones the repo. Apple Developer → Certificates → revoke
+     "iPhone Distribution: Juan Lugo (A6J6HGNWZK)" (expires 2027-07-18) and delete the profile
+     "Otto AppStore v4". First run `eas credentials -p ios` and check EAS uses a different, newer
+     distribution certificate (docs/history/TERMINAL_TICKET_TESTFLIGHT.md:106 says it made one);
+     if it uses this one, let EAS make a new one, then revoke. Then a test `eas build` to prove
+     signing still works.
+  2. **RevenueCat webhook secret (`RC_WEBHOOK_SECRET`).** Its value was committed in two docs
+     (now redacted; still in history). Make a new one on your machine (`openssl rand -hex 32`; never
+     paste it into a ticket, a commit or chat), put it in RevenueCat → Project → Integrations →
+     Webhooks → Authorization header, and in Supabase → Edge Functions → Secrets →
+     `RC_WEBHOOK_SECRET` (one secret, by hand; not `--env-file`). Check: RevenueCat's "Send test
+     event" gets 200; a request with the old value gets 401.
+  3. **Auth settings in the dashboard** (Supabase → Authentication): turn on **Secure password
+     change** (asks to re-authenticate), set the **minimum password length to 8** (the app already
+     asks for 8). Leaked-password protection stays on hold (Pro plan).
+  4. **Juan decides:** make the repo **private** (GitHub → Settings → Danger zone), and/or scrub
+     the two files from history with `git filter-repo` + force-push. Rotating (1, 2) is what
+     actually fixes it: forks and clones keep the old history either way.
+  Tick each line here and say so in the roadmap Log.
+
 ## Now (release 1.0.24 and the device checkpoint)
 - [x] **T1. Release build 1.0.24 (53).** *(built and on TestFlight 2026-11-06; review waits on T5)* Follow `docs/tickets/CHECKPOINT_1.md` §1. Privacy answers
   first (T5). `eas build -p ios --profile production`, then `eas submit -p ios --profile production`.

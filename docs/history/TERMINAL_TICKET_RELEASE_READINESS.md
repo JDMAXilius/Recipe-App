@@ -485,7 +485,7 @@ Upload the In-App Purchase key `SubscriptionKey_HTA6549CWG.p8` (Key ID `HTA6549C
 Add both, or the webhook rejects every event and memberships never sync:
 
 ```
-RC_WEBHOOK_SECRET=6b7978fdb54ba6333bf32285c57612a1ac4068eb051dc47f
+RC_WEBHOOK_SECRET=<redacted 2026-11-06: rotate it, see TERMINAL_TICKET_REWORK_HANDOFF T16>
 REVENUECAT_SECRET_KEY=<the sk_… key from RevenueCat → API keys>
 ```
 
