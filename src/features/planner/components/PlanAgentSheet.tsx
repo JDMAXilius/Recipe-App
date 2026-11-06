@@ -10,9 +10,11 @@ import { ensureAiConsent } from '@/shared/aiConsent';
 import { isOnline } from '@/shared/online';
 import { haptics } from '@/shared/haptics';
 import { track } from '@/shared/track';
-import { askPlanAgent, newRequestId, undoAgentAction, type AgentDid, type AgentTurn } from '../agent.queries';
+import { AgentError, askPlanAgent, newRequestId, undoAgentAction, type AgentDid, type AgentPrefs, type AgentTurn } from '../agent.queries';
 
-export function PlanAgentSheet({ visible, onClose, onChanged }: { visible: boolean; onClose: () => void; onChanged: () => void }) {
+/** readPrefs: the person's answers, read fresh (composed by the route); it
+ *  throws when they can't be checked, and then Otto doesn't plan. */
+export function PlanAgentSheet({ visible, onClose, onChanged, readPrefs }: { visible: boolean; onClose: () => void; onChanged: () => void; readPrefs: () => Promise<AgentPrefs> }) {
   const { show } = useToast();
   const [text, setText] = useState('');
   const [turns, setTurns] = useState<AgentTurn[]>([]);
@@ -21,6 +23,9 @@ export function PlanAgentSheet({ visible, onClose, onChanged }: { visible: boole
   const [did, setDid] = useState<AgentDid[]>([]);
   const [undone, setUndone] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  // One id per ask, kept until it succeeds: a retry after a timeout is the
+  // same request, so the server answers with what it already did.
+  const [pending, setPending] = useState<{ text: string; id: string } | null>(null);
 
   const ask = async () => {
     const ask = text.trim();
@@ -30,8 +35,12 @@ export function PlanAgentSheet({ visible, onClose, onChanged }: { visible: boole
     setBusy(true);
     setError(null);
     const next: AgentTurn[] = [...turns, { role: 'user', content: ask.slice(0, 600) }];
+    const requestId = pending?.text === ask ? pending.id : newRequestId();
+    setPending({ text: ask, id: requestId });
     try {
-      const res = await askPlanAgent(next, newRequestId());
+      const prefs = await readPrefs();
+      const res = await askPlanAgent(next, requestId, prefs);
+      setPending(null);
       setTurns([...next, { role: 'assistant', content: res.message.slice(0, 600) || 'Done.' }]);
       setReply(res.message);
       setDid((d) => [...res.did, ...d]);
@@ -43,6 +52,10 @@ export function PlanAgentSheet({ visible, onClose, onChanged }: { visible: boole
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Otto couldn't finish that.");
+      if (e instanceof AgentError && e.did.length) {
+        setDid((d) => [...e.did.filter((x) => !d.some((y) => y.id === x.id)), ...d]);
+        onChanged();
+      }
     } finally {
       setBusy(false);
     }
@@ -65,6 +78,7 @@ export function PlanAgentSheet({ visible, onClose, onChanged }: { visible: boole
     setDid([]);
     setUndone(new Set());
     setError(null);
+    setPending(null);
     onClose();
   };
 

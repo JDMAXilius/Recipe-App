@@ -47,9 +47,11 @@ export interface PlanScreenProps {
    *  switches the segment instead of pushing /shopping. */
   embedded?: boolean;
   onOpenShopping?: () => void;
+  /** 1.2 (flags.agent): the person's answers for the plan agent (composed by the route). */
+  agentPrefs?: () => Promise<import('./agent.queries').AgentPrefs>;
 }
 
-export function PlanScreen({ planMyWeek, embedded, onOpenShopping }: PlanScreenProps = {}) {
+export function PlanScreen({ planMyWeek, embedded, onOpenShopping, agentPrefs }: PlanScreenProps = {}) {
   const router = useRouter();
   const { show } = useToast();
   const { entries, days, isLoading, isError, isSuccess, refetch, add, remove, swap, setCooked, setLabel, move } =
@@ -235,7 +237,7 @@ export function PlanScreen({ planMyWeek, embedded, onOpenShopping }: PlanScreenP
 
       {(planned > 0 || flags.agent || (flags.flowV2 && planMyWeek && emptyDays.length > 0)) && (
         <View style={{ marginBottom: space[4], gap: space[2] }}>
-          {flags.agent && !isLoading && !isError && (
+          {flags.agent && agentPrefs && !isLoading && !isError && (
             <Button title="Plan with Otto" variant="secondary" onPress={() => setAgentOpen(true)} />
           )}
           {flags.flowV2 && planMyWeek && emptyDays.length > 0 && !isLoading && !isError && (
@@ -386,8 +388,8 @@ export function PlanScreen({ planMyWeek, embedded, onOpenShopping }: PlanScreenP
       )}
       </ScrollView>
 
-      {flags.agent && (
-        <PlanAgentSheet visible={agentOpen} onClose={() => setAgentOpen(false)} onChanged={() => void qc.invalidateQueries({ queryKey: ['plan'] })} />
+      {flags.agent && agentPrefs && (
+        <PlanAgentSheet visible={agentOpen} onClose={() => setAgentOpen(false)} onChanged={() => void qc.invalidateQueries({ queryKey: ['plan'] })} readPrefs={agentPrefs} />
       )}
       <RecipePickerSheet
         visible={picker != null}

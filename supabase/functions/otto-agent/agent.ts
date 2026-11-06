@@ -118,6 +118,33 @@ export interface PlanRow {
 export interface Step {
   action: PlanTool;
   input: Args;
+  /** What the row must still look like for Undo to be safe. If the person
+   *  changed it since, Undo refuses instead of overwriting their edit. */
+  expect?: { id: number } & Partial<Pick<PlanRow, 'title' | 'recipe_id' | 'day' | 'label' | 'cooked'>>;
+}
+
+/** Only the fields each tool takes, capped: nothing else is stored or used. */
+export function cleanArgs(name: string, a: Args): Args {
+  const pick = (keys: string[]) => Object.fromEntries(keys.filter((k) => a[k] !== undefined).map((k) => [k, a[k]]));
+  const note = (v: unknown) => (typeof v === 'string' ? v.slice(0, 200) : null);
+  switch (name) {
+    case 'put_in_plan':
+      return { ...pick(['day', 'recipeId', 'label']), ...(a.note != null ? { note: note(a.note) } : {}) };
+    case 'swap_in_plan':
+      return pick(['id', 'recipeId']);
+    case 'move_plan_item':
+      return pick(['id', 'day']); // the position is worked out on the server
+    case 'remove_from_plan':
+      return pick(['id']);
+    case 'mark_cooked':
+      return pick(['id', 'cooked']);
+    case 'label_plan_item':
+      return pick(['id', 'label']);
+    case 'find_dinners':
+      return pick(['query', 'category', 'cuisine']);
+    default:
+      return {};
+  }
 }
 
 /** The action that puts things back, worked out from the row as it was
@@ -126,7 +153,9 @@ export interface Step {
 export function inverseOf(action: PlanTool, input: Args, before: PlanRow | null, created: PlanRow | null): Step | null {
   switch (action) {
     case 'put_in_plan':
-      return created ? { action: 'remove_from_plan', input: { id: created.id } } : null;
+      return created
+        ? { action: 'remove_from_plan', input: { id: created.id }, expect: { id: created.id, recipe_id: created.recipe_id, day: created.day } }
+        : null;
     case 'remove_from_plan':
       return before
         ? {
@@ -140,21 +169,57 @@ export function inverseOf(action: PlanTool, input: Args, before: PlanRow | null,
               note: before.note,
               label: before.label,
               kind: before.kind,
+              cooked: before.cooked,
               ...(before.position != null ? { position: before.position } : {}),
             },
           }
         : null;
     case 'swap_in_plan':
       return before?.recipe_id
-        ? { action: 'swap_in_plan', input: { id: before.id, recipeId: before.recipe_id, title: before.title, image: before.image, category: before.category, note: before.note, kind: before.kind, cooked: before.cooked } }
+        ? {
+            action: 'swap_in_plan',
+            input: { id: before.id, recipeId: before.recipe_id, title: before.title, image: before.image, category: before.category, note: before.note, kind: before.kind, cooked: before.cooked },
+            expect: { id: before.id, recipe_id: String(input.recipeId) },
+          }
         : null;
     case 'move_plan_item':
-      return before && before.position != null ? { action: 'move_plan_item', input: { id: before.id, day: before.day, position: before.position } } : null;
+      return before && before.position != null
+        ? { action: 'move_plan_item', input: { id: before.id, day: before.day, position: before.position }, expect: { id: before.id, day: String(input.day) } }
+        : null;
     case 'mark_cooked':
-      return before && before.cooked !== input.cooked ? { action: 'mark_cooked', input: { id: before.id, cooked: before.cooked } } : null;
+      return before && before.cooked !== input.cooked
+        ? { action: 'mark_cooked', input: { id: before.id, cooked: before.cooked }, expect: { id: before.id, cooked: Boolean(input.cooked) } }
+        : null;
     case 'label_plan_item':
-      return before && before.label !== input.label ? { action: 'label_plan_item', input: { id: before.id, label: before.label } } : null;
+      return before && before.label !== input.label
+        ? { action: 'label_plan_item', input: { id: before.id, label: before.label }, expect: { id: before.id, label: (input.label as string | null) ?? null } }
+        : null;
   }
+}
+
+/** Is the row still the way Otto left it? (Undo's guard.) */
+export function stillAsLeft(expect: NonNullable<Step['expect']>, now: PlanRow | null): boolean {
+  if (!now) return false;
+  return (Object.keys(expect) as (keyof typeof expect)[]).every((k) => k === 'id' || now[k] === expect[k]);
+}
+
+/** Request ids: letters, digits and dashes only (they prefix LIKE patterns). */
+export const REQUEST_ID = /^[A-Za-z0-9-]{8,40}$/;
+
+/** A stable shuffle per request, so "something different" varies. */
+export function shuffleKey(requestId: string, id: string): number {
+  let h = 0x811c9dc5;
+  for (const c of `${requestId}|${id}`) {
+    h ^= c.charCodeAt(0);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  // fmix32 (MurmurHash3's finaliser): FNV alone barely mixes the last bytes.
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x85ebca6b) >>> 0;
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35) >>> 0;
+  h ^= h >>> 16;
+  return h >>> 0;
 }
 
 const weekday = (day: string) => {
@@ -190,7 +255,7 @@ export function idempotencyKey(requestId: string, callIndex: number, name: strin
     h ^= raw.charCodeAt(i);
     h = Math.imul(h, 0x01000193) >>> 0;
   }
-  return `${requestId.slice(0, 40)}:${callIndex}:${h.toString(16)}`;
+  return `${requestId}:${callIndex}:${h.toString(16)}`;
 }
 
 export const SYSTEM = `You are Otto, a warm home-cooking companion inside the Otto app. You can look at and change the person's meal plan for the next 7 days, and find dinners in Otto's catalogue.
@@ -200,7 +265,8 @@ How you work:
 - Only plan dishes that find_dinners returned. Never invent a recipe id, a dish or a day outside the 7 days you were given.
 - find_dinners already leaves out the household's allergies, diet and the foods they skip. Don't promise anything beyond that: allergy checks are a filter, not a guarantee.
 - Do what was asked and no more. A whole week is at most 7 dinners. If something can't be done, say so plainly.
-- Every change can be undone in the app; don't ask for permission to make the change they just asked for.
+- Changes can be undone in the app; don't ask for permission to make the change they just asked for.
+- swap_in_plan only replaces a recipe with a recipe; leave notes, leftovers and "eating out" rows alone.
 - You can't change allergies, diet, the shopping list, the shared kitchen, billing, or delete recipes. Say where in the app to do it instead.
 
 Reply in one or two short plain sentences that say what you did. Never use the em dash character.`;

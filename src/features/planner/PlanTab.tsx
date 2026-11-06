@@ -21,7 +21,7 @@ const SEGMENTS = [
 ] as const;
 type Segment = (typeof SEGMENTS)[number]['value'];
 
-export function PlanTab({ planMyWeek }: Pick<PlanScreenProps, 'planMyWeek'>) {
+export function PlanTab({ planMyWeek, agentPrefs }: Pick<PlanScreenProps, 'planMyWeek' | 'agentPrefs'>) {
   const insets = useSafeAreaInsets();
   const [segment, setSegment] = useState<Segment>('week');
   const router = useRouter();
@@ -44,7 +44,7 @@ export function PlanTab({ planMyWeek }: Pick<PlanScreenProps, 'planMyWeek'>) {
         <SegmentBar segments={[...SEGMENTS]} selected={segment} onSelect={select} />
       </View>
       {segment === 'week' ? (
-        <PlanScreen embedded planMyWeek={planMyWeek} onOpenShopping={() => select('shopping')} />
+        <PlanScreen embedded planMyWeek={planMyWeek} agentPrefs={agentPrefs} onOpenShopping={() => select('shopping')} />
       ) : (
         <ShoppingScreen embedded onPlan={() => select('week')} />
       )}
