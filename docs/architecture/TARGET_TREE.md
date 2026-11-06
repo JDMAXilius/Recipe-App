@@ -76,6 +76,7 @@ Recipe-App/
 │   ├── catalogue/                         🆕 done — every action, bound to its runner (R0.9)
 │   │   ├── specs.ts                       🆕 done
 │   │   ├── index.ts                       🆕 done
+│   │   ├── claimDraft.ts · DraftClaim.tsx 🆕 done — the pre-account week onto the account (R0.3)
 │   │   └── catalogue.test.mjs             🆕 done
 │   │
 │   ├── shared/
@@ -120,7 +121,8 @@ Recipe-App/
 │   │   │   ├── FirstWeekScreen.tsx        🆕 (R1.4)
 │   │   │   ├── launch.ts (+test)          🆕 done — resolveLaunch, replaces gate.ts (R0.1)
 │   │   │   ├── gate.ts (+test)            🗑️ done — replaced by launch.ts
-│   │   │   ├── onboarding.draft.ts (+test)🆕 answers + week before the account (R0.3)
+│   │   │   ├── onboarding.draft.ts (+test)🆕 done — answers + week before the account (R0.3)
+│   │   │   ├── useDraft.ts                🆕 done
 │   │   │   ├── firstWeek.ts (+test)       🆕 done — buildFirstWeek (R0.6)
 │   │   │   └── useOnboarded.ts, index.ts  ✅
 │   │   ├── home/                          🆕 the Home tab (R3.2)

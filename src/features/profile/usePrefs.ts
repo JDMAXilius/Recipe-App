@@ -22,20 +22,22 @@ export interface PrefsState extends Prefs {
 
 let state: PrefsState = { ...DEFAULT_PREFS, unitSystem: 'metric' };
 const listeners = new Set<() => void>();
-let hydrated = false;
+let hydrating: Promise<void> | null = null;
 
 const emit = () => listeners.forEach((l) => l());
 
 // Load once from kv, then notify. Best-effort: a failed read leaves defaults.
-async function hydrate() {
-  if (hydrated) return;
-  hydrated = true;
-  const [rawPrefs, rawUnit] = await Promise.all([
-    kv.get<unknown>('prefs', null),
-    kv.get<unknown>('unitSystem', null),
-  ]);
-  state = { ...normalizePrefs(rawPrefs), unitSystem: deriveUnitSystem(rawUnit) };
-  emit();
+// One promise, so a writer can wait for it and never be overwritten by it.
+function hydrate(): Promise<void> {
+  hydrating ??= (async () => {
+    const [rawPrefs, rawUnit] = await Promise.all([
+      kv.get<unknown>('prefs', null),
+      kv.get<unknown>('unitSystem', null),
+    ]);
+    state = { ...normalizePrefs(rawPrefs), unitSystem: deriveUnitSystem(rawUnit) };
+    emit();
+  })();
+  return hydrating;
 }
 
 // Everything but the unit system (its own key). Moves to the account in R0.4.
@@ -59,6 +61,13 @@ function setCuisines(cuisines: string[]) {
 function toggleCuisine(area: string) {
   const has = state.cuisines.includes(area);
   setCuisines(has ? state.cuisines.filter((c) => c !== area) : [...state.cuisines, area]);
+}
+/** Replace the food preferences at once (the first-run answers, R0.3). */
+export async function savePrefs(raw: unknown): Promise<void> {
+  await hydrate();
+  state = { ...normalizePrefs(raw), unitSystem: state.unitSystem };
+  persistPrefs();
+  emit();
 }
 function setUnitSystem(raw: string) {
   state = { ...state, unitSystem: deriveUnitSystem(raw) };

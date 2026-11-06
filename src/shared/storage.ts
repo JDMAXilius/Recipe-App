@@ -13,6 +13,7 @@ export type StoreKey =
   | 'firstSaveCelebrated'
   | 'soundsEnabled'
   | 'shoppingState'
+  | 'onboardingDraft'
   | 'household'
   | 'householdRecent'
   | 'journal'

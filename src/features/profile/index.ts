@@ -5,7 +5,7 @@ export { ProfileScreen } from './ProfileScreen';
 export { PreferencesScreen } from './PreferencesScreen';
 // Cross-feature read surface (allowlist: profile → recipes/nutrition). One
 // writer (profile), many readers — see usePrefs.ts.
-export { usePrefs, type UsePrefs, type PrefsState } from './usePrefs';
+export { savePrefs, usePrefs, type UsePrefs, type PrefsState } from './usePrefs';
 export { HouseholdScreen } from './HouseholdScreen';
 export { OttoClubScreen } from './OttoClubScreen';
 export { FaqScreen } from './FaqScreen';

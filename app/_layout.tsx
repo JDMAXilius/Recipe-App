@@ -17,6 +17,7 @@ import { AiConsentHost, ErrorBoundary, ToastHost } from '@/shared/ui';
 import { OfflineBanner } from '@/shared/ui/OfflineBanner';
 import { supabase } from '@/shared/supabase/client';
 import { kv } from '@/shared/storage';
+import { DraftClaim } from '@/catalogue/DraftClaim';
 import '@/shared/online'; // NetInfo → onlineManager, AppState → focusManager
 import { timing } from '@/shared/theme/tokens';
 
@@ -93,6 +94,8 @@ export default function RootLayout() {
               <AiConsentHost />
               {/* Keeps OS reminders in step with the week + prefs from anywhere. */}
               <NotifSync />
+              {/* Puts the pre-account week and answers on the account, once. */}
+              <DraftClaim />
             </AuthProvider>
           </PersistQueryClientProvider>
         </SafeAreaProvider>
