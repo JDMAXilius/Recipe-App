@@ -18,6 +18,7 @@ import { useAuth } from '@/features/auth';
 import { pickFromLibrary } from '@/shared/imagePicker';
 import { showActionSheet } from '@/shared/actionSheet';
 import { RecipeInput } from './components/RecipeInput';
+import { insertAfter, moveBy } from './editor.logic';
 import { SnapSummary } from './components/SnapSummary';
 import { MAX_SERVINGS, formatYield, parseYield, singular, unitLabel } from '@/shared/yield';
 import { flags, openOtto } from '@/shared/flags';
@@ -155,6 +156,8 @@ export function EditRecipeScreen() {
   });
 
   const [aboutOpen, setAboutOpen] = useState(false);
+  // R6.7: the ingredient row a return just added, so its name field opens focused.
+  const [focusRow, setFocusRow] = useState<number | null>(null);
   // The picture-link field hides behind the Add photo tap (UX audit 07).
   const [photoTapped, setPhotoTapped] = useState(false);
 
@@ -181,6 +184,25 @@ export function EditRecipeScreen() {
     patch({ steps: form.steps.map((r, i) => (i === index ? value : r)) });
   const removeStep = (index: number) =>
     patch({ steps: form.steps.length > 1 ? form.steps.filter((_, i) => i !== index) : form.steps });
+
+  // R6.7 (flowV2): move a row up or down — long-press the handle, or the
+  // VoiceOver actions on it. A drag gesture can come later; this works today
+  // and for everyone.
+  const moveIngredient = (index: number, by: number) => {
+    haptics.select();
+    patch({ ingredients: moveBy(form.ingredients, index, by) });
+  };
+  const moveStep = (index: number, by: number) => {
+    haptics.select();
+    patch({ steps: moveBy(form.steps, index, by) });
+  };
+  const moveMenu = async (what: string, index: number, count: number, move: (i: number, by: number) => void) => {
+    const options = [index > 0 ? 'Move up' : null, index < count - 1 ? 'Move down' : null].filter(Boolean) as string[];
+    if (!options.length) return;
+    const pick = await showActionSheet({ title: `${what} ${index + 1}`, options });
+    if (pick == null) return;
+    move(index, options[pick] === 'Move up' ? -1 : 1);
+  };
 
   // Ask Otto = hop to chat (the ＋ tab), carrying whatever's typed so far.
   // The rendered ask rides the same consume-once shelf pattern as the AddSheet
@@ -302,13 +324,13 @@ export function EditRecipeScreen() {
         {form.mode !== 'import' && (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Ask Otto. He picks up from what you have typed"
+            accessibilityLabel={flags.flowV2 ? 'Otto, fill the gaps. He picks up from what you have typed' : 'Ask Otto. He picks up from what you have typed'}
             onPress={askOtto}
             style={askOttoRow}
           >
             <OttoArt name="happy" size={48} />
             <View style={{ flex: 1, gap: 2 }}>
-              <Text role="body">Ask Otto</Text>
+              <Text role="body">{flags.flowV2 ? 'Otto, fill the gaps' : 'Ask Otto'}</Text>
               <Text role="caption">He’ll pick up from whatever you’ve typed here.</Text>
             </View>
             <View style={askOttoArrow}>
@@ -480,8 +502,25 @@ export function EditRecipeScreen() {
                 onChangeText={(t) => setIngredient(index, 'name', t)}
                 placeholder="plain flour"
                 accessibilityLabel={`Ingredient ${index + 1} name`}
+                autoFocus={flags.flowV2 && index === focusRow && index > 0}
+                returnKeyType={flags.flowV2 && index === form.ingredients.length - 1 ? 'next' : undefined}
+                onSubmitEditing={
+                  flags.flowV2 && index === form.ingredients.length - 1 && row.name.trim()
+                    ? () => {
+                        patch({ ingredients: insertAfter(form.ingredients, index, emptyIngredient()) });
+                        setFocusRow(index + 1);
+                      }
+                    : undefined
+                }
               />
             </View>
+            {flags.flowV2 && form.ingredients.length > 1 && (
+              <MoveHandle
+                label={`Ingredient ${index + 1}`}
+                onMenu={() => void moveMenu('Ingredient', index, form.ingredients.length, moveIngredient)}
+                onMove={(by) => moveIngredient(index, by)}
+              />
+            )}
             <Pressable
               onPress={() => {
                 haptics.select();
@@ -526,6 +565,13 @@ export function EditRecipeScreen() {
                 multiline
               />
             </View>
+            {flags.flowV2 && form.steps.length > 1 && (
+              <MoveHandle
+                label={`Step ${index + 1}`}
+                onMenu={() => void moveMenu('Step', index, form.steps.length, moveStep)}
+                onMove={(by) => moveStep(index, by)}
+              />
+            )}
             <Pressable
               onPress={() => {
                 haptics.select();
@@ -590,5 +636,25 @@ export function EditRecipeScreen() {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+  );
+}
+
+// R6.7: the reorder handle. Long-press opens Move up / Move down; VoiceOver
+// gets the same two as custom actions (swipe up or down on the handle).
+function MoveHandle({ label, onMenu, onMove }: { label: string; onMenu: () => void; onMove: (by: number) => void }) {
+  return (
+    <Pressable
+      onLongPress={onMenu}
+      onPress={onMenu}
+      hitSlop={8}
+      accessibilityRole="adjustable"
+      accessibilityLabel={`Move ${label}`}
+      accessibilityHint="Swipe up or down to move it"
+      accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+      onAccessibilityAction={(e) => onMove(e.nativeEvent.actionName === 'decrement' ? 1 : -1)}
+      style={{ padding: space[2], paddingTop: space[3] }}
+    >
+      <Ionicons name="reorder-two" size={20} color={colors.inkSoft} />
+    </Pressable>
   );
 }

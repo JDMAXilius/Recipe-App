@@ -15,6 +15,9 @@ export interface RecipeInputProps {
   multiline?: boolean;
   autoFocus?: boolean;
   keyboardType?: 'default' | 'url';
+  /** R6.7: return on a row adds the next one (single-line fields only). */
+  onSubmitEditing?: () => void;
+  returnKeyType?: 'next' | 'done' | 'default';
 }
 
 const field: TextStyle = {
@@ -38,6 +41,8 @@ export function RecipeInput({
   multiline = false,
   autoFocus = false,
   keyboardType = 'default',
+  onSubmitEditing,
+  returnKeyType,
 }: RecipeInputProps) {
   return (
     <View>
@@ -58,6 +63,9 @@ export function RecipeInput({
         autoCapitalize={keyboardType === 'url' ? 'none' : 'sentences'}
         autoCorrect={keyboardType !== 'url'}
         accessibilityLabel={accessibilityLabel}
+        onSubmitEditing={onSubmitEditing}
+        returnKeyType={returnKeyType}
+        submitBehavior={onSubmitEditing ? 'submit' : undefined}
       />
     </View>
   );
