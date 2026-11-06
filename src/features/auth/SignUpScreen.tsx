@@ -10,9 +10,19 @@ import { SocialAuthButtons } from './components/SocialAuthButtons';
 
 const MIN_PASSWORD = 8; // same floor as change/reset password
 
+// What the person just planned, when sign-up is "Save your plan" (R1.5): the
+// route (app/, which may read onboarding) hands it in, so auth needn't.
+export interface SavePlanContext {
+  tonight: string; // tonight's dinner title
+  dinners: number;
+  onChangeAnswers: () => void;
+}
+
 // Sign-up — first contact. An anonymous guest upgrades IN PLACE (handled in
-// auth.queries.signUp) so their imports/plans/saves keep their owner.
-export function SignUpScreen() {
+// auth.queries.signUp) so their imports/plans/saves keep their owner. With a
+// saved week it is "Save your plan": same doors, no Skip; once the account
+// exists the launch claims the week and goes on to Otto Club.
+export function SignUpScreen({ savePlan }: { savePlan?: SavePlanContext | null } = {}) {
   const router = useRouter();
   const { signUp } = useAuth();
   const [email, setEmail] = useState('');
@@ -59,7 +69,16 @@ export function SignUpScreen() {
   }
 
   return (
-    <AuthScreenLayout title="Create your account" error={error}>
+    <AuthScreenLayout
+      title={savePlan ? 'Save your plan' : 'Create your account'}
+      subtitle={
+        savePlan
+          ? `${savePlan.dinners} dinners, starting with ${savePlan.tonight}. Make an account so your week and list are here tomorrow, on any phone.`
+          : undefined
+      }
+      hero={!savePlan}
+      error={error}
+    >
       <SocialAuthButtons mode="sign-up" onError={setError} />
       <AuthInput
         value={email}
@@ -94,8 +113,9 @@ export function SignUpScreen() {
           loading={loading}
         />
       </View>
-      <View style={{ marginTop: space[3] }}>
+      <View style={{ marginTop: space[3], gap: space[2] }}>
         <TextLink title="Already have an account? Sign in" onPress={() => router.push('/(auth)/sign-in')} />
+        {savePlan && <TextLink title="Change my answers" onPress={savePlan.onChangeAnswers} />}
       </View>
       <AuthLegal />
     </AuthScreenLayout>

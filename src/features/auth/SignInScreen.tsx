@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { flags } from '@/shared/flags';
 import { Button, TextLink } from '@/shared/ui';
 import { space } from '@/shared/theme/tokens';
 import { useAuth } from './AuthProvider';
@@ -73,7 +74,11 @@ export function SignInScreen() {
       </View>
       <View style={{ marginTop: space[3] }}>
         <TextLink title="Forgot your password?" onPress={() => router.push('/(auth)/forgot-password')} />
-        <TextLink title="New to Otto? Create account" onPress={() => router.push('/(auth)/sign-up')} />
+        <TextLink
+          title={flags.flowV2 ? 'New to Otto? Plan your week' : 'New to Otto? Create account'}
+          // The rework starts with the questions; the account comes at Save your plan.
+          onPress={() => router.push(flags.flowV2 ? '/welcome' : '/(auth)/sign-up')}
+        />
       </View>
       <AuthLegal />
     </AuthScreenLayout>

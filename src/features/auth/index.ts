@@ -5,7 +5,7 @@
 export { AuthProvider, useAuth, type AuthValue } from './AuthProvider';
 
 export { SignInScreen } from './SignInScreen';
-export { SignUpScreen } from './SignUpScreen';
+export { SignUpScreen, type SavePlanContext } from './SignUpScreen';
 export { ForgotPasswordScreen } from './ForgotPasswordScreen';
 export { ResetPasswordScreen } from './ResetPasswordScreen';
 export { ChangePasswordScreen } from './ChangePasswordScreen';
