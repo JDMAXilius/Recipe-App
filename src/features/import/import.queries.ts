@@ -232,7 +232,7 @@ function rowToDraft(row: Tables<'recipes'>): Draft {
   };
 }
 
-// The size columns exist only once 20261106120000_recipe_size is applied; an
+// The size columns come from 20261106042712_recipe_size (applied 2026-11-06); an
 // older database simply returns no such keys and the recipe reads as servings.
 function sizeFromRow(row: Tables<'recipes'>): RecipeSize | null {
   if (!row.yield_qty || !row.yield_unit) return null;

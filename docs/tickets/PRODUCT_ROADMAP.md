@@ -54,6 +54,8 @@ Three rules shaped this order.
 | G-11 | AI-written recipes get images: catalogue match first, else a generated food image (amends the 2026-07-21 "no AI food photography presented as real" rule) | Foundations | **Decided: photorealistic generated images, tagged "AI image", never passed off as a real dish** (Juan, 2026-11-05; ADR-0014 replaces painted) | ADR-0013 |
 | G-12 | Where cook times come from (the catalogue has none) | Foundations | Estimate once from the steps, store with `~`, spot-check a sample; never invent precise minutes | R0.14 |
 
+**2026-11-06 — Juan:** yes to every recommended answer above (G-1 to G-8, G-12); Paste a link stays; ADR-0009 and ADR-0010 accepted. Done the same day: G-3 (dictation on-device where supported), the recipe-size and plan-list migrations applied to production, `scan-meal` deployed.
+
 ---
 
 ## 3. Releases

@@ -2,8 +2,7 @@
 -- with an optional label. Additive and nullable: existing rows keep their
 -- insert order (position null sorts after positioned rows, see
 -- src/features/planner/plan.list.ts) and older app builds are unaffected.
--- NOT APPLIED automatically: apply with Juan's go-ahead, then regenerate
--- src/types/database.ts and turn on EXPO_PUBLIC_FLOW_V2.
+-- Applied to production 2026-11-06 (Juan's go-ahead) as this version.
 
 alter table public.plan_entries
   add column if not exists position double precision,

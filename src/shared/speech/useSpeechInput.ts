@@ -2,17 +2,14 @@
 // expo-speech-recognition: interim transcripts stream to onTranscript, the
 // caller owns the TextInput state and every toast — this hook is UI-free.
 //
-// PRIVACY, stated correctly (the A2 audit caught this comment asserting the
-// opposite): recognition is **NOT on-device**. `requiresOnDeviceRecognition`
-// defaults to false in the library and is not set here or in app.json, so on
-// iOS the AUDIO is streamed to Apple's speech service and Otto receives only
-// the transcript. Apple is therefore a recipient of voice data and must appear
-// as such in the App Privacy label and the privacy policy.
-//
-// Founder call pending: flip `requiresOnDeviceRecognition: true` (keeps audio
-// on the phone; costs accuracy and is unavailable on older devices) or keep
-// server recognition and disclose it. Do NOT "fix" this by editing the comment
-// back — the label and the code have to say the same thing.
+// PRIVACY (G-3, Juan 2026-11-06): recognition runs ON THE PHONE whenever the
+// phone supports it (`requiresOnDeviceRecognition`, checked per start with
+// supportsOnDeviceRecognition). Then the audio never leaves the device and
+// Otto receives only the transcript. On a phone without on-device support the
+// library falls back to Apple's speech service, so Apple stays a possible
+// recipient of voice data and the App Privacy answers must still say so
+// (docs/legal/APP_PRIVACY_TRUTH_TABLE.md row 14). The label and the code have
+// to say the same thing.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { joinTranscript, mapSpeechError, type SpeechInputError } from './speech.logic';
 
@@ -28,6 +25,16 @@ try {
     .ExpoSpeechRecognitionModule;
 } catch {
   speech = null;
+}
+
+// Keep the audio on the phone when it can be (G-3); older phones fall back to
+// Apple's service rather than losing dictation.
+function onDevice(): boolean {
+  try {
+    return speech?.supportsOnDeviceRecognition() ?? false;
+  } catch {
+    return false;
+  }
 }
 
 function checkAvailable(): boolean {
@@ -99,7 +106,7 @@ export function useSpeechInput(
       prefixRef.current = prefix;
       ignoreResultsRef.current = false;
       setListening(true);
-      speech.start({ lang: 'en-US', interimResults: true });
+      speech.start({ lang: 'en-US', interimResults: true, requiresOnDeviceRecognition: onDevice() });
     } finally {
       startingRef.current = false;
     }

@@ -1,6 +1,6 @@
 # ADR-0010: Preferences live on the account, not only on the phone
 
-- **Status:** Proposed
+- **Status:** Accepted (Juan, 2026-11-06). Condition: update the App Privacy answers (allergies on the server) before the next submission; built in R0.4.
 - **Date:** 2026-11-04
 - **Deciders:** Juan decides (rework roadmap D1)
 

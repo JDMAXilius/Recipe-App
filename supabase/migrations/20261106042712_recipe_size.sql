@@ -3,8 +3,7 @@
 -- servings stays the count and the only nutrition divisor; these columns add
 -- the words. Additive and nullable: existing rows and older app builds are
 -- unaffected, and a null size reads as "N servings".
--- NOT APPLIED automatically: apply with Juan's go-ahead, then regenerate
--- src/types/database.ts and turn on EXPO_PUBLIC_FLOW_V2.
+-- Applied to production 2026-11-06 (Juan's go-ahead) as this version.
 
 alter table public.recipes
   add column if not exists yield_qty numeric

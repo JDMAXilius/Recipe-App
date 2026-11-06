@@ -1,6 +1,6 @@
 # ADR-0009: First run shows value before the account: questions → first week → save your plan → paywall
 
-- **Status:** Proposed
+- **Status:** Accepted (Juan, 2026-11-06). Built behind flowV2 (rework roadmap R0.1–R0.3, R1.2–R1.6).
 - **Date:** 2026-11-04
 - **Deciders:** Juan reviews · drafted by Claude
 

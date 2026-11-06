@@ -12,8 +12,8 @@ One short record per decision that shapes Otto's architecture, flow or product m
 | [0006](0006-ai-runs-on-openai-behind-supabase-edge-functions-with-per-pr.md) | AI runs on OpenAI behind Supabase Edge Functions, with per-provider consent | Accepted | 2026-11-02 (backfilled) |
 | [0007](0007-one-visual-style-light-only-no-dark-mode.md) | One visual style: light only, no Dark Mode | Accepted | 2026-11-04 |
 | [0008](0008-tab-bar-home-plan-cookbook-account-with-otto-ai-in-the-trail.md) | Tab bar: Home · Plan · Cookbook · Account, with Otto AI in the trailing circle | Accepted | 2026-11-04 |
-| [0009](0009-first-run-shows-value-before-the-account-questions-first-wee.md) | First run shows value before the account: questions → first week → save your plan → paywall | Proposed | 2026-11-04 |
-| [0010](0010-preferences-live-on-the-account-not-only-on-the-phone.md) | Preferences live on the account, not only on the phone | Proposed | 2026-11-04 |
+| [0009](0009-first-run-shows-value-before-the-account-questions-first-wee.md) | First run shows value before the account: questions → first week → save your plan → paywall | Accepted | 2026-11-06 |
+| [0010](0010-preferences-live-on-the-account-not-only-on-the-phone.md) | Preferences live on the account, not only on the phone | Accepted | 2026-11-06 |
 | [0013](0013-magic-moments-snap-any-dish-and-otto-plans-your-week.md) | Magic moments: Snap any dish and Otto plans your week; meals are a free list | Accepted | 2026-11-05 |
 | [0014](0014-ai-recipe-images-are-photorealistic-and-tagged.md) | AI-written recipe images are photorealistic, tagged "AI image" (supersedes 0013 decision 4) | Accepted | 2026-11-05 |
 | [0015](0015-scan-means-a-meal-recipes-come-in-by-meal-photo-text-voice-or-editor.md) | "Scan" means a meal; recipes come in by meal photo, free text, voice, or the editor | Accepted | 2026-11-05 |

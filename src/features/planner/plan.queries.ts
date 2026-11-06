@@ -49,7 +49,7 @@ export async function addPlanEntry(userId: string, input: AddPlanInput): Promise
   return data;
 }
 
-// The free-list columns exist only once 20261106130000_plan_list is applied;
+// The free-list columns come from 20261106042714_plan_list (applied 2026-11-06);
 // a build with the flag off never sends them.
 function listColumns(input: AddPlanInput) {
   if (!flags.flowV2) return {};

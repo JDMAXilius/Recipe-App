@@ -16,7 +16,7 @@ Today's Add screen (`src/features/import/AddSheet.tsx:197-205`) has four tiles: 
    - **Say it**: talk through the recipe. On-device speech-to-text fills the same box, then Otto structures it. Same path as Write or paste.
    - **Write it yourself**: today's editor, made more dynamic: inline edits, add steps and ingredients in place, reorder by dragging, Otto fills the gaps on request.
 3. All four end in the same review-first card (ingredients with amounts, steps, servings and unit, `~` nutrition) before saving.
-4. **Open question for Juan:** keep **Paste a link** (websites, TikTok and Instagram captions)? It isn't scanning, so this record keeps it until Juan decides.
+4. **Paste a link stays** (Juan, 2026-11-06): websites, TikTok and Instagram captions. It isn't scanning.
 
 ## Consequences
 - Planned removal (ticket R6.6): the "Snap a photo" recipe-page tile, `VISION_INSTRUCTION`'s transcription prompt and decline rules in `imageMode.ts`, `useImportFromPhoto`'s page-transcription use, and the camera primer copy "Snap a cookbook page". These are replaced by the meal-scan pipeline.
