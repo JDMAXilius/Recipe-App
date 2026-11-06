@@ -318,6 +318,16 @@ async function profilesOwnRow(A, B) {
   check("profiles: A reads A's own", r.status === 200 && rows(r)[0]?.diet === "vegan", JSON.stringify(r.data));
 }
 
+// rate_limits (R0.12): only the service role may record or read hits.
+async function rateLimitsServiceOnly(A) {
+  for (const [who, token] of [["anon", null], ["A", A.token]]) {
+    const r = await rest("/rest/v1/rpc/rate_limit_hit", { method: "POST", token, body: { p_key: `x:${A.id}`, p_limit: 1, p_window_seconds: 60 } });
+    check(`limits: ${who} cannot call rate_limit_hit`, r.status >= 400, `status ${r.status} ${JSON.stringify(r.data)}`);
+  }
+  const r = await rest("/rest/v1/rate_limits?select=key", { token: A.token });
+  check("limits: the table is not readable", r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
+}
+
 const A = await signUp("a");
 const B = await signUp("b");
 console.log(`Signed up throwaway users A=${A.email} B=${B.email} (deleted at the end via delete-account)`);
@@ -328,6 +338,7 @@ await enumerationAsAnon(B);
 await definerFunctions(A, B);
 await eventsAndJoins(A, B);
 await profilesOwnRow(A, B);
+await rateLimitsServiceOnly(A);
 
 // Clean up through the real account-deletion path, so the run leaves nothing
 // behind in prod AND exercises delete-account end to end.

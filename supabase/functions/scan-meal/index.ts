@@ -8,7 +8,7 @@
 // scan (3 per device, DeviceCheck/App Attest) is a separate step (R0.16).
 // The photo is sent to OpenAI for this one call and not stored here.
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { getUserId, json, preflight, rateLimited, requireClub } from "../_shared/http.ts";
+import { getUserId, json, preflight, rateLimitedDurable, requireClub } from "../_shared/http.ts";
 import { checkImage } from "../_shared/image.ts";
 import { askJson, type ChatMessage, openaiActive } from "../_shared/openai.ts";
 import { checkScan, SCAN_SCHEMA, SCAN_SYSTEM, shapeScan, type ScanRecipe } from "./scan.ts";
@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
   if (!userId) return json(401, { error: "Missing or invalid access token" });
   const club = await requireClub(userId);
   if (club) return club;
-  if (rateLimited(`scan:${userId}`, 10, 15 * 60 * 1000)) {
+  if (await rateLimitedDurable(`scan:${userId}`, 10, 15 * 60 * 1000)) {
     return json(429, { error: "That's a lot of snaps. Give Otto a few minutes." });
   }
 

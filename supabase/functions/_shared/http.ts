@@ -108,3 +108,22 @@ export function rateLimited(key: string, limit: number, windowMs: number): boole
   buckets.set(key, hits);
   return false;
 }
+
+// R0.12: the same limit, kept in Postgres (rate_limit_hit), so it holds across
+// isolates and cold starts. If the database can't answer, the in-memory
+// limit decides rather than letting everything through or nothing.
+export async function rateLimitedDurable(key: string, limit: number, windowMs: number): Promise<boolean> {
+  const local = rateLimited(key, limit, windowMs);
+  try {
+    const { data, error } = await serviceClient().rpc("rate_limit_hit", {
+      p_key: key,
+      p_limit: limit,
+      p_window_seconds: Math.ceil(windowMs / 1000),
+    });
+    if (error) throw error;
+    return data === true;
+  } catch (error) {
+    console.error("rate limit check failed", (error as Error).message);
+    return local;
+  }
+}

@@ -3,7 +3,7 @@
 // what's included (their rows, nothing else); no service role. Product
 // events are write-only by design (no client read), so they aren't listed.
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { getUserId, json, preflight, rateLimited } from "../_shared/http.ts";
+import { getUserId, json, preflight, rateLimitedDurable } from "../_shared/http.ts";
 
 const TABLES = ["profiles", "recipes", "favorites", "plan_entries", "recipe_shares", "list_shares", "household_members", "memberships"] as const;
 
@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json(405, { error: "POST only" });
   const userId = await getUserId(req);
   if (!userId) return json(401, { error: "Missing or invalid access token" });
-  if (rateLimited(`export:${userId}`, 5, 60 * 60 * 1000)) {
+  if (await rateLimitedDurable(`export:${userId}`, 5, 60 * 60 * 1000)) {
     return json(429, { error: "You just downloaded your data. Try again in a while." });
   }
   const asUser = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
