@@ -15,7 +15,6 @@ const MIN_PASSWORD = 8; // same floor as change/reset password
 export interface SavePlanContext {
   tonight: string; // tonight's dinner title
   dinners: number;
-  onChangeAnswers: () => void;
 }
 
 // Sign-up — first contact. An anonymous guest upgrades IN PLACE (handled in
@@ -113,9 +112,8 @@ export function SignUpScreen({ savePlan }: { savePlan?: SavePlanContext | null }
           loading={loading}
         />
       </View>
-      <View style={{ marginTop: space[3], gap: space[2] }}>
+      <View style={{ marginTop: space[3] }}>
         <TextLink title="Already have an account? Sign in" onPress={() => router.push('/(auth)/sign-in')} />
-        {savePlan && <TextLink title="Change my answers" onPress={savePlan.onChangeAnswers} />}
       </View>
       <AuthLegal />
     </AuthScreenLayout>
