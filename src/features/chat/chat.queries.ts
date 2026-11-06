@@ -5,6 +5,7 @@
 import { FunctionsHttpError } from '@supabase/supabase-js';
 import { fetch } from 'expo/fetch';
 import { z } from 'zod';
+import { flags } from '@/shared/flags';
 import { supabase } from '@/shared/supabase/client';
 import { feedSse } from './sse.logic';
 import type { ChatResponse, WireMessage } from './chat.types';
@@ -51,7 +52,9 @@ function messageForStatus(status: number, bodyError?: string): string {
     case 401:
       return 'Sign in to chat with Otto.';
     case 429:
-      return 'Otto needs a breather. Give it a few minutes and try again.';
+      return flags.flowV2
+        ? 'Otto needs a breather: that’s 20 chats in 15 minutes. Try again in a few minutes.'
+        : 'Otto needs a breather. Give it a few minutes and try again.';
     case 503:
       return "Otto's kitchen is still being wired up. Check back soon.";
     case 502:
@@ -131,7 +134,12 @@ export async function sendChatStreaming(
   const { data: sessionData } = await supabase.auth.getSession();
   const token = sessionData.session?.access_token;
 
+  // S4 (flowV2): a turn that hasn't started answering in 60 s is called, so
+  // the person isn't left watching a spinner; the line stays for Try again.
+  const abort = flags.flowV2 ? new AbortController() : null;
+  const timer = abort ? setTimeout(() => abort.abort(), 60_000) : null;
   const response = await fetch(`${supabaseUrl}/functions/v1/generate-recipe`, {
+    signal: abort?.signal,
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token ?? anonKey}`,
@@ -139,9 +147,17 @@ export async function sendChatStreaming(
       'content-type': 'application/json',
     },
     body: JSON.stringify({ messages, ...opts, stream: true }),
-  }).catch(() => {
-    throw new Error("Otto can't reach the kitchen. Check your connection and try again.");
-  });
+  })
+    .catch(() => {
+      throw new Error(
+        abort?.signal.aborted
+          ? 'Otto took too long on that one. Try again.'
+          : "Otto can't reach the kitchen. Check your connection and try again.",
+      );
+    })
+    .finally(() => {
+      if (timer) clearTimeout(timer);
+    });
 
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as { error?: string } | null;

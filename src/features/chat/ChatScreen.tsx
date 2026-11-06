@@ -231,6 +231,7 @@ export function ChatScreen({ context }: { context?: ChatOptions } = {}) {
               error={chat.error}
               onPickOption={onPickChip}
               onReview={onReview}
+              onRetry={flags.flowV2 && chat.canRetry ? chat.retry : undefined}
             />
           )}
         </ScrollView>

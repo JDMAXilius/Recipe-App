@@ -18,6 +18,8 @@ export interface TranscriptProps {
   error: string | null;
   onPickOption: (option: string) => void;
   onReview: (recipe: ChatRecipe) => void;
+  /** S4: ask again for the failed turn; absent = no Retry button. */
+  onRetry?: () => void;
 }
 
 const PRESENCE = 72;
@@ -133,13 +135,14 @@ function RecipePreview({ recipe, onReview }: { recipe: ChatRecipe; onReview: () 
 // accessibilityRole="alert" maps to NO iOS trait, so a failed send was silent
 // to VoiceOver: focus stayed on Send and the user believed the message went.
 // Announce it, the same way Toast does and for the same reason.
-function ErrorRow({ message }: { message: string }) {
+function ErrorRow({ message, onRetry }: { message: string; onRetry?: () => void }) {
   useEffect(() => {
     AccessibilityInfo.announceForAccessibility(message);
   }, [message]);
   return (
-    <View accessibilityRole="alert" style={{ marginBottom: space[3] }}>
+    <View accessibilityRole="alert" style={{ marginBottom: space[3], gap: space[2], alignItems: 'flex-start' }}>
       <Text role="computed">{message}</Text>
+      {onRetry && <Button title="Try again" variant="secondary" onPress={onRetry} />}
     </View>
   );
 }
@@ -152,6 +155,7 @@ export const Transcript = React.memo(function Transcript({
   error,
   onPickOption,
   onReview,
+  onRetry,
 }: TranscriptProps) {
   return (
     <View>
@@ -194,7 +198,7 @@ export const Transcript = React.memo(function Transcript({
         </View>
       )}
 
-      {error != null && <ErrorRow message={error} />}
+      {error != null && <ErrorRow message={error} onRetry={onRetry} />}
     </View>
   );
 });

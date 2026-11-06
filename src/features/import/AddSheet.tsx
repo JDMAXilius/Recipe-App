@@ -65,6 +65,8 @@ export function AddSheet({ onClose }: AddSheetProps) {
   const [url, setUrl] = useState('');
   const [text, setText] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // S4 (flowV2): the photo of a failed snap, so Try again doesn't mean a new shot.
+  const [failedPhoto, setFailedPhoto] = useState<{ image: string; mimeType: string } | null>(null);
   // Pasted text is the one thing here that's work to redo; back / edge-swipe
   // asks before throwing it away. `handingOff` lets the editor hand-off
   // through — the text was used, not lost (a state reset lands too late).
@@ -179,17 +181,29 @@ export function AddSheet({ onClose }: AddSheetProps) {
       return;
     }
     if (offline()) return; // the connection can drop while the camera is open
+    await readPhoto(read, { image: picked.base64, mimeType: picked.mimeType ?? 'image/jpeg' });
+  };
+
+  const readPhoto = async (
+    read: (photo: { image: string; mimeType: string }) => Promise<Draft>,
+    photo: { image: string; mimeType: string },
+  ) => {
+    setFailedPhoto(null);
     try {
-      const draft = await read({
-        image: picked.base64,
-        mimeType: picked.mimeType ?? 'image/jpeg',
-      });
+      const draft = await read(photo);
       track('dish_snapped', { ok: true, before_account: false, questions_asked: draft.snap?.questions.length ?? 0, matched_catalogue: !!draft.snap?.closest });
       openEditor(draft);
     } catch (err) {
       track('dish_snapped', { ok: false, before_account: false, questions_asked: 0, matched_catalogue: false });
       setError(err instanceof Error ? err.message : "Otto couldn't read that photo. Try another shot.");
+      if (flags.flowV2) setFailedPhoto(photo);
     }
+  };
+
+  const retryPhoto = () => {
+    if (!failedPhoto || offline()) return;
+    setError(null);
+    void readPhoto(scanMut.mutateAsync, failedPhoto);
   };
 
   const tap = (m: Exclude<Mode, null>) => {
@@ -308,8 +322,9 @@ export function AddSheet({ onClose }: AddSheetProps) {
           )}
 
           {error != null && (
-            <View accessibilityRole="alert">
+            <View accessibilityRole="alert" style={{ gap: space[2], alignItems: 'flex-start' }}>
               <Text role="computed">{error}</Text>
+              {failedPhoto && <Button title="Try again with this photo" variant="secondary" onPress={retryPhoto} />}
             </View>
           )}
 
