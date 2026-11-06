@@ -5,7 +5,7 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { getUserId, json, preflight, rateLimitedDurable } from "../_shared/http.ts";
 
-const TABLES = ["profiles", "recipes", "favorites", "plan_entries", "recipe_shares", "list_shares", "household_members", "memberships"] as const;
+const TABLES = ["profiles", "recipes", "favorites", "plan_entries", "recipe_shares", "list_shares", "household_members", "memberships", "shopping_lists", "agent_actions"] as const;
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
