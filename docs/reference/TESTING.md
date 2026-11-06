@@ -94,3 +94,23 @@ Plus: `expo prebuild` clean, EAS build succeeds, TestFlight upload.
   `rebuild/v2` until cutover — they are the pinning source for every port.
 - A packet's verifier runs L1+L2 always, L3 when the packet has a screen.
 - Gate M4 = review loop dry twice → this doc's L4 checklist → founder.
+
+## RLS attack suite (A5)
+
+`supabase/migrations/tests/rls-attacks.test.mjs` signs up two throwaway users
+and has each try to read, change and delete the other's rows on every table,
+call the definer functions, write events as someone else, and guess kitchen
+codes past the join limit. The attacks failing is the pass (78 checks,
+2026-11-06).
+
+- **CI** (`.github/workflows/ci.yml`, job `rls`): `supabase start` builds a
+  throwaway local database from `supabase/migrations`, then the suite runs
+  against it with `RLS_URL` / `RLS_ANON_KEY`. Never production.
+- **Local**: Docker running, then
+  `npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit,realtime,postgres-meta`,
+  `eval "$(npx supabase status -o env)"`,
+  `RLS_URL="$API_URL" RLS_ANON_KEY="$ANON_KEY" node supabase/migrations/tests/rls-attacks.test.mjs`.
+- Without `RLS_URL` the script reads `.env.development`, which is the
+  production project: that run creates two real accounts and deletes them
+  through `delete-account`. Only do it on purpose.
+- A new table needs its own attack cases here in the same change.

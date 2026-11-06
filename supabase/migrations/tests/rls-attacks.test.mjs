@@ -13,10 +13,13 @@ import { randomBytes } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// RLS_URL / RLS_ANON_KEY point the suite at a local stack (CI: `supabase
+// start`, then this script). Without them it reads .env.development, which is
+// the PRODUCTION project: that run creates two real throwaway accounts.
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-const env = readFileSync(join(root, ".env.development"), "utf8");
-const URL_ = env.match(/^EXPO_PUBLIC_SUPABASE_URL=(.+)$/m)?.[1]?.trim();
-const ANON = env.match(/^EXPO_PUBLIC_SUPABASE_ANON_KEY=(.+)$/m)?.[1]?.trim();
+const env = process.env.RLS_URL ? "" : readFileSync(join(root, ".env.development"), "utf8");
+const URL_ = process.env.RLS_URL ?? env.match(/^EXPO_PUBLIC_SUPABASE_URL=(.+)$/m)?.[1]?.trim();
+const ANON = process.env.RLS_ANON_KEY ?? env.match(/^EXPO_PUBLIC_SUPABASE_ANON_KEY=(.+)$/m)?.[1]?.trim();
 if (!URL_ || !ANON) {
   console.error("Missing EXPO_PUBLIC_SUPABASE_URL / _ANON_KEY in .env.development");
   process.exit(2);
@@ -231,9 +234,11 @@ async function enumerationAsAnon(B) {
   // status 200 — RLS-enabled + no-anon-policy also returns 200 with [], so a
   // deleted read policy would false-PASS a status-only check (prod has rows).
   let r = await rest("/rest/v1/seed_nutrition?select=recipe_id&limit=1");
-  check("enum: anon CAN read seed_nutrition", r.status === 200 && rows(r).length >= 1, `status ${r.status}, ${rows(r).length} rows`);
+  // Public by design (catalogue caches); a fresh local stack has no rows, so
+  // readability is the claim, not a row count.
+  check("enum: anon CAN read seed_nutrition", r.status === 200 && Array.isArray(rows(r)), `status ${r.status}`);
   r = await rest("/rest/v1/resolved_ingredients?select=name&limit=1");
-  check("enum: anon CAN read resolved_ingredients", r.status === 200 && rows(r).length >= 1, `status ${r.status}, ${rows(r).length} rows`);
+  check("enum: anon CAN read resolved_ingredients", r.status === 200 && Array.isArray(rows(r)), `status ${r.status}`);
   // but neither anon NOR an authenticated user may write them (service-role only).
   // A stray `to authenticated` INSERT policy would let any signed-in user poison
   // the shared nutrition cache for everyone — attack both roles.
@@ -268,6 +273,35 @@ async function definerFunctions(A, B) {
   check("fn: B call of admin_delete_user_data is DENIED not missing", r.status === 403 || r.status === 401, `status ${r.status} (404 = function absent!)`);
 }
 
+// app_events (R0.8): insert own only; nobody reads, changes or deletes.
+// household_join_attempts + join limit (A2).
+async function eventsAndJoins(A, B) {
+  const row = (user_id) => ({ user_id, device_id: "rls-device-0001", name: "paywall_viewed", props: { variant: "generic" }, occurred_at: new Date().toISOString() });
+  let r = await rest("/rest/v1/app_events", { method: "POST", token: A.token, body: row(A.id) });
+  check("events: A can write A's event", r.status === 201, `status ${r.status} ${JSON.stringify(r.data)}`);
+  r = await rest("/rest/v1/app_events", { method: "POST", token: B.token, body: row(A.id) });
+  check("events: B cannot write an event as A", r.status === 401 || r.status === 403, `status ${r.status}`);
+  r = await rest("/rest/v1/app_events", { method: "POST", body: row(A.id) });
+  check("events: anon cannot write events", r.status === 401 || r.status === 403, `status ${r.status}`);
+  for (const [who, token] of [["A", A.token], ["B", B.token], ["anon", null]]) {
+    r = await rest("/rest/v1/app_events?select=id", { token });
+    check(`events: ${who} reads no events`, r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
+  }
+  r = await rest(`/rest/v1/app_events?user_id=eq.${A.id}`, { method: "DELETE", token: A.token, headers: { prefer: "return=representation" } });
+  check("events: A cannot delete A's events", (r.status === 200 && rows(r).length === 0) || r.status === 401 || r.status === 403, `status ${r.status}`);
+
+  r = await rest("/rest/v1/household_join_attempts?select=user_id", { token: B.token });
+  check("joins: attempts are not readable", r.status === 200 && rows(r).length === 0, `status ${r.status}, ${rows(r).length} rows`);
+  r = await rest("/rest/v1/rpc/join_household", { method: "POST", token: B.token, body: { code: "ZZZZZZ" } });
+  check("joins: a wrong code answers null, not an error", r.status === 200 && r.data === null, `status ${r.status} ${JSON.stringify(r.data)}`);
+  for (let i = 0; i < 9; i++) await rest("/rest/v1/rpc/join_household", { method: "POST", token: B.token, body: { code: "ZZZZZZ" } });
+  r = await rest("/rest/v1/rpc/join_household", { method: "POST", token: B.token, body: { code: "ZZZZZZ" } });
+  check("joins: the 11th try in 15 minutes is refused", r.status >= 400 && /Too many tries/.test(JSON.stringify(r.data)), `status ${r.status} ${JSON.stringify(r.data)}`);
+  r = await rest("/rest/v1/rpc/join_household", { method: "POST", body: { code: "ZZZZZZ" } });
+  // Refused by the grant (401/403) or by the function itself ("Sign in…").
+  check("joins: anon cannot join", r.status === 401 || r.status === 403 || (r.status === 400 && /Sign in/.test(JSON.stringify(r.data))), `status ${r.status} ${JSON.stringify(r.data)}`);
+}
+
 const A = await signUp("a");
 const B = await signUp("b");
 console.log(`Signed up throwaway users A=${A.email} B=${B.email} (deleted at the end via delete-account)`);
@@ -276,10 +310,13 @@ await seedAsA(A);
 await attackAsB(A, B);
 await enumerationAsAnon(B);
 await definerFunctions(A, B);
+await eventsAndJoins(A, B);
 
 // Clean up through the real account-deletion path, so the run leaves nothing
 // behind in prod AND exercises delete-account end to end.
-for (const u of [A, B]) {
+// A local stack (RLS_URL) runs without edge functions and is thrown away
+// whole, so there is nothing to clean.
+for (const u of process.env.RLS_URL ? [] : [A, B]) {
   const r = await rest("/functions/v1/delete-account", { method: "POST", token: u.token });
   check(`cleanup: delete-account removes ${u.email}`, r.status === 200, `status ${r.status} ${JSON.stringify(r.data)}`);
 }
