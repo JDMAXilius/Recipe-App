@@ -1,5 +1,9 @@
--- Security hardening from the 2026-11-06 audit (NOT YET APPLIED; renamed to
--- the recorded version once it is).
+-- Security hardening from the 2026-11-06 audit. PARTLY APPLIED (2026-11-07):
+-- done = the invite columns + index (security_hardening_1_invite_columns) and
+-- join_household + rotate_invite_code (security_hardening_2_join_and_rotate).
+-- NOT YET: remove_household_member, the resolved_ingredients policy drop, the
+-- list_shares cap and the recipe-photos limits + delete policy (their applies
+-- ask a confirmation). Split into its applied versions once all of it is in.
 --
 -- 1. resolved_ingredients: the nutrition cache held every name a person typed
 --    (private recipes included) and anyone with the public key could read it.

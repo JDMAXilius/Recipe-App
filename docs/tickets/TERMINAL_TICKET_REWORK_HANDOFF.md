@@ -29,8 +29,11 @@
      actually fixes it: forks and clones keep the old history either way.
   Tick each line here and say so in the roadmap Log.
 
-- [ ] **T17. Apply the security hardening migration** if the cloud session couldn't (its apply asks
-  a confirmation that never reached Juan). Run `supabase/migrations/20261107020000_security_hardening.sql`
+- [ ] **T17. Finish the security hardening migration.** Applied by the cloud session 2026-11-07:
+  invite expiry columns, `join_household` (expiry + global cap), `rotate_invite_code`. **Still to
+  run** (each apply asks a confirmation): `remove_household_member`, dropping the
+  `resolved_ingredients_read_all` policy, the `list_shares_payload_size` check, and the
+  recipe-photos bucket limits + delete policy — the rest of the file below. Run `supabase/migrations/20261107020000_security_hardening.sql`
   in the Supabase SQL editor as one script (it passed 115/115 in the RLS suite on a local stack).
   Then rename the file to the version Supabase records (`list_migrations`), drop its "NOT YET
   APPLIED" line, and check: `select policyname from pg_policies where tablename='resolved_ingredients'`
